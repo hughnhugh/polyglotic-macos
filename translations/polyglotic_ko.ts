@@ -1410,11 +1410,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">입력이 허용되지 않음 - 설정 &gt; 음성 입력을 확인하세요</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Sign in to dictate</source>
         <translation type="unfinished">음성 입력하려면 로그인하세요</translation>
     </message>
@@ -4916,6 +4911,44 @@
     </message>
 </context>
 <context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Polyglotic을 응용 프로그램으로 옮길까요?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic이 응용 프로그램 폴더 밖(다운로드 폴더 등)에서 열려서 Mac이 임시 사본으로 실행하고 있습니다. 이 상태에서는 스스로 업데이트할 수 없습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">직접 하려면: Polyglotic을 종료하고 Finder에서 응용 프로그램으로 드래그한 뒤 거기서 여세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">응용 프로그램으로 옮기기</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">나중에</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic을 응용 프로그램으로 옮기지 못했습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">옮기면 Polyglotic이 응용 프로그램에서 다시 열립니다.</translation>
+    </message>
+</context>
+<context>
     <name>OneCopy</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
@@ -6035,17 +6068,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">영어가 colour, centre, organise처럼 나옵니다.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic이 다른 앱에 입력하도록 허용되지 않아 말한 내용이 입력되지 않습니다. 시스템 설정에서 &apos;개인정보 보호 및 보안&apos;을 열고 &apos;손쉬운 사용&apos;으로 이동한 다음 Polyglotic을 켜세요.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">시스템 설정 열기</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

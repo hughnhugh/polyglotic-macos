@@ -1414,11 +1414,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">Tippen nicht erlaubt – siehe Einstellungen &gt; Diktat</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Sign in to dictate</source>
         <translation type="unfinished">Melde dich zum Diktieren an</translation>
     </message>
@@ -4930,6 +4925,44 @@
     </message>
 </context>
 <context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Polyglotic in „Programme“ verschieben?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic wurde außerhalb deines Ordners „Programme“ geöffnet, vielleicht aus „Downloads“. Deshalb führt dein Mac es aus einer vorübergehenden Kopie aus. Von dort kann es sich nicht selbst aktualisieren.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">So geht es von Hand: Beende Polyglotic, ziehe es im Finder in „Programme“ und öffne es dort.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">In „Programme“ verschieben</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">Nicht jetzt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic konnte sich nicht in „Programme“ verschieben.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">Danach öffnet sich Polyglotic wieder aus „Programme“.</translation>
+    </message>
+</context>
+<context>
     <name>OneCopy</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
@@ -6050,17 +6083,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Englisch kommt als colour, centre und organise heraus.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic darf nicht in andere Apps tippen, deshalb wird nichts getippt, was du sagst. Öffne in den Systemeinstellungen „Datenschutz &amp; Sicherheit“, dann „Bedienungshilfen“, und aktiviere Polyglotic.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">Systemeinstellungen öffnen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

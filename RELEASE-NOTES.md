@@ -26,11 +26,6 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
-- On a Mac, captions stay over full-screen videos and apps, and on
-  every desktop (Space). Polyglotic lives in the menu bar there, not the
-  Dock: its icon at the top of the screen opens Home and Settings.
-- On a Mac, dictation types into the app you're using: hold Right ⌘ and
-  speak. macOS asks once for the Accessibility permission it needs.
 - Every language with a dictionary keeps your words, as Chinese and
   English do: learn Russian, Spanish, Japanese or any other language
   whose dictionary is downloaded, and a word's card has Save to, Add to
@@ -99,6 +94,10 @@ the app's What's new, the website's What's new and the Discord post.
   Dictation uses the microphone chosen too.
 - A locked caption window can be unlocked from the window itself: rest
   the mouse on the lock in its corner for a moment, then click Unlock.
+- On a Mac, Polyglotic opened from Downloads (or anywhere but
+  Applications) offers once to move itself to Applications and opens
+  again from there: macOS runs it from a temporary copy elsewhere, and
+  from that copy it can't update itself.
 
 ### Better
 

@@ -107,7 +107,6 @@ class Dictating(QObject):
         parent: QObject | None = None,
         mic_held: Callable[[bool, float], None] = lambda _held, _tail: None,
         forget_unsent: Callable[[], None] = lambda: None,
-        typing_allowed: Callable[[], bool] = lambda: True,
     ) -> None:
         """`send`: a piece's request and its speech, to the listening
         session. `session(True)`: dictation needs a listening session now -
@@ -115,10 +114,7 @@ class Dictating(QObject):
         longer does. `clock`: monotonic seconds. `mic_held(True, 0)`: the
         mic is dictation's from now; `mic_held(False, tail)`: it's let go
         `tail` seconds from now (polyglotic-hq 299). `forget_unsent`: the
-        pieces given up that still wait to be sent are dropped.
-        `typing_allowed`: whether the OS lets the app type (a Mac's
-        Accessibility, polyglotic-hq 438) - asked when typing fails, so the
-        sign says why."""
+        pieces given up that still wait to be sent are dropped."""
         super().__init__(parent)
         self.settings = settings
         self.dictation = Dictation()
@@ -127,7 +123,6 @@ class Dictating(QObject):
         self._session, self._clock = session, clock
         self._mic_held = mic_held
         self._forget_unsent = forget_unsent
-        self._typing_allowed = typing_allowed
         self._unanswered: Said | None = None
         """Why the listening session can't answer now; None: it may."""
         self._live: set[int] = set()
@@ -331,9 +326,7 @@ class Dictating(QObject):
             if self._window() != text.target:
                 self.dictation.not_typed(Said.WINDOW_CHANGED)
             elif not self._type(text.text):
-                self.dictation.not_typed(
-                    Said.NOT_TYPED if self._typing_allowed() else Said.NOT_ALLOWED
-                )
+                self.dictation.not_typed(Said.NOT_TYPED)
 
     @Slot()
     def _read_esc(self) -> None:
