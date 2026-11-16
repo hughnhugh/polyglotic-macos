@@ -25,6 +25,10 @@
 #   app's own capture (`--check-capture`), and the permission taken away
 #   (NOT_ALLOWED); about 3 minutes plus `drift_minutes`. Fails only on a
 #   fail; unknown is what the machine didn't let us see.
+# - parity: the caption windows over a full-screen TextEdit, read from the
+#   window list (levels and order, never pictures), and dictation's typing
+#   and key (tools/macos_parity_checks.py, polyglotic-hq 429); about 2
+#   minutes. On by default, so the mirror's --parts leaves it on.
 #
 # How Claude runs it (gh, from a desktop worktree):
 #   gh workflow run macos.yml --ref <branch> [-f pack=false -f measure=false ...]
@@ -60,6 +64,10 @@ on:
         default: true
       capture:
         description: Mac capture's checks on BlackHole (taps, the mic, the packed app's capture)
+        type: boolean
+        default: true
+      parity:
+        description: The caption windows over a full-screen app, and dictation typing into TextEdit
         type: boolean
         default: true
       drift_minutes:
@@ -124,6 +132,12 @@ jobs:
       - name: Import rule (import-linter)
         if: ${{ !cancelled() && inputs.tests }}
         run: uv run --no-sync lint-imports
+
+      # 429: TextEdit full-screen, the caption window's level and place read
+      # from the window list; typed words read back through Accessibility
+      - name: The caption windows over full-screen apps, and dictation's typing
+        if: ${{ !cancelled() && inputs.parity }}
+        run: uv run --no-sync python -m tools.macos_parity_checks "$OUT/parity/parity.json"
 
       # The pinned sources are checked against their SHA-256 either way
       # (tools/dictionaries/sources.py); the cache only saves downloading.
@@ -192,6 +206,10 @@ jobs:
               echo "### Measured"
               uv run --no-sync python -c "import json,sys; print('~~~'); print(json.dumps(json.load(open(sys.argv[1]))['summary'], indent=1)); print('~~~')" "$OUT/measure.json"
             fi
+            if [ -f "$OUT/parity/parity.json" ]; then
+              echo "### Parity"
+              uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/parity/parity.json"
+            fi
             if [ -f "$OUT/capture/capture.json" ]; then
               echo "### Capture"
               uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/capture/capture.json"
@@ -210,6 +228,7 @@ jobs:
             ${{ env.OUT }}/pack/
             ${{ env.OUT }}/measure.json
             ${{ env.OUT }}/capture/
+            ${{ env.OUT }}/parity/
           retention-days: 1
           if-no-files-found: ignore
 
