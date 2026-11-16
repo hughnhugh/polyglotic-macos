@@ -627,7 +627,7 @@ def updater(feed: str) -> VelopackUpdater:
     """The installer's updates from `feed`, checked against `FEED_KEYS` when
     it's the built-in feed and they're set. Checked packages are kept beside
     `current` in the install folder (Velopack's place for files that may go
-    with an uninstall)."""
+    with an uninstall) - on a Mac, outside the app (`verified_feed_folder`)."""
     release = this_release()
     signed = feed == UPDATES and bool(FEED_KEYS)
     return VelopackUpdater(
@@ -635,9 +635,32 @@ def updater(feed: str) -> VelopackUpdater:
         FEED_KEYS if signed else (),
         release.channel,
         release.version,
-        Path(sys.executable).parent.parent / "verified-feed",
+        verified_feed_folder(),
         open_url=_open_url,
     )
+
+
+def verified_feed_folder(
+    executable: str | Path | None = None, home: Path | None = None
+) -> Path:
+    """Where the signed feed and its checked package wait for Velopack
+    (decision 0019): beside `current` in Velopack's install folder on
+    Windows (`%LOCALAPPDATA%/Polyglotic/verified-feed`); on a Mac, in
+    `~/Library/Caches/Polyglotic/verified-feed` - never inside the app
+    bundle, whose signature seals everything in it, so a file written there
+    would break the signature macOS keeps the learner's permissions under
+    (polyglotic-hq 430, decision 0196). `executable`: the packed app's
+    (`sys.executable` unless given)."""
+    path = Path(executable if executable is not None else sys.executable)
+    if path.parent.name == "MacOS" and path.parent.parent.name == "Contents":
+        return (
+            (home or Path.home())
+            / "Library"
+            / "Caches"
+            / "Polyglotic"
+            / "verified-feed"
+        )
+    return path.parent.parent / "verified-feed"
 
 
 def pack_storage(

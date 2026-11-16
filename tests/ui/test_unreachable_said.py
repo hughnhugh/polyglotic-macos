@@ -33,7 +33,6 @@ from polyglotic_desktop.ui_next import home as home_page
 from polyglotic_desktop.ui_next.caption_window import notice_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.help_page import HelpPage
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.caption_window import Notice, Notices
 from polyglotic_desktop.ui_next.views.home import (
     HomeState,
@@ -118,18 +117,11 @@ def test_what_the_learner_can_fix_says_see_home_on_the_windows(
 ) -> None:
     desktop, windows, built = hub
     QtListener(desktop, None)._show_status(waiting(Unreachable.CLOCK))
-    assert built.home.state.title_label.text() == pc_or_mac(
-        "Check this PC's date and time", "Check this Mac's date and time"
-    )
-    assert pc_or_mac("Time & language", "Date & Time") in (
-        built.home.state.detail.text()
-    )
+    assert built.home.state.title_label.text() == "Check this PC's date and time"
+    assert "Time & language" in built.home.state.detail.text()
     window = windows.windows["Web Browser"]
     window._tick()
-    assert window.notice.text() == pc_or_mac(
-        "Check this PC's date and time - see Home",
-        "Check this Mac's date and time - see Home",
-    )
+    assert window.notice.text() == "Check this PC's date and time - see Home"
 
 
 def test_a_certificate_out_of_date_on_a_right_clock_names_an_antivirus_or_a_vpn(
@@ -164,12 +156,8 @@ def test_the_date_a_wrong_clock_says_is_on_home(
         stopped_date.currentDate(), QLocale.FormatType.LongFormat
     )
     assert built.home.state.detail.text().startswith(
-        pc_or_mac(
-            f"this PC says it's {today}, which can't be right. Turn on Set time"
-            " automatically",
-            f"this Mac says it's {today}, which can't be right. Turn on Set time"
-            " and date automatically",
-        )
+        f"this PC says it's {today}, which can't be right. Turn on Set time"
+        " automatically"
     )
 
 
@@ -195,8 +183,7 @@ def test_a_clock_that_looks_wrong_is_on_homes_banner_while_captions_work(
         stopped_date.currentDate(), QLocale.FormatType.LongFormat
     )
     assert home.notice.text().startswith(
-        pc_or_mac("This PC's", "This Mac's")
-        + f" date or time looks wrong: it says {today}, "
+        f"This PC's date or time looks wrong: it says {today}, "
     )
     assert "Captions work" in home.notice.text()
     assert not home.notice.isHidden()
@@ -272,16 +259,12 @@ def test_too_many_sessions_says_what_to_do_not_reconnecting(
     desktop, windows, built = hub
     QtListener(desktop, None)._show_status(waiting(Unreachable.TOO_MANY_SESSIONS, 60.0))
     home = built.home.state
-    assert home.title_label.text() == (
-        "Polyglotic is open on too many of your " + pc_or_mac("PCs", "computers")
-    )
+    assert home.title_label.text() == "Polyglotic is open on too many of your PCs"
     assert home.detail.text().startswith("your account has as many open as it can")
     assert home.detail.text().endswith("trying again in 60 s")
     window = windows.windows["Web Browser"]
     window._tick()
-    assert window.notice.text() == (
-        f"Open on too many of your {pc_or_mac('PCs', 'computers')} - see Home"
-    )
+    assert window.notice.text() == "Open on too many of your PCs - see Home"
 
 
 def test_the_windows_count_down_only_where_waiting_is_the_answer() -> None:
