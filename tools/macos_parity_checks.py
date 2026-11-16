@@ -386,7 +386,69 @@ class Checks:
         if blackhole_uid is None:
             self.add("voice_heard", UNKNOWN, "no BlackHole: nothing to hear it on")
             return
-        speaker = SpeakerThread(MacVoices(), AudioPlayer)
+        import ctypes as _c
+
+        from polyglotic_desktop.platform.macos import capture as _cap
+        from polyglotic_desktop.platform.macos import objc as _objc
+
+        trace: list[Any] = []
+        t0 = time.perf_counter()
+
+        def ms() -> int:
+            return round((time.perf_counter() - t0) * 1000)
+
+        class TracedVoices(MacVoices):
+            def synthesize(self, text: str, voice: Any, rate: float) -> Any:
+                trace.append(("synth", ms(), text[:3]))
+                try:
+                    clip = super().synthesize(text, voice, rate)
+                except Exception as e:
+                    trace.append(("synth-failed", ms(), repr(e)))
+                    raise
+                trace.append(("synth-ok", ms(), round(clip.seconds, 3), clip.rate))
+                return clip
+
+        class TracedPlayer(AudioPlayer):
+            def start(self, clip: Any) -> bool:
+                trace.append(("start", ms(), _cap._default_output()))
+                with _objc.pool():
+                    _objc.load("AVFoundation")
+                    from polyglotic_desktop.platform.macos import cf as _cf
+                    from polyglotic_desktop.platform.macos.voices import wav_of
+
+                    data = _cf.create_data(wav_of(clip))
+                    with _cf.owned(data):
+                        error = _c.c_void_p()
+                        player = _objc.send(
+                            _objc.send(_objc.cls("AVAudioPlayer"), "alloc"),
+                            "initWithData:error:",
+                            data,
+                            _c.byref(error),
+                            argtypes=[_c.c_void_p, _c.POINTER(_c.c_void_p)],
+                        )
+                    if not player:
+                        why = None
+                        if error.value:
+                            why = _objc.text(_objc.send(error.value, "description"))
+                        trace.append(("init-failed", ms(), why))
+                        return False
+                    self._player = int(player)
+                    prepared = _objc.send(player, "prepareToPlay", restype=_c.c_bool)
+                    played = _objc.send(player, "play", restype=_c.c_bool)
+                    dur = _objc.send(player, "duration", restype=_c.c_double)
+                    trace.append(
+                        ("played", ms(), bool(prepared), bool(played), round(dur, 3))
+                    )
+                    if not played:
+                        self.stop()
+                        return False
+                    return True
+
+            def stop(self) -> None:
+                trace.append(("stop", ms()))
+                super().stop()
+
+        speaker = SpeakerThread(TracedVoices(), TracedPlayer)
         speaker.look_for_voices()
         self.pump(lambda: bool(speaker.voices()), 30)
         found = speaker.voices()
@@ -400,7 +462,7 @@ class Checks:
         ended: list[bool] = []
         mic = capture.MicCapture(blackhole_uid)
         mic.start(lambda _start, samples: heard.append(samples))
-        speaking = "polyglotic_desktop.platform.speaking"
+        speaking = "polyglotic_desktop"
         with warnings_of(speaking) as why:
             try:
                 self.pump(lambda: False, 1.5)
@@ -412,6 +474,17 @@ class Checks:
                     ended.append,
                 )
                 self.pump(lambda: bool(ended), 15)
+                trace.append(("ended1", ms(), list(ended)))
+                ended2: list[bool] = []
+                speaker.say(
+                    "Polyglotic",
+                    english,
+                    1.0,
+                    lambda at, s: trace.append(("sounding2", ms())),
+                    ended2.append,
+                )
+                self.pump(lambda: bool(ended2), 15)
+                trace.append(("ended2", ms(), list(ended2)))
                 self.pump(lambda: False, 1.0)
             finally:
                 mic.stop()
@@ -419,7 +492,8 @@ class Checks:
         loud = peak(heard)
         facts = {"voice": english.name, "sounding": sounding, "ended": ended,
                  "peak_heard": loud, "mic_error": mic.error,
-                 "speaker_warned": why}  # fmt: skip
+                 "speaker_warned": why, "trace": trace,
+                 "default_output": _cap._default_output()}  # fmt: skip
         if ended == [True] and sounding and loud > 0.01:
             self.add(
                 "voice_heard",
@@ -612,6 +686,7 @@ def isolated(out: Path, name: str, blackhole: str | None) -> list[Result]:
     except subprocess.TimeoutExpired:
         return [Result(name, FAIL, "the child process didn't end in 240 s")]
     print(done.stdout, end="", flush=True)
+    print(done.stderr[-1500:], end="", flush=True)
     part = out / f"{name}.json"
     try:
         return [Result(**r) for r in json.loads(part.read_text(encoding="utf-8"))]
@@ -655,7 +730,8 @@ def main(argv: list[str] | None = None) -> int:
         ("menu_keys", checks.menu_keys),
         ("voices_listed", checks.voices_listed),
         ("voice_made", checks.voice_made),
-        ("voice_heard", lambda: checks.voice_heard(blackhole)),
+        *[("voice_heard", lambda: checks.voice_heard(blackhole))]
+        * int(os.environ.get("VOICE_TRIES", "20")),
         ("menu_bar", checks.menu_bar),
         ("login_item", checks.login_item),
     ]
