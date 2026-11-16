@@ -4911,44 +4911,6 @@
     </message>
 </context>
 <context>
-    <name>MoveToApplications</name>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move Polyglotic to Applications?</source>
-        <translation type="unfinished">要將 Polyglotic 移到「應用程式」嗎？</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
-        <translation type="unfinished">Polyglotic 是在「應用程式」檔案夾以外開啟的（可能是從「下載項目」），所以你的 Mac 從一份暫時的拷貝執行它。在那裡它無法自動更新。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
-        <translation type="unfinished">自行操作：結束 Polyglotic，在 Finder 中把它拖到「應用程式」，然後從那裡開啟。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move to Applications</source>
-        <translation type="unfinished">移到「應用程式」</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Not now</source>
-        <translation type="unfinished">以後再說</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
-        <translation type="unfinished">Polyglotic 無法將自己移到「應用程式」。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move it, and Polyglotic opens again from Applications.</source>
-        <translation type="unfinished">移動後，Polyglotic 會從「應用程式」重新開啟。</translation>
-    </message>
-</context>
-<context>
     <name>OneCopy</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>

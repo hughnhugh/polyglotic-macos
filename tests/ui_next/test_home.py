@@ -15,6 +15,7 @@ from polyglotic_desktop.ui_next.controls import label
 from polyglotic_desktop.ui_next.home import HomePage, StateCard
 from polyglotic_desktop.ui_next.languages import not_offered_note
 from polyglotic_desktop.ui_next.main_window import FLOOR, FRAME, MINIMUM, MainWindow
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.home import (
     AddableApp,
     AppRow,
@@ -314,7 +315,8 @@ def test_everything_the_pc_plays_replaces_the_rows(qapp: QApplication) -> None:
         )
     )
     card = page.picker_card
-    assert card.count.text() == "This PC" and card.adding.isHidden()
+    assert card.count.text() == pc_or_mac("This PC", "This Mac")
+    assert card.adding.isHidden()
     assert card.rows["system"].stop.isHidden()  # Apps | Everything switches it
 
 

@@ -21,6 +21,7 @@ from polyglotic_desktop.ui_next.home import (
     learning_unsaved_notice,
 )
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.caption_window import Notice
 from polyglotic_desktop.ui_next.views.placement import Rect
 
@@ -109,7 +110,8 @@ def test_helps_check_says_where_the_file_is_and_reports_its_kind(
 
     assert not help_page.learning.isHidden()
     assert help_page.learning.text().endswith(
-        "Your learning data on this PC was damaged and has been set aside"
+        f"Your learning data on this {pc_or_mac('PC', 'Mac')} was damaged and has"
+        " been set aside"
     )
     assert str(ASIDE.path) in help_page.learning_then.text()
     help_page._report()
@@ -145,7 +147,9 @@ def test_found_damaged_later_home_says_restart_once_its_found(
     help_page.refresh()
     assert not help_page.learning.isHidden()
     then = help_page.learning_then.text()
-    assert then.startswith("Changes aren't kept on this PC until you restart")
+    assert then.startswith(
+        f"Changes aren't kept on this {pc_or_mac('PC', 'Mac')} until you restart"
+    )
     assert str(ASIDE.path) in then
     help_page._report()
     assert reported[-1].endswith(

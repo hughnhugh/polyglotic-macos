@@ -4911,44 +4911,6 @@
     </message>
 </context>
 <context>
-    <name>MoveToApplications</name>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move Polyglotic to Applications?</source>
-        <translation type="unfinished">Alihkan Polyglotic ke Aplikasi?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
-        <translation type="unfinished">Polyglotic dibuka di luar folder Aplikasi anda, mungkin dari Muat Turun, jadi Mac anda menjalankannya daripada salinan sementara. Dari situ, ia tidak boleh mengemas kini dirinya sendiri.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
-        <translation type="unfinished">Untuk melakukannya sendiri: keluar daripada Polyglotic, seret ia ke Aplikasi dalam Finder, dan buka ia di situ.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move to Applications</source>
-        <translation type="unfinished">Alihkan ke Aplikasi</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Not now</source>
-        <translation type="unfinished">Bukan sekarang</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
-        <translation type="unfinished">Polyglotic tidak dapat mengalihkan dirinya ke Aplikasi.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move it, and Polyglotic opens again from Applications.</source>
-        <translation type="unfinished">Alihkannya, dan Polyglotic dibuka semula dari Aplikasi.</translation>
-    </message>
-</context>
-<context>
     <name>OneCopy</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>

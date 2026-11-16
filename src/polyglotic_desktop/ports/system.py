@@ -20,9 +20,7 @@ hands over:
 - `ErrorBox` - the box an installed app shows when it can't start, without
   Qt;
 - `LaunchClock` - seconds since this process was launched, for the
-  install check's start time;
-- `Translocation` - whether macOS runs the app from a temporary copy it
-  can't update itself in, and moving it to Applications (polyglotic-hq 433).
+  install check's start time.
 
 Audio has its own: `ports/capture.py`; the device token too:
 `ports/credentials.py`.
@@ -132,24 +130,3 @@ closed - for when the app can't start, so not through Qt."""
 LaunchClock = Callable[[], float]
 """Seconds since this process was launched (the interpreter and the
 imports included)."""
-
-
-class Translocation(Protocol):
-    """macOS's App Translocation (polyglotic-hq 433, decision 0205): an app
-    downloaded from the internet and opened outside Applications (from
-    Downloads, say) runs from a read-only copy macOS makes at a random path,
-    which Velopack can't replace, so it never updates."""
-
-    def translocated(self) -> bool:
-        """Whether this app runs from such a copy."""
-        ...
-
-    def move(self) -> Path:
-        """Moves the app itself (not the copy) into Applications - or the
-        user's own Applications folder when that one can't be written - and
-        returns where it is now. Raises `OSError` if it can't."""
-        ...
-
-    def reopen(self, app: Path) -> None:
-        """Opens the app at `app` once this process has ended."""
-        ...
