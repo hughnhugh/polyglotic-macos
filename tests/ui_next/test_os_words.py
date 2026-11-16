@@ -2,10 +2,7 @@
 says PC or Windows, a Mac shows its own, and Windows' text is unchanged.
 The guard: every interface string that says PC or Windows has a Mac
 counterpart through `pc_or_mac` - unless it's for a feature the Mac build
-hides - and no Mac counterpart says PC or Windows. Since 451 it hears
-Windows' other words too: the tray (a Mac's icon sits in the menu bar),
-Task Manager, the Win key and Right Ctrl; and a shortcut with Ctrl says
-Command's on a Mac."""
+hides - and no Mac counterpart says PC or Windows."""
 
 import ast
 import re
@@ -19,19 +16,13 @@ from polyglotic_desktop.ui_next import os_words
 from polyglotic_desktop.ui_next.sound_card import default_name
 
 SOURCE = Path(__file__).resolve().parents[2] / "src" / "polyglotic_desktop"
-WINDOWS_WORDS = re.compile(
-    r"\bWindows\b|\bPCs?\b|\bPC's\b|\btray\b|Task Manager|\bWin\b|Right Ctrl"
-)
+WINDOWS_WORDS = re.compile(r"\bWindows\b|\bPCs?\b|\bPC's\b")
 WRAPPERS = ("_tr", "_trn", "_tr_app", "tr")
 HIDDEN_ON_A_MAC = {
     # a metered connection: macOS isn't asked (OsAdapters.metered)
     "Paused: Windows says this connection is metered. {size} left to download.",
     # dictation's key: not held on a Mac (OsAdapters.hold_key)
     "Windows keeps that one for itself: choose another.",
-    # a key's name: a Mac names its modifiers itself (dictation_key._mac_name)
-    "Win",
-    "Right Win",
-    "Right Ctrl",
 }
 
 
@@ -74,9 +65,11 @@ def test_every_pc_string_has_a_mac_one() -> None:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         paired: set[int] = set()
         for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and ast.unparse(node.func).endswith(
-                "pc_or_mac"
-            ):  # `pc_or_mac(...)` or `os_words.pc_or_mac(...)`
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "pc_or_mac"
+            ):
                 for arg in node.args:
                     paired.add(id(arg))
                 mac = node.args[1]
@@ -103,13 +96,6 @@ def test_every_pc_string_has_a_mac_one() -> None:
         ),
         ("Drücke Strg+Alt+H.", "Drücke ⌃⌘H."),  # German's translation
         ("Ctrl+Alt+D", "Ctrl+Alt+D"),  # dictation's key: not one of the hotkeys
-        # Qt's Ctrl is Command on a Mac (451)
-        ("Bigger text (Ctrl+wheel)", "Bigger text (⌘+wheel)"),
-        ("Größere Schrift (Strg+Mausrad)", "Größere Schrift (⌘+Mausrad)"),
-        (
-            "Copy the word, its reading and meaning (Ctrl+C)",
-            "Copy the word, its reading and meaning (⌘C)",
-        ),
     ],
 )
 def test_a_mac_names_the_hotkeys_its_own_way(
@@ -138,25 +124,3 @@ def test_no_text_names_windows_hotkeys_on_a_mac(
     texts += [home._detail(Detail.RESUME, None), lock_tip("⌃⌘L")]
     assert not [t for t in texts if re.search(r"(Ctrl|Strg)\+Alt\+[LPH]", t)]
     assert sum("⌃⌘" in t for t in texts) >= 5
-
-
-def test_every_ctrl_shortcut_is_said_the_macs_way() -> None:
-    """A text naming a shortcut with Ctrl ("Ctrl+wheel", "Ctrl+C") goes
-    through `hotkeys_here`, so a Mac says Command's (polyglotic-hq 451)."""
-    alone = []
-    for path in sorted(SOURCE.rglob("*.py")):
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        said: set[int] = set()
-        for node in ast.walk(tree):
-            if (
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id == "hotkeys_here"
-            ):
-                said.update(id(n) for n in ast.walk(node))
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and _wrapper(node) and id(node) not in said:
-                text = _text(node.args[0]) or ""
-                if re.search(r"\bCtrl\+(?!Alt\+[LPH]\b)", text):
-                    alone.append(f"{path.name}:{node.lineno} {text[:60]}")
-    assert alone == [], "say it as a Mac does: hotkeys_here(_tr(...))"

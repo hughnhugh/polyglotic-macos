@@ -160,13 +160,7 @@ from polyglotic_desktop.adapters.velopack_updates import (
     VelopackUpdater,
     run_installer_hooks,
 )
-from polyglotic_desktop.connection.app import (
-    FIRST_CHANNEL,
-    MAC_FIRST_CHANNEL,
-    AppInfo,
-    Release,
-    this_release,
-)
+from polyglotic_desktop.connection.app import AppInfo, this_release
 from polyglotic_desktop.core.learning.first_known import (
     Before,
     QuickMarks,
@@ -665,23 +659,12 @@ Velopack reads the feed as it is (0.1.0 did). Up to two keys while one replaces
 the other. Changed only by a pull request, like the addresses."""
 
 
-def this_copys_release(system: str = sys.platform) -> Release:
-    """This copy's release (`this_release`): run from source, `0.0.0` on the
-    first channel of this OS's builds (`system`: `sys.platform`'s name, as
-    `os_adapters` takes it) - on a Mac `macos-arm64-alpha`, which Settings >
-    Updates names, not Windows' `win-x64-alpha` (polyglotic-hq 451). A
-    packed app reads its stamp, whatever the OS."""
-    return this_release(
-        first=MAC_FIRST_CHANNEL if system == "darwin" else FIRST_CHANNEL
-    )
-
-
 def updater(feed: str) -> VelopackUpdater:
     """The installer's updates from `feed`, checked against `FEED_KEYS` when
     it's the built-in feed and they're set. Checked packages are kept beside
     `current` in the install folder (Velopack's place for files that may go
     with an uninstall) - on a Mac, outside the app (`verified_feed_folder`)."""
-    release = this_copys_release()
+    release = this_release()
     signed = feed == UPDATES and bool(FEED_KEYS)
     return VelopackUpdater(
         feed,
@@ -5820,7 +5803,7 @@ def check_install(
     started = time.perf_counter()
     found: dict[str, object] = {"frozen": installed()}
     try:
-        release = this_copys_release()
+        release = this_release()
         found.update(version=release.version, channel=release.channel)
         existing = QApplication.instance()
         app = (
@@ -6356,7 +6339,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     crashed = last_crash(data / CRASH_NOTE)  # before this run can note one
     crashes.install()
-    release = this_copys_release()
+    release = this_release()
     log.info(
         "Polyglotic %s (%s), taskbar ID %s%s",
         release.version,

@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">Berhenti - keluar dari bar menu dan mulakan semula</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus telah tamat - kapsyen berhenti; lihat Utama</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">Dikunci - buka kunci di Utama atau dari bar menu</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Kunci - klik menembusi ke apa yang ada di bawah, Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Kunci - klik menembusi ke apa yang ada di bawah. Untuk buka kunci, rehatkan tetikus pada ikon kunci di sudut, atau guna Utama atau dulang sistem</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">Kunci - klik menembusi ke apa yang ada di bawah. Untuk buka kunci, rehatkan tetikus pada ikon kunci di sudut, atau guna Utama atau bar menu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1066,11 +1051,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Hentikan kapsyen dan tutup Polyglotic - menutup tetingkap menyimpannya dalam bar menu</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Sambung semula</translation>
     </message>
@@ -1123,11 +1103,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">Ia ada dalam bar menu. Sambung semula atau keluar dari situ.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic masih berjalan</translation>
     </message>
@@ -1135,11 +1110,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Ia ada dalam dulang sistem. Keluar dari situ.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">Ia ada dalam bar menu. Keluar dari situ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1846,11 +1816,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">Ia memuat turun kemas kini dan dimulakan semula dengan sendirinya. Jika tidak, keluar dari bar menu dan mulakannya semula.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Pelayan sibuk</translation>
     </message>
@@ -1868,11 +1833,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Keluar dari dulang sistem dan mulakan Polyglotic semula. Jika ia terus berlaku, laporkan masalah.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">Keluar dari bar menu dan mulakan Polyglotic semula. Jika ia terus berlaku, laporkan masalah.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1993,18 +1953,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">Pilih Sambung semula di Utama atau dalam menu di bar menu, atau tekan Ctrl+Alt+P.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Pilih Sambung semula di Utama atau dalam menu dulang sistem.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">Pilih Sambung semula di Utama atau dalam menu di bar menu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2018,18 +1968,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Tekan Ctrl+Alt+H, atau gunakan Sembunyikan semua di Utama atau menu di bar menu. Transkrip sesuatu apl menunjukkan sama ada kapsyen sedang tiba.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Gunakan Sembunyikan semua di Utama atau menu dulang sistem. Transkrip sesuatu apl menunjukkan sama ada kapsyen sedang tiba.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Gunakan Sembunyikan semua di Utama atau menu di bar menu. Transkrip sesuatu apl menunjukkan sama ada kapsyen sedang tiba.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2123,11 +2063,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">Hidupkan Tunjukkan pertuturan saya di sini dalam tetapan tetingkap kapsyen, atau Kapsyen untuk pertuturan saya sendiri dalam menu di bar menu untuk setiap tetingkap. Ia mati sehingga anda berbuat demikian, dan audio mikrofon anda pergi ke pelayan hanya semasa sesuatu tetingkap memaparkannya.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Alih, kunci dan ubah saiz tetingkap kapsyen</translation>
     </message>
@@ -2140,11 +2075,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Seret tetingkap kapsyen untuk mengalihkannya, atau seret tepinya untuk mengubah saiz. Kunci semua, di Utama atau dalam menu dulang sistem, membenarkan klik menembusi. Hilang satu? Tetapkan semula kedudukan di Utama meletakkan setiap tetingkap kembali.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">Seret tetingkap kapsyen untuk mengalihkannya, atau seret tepinya untuk mengubah saiz. Kunci semua, di Utama atau dalam menu di bar menu, membenarkan klik menembusi. Hilang satu? Tetapkan semula kedudukan di Utama meletakkan setiap tetingkap kembali.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2163,11 +2093,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">Tetingkap kapsyen tidak pernah mengambil papan kekunci atau tetikus permainan: ia tidak pernah menjadi tetingkap aktif. Letakkan di tempat yang tidak menutup apa yang perlu anda lihat, kemudian Kunci semua di Utama atau dalam menu di bar menu supaya klik sampai ke permainan. Permainan dalam skrin penuh eksklusif menutup setiap tetingkap lain: pilih skrin penuh tanpa sempadan atau bertetingkap sebaliknya.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">Imlak ke dalam mana-mana program (pratonton)</translation>
     </message>
@@ -2175,11 +2100,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Hidupkan Imlak dalam Tetapan &gt; Imlak, atau dalam menu dulang sistem. Tahan {key} dan bercakap; lepaskan, dan perkataan anda ditaip di tempat kursor anda. Esc membatalkan sebelum ia ditaip. Untuk menggunakan kekunci atau gabungan lain, klik kekunci dalam Tetapan &gt; Imlak dan tekan yang anda mahu.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">Hidupkan Imlak dalam Tetapan &gt; Imlak, atau dalam menu di bar menu. Tahan {key} dan bercakap; lepaskan, dan perkataan anda ditaip di tempat kursor anda. Esc membatalkan sebelum ia ditaip. Untuk menggunakan kekunci atau gabungan lain, klik kekunci dalam Tetapan &gt; Imlak dan tekan yang anda mahu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2435,18 +2355,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">sambung semula di sini atau dari bar menu</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">sambung semula dengan Ctrl+Alt+P, atau dari dulang sistem</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">sambung semula dengan Ctrl+Alt+P, atau dari bar menu</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2469,11 +2379,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">keluar dari dulang sistem dan mulakan Polyglotic semula - jika ia terus berhenti, Bantuan boleh menyemak apa yang tidak kena</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">keluar dari bar menu dan mulakan Polyglotic semula - jika ia terus berhenti, Bantuan boleh menyemak apa yang tidak kena</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2509,11 +2414,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">kemas kini telah dimuat turun - keluar dari dulang sistem dan mulakan Polyglotic semula untuk memasangnya</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">kemas kini telah dimuat turun - keluar dari bar menu dan mulakan Polyglotic semula untuk memasangnya</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5147,11 +5047,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic sudah dibuka, tetapi tidak bertindak balas. Tunggu sebentar, kemudian buka semula. Jika masih tidak muncul, tamatkan Polyglotic dalam Pengurus Tugas, kemudian buka semula.</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Polyglotic sudah dibuka, tetapi tidak bertindak balas. Tunggu sebentar, kemudian buka semula. Jika masih tidak muncul, paksa keluar Polyglotic (⌥⌘Esc), kemudian buka semula.</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5821,11 +5716,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">Mati: ia kekal tersembunyi, dan ikon di bar menu memberitahu ia masih membuat kapsyen.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Tetapkan semula</translation>
     </message>
@@ -6263,11 +6153,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Klik, kemudian tekan kekunci atau gabungan yang anda mahu tahan: ⌘ Kanan, F9, ⌃⌘E… Kekunci bersendirian, atau dengan ⌃, ⌥ atau ⌘, menjadi milik Polyglotic semasa imlak dihidupkan; ⌘ Kanan bersendirian masih berfungsi dalam program lain.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Bahasa imlak</translation>
     </message>
@@ -6275,11 +6160,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">Kesan menaip apa jua bahasa yang anda tuturkan, setiap kali anda menahan kekunci. Tetapkan satu - Inggeris, Mandarin… - dan ia sentiasa didengar sebagai bahasa itu: frasa pendek tidak pernah disangka bahasa lain. Menu dulang sistem juga menukarnya.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">Kesan menaip apa jua bahasa yang anda tuturkan, setiap kali anda menahan kekunci. Tetapkan satu - Inggeris, Mandarin… - dan ia sentiasa didengar sebagai bahasa itu: frasa pendek tidak pernah disangka bahasa lain. Menu di bar menu juga menukarnya.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

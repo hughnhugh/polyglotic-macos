@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">रुक गया - मेनू बार से बाहर निकलकर फिर शुरू करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus खत्म हो गया - कैप्शन रुके; होम देखें</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">लॉक है - होम पर या मेनू बार से खोलें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">लॉक - क्लिक नीचे की चीज़ तक जाते हैं, Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">लॉक - क्लिक नीचे की चीज़ तक जाते हैं। खोलने के लिए कोने के ताले पर माउस कुछ देर रखें, या होम या ट्रे का इस्तेमाल करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">लॉक - क्लिक नीचे की चीज़ तक जाते हैं। खोलने के लिए कोने के ताले पर माउस कुछ देर रखें, या होम या मेनू बार का इस्तेमाल करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1069,11 +1054,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">कैप्शन बंद करके Polyglotic बंद करें - विंडो बंद करने पर यह मेनू बार में रहता है</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">फिर शुरू करें</translation>
     </message>
@@ -1127,11 +1107,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">यह मेनू बार में है। वहीं से फिर शुरू करें या बाहर निकलें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic अभी भी चल रहा है</translation>
     </message>
@@ -1139,11 +1114,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">यह ट्रे में है। वहीं से बाहर निकलें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">यह मेनू बार में है। वहीं से बाहर निकलें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1850,11 +1820,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">यह अपडेट डाउनलोड करके अपने-आप फिर शुरू होता है। अगर ऐसा न हो, तो मेनू बार से बाहर निकलकर इसे फिर शुरू करें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">सर्वर व्यस्त है</translation>
     </message>
@@ -1872,11 +1837,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">ट्रे से बाहर निकलें और Polyglotic फिर से शुरू करें। अगर ऐसा होता रहे, तो समस्या बताएँ।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">मेनू बार से बाहर निकलें और Polyglotic फिर से शुरू करें। अगर ऐसा होता रहे, तो समस्या बताएँ।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1997,18 +1957,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">होम पर या मेनू बार के मेनू में फिर शुरू करें चुनें, या Ctrl+Alt+P दबाएँ।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">होम पर या ट्रे मेनू में फिर शुरू करें चुनें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">होम पर या मेनू बार के मेनू में फिर शुरू करें चुनें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2022,18 +1972,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Ctrl+Alt+H दबाएँ, या होम या मेनू बार के मेनू में सब छिपाएँ इस्तेमाल करें। किसी ऐप का ट्रांसक्रिप्ट दिखाता है कि कैप्शन आ रहे हैं या नहीं।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">होम या ट्रे मेनू में सब छिपाएँ इस्तेमाल करें। किसी ऐप का ट्रांसक्रिप्ट दिखाता है कि कैप्शन आ रहे हैं या नहीं।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">होम या मेनू बार के मेनू में सब छिपाएँ इस्तेमाल करें। किसी ऐप का ट्रांसक्रिप्ट दिखाता है कि कैप्शन आ रहे हैं या नहीं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2127,11 +2067,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">कैप्शन विंडो की सेटिंग में मेरी बोली यहाँ दिखाएँ चालू करें, या हर विंडो के लिए मेनू बार के मेनू में मेरी अपनी आवाज़ का कैप्शन। जब तक आप ऐसा नहीं करते यह बंद रहता है, और आपके माइक्रोफ़ोन की आवाज़ सर्वर पर तभी जाती है जब कोई विंडो उसे दिखा रही हो।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">कैप्शन विंडो को हिलाएँ, लॉक करें और आकार बदलें</translation>
     </message>
@@ -2144,11 +2079,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">कैप्शन विंडो को हिलाने के लिए उसे खींचें, या आकार बदलने के लिए उसके किनारे खींचें। होम या ट्रे मेनू में सब लॉक करें से क्लिक आर-पार जाते हैं। कोई खो गई? होम पर स्थितियाँ रीसेट करें हर विंडो को वापस ले आता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">कैप्शन विंडो को हिलाने के लिए उसे खींचें, या आकार बदलने के लिए उसके किनारे खींचें। होम या मेनू बार के मेनू में सब लॉक करें से क्लिक आर-पार जाते हैं। कोई खो गई? होम पर स्थितियाँ रीसेट करें हर विंडो को वापस ले आता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2167,11 +2097,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">कैप्शन विंडो कभी गेम का कीबोर्ड या माउस नहीं लेती: वह कभी सक्रिय विंडो नहीं बनती। उसे ऐसी जगह रखें जहाँ वह ज़रूरी चीज़ें न ढके, फिर होम या मेनू बार के मेनू में सब लॉक करें ताकि क्लिक गेम तक जाएँ। एक्सक्लूसिव फ़ुल स्क्रीन वाला गेम हर दूसरी विंडो को ढक लेता है: उसकी जगह बॉर्डरलेस या विंडो वाली फ़ुल स्क्रीन चुनें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">किसी भी प्रोग्राम में बोलकर टाइप करें (प्रायोगिक)</translation>
     </message>
@@ -2179,11 +2104,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">सेटिंग &gt; बोलकर टाइपिंग में, या ट्रे मेनू में बोलकर टाइपिंग चालू करें। {key} दबाए रखें और बोलें; छोड़ते ही आपके शब्द कर्सर की जगह टाइप हो जाते हैं। टाइप होने से पहले Esc रद्द करता है। दूसरी कुंजी या संयोजन के लिए, सेटिंग &gt; बोलकर टाइपिंग में कुंजी पर क्लिक करें और मनचाही कुंजी दबाएँ।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">सेटिंग &gt; बोलकर टाइपिंग में, या मेनू बार के मेनू में बोलकर टाइपिंग चालू करें। {key} दबाए रखें और बोलें; छोड़ते ही आपके शब्द कर्सर की जगह टाइप हो जाते हैं। टाइप होने से पहले Esc रद्द करता है। दूसरी कुंजी या संयोजन के लिए, सेटिंग &gt; बोलकर टाइपिंग में कुंजी पर क्लिक करें और मनचाही कुंजी दबाएँ।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2439,18 +2359,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">यहाँ से या मेनू बार से फिर शुरू करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">Ctrl+Alt+P से, या ट्रे से फिर शुरू करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">Ctrl+Alt+P से, या मेनू बार से फिर शुरू करें</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2474,11 +2384,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">ट्रे से बाहर निकलें और Polyglotic फिर से शुरू करें - अगर यह रुकता रहे, तो मदद पेज जाँच सकता है कि क्या गड़बड़ है</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">मेनू बार से बाहर निकलें और Polyglotic फिर से शुरू करें - अगर यह रुकता रहे, तो मदद पेज जाँच सकता है कि क्या गड़बड़ है</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2514,11 +2419,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">अपडेट डाउनलोड हो गया है - उसे इंस्टॉल करने के लिए ट्रे से बाहर निकलें और Polyglotic फिर से शुरू करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">अपडेट डाउनलोड हो गया है - उसे इंस्टॉल करने के लिए मेनू बार से बाहर निकलें और Polyglotic फिर से शुरू करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5161,11 +5061,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic पहले से खुला है, लेकिन जवाब नहीं दे रहा है। थोड़ी देर रुकें, फिर इसे दोबारा खोलें। अगर यह तब भी न दिखे, तो कार्य प्रबंधक में Polyglotic को बंद करें, फिर इसे दोबारा खोलें।</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Polyglotic पहले से खुला है, लेकिन जवाब नहीं दे रहा है। थोड़ी देर रुकें, फिर इसे दोबारा खोलें। अगर यह तब भी न दिखे, तो Polyglotic को ज़बरदस्ती बंद करें (⌥⌘Esc), फिर इसे दोबारा खोलें।</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5835,11 +5730,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">बंद: विंडो छिपी रहती है, और मेनू बार का आइकन बताता है कि कैप्शन अभी भी बन रहे हैं।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">रीसेट करें</translation>
     </message>
@@ -6278,11 +6168,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">क्लिक करें, फिर वह कुंजी या संयोजन दबाएँ जिसे आप दबाए रखना चाहते हैं: दायाँ ⌘, F9, ⌃⌘E… अकेली कुंजी, या ⌃, ⌥ या ⌘ के साथ, बोलकर टाइपिंग चालू रहने तक Polyglotic की होती है; अकेला दायाँ ⌘ दूसरे प्रोग्राम में भी काम करता रहता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">बोलकर टाइपिंग की भाषा</translation>
     </message>
@@ -6290,11 +6175,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">अपने-आप पहचान हर बार कुंजी दबाने पर आप जो भी भाषा बोलें, उसे टाइप करती है। एक भाषा सेट करें - अंग्रेज़ी, मैंडरिन… - और वह हमेशा उसी रूप में सुनी जाती है: कोई छोटा वाक्यांश कभी दूसरी भाषा नहीं समझा जाता। ट्रे का मेनू भी इसे बदलता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">अपने-आप पहचान हर बार कुंजी दबाने पर आप जो भी भाषा बोलें, उसे टाइप करती है। एक भाषा सेट करें - अंग्रेज़ी, मैंडरिन… - और वह हमेशा उसी रूप में सुनी जाती है: कोई छोटा वाक्यांश कभी दूसरी भाषा नहीं समझा जाता। मेनू बार का मेनू भी इसे बदलता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

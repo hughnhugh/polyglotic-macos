@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">Durdu - menü çubuğundan çık ve yeniden başlat</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus sona erdi - altyazılar durdu; Ana sayfaya bak</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">Kilitli - Ana sayfada ya da menü çubuğundan aç</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Kilitle - tıklamalar alttakine geçer, Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Kilitle - tıklamalar alttakine geçer. Kilidi açmak için fareyi köşedeki kilidin üzerinde biraz tutun ya da Ana sayfayı veya sistem tepsisini kullanın</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">Kilitle - tıklamalar alttakine geçer. Kilidi açmak için fareyi köşedeki kilidin üzerinde biraz tutun ya da Ana sayfayı veya menü çubuğunu kullanın</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1066,11 +1051,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Altyazıyı durdur ve Polyglotic&apos;i kapat - pencereyi kapatmak onu menü çubuğunda tutar</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Sürdür</translation>
     </message>
@@ -1123,11 +1103,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">Menü çubuğunda. Oradan sürdür ya da çık.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic hâlâ çalışıyor</translation>
     </message>
@@ -1135,11 +1110,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Sistem tepsisinde. Oradan çık.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">Menü çubuğunda. Oradan çık.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1846,11 +1816,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">Güncellemeyi indirir ve kendiliğinden yeniden başlar. Başlamazsa menü çubuğundan çık ve yeniden aç.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Sunucu meşgul</translation>
     </message>
@@ -1868,11 +1833,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Sistem tepsisinden çık ve Polyglotic&apos;i yeniden aç. Sürerse sorun bildir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">Menü çubuğundan çık ve Polyglotic&apos;i yeniden aç. Sürerse sorun bildir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1993,18 +1953,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">Ana sayfada ya da menü çubuğunun menüsünde Sürdür&apos;ü seç ya da Ctrl+Alt+P&apos;ye bas.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Ana sayfada ya da tepsi menüsünde Sürdür&apos;ü seç.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">Ana sayfada ya da menü çubuğunun menüsünde Sürdür&apos;ü seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2018,18 +1968,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Ctrl+Alt+H&apos;ye bas ya da Ana sayfada veya menü çubuğunun menüsünde Tümünü gizle&apos;yi kullan. Bir uygulamanın dökümü altyazıların gelip gelmediğini gösterir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Ana sayfada veya tepsi menüsünde Tümünü gizle&apos;yi kullan. Bir uygulamanın dökümü altyazıların gelip gelmediğini gösterir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Ana sayfada veya menü çubuğunun menüsünde Tümünü gizle&apos;yi kullan. Bir uygulamanın dökümü altyazıların gelip gelmediğini gösterir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2123,11 +2063,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">Bir altyazı penceresinin ayarlarında Konuşmamı burada göster&apos;i ya da tüm pencereler için menü çubuğunun menüsünde Kendi konuşmama altyazı ekle&apos;yi aç. Sen açana kadar kapalıdır ve mikrofon sesin yalnızca bir pencere onu gösterirken sunucuya gider.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Altyazı pencerelerini taşı, kilitle ve boyutlandır</translation>
     </message>
@@ -2140,11 +2075,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Bir altyazı penceresini taşımak için sürükle, boyutlandırmak için kenarlarını sürükle. Ana sayfadaki ya da tepsi menüsündeki Tümünü kilitle tıklamaları geçirir. Birini mi kaybettin? Ana sayfadaki Konumları sıfırla her pencereyi geri getirir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">Bir altyazı penceresini taşımak için sürükle, boyutlandırmak için kenarlarını sürükle. Ana sayfadaki ya da menü çubuğunun menüsündeki Tümünü kilitle tıklamaları geçirir. Birini mi kaybettin? Ana sayfadaki Konumları sıfırla her pencereyi geri getirir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2163,11 +2093,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">Altyazı penceresi oyunun klavyesini ya da faresini asla almaz: asla etkin pencere olmaz. Görmen gerekeni kapatmayacağı bir yere koy, sonra tıklamalar oyuna gitsin diye Ana sayfada ya da menü çubuğunun menüsünde Tümünü kilitle&apos;yi seç. Özel tam ekrandaki bir oyun diğer tüm pencereleri kapatır: onun yerine kenarlıksız ya da pencereli tam ekranı seç.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">Her programa dikte et (önizleme)</translation>
     </message>
@@ -2175,11 +2100,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Ayarlar &gt; Dikte&apos;de ya da tepsi menüsünde Dikte&apos;yi aç. {key} tuşunu basılı tut ve konuş; bırak, sözlerin imlecin olduğu yere yazılır. Yazılmadan önce Esc iptal eder. Başka bir tuş ya da kombinasyon için Ayarlar &gt; Dikte&apos;de tuşa tıkla ve istediğine bas.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">Ayarlar &gt; Dikte&apos;de ya da menü çubuğunun menüsünde Dikte&apos;yi aç. {key} tuşunu basılı tut ve konuş; bırak, sözlerin imlecin olduğu yere yazılır. Yazılmadan önce Esc iptal eder. Başka bir tuş ya da kombinasyon için Ayarlar &gt; Dikte&apos;de tuşa tıkla ve istediğine bas.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2435,18 +2355,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">burada ya da menü çubuğundan sürdür</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">Ctrl+Alt+P ile ya da tepsiden sürdür</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">Ctrl+Alt+P ile ya da menü çubuğundan sürdür</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2469,11 +2379,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">tepsiden çık ve Polyglotic&apos;i yeniden aç - durmaya devam ederse Yardım neyin yanlış olduğunu kontrol edebilir</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">menü çubuğundan çık ve Polyglotic&apos;i yeniden aç - durmaya devam ederse Yardım neyin yanlış olduğunu kontrol edebilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2509,11 +2414,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">güncelleme indirildi - yüklemek için tepsiden çık ve Polyglotic&apos;i yeniden aç</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">güncelleme indirildi - yüklemek için menü çubuğundan çık ve Polyglotic&apos;i yeniden aç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5147,11 +5047,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic zaten açık ama yanıt vermiyor. Biraz bekle, sonra yeniden aç. Hâlâ görünmüyorsa Polyglotic&apos;i Görev Yöneticisi&apos;nden sonlandır, sonra yeniden aç.</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Polyglotic zaten açık ama yanıt vermiyor. Biraz bekle, sonra yeniden aç. Hâlâ görünmüyorsa Polyglotic&apos;ten zorla çık (⌥⌘Esc), sonra yeniden aç.</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5821,11 +5716,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">Kapalı: gizli kalır ve menü çubuğundaki simge hâlâ altyazı eklediğini söyler.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Sıfırla</translation>
     </message>
@@ -6263,11 +6153,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Tıkla, sonra basılı tutmak istediğin tuşa ya da kombinasyona bas: Sağ ⌘, F9, ⌃⌘E… Tek başına bir tuş ya da ⌃, ⌥ veya ⌘ ile birlikte, dikte açıkken Polyglotic&apos;indir; tek başına Sağ ⌘ diğer programlarda çalışmaya devam eder.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Dikte dili</translation>
     </message>
@@ -6275,11 +6160,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">Algıla, tuşu her basılı tuttuğunda konuştuğun dili yazar. Bir dil belirle - İngilizce, Mandarin… - ve hep o dil olarak duyulur: kısa bir ifade asla başka dil sanılmaz. Tepsinin menüsü de bunu değiştirir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">Algıla, tuşu her basılı tuttuğunda konuştuğun dili yazar. Bir dil belirle - İngilizce, Mandarin… - ve hep o dil olarak duyulur: kısa bir ifade asla başka dil sanılmaz. Menü çubuğunun menüsü de bunu değiştirir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

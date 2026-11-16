@@ -668,16 +668,8 @@ def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
     """`pause_key`: Ctrl+Alt+P works here, so the paused line names it."""
     if detail is Detail.RESUME:
         if not pause_key:
-            return pc_or_mac(
-                _tr("resume here or from the tray"),
-                _tr("resume here or from the menu bar"),
-            )
-        return hotkeys_here(
-            pc_or_mac(
-                _tr("resume with Ctrl+Alt+P, or from the tray"),
-                _tr("resume with Ctrl+Alt+P, or from the menu bar"),
-            )
-        )
+            return _tr("resume here or from the tray")
+        return hotkeys_here(_tr("resume with Ctrl+Alt+P, or from the tray"))
     if detail is Detail.WINDOWS_PAUSED:  # after "Paused": why, and what to do
         return _trn(
             "every caption window hidden over %n minute(s) - show them to carry on",
@@ -691,15 +683,9 @@ def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
     if detail is Detail.HELP_CHECKS:
         return _tr("Help can check what's wrong")
     if detail is Detail.START_AGAIN:  # Help's check says the same (228)
-        return pc_or_mac(
-            _tr(
-                "quit from the tray and start Polyglotic again - if it keeps "
-                "stopping, Help can check what's wrong"
-            ),
-            _tr(
-                "quit from the menu bar and start Polyglotic again - if it keeps "
-                "stopping, Help can check what's wrong"
-            ),
+        return _tr(
+            "quit from the tray and start Polyglotic again - if it keeps "
+            "stopping, Help can check what's wrong"
         )
     if detail is Detail.RETRY_IN:
         # the caption windows' words: "Reconnecting - trying again in 8 s"
@@ -725,15 +711,9 @@ _UPDATE_DETAILS: dict[Detail, Callable[[], str]] = {
     Detail.UPDATING: lambda: _tr(
         "getting the update - Polyglotic restarts by itself when it's ready"
     ),
-    Detail.RESTART_TO_INSTALL: lambda: pc_or_mac(
-        _tr(
-            "the update is downloaded - quit from the tray and start Polyglotic "
-            "again to install it"
-        ),
-        _tr(
-            "the update is downloaded - quit from the menu bar and start Polyglotic "
-            "again to install it"
-        ),
+    Detail.RESTART_TO_INSTALL: lambda: _tr(
+        "the update is downloaded - quit from the tray and start Polyglotic "
+        "again to install it"
     ),
     Detail.NO_UPDATE_YET: lambda: _tr(
         "no update is ready yet - Polyglotic looks again every few minutes, "

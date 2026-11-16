@@ -161,7 +161,6 @@ from polyglotic_desktop.ui_next.languages import (
     target_languages,
 )
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
-from polyglotic_desktop.ui_next.os_words import hotkeys_here
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
@@ -1318,14 +1317,10 @@ class TranscriptWindow(QWidget):
         timing_menu.setToolTipsVisible(True)
         timing.setMenu(timing_menu)
         row.addWidget(timing)
-        smaller = self._tool(
-            "smaller", "A-", hotkeys_here(_tr("Smaller text (Ctrl+wheel)"))
-        )
+        smaller = self._tool("smaller", "A-", _tr("Smaller text (Ctrl+wheel)"))
         smaller.clicked.connect(lambda: self.step_text(-1))
         row.addWidget(smaller)
-        bigger = self._tool(
-            "bigger", "A+", hotkeys_here(_tr("Bigger text (Ctrl+wheel)"))
-        )
+        bigger = self._tool("bigger", "A+", _tr("Bigger text (Ctrl+wheel)"))
         bigger.clicked.connect(lambda: self.step_text(1))
         row.addWidget(bigger)
         self.search = QLineEdit(strip)

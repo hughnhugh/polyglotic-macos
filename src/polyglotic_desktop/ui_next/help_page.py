@@ -531,15 +531,9 @@ def problem(
         ),
         Problem.UPDATE_NEEDED: (
             _tr("Polyglotic needs an update"),
-            pc_or_mac(
-                _tr(
-                    "It downloads the update and restarts by itself. If it doesn't, "
-                    "quit from the tray and start it again."
-                ),
-                _tr(
-                    "It downloads the update and restarts by itself. If it doesn't, "
-                    "quit from the menu bar and start it again."
-                ),
+            _tr(
+                "It downloads the update and restarts by itself. If it doesn't, "
+                "quit from the tray and start it again."
             ),
         ),
         Problem.SERVER_BUSY: (
@@ -551,15 +545,9 @@ def problem(
         ),
         Problem.NOT_CONNECTED: (
             _tr("Not connected to the server"),
-            pc_or_mac(
-                _tr(
-                    "Quit from the tray and start Polyglotic again. If it keeps "
-                    "happening, report a problem."
-                ),
-                _tr(
-                    "Quit from the menu bar and start Polyglotic again. If it keeps "
-                    "happening, report a problem."
-                ),
+            _tr(
+                "Quit from the tray and start Polyglotic again. If it keeps "
+                "happening, report a problem."
             ),
         ),
         Problem.NOTHING_TICKED: (
@@ -649,41 +637,20 @@ def problem(
         ),
         Problem.PAUSED: (
             _tr("Captions are paused"),
-            pc_or_mac(
-                _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P."),
-                _tr(
-                    "Choose Resume on Home or in the menu bar's menu, or press "
-                    "Ctrl+Alt+P."
-                ),
-            )
+            _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P.")
             if "P" in hotkeys
-            else pc_or_mac(
-                _tr("Choose Resume on Home or in the tray menu."),
-                _tr("Choose Resume on Home or in the menu bar's menu."),
-            ),
+            else _tr("Choose Resume on Home or in the tray menu."),
         ),
         Problem.OVERLAYS_HIDDEN: (
             _tr("The caption windows are hidden"),
-            pc_or_mac(
-                _tr(
-                    "Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An "
-                    "app's transcript shows whether captions are arriving."
-                ),
-                _tr(
-                    "Press Ctrl+Alt+H, or use Hide all on Home or the menu bar's menu. "
-                    "An app's transcript shows whether captions are arriving."
-                ),
+            _tr(
+                "Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An "
+                "app's transcript shows whether captions are arriving."
             )
             if "H" in hotkeys
-            else pc_or_mac(
-                _tr(
-                    "Use Hide all on Home or the tray menu. An app's transcript "
-                    "shows whether captions are arriving."
-                ),
-                _tr(
-                    "Use Hide all on Home or the menu bar's menu. An app's transcript "
-                    "shows whether captions are arriving."
-                ),
+            else _tr(
+                "Use Hide all on Home or the tray menu. An app's transcript "
+                "shows whether captions are arriving."
             ),
         ),
         Problem.SERVER_FAILING: (
@@ -777,19 +744,11 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
         ),
         (
             _tr("Caption your own microphone"),
-            pc_or_mac(
-                _tr(
-                    "Turn on Show my speech here in a caption window's settings, or "
-                    "Caption my own speech in the tray menu for every window. It's "
-                    "off until you do, and your microphone's audio goes to the "
-                    "server only while a window shows it."
-                ),
-                _tr(
-                    "Turn on Show my speech here in a caption window's settings, or "
-                    "Caption my own speech in the menu bar's menu for every window. "
-                    "It's off until you do, and your microphone's audio goes to the "
-                    "server only while a window shows it."
-                ),
+            _tr(
+                "Turn on Show my speech here in a caption window's settings, or "
+                "Caption my own speech in the tray menu for every window. It's "
+                "off until you do, and your microphone's audio goes to the "
+                "server only while a window shows it."
             ),
         ),
         (
@@ -801,18 +760,11 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                 "positions on Home puts every window back."
             )
             if {"L", "H", "P"} <= set(hotkeys)
-            else pc_or_mac(
-                _tr(
-                    "Drag a caption window to move it, or drag its edges to resize "
-                    "it. Lock all, on Home or in the tray menu, lets clicks pass "
-                    "through. Lost one? Reset positions on Home puts every window "
-                    "back."
-                ),
-                _tr(
-                    "Drag a caption window to move it, or drag its edges to resize it. "
-                    "Lock all, on Home or in the menu bar's menu, lets clicks pass "
-                    "through. Lost one? Reset positions on Home puts every window back."
-                ),
+            else _tr(
+                "Drag a caption window to move it, or drag its edges to resize "
+                "it. Lock all, on Home or in the tray menu, lets clicks pass "
+                "through. Lost one? Reset positions on Home puts every window "
+                "back."
             ),
         ),
         (
@@ -827,23 +779,13 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                 "window: choose its borderless or windowed full screen instead."
             )
             if {"L", "H"} <= set(hotkeys)
-            else pc_or_mac(
-                _tr(
-                    "A caption window never takes the game's keyboard or mouse: "
-                    "it is never the active window. Put it where it doesn't cover "
-                    "what you need to see, then Lock all on Home or in the tray "
-                    "menu so clicks go through to the game. A game in exclusive "
-                    "full screen covers every other window: choose its borderless "
-                    "or windowed full screen instead."
-                ),
-                _tr(
-                    "A caption window never takes the game's keyboard or mouse: it is "
-                    "never the active window. Put it where it doesn't cover what you "
-                    "need to see, then Lock all on Home or in the menu bar's menu so "
-                    "clicks go through to the game. A game in exclusive full screen "
-                    "covers every other window: choose its borderless or windowed full "
-                    "screen instead."
-                ),
+            else _tr(
+                "A caption window never takes the game's keyboard or mouse: "
+                "it is never the active window. Put it where it doesn't cover "
+                "what you need to see, then Lock all on Home or in the tray "
+                "menu so clicks go through to the game. A game in exclusive "
+                "full screen covers every other window: choose its borderless "
+                "or windowed full screen instead."
             ),
         ),
     ]
@@ -855,21 +797,12 @@ def dictation_topic(key: str) -> tuple[str, str]:
     polyglotic-hq 283, 289)."""
     return (
         _tr("Dictate into any program (preview)"),
-        pc_or_mac(
-            _tr(
-                "Turn on Dictation in Settings > Dictation, or in the tray menu. Hold"
-                " {key} and speak; let go, and your words are typed where your cursor"
-                " is. Esc cancels before they're typed. To use another key or"
-                " combination, click the key in Settings > Dictation and press the"
-                " one you want."
-            ),
-            _tr(
-                "Turn on Dictation in Settings > Dictation, or in the menu bar's menu. "
-                "Hold {key} and speak; let go, and your words are typed where your "
-                "cursor is. Esc cancels before they're typed. To use another key or "
-                "combination, click the key in Settings > Dictation and press the one "
-                "you want."
-            ),
+        _tr(
+            "Turn on Dictation in Settings > Dictation, or in the tray menu. Hold"
+            " {key} and speak; let go, and your words are typed where your cursor"
+            " is. Esc cancels before they're typed. To use another key or"
+            " combination, click the key in Settings > Dictation and press the"
+            " one you want."
         ).format(key=key),
     )
 

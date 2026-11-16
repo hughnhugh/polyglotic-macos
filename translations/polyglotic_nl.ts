@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">Gestopt – sluit af via de menubalk en start opnieuw</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus is afgelopen – ondertitels gestopt; zie Start</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">Vergrendeld – ontgrendel op Start of via de menubalk</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt, Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt. Ontgrendel door de muis even op het slot in de hoek te laten rusten, of via Start of het systeemvak</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt. Ontgrendel door de muis even op het slot in de hoek te laten rusten, of via Start of de menubalk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1069,11 +1054,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Stop met ondertitelen en sluit Polyglotic – het venster sluiten houdt het in de menubalk</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Hervatten</translation>
     </message>
@@ -1127,11 +1107,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">Het staat in de menubalk. Hervat of sluit het daar af.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic draait nog</translation>
     </message>
@@ -1139,11 +1114,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Het staat in het systeemvak. Sluit het daar af.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">Het staat in de menubalk. Sluit het daar af.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1850,11 +1820,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">Het downloadt de update en herstart vanzelf. Zo niet, sluit af via de menubalk en start het opnieuw.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">De server is bezig</translation>
     </message>
@@ -1872,11 +1837,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Sluit af via het systeemvak en start Polyglotic opnieuw. Blijft het gebeuren, meld dan een probleem.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">Sluit af via de menubalk en start Polyglotic opnieuw. Blijft het gebeuren, meld dan een probleem.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1997,18 +1957,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">Kies Hervatten op Start of in het menu in de menubalk, of druk op Ctrl+Alt+P.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Kies Hervatten op Start of in het systeemvakmenu.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">Kies Hervatten op Start of in het menu in de menubalk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2022,18 +1972,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Druk op Ctrl+Alt+H, of gebruik Alles verbergen op Start of in het menu in de menubalk. Het transcript van een app laat zien of er ondertitels binnenkomen.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Gebruik Alles verbergen op Start of in het systeemvakmenu. Het transcript van een app laat zien of er ondertitels binnenkomen.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Gebruik Alles verbergen op Start of in het menu in de menubalk. Het transcript van een app laat zien of er ondertitels binnenkomen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2127,11 +2067,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">Zet Mijn spraak hier tonen aan in de instellingen van een ondertitelvenster, of Mijn eigen spraak ondertitelen in het menu in de menubalk voor elk venster. Het staat uit tot je dat doet, en de audio van je microfoon gaat alleen naar de server zolang een venster hem toont.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Ondertitelvensters verplaatsen, vergrendelen en vergroten</translation>
     </message>
@@ -2144,11 +2079,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Sleep een ondertitelvenster om het te verplaatsen, of de randen om het formaat te wijzigen. Alles vergrendelen, op Start of in het systeemvakmenu, laat klikken door. Een kwijt? Posities herstellen op Start zet elk venster terug.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">Sleep een ondertitelvenster om het te verplaatsen, of de randen om het formaat te wijzigen. Alles vergrendelen, op Start of in het menu in de menubalk, laat klikken door. Een kwijt? Posities herstellen op Start zet elk venster terug.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2167,11 +2097,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">Een ondertitelvenster pakt nooit het toetsenbord of de muis van de game: het is nooit het actieve venster. Zet het waar het niets belangrijks bedekt en kies dan Alles vergrendelen op Start of in het menu in de menubalk, zodat klikken naar de game gaan. Een game in exclusief volledig scherm bedekt alle andere vensters: kies randloos of venster-volledig scherm.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">In elk programma dicteren (preview)</translation>
     </message>
@@ -2179,11 +2104,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Zet Dicteren aan bij Instellingen &gt; Dicteren, of in het systeemvakmenu. Houd {key} ingedrukt en spreek; laat los, en je woorden worden getypt waar je cursor staat. Esc annuleert voordat ze getypt zijn. Voor een andere toets of combinatie klik je op de toets bij Instellingen &gt; Dicteren en druk je de gewenste in.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">Zet Dicteren aan bij Instellingen &gt; Dicteren, of in het menu in de menubalk. Houd {key} ingedrukt en spreek; laat los, en je woorden worden getypt waar je cursor staat. Esc annuleert voordat ze getypt zijn. Voor een andere toets of combinatie klik je op de toets bij Instellingen &gt; Dicteren en druk je de gewenste in.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2439,18 +2359,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">hervat hier of via de menubalk</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">hervat met Ctrl+Alt+P, of via het systeemvak</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">hervat met Ctrl+Alt+P, of via de menubalk</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2474,11 +2384,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">sluit af via het systeemvak en start Polyglotic opnieuw – stopt het steeds, dan kan Help controleren wat er mis is</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">sluit af via de menubalk en start Polyglotic opnieuw – stopt het steeds, dan kan Help controleren wat er mis is</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2514,11 +2419,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">de update is gedownload – sluit af via het systeemvak en start Polyglotic opnieuw om hem te installeren</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">de update is gedownload – sluit af via de menubalk en start Polyglotic opnieuw om hem te installeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5161,11 +5061,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic is al geopend, maar reageert niet. Wacht even en open het daarna opnieuw. Verschijnt het dan nog steeds niet, beëindig Polyglotic dan in Taakbeheer en open het daarna opnieuw.</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Polyglotic is al geopend, maar reageert niet. Wacht even en open het daarna opnieuw. Verschijnt het dan nog steeds niet, forceer Polyglotic dan te stoppen (⌥⌘Esc) en open het daarna opnieuw.</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5835,11 +5730,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">Uit: het blijft verborgen en het symbool in de menubalk meldt dat het nog ondertitelt.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Herstellen</translation>
     </message>
@@ -6278,11 +6168,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Klik en druk dan op de toets of combinatie die je wilt vasthouden: Rechter ⌘, F9, ⌃⌘E… Een toets alleen, of met ⌃, ⌥ of ⌘, is van Polyglotic zolang dicteren aan staat; alleen Rechter ⌘ werkt nog in andere programma&apos;s.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Taal van dicteren</translation>
     </message>
@@ -6290,11 +6175,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">“Automatisch herkennen” typt welke taal je ook spreekt, elke keer dat je de toets vasthoudt. Stel er een in – Engels, Mandarijn… – en het wordt altijd zo gehoord: een korte zin wordt nooit voor een andere taal aangezien. Het systeemvakmenu wisselt hem ook.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">“Automatisch herkennen” typt welke taal je ook spreekt, elke keer dat je de toets vasthoudt. Stel er een in – Engels, Mandarijn… – en het wordt altijd zo gehoord: een korte zin wordt nooit voor een andere taal aangezien. Het menu in de menubalk wisselt hem ook.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

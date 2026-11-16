@@ -35,7 +35,6 @@ from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication
 
 from polyglotic_desktop.ports.one_copy import LetToFront
-from polyglotic_desktop.ui.os_words import pc_or_mac
 
 log = logging.getLogger(__name__)
 
@@ -158,17 +157,10 @@ def _line(socket: QLocalSocket, end: float) -> bytes | None:
 
 def not_answering() -> str:
     """What a start says when the copy that runs doesn't answer."""
-    return pc_or_mac(
-        _tr(
-            "Polyglotic is already open, but it isn't responding. Wait a moment,"
-            " then open it again. If it still doesn't come up, end Polyglotic in"
-            " Task Manager, then open it again."
-        ),
-        _tr(
-            "Polyglotic is already open, but it isn't responding. Wait a moment, then "
-            "open it again. If it still doesn't come up, force quit Polyglotic (⌥⌘Esc),"
-            " then open it again."
-        ),
+    return _tr(
+        "Polyglotic is already open, but it isn't responding. Wait a moment,"
+        " then open it again. If it still doesn't come up, end Polyglotic in"
+        " Task Manager, then open it again."
     )
 
 

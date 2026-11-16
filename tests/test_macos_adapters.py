@@ -4,7 +4,6 @@ piece's logic holds on any OS - what touches macOS itself is `macos_only`
 (run by the macOS job, polyglotic-hq 410), and the file lock runs wherever
 there is `flock` (macOS and Linux)."""
 
-import ast
 import dataclasses
 import subprocess
 import sys
@@ -14,20 +13,9 @@ from pathlib import Path
 import pydantic
 import pytest
 
-from polyglotic_desktop import main
-from polyglotic_desktop.connection.app import (
-    AppInfo,
-    Release,
-    first_channel,
-    this_release,
-)
+from polyglotic_desktop.connection.app import AppInfo, first_channel, this_release
 from polyglotic_desktop.connection.protocol import Hello, HelloAuth
-from polyglotic_desktop.main import (
-    NoOsAdapters,
-    OsAdapters,
-    os_adapters,
-    this_copys_release,
-)
+from polyglotic_desktop.main import NoOsAdapters, OsAdapters, os_adapters
 from polyglotic_desktop.platform.macos import (
     apps,
     capture,
@@ -161,25 +149,6 @@ def test_a_mac_from_source_is_on_the_macs_first_channel(tmp_path: Path) -> None:
         "macos-arm64-alpha"
     )
     assert AppInfo("0.0.0", "macos-26").platform == "macos"
-
-
-def test_settings_updates_names_the_macs_channel_from_source() -> None:
-    """Settings > Updates, the log and the install check read `main`'s
-    release: from source on a Mac it's the Mac's first channel, not
-    "0.0.0 (win-x64-alpha)" (polyglotic-hq 451) - and every read in `main`
-    goes through the one that knows the OS."""
-    assert this_copys_release("darwin") == Release("0.0.0", "macos-arm64-alpha")
-    assert this_copys_release("win32") == Release("0.0.0", "win-x64-alpha")
-    tree = ast.parse(Path(main.__file__).read_text(encoding="utf-8"))
-    reads = [
-        node.lineno
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id == "this_release"
-        and not any(k.arg == "first" for k in node.keywords)
-    ]
-    assert reads == [], "main.py: read the release with this_copys_release()"
 
 
 # --- the Keychain -----------------------------------------------------------

@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">หยุดแล้ว - ออกจากแถบเมนูแล้วเปิดใหม่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus หมดแล้ว - คำบรรยายหยุด ดูหน้าแรก</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">ล็อกอยู่ - ปลดล็อกที่หน้าแรกหรือแถบเมนู</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">ล็อก - การคลิกทะลุไปข้างใต้ Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">ล็อก - การคลิกทะลุไปข้างใต้ หากจะปลดล็อก ให้วางเมาส์ค้างไว้ที่รูปกุญแจตรงมุม หรือใช้หน้าแรกหรือถาดระบบ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">ล็อก - การคลิกทะลุไปข้างใต้ หากจะปลดล็อก ให้วางเมาส์ค้างไว้ที่รูปกุญแจตรงมุม หรือใช้หน้าแรกหรือแถบเมนู</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1066,11 +1051,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">หยุดทำคำบรรยายและปิด Polyglotic - ปิดหน้าต่างเฉยๆ จะยังอยู่ในแถบเมนู</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">ทำต่อ</translation>
     </message>
@@ -1123,11 +1103,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">อยู่ในแถบเมนู ทำต่อหรือออกได้จากที่นั่น</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic ยังทำงานอยู่</translation>
     </message>
@@ -1135,11 +1110,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">อยู่ในถาดระบบ ออกได้จากที่นั่น</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">อยู่ในแถบเมนู ออกได้จากที่นั่น</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1846,11 +1816,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">แอปจะดาวน์โหลดอัปเดตแล้วรีสตาร์ทเอง ถ้าไม่ ให้ออกจากแถบเมนูแล้วเปิดใหม่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">เซิร์ฟเวอร์ยุ่ง</translation>
     </message>
@@ -1868,11 +1833,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่ ถ้ายังเกิดอีก ให้รายงานปัญหา</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">ออกจากแถบเมนูแล้วเปิด Polyglotic ใหม่ ถ้ายังเกิดอีก ให้รายงานปัญหา</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1993,18 +1953,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">เลือก ทำต่อ ที่หน้าแรกหรือเมนูในแถบเมนู หรือกด Ctrl+Alt+P</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">เลือก ทำต่อ ที่หน้าแรกหรือเมนูถาดระบบ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">เลือก ทำต่อ ที่หน้าแรกหรือเมนูในแถบเมนู</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2018,18 +1968,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">กด Ctrl+Alt+H หรือใช้ ซ่อนทั้งหมด ที่หน้าแรกหรือเมนูในแถบเมนู บันทึกคำบรรยายของแอปจะบอกว่าคำบรรยายมาถึงหรือไม่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">ใช้ ซ่อนทั้งหมด ที่หน้าแรกหรือเมนูถาดระบบ บันทึกคำบรรยายของแอปจะบอกว่าคำบรรยายมาถึงหรือไม่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">ใช้ ซ่อนทั้งหมด ที่หน้าแรกหรือเมนูในแถบเมนู บันทึกคำบรรยายของแอปจะบอกว่าคำบรรยายมาถึงหรือไม่</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2123,11 +2063,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">เปิด แสดงเสียงพูดของฉันที่นี่ ในการตั้งค่าหน้าต่างคำบรรยาย หรือ ทำคำบรรยายเสียงพูดของฉัน ในเมนูในแถบเมนูสำหรับทุกหน้าต่าง จะปิดอยู่จนกว่าคุณจะเปิด และเสียงไมค์ไปเซิร์ฟเวอร์เฉพาะตอนที่มีหน้าต่างแสดงอยู่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">ย้าย ล็อก และปรับขนาดหน้าต่างคำบรรยาย</translation>
     </message>
@@ -2140,11 +2075,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">ลากหน้าต่างคำบรรยายเพื่อย้าย หรือลากขอบเพื่อปรับขนาด ล็อกทั้งหมด ที่หน้าแรกหรือเมนูถาดระบบ ให้การคลิกทะลุ หาหน้าต่างไม่เจอ? รีเซ็ตตำแหน่ง ที่หน้าแรกจะนำทุกหน้าต่างกลับมา</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">ลากหน้าต่างคำบรรยายเพื่อย้าย หรือลากขอบเพื่อปรับขนาด ล็อกทั้งหมด ที่หน้าแรกหรือเมนูในแถบเมนู ให้การคลิกทะลุ หาหน้าต่างไม่เจอ? รีเซ็ตตำแหน่ง ที่หน้าแรกจะนำทุกหน้าต่างกลับมา</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2163,11 +2093,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">หน้าต่างคำบรรยายไม่เคยแย่งคีย์บอร์ดหรือเมาส์ของเกม: ไม่เคยเป็นหน้าต่างที่ใช้งานอยู่ วางไว้ตรงที่ไม่บังสิ่งที่ต้องดู แล้วใช้ ล็อกทั้งหมด ที่หน้าแรกหรือเมนูในแถบเมนู ให้การคลิกไปถึงเกม เกมแบบเต็มจอเฉพาะจะบังทุกหน้าต่าง: เลือกแบบไร้ขอบหรือเต็มจอแบบหน้าต่างแทน</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">พิมพ์ด้วยเสียงในทุกโปรแกรม (ทดลอง)</translation>
     </message>
@@ -2175,11 +2100,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">เปิด พิมพ์ด้วยเสียง ใน การตั้งค่า &gt; พิมพ์ด้วยเสียง หรือเมนูถาดระบบ กด {key} ค้างไว้แล้วพูด ปล่อยแล้วคำพูดจะถูกพิมพ์ตรงเคอร์เซอร์ Esc ยกเลิกก่อนพิมพ์ ถ้าจะใช้ปุ่มหรือปุ่มผสมอื่น คลิกปุ่มใน การตั้งค่า &gt; พิมพ์ด้วยเสียง แล้วกดปุ่มที่ต้องการ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">เปิด พิมพ์ด้วยเสียง ใน การตั้งค่า &gt; พิมพ์ด้วยเสียง หรือเมนูในแถบเมนู กด {key} ค้างไว้แล้วพูด ปล่อยแล้วคำพูดจะถูกพิมพ์ตรงเคอร์เซอร์ Esc ยกเลิกก่อนพิมพ์ ถ้าจะใช้ปุ่มหรือปุ่มผสมอื่น คลิกปุ่มใน การตั้งค่า &gt; พิมพ์ด้วยเสียง แล้วกดปุ่มที่ต้องการ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2435,18 +2355,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">ทำต่อที่นี่หรือจากแถบเมนู</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">ทำต่อด้วย Ctrl+Alt+P หรือจากถาดระบบ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">ทำต่อด้วย Ctrl+Alt+P หรือจากแถบเมนู</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2469,11 +2379,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่ - ถ้ายังหยุดอีก หน้าช่วยเหลือตรวจได้ว่าอะไรผิด</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">ออกจากแถบเมนูแล้วเปิด Polyglotic ใหม่ - ถ้ายังหยุดอีก หน้าช่วยเหลือตรวจได้ว่าอะไรผิด</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2509,11 +2414,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">ดาวน์โหลดอัปเดตแล้ว - ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่เพื่อติดตั้ง</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">ดาวน์โหลดอัปเดตแล้ว - ออกจากแถบเมนูแล้วเปิด Polyglotic ใหม่เพื่อติดตั้ง</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5147,11 +5047,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic เปิดอยู่แล้ว แต่ไม่ตอบสนอง รอสักครู่ แล้วเปิดอีกครั้ง หากยังไม่ขึ้นมา ให้สิ้นสุด Polyglotic ในตัวจัดการงาน แล้วเปิดอีกครั้ง</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Polyglotic เปิดอยู่แล้ว แต่ไม่ตอบสนอง รอสักครู่ แล้วเปิดอีกครั้ง หากยังไม่ขึ้นมา ให้บังคับออกจาก Polyglotic (⌥⌘Esc) แล้วเปิดอีกครั้ง</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5821,11 +5716,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">ปิด: หน้าต่างยังซ่อนอยู่ และไอคอนในแถบเมนูจะบอกว่ายังทำคำบรรยายอยู่</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">รีเซ็ต</translation>
     </message>
@@ -6263,11 +6153,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">คลิก แล้วกดปุ่มหรือปุ่มผสมที่ต้องการกดค้าง: Right ⌘, F9, ⌃⌘E… ปุ่มเดี่ยว หรือคู่กับ ⌃, ⌥ หรือ ⌘ เป็นของ Polyglotic ขณะเปิดพิมพ์ด้วยเสียง Right ⌘ อย่างเดียวยังใช้ในโปรแกรมอื่นได้</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">ภาษาของการพิมพ์ด้วยเสียง</translation>
     </message>
@@ -6275,11 +6160,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">ตรวจหาภาษาอัตโนมัติจะพิมพ์ทุกภาษาที่คุณพูด ทุกครั้งที่กดค้าง ตั้งภาษาเดียว - อังกฤษ จีนกลาง… - แล้วจะฟังเป็นภาษานั้นเสมอ: วลีสั้นจะไม่ถูกฟังเป็นภาษาอื่น เมนูในถาดระบบสลับได้ด้วย</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">ตรวจหาภาษาอัตโนมัติจะพิมพ์ทุกภาษาที่คุณพูด ทุกครั้งที่กดค้าง ตั้งภาษาเดียว - อังกฤษ จีนกลาง… - แล้วจะฟังเป็นภาษานั้นเสมอ: วลีสั้นจะไม่ถูกฟังเป็นภาษาอื่น เมนูในแถบเมนูสลับได้ด้วย</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

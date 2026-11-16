@@ -234,11 +234,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Stopped - quit from the menu bar and start again</source>
-        <translation type="unfinished">Huminto - lumabas mula sa menu bar at buksan ulit</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Tapos na ang Plus - huminto ang caption; tingnan ang Home</translation>
     </message>
@@ -359,11 +354,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Locked - unlock on Home or from the menu bar</source>
-        <translation type="unfinished">Naka-lock - i-unlock sa Home o mula sa menu bar</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">I-lock - tumatagos ang mga click sa nasa ilalim, Ctrl+Alt+L</translation>
     </message>
@@ -371,11 +361,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">I-lock - tumatagos ang mga click sa nasa ilalim. Para i-unlock, ipahinga ang mouse sa lock sa sulok, o gamitin ang Home o ang tray</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
-        <translation type="unfinished">I-lock - tumatagos ang mga click sa nasa ilalim. Para i-unlock, ipahinga ang mouse sa lock sa sulok, o gamitin ang Home o ang menu bar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1069,11 +1054,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Itigil ang pag-caption at isara ang Polyglotic - kapag isinara ang window, nananatili ito sa menu bar</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Ituloy</translation>
     </message>
@@ -1127,11 +1107,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
-        <translation type="unfinished">Nasa menu bar ito. Ituloy o lumabas mula roon.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Tumatakbo pa rin ang Polyglotic</translation>
     </message>
@@ -1139,11 +1114,6 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Nasa system tray ito. Lumabas mula roon.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>It&apos;s in the menu bar. Quit from there.</source>
-        <translation type="unfinished">Nasa menu bar ito. Lumabas mula roon.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1850,11 +1820,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
-        <translation type="unfinished">Dina-download nito ang update at kusang nagre-restart. Kung hindi, lumabas mula sa menu bar at buksan ulit.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Abala ang server</translation>
     </message>
@@ -1872,11 +1837,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Lumabas mula sa tray at buksan ulit ang Polyglotic. Kung paulit-ulit, mag-ulat ng problema.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
-        <translation type="unfinished">Lumabas mula sa menu bar at buksan ulit ang Polyglotic. Kung paulit-ulit, mag-ulat ng problema.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1997,18 +1957,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
-        <translation type="unfinished">Piliin ang Ituloy sa Home o sa menu ng menu bar, o pindutin ang Ctrl+Alt+P.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Piliin ang Ituloy sa Home o sa menu ng tray.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
-        <translation type="unfinished">Piliin ang Ituloy sa Home o sa menu ng menu bar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2022,18 +1972,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Pindutin ang Ctrl+Alt+H, o gamitin ang Itago lahat sa Home o sa menu ng menu bar. Makikita sa transcript ng app kung may dumarating na caption.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Gamitin ang Itago lahat sa Home o sa menu ng tray. Makikita sa transcript ng app kung may dumarating na caption.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
-        <translation type="unfinished">Gamitin ang Itago lahat sa Home o sa menu ng menu bar. Makikita sa transcript ng app kung may dumarating na caption.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2127,11 +2067,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">I-on ang Ipakita rito ang boses ko sa settings ng window ng caption, o ang I-caption ang sarili kong boses sa menu ng menu bar para sa bawat window. Naka-off ito hangga&apos;t hindi mo ino-on, at pumupunta lang sa server ang audio ng mic mo habang may window na nagpapakita nito.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Ilipat, i-lock at i-resize ang mga window ng caption</translation>
     </message>
@@ -2144,11 +2079,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Hilahin ang window ng caption para ilipat ito, o ang mga gilid nito para baguhin ang laki. Pinatatagos ng I-lock lahat, sa Home o sa menu ng tray, ang mga click. May nawala? Ibinabalik ng I-reset ang posisyon sa Home ang bawat window.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
-        <translation type="unfinished">Hilahin ang window ng caption para ilipat ito, o ang mga gilid nito para baguhin ang laki. Pinatatagos ng I-lock lahat, sa Home o sa menu ng menu bar, ang mga click. May nawala? Ibinabalik ng I-reset ang posisyon sa Home ang bawat window.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2167,11 +2097,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">Hindi kailanman kinukuha ng window ng caption ang keyboard o mouse ng laro: hindi ito kailanman ang aktibong window. Ilagay ito kung saan hindi nito natatakpan ang kailangan mong makita, saka I-lock lahat sa Home o sa menu ng menu bar para sa laro mapunta ang mga click. Tinatakpan ng larong naka-exclusive full screen ang lahat ng ibang window: piliin na lang ang borderless o windowed full screen nito.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">Mag-dictate sa kahit anong program (preview)</translation>
     </message>
@@ -2179,11 +2104,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">I-on ang Dictation sa Settings &gt; Dictation, o sa menu ng tray. Pindutin ang {key} at magsalita; bitawan, at ita-type ang mga salita mo kung nasaan ang cursor. Kinakansela ng Esc bago ma-type. Para gumamit ng ibang key o kombinasyon, i-click ang key sa Settings &gt; Dictation at pindutin ang gusto mo.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
-        <translation type="unfinished">I-on ang Dictation sa Settings &gt; Dictation, o sa menu ng menu bar. Pindutin ang {key} at magsalita; bitawan, at ita-type ang mga salita mo kung nasaan ang cursor. Kinakansela ng Esc bago ma-type. Para gumamit ng ibang key o kombinasyon, i-click ang key sa Settings &gt; Dictation at pindutin ang gusto mo.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2439,18 +2359,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume here or from the menu bar</source>
-        <translation type="unfinished">ituloy dito o mula sa menu bar</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">ituloy gamit ang Ctrl+Alt+P, o mula sa tray</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
-        <translation type="unfinished">ituloy gamit ang Ctrl+Alt+P, o mula sa menu bar</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2474,11 +2384,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">lumabas mula sa tray at buksan ulit ang Polyglotic - kung patuloy na humihinto, masusuri ng Tulong kung ano ang mali</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
-        <translation type="unfinished">lumabas mula sa menu bar at buksan ulit ang Polyglotic - kung patuloy na humihinto, masusuri ng Tulong kung ano ang mali</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2514,11 +2419,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">na-download na ang update - lumabas mula sa tray at buksan ulit ang Polyglotic para i-install ito</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
-        <translation type="unfinished">na-download na ang update - lumabas mula sa menu bar at buksan ulit ang Polyglotic para i-install ito</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5161,11 +5061,6 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Bukas na ang Polyglotic, pero hindi ito tumutugon. Maghintay sandali, saka buksan itong muli. Kung hindi pa rin ito lumalabas, tapusin ang Polyglotic sa Task Manager, saka buksan itong muli.</translation>
     </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
-        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
-        <translation type="unfinished">Bukas na ang Polyglotic, pero hindi ito tumutugon. Maghintay sandali, saka buksan itong muli. Kung hindi pa rin ito lumalabas, i-force quit ang Polyglotic (⌥⌘Esc), saka buksan itong muli.</translation>
-    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5835,11 +5730,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
-        <translation type="unfinished">Naka-off: mananatili itong nakatago, at sasabihin ng icon sa menu bar na nagka-caption pa rin ito.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">I-reset</translation>
     </message>
@@ -6278,11 +6168,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">I-click, saka pindutin ang key o kombinasyong gusto mong pindutin nang matagal: Kanang ⌘, F9, ⌃⌘E… Ang key nang mag-isa, o kasama ang ⌃, ⌥ o ⌘, ay sa Polyglotic habang naka-on ang dictation; gumagana pa rin ang Kanang ⌘ nang mag-isa sa ibang program.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Wika ng dictation</translation>
     </message>
@@ -6290,11 +6175,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">Tina-type ng “Awtomatikong alamin” ang kahit anong wikang sinasabi mo, tuwing pinipindot mo ang key. Magtakda ng isa - English, Mandarin… - at laging ganoon ito maririnig: hindi kailanman mapagkakamalang ibang wika ang maikling parirala. Napapalitan din ito sa menu ng tray.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">Tina-type ng “Awtomatikong alamin” ang kahit anong wikang sinasabi mo, tuwing pinipindot mo ang key. Magtakda ng isa - English, Mandarin… - at laging ganoon ito maririnig: hindi kailanman mapagkakamalang ibang wika ang maikling parirala. Napapalitan din ito sa menu ng menu bar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

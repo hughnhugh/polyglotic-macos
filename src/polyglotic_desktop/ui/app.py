@@ -350,15 +350,8 @@ class DesktopApp(QObject):
             lambda: self.feedback_wanted.emit("work_with_us")
         )
         self.quit.setToolTip(
-            pc_or_mac(
-                self.tr(
-                    "Stop captioning and close Polyglotic - closing the window keeps it"
-                    " in the tray"
-                ),
-                self.tr(
-                    "Stop captioning and close Polyglotic - closing the window keeps it"
-                    " in the menu bar"
-                ),
+            self.tr(
+                "Stop captioning and close Polyglotic - closing the window keeps it in the tray"
             )
         )
         self.pause.toggled.connect(
@@ -744,16 +737,10 @@ class DesktopApp(QObject):
             title = self.tr("Polyglotic is still captioning")
         elif state is TrayState.PAUSED:
             title = self.tr("Polyglotic is still running, with captions paused")
-            return title, pc_or_mac(
-                self.tr("It's in the tray. Resume or quit from there."),
-                self.tr("It's in the menu bar. Resume or quit from there."),
-            )
+            return title, self.tr("It's in the tray. Resume or quit from there.")
         else:
             title = self.tr("Polyglotic is still running")
-        return title, pc_or_mac(
-            self.tr("It's in the tray. Quit from there."),
-            self.tr("It's in the menu bar. Quit from there."),
-        )
+        return title, self.tr("It's in the tray. Quit from there.")
 
     def show_window(self) -> None:
         """The main window, in front - on the page where the learner picks
