@@ -1,0 +1,2577 @@
+{
+ "rule": "Unfamiliar words a finished caption shows: the learning window's",
+ "code": "src/polyglotic_desktop/core/learning/highlights.py",
+ "caption_cap": [
+  {
+   "words": 1,
+   "cap": 1
+  },
+  {
+   "words": 10,
+   "cap": 1
+  },
+  {
+   "words": 29,
+   "cap": 1
+  },
+  {
+   "words": 30,
+   "cap": 2
+  },
+  {
+   "words": 50,
+   "cap": 3
+  },
+  {
+   "words": 100,
+   "cap": 5
+  }
+ ],
+ "cases": [
+  {
+   "name": "only new words the window reaches, never names",
+   "scale": "hsk-2025",
+   "known": 2,
+   "common_only": true,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "next-band",
+      "start": 60,
+      "end": 62,
+      "level": 3,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "too-rare",
+      "start": 62,
+      "end": 64,
+      "level": 5,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "off-list",
+      "start": 64,
+      "end": 66,
+      "level": null,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "Zhang",
+      "start": 66,
+      "end": 68,
+      "level": 3,
+      "rank": 100,
+      "name": true,
+      "status": "ignored"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "next-band"
+    ]
+   ]
+  },
+  {
+   "name": "a level's every new word: the rarer too, no names",
+   "scale": "hsk-2025",
+   "known": 2,
+   "common_only": false,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "next-band",
+      "start": 60,
+      "end": 62,
+      "level": 3,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "too-rare",
+      "start": 62,
+      "end": 64,
+      "level": 5,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "off-list",
+      "start": 64,
+      "end": 66,
+      "level": null,
+      "rank": 100,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "Zhang",
+      "start": 66,
+      "end": 68,
+      "level": 3,
+      "rank": 100,
+      "name": true,
+      "status": "ignored"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "next-band",
+     "too-rare",
+     "off-list"
+    ]
+   ]
+  },
+  {
+   "name": "the commonest wins the one place",
+   "scale": "hsk-2025",
+   "known": 2,
+   "common_only": true,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "rarer",
+      "start": 40,
+      "end": 42,
+      "level": 3,
+      "rank": 4000,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "commoner",
+      "start": 42,
+      "end": 44,
+      "level": 3,
+      "rank": 900,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "heard-often",
+      "start": 44,
+      "end": 46,
+      "level": 3,
+      "rank": 8000,
+      "name": false,
+      "status": "new"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "commoner"
+    ]
+   ]
+  },
+  {
+   "name": "the most heard wins it",
+   "scale": "hsk-2025",
+   "known": 2,
+   "common_only": true,
+   "heard": {
+    "heard-often": 7
+   },
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "rarer",
+      "start": 40,
+      "end": 42,
+      "level": 3,
+      "rank": 4000,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "commoner",
+      "start": 42,
+      "end": 44,
+      "level": 3,
+      "rank": 900,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "heard-often",
+      "start": 44,
+      "end": 46,
+      "level": 3,
+      "rank": 8000,
+      "name": false,
+      "status": "new"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "heard-often"
+    ]
+   ]
+  },
+  {
+   "name": "at most two a line, each word once",
+   "scale": "hsk-2025",
+   "known": 2,
+   "common_only": true,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known30",
+      "start": 60,
+      "end": 62,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known31",
+      "start": 62,
+      "end": 64,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known32",
+      "start": 64,
+      "end": 66,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known33",
+      "start": 66,
+      "end": 68,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known34",
+      "start": 68,
+      "end": 70,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known35",
+      "start": 70,
+      "end": 72,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known36",
+      "start": 72,
+      "end": 74,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known37",
+      "start": 74,
+      "end": 76,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known38",
+      "start": 76,
+      "end": 78,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known39",
+      "start": 78,
+      "end": 80,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "a",
+      "start": 80,
+      "end": 82,
+      "level": 3,
+      "rank": 1,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "b",
+      "start": 82,
+      "end": 84,
+      "level": 3,
+      "rank": 2,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "c",
+      "start": 84,
+      "end": 86,
+      "level": 3,
+      "rank": 3,
+      "name": false,
+      "status": "new"
+     }
+    ],
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known30",
+      "start": 60,
+      "end": 62,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known31",
+      "start": 62,
+      "end": 64,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known32",
+      "start": 64,
+      "end": 66,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known33",
+      "start": 66,
+      "end": 68,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known34",
+      "start": 68,
+      "end": 70,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known35",
+      "start": 70,
+      "end": 72,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known36",
+      "start": 72,
+      "end": 74,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known37",
+      "start": 74,
+      "end": 76,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known38",
+      "start": 76,
+      "end": 78,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known39",
+      "start": 78,
+      "end": 80,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "a",
+      "start": 80,
+      "end": 82,
+      "level": 3,
+      "rank": 1,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "c",
+      "start": 82,
+      "end": 84,
+      "level": 3,
+      "rank": 3,
+      "name": false,
+      "status": "new"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "a",
+     "b"
+    ],
+    [
+     "c"
+    ]
+   ]
+  },
+  {
+   "name": "in words: a few of the window's",
+   "scale": "words",
+   "known": 1000,
+   "common_only": true,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "in-window",
+      "start": 60,
+      "end": 62,
+      "level": null,
+      "rank": 1400,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "window-end",
+      "start": 62,
+      "end": 64,
+      "level": null,
+      "rank": 2000,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "rarer",
+      "start": 64,
+      "end": 66,
+      "level": null,
+      "rank": 2001,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "no-rank",
+      "start": 66,
+      "end": 68,
+      "level": null,
+      "rank": null,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "Zhang",
+      "start": 68,
+      "end": 70,
+      "level": null,
+      "rank": 1200,
+      "name": true,
+      "status": "ignored"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "in-window",
+     "window-end"
+    ]
+   ]
+  },
+  {
+   "name": "in words: every word of the window, never a rarer one",
+   "scale": "words",
+   "known": 1000,
+   "common_only": false,
+   "heard": {},
+   "lines": [
+    [
+     {
+      "word": "known0",
+      "start": 0,
+      "end": 2,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known1",
+      "start": 2,
+      "end": 4,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known2",
+      "start": 4,
+      "end": 6,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known3",
+      "start": 6,
+      "end": 8,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known4",
+      "start": 8,
+      "end": 10,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known5",
+      "start": 10,
+      "end": 12,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known6",
+      "start": 12,
+      "end": 14,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known7",
+      "start": 14,
+      "end": 16,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known8",
+      "start": 16,
+      "end": 18,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known9",
+      "start": 18,
+      "end": 20,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known10",
+      "start": 20,
+      "end": 22,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known11",
+      "start": 22,
+      "end": 24,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known12",
+      "start": 24,
+      "end": 26,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known13",
+      "start": 26,
+      "end": 28,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known14",
+      "start": 28,
+      "end": 30,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known15",
+      "start": 30,
+      "end": 32,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known16",
+      "start": 32,
+      "end": 34,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known17",
+      "start": 34,
+      "end": 36,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known18",
+      "start": 36,
+      "end": 38,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known19",
+      "start": 38,
+      "end": 40,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known20",
+      "start": 40,
+      "end": 42,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known21",
+      "start": 42,
+      "end": 44,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known22",
+      "start": 44,
+      "end": 46,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known23",
+      "start": 46,
+      "end": 48,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known24",
+      "start": 48,
+      "end": 50,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known25",
+      "start": 50,
+      "end": 52,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known26",
+      "start": 52,
+      "end": 54,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known27",
+      "start": 54,
+      "end": 56,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known28",
+      "start": 56,
+      "end": 58,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "known29",
+      "start": 58,
+      "end": 60,
+      "level": 1,
+      "rank": 100,
+      "name": false,
+      "status": "known"
+     },
+     {
+      "word": "in-window",
+      "start": 60,
+      "end": 62,
+      "level": null,
+      "rank": 1400,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "window-end",
+      "start": 62,
+      "end": 64,
+      "level": null,
+      "rank": 2000,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "rarer",
+      "start": 64,
+      "end": 66,
+      "level": null,
+      "rank": 2001,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "no-rank",
+      "start": 66,
+      "end": 68,
+      "level": null,
+      "rank": null,
+      "name": false,
+      "status": "new"
+     },
+     {
+      "word": "Zhang",
+      "start": 68,
+      "end": 70,
+      "level": null,
+      "rank": 1200,
+      "name": true,
+      "status": "ignored"
+     }
+    ]
+   ],
+   "shown": [
+    [
+     "in-window",
+     "window-end"
+    ]
+   ]
+  }
+ ]
+}

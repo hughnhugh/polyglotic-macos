@@ -1,0 +1,23 @@
+{
+  "type": "plan",
+  "tier": "plus",
+  "source": "subscription",
+  "status": "ending",
+  "until": "2027-12-03T13:00:00.000Z",
+  "next": {
+    "at": "2027-12-03T13:00:00.000Z",
+    "tier": "free",
+    "reason": "cancelled"
+  },
+  "paid_at": "2026-12-03T13:00:00.000Z",
+  "period": "year",
+  "free_minutes": null,
+  "message": {
+    "code": "plus_ending",
+    "at": "2027-12-03T13:00:00.000Z",
+    "action": "keep_plus"
+  },
+  "actions": [
+    "keep"
+  ]
+}

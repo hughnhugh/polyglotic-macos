@@ -1,0 +1,24 @@
+{
+  "type": "plan",
+  "tier": "plus",
+  "source": "subscription",
+  "status": "grace",
+  "until": "2027-01-02T13:00:00.000Z",
+  "next": {
+    "at": "2027-01-02T13:00:00.000Z",
+    "tier": "free",
+    "reason": "payment"
+  },
+  "paid_at": "2026-11-02T13:00:00.000Z",
+  "period": "month",
+  "free_minutes": null,
+  "message": {
+    "code": "payment_failed",
+    "at": "2027-01-02T13:00:00.000Z",
+    "action": "update_payment"
+  },
+  "actions": [
+    "update_payment",
+    "cancel"
+  ]
+}

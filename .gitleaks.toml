@@ -1,0 +1,14 @@
+# gitleaks (pre-commit and CI): its default rules, plus Polyglotic's own
+# secrets (polyglotic-hq project 032, the checklist for D5, item 12).
+[extend]
+useDefault = true
+
+[[rules]]
+id = "polyglotic-device-token"
+description = "A Polyglotic device token: pgd_ and 43 base64url characters (protocol.md)"
+regex = '''pgd_[A-Za-z0-9_-]{43}'''
+keywords = ["pgd_"]
+
+[[rules.allowlists]]
+description = "protocol.md's example token, in the protocol examples and their tests"
+regexes = ['''pgd_EXAMPLE0DEVICE0TOKEN0NOT0REAL0x+''']

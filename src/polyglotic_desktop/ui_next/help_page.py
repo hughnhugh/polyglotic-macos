@@ -1,0 +1,724 @@
+"""Help, in the new main window (polyglotic-hq project 109's structure,
+section 7; today's page, project 096 and 087's wireframe 5.2), in the
+new interface's words: caption windows, not overlays; Home, not Audio,
+Languages or Captions; Words, not Vocabulary.
+
+- **No captions?** - the live check (`core.listening.check`): signed in
+  and connected, an app added, sound from it, speech heard, captions
+  drawn - stopping at the first broken link, with its likely fix. It
+  looks only at what the app already knows, and runs again every few
+  seconds while the page shows, and on Check again. Under it, while the
+  learner's dictionary is out, what's wrong with it and how to fix it, in
+  the lookup card's words (polyglotic-hq 199); and when their learning
+  data was set aside at the start, that, where the old file is, and that
+  their words come back (polyglotic-hq 206).
+- **Set up** and **Questions** - 040's HELP.md, shortened; each opens
+  with a click. "What we keep" says what the privacy notice v2 says, and
+  under the questions the notice and the tester agreement open in the
+  browser (polyglotic-hq 185).
+- **What's new** - each version's release notes, newest first: the
+  newest open, the others a click away (polyglotic-hq 345). Home's card
+  after an update opens it.
+- **Still stuck?** - Report a problem, with the check's result attached:
+  ticks and crosses and the kind of problem, never an app's name, a path
+  or anything heard (`report_wanted`).
+"""
+
+from collections.abc import Callable, Sequence
+
+from PySide6.QtCore import QPoint, Qt, QTimer, Signal
+from PySide6.QtGui import QHideEvent, QShowEvent
+from PySide6.QtWidgets import (
+    QApplication,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+
+from polyglotic_desktop.core.listening.check import (
+    Facts,
+    Link,
+    Problem,
+    Status,
+    Step,
+    run_check,
+    summary,
+)
+from polyglotic_desktop.core.listening.dictation_keys import DEFAULT_KEY
+from polyglotic_desktop.core.listening.unreachable import Unreachable
+from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
+from polyglotic_desktop.ports.dictionary import DictionaryProblem
+from polyglotic_desktop.ports.learning import SetAsideLearningData
+from polyglotic_desktop.ui_next.controls import (
+    Card,
+    Flow,
+    WrapButton,
+    label,
+    page_button,
+)
+from polyglotic_desktop.ui_next.dictation_key import key_words
+from polyglotic_desktop.ui_next.home import Page, unreachable_words
+from polyglotic_desktop.ui_next.lookup_card import dictionary_out
+
+CHECK_EVERY_MS = 2000
+KEEP_WHATS_NEW_MS = 500
+"""How long All the changes keeps What's new at the top of Help while
+the page settles (361)."""
+MARKS = {Status.OK: "✓", Status.BROKEN: "✗", Status.WAITING: "–"}
+MARK_INDENT = 18
+"""A fix, and a topic's text, start under the words after the mark."""
+CLOSED, OPEN = "▸", "▾"
+
+
+def _tr(text: str) -> str:
+    return QApplication.translate("Help", text)
+
+
+class Topic(QWidget):
+    """A help topic: its title, and its text when opened."""
+
+    def __init__(self, title: str, text: str) -> None:
+        super().__init__()
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        self.name = title
+        # a long title wraps rather than widening the page (354)
+        self.title = WrapButton(f"{CLOSED}  {title}")
+        self.title.setObjectName("help.topic")
+        self.title.setAccessibleName(title)
+        self.title.setCheckable(True)
+        self.title.setProperty("kind", "name")
+        self.title.setCursor(Qt.CursorShape.PointingHandCursor)
+        column.addWidget(self.title)
+        self.text = label(text, "Dim", wrap=True)
+        self.text.setContentsMargins(MARK_INDENT, 0, 0, 6)
+        column.addWidget(self.text)
+        self.text.setHidden(True)
+        self.title.toggled.connect(self._open)
+
+    def _open(self, on: bool) -> None:
+        self.title.setText(f"{OPEN if on else CLOSED}  {self.name}")
+        self.text.setHidden(not on)
+
+
+class HelpPage(Page):
+    """No captions?, set up, questions, still stuck."""
+
+    report_wanted = Signal(str)
+    """"Report a problem": the check's result, as `check.summary` words it."""
+
+    def __init__(
+        self,
+        facts: Callable[[], Facts],
+        dictionary_problem: Callable[[], DictionaryProblem | None] = lambda: None,
+        chinese: bool = True,
+        learning_set_aside: Callable[[], SetAsideLearningData | None] = lambda: None,
+        learning_unsaved: Callable[[], bool] = lambda: False,
+    ) -> None:
+        """`dictionary_problem`: why the learner's dictionary is out, if it
+        is; `chinese`: it's a Chinese learner's (else an English one's);
+        `learning_set_aside`: their learning data file set aside at the
+        start, if it was, or since; `learning_unsaved`: since, so nothing is
+        kept until a restart (polyglotic-hq 206)."""
+        super().__init__(_tr("Help"))
+        self._facts = facts
+        self._dictionary_problem = dictionary_problem
+        self._chinese = chinese
+        self._learning_set_aside = learning_set_aside
+        self._learning_unsaved = learning_unsaved
+        self._whats_new_kept = False
+        self.links: tuple[Link, ...] = ()
+        self.problem: DictionaryProblem | None = None
+        self.set_aside: SetAsideLearningData | None = None
+        self.unsaved = False
+
+        check = Card(
+            _tr("No captions?"),
+            _tr(
+                "This looks at what Polyglotic is doing now, in order, and stops "
+                "at the first thing that's wrong."
+            ),
+        )
+        self.rows: dict[Step, QLabel] = {}
+        self.fixes: dict[Step, QLabel] = {}
+        for step in Step:
+            row = QVBoxLayout()
+            row.setSpacing(1)
+            line = label("", wrap=True)
+            line.setObjectName(f"help.{step.value}")
+            fix = label("", "Faint", wrap=True)  # its name is its look
+            fix.setContentsMargins(MARK_INDENT, 0, 0, 0)
+            row.addWidget(line)
+            row.addWidget(fix)
+            check.add(row)
+            self.rows[step] = line
+            self.fixes[step] = fix
+        dictionary = QVBoxLayout()
+        dictionary.setSpacing(1)
+        self.dictionary = label("", wrap=True)
+        self.dictionary.setObjectName("help.dictionary")
+        self.dictionary_fix = label("", "Faint", wrap=True)
+        self.dictionary_fix.setContentsMargins(MARK_INDENT, 0, 0, 0)
+        for each in (self.dictionary, self.dictionary_fix):
+            each.hide()
+            dictionary.addWidget(each)
+        check.add(dictionary)
+        learning = QVBoxLayout()
+        learning.setSpacing(1)
+        self.learning = label("", wrap=True)
+        self.learning.setObjectName("help.learning_data")
+        self.learning_then = label("", "Faint", wrap=True)
+        self.learning_then.setContentsMargins(MARK_INDENT, 0, 0, 0)
+        for each in (self.learning, self.learning_then):
+            each.hide()
+            learning.addWidget(each)
+        check.add(learning)
+        buttons = QHBoxLayout()
+        self.check_again = QPushButton(_tr("Check again"))
+        self.check_again.setObjectName("help.check_again")
+        self.check_again.clicked.connect(self.refresh)
+        buttons.addWidget(self.check_again)
+        buttons.addStretch(1)
+        check.add(buttons)
+        self.content.addWidget(check)
+
+        setting_up = self._topics(_tr("Set up"), set_up())
+        self.dictation = Topic(*dictation_topic(key_words(DEFAULT_KEY)))
+        setting_up.add(self.dictation)
+        self.content.addWidget(setting_up)
+        asked = self._topics(_tr("Questions"), questions())
+        papers = Flow()
+        papers.addWidget(
+            page_button(_tr("Privacy notice"), PRIVACY_NOTICE, "help.privacy_notice")
+        )
+        papers.addWidget(
+            page_button(
+                _tr("Tester agreement"), TESTER_AGREEMENT, "help.tester_agreement"
+            )
+        )
+        asked.add(papers)
+        self.content.addWidget(asked)
+
+        # each version's release notes, newest first and open: what Home's
+        # What's new card shows after an update, kept (polyglotic-hq 345)
+        self.whats_new = Card(_tr("What's new"))
+        self.whats_new.column.setSpacing(2)
+        self.whats_new_language = label(
+            _tr("The release notes are in English."), "Faint", wrap=True
+        )
+        self.whats_new.add(self.whats_new_language)
+        self._versions: list[Topic] = []
+        self._versions_given: list[tuple[str, str]] = []
+        self._versions_built = True
+        self.whats_new.hide()
+        self.content.addWidget(self.whats_new)
+
+        still = Card(_tr("Still stuck?"))
+        stuck = QHBoxLayout()
+        stuck.setSpacing(12)
+        stuck.addWidget(
+            label(
+                _tr(
+                    "Your report comes with this check's result: ticks and "
+                    "crosses only, nothing you've heard or read."
+                ),
+                "Faint",
+                wrap=True,
+            ),
+            1,
+        )
+        self.report = QPushButton(_tr("Report a problem"))
+        self.report.setObjectName("help.report")
+        self.report.clicked.connect(self._report)
+        stuck.addWidget(self.report)
+        still.add(stuck)
+        self.content.addWidget(still)
+        self.content.addStretch(1)
+
+        self._timer = QTimer(self, interval=CHECK_EVERY_MS)
+        self._timer.timeout.connect(self.refresh)  # started when shown
+
+    def _topics(self, title: str, topics: list[tuple[str, str]]) -> Card:
+        card = Card(title)
+        card.column.setSpacing(2)
+        for name, text in topics:
+            card.add(Topic(name, text))
+        return card
+
+    def show_whats_new(
+        self, versions: Sequence[tuple[str, str]], in_english: bool = False
+    ) -> None:
+        """What's new: each version's notes as (version, plain text), newest
+        first - the newest open, the others a click away; `in_english`: the
+        interface isn't, and the notes are. None given: no card."""
+        for topic in self._versions:
+            topic.deleteLater()
+        self._versions = []
+        self._versions_given = list(versions)
+        self._versions_built = False
+        self.whats_new_language.setVisible(in_english)
+        self.whats_new.setVisible(bool(self._versions_given))
+        if self.isVisible():
+            self._build_versions()
+
+    @property
+    def versions(self) -> list[Topic]:
+        """What's new's versions, built now if they weren't: they're built
+        when Help is first shown, not at the start - every version's notes
+        laid out on the interface thread took about 100 ms of each start,
+        right after the first paint (361)."""
+        self._build_versions()
+        return self._versions
+
+    def _build_versions(self) -> None:
+        if self._versions_built:
+            return
+        self._versions_built = True
+        for version, text in self._versions_given:
+            topic = Topic(_tr("Version {version}").format(version=version), text)
+            topic.setObjectName("help.version")
+            self.whats_new.add(topic)
+            self._versions.append(topic)
+        if self._versions:
+            self._versions[0].title.setChecked(True)
+
+    def open_whats_new(self) -> None:
+        """Home's All the changes: What's new in view from its heading, the
+        newest open. Not `ensureWidgetVisible`: once a version is open the
+        section is taller than the view, and Qt then centres it - the
+        learner landed in the middle of the newest version's notes (361).
+        Kept at the heading while the page settles (its text wraps again
+        once the scroll bar shows), not after."""
+        if self.versions:
+            self.versions[0].title.setChecked(True)
+        if not self._whats_new_kept:
+            self.verticalScrollBar().rangeChanged.connect(self._keep_whats_new)
+        self._whats_new_kept = True
+        self._whats_new_to_top()
+        QTimer.singleShot(KEEP_WHATS_NEW_MS, self, self._let_whats_new_go)
+
+    def _keep_whats_new(self) -> None:
+        if self._whats_new_kept:
+            self._whats_new_to_top()
+
+    def _let_whats_new_go(self) -> None:
+        if self._whats_new_kept:  # a second All the changes' timer: gone already
+            self._whats_new_kept = False
+            self.verticalScrollBar().rangeChanged.disconnect(self._keep_whats_new)
+
+    def _whats_new_to_top(self) -> None:
+        inner = self.widget()
+        if inner is None:
+            return
+        if (layout := inner.layout()) is not None:
+            layout.activate()  # the scroll bar's range takes the open version
+        self.verticalScrollBar().setValue(self.whats_new.mapTo(inner, QPoint(0, 0)).y())
+
+    def show_dictation_key(self, key: str) -> None:
+        """Dictation's key, in words ("Right Ctrl"), as its topic names it."""
+        self.dictation.text.setText(dictation_topic(key)[1])
+
+    def showEvent(self, event: QShowEvent) -> None:
+        self._build_versions()
+        self.refresh()
+        self._timer.start()
+        super().showEvent(event)
+
+    def hideEvent(self, event: QHideEvent) -> None:
+        self._timer.stop()
+        super().hideEvent(event)
+
+    def refresh(self) -> None:
+        """Runs the check on the facts as they are now."""
+        self.links = run_check(self._facts())
+        broken_before = False
+        for link in self.links:
+            title, fix = words(link, broken_before)
+            self.rows[link.step].setText(f"{MARKS[link.status]}  {title}")
+            self.fixes[link.step].setText(fix)
+            self.fixes[link.step].setHidden(not fix)
+            broken_before = broken_before or link.status is not Status.OK
+        self.problem = self._dictionary_problem()
+        if self.problem is not None:
+            what, fix = dictionary_out(self.problem, self._chinese)
+            self.dictionary.setText(f"{MARKS[Status.BROKEN]}  {what}")
+            self.dictionary_fix.setText(fix)
+        self.dictionary.setVisible(self.problem is not None)
+        self.dictionary_fix.setVisible(self.problem is not None)
+        self.set_aside = self._learning_set_aside()
+        self.unsaved = self._learning_unsaved()
+        if self.set_aside is not None:
+            what, then = learning_set_aside(self.set_aside, self.unsaved)
+            self.learning.setText(f"{MARKS[Status.BROKEN]}  {what}")
+            self.learning_then.setText(then)
+        self.learning.setVisible(self.set_aside is not None)
+        self.learning_then.setVisible(self.set_aside is not None)
+
+    def _report(self) -> None:
+        self.refresh()
+        found = summary(self.links)
+        if self.problem is not None:  # its kind only, as the log has it
+            found += f"\ndictionary: {self.problem.value}"
+        if self.set_aside is not None:  # its kind only: a path holds the user's name
+            found += f"\nlearning data: set aside ({self.set_aside.problem.value})"
+            if self.unsaved:
+                found += ", after the start"
+        self.report_wanted.emit(found)
+
+
+def learning_set_aside(
+    aside: SetAsideLearningData, unsaved: bool = False
+) -> tuple[str, str]:
+    """Help's words for learning data set aside: what happened, then that
+    the words come back - now, or after a restart if it was found damaged
+    since the start (`unsaved`) - and where the old file is (polyglotic-hq
+    206)."""
+    if unsaved:
+        then = _tr(
+            "Changes aren't kept on this PC until you restart Polyglotic; your"
+            " saved words then come back from your account. The old file is kept"
+            " as {path}, in case we ask for it in a report."
+        )
+    else:
+        then = _tr(
+            "Your saved words are coming back from your account. The old file"
+            " is kept as {path}, in case we ask for it in a report."
+        )
+    return (
+        _tr("Your learning data on this PC was damaged and has been set aside"),
+        then.format(path=aside.path),
+    )
+
+
+# -- the words ------------------------------------------------------------------------
+
+
+def words(link: Link, after_trouble: bool) -> tuple[str, str]:
+    """A link's line and, under it, its fix (if broken) or what it's
+    waiting for (if it's the one being waited on)."""
+    name = link.source or ""
+    if link.status is Status.BROKEN and link.cause is not None:
+        return unreachable_words(link.cause)  # Home's words (251)
+    if link.status is Status.BROKEN and link.problem is not None:
+        return problem(link.problem, name)
+    if link.status is Status.OK:
+        return {
+            Step.CONNECTED: _tr("Signed in, and connected to the server"),
+            Step.TICKED: _tr("{name} is added on Home").format(name=name),
+            Step.SOUND: _tr("Sound from {name} in the last 30 seconds").format(
+                name=name
+            ),
+            Step.SPEECH: _tr("Speech heard"),
+            Step.CAPTIONS: _tr("Captions shown"),
+        }[link.step], ""
+    titles = {
+        Step.CONNECTED: _tr("Signed in, and connected to the server"),
+        Step.TICKED: _tr("Something is added on Home"),
+        Step.SOUND: _tr("Sound from it in the last 30 seconds"),
+        Step.SPEECH: _tr("Speech heard"),
+        Step.CAPTIONS: _tr("Captions shown"),
+    }
+    waits = {
+        Step.CONNECTED: _tr("Connecting to the server…"),
+        Step.SOUND: _tr("Listening for sound…"),
+        Step.SPEECH: _tr("Listening for speech…"),
+        Step.CAPTIONS: _tr("Waiting for the first caption…"),
+    }
+    return titles[link.step], "" if after_trouble else waits.get(link.step, "")
+
+
+def problem(found: Problem, name: str) -> tuple[str, str]:
+    """A broken link's line and its likely fix. The server unreachable is
+    said by its cause (`words`); without one, as nothing answering."""
+    if found is Problem.SERVER_UNREACHABLE:
+        return unreachable_words(Unreachable.NO_ANSWER)
+    return {
+        Problem.SIGN_IN_NEEDED: (
+            _tr("Not signed in"),
+            _tr(
+                "Sign in on Account with your invite code - the one this PC used "
+                "before works again - or the code in your Plus email."
+            ),
+        ),
+        Problem.PLUS_ENDED: (
+            _tr("Plus has ended"),
+            _tr(
+                "Get Plus on Account, and captions start again by themselves. "
+                "Your words and lookups stay; a transcript is gone when you quit, "
+                "unless you save it."
+            ),
+        ),
+        Problem.UPDATE_NEEDED: (
+            _tr("Polyglotic needs an update"),
+            _tr(
+                "It downloads the update and restarts by itself. If it doesn't, "
+                "quit from the tray and start it again."
+            ),
+        ),
+        Problem.SERVER_BUSY: (
+            _tr("The server is busy"),
+            _tr(
+                "It has as many listening as it can carry right now. Polyglotic "
+                "tries again by itself - nothing to do."
+            ),
+        ),
+        Problem.NOT_CONNECTED: (
+            _tr("Not connected to the server"),
+            _tr(
+                "Quit from the tray and start Polyglotic again. If it keeps "
+                "happening, report a problem."
+            ),
+        ),
+        Problem.NOTHING_TICKED: (
+            _tr("Nothing is added to caption"),
+            _tr("On Home, add an app (up to 3), or choose Everything the PC plays."),
+        ),
+        Problem.APP_NOT_OPEN: (
+            _tr("{name} isn't open").format(name=name),
+            _tr("Open it. It's captioned once it's open."),
+        ),
+        Problem.APP_QUIET: (
+            _tr("{name} is quiet: no sound from it in the last 30 seconds").format(
+                name=name
+            ),
+            _tr(
+                "Is it playing sound? Is its output going to this PC's "
+                "speakers or headset, and not muted?"
+            ),
+        ),
+        Problem.SYSTEM_QUIET: (
+            _tr("The PC is quiet: nothing it plays has made sound in 30 seconds"),
+            _tr(
+                "Play something. If you hear it on a headset that isn't "
+                "the PC's default device, make that the default, or add the "
+                "app instead."
+            ),
+        ),
+        Problem.MIC_QUIET: (
+            _tr("Your microphone is quiet: no sound from it in 30 seconds"),
+            _tr(
+                "Is it muted, or is another microphone chosen in the PC's "
+                "sound settings?"
+            ),
+        ),
+        Problem.SOUND_NOT_ALLOWED: (
+            _tr("Polyglotic isn't allowed to hear what the Mac plays"),
+            #: macOS System Settings' own names (macOS 15 and later): keep them
+            #: as the Mac shows them in the language
+            _tr(
+                "In System Settings, open Privacy & Security, then Screen & "
+                "System Audio Recording, and turn on Polyglotic under System "
+                "Audio Recording Only. Then quit Polyglotic and open it again."
+            ),
+        ),
+        Problem.MIC_NOT_ALLOWED: (
+            _tr("Polyglotic isn't allowed to use the microphone"),
+            #: macOS System Settings' own names: keep them as the Mac shows them
+            _tr(
+                "In System Settings, open Privacy & Security, then Microphone, "
+                "and turn on Polyglotic. Then quit Polyglotic and open it again."
+            ),
+        ),
+        Problem.NO_SPEECH: (
+            _tr("Sound, but no speech heard"),
+            _tr(
+                "Music and effects aren't captioned. Is someone talking, "
+                "loudly enough to hear over anything else?"
+            ),
+        ),
+        Problem.PAUSED: (
+            _tr("Captions are paused"),
+            _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P."),
+        ),
+        Problem.OVERLAYS_HIDDEN: (
+            _tr("The caption windows are hidden"),
+            _tr(
+                "Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An "
+                "app's transcript shows whether captions are arriving."
+            ),
+        ),
+        Problem.SERVER_FAILING: (
+            _tr("Captions are failing on the server"),
+            _tr(
+                "It keeps trying by itself - nothing on this PC needs changing. "
+                "If it goes on for more than a few minutes, report a problem."
+            ),
+        ),
+        Problem.NO_CAPTIONS: (
+            _tr("Speech was heard, but no caption has been drawn"),
+            _tr(
+                "If the app's transcript shows captions, its caption window may "
+                "be off-screen: Reset positions on Home puts every window back."
+            ),
+        ),
+    }[found]
+
+
+def set_up() -> list[tuple[str, str]]:
+    return [
+        (
+            _tr("Caption apps you add (Windows 11)"),
+            _tr(
+                "On Home, add up to 3 apps with sound open; each gets a caption "
+                "window of its own, labelled with its name. An app you added "
+                "that isn't open is captioned when it opens. Windows 10 can't "
+                "tell apps apart, so there everything the PC plays is captioned."
+            ),
+        ),
+        (
+            _tr("Caption one app, and everything else apart"),
+            _tr(
+                "With one app added on Home, turn on Also caption everything else "
+                "the PC plays: everything except that app gets a caption window of "
+                "its own, labelled Everything else - a call in one window, the game "
+                "or video in the other, nothing in both. Windows can leave out only "
+                "one app, so it's there with one app at a time (Windows 11)."
+            ),
+        ),
+        (
+            _tr("Caption everything the PC plays"),
+            _tr(
+                "On Home, choose Everything the PC plays: all it plays through "
+                "its default speakers or headset, labelled This PC. If "
+                "your headset isn't the default device, make it the default."
+            ),
+        ),
+        (
+            _tr("Caption your own microphone"),
+            _tr(
+                "Turn on Show my speech here in a caption window's settings, or "
+                "Caption my own speech in the tray menu for every window. It's "
+                "off until you do, and your microphone's audio goes to the "
+                "server only while a window shows it."
+            ),
+        ),
+        (
+            _tr("Move, lock and resize the caption windows"),
+            _tr(
+                "Drag a caption window to move it, or drag its edges to resize "
+                "it. Lock all (Ctrl+Alt+L) lets clicks pass through; Hide all is "
+                "Ctrl+Alt+H; Pause captions is Ctrl+Alt+P. Lost one? Reset "
+                "positions on Home puts every window back."
+            ),
+        ),
+        (
+            _tr("Over a game"),
+            _tr(
+                "A caption window never takes the game's keyboard or mouse: "
+                "it is never the active window. Put it where it doesn't cover "
+                "what you need to see, then Lock all (Ctrl+Alt+L) so clicks go "
+                "through to the game; Hide all (Ctrl+Alt+H) in a fight. The "
+                "hotkeys work while the game has focus and can't be changed "
+                "yet. A game in exclusive full screen covers every other "
+                "window: choose its borderless or windowed full screen instead."
+            ),
+        ),
+    ]
+
+
+def dictation_topic(key: str) -> tuple[str, str]:
+    """Dictation's topic, naming its key in words ("Right Ctrl";
+    polyglotic-hq 283, 289)."""
+    return (
+        _tr("Dictate into any program (preview)"),
+        _tr(
+            "Turn on Dictation in Settings > Dictation, or in the tray menu. Hold"
+            " {key} and speak; let go, and your words are typed where your cursor"
+            " is. Esc cancels before they're typed. To use another key or"
+            " combination, click the key in Settings > Dictation and press the"
+            " one you want."
+        ).format(key=key),
+    )
+
+
+def questions() -> list[tuple[str, str]]:
+    return [
+        (
+            _tr("What we keep"),
+            _tr(
+                "Only speech leaves this PC: our server turns it into captions "
+                "and translations, and never stores the audio, the captions or "
+                "the translations. This PC holds the last 2 minutes of each "
+                "app's finished speech in memory, and sends it again only when "
+                "you ask. Your "
+                "transcript never leaves this PC, and it's gone when you quit "
+                "Polyglotic unless you save it. We keep your "
+                "account, your minutes, a record of each session (never what was "
+                "said or the app's name) and the dictionary words you look up, "
+                "save or mark - never the sentence around them. Usage statistics "
+                "and word counts are shared only if you turn them on (Account > "
+                "Choose what to share), and you can delete your learning data on "
+                "Account. The privacy notice, below, says it all."
+            ),
+        ),
+        (
+            _tr("Why is a line wrong?"),
+            _tr(
+                "Captions and translations are made by machine and can be wrong, "
+                "most of all with names, slang, music behind a voice and several "
+                "people talking at once. Add slang, memes and names you hear often "
+                "- rizz, yyds, a streamer's name - in Names and slang, under "
+                "Settings > Speech, so they're spelled your way."
+            ),
+        ),
+        (
+            # the caption timings, the default first (polyglotic-hq 260,
+            # DECISIONS.md #107), each as its line in Settings > Timing says it
+            _tr("When do captions appear?"),
+            _tr(
+                "Steady, the default: each sentence appears once, finished and "
+                "translated, about half a second after it ends; a small bar moves "
+                "under the captions while it's on its way, and if the speaker "
+                "talks on, a dim line shows the words so far. Quick preview: a dim "
+                "first line after about 2 seconds, then the finished caption and "
+                "its translation when the sentence ends. Live updates: words "
+                "appear as they're "
+                "said and rewrite themselves until the sentence ends. Choose one "
+                "in Settings > Timing, or in a caption window's "
+                "settings. In every one, nobody talks longer than the Longest "
+                "wait for text (3 seconds, unless you change it) before you see "
+                "text."
+            ),
+        ),
+        (
+            _tr("Look up a word, and keep it"),
+            _tr(
+                "Point at a word in a caption window or a transcript (the window "
+                "unlocked): its reading and first meaning appear. Click it for "
+                "the whole entry, or drag across a phrase. Add to deck keeps it "
+                "with the line it was in; Known stops it being marked; Save to "
+                "puts it in a category of yours. Esc closes the card."
+            ),
+        ),
+        (
+            _tr("Where are my words?"),
+            _tr(
+                "Words you look up and save are on Words. They are kept on this "
+                "PC and, with your account, on our server, so they follow you to "
+                "another PC."
+            ),
+        ),
+        (
+            _tr("Put your words into Anki"),
+            _tr(
+                "Words > Export for Anki. The deck file (.apkg) is the easy way: "
+                "double-click it and Anki adds a Polyglotic deck with its own "
+                "note type - word, reading, meaning, the sentence with the word "
+                "in bold, its translation - and Anki's own text-to-speech for "
+                "sound. The CSV imports as it is into Anki's Basic (front and "
+                "back), whatever Anki's language. For a note type of your own, "
+                "pick it in Anki's import dialog and match its fields to the "
+                "columns by number: 1 word, 4 reading, 5 meaning, 6 sentence, "
+                "7 translation. Keep to one of the two: a word stays the kind of note it "
+                "first came as. Exporting again updates the same cards rather "
+                "than doubling them, and leaves your own notes and tags on words "
+                "that haven't changed here; tick Only words not exported yet to "
+                "keep the file short. Anki may call 行 (háng) and 行 (xíng) "
+                "duplicates - it compares the first field only. They are two "
+                "words: keep both."
+            ),
+        ),
+    ]

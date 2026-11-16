@@ -1,0 +1,6 @@
+{
+  "type": "error",
+  "code": "rate_limited",
+  "fatal": false,
+  "retry_after": 1
+}

@@ -1,0 +1,8 @@
+{
+  "type": "consent",
+  "id": "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+  "at": "2026-11-04T09:00:00.000Z",
+  "usage": true,
+  "crashes": true,
+  "exposures": false
+}

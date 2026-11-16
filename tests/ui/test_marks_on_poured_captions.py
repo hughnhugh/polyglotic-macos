@@ -1,0 +1,119 @@
+"""The learning load's stage colours and the marks under words sit on the
+right words when captions fill the width (polyglotic-hq 309 with 324 and
+323): a poured row keeps its own text and layout, so a mark - by row and
+character - is drawn where the pour put those characters, on whichever
+line. Offscreen, a made-up line, painted into an image and read back."""
+
+import pytest
+from PySide6.QtCore import QPointF, QRectF
+from PySide6.QtGui import QColor, QImage, QPainter
+from PySide6.QtWidgets import QApplication
+from tests.ui.test_learning_load_view import SPANS, hear, learner, on, shown
+
+from polyglotic_desktop.core.learning.highlights import WordIntroductions
+from polyglotic_desktop.core.listening.display import WordLinks
+from polyglotic_desktop.ui_next.caption_layout import (
+    CaptionLayout,
+    CaptionStyle,
+    Ink,
+    LaidLine,
+    span_rects,
+)
+from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS, CaptionMarks
+from polyglotic_desktop.ui_next.views.lab import Fill
+
+AT = QPointF(10.0, 10.0)
+SHARE = 0.6
+"""The window's width as a share of the line's, as its own font draws it:
+its words go over two poured lines whatever the font (Linux's draws it
+narrower than a fixed width that wrapped it on Windows)."""
+
+
+def narrow(engine: CaptionLayout) -> int:
+    row = engine.laid(shown(), 4000, 1.0).rows[0]
+    return max(40, int(row.layout.lineAt(0).naturalTextWidth() * SHARE))
+
+
+def near(pixel: QColor, colour: QColor) -> bool:
+    return (
+        abs(pixel.red() - colour.red())
+        + abs(pixel.green() - colour.green())
+        + abs(pixel.blue() - colour.blue())
+    ) < 60
+
+
+def painted(engine: CaptionLayout, marks: CaptionMarks) -> tuple[QImage, LaidLine]:
+    line = shown()
+    width = narrow(engine)
+    laid = engine.laid(line, width, 1.0)
+    image = QImage(width + 20, int(laid.height) + 20, QImage.Format.Format_ARGB32)
+    image.fill(QColor("#101014"))
+    painter = QPainter(image)
+    ink = Ink(QColor("#ffffff"), QColor("#ffffff"))
+    engine.paint(painter, line, laid, AT, ink, marks)
+    painter.end()
+    return image, laid
+
+
+def count(image: QImage, rects: list[QRectF], top: float, colour: QColor) -> int:
+    found = 0
+    for rect in rects:
+        # in from its sides: a neighbour's glyph may reach a pixel over
+        box = (
+            rect.adjusted(2, 0, -2, 0).translated(AT.x(), AT.y() + top).toAlignedRect()
+        )
+        for y in range(box.top(), box.bottom() + 1):
+            for x in range(box.left(), box.right() + 1):
+                if image.rect().contains(x, y) and near(image.pixelColor(x, y), colour):
+                    found += 1
+    return found
+
+
+@pytest.mark.parametrize("fill", [Fill.STACKED, Fill.PAIRED])
+def test_a_stages_colour_is_on_its_word_wherever_the_pour_put_it(
+    qapp: QApplication, fill: Fill
+) -> None:
+    tools = learner()
+    hear(tools, "电脑 电脑 电脑")  # orange
+    hear(tools, " ".join(["游戏"] * 6))  # yellow
+    marks = CaptionMarks(tools)
+    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
+    image, laid = painted(CaptionLayout(CaptionStyle(fill=fill)), marks)
+    assert laid.poured
+    row = next(row for row in laid.rows if row.index == 0)
+    assert row.layout.lineCount() > 1  # the row is over more than one poured line
+    red, orange, yellow, _ = (QColor(colour) for colour in STAGE_COLOURS)
+    wanted = {"研究": red, "电脑": orange, "游戏": yellow}
+    tops: set[int] = set()
+    for word, colour in wanted.items():
+        rects = span_rects(row.layout, *SPANS[word])
+        tops.update(round(rect.top()) for rect in rects)
+        assert count(image, rects, row.top, colour) > 8, word  # in its colour
+        for other_word, other in wanted.items():
+            if other_word != word:  # and no other stage's colour on it
+                assert count(image, rects, row.top, other) == 0, (word, other_word)
+    assert len(tops) > 1  # the coloured words aren't all on one line
+    for word in ("这个", "人"):  # known: plain, on whichever line
+        rects = span_rects(row.layout, *SPANS[word])
+        assert count(image, rects, row.top, QColor("#ffffff")) > 5
+        assert not any(count(image, rects, row.top, c) for c in wanted.values())
+
+
+def test_the_marks_are_the_same_poured_or_in_rows(qapp: QApplication) -> None:
+    """By row and character, whatever the fill: what 323's and 324's marks
+    say doesn't change - only where the characters are."""
+    tools = learner()
+    marks = CaptionMarks(tools)
+    marks.set_look(WordLinks.OFF, WordIntroductions.EVERY, on())
+    line = shown()
+    said = [(s, e) for s, e, _ in marks(line, 0)]
+    for fill in Fill:
+        engine = CaptionLayout(CaptionStyle(fill=fill))
+        width = narrow(engine)
+        laid = engine.laid(line, width, 1.0)
+        row = next(row for row in laid.rows if row.index == 0)
+        for start, end in said:  # each marked word has somewhere it's drawn
+            rects = span_rects(row.layout, start, end)
+            assert rects and all(
+                r.width() > 4 and r.right() <= width + 1.5 for r in rects
+            )

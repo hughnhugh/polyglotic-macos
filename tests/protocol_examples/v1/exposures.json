@@ -1,0 +1,19 @@
+{
+  "type": "exposures",
+  "batch": "f6a7b8c9-d0e1-4f2a-9b4c-5d6e7f809102",
+  "days": [
+    {
+      "date": "2026-11-02",
+      "counts": {
+        "cedict:y7p98nwvxq": 4,
+        "cedict:4r1kz0mq8d": 1
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "counts": {
+        "cedict:y7p98nwvxq": 2
+      }
+    }
+  ]
+}

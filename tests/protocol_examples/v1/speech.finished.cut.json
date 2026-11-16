@@ -1,0 +1,16 @@
+{
+  "type": "speech",
+  "caption_id": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+  "kind": "finished",
+  "source": {
+    "id": "source-1",
+    "category": "video"
+  },
+  "speech_start": 18.9,
+  "speech_end": 24.92,
+  "replaces": [],
+  "codec": "ogg_opus",
+  "sample_rate": 16000,
+  "cut_before": true,
+  "cut_after": true
+}

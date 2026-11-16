@@ -1,0 +1,15 @@
+{
+  "type": "settings",
+  "spoken_language": "detect",
+  "targets": [
+    "en"
+  ],
+  "second_languages": {
+    "en": "zh"
+  },
+  "spelling_hints": [
+    "Polyglotic",
+    "Wang Fang"
+  ],
+  "translate_live": true
+}

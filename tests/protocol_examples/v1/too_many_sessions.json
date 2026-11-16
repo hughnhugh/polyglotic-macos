@@ -1,0 +1,5 @@
+{
+  "type": "too_many_sessions",
+  "limit": 2,
+  "retry_after": 60
+}

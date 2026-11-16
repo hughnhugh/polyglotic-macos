@@ -1,0 +1,6 @@
+{
+  "type": "server_busy",
+  "retry_after": 120,
+  "reason": "maintenance",
+  "until": "2026-11-15T04:30:00Z"
+}

@@ -1,0 +1,58 @@
+{
+  "type": "recheck_result",
+  "caption_id": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+  "outcome": "checked",
+  "language": "vi",
+  "languages_heard": [
+    "vi"
+  ],
+  "clauses": [
+    {
+      "original": "Mình đi ăn trước nha.",
+      "translations": {
+        "en": "Let's go eat first."
+      },
+      "links": {
+        "en": [
+          {
+            "original": [
+              5,
+              7
+            ],
+            "translation": [
+              6,
+              8
+            ],
+            "key": true,
+            "confidence": 0.91
+          },
+          {
+            "original": [
+              8,
+              10
+            ],
+            "translation": [
+              9,
+              12
+            ],
+            "key": true,
+            "confidence": 0.94
+          },
+          {
+            "original": [
+              11,
+              16
+            ],
+            "translation": [
+              13,
+              18
+            ],
+            "key": true,
+            "confidence": 0.87
+          }
+        ]
+      }
+    }
+  ],
+  "processing_ms": 2870
+}

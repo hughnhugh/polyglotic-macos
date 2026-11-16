@@ -1,0 +1,12 @@
+{
+  "id": "7d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a",
+  "at": "2026-11-05T08:30:00.000Z",
+  "kind": "work_with_us",
+  "text": "I build small Qt apps and use the captions every day. Happy to help with the Windows side.",
+  "reply_to": "tester@example.com",
+  "app_version": "0.1.0",
+  "os": "windows-11",
+  "os_version": "10.0.26200",
+  "session_id": null,
+  "log": null
+}

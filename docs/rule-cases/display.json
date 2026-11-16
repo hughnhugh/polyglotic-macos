@@ -1,0 +1,1059 @@
+{
+ "rule": "Caption display: clause rows, word links drawn, the first rewritten row, the one-way layout",
+ "code": "src/polyglotic_desktop/core/listening/display.py",
+ "live_trail": " …",
+ "caption_rows": [
+  {
+   "name": "each clause: what was said, then its translation",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {}
+     },
+     {
+      "original": "今天。",
+      "translations": {
+       "en": "today."
+      },
+      "links": {}
+     }
+    ],
+    "live": false,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": true,
+    "word_links": "off",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "你好，",
+     "kind": "original",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": false,
+     "links": []
+    },
+    {
+     "text": "今天。",
+     "kind": "original",
+     "language": "zh",
+     "clause": 1,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "today.",
+     "kind": "translation",
+     "language": "en",
+     "clause": 1,
+     "starts_clause": false,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "hiding originals never leaves a clause without a row",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {}
+     },
+     {
+      "original": "嗯",
+      "translations": {},
+      "links": {}
+     }
+    ],
+    "live": false,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": false,
+    "word_links": "off",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "嗯",
+     "kind": "original",
+     "language": "zh",
+     "clause": 1,
+     "starts_clause": true,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "a clause already in the target, into the second language",
+   "caption": {
+    "clauses": [
+     {
+      "original": "See you tomorrow.",
+      "translations": {
+       "zh": "明天见。"
+      },
+      "links": {}
+     }
+    ],
+    "live": false,
+    "language": "en"
+   },
+   "target": "en",
+   "second": "zh",
+   "options": {
+    "show_original": true,
+    "word_links": "off",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "See you tomorrow.",
+     "kind": "original",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "明天见。",
+     "kind": "translation",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": false,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "no second language: the original alone",
+   "caption": {
+    "clauses": [
+     {
+      "original": "See you tomorrow.",
+      "translations": {
+       "zh": "明天见。"
+      },
+      "links": {}
+     }
+    ],
+    "live": false,
+    "language": "en"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": true,
+    "word_links": "off",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "See you tomorrow.",
+     "kind": "original",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "a live caption's last row trails off",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {}
+     },
+     {
+      "original": "今天",
+      "translations": {},
+      "links": {}
+     }
+    ],
+    "live": true,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": true,
+    "word_links": "off",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "你好，",
+     "kind": "original",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": false,
+     "links": []
+    },
+    {
+     "text": "今天 …",
+     "kind": "original",
+     "language": "zh",
+     "clause": 1,
+     "starts_clause": true,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "word links on settled clauses only",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {
+       "en": [
+        {
+         "original": [
+          0,
+          2
+         ],
+         "translation": [
+          0,
+          5
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     },
+     {
+      "original": "今天",
+      "translations": {
+       "en": "today"
+      },
+      "links": {
+       "en": [
+        {
+         "original": [
+          0,
+          2
+         ],
+         "translation": [
+          0,
+          5
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     }
+    ],
+    "live": true,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": true,
+    "word_links": "colours",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "你好，",
+     "kind": "original",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": true,
+     "links": [
+      [
+       0,
+       2,
+       0
+      ]
+     ]
+    },
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": false,
+     "links": [
+      [
+       0,
+       5,
+       0
+      ]
+     ]
+    },
+    {
+     "text": "今天",
+     "kind": "original",
+     "language": "zh",
+     "clause": 1,
+     "starts_clause": true,
+     "links": []
+    },
+    {
+     "text": "today …",
+     "kind": "translation",
+     "language": "en",
+     "clause": 1,
+     "starts_clause": false,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "word links once finished",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {
+       "en": [
+        {
+         "original": [
+          0,
+          2
+         ],
+         "translation": [
+          0,
+          5
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     },
+     {
+      "original": "今天",
+      "translations": {
+       "en": "today"
+      },
+      "links": {
+       "en": [
+        {
+         "original": [
+          0,
+          2
+         ],
+         "translation": [
+          0,
+          5
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     }
+    ],
+    "live": false,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": true,
+    "word_links": "colours",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "你好，",
+     "kind": "original",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": true,
+     "links": [
+      [
+       0,
+       2,
+       0
+      ]
+     ]
+    },
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": false,
+     "links": [
+      [
+       0,
+       5,
+       0
+      ]
+     ]
+    },
+    {
+     "text": "今天",
+     "kind": "original",
+     "language": "zh",
+     "clause": 1,
+     "starts_clause": true,
+     "links": [
+      [
+       0,
+       2,
+       1
+      ]
+     ]
+    },
+    {
+     "text": "today",
+     "kind": "translation",
+     "language": "en",
+     "clause": 1,
+     "starts_clause": false,
+     "links": [
+      [
+       0,
+       5,
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "name": "no links with the original hidden",
+   "caption": {
+    "clauses": [
+     {
+      "original": "你好，",
+      "translations": {
+       "en": "Hello,"
+      },
+      "links": {
+       "en": [
+        {
+         "original": [
+          0,
+          2
+         ],
+         "translation": [
+          0,
+          5
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     }
+    ],
+    "live": false,
+    "language": "zh"
+   },
+   "target": "en",
+   "second": null,
+   "options": {
+    "show_original": false,
+    "word_links": "arrows",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "Hello,",
+     "kind": "translation",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": true,
+     "links": []
+    }
+   ]
+  },
+  {
+   "name": "second-language rows use the second language's links",
+   "caption": {
+    "clauses": [
+     {
+      "original": "Good",
+      "translations": {
+       "zh": "好"
+      },
+      "links": {
+       "zh": [
+        {
+         "original": [
+          0,
+          4
+         ],
+         "translation": [
+          0,
+          1
+         ],
+         "key": true,
+         "confidence": 0.9
+        }
+       ]
+      }
+     }
+    ],
+    "live": false,
+    "language": "en"
+   },
+   "target": "en",
+   "second": "zh",
+   "options": {
+    "show_original": true,
+    "word_links": "colours",
+    "link_detail": "most",
+    "max_links": null
+   },
+   "rows": [
+    {
+     "text": "Good",
+     "kind": "original",
+     "language": "en",
+     "clause": 0,
+     "starts_clause": true,
+     "links": [
+      [
+       0,
+       4,
+       0
+      ]
+     ]
+    },
+    {
+     "text": "好",
+     "kind": "translation",
+     "language": "zh",
+     "clause": 0,
+     "starts_clause": false,
+     "links": [
+      [
+       0,
+       1,
+       0
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "numbered_links": [
+  {
+   "name": "one link per counterpart, numbered in reading order",
+   "links": [
+    {
+     "original": [
+      5,
+      7
+     ],
+     "translation": [
+      0,
+      5
+     ],
+     "key": true,
+     "confidence": 0.9
+    },
+    {
+     "original": [
+      0,
+      2
+     ],
+     "translation": [
+      0,
+      5
+     ],
+     "key": true,
+     "confidence": 0.9
+    },
+    {
+     "original": [
+      3,
+      5
+     ],
+     "translation": [
+      10,
+      17
+     ],
+     "key": true,
+     "confidence": 0.9
+    }
+   ],
+   "detail": "most",
+   "cap": null,
+   "original_length": null,
+   "translation_length": null,
+   "original": [
+    [
+     0,
+     2,
+     0
+    ],
+    [
+     3,
+     5,
+     1
+    ],
+    [
+     5,
+     7,
+     0
+    ]
+   ],
+   "translation": [
+    [
+     0,
+     5,
+     0
+    ],
+    [
+     10,
+     17,
+     1
+    ]
+   ]
+  },
+  {
+   "name": "key words leave out minor links",
+   "links": [
+    {
+     "original": [
+      0,
+      1
+     ],
+     "translation": [
+      0,
+      1
+     ],
+     "key": false,
+     "confidence": 0.9
+    },
+    {
+     "original": [
+      2,
+      4
+     ],
+     "translation": [
+      3,
+      8
+     ],
+     "key": true,
+     "confidence": 0.9
+    }
+   ],
+   "detail": "key",
+   "cap": null,
+   "original_length": null,
+   "translation_length": null,
+   "original": [
+    [
+     2,
+     4,
+     0
+    ]
+   ],
+   "translation": [
+    [
+     3,
+     8,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "a cap keeps the surest key links first",
+   "links": [
+    {
+     "original": [
+      0,
+      1
+     ],
+     "translation": [
+      0,
+      1
+     ],
+     "key": false,
+     "confidence": 0.99
+    },
+    {
+     "original": [
+      2,
+      3
+     ],
+     "translation": [
+      2,
+      3
+     ],
+     "key": true,
+     "confidence": 0.5
+    },
+    {
+     "original": [
+      4,
+      5
+     ],
+     "translation": [
+      4,
+      5
+     ],
+     "key": true,
+     "confidence": 0.8
+    }
+   ],
+   "detail": "most",
+   "cap": 2,
+   "original_length": null,
+   "translation_length": null,
+   "original": [
+    [
+     2,
+     3,
+     0
+    ],
+    [
+     4,
+     5,
+     1
+    ]
+   ],
+   "translation": [
+    [
+     2,
+     3,
+     0
+    ],
+    [
+     4,
+     5,
+     1
+    ]
+   ]
+  },
+  {
+   "name": "links outside the text are dropped",
+   "links": [
+    {
+     "original": [
+      0,
+      2
+     ],
+     "translation": [
+      0,
+      5
+     ],
+     "key": true,
+     "confidence": 0.9
+    },
+    {
+     "original": [
+      0,
+      9
+     ],
+     "translation": [
+      0,
+      5
+     ],
+     "key": true,
+     "confidence": 0.9
+    },
+    {
+     "original": [
+      1,
+      1
+     ],
+     "translation": [
+      0,
+      5
+     ],
+     "key": true,
+     "confidence": 0.9
+    }
+   ],
+   "detail": "most",
+   "cap": null,
+   "original_length": 4,
+   "translation_length": 5,
+   "original": [
+    [
+     0,
+     2,
+     0
+    ]
+   ],
+   "translation": [
+    [
+     0,
+     5,
+     0
+    ]
+   ]
+  }
+ ],
+ "first_rewritten": [
+  {
+   "old": [
+    "你好，",
+    "今天 …"
+   ],
+   "new": [
+    "你好，",
+    "今天天气"
+   ],
+   "first": null
+  },
+  {
+   "old": [
+    "一"
+   ],
+   "new": [
+    "一",
+    "二"
+   ],
+   "first": null
+  },
+  {
+   "old": [
+    "一",
+    "二",
+    "三"
+   ],
+   "new": [
+    "一",
+    "贰",
+    "三"
+   ],
+   "first": 1
+  },
+  {
+   "old": [
+    "一",
+    "二",
+    "三"
+   ],
+   "new": [
+    "一二",
+    "二",
+    "三"
+   ],
+   "first": 0
+  },
+  {
+   "old": [
+    "一",
+    "二",
+    "三"
+   ],
+   "new": [
+    "一",
+    "二"
+   ],
+   "first": 2
+  }
+ ],
+ "following_top": [
+  {
+   "name": "arriving captions settle at the bottom",
+   "items": [
+    {
+     "height": 40,
+     "top": null
+    },
+    {
+     "height": 60,
+     "top": null
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": true,
+   "top": 190.0
+  },
+  {
+   "name": "nothing to place",
+   "items": [],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": false,
+   "top": 300.0
+  },
+  {
+   "name": "a shrinking caption moves none down",
+   "items": [
+    {
+     "height": 40,
+     "top": 130.0
+    },
+    {
+     "height": 30,
+     "top": 180.0
+    },
+    {
+     "height": 50,
+     "top": 250.0
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": false,
+   "top": 130.0
+  },
+  {
+   "name": "growth uses the space left at the bottom first",
+   "items": [
+    {
+     "height": 40,
+     "top": 170.0
+    },
+    {
+     "height": 75,
+     "top": 220.0
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": false,
+   "top": 170.0
+  },
+  {
+   "name": "growth past it pushes the stack up",
+   "items": [
+    {
+     "height": 40,
+     "top": 170.0
+    },
+    {
+     "height": 90,
+     "top": 220.0
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": false,
+   "top": 160.0
+  },
+  {
+   "name": "a live caption that has to push leaves headroom",
+   "items": [
+    {
+     "height": 40,
+     "top": 190.0
+    },
+    {
+     "height": 90,
+     "top": 240.0
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": true,
+   "headroom": 64,
+   "reanchor": false,
+   "top": 96.0
+  },
+  {
+   "name": "with room to spare it doesn't push",
+   "items": [
+    {
+     "height": 40,
+     "top": 190.0
+    },
+    {
+     "height": 60,
+     "top": 240.0
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": true,
+   "headroom": 64,
+   "reanchor": false,
+   "top": 190.0
+  },
+  {
+   "name": "a new caption pushes the stack up",
+   "items": [
+    {
+     "height": 40,
+     "top": 190.0
+    },
+    {
+     "height": 60,
+     "top": 240.0
+    },
+    {
+     "height": 50,
+     "top": null
+    }
+   ],
+   "canvas_height": 300.0,
+   "gap": 10.0,
+   "last_is_live": false,
+   "headroom": 0,
+   "reanchor": false,
+   "top": 130.0
+  }
+ ]
+}

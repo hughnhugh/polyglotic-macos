@@ -1,0 +1,22 @@
+{
+  "type": "limit_reached",
+  "kind": "plus_ended",
+  "ended_at": "2026-12-03T13:00:00.000Z",
+  "source": "cohort",
+  "reason": "expired",
+  "action": "get_plus",
+  "plan": {
+    "tier": "free",
+    "source": "cohort",
+    "status": "ended",
+    "until": null,
+    "next": null,
+    "paid_at": null,
+    "period": null,
+    "free_minutes": null,
+    "message": null,
+    "actions": [
+      "get_plus"
+    ]
+  }
+}

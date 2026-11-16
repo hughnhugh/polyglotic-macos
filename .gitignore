@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.log
+logs/
+models/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.import_linter_cache/
+
+# the interface's compiled translations: built from translations/*.ts
+# (python -m tools.i18n build; decision 0034)
+src/polyglotic_desktop/ui/assets/translations/*.qm

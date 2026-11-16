@@ -1,0 +1,12 @@
+{
+  "type": "consent",
+  "id": "5c6d7e8f-9a0b-4c1d-8e2f-3a4b5c6d7e8f",
+  "at": "2026-11-04T09:02:00.000Z",
+  "usage": true,
+  "crashes": false,
+  "exposures": false,
+  "agreement": {
+    "version": "tester-2026-11-08",
+    "at": "2026-11-04T09:01:30.000Z"
+  }
+}

@@ -1,0 +1,2419 @@
+{
+ "rule": "The known line and the learning window: known, learning or rarer",
+ "code": "src/polyglotic_desktop/core/learning/levels.py",
+ "constants": {
+  "words": "words",
+  "default_window": 1000
+ },
+ "cases": [
+  {
+   "scale": "hsk-2025",
+   "known": 0,
+   "stored": {
+    "scheme": "hsk-2025",
+    "midpoint": 0.5
+   },
+   "window_size": null,
+   "window_last": 1,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "hsk-2025",
+   "known": 2,
+   "stored": {
+    "scheme": "hsk-2025",
+    "midpoint": 2.5
+   },
+   "window_size": null,
+   "window_last": 3,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "hsk-2025",
+   "known": 4,
+   "stored": {
+    "scheme": "hsk-2025",
+    "midpoint": 4.5
+   },
+   "window_size": 100,
+   "window_last": 5,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "en-frequency",
+   "known": 3,
+   "stored": {
+    "scheme": "en-frequency",
+    "midpoint": 3.5
+   },
+   "window_size": null,
+   "window_last": 4,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 0,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 0.0
+   },
+   "window_size": null,
+   "window_last": 1000,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 1000,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 1000.0
+   },
+   "window_size": null,
+   "window_last": 2000,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 1000,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 1000.0
+   },
+   "window_size": 500,
+   "window_last": 1500,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 3000,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 3000.0
+   },
+   "window_size": 2000,
+   "window_last": 5000,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 3000,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 3000.0
+   },
+   "window_size": 3000,
+   "window_last": 6000,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": false,
+     "in_window": false
+    }
+   ]
+  },
+  {
+   "scale": "words",
+   "known": 3000,
+   "stored": {
+    "scheme": "words",
+    "midpoint": 3000.0
+   },
+   "window_size": "unlimited",
+   "window_last": null,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    }
+   ]
+  },
+  {
+   "scale": "hsk-2025",
+   "known": 4,
+   "stored": {
+    "scheme": "hsk-2025",
+    "midpoint": 4.5
+   },
+   "window_size": "unlimited",
+   "window_last": null,
+   "words": [
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 1,
+     "level_words": 300,
+     "rank": 8000,
+     "place": 300,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 2,
+     "level_words": 500,
+     "rank": 8000,
+     "place": 500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 3,
+     "level_words": 1000,
+     "rank": 8000,
+     "place": 1000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 40,
+     "place": 40,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 4,
+     "level_words": 2000,
+     "rank": 8000,
+     "place": 2000,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 5,
+     "level_words": 3600,
+     "rank": 8000,
+     "place": 3600,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 6,
+     "level_words": 5400,
+     "rank": 8000,
+     "place": 5400,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 40,
+     "place": 40,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 7,
+     "level_words": 11000,
+     "rank": 8000,
+     "place": 8000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1,
+     "place": 1,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1000,
+     "place": 1000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1001,
+     "place": 1001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 1500,
+     "place": 1500,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3000,
+     "place": 3000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 3001,
+     "place": 3001,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": 5000,
+     "place": 5000,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    },
+    {
+     "level": 3,
+     "level_words": null,
+     "rank": 2500,
+     "place": 2500,
+     "known": true,
+     "reached": true,
+     "in_window": false
+    },
+    {
+     "level": null,
+     "level_words": null,
+     "rank": null,
+     "place": null,
+     "known": false,
+     "reached": true,
+     "in_window": true
+    }
+   ]
+  }
+ ]
+}

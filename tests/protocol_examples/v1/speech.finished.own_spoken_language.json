@@ -1,0 +1,18 @@
+{
+  "type": "speech",
+  "caption_id": "2b7e4c19-8d3a-4f52-9e61-0c5d7a8b9f13",
+  "kind": "finished",
+  "source": {
+    "id": "source-2",
+    "category": "call",
+    "targets": [
+      "en"
+    ],
+    "spoken_language": "zh"
+  },
+  "speech_start": 40.12,
+  "speech_end": 42.9,
+  "replaces": [],
+  "codec": "ogg_opus",
+  "sample_rate": 16000
+}

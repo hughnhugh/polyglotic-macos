@@ -1,0 +1,197 @@
+"""The macOS side of packing (polyglotic-hq 410): the app bundle's layout,
+its icon and Info.plist, Qt's cocoa plugin kept, and the packed app finding
+the build's files in the bundle's Resources. Checked here on any OS; the
+bundle itself is built and started on GitHub's macOS machine
+(.github/workflows/macos.yml)."""
+
+import ast
+import plistlib
+import re
+import struct
+from pathlib import Path
+
+import pytest
+from tools.package import build
+
+from polyglotic_desktop.main import beside_the_app
+
+SPEC = Path(build.__file__).with_name("polyglotic.spec")
+
+
+def test_the_build_s_files_sit_beside_the_exe_on_windows_and_in_resources_on_macos(
+    tmp_path: Path,
+) -> None:
+    """Contents/MacOS holds only code: a file there breaks the bundle's
+    signature, so the dictionaries, notices and release notes go in
+    Contents/Resources, where the packed app looks for them."""
+    exe = tmp_path / "Polyglotic" / "Polyglotic.exe"
+    assert beside_the_app(exe) == tmp_path / "Polyglotic"
+    app = tmp_path / "Polyglotic.app"
+    assert beside_the_app(app / "Contents" / "MacOS" / "Polyglotic") == (
+        app / "Contents" / "Resources"
+    )
+    assert build.MACOS.beside == "Contents/Resources"
+    assert build.MACOS.executable == "Contents/MacOS/Polyglotic"
+
+
+def packed_app(tmp_path: Path) -> Path:
+    """An app bundle with every part the app needs (empty files)."""
+    folder = tmp_path / "Polyglotic.app"
+    for need in build.needed(build.MACOS):
+        (folder / need).parent.mkdir(parents=True, exist_ok=True)
+        (folder / need).write_bytes(b"")
+    return folder
+
+
+def test_a_whole_app_bundle_has_no_problems_and_a_missing_part_is_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        build, "archive_modules", lambda exe: ["polyglotic_desktop.main"]
+    )
+    folder = packed_app(tmp_path)
+    assert build.problems(folder, build.MACOS) == []
+    (folder / "Contents/Resources/dictionaries/cedict.sqlite").unlink()
+    assert build.problems(folder, build.MACOS) == [
+        "missing: Contents/Resources/dictionaries/cedict.sqlite"
+    ]
+
+
+def test_the_app_bundle_needs_qts_cocoa_plugin_and_its_own_libraries() -> None:
+    needed = build.needed(build.MACOS)
+    code = "Contents/Frameworks/"
+    assert f"{code}PySide6/Qt/plugins/platforms/libqcocoa.dylib" in needed
+    assert f"{code}PySide6/Qt/lib/QtSvg.framework" in needed
+    assert f"{code}_soundfile_data/libsndfile_arm64.dylib" in needed
+    assert f"{code}polyglotic_desktop/release.json" in needed
+    assert not [n for n in needed if n.endswith(".dll") or "_internal" in n]
+
+
+def drop_patterns() -> list[str]:
+    """The spec's DROP, evaluated as PyInstaller would for Mandarin."""
+    tree = ast.parse(SPEC.read_text(encoding="utf-8"))
+    (value,) = [
+        node.value
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "DROP" for t in node.targets)
+    ]
+    found = eval(  # the spec's own expression, nothing else
+        compile(ast.Expression(value), str(SPEC), "eval"),
+        {"re": re, "QT_LANGUAGES": ["zh_CN"]},
+    )
+    assert isinstance(found, list)
+    return found
+
+
+@pytest.mark.parametrize(
+    ("path", "kept"),
+    [
+        ("PySide6/Qt/plugins/platforms/libqcocoa.dylib", True),
+        ("PySide6/Qt/plugins/platforms/libqoffscreen.dylib", True),
+        ("PySide6/Qt/plugins/platforms/libqminimal.dylib", False),
+        ("PySide6/Qt/plugins/styles/libqmacstyle.dylib", True),
+        ("PySide6/Qt/plugins/imageformats/libqjpeg.dylib", False),
+        ("PySide6/Qt/translations/qtbase_zh_CN.qm", True),
+        ("PySide6/Qt/translations/qtbase_de.qm", False),
+        # Windows' as before
+        ("PySide6/plugins/platforms/qwindows.dll", True),
+        ("PySide6/plugins/platforms/qminimal.dll", False),
+        ("PySide6/translations/qtbase_zh_CN.qm", True),
+    ],
+)
+def test_the_spec_keeps_cocoa_and_drops_what_it_drops_on_windows(
+    path: str, kept: bool
+) -> None:
+    dropped = any(re.search(pattern, path) for pattern in drop_patterns())
+    assert dropped is not kept
+
+
+def test_the_spec_makes_an_app_bundle_on_macos_only() -> None:
+    spec = SPEC.read_text(encoding="utf-8")
+    assert "if MACOS:\n    INFO = json.loads" in spec
+    assert 'name="Polyglotic.app"' in spec
+    assert 'target_arch="arm64" if MACOS else None' in spec
+
+
+def test_the_info_plist_asks_for_the_mic_and_system_audio_in_our_words() -> None:
+    """Without these, macOS ends the app when it touches the microphone or
+    a tap. The identifier keeps the learner's permissions (decision 0186)."""
+    info = build.info_plist("0.2.0")
+    assert info["CFBundleIdentifier"] == "io.polyglotic.desktop"
+    assert info["CFBundleShortVersionString"] == "0.2.0"
+    assert info["LSMinimumSystemVersion"] == "14.2"  # Core Audio taps
+    assert str(info["NSMicrophoneUsageDescription"]).startswith("Polyglotic ")
+    assert str(info["NSAudioCaptureUsageDescription"]).startswith("Polyglotic ")
+    plistlib.dumps(info)  # what PyInstaller writes it as
+
+
+def test_the_icon_is_one_icns_of_pngs() -> None:
+    png = b"\x89PNG\r\n\x1a\n" + b"x" * 20
+    data = build.icns({b"ic07": png, b"ic08": png + b"y"})
+    assert data[:4] == b"icns"
+    assert struct.unpack(">I", data[4:8])[0] == len(data)
+    first = struct.unpack(">I", data[12:16])[0]
+    assert data[8:12] == b"ic07" and first == 8 + len(png)
+    assert data[8 + first : 12 + first] == b"ic08"
+    assert set(build.ICNS_TYPES) == {32, 64, 128, 256, 512, 1024}
+
+
+def test_the_app_bundle_needs_captures_native_libraries() -> None:
+    """polyglotic-hq 411, 412: without catap's Core Audio library nothing
+    the Mac plays is heard, and without PortAudio's the mic isn't; each is
+    loaded from beside its package's code, where the spec puts it."""
+    needed = build.needed(build.MACOS)
+    code = "Contents/Frameworks/"
+    assert f"{code}catap/native/libcatap_coreaudio.dylib" in needed
+    assert f"{code}_sounddevice_data/portaudio-binaries/libportaudio.dylib" in needed
+    assert not [
+        n for n in build.needed(build.WINDOWS) if "catap" in n or "sounddevice" in n
+    ]
+    spec = SPEC.read_text(encoding="utf-8")
+    assert 'NATIVE = collect_dynamic_libs("catap")' in spec
+    assert "binaries=NATIVE," in spec
+
+
+@pytest.mark.parametrize(
+    ("path", "kept"),
+    [
+        ("_sounddevice_data/portaudio-binaries/libportaudio.dylib", True),
+        ("_sounddevice_data/portaudio-binaries/libportaudio64bit.dll", False),
+        ("_sounddevice_data/portaudio-binaries/libportaudioarm64-asio.dll", False),
+        ("catap/native/libcatap_coreaudio.dylib", True),
+    ],
+)
+def test_the_mac_bundle_keeps_portaudio_for_the_mac_only(path: str, kept: bool) -> None:
+    """sounddevice's macOS wheel carries Windows' PortAudio DLLs too."""
+    dropped = any(re.search(pattern, path) for pattern in drop_patterns())
+    assert dropped is not kept
+
+
+def test_portaudios_licence_goes_with_the_app_that_bundles_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """sounddevice's wheel names PortAudio's licence but has no text of it."""
+    monkeypatch.setattr(build, "archive_modules", lambda exe: [])
+    monkeypatch.setattr(build, "runtime_distributions", list)
+    mac = tmp_path / "Polyglotic.app"
+    (mac / "Contents/Frameworks/_sounddevice_data/portaudio-binaries").mkdir(
+        parents=True
+    )
+    copied = build.copy_licences(mac, build.MACOS)
+    text = (mac / "Contents/Resources/licenses/PortAudio/LICENSE.txt").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "Ross Bencina and Phil Burk" in text and "Permission is hereby granted" in text
+    )
+    assert {
+        "name": "PortAudio",
+        "version": "19.7.0",
+        "licence": "MIT",
+        "files": 1,
+    } in copied
+    windows = tmp_path / "Polyglotic"
+    (windows / "_internal").mkdir(parents=True)
+    build.copy_licences(windows, build.WINDOWS)
+    assert not (windows / "licenses" / "PortAudio").exists()

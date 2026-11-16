@@ -1,0 +1,33 @@
+# Checks on every commit. Set up once per clone:
+#   uv run pre-commit install
+# CI repeats every check (hooks can be skipped), so CI is the gate.
+# Keep the ruff rev equal to the ruff version in uv.lock; Dependabot
+# updates both.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        # The speech-detection model, committed on purpose (decision 0003).
+        exclude: ^src/polyglotic_desktop/platform/data/silero_vad_16k_op15\.onnx$
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      # Every change arrives as a pull request from its own branch
+      # (ENGINEERING.md). GitHub can't enforce it on the free plan; this
+      # stops local commits to main.
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

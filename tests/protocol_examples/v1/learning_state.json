@@ -1,0 +1,33 @@
+{
+  "type": "learning_state",
+  "cursor": "1234",
+  "more": false,
+  "deletion": {
+    "generation": 1,
+    "at": "2026-11-04T08:00:00.000Z"
+  },
+  "statuses": [
+    {
+      "entry_id": "cedict:y7p98nwvxq",
+      "status": "learning",
+      "at": "2026-11-04T09:15:05.480Z"
+    },
+    {
+      "entry_id": "cedict:4r1kz0mq8d",
+      "status": "known",
+      "at": "2026-11-04T09:16:40.000Z"
+    }
+  ],
+  "saved_words": [
+    {
+      "entry_id": "cedict:y7p98nwvxq",
+      "saved": true,
+      "at": "2026-11-04T09:15:05.480Z"
+    },
+    {
+      "entry_id": "ecdict:njx2am9103",
+      "saved": false,
+      "at": "2026-11-04T09:17:00.000Z"
+    }
+  ]
+}

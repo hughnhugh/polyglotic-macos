@@ -1,0 +1,375 @@
+"""The UI lab: a PNG and a timing JSON per state, and the gate - a new
+part over budget fails the run; a state not gated is recorded only. A new
+part over budget is run once more - up to twice more again while the PC
+measures saturated - and judged on the last, with the first shown: a slow
+moment passes, a real slowdown doesn't (projects 140 and 197, decision
+0040). An action that happens once in a widget's life is judged on five
+fresh ones (decision 0047). The PC's load is set here, never read."""
+
+import gc
+import itertools
+import json
+import time
+from collections.abc import Callable
+from pathlib import Path
+
+import pytest
+from PySide6.QtGui import QShowEvent
+from PySide6.QtWidgets import QLabel, QWidget
+from tools.ui_lab import __main__ as cli
+from tools.ui_lab import lab, new_parts, pages
+
+from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
+from polyglotic_desktop.perf import budgets
+from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.words_page import WordsPage
+from tools import busy_pc, start_record, timing_record
+
+
+@pytest.fixture(autouse=True)
+def load(monkeypatch: pytest.MonkeyPatch) -> list[float]:
+    """The PC's load as the lab reads it: 40 % (busy, not saturated)
+    unless a test says otherwise."""
+    readings = [0.4]
+    monkeypatch.setattr(busy_pc, "busy_share", lambda seconds=0.2: readings[0])
+    return readings
+
+
+def slow_state(lab_: lab.Lab) -> QWidget:
+    lab_.time("click", lambda: time.sleep(0.06), budget=budgets.CLICK)
+    return QLabel("slow")
+
+
+def test_a_state_writes_its_png_and_json(tmp_path: Path) -> None:
+    state = next(s for s in new_parts.STATES if s.name == "ui_next.caption_window_1000")
+    (result,) = lab.run([state], tmp_path)
+    assert (tmp_path / f"{state.name}.png").stat().st_size > 1000
+    written = json.loads((tmp_path / f"{state.name}.json").read_text(encoding="utf-8"))
+    assert written["gated"] is True
+    resize = written["actions"]["resize_step"]
+    assert resize["n"] == 30 and resize["budget"] == "frame"
+    assert resize["within"] is True
+    assert written["spans"]["caption_surface.paint"]["n"] >= 30
+    assert result.over_budget() == []
+    assert "| ui_next.caption_window_1000 | resize_step |" in (
+        tmp_path / "summary.md"
+    ).read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(("gated", "fails"), [(True, 1), (False, 0)])
+def test_only_a_new_part_over_budget_fails_the_gate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, gated: bool, fails: int
+) -> None:
+    state = lab.State("ui_next.slow" if gated else "ui.slow", slow_state, gated=gated)
+    monkeypatch.setattr(new_parts, "STATES", [state])
+    # only these states, whatever the lab gains later (not each module's list)
+    monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    assert cli.main(["--gate", "--out", str(tmp_path)]) == fails
+    written = json.loads((tmp_path / f"{state.name}.json").read_text(encoding="utf-8"))
+    assert written["actions"]["click"]["within"] is False
+    assert ("click" in written["first_try"]) is gated  # a new part ran twice
+
+
+@pytest.mark.parametrize(
+    ("slow", "fails"),
+    [((1,), 0), ((1, 7), 1)],
+    ids=["a slow moment in the first run", "one slow click in every run"],
+)
+def test_a_new_part_over_budget_is_run_once_more_and_both_runs_shown(
+    tmp_path: Path, slow: tuple[int, ...], fails: int
+) -> None:
+    calls = itertools.count(1)
+
+    def click() -> None:
+        if next(calls) in slow:  # six clicks a run: 1-6, then 7-12
+            time.sleep(0.06)
+
+    def state(lab_: lab.Lab) -> QWidget:
+        lab_.time("click", click, repeat=6, budget=budgets.CLICK)
+        return QLabel("a click")
+
+    (result,) = lab.run([lab.State("ui_next.click", state, gated=True)], tmp_path)
+    assert len(result.over_budget()) == fails  # the gate's verdict: the second run
+    written = json.loads((tmp_path / "ui_next.click.json").read_text(encoding="utf-8"))
+    assert written["first_try"]["click"]["max_ms"] >= 60  # the first run, shown
+    assert written["actions"]["click"]["within"] == (fails == 0)
+    table = (tmp_path / "summary.md").read_text(encoding="utf-8")
+    assert "on try 2 (try 1 over: median" in table
+
+
+@pytest.mark.parametrize(
+    ("slow", "tries", "fails"),
+    [((1, 7, 13), 4, 0), ((1, 7, 13, 19), 4, 1)],
+    ids=["a slow click in three runs", "one slow click in every run"],
+)
+def test_a_saturated_pc_gets_two_runs_more_and_says_so(
+    tmp_path: Path,
+    load: list[float],
+    slow: tuple[int, ...],
+    tries: int,
+    fails: int,
+) -> None:
+    load[0] = 0.97
+    calls = itertools.count(1)
+
+    def click() -> None:
+        if next(calls) in slow:  # six clicks a run: 1-6, 7-12, 13-18, 19-24
+            time.sleep(0.06)
+
+    def state(lab_: lab.Lab) -> QWidget:
+        lab_.time("click", click, repeat=6, budget=budgets.CLICK)
+        return QLabel("a click")
+
+    (result,) = lab.run([lab.State("ui_next.click", state, gated=True)], tmp_path)
+    assert result.tries == tries and len(result.over_budget()) == fails
+    written = json.loads((tmp_path / "ui_next.click.json").read_text(encoding="utf-8"))
+    assert written["tries"] == tries and written["busy"] == [0.97, 0.97]
+    table = (tmp_path / "summary.md").read_text(encoding="utf-8")
+    assert "on try 4 (try 1 over: median" in table and "the PC 97% busy)" in table
+
+
+@pytest.mark.parametrize(
+    ("slow", "tries", "fails"),
+    [((1,), 1, 0), ((1, 2, 3, 6, 7, 8), 2, 1)],
+    ids=["one slow first show", "three slow first shows in every try"],
+)
+def test_a_first_show_is_judged_on_the_median_of_five_fresh_ones(
+    tmp_path: Path, slow: tuple[int, ...], tries: int, fails: int
+) -> None:
+    """Decision 0047: an action that happens once in a widget's life, timed
+    on five fresh widgets, each set up untimed; their median is its run."""
+    shows = itertools.count(1)
+    made: list[int] = []
+
+    def fresh() -> Callable[[], object]:
+        made.append(len(made))
+
+        def show() -> None:
+            if next(shows) in slow:  # five shows a try: 1-5, then 6-10
+                time.sleep(0.06)
+
+        return show
+
+    def state(lab_: lab.Lab) -> QWidget:
+        lab_.time_fresh("first_show", fresh, budget=budgets.PAGE_SWITCH_COLD)
+        return QLabel("shown")
+
+    (result,) = lab.run([lab.State("ui_next.shown", state, gated=True)], tmp_path)
+    assert result.tries == tries and len(made) == 5 * tries  # fresh ones, each try
+    assert len(result.over_budget()) == fails
+    written = json.loads((tmp_path / "ui_next.shown.json").read_text(encoding="utf-8"))
+    judged, each = (
+        written["actions"]["first_show"],
+        written["actions"]["first_show_each"],
+    )
+    assert judged["n"] == 1 and judged["within"] == (fails == 0)
+    assert each["n"] == 5 and "budget" not in each  # recorded, not judged
+
+
+def test_words_first_show_passes_a_slow_moment_in_each_try(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """234: in desktop #350's CI, `w4_words_met_10000`'s first show - 22-26
+    ms in most runs - took 51.0 ms, then 58.7 ms on the retry, while the
+    runner was busy, and failed the job. Timed once, a slow moment in each
+    try fails; judged on five fresh pages (decision 0047), it passes."""
+    trying = [False]
+    learner = pages.met_learner_tools
+
+    def tools(met: int, zh: ChineseDictionary | None = None) -> LearningTools:
+        trying[0] = True  # a try starts: its first page's first show is slow
+        return learner(met, zh)
+
+    class SlowOnce(WordsPage):
+        def showEvent(self, event: QShowEvent) -> None:
+            if trying[0]:
+                trying[0] = False
+                time.sleep(0.06)
+            super().showEvent(event)
+
+    monkeypatch.setattr(pages, "met_learner_tools", tools)
+    monkeypatch.setattr(pages, "WordsPage", SlowOnce)
+    state = next(s for s in pages.STATES if s.name == "ui_next.w4_words_met_1000")
+    (result,) = lab.run([state], tmp_path)
+    assert result.over_budget() == []
+    assert max(result.actions["page_switch_cold_each"].samples) >= 60
+
+
+def test_the_garbage_collector_is_held_off_while_an_action_is_timed(
+    tmp_path: Path,
+) -> None:
+    seen: list[bool] = []
+
+    def state(lab_: lab.Lab) -> QWidget:
+        lab_.time("look", lambda: seen.append(gc.isenabled()), repeat=2)
+        return QLabel("look")
+
+    lab.run([lab.State("ui.look", state, gated=False)], tmp_path)
+    assert seen == [False, False] and gc.isenabled()
+
+
+def test_fonts_are_warmed_before_the_first_state_is_timed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The first text drawn loads its fonts (about 40 ms): it once landed in
+    the first state as a run over the slot budget."""
+    calls: list[str] = []
+    monkeypatch.setattr(lab, "warm_fonts", lambda: calls.append("warm"))
+
+    def first(lab_: lab.Lab) -> QWidget:
+        calls.append("state")
+        return QLabel("first")
+
+    lab.run([lab.State("ui.first", first, gated=False)], tmp_path)
+    assert calls == ["warm", "state"]
+    monkeypatch.undo()
+    lab.warm_fonts()  # and the real one runs offscreen
+
+
+# -- the app's own text size (polyglotic-hq 292) ----------------------------------------
+
+
+def test_the_goldens_are_approved_only_at_the_apps_normal_text_size(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(SystemExit):
+        cli.main(["approve", "--app-text-size", "largest", "--out", str(tmp_path)])
+
+
+def test_each_state_begins_at_the_runs_app_text_size() -> None:
+    """A state that leaves another size behind it (a `text_sizes` state goes
+    back to Normal) doesn't carry it into the next: a Largest run checked
+    most of its states at Normal until each began at the run's own."""
+    begun: list[float] = []
+
+    def leaves_normal(_lab: lab.Lab) -> QWidget:
+        begun.append(style.app_text_size())
+        style.use_app_text_size("normal")
+        return QWidget()
+
+    states = [lab.State(name, leaves_normal, False) for name in ("a", "b")]
+    try:
+        for state in cli.at_app_text_size(states, "largest"):
+            state.run(lab.Lab(lab.application(), Path()))
+        assert begun == [1.45, 1.45]
+    finally:
+        style.use_app_text_size("normal")
+
+
+def clicks_taking(ms: float) -> lab.State:
+    """A gated state whose six clicks each take `ms` (the click's budget: 30)."""
+
+    def state(lab_: lab.Lab) -> QWidget:
+        lab_.time(
+            "click", lambda: time.sleep(ms / 1000), repeat=6, budget=budgets.CLICK
+        )
+        return QLabel("clicks")
+
+    return lab.State("ui_next.clicks", state, gated=True)
+
+
+def gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    state: lab.State,
+    event: str,
+    capsys: pytest.CaptureFixture[str],
+) -> tuple[int, str]:
+    """The lab's gate on `state` alone, as CI runs it on a pull request or
+    a push to main: its exit code and what it said."""
+    monkeypatch.setattr(new_parts, "STATES", [state])
+    monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
+    monkeypatch.setattr(cli.goldens, "GOLDENS", None)  # the budgets alone
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.setenv("POLYGLOTIC_TIMING_RECORD", str(tmp_path / "records"))
+    monkeypatch.setenv("GITHUB_EVENT_NAME", event)
+    monkeypatch.setenv(
+        "GITHUB_REF", "refs/heads/main" if event == "push" else "refs/pull/1/merge"
+    )
+    monkeypatch.setenv("GITHUB_SHA", "abcdef1234567890")
+    code = cli.main(["--gate", "--out", str(tmp_path / "out")])
+    return code, capsys.readouterr().err
+
+
+MAIN = timing_record.kind(100, "normal", "en")
+
+
+@pytest.mark.parametrize(
+    ("main_ms", "fails"),
+    [(60.0, 0), (30.0, 1)],
+    ids=["as slow on main", "twice as slow as main"],
+)
+def test_a_pull_request_over_budget_fails_only_if_slower_than_main(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    main_ms: float,
+    fails: int,
+) -> None:
+    """Decision 0136 (polyglotic-hq 344): main's theme change crept from 29
+    to 76 ms of its 100 and failed pull requests that hadn't touched it. A
+    click at 60 ms (its budget: 30) on a pull request: as main's record has
+    it, over its budget as main is - said, not failed; main's at 30 ms, the
+    change made it twice as slow - failed."""
+    monkeypatch.setenv("POLYGLOTIC_TIMING_RECORD", str(tmp_path / "records"))
+    timing_record.save(
+        MAIN,
+        {"ui_next.clicks: click": timing_record.Timing(main_ms, main_ms)},
+        "1234abcd",
+    )
+    code, said = gate(tmp_path, monkeypatch, clicks_taking(60), "pull_request", capsys)
+    assert code == fails, said
+    if fails:
+        assert "over budget - ui_next.clicks: click" in said
+    else:
+        assert "over its budget as main is - ui_next.clicks: click - median" in said
+        assert "main's (1234abcd) median 60.0" in said
+
+
+def test_main_is_held_to_the_budget_alone_and_keeps_its_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Main's runs are never excused: main going over is seen there. Its
+    timings become the record pull requests are compared with."""
+    monkeypatch.setenv("POLYGLOTIC_TIMING_RECORD", str(tmp_path / "records"))
+    timing_record.save(
+        MAIN, {"ui_next.clicks: click": timing_record.Timing(60.0, 60.0)}, "1234abcd"
+    )
+    code, said = gate(tmp_path, monkeypatch, clicks_taking(60), "push", capsys)
+    assert code == 1 and "over budget - ui_next.clicks: click" in said
+    record = timing_record.load(MAIN)
+    assert record is not None and record.commit == "abcdef1234567890"
+    kept = record.timings["ui_next.clicks: click"]
+    assert 60 <= kept.median_ms < 120 and kept.longest_ms >= kept.median_ms
+
+
+def test_a_gate_run_in_a_test_never_keeps_this_pcs_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Polyglotic-hq 367: CI's Checks on a push to main run these tests with
+    the push's own environment, and a test's gate kept its made-up timings
+    (none, or one click) as main's record on the PC, over the UI lab's own.
+    Every pull request's lab after that was judged against it: with nothing
+    of main's to compare, any action over its budget failed."""
+    pc = tmp_path / "this-pc"
+    monkeypatch.setattr(start_record, "RECORD_FOLDER", pc)
+    monkeypatch.setattr(new_parts, "STATES", [clicks_taking(1)])
+    monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
+    monkeypatch.setattr(cli.goldens, "GOLDENS", None)
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    monkeypatch.setenv("GITHUB_EVENT_NAME", "push")
+    monkeypatch.setenv("GITHUB_REF", "refs/heads/main")
+    assert cli.main(["--gate", "--out", str(tmp_path / "out")]) == 0
+    assert not pc.exists() or not any(pc.iterdir())
+
+
+def test_without_a_record_a_pull_request_is_held_to_the_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """No record of main's here (another PC, or none kept yet): the gate is
+    the budget, as before 0136."""
+    code, said = gate(tmp_path, monkeypatch, clicks_taking(60), "pull_request", capsys)
+    assert code == 1 and "over budget - ui_next.clicks: click" in said

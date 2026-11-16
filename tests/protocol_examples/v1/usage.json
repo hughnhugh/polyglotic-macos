@@ -1,0 +1,37 @@
+{
+  "type": "usage",
+  "batch": "17a8b9c0-d1e2-4f3a-8b5c-6d7e8f901a2b",
+  "events": [
+    {
+      "id": "b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
+      "name": "translation_toggled",
+      "v": 1,
+      "at": "2026-11-04T09:15:02.120Z",
+      "props": {
+        "on": true,
+        "target_lang": "en"
+      }
+    },
+    {
+      "id": "c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f",
+      "name": "listening_session_ended",
+      "v": 1,
+      "at": "2026-11-04T09:42:10.000Z",
+      "props": {
+        "speech_minutes": 18.5,
+        "captions": 212,
+        "source_category": "video",
+        "caption_mode": "live",
+        "delay_p50_ms": 1180,
+        "delay_p95_ms": 1720,
+        "rewrite_ratio": 0.21,
+        "erasure_ratio": 0.14,
+        "dropped": 1,
+        "reconnects": 0,
+        "live_interval_seconds": 1.5,
+        "lookups": 6,
+        "saves": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+# The Mac build, proved on GitHub's macOS machine (polyglotic-hq 408, 410;
+# decision 0186): by hand only - never on a push or a pull request. GitHub's
+# macOS minutes cost money on this private repo (US$0.062 a minute,
+# 2026-11-16: about US$2-3 a whole run), so Claude runs it only on the
+# user's word (polyglotic-hq DECISIONS #190), with what's needed ticked.
+#
+# One job on `macos-26` (Apple M1, 3 cores, 7 GB, signed in to a desktop
+# session, passwordless sudo, no sound device), each part run even when
+# one before it failed, the job failing if any did:
+# - tests: the whole suite (Windows-only tests skipped), mypy as macOS sees
+#   the code, the import rule;
+# - tour: the app from source on macOS's real windows (cocoa), signed in to
+#   a stand-in server on the machine, captioning the app's own FLEURS
+#   sample fed straight in (tools/app_tour.py); pictures by each window's
+#   own grab() and checks.json;
+# - pack: Polyglotic.app (PyInstaller, Apple silicon, ad hoc signed), its
+#   parts and signature checked, `--check-install` run on it
+#   (tools/package/build.py);
+# - measure: BlackHole installed, the sound devices listed, and whether a
+#   system-audio permission can be written for a tap (tools/macos_measure.py)
+#   - reported, never failing the job;
+# - capture: 411's checks on BlackHole (tools/macos_capture_checks.py,
+#   polyglotic-hq 412) - afplay heard through one app's tap, everything
+#   else, a global and a device tap, the mic, the clock's drift, the packed
+#   app's own capture (`--check-capture`), and the permission taken away
+#   (NOT_ALLOWED); about 3 minutes plus `drift_minutes`. Fails only on a
+#   fail; unknown is what the machine didn't let us see.
+#
+# How Claude runs it (gh, from a desktop worktree):
+#   gh workflow run macos.yml --ref <branch> [-f pack=false -f measure=false ...]
+#   gh run list --workflow macos.yml --limit 3          # the run's id
+#   gh run watch <id> --exit-status                     # or look later
+#   gh run download <id> --dir build/macos-run          # the artifact below
+# The artifact `macos-<run id>` (kept 1 day): tour/ (checks.json, *.png),
+# pack/ (summary.json, check-install.json), measure.json, capture/
+# (capture.json, packed-capture.json, not-allowed.json); and, only with
+# keep_app ticked, Polyglotic-macos-arm64.zip (about 150 MB of the
+# account's 500 MB artifact storage: delete it once fetched -
+# `gh api -X DELETE repos/<repo>/actions/artifacts/<id>`).
+name: macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      tests:
+        description: The whole test suite, mypy for macOS, the import rule
+        type: boolean
+        default: true
+      tour:
+        description: The app from source on macOS's windows, with replayed captions and pictures
+        type: boolean
+        default: true
+      pack:
+        description: Polyglotic.app packed, signed ad hoc and --check-install run on it
+        type: boolean
+        default: true
+      measure:
+        description: BlackHole, the sound devices and the system-audio permission, measured
+        type: boolean
+        default: true
+      capture:
+        description: Mac capture's checks on BlackHole (taps, the mic, the packed app's capture)
+        type: boolean
+        default: true
+      drift_minutes:
+        description: How long the capture part's clock-drift check listens
+        type: string
+        default: "3"
+      keep_app:
+        description: Upload the packed app's zip too (about 150 MB, kept 1 day)
+        type: boolean
+        default: false
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: macOS (Apple silicon)
+    runs-on: macos-26
+    # minutes are paid for: a stuck run is cut off at about US$4.30
+    timeout-minutes: 70
+    env:
+      TAG: v0.0.1
+      CHANNEL: macos-arm64-alpha
+      OUT: build/macos
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # tags and main, for tests/test_schema_versions.py
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: Install for macOS (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: The machine
+        run: |
+          sw_vers
+          uname -m
+          sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize
+          uv run --no-sync python -c "import platform, PySide6; print(platform.mac_ver(), PySide6.__version__)"
+
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      - name: Tests (pytest; Windows-only ones skipped)
+        if: ${{ !cancelled() && inputs.tests }}
+        run: uv run --no-sync pytest -p no:cacheprovider
+
+      # As tools.mypy_platforms says: only Windows' own modules may fail here
+      - name: Types as macOS sees them (mypy --platform darwin)
+        if: ${{ !cancelled() && inputs.tests }}
+        run: uv run --no-sync python -m tools.mypy_platforms darwin
+
+      - name: Import rule (import-linter)
+        if: ${{ !cancelled() && inputs.tests }}
+        run: uv run --no-sync lint-imports
+
+      # The pinned sources are checked against their SHA-256 either way
+      # (tools/dictionaries/sources.py); the cache only saves downloading.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack) }}
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources (the card and the app need them)
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack) }}
+        run: uv run --no-sync python -m tools.dictionaries.build
+
+      - name: The app on macOS's windows, captioning a replayed recording
+        if: ${{ !cancelled() && inputs.tour }}
+        run: uv run --no-sync python -m tools.app_tour "$OUT/tour" --limit 300
+
+      - name: Polyglotic.app, packed and checked
+        if: ${{ !cancelled() && inputs.pack }}
+        run: |
+          # as a release builds it: the app and PyInstaller only (no dev
+          # tools, no word splits: decision 0123 keeps simplemma out)
+          uv sync --locked --no-default-groups --group package
+          status=0
+          uv run --no-sync python -m tools.package.build "$TAG" --channel "$CHANNEL" || status=$?
+          mkdir -p "$OUT/pack"
+          cp build/package/summary.json build/package/check-install.json "$OUT/pack/" 2>/dev/null || true
+          exit "$status"
+
+      - name: What the machine allows for capture (measured, never failing)
+        if: ${{ !cancelled() && inputs.measure }}
+        continue-on-error: true
+        run: |
+          app=()
+          if [ -d dist/Polyglotic.app ]; then app=(--app dist/Polyglotic.app); fi
+          uv run --no-sync python -m tools.macos_measure "$OUT/measure.json" "${app[@]}"
+
+      # 411's checks (polyglotic-hq 412): fails only on a fail; unknown is what
+      # the machine didn't let us see. Installs BlackHole itself if measure
+      # didn't run. After pack's `uv sync --no-default-groups`, the dev tools
+      # are gone, but the app's own packages (catap, sounddevice) are there.
+      - name: Mac capture, checked on BlackHole
+        if: ${{ !cancelled() && inputs.capture }}
+        env:
+          DRIFT_MINUTES: ${{ inputs.drift_minutes }}
+        run: |
+          app=()
+          if [ -d dist/Polyglotic.app ]; then app=(--app dist/Polyglotic.app); fi
+          uv run --no-sync python -m tools.macos_capture_checks "$OUT/capture/capture.json" \
+            --drift-minutes "$DRIFT_MINUTES" "${app[@]}"
+
+      - name: Say what ran
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo "## macOS run"
+            if [ -f "$OUT/tour/checks.json" ]; then
+              echo "### Tour"
+              uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check']) for c in d['checks']]; print('- facts:', json.dumps(d['facts']))" "$OUT/tour/checks.json"
+            fi
+            if [ -f "$OUT/pack/summary.json" ]; then
+              echo "### Pack"
+              uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); print('- size', d['size_mb'], 'MB, zipped', d['zipped_mb'], 'MB; problems:', d['problems'] or 'none')" "$OUT/pack/summary.json"
+            fi
+            if [ -f "$OUT/measure.json" ]; then
+              echo "### Measured"
+              uv run --no-sync python -c "import json,sys; print('~~~'); print(json.dumps(json.load(open(sys.argv[1]))['summary'], indent=1)); print('~~~')" "$OUT/measure.json"
+            fi
+            if [ -f "$OUT/capture/capture.json" ]; then
+              echo "### Capture"
+              uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/capture/capture.json"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep what it found (1 day)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/tour/*.png
+            ${{ env.OUT }}/tour/checks.json
+            ${{ env.OUT }}/pack/
+            ${{ env.OUT }}/measure.json
+            ${{ env.OUT }}/capture/
+          retention-days: 1
+          if-no-files-found: ignore
+
+      - name: Keep the packed app's zip (only when asked; 1 day)
+        if: ${{ !cancelled() && inputs.keep_app }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos-app-${{ github.run_id }}
+          path: build/package/Polyglotic-macos-arm64.zip
+          retention-days: 1
+          if-no-files-found: warn
+          compression-level: 0  # already a zip

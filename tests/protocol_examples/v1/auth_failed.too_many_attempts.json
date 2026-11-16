@@ -1,0 +1,5 @@
+{
+  "type": "auth_failed",
+  "reason": "too_many_attempts",
+  "retry_after": 420
+}

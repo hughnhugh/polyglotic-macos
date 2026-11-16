@@ -1,0 +1,487 @@
+"""Publishing the dictionary packs: their files, and the signed list the
+app reads (decision 0122). A dry run unless told to upload.
+
+    uv run python -m tools.package.publish_packs ru            # dry run
+    uv run python -m tools.package.publish_packs ru --upload   # Claude, at a release
+
+What it does, in order:
+1. takes each language's built pack (`tools.dictionaries.packs` writes
+   `build/dictionaries/packs/`; `--build` builds them first) - a file per
+   meanings language it is written in (English and Chinese; Vietnamese's
+   English only) - and copies each to its published name,
+   `<dictionary>-<meanings>-<version>.sqlite`, with its version stamped in
+   its `info` (`pack_version`: the app reads what's on the PC from there),
+   and gzips it: the `.sqlite.gz` is what goes up (Russian's 62.4 MB, 13.3);
+2. writes the list: these packs, and from the list now published (fetched,
+   and checked against the key, or `--previous FILE`) every older version
+   an older app still needs - one it reads and the new one it doesn't (a
+   new format, a new word split, a newer `min_app`). So an old app is never
+   offered a pack it can't read, and never left without the one it can;
+3. numbers the list one more than the one published (its `serial`: the
+   app refuses an older list than one it has accepted), signs it with
+   `$FEED_SIGNING_KEY` (the update feed's key: one trust path), checks the
+   signature as the app will, and writes both as one file,
+   `packs/v1/list.signed` - one upload replaces both, so no app can read a
+   new signature beside an old list;
+4. lays it all out in `--out` as the storage will hold it (a folder served
+   over HTTP is a stand-in for the storage), and prints exactly what would
+   be uploaded where, files first, the list last - so the list never names
+   a file that isn't there yet. `--out` is emptied first only if it's
+   empty or an earlier run's (it carries `OUT_MARK`);
+5. only with `--upload`: puts each file in the bucket with wrangler (as
+   polyglotic-hq 280's publish-alpha.sh does; wrangler gets this
+   environment without the signing key), then fetches the list back from
+   the live address and checks it.
+
+Nothing here runs in CI against the real storage.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import datetime as dt
+import gzip
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+import urllib.error
+import urllib.request
+from collections.abc import Callable, Sequence
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+from nacl.signing import SigningKey, VerifyKey
+
+from polyglotic_desktop.adapters.pack_list import (
+    FILES,
+    FOLDER,
+    LIST_NAME,
+    signed_list_file,
+    signed_list_message,
+    split_signed_list,
+)
+from polyglotic_desktop.adapters.signed_feed import public_keys, verify
+from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary, add_info
+from polyglotic_desktop.core.lexicon.packs import (
+    LIST_FORMAT,
+    PackOffer,
+    list_serial,
+    read_pack_list,
+    version_key,
+)
+from tools.package.sign_feed import KEY_VARIABLE, private_key_from, public_key_text
+
+REPO = Path(__file__).resolve().parents[2]
+BUCKET = "polyglotic-updates"
+LIVE = "https://updates.polyglotic.io/"
+"""main.UPDATES: the storage the app reads packs from."""
+MIN_APP = "0.1.5"
+"""The first app version that downloads packs: the default `min_app`."""
+SPLITS = {
+    "fr": "elided",
+    "it": "elided",
+    "ja": "japanese",
+    "vi": "vietnamese",
+    "th": "thai",
+    "hi": "marks",
+    "ar": "clitics",
+    "id": "clitics",
+    "ms": "clitics",
+    "tr": "turkish",
+    "fa": "joiners",
+    "tl": "affixes",
+    "cs": "affixes",
+    "el": "affixes",
+}
+"""The word split each language's pack needs; `spaced` for the rest. An
+app without a pack's split is never offered it (`core.lexicon.packs.Reader`):
+an app from before Vietnamese's split would cut "học sinh" in two, one
+from before French's would look "l'homme" up as one word, one from before
+`marks` would cut Hindi's words at each vowel sign, and one from before
+`clitics` would find none of Arabic's words with "and" or "the" on them
+(polyglotic-hq 380; an app with `clitics` has `marks` too), and one from
+before `turkish` would find a fifth of Turkish's words in no dictionary:
+their suffixes are guessed off (polyglotic-hq 388; an app with `turkish`
+has `clitics` too). One from before `joiners` would cut Persian's words at
+their zero-width non-joiner (داستان‌های) and has none of its endings'
+guesses; one from before `affixes` finds Filipino's, Czech's and Greek's
+words only below the floor (77.1, 89.8 and 89.8 % of the probe's words,
+not 90.8, 90.6 and 90.1; polyglotic-hq 387). An app with either has every
+split before it. One from before `thai` would take a Thai phrase, written
+without spaces, as one word (polyglotic-hq 389)."""
+WIKTIONARY_AND_WORDFREQ = (
+    "Wiktionary's contributors (via kaikki.org) and wordfreq; CC BY-SA 4.0"
+)
+CREDIT_LINES = {
+    "wiktes": WIKTIONARY_AND_WORDFREQ,
+    "wiktfr": WIKTIONARY_AND_WORDFREQ,
+    "wiktru": WIKTIONARY_AND_WORDFREQ,
+    "wiktar": WIKTIONARY_AND_WORDFREQ,
+    "wiktde": WIKTIONARY_AND_WORDFREQ,
+    "wikthi": WIKTIONARY_AND_WORDFREQ,
+    "wiktid": WIKTIONARY_AND_WORDFREQ,
+    "wiktit": WIKTIONARY_AND_WORDFREQ,
+    "wiktpl": WIKTIONARY_AND_WORDFREQ,
+    "wiktpt": WIKTIONARY_AND_WORDFREQ,
+    **{
+        f"wikt{code}": WIKTIONARY_AND_WORDFREQ
+        for code in ("nl", "uk", "sv", "cs", "ro", "el", "tl", "mk")
+    },
+    "wiktfa": (
+        "Wiktionary's contributors (via kaikki.org) and wordfreq, CC BY-SA 4.0; "
+        "ranks also from Common Voice's sentences (CC0)"
+    ),
+    "wiktvi": (
+        "Wiktionary's contributors (via kaikki.org), CC BY-SA 4.0; ranks counted "
+        "from OPUS OpenSubtitles 2018 (opensubtitles.org)"
+    ),
+    "wiktth": (
+        "Wiktionary's contributors (via kaikki.org), CC BY-SA 4.0; ranks counted "
+        "from Common Voice's Thai sentences (CC0)"
+    ),
+    "jmdict": "JMdict (EDRDG), Wiktionary's contributors and wordfreq; CC BY-SA 4.0",
+}
+
+
+def built_files(packs: Path, name: str, meanings: Sequence[str]) -> list[Path]:
+    """A pack's built files, one per meanings language it is written in
+    (`tools.dictionaries.packs.Pack.meanings`): `<name>.sqlite` for
+    English, `<name>-zh.sqlite` for Chinese. Vietnamese's is English only."""
+    return [packs / f"{name}{'' if m == 'en' else '-' + m}.sqlite" for m in meanings]
+
+
+@dataclass(frozen=True)
+class Upload:
+    """One file to put in the bucket: where it is here, its key there."""
+
+    path: Path
+    key: str
+    content_type: str
+
+
+def app_keys() -> list[VerifyKey]:
+    """The keys the app checks the list with (`main.FEED_KEYS`): the live
+    list must pass them. Imported when needed: `main` brings in Qt."""
+    from polyglotic_desktop.main import FEED_KEYS
+
+    return public_keys(FEED_KEYS)
+
+
+def sha256_of(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as f:
+        while block := f.read(1 << 20):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def stamp(
+    built: Path, out_files: Path, version: str, min_app: str
+) -> tuple[PackOffer, Path]:
+    """`built` stamped with its version (in its `info`) under its published
+    name in `out_files`, and gzipped beside it - the download; its offer,
+    and the download's path (what goes up: the app unpacks it)."""
+    file = SqliteDictionary(built)
+    try:
+        info = dict(file.info)
+    finally:
+        file.close()
+    language, meanings = info["language"], info["meanings_language"]
+    dictionary = info["dictionary"]
+    name = f"{dictionary}-{meanings}-{version}.sqlite"
+    target = out_files / name
+    shutil.copyfile(built, target)
+    add_info(target, {"pack_version": version})
+    packed = target.with_name(name + ".gz")
+    # mtime 0 and no file name: the same pack gzips to the same bytes
+    with (
+        target.open("rb") as raw,
+        packed.open("wb") as out,
+        gzip.GzipFile(filename="", mode="wb", fileobj=out, mtime=0) as squeezed,
+    ):
+        shutil.copyfileobj(raw, squeezed, 1 << 20)
+    credits_file = built.with_name(f"{dictionary}.CREDITS.md")
+    credits_text = (
+        credits_file.read_text(encoding="utf-8") if credits_file.is_file() else ""
+    )
+    offer = PackOffer(
+        language=language,
+        meanings=meanings,
+        dictionary=dictionary,
+        version=version,
+        format=info["format"],
+        split=SPLITS.get(language, "spaced"),
+        min_app=min_app,
+        file=name,
+        size=target.stat().st_size,
+        sha256=sha256_of(target),
+        gz_size=packed.stat().st_size,
+        gz_sha256=sha256_of(packed),
+        licence=info.get("licence", ""),
+        credits=CREDIT_LINES.get(dictionary) or info.get("licence", ""),
+        credits_text=credits_text,
+    )
+    target.unlink()  # only the download goes up
+    return offer, packed
+
+
+def still_needed(previous: PackOffer, new: PackOffer) -> bool:
+    """Whether an app that reads `previous` might not read `new`: another
+    format or word split, or a newer `min_app`."""
+    return (
+        previous.format != new.format
+        or previous.split != new.split
+        or (version_key(new.min_app) or ()) > (version_key(previous.min_app) or ())
+    )
+
+
+def merged(new: Sequence[PackOffer], previous: Sequence[PackOffer]) -> list[PackOffer]:
+    """The list to publish: `new`, then of `previous` the newest version for
+    each kind of reader the new ones would leave behind (and every pack of a
+    language and meanings not published now, as it was)."""
+    by_key = {o.key: o for o in new}
+    kept: dict[tuple[str, str, str, str, str], PackOffer] = {}
+    for old in previous:
+        replacing = by_key.get(old.key)
+        if old.file in {o.file for o in new}:
+            continue
+        if replacing is not None and not still_needed(old, replacing):
+            continue
+        reader = (*old.key, old.format, old.split, old.min_app)
+        best = kept.get(reader)
+        if best is None or (version_key(old.version) or ()) > (
+            version_key(best.version) or ()
+        ):
+            kept[reader] = old
+    out = list(new) + sorted(
+        kept.values(), key=lambda o: (o.language, o.meanings, version_key(o.version))
+    )
+    return out
+
+
+OUT_MARK = ".polyglotic-packs-publish"
+"""Left in `--out` by a run: the next may empty it (nothing else is)."""
+
+
+def list_bytes(offers: Sequence[PackOffer], serial: int) -> bytes:
+    """The list as published: one JSON object, keys sorted, UTF-8."""
+    whole = {
+        "list": LIST_FORMAT,
+        "serial": serial,
+        "packs": [asdict(o) for o in offers],
+    }
+    return (
+        json.dumps(whole, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
+    ).encode("utf-8")
+
+
+def sign_list(data: bytes, key: SigningKey) -> bytes:
+    """The one file published: the list's signature, checked as the app
+    checks it, then the list (`pack_list.signed_list_file`)."""
+    message = signed_list_message(data)
+    signature = base64.b64encode(key.sign(message).signature)
+    verify(message, signature, [key.verify_key])
+    return signed_list_file(signature, data)
+
+
+def previous_list(
+    source: str | None, get: Callable[[str], bytes]
+) -> tuple[tuple[PackOffer, ...], int]:
+    """The list now published - `source`, a `list.signed` file, or None for
+    the live one; its signature checked first - and its serial; or none yet,
+    serial 0."""
+    if source:
+        whole = Path(source).read_bytes()
+    else:
+        try:
+            whole = get(LIVE + FOLDER + LIST_NAME)
+        except urllib.error.HTTPError as e:
+            if e.code != 404:  # anything else: the list may be there, unread
+                raise SystemExit(
+                    f"the live list can't be read (HTTP {e.code})"
+                ) from None
+            print("  no list published yet (404): starting one")
+            return (), 0
+    signature, data = split_signed_list(whole)
+    if not source:  # a file given is the operator's own (a dry run's stand-in)
+        verify(signed_list_message(data), signature, app_keys())
+    return read_pack_list(data)[0], list_serial(data)
+
+
+def _get(url: str) -> bytes:
+    request = urllib.request.Request(url, headers={"User-Agent": "Polyglotic-release"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        body: bytes = response.read()
+        return body
+
+
+def plan(
+    out: Path, offers: Sequence[PackOffer], new_files: Sequence[Path]
+) -> list[Upload]:
+    """What goes where: the new files first, then the list - one file with
+    its signature, so it never names a file not there yet, and is never
+    read half old, half new."""
+    uploads = [
+        Upload(path, FILES + path.name, "application/gzip") for path in new_files
+    ]
+    uploads.append(Upload(out / FOLDER / LIST_NAME, FOLDER + LIST_NAME, "text/plain"))
+    return uploads
+
+
+def wrangler_environment() -> dict[str, str]:
+    """This environment for wrangler, without the signing key: it has no
+    business with it, and a child process's environment is easily seen."""
+    keep = {k: v for k, v in os.environ.items() if k != KEY_VARIABLE}
+    return {**keep, "MSYS_NO_PATHCONV": "1"}
+
+
+def upload(uploads: Sequence[Upload], bucket: str) -> None:
+    """Each file into the bucket, in order, with wrangler (logged in by
+    `npx wrangler login`; the credentials are wrangler's, never ours)."""
+    npx = shutil.which("npx")  # Windows has npx.cmd, which a bare name misses
+    if npx is None:
+        raise SystemExit("npx isn't on the PATH: wrangler runs through it")
+    for item in uploads:
+        command = [
+            npx,
+            "wrangler",
+            "r2",
+            "object",
+            "put",
+            f"{bucket}/{item.key}",
+            "--file",
+            str(item.path),
+            "--remote",
+            "--content-type",
+            item.content_type,
+        ]
+        print("  npx " + " ".join(command[1:6]))
+        subprocess.run(command, check=True, env=wrangler_environment())
+
+
+def check_live(expected: bytes, get: Callable[[str], bytes]) -> None:
+    """The list as the live address serves it: ours, signed by the key the
+    app holds."""
+    address = LIVE + FOLDER + LIST_NAME
+    whole = get(address)
+    if whole != expected:
+        raise SystemExit("the live list isn't the one just uploaded (a cache?)")
+    signature, data = split_signed_list(whole)
+    verify(signed_list_message(data), signature, app_keys())
+    print(f"  {address}: ours, signed by main.FEED_KEYS' key")
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="python -m tools.package.publish_packs")
+    parser.add_argument("languages", nargs="+", help="the packs to publish: ru es")
+    parser.add_argument(
+        "--packs", type=Path, default=REPO / "build" / "dictionaries" / "packs"
+    )
+    parser.add_argument("--build", action="store_true", help="build the packs first")
+    today = dt.datetime.now(dt.UTC).date()  # a label, never compared to a clock
+    parser.add_argument(
+        "--version",
+        default=f"{today.year}.{today.month}.{today.day}",
+        help="the packs' version (default: today's date in UTC, 2026.11.14)",
+    )
+    parser.add_argument("--min-app", default=MIN_APP)
+    parser.add_argument(
+        "--previous",
+        help="the list now published, a list.signed file (default: the live one)",
+    )
+    parser.add_argument("--out", type=Path, default=REPO / "build" / "packs-publish")
+    parser.add_argument("--bucket", default=BUCKET)
+    parser.add_argument(
+        "--upload", action="store_true", help="really upload (Claude, at a release)"
+    )
+    args = parser.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+    if version_key(args.version) is None or version_key(args.min_app) is None:
+        print("--version and --min-app are dotted numbers", file=sys.stderr)
+        return 2
+
+    if args.build:
+        from tools.dictionaries import packs
+
+        if packs.main([*args.languages, "--out", str(args.packs)]):
+            print("a pack failed its check: nothing published", file=sys.stderr)
+            return 1
+
+    encoded = os.environ.get(KEY_VARIABLE, "")
+    if not encoded:
+        print(f"No signing key: set {KEY_VARIABLE} (the feed's key)", file=sys.stderr)
+        return 1
+    key = private_key_from(encoded)
+
+    out_files = args.out / FILES
+    out_list = args.out / FOLDER
+    if args.out.exists() and any(args.out.iterdir()):
+        if not (args.out / OUT_MARK).is_file():
+            print(
+                f"{args.out} isn't empty and isn't an earlier run's: not emptied",
+                file=sys.stderr,
+            )
+            return 1
+        shutil.rmtree(args.out)
+    out_files.mkdir(parents=True)
+    out_list.mkdir(parents=True)
+    (args.out / OUT_MARK).write_text("made by tools.package.publish_packs\n")
+    from tools.dictionaries.packs import PACKS
+
+    new, new_files = [], []
+    for language in args.languages:
+        pack = PACKS[language]
+        for built in built_files(args.packs, pack.name, pack.meanings):
+            if not built.is_file():
+                print(f"{built} isn't built: run with --build", file=sys.stderr)
+                return 1
+            offer, path = stamp(built, out_files, args.version, args.min_app)
+            new.append(offer)
+            new_files.append(path)
+
+    previous, serial = previous_list(args.previous, _get)
+    for old in previous:
+        same = [o for o in new if o.file == old.file and o.sha256 != old.sha256]
+        if same:
+            print(
+                f"{old.file} is published already with other bytes: "
+                "give this build another --version",
+                file=sys.stderr,
+            )
+            return 1
+    offers = merged(new, previous)
+    data = list_bytes(offers, serial + 1)
+    signed = sign_list(data, key)
+    (out_list / LIST_NAME).write_bytes(signed)
+
+    uploads = plan(args.out, offers, new_files)
+    print(
+        f"The list: serial {serial + 1}, {len(offers)} packs"
+        f" (public key {public_key_text(key)})"
+    )
+    for o in offers:
+        mark = "new" if o in new else "kept"
+        print(
+            f"  {mark:4} {o.language}/{o.meanings} {o.version} format {o.format} "
+            f"{o.split} from app {o.min_app}: {o.download} {o.gz_size / 1e6:.1f} MB "
+            f"({o.size / 1e6:.1f} MB unpacked) sha256 {o.gz_sha256[:12]}"
+        )
+    print(
+        f"{'Uploading' if args.upload else 'Would upload'}, in this order, to {args.bucket}:"
+    )
+    for item in uploads:
+        print(f"  {item.key}  <-  {item.path}  ({item.path.stat().st_size:,} bytes)")
+    if not args.upload:
+        print("Dry run: nothing uploaded. --upload puts them in the bucket.")
+        return 0
+    upload(uploads, args.bucket)
+    check_live(signed, _get)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

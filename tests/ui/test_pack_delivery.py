@@ -1,0 +1,292 @@
+"""Dictionary packs in the running app (decision 0122): a download asked on
+Learning reaches the lookups without a restart, a newer version swaps in
+while its language is open, Home says once when the learner is elsewhere,
+removing closes and deletes it, and packs outlive an update of the app."""
+
+from __future__ import annotations
+
+import time
+from collections.abc import Callable, Iterator
+from pathlib import Path
+
+import pytest
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QApplication
+from tests.packs_server import StandIn
+from tests.packs_storage import PUBLIC, publish, tiny_pack
+
+from polyglotic_desktop import main
+from polyglotic_desktop.core.lexicon.basic import BasicDictionary
+from polyglotic_desktop.core.lexicon.pack_download import Problem
+from polyglotic_desktop.core.lexicon.packs import FROM_SOURCE
+
+
+def until(done: Callable[[], bool], seconds: float = 20.0) -> None:
+    end = time.monotonic() + seconds
+    while not done():
+        assert time.monotonic() < end, "never happened"
+        QTest.qWait(20)
+
+
+@pytest.fixture
+def server(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+) -> Iterator[StandIn]:
+    built = tmp_path / "built"
+    tiny_pack(built)
+    tiny_pack(built, meanings="zh")
+    out = tmp_path / "bucket"
+    assert publish(monkeypatch, out, built) == 0
+    with StandIn(out) as stand_in:
+        yield stand_in
+
+
+def delivery(
+    server: StandIn, folder: Path, basic: dict[str, BasicDictionary]
+) -> main.PackDelivery:
+    packs = main.PackDelivery(
+        folder,
+        basic,
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        server.base,
+        (PUBLIC,),
+    )
+    packs.start()
+    return packs
+
+
+def test_a_download_asked_on_learning_reaches_the_lookups_at_once(
+    server: StandIn, tmp_path: Path
+) -> None:
+    basic: dict[str, BasicDictionary] = {}
+    packs = delivery(server, tmp_path / "packs", basic)
+    notices: list[str] = []
+    packs.notice.connect(notices.append)
+    lines: list[str] = []
+    packs.line_changed.connect(lines.append)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    assert [e.headword for e in basic["ru"].lookup("дом")] == ["дом"]
+    line = packs.line("ru")
+    assert line.installed_version == "2026.11.14" and line.progress is None
+    assert lines and set(lines) == {"ru"}
+    assert notices == [
+        "The Russian dictionary is ready: look up words in Russian captions."
+    ]
+    assert [p.code for p in packs.installed_lines()] == ["ru"]
+    packs.close()
+
+
+def test_no_notice_while_the_learner_is_on_learning(
+    server: StandIn, tmp_path: Path
+) -> None:
+    basic: dict[str, BasicDictionary] = {}
+    packs = delivery(server, tmp_path / "packs", basic)
+    packs.on_learning = lambda: True
+    notices: list[str] = []
+    packs.notice.connect(notices.append)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    assert notices == []
+    packs.close()
+
+
+def test_a_failure_is_said_on_home_once(server: StandIn, tmp_path: Path) -> None:
+    server.faults.status["packs/files/wiktru-en-2026.11.14.sqlite.gz"] = 404
+    packs = delivery(server, tmp_path / "packs", {})
+    assert packs.deliveries is not None
+    notices: list[str] = []
+    packs.notice.connect(notices.append)
+    packs.asked("ko", "download")  # no Korean pack: stops at once
+    until(lambda: bool(notices))
+    progress = packs.line("ko").progress
+    assert progress is not None and progress.problem is Problem.NOT_OFFERED
+    assert notices == ["The Korean dictionary couldn't be downloaded: see Learning."]
+    packs.close()
+
+
+def test_a_language_the_list_has_no_pack_for_is_said_to_have_none(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """329's QA (K11): from the list the app holds, the one a download is
+    offered from - none held yet, it can't be told (330)."""
+    packs = delivery(server, tmp_path / "packs", {})
+    assert not packs.line("ko").not_offered  # no list held yet
+    packs.wanted_list(["ko"])
+    until(lambda: packs.offers is not None)
+    assert packs.line("ko").not_offered  # the stand-in has Russian's only
+    russian = packs.line("ru")
+    assert not russian.not_offered and russian.size > 0
+    packs.close()
+
+
+def test_a_list_that_cant_be_read_is_said_not_checked_for_good(
+    tmp_path: Path, qapp: QApplication
+) -> None:
+    packs = main.PackDelivery(
+        tmp_path / "packs",
+        {},
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",  # nothing answers
+        (PUBLIC,),
+    )
+    packs.start()
+    assert packs.line("ru").size == 0 and not packs.line("ru").unlisted
+    packs.wanted_list(["ru"])
+    until(lambda: packs.line("ru").unlisted)
+    assert not packs.line("ru").not_offered  # couldn't be read: no claim (330)
+    packs.close()
+
+
+def test_none_published_is_no_dictionary_yet_and_retry_finds_one_published_since(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """The release may come before any list is published (330's addendum):
+    the storage's 404 for the list says none can be had - for every basic
+    language, not "checking" and not a promise - and Retry finds one
+    published since."""
+    server.faults.status["packs/v1/list.signed"] = 404
+    basic: dict[str, BasicDictionary] = {}
+    packs = delivery(server, tmp_path / "packs", basic)
+    packs.wanted_list(["ru"])
+    until(lambda: packs.list_problem is Problem.NOT_OFFERED)
+    for code in ("ru", "vi"):
+        line = packs.line(code)
+        assert line.not_offered and not line.unlisted and line.size == 0
+    server.faults.status.pop("packs/v1/list.signed")  # published since
+    packs.asked("ru", "retry")
+    until(lambda: "ru" in basic)
+    packs.close()
+
+
+def test_a_newer_version_swaps_in_while_its_language_is_open(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    basic: dict[str, BasicDictionary] = {}
+    folder = tmp_path / "packs"
+    packs = delivery(server, folder, basic)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    first = basic["ru"]
+    before = [e.entry_id for e in first.lookup("дом")]
+    old_file = folder / "wiktru-en-2026.11.14.sqlite"
+    # a newer version published (the same words, more of them)
+    built = tmp_path / "built2"
+    tiny_pack(built, padding=10)
+    tiny_pack(built, meanings="zh", padding=10)
+    newer = tmp_path / "bucket2"
+    previous = server.folder / "packs" / "v1" / "list.signed"
+    assert publish(monkeypatch, newer, built, "2026.12.1", previous) == 0
+    server.folder = newer
+    packs.check_updates()  # quiet: not metered here
+    until(lambda: basic["ru"] is not first)
+    assert [e.headword for e in basic["ru"].lookup("дом")] == ["дом"]  # answers now
+    # the same entry ID in the new version: statuses and saved words, kept by
+    # ID, carry over (decision 0089; tests/tools/test_packs.py and
+    # tests/learning/test_anki_export.py prove it for real builds)
+    assert [e.entry_id for e in basic["ru"].lookup("дом")] == before
+    assert packs.line("ru").installed_version == "2026.12.1"
+    until(lambda: not old_file.exists(), seconds=10)  # closed, then deleted
+    assert (folder / "wiktru-en-2026.12.1.sqlite").is_file()
+    packs.close()
+
+
+def test_removing_closes_and_deletes_it(server: StandIn, tmp_path: Path) -> None:
+    basic: dict[str, BasicDictionary] = {}
+    folder = tmp_path / "packs"
+    packs = delivery(server, folder, basic)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    changed: list[bool] = []
+    packs.changed.connect(lambda: changed.append(True))
+    packs.asked("ru", "remove")
+    assert "ru" not in basic and not packs.installed_lines() and changed
+    assert not (folder / "wiktru-en-2026.11.14.sqlite").exists()
+    packs.close()
+
+
+def test_packs_outlive_an_update_of_the_app(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Velopack replaces the whole install folder at an update; an installed
+    copy keeps packs with the learner's data (decision 0089), so the next
+    start opens what the last one downloaded."""
+    monkeypatch.setattr(main, "installed", lambda: True)
+    data = tmp_path / "Roaming" / "Polyglotic"
+    install = tmp_path / "Local" / "Polyglotic" / "current"
+    (install / "dictionaries").mkdir(parents=True)
+    folder = main.packs_folder(install / "dictionaries", data)
+    assert data in folder.parents
+    basic: dict[str, BasicDictionary] = {}
+    packs = delivery(server, folder, basic)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    packs.close()
+    for path in sorted(install.rglob("*"), reverse=True):  # the update
+        path.rmdir() if path.is_dir() else path.unlink()
+    install.rmdir()
+    (install / "dictionaries").mkdir(parents=True)
+    again: dict[str, BasicDictionary] = {}
+    started = delivery(server, main.packs_folder(install / "dictionaries", data), again)
+    assert sorted(again) == ["ru"]
+    started.close()
+
+
+def test_the_installers_packs_are_read_first_and_never_removed(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """A build made with `--packs ru` (decision 0124): Russian opens from the
+    app's own folder, offline too; no download is offered or made; Learning
+    lists only what was downloaded (the installer's can't be removed)."""
+    from polyglotic_desktop.adapters.sqlite_dictionary import add_info
+
+    installer = tmp_path / "app" / "dictionaries" / "packs"
+    pack = tiny_pack(installer)
+    add_info(pack, {"pack_version": "2026.11.14"})
+    basic: dict[str, BasicDictionary] = {}
+    packs = main.PackDelivery(
+        tmp_path / "data",
+        basic,
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",  # offline
+        (PUBLIC,),
+        also=(installer,),
+    )
+    packs.start()
+    assert [e.headword for e in basic["ru"].lookup("дом")] == ["дом"]
+    assert packs.line("ru").installed_version == "2026.11.14"
+    assert packs.installed_lines() == []
+    packs.asked("ru", "remove")
+    assert pack.is_file() and "ru" in basic  # the installer's own stays
+    packs.close()
+
+
+def test_check_install_opens_the_installers_packs(tmp_path: Path) -> None:
+    """A `--packs ru` build's own check: each pack it carries opened and a
+    word looked up (decision 0124)."""
+    from polyglotic_desktop.adapters.sqlite_dictionary import add_info
+
+    folder = tmp_path / "packs"
+    pack = tiny_pack(folder)
+    add_info(pack, {"pack_version": "0.1.5"})
+    assert main.try_the_installers_packs(folder) == {"ru/en": "0.1.5: руку -> ?"}
+    assert main.try_the_installers_packs(tmp_path / "none") == {}
+
+
+def test_learning_asks_for_the_list_once_in_a_while(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """Learning is shown again at every setting it follows; the list is
+    asked for once, then not again for ten minutes (a download still asks)."""
+    packs = delivery(server, tmp_path / "packs", {})
+    packs.wanted_list(["ru"])
+    until(lambda: packs.offers is not None)
+    for _ in range(3):
+        packs.wanted_list(["ru"])
+    QTest.qWait(300)
+    listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
+    assert len(listed) == 1
+    packs.close()

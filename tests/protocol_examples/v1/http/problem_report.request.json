@@ -1,0 +1,61 @@
+{
+  "id": "5d6e7f80-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+  "at": "2026-11-11T03:10:00.000Z",
+  "text": "The last caption came out in the wrong language.",
+  "app_version": "0.4.0",
+  "os": "windows-11",
+  "os_version": "10.0.26200",
+  "session_id": "9e8d7c6b-5a4f-4e3d-8c2b-1a0f9e8d7c6b",
+  "log": "2026-11-11T03:09:12Z INFO connection: session opened\n2026-11-11T03:09:40Z INFO listening: caption 0a1b2c3d finished in 0.9s\n",
+  "settings": {
+    "caption_mode": "steady",
+    "targets": [
+      "en"
+    ],
+    "spoken_language": "detect"
+  },
+  "facts": {
+    "app": {
+      "version": "0.4.0",
+      "channel": "win-x64-alpha"
+    },
+    "windows": {
+      "version": "10.0.26200",
+      "scale": 1.5
+    },
+    "audio_devices": [
+      {
+        "kind": "output",
+        "name": "Speakers (Realtek(R) Audio)",
+        "default": true
+      }
+    ]
+  },
+  "captions": [
+    {
+      "caption_id": "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "source_id": "app-1",
+      "by_you": false,
+      "live": false,
+      "language": "zh",
+      "started_at": "2026-11-11T03:09:38.200Z",
+      "updated_at": "2026-11-11T03:09:40.100Z",
+      "original": "车票在柜台上。",
+      "translations": {
+        "en": "The tickets are on the counter."
+      },
+      "checked": false
+    }
+  ],
+  "speech": [
+    {
+      "caption_id": "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "source_id": "app-1",
+      "category": "video",
+      "speech_start": 1012.4,
+      "speech_end": 1014.3,
+      "codec": "ogg_opus",
+      "data": "T2dnUwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ]
+}

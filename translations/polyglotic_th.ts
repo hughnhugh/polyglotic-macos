@@ -1,0 +1,7053 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="th" sourcelanguage="en">
+<context>
+    <name>Account</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Account</source>
+        <translation type="unfinished">บัญชี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Sign in</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Sign out</source>
+        <translation type="unfinished">ออกจากระบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>I have a code</source>
+        <translation type="unfinished">ฉันมีรหัส</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Choose what to share</source>
+        <translation type="unfinished">เลือกสิ่งที่จะแชร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Delete learning data…</source>
+        <translation type="unfinished">ลบข้อมูลการเรียน…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This PC</source>
+        <translation type="unfinished">พีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Plus</source>
+        <translation type="unfinished">Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Your data</source>
+        <translation type="unfinished">ข้อมูลของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>What Polyglotic sends to run the service, and what you choose to share: usage statistics, crash reports, how often you hear words.</source>
+        <translation type="unfinished">สิ่งที่ Polyglotic ส่งเพื่อให้บริการ และสิ่งที่คุณเลือกแชร์: สถิติการใช้งาน รายงานข้อขัดข้อง ความถี่ที่คุณได้ยินคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Your learning data</source>
+        <translation type="unfinished">ข้อมูลการเรียนของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
+        <translation type="unfinished">คำที่คุณค้น บันทึก และทำเครื่องหมายจะเก็บบนเซิร์ฟเวอร์ของเราเป็นคำในพจนานุกรมและเวลา: คำที่บันทึกและสถานะตามคุณไปพีซีเครื่องอื่น และการค้นคำช่วยให้เราเห็นว่าคนเรียนอย่างไร ลบได้ที่นั่น ในทุกภาษาที่เรียน - และบนพีซีเครื่องนี้ด้วยถ้าต้องการ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Privacy and the tester agreement</source>
+        <translation type="unfinished">ความเป็นส่วนตัวและข้อตกลงผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>What we keep and why, and what you agreed to as a tester.</source>
+        <translation type="unfinished">เราเก็บอะไรและทำไม และคุณตกลงอะไรไว้ในฐานะผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Privacy notice</source>
+        <translation type="unfinished">ประกาศความเป็นส่วนตัว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Tester agreement</source>
+        <translation type="unfinished">ข้อตกลงผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Feedback</source>
+        <translation type="unfinished">ความคิดเห็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Tell us what went wrong or what would help - with the app&apos;s log if you like. You see everything before it&apos;s sent.</source>
+        <translation type="unfinished">บอกเราว่าอะไรผิดพลาดหรืออะไรจะช่วยได้ - แนบบันทึกของแอปด้วยก็ได้ คุณเห็นทุกอย่างก่อนส่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this PC.</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้บนพีซีเครื่องนี้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Not signed in - {needed}.</source>
+        <translation type="unfinished">ยังไม่ได้ลงชื่อเข้าใช้ - {needed}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Your account ID: {id}. Quote it if you write to us about your data.</source>
+        <translation type="unfinished">ID บัญชีของคุณ: {id} โปรดระบุเมื่อเขียนถึงเราเรื่องข้อมูลของคุณ</translation>
+    </message>
+</context>
+<context>
+    <name>CaptionDelay</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_delay.py"/>
+        <source>{start} s from start · {end} s from end</source>
+        <translation type="unfinished">{start} วินาทีจากต้น · {end} วินาทีจากท้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_delay.py"/>
+        <source>server {seconds} s</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ {seconds} วินาที</translation>
+    </message>
+</context>
+<context>
+    <name>CaptionPreview</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_preview.py"/>
+        <source>Preview of the caption windows</source>
+        <translation type="unfinished">ตัวอย่างหน้าต่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_preview.py"/>
+        <source>Video</source>
+        <translation type="unfinished">วิดีโอ</translation>
+    </message>
+</context>
+<context>
+    <name>CaptionWindow</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Steady</source>
+        <translation type="unfinished">คงที่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Quick preview</source>
+        <translation type="unfinished">พรีวิว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Live updates</source>
+        <translation type="unfinished">สด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Each sentence appears once, finished, about half a second after it ends. Nothing changes while you read.</source>
+        <translation type="unfinished">แต่ละประโยคขึ้นครั้งเดียวแบบสมบูรณ์ ราวครึ่งวินาทีหลังจบ ไม่มีอะไรเปลี่ยนขณะอ่าน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>A dim first guess after about 2 seconds, then the finished caption and its translation when the sentence ends.</source>
+        <translation type="unfinished">ร่างจางๆ หลังราว 2 วินาที แล้วคำบรรยายฉบับสมบูรณ์และคำแปลเมื่อจบประโยค</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Words appear as they&apos;re said and rewrite themselves until the sentence ends - the quickest, but the words move.</source>
+        <translation type="unfinished">คำขึ้นตามที่พูดและเขียนใหม่จนจบประโยค - เร็วที่สุด แต่คำจะขยับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Pinyin above Chinese: turn it on in Settings, under Look</source>
+        <translation type="unfinished">พินอินเหนือภาษาจีน: เปิดได้ในการตั้งค่า ใต้รูปลักษณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Click any word to look it up</source>
+        <translation type="unfinished">คลิกคำใดก็ได้เพื่อค้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Reconnecting - trying again in {n} s</source>
+        <translation type="unfinished">กำลังเชื่อมต่อใหม่ - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>The server is busy - trying again in {n} s</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ยุ่ง - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Paused</source>
+        <translation type="unfinished">หยุดชั่วคราว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Reconnecting</source>
+        <translation type="unfinished">กำลังเชื่อมต่อใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>The server is busy</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ยุ่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Not signed in - sign in on Home</source>
+        <translation type="unfinished">ยังไม่ได้ลงชื่อเข้าใช้ - ลงชื่อที่หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Update needed - captions paused; see Home</source>
+        <translation type="unfinished">ต้องอัปเดต - หยุดคำบรรยายไว้ ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the tray and start again</source>
+        <translation type="unfinished">หยุดแล้ว - ออกจากถาดระบบแล้วเปิดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Plus has ended - captions stopped; see Home</source>
+        <translation type="unfinished">Plus หมดแล้ว - คำบรรยายหยุด ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Today&apos;s free minutes are used - more at midnight</source>
+        <translation type="unfinished">นาทีฟรีวันนี้หมดแล้ว - เพิ่มอีกตอนเที่ยงคืน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Captions failing on the server - still trying</source>
+        <translation type="unfinished">คำบรรยายล้มเหลวที่เซิร์ฟเวอร์ - ยังลองอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Connection unstable - captions may come late</source>
+        <translation type="unfinished">การเชื่อมต่อไม่เสถียร - คำบรรยายอาจมาช้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Busy time - live updates slowed; captions continue</source>
+        <translation type="unfinished">ช่วงคนเยอะ - อัปเดตสดช้าลง คำบรรยายยังทำงาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>No internet? Can&apos;t reach Polyglotic&apos;s server</source>
+        <translation type="unfinished">ไม่มีอินเทอร์เน็ต? ติดต่อเซิร์ฟเวอร์ไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Can&apos;t reach Polyglotic&apos;s server</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์ Polyglotic ไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Polyglotic&apos;s server is restarting</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ Polyglotic กำลังรีสตาร์ท</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Polyglotic&apos;s server has a problem</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ Polyglotic มีปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Connection blocked by this network - see Home</source>
+        <translation type="unfinished">เครือข่ายนี้บล็อกการเชื่อมต่อ - ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Can&apos;t connect securely - see Home</source>
+        <translation type="unfinished">เชื่อมต่ออย่างปลอดภัยไม่ได้ - ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this PC&apos;s date and time - see Home</source>
+        <translation type="unfinished">ตรวจวันที่และเวลาของพีซี - ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your PCs - see Home</source>
+        <translation type="unfinished">เปิดอยู่บนพีซีของคุณหลายเครื่องเกินไป - ดูหน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Too many sign-in tries</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้หลายครั้งเกินไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Planned maintenance - captions come back by themselves</source>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนด - คำบรรยายจะกลับมาเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>No internet? Can&apos;t reach Polyglotic&apos;s server - trying again in {n} s</source>
+        <translation type="unfinished">ไม่มีอินเทอร์เน็ต? ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Can&apos;t reach Polyglotic&apos;s server - trying again in {n} s</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์ไม่ได้ - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Polyglotic&apos;s server is restarting - trying again in {n} s</source>
+        <translation type="unfinished">เซิร์ฟเวอร์รีสตาร์ท - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Polyglotic&apos;s server has a problem - trying again in {n} s</source>
+        <translation type="unfinished">เซิร์ฟเวอร์มีปัญหา - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Too many sign-in tries - trying again in {n} s</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้หลายครั้งเกินไป - ลองอีกใน {n} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - {keys} to unlock</source>
+        <translation type="unfinished">ล็อกอยู่ - {keys} เพื่อปลดล็อก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the tray</source>
+        <translation type="unfinished">ล็อกอยู่ - ปลดล็อกที่หน้าแรกหรือถาดระบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Bottom left</source>
+        <translation type="unfinished">ล่างซ้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Bottom centre</source>
+        <translation type="unfinished">ล่างกลาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Top centre</source>
+        <translation type="unfinished">บนกลาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Where I put it</source>
+        <translation type="unfinished">ตำแหน่งที่ฉันวางไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Listening…</source>
+        <translation type="unfinished">กำลังฟัง…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Waiting for audio…</source>
+        <translation type="unfinished">รอเสียง…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>{app}&apos;s captions appear here</source>
+        <translation type="unfinished">คำบรรยายของ {app} จะขึ้นที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Your speech is shown here: your microphone is sent to the server only while this is on</source>
+        <translation type="unfinished">แสดงเสียงพูดของคุณที่นี่: ส่งเสียงไมค์ไปเซิร์ฟเวอร์เฉพาะตอนที่เปิดข้อนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>{app} captions</source>
+        <translation type="unfinished">คำบรรยาย {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Back to the newest captions</source>
+        <translation type="unfinished">กลับไปคำบรรยายล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">จับคู่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Word links on or off: words that mean the same share a colour</source>
+        <translation type="unfinished">เปิดหรือปิดจับคู่คำ: คำที่ความหมายเดียวกันจะมีสีเดียวกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Fill the width</source>
+        <translation type="unfinished">เต็มความกว้าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Fill the width on or off, in every window: captions run on, line by line, in lines as wide as the window - each line of what was said over its translation</source>
+        <translation type="unfinished">เปิดหรือปิดเต็มความกว้าง ในทุกหน้าต่าง: คำบรรยายต่อเนื่องกันทีละบรรทัด ในบรรทัดที่กว้างเท่าหน้าต่าง - แต่ละบรรทัดของสิ่งที่พูดอยู่เหนือคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Line up the parts</source>
+        <translation type="unfinished">จัดส่วนให้ตรงกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Line up the parts on or off, in every window: each part of what was said starts at the same place as its translation, so a word&apos;s translation is under it</source>
+        <translation type="unfinished">เปิดหรือปิดการจัดส่วนให้ตรงกัน ในทุกหน้าต่าง: แต่ละส่วนของสิ่งที่พูดเริ่มที่ตำแหน่งเดียวกับคำแปล คำแปลของคำจึงอยู่ใต้คำนั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Smaller text (Ctrl+wheel)</source>
+        <translation type="unfinished">ตัวอักษรเล็กลง (Ctrl+ล้อเมาส์)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Bigger text (Ctrl+wheel)</source>
+        <translation type="unfinished">ตัวอักษรใหญ่ขึ้น (Ctrl+ล้อเมาส์)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Smaller translation</source>
+        <translation type="unfinished">คำแปลเล็กลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Bigger translation</source>
+        <translation type="unfinished">คำแปลใหญ่ขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Same as what was said</source>
+        <translation type="unfinished">เท่ากับสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>The translation as big as what was said</source>
+        <translation type="unfinished">คำแปลใหญ่เท่ากับสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock all windows</source>
+        <translation type="unfinished">ล็อกหน้าต่างทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">ล็อก - การคลิกทะลุไปข้างใต้ Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Settings</source>
+        <translation type="unfinished">การตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>This window&apos;s settings: its translation, timing and more</source>
+        <translation type="unfinished">การตั้งค่าหน้าต่างนี้: คำแปล จังหวะ และอื่นๆ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Report a problem</source>
+        <translation type="unfinished">รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Report a problem - with what was shown and heard, which you check first</source>
+        <translation type="unfinished">รายงานปัญหา - พร้อมสิ่งที่แสดงและได้ยิน ซึ่งคุณตรวจก่อนได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Show my speech here</source>
+        <translation type="unfinished">แสดงเสียงพูดของฉันที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Your microphone is sent to the server only while this is on</source>
+        <translation type="unfinished">ส่งเสียงไมค์ไปเซิร์ฟเวอร์เฉพาะตอนที่เปิดข้อนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>All caption settings…</source>
+        <translation type="unfinished">การตั้งค่าคำบรรยายทั้งหมด…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colours, font, word links, timing and the rest - for every window, in Settings</source>
+        <translation type="unfinished">สี ฟอนต์ จับคู่คำ จังหวะ และอื่นๆ - สำหรับทุกหน้าต่าง ในการตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Copy all captions</source>
+        <translation type="unfinished">คัดลอกคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Every caption this window holds, with its time and translation</source>
+        <translation type="unfinished">คำบรรยายทั้งหมดที่หน้าต่างนี้เก็บไว้ พร้อมเวลาและคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open transcript</source>
+        <translation type="unfinished">เปิดบันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Everything said in this app, to read back, search and save</source>
+        <translation type="unfinished">ทุกอย่างที่พูดในแอปนี้ ไว้อ่านย้อน ค้นหา และบันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Join windows</source>
+        <translation type="unfinished">รวมหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Every caption window side by side in one window</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายทั้งหมดเรียงข้างกันในหน้าต่างเดียว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stop captioning {app}</source>
+        <translation type="unfinished">หยุดทำคำบรรยาย {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Word links need what was said: turn on “Show the original above the translation” in Settings</source>
+        <translation type="unfinished">จับคู่คำต้องมีต้นฉบับ: เปิด &quot;แสดงต้นฉบับเหนือคำแปล&quot; ในการตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Drag the top edge for more lines</source>
+        <translation type="unfinished">ลากขอบบนเพื่อเพิ่มบรรทัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Back to live · {n} new</source>
+        <translation type="unfinished">กลับไปสด · ใหม่ {n}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Back to live</source>
+        <translation type="unfinished">กลับไปสด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Nothing to copy yet</source>
+        <translation type="unfinished">ยังไม่มีอะไรให้คัดลอก</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Copied %Ln caption(s)</source>
+        <translation type="unfinished">
+            <numerusform>คัดลอกคำบรรยาย %Ln รายการแล้ว</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>ColourControls</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Classic</source>
+        <translation type="unfinished">คลาสสิก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Broadcast</source>
+        <translation type="unfinished">ออกอากาศ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Teletext</source>
+        <translation type="unfinished">เทเลเท็กซ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Ember</source>
+        <translation type="unfinished">ถ่านไฟ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Violet</source>
+        <translation type="unfinished">ม่วง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Forest</source>
+        <translation type="unfinished">ป่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Paper</source>
+        <translation type="unfinished">กระดาษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Quiet</source>
+        <translation type="unfinished">เงียบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>High contrast</source>
+        <translation type="unfinished">คอนทราสต์สูง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Clear</source>
+        <translation type="unfinished">คมชัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Custom</source>
+        <translation type="unfinished">กำหนดเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and warm yellow on a dark panel: Polyglotic&apos;s own, for most video.</source>
+        <translation type="unfinished">ขาวและเหลืองอุ่นบนแผงสีเข้ม: แบบของ Polyglotic สำหรับวิดีโอส่วนใหญ่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and yellow on solid black, as on TV: for bright, busy scenes.</source>
+        <translation type="unfinished">ขาวและเหลืองบนพื้นดำทึบ แบบทีวี: สำหรับฉากสว่างและวุ่นวาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and cyan on solid black: for warm films where yellow blends in.</source>
+        <translation type="unfinished">ขาวและฟ้าอมเขียวบนพื้นดำทึบ: สำหรับหนังโทนอุ่นที่สีเหลืองจม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Pale blue and orange, a cool and a warm colour: safe for red-green colour blindness; for games and streams.</source>
+        <translation type="unfinished">ฟ้าอ่อนและส้ม สีเย็นกับสีอุ่น: เหมาะกับตาบอดสีแดง-เขียว สำหรับเกมและสตรีม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Lilac and gold on deep violet: for anime and night scenes.</source>
+        <translation type="unfinished">ม่วงอ่อนและทองบนม่วงเข้ม: สำหรับอนิเมะและฉากกลางคืน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Mint and green on dark green: easy on the eyes for long sessions, but the two rows are harder to tell apart with green colour blindness.</source>
+        <translation type="unfinished">มินต์และเขียวบนเขียวเข้ม: สบายตาเมื่อดูนาน แต่แยกสองบรรทัดยากขึ้นถ้าตาบอดสีเขียว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Dark text on cream: for bright rooms, light apps, documents and calls.</source>
+        <translation type="unfinished">ตัวอักษรเข้มบนสีครีม: สำหรับห้องสว่าง แอปสีอ่อน เอกสาร และการโทร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft grey and amber on a faint panel: when the video matters more. Faint over bright scenes.</source>
+        <translation type="unfinished">เทาอ่อนและอำพันบนแผงจาง: เมื่อวิดีโอสำคัญกว่า จางบนฉากสว่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and bright yellow on solid black: for low vision.</source>
+        <translation type="unfinished">ขาวและเหลืองสดบนพื้นดำทึบ: สำหรับผู้มีสายตาเลือนราง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and orange on black, the rows furthest apart in brightness: safe for every kind of colour blindness.</source>
+        <translation type="unfinished">ขาวและส้มบนพื้นดำ สองบรรทัดต่างความสว่างมากที่สุด: เหมาะกับตาบอดสีทุกแบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Your own colours, from {preset}.</source>
+        <translation type="unfinished">สีของคุณเอง จาก {preset}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Your own colours.</source>
+        <translation type="unfinished">สีของคุณเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Colour: {what}</source>
+        <translation type="unfinished">สี: {what}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>{what}: exact colour</source>
+        <translation type="unfinished">{what}: สีที่แน่นอน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Pick…</source>
+        <translation type="unfinished">เลือก…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Pick a colour: {what}</source>
+        <translation type="unfinished">เลือกสี: {what}</translation>
+    </message>
+</context>
+<context>
+    <name>ConsentDialog</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Your data</source>
+        <translation type="unfinished">ข้อมูลของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>What Polyglotic sends, and what you choose</source>
+        <translation type="unfinished">สิ่งที่ Polyglotic ส่ง และสิ่งที่คุณเลือก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Read the privacy notice</source>
+        <translation type="unfinished">อ่านประกาศความเป็นส่วนตัว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>You choose - each stays off unless you turn it on:</source>
+        <translation type="unfinished">คุณเลือกเอง - ทุกข้อปิดอยู่จนกว่าคุณจะเปิด:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Usage statistics</source>
+        <translation type="unfinished">สถิติการใช้งาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>How you use the app: how long you listen, how quickly captions appear, how many words you look up, and which well-known app you listen to most (like Discord, Zoom or Chrome). Never the words themselves, never audio, never the name of any other app.</source>
+        <translation type="unfinished">วิธีที่คุณใช้แอป: ฟังนานเท่าใด คำบรรยายขึ้นเร็วแค่ไหน ค้นคำกี่คำ และฟังแอปที่รู้จักแอปใดมากที่สุด (เช่น Discord, Zoom หรือ Chrome) ไม่มีตัวคำ ไม่มีเสียง และไม่มีชื่อแอปอื่นเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Crash reports</source>
+        <translation type="unfinished">รายงานข้อขัดข้อง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>When the app crashes, a report of what went wrong in its code - with no captions and no audio.</source>
+        <translation type="unfinished">เมื่อแอปขัดข้อง รายงานว่าโค้ดผิดพลาดตรงไหน - ไม่มีคำบรรยายและไม่มีเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Share how often you hear words</source>
+        <translation type="unfinished">แชร์ว่าคุณได้ยินคำบ่อยแค่ไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this PC either way.</source>
+        <translation type="unfinished">จำนวนครั้งต่อวันที่คุณได้ยินแต่ละคำในพจนานุกรม - ไม่มีประโยค ไม่มีเวลา ไม่มีอะไรจากไมค์ของคุณ ช่วยให้เราปรับระดับและคำแนะนำคำได้ดีขึ้น จำนวนเหล่านี้อยู่บนพีซีเครื่องนี้เสมอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
+        <translation type="unfinished">คุณกำลังทดสอบรุ่นอัลฟา: สถิติการใช้งานและรายงานข้อขัดข้องเปิดอยู่ระหว่างทดสอบ เพื่อให้เราพบและแก้ปัญหาได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Testing the alpha? Then usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
+        <translation type="unfinished">ทดสอบรุ่นอัลฟาอยู่หรือเปล่า ถ้าใช่ สถิติการใช้งานและรายงานข้อขัดข้องจะเปิดอยู่ระหว่างทดสอบ เพื่อให้เราพบและแก้ปัญหาได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>You can change these any time on Account: Choose what to share.</source>
+        <translation type="unfinished">เปลี่ยนได้ทุกเมื่อที่บัญชี: เลือกสิ่งที่จะแชร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Continue</source>
+        <translation type="unfinished">ต่อไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Quit Polyglotic</source>
+        <translation type="unfinished">ออกจาก Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>I agree to the tester agreement.</source>
+        <translation type="unfinished">ฉันยอมรับข้อตกลงผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>You agreed to the tester agreement on {date}.</source>
+        <translation type="unfinished">คุณยอมรับข้อตกลงผู้ทดสอบเมื่อ {date}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Read the tester agreement</source>
+        <translation type="unfinished">อ่านข้อตกลงผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">เพื่อทำคำบรรยายสิ่งที่คุณได้ยิน Polyglotic ส่งเสียงพูดที่ตรวจพบไปยังเซิร์ฟเวอร์ของเรา เสียงและคำบรรยายใช้เพื่อทำคำบรรยายให้คุณเท่านั้น - ไม่เคยเก็บไว้ เพื่อให้บริการ เราเก็บบัญชีของคุณ จำนวนนาทีที่ฟัง ข้อมูลการเชื่อมต่อ (เวอร์ชันแอป ประเทศที่เชื่อมต่อ ประเภทแอปที่ฟัง - ไม่มีชื่อแอป) และข้อมูลการเรียน: คำในพจนานุกรมที่คุณค้น บันทึก หรือทำเครื่องหมาย และเวลา - ไม่มีประโยครอบข้าง คำที่บันทึกและสถานะคำจะตามคุณไปพีซีเครื่องอื่น การค้นคำช่วยให้เราเห็นว่าคนเรียนอย่างไรและพจนานุกรมขาดอะไร ลบข้อมูลการเรียนได้ทุกเมื่อ ข้อมูลเหล่านี้ไม่ใช่ตัวเลือก: ถ้าไม่มีก็ให้บริการไม่ได้</translation>
+    </message>
+</context>
+<context>
+    <name>Copying</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
+        <source>Copy</source>
+        <translation type="unfinished">คัดลอก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
+        <source>Select all</source>
+        <translation type="unfinished">เลือกทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
+        <source>Copied</source>
+        <translation type="unfinished">คัดลอกแล้ว</translation>
+    </message>
+</context>
+<context>
+    <name>DeleteLearningDialog</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Delete your learning data</source>
+        <translation type="unfinished">ลบข้อมูลการเรียนของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Delete your learning data from our server?</source>
+        <translation type="unfinished">ลบข้อมูลการเรียนของคุณจากเซิร์ฟเวอร์ของเราไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other PCs keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">เราจะลบคำที่คุณค้น บันทึก และทำเครื่องหมาย รวมถึงจำนวนการได้ยินที่แชร์ไว้ ในทุกภาษาที่คุณเรียน พีซีเครื่องอื่นของคุณยังเก็บสำเนาของตัวเองจนกว่าคุณจะลบที่นั่นด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">ลบจากพีซีเครื่องนี้ด้วย สำหรับทุกภาษาที่กำลังเรียน - สถานะคำ คำที่บันทึก และจำนวนครั้งที่ได้ยินแต่ละคำ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>รวมถึงลบสำเนาข้อมูลการเรียน %Ln ชุดที่แยกเก็บไว้บนพีซีเครื่องนี้เมื่อพบว่าเสียหาย</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Delete</source>
+        <translation type="unfinished">ลบ</translation>
+    </message>
+</context>
+<context>
+    <name>DesktopApp</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This PC</source>
+        <translation type="unfinished">พีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Everything else</source>
+        <translation type="unfinished">อย่างอื่นทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>You</source>
+        <translation type="unfinished">คุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">ลบข้อมูลการเรียน{language}บางส่วนออกจากพีซีเครื่องนี้ไม่ได้ เริ่ม Polyglotic ใหม่ แล้วลบอีกครั้งที่หน้าบัญชี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Your settings couldn&apos;t be read, so they&apos;ve been reset. The old file is kept beside them as {name}.</source>
+        <translation type="unfinished">อ่านการตั้งค่าของคุณไม่ได้ จึงรีเซ็ตแล้ว ไฟล์เดิมเก็บไว้ข้างกันในชื่อ {name}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Polyglotic {version}, {os} ({os_version})</source>
+        <extracomment>The feedback form&apos;s &quot;Also sent: ...&quot;: the app&apos;s version, Windows&apos; name (windows-11) and its version number (10.0.26200) - keep them as they are</extracomment>
+        <translation type="unfinished">Polyglotic {version}, {os} ({os_version})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
+        <translation type="unfinished">Windows บนพีซีเครื่องนี้แยกเสียงแอปเดียวไม่ได้ Polyglotic จึงทำคำบรรยายให้ทุกเสียงที่พีซีเล่น ลองแอปอีกครั้งได้ที่หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Open Polyglotic</source>
+        <translation type="unfinished">เปิด Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Pause captions</source>
+        <translation type="unfinished">หยุดคำบรรยายชั่วคราว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Caption my own speech</source>
+        <translation type="unfinished">ทำคำบรรยายเสียงพูดของฉัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Dictation (preview)</source>
+        <translation type="unfinished">พิมพ์ด้วยเสียง (ทดลอง)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Dictation language</source>
+        <translation type="unfinished">ภาษาที่พิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>More languages…</source>
+        <translation type="unfinished">ภาษาอื่นๆ…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Lock all caption windows</source>
+        <translation type="unfinished">ล็อกหน้าต่างคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Clicks pass through them to what&apos;s underneath</source>
+        <translation type="unfinished">การคลิกจะทะลุไปยังสิ่งที่อยู่ข้างใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hide all caption windows</source>
+        <translation type="unfinished">ซ่อนหน้าต่างคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Show each caption&apos;s delay</source>
+        <translation type="unfinished">แสดงความหน่วงของแต่ละคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Above each caption: how long after the speech started and ended it showed, and the server&apos;s share</source>
+        <translation type="unfinished">เหนือแต่ละคำบรรยาย: แสดงหลังเริ่มและจบเสียงพูดนานเท่าใด และส่วนที่เป็นของเซิร์ฟเวอร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Quit</source>
+        <translation type="unfinished">ออก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Report a problem…</source>
+        <translation type="unfinished">รายงานปัญหา…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Suggest something…</source>
+        <translation type="unfinished">เสนอแนะ…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Tell us</source>
+        <translation type="unfinished">บอกเรา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the tray</source>
+        <translation type="unfinished">หยุดทำคำบรรยายและปิด Polyglotic - ปิดหน้าต่างเฉยๆ จะยังอยู่ในถาดระบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Resume</source>
+        <translation type="unfinished">ทำต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Sample</source>
+        <translation type="unfinished">ตัวอย่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Detect automatically</source>
+        <translation type="unfinished">ตรวจหาอัตโนมัติ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Restart to install version {version}</source>
+        <translation type="unfinished">รีสตาร์ตเพื่อติดตั้งเวอร์ชัน {version}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hold {key} and speak: your words are typed where your cursor is</source>
+        <translation type="unfinished">กด {key} ค้างไว้แล้วพูด: คำพูดจะถูกพิมพ์ตรงเคอร์เซอร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Captioning {apps} while hidden</source>
+        <translation type="unfinished">กำลังทำคำบรรยายให้ {apps} ขณะซ่อนอยู่</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Captions paused after %n minute(s) hidden - show the windows to carry on</source>
+        <translation type="unfinished">
+            <numerusform>หยุดคำบรรยายชั่วคราวหลังจากซ่อนไว้ %n นาที - แสดงหน้าต่างเพื่อทำต่อ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Polyglotic is still captioning</source>
+        <translation type="unfinished">Polyglotic ยังทำคำบรรยายอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Polyglotic is still running, with captions paused</source>
+        <translation type="unfinished">Polyglotic ยังทำงานอยู่ โดยหยุดคำบรรยายไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the tray. Resume or quit from there.</source>
+        <translation type="unfinished">อยู่ในถาดระบบ ทำต่อหรือออกได้จากที่นั่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Polyglotic is still running</source>
+        <translation type="unfinished">Polyglotic ยังทำงานอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the tray. Quit from there.</source>
+        <translation type="unfinished">อยู่ในถาดระบบ ออกได้จากที่นั่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Thanks - we have your report.</source>
+        <translation type="unfinished">ขอบคุณ - เราได้รับรายงานแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Thanks - your earlier report reached us.</source>
+        <translation type="unfinished">ขอบคุณ - รายงานก่อนหน้าของคุณมาถึงแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>The server couldn&apos;t take your report. Please write to us instead.</source>
+        <translation type="unfinished">เซิร์ฟเวอร์รับรายงานไม่ได้ โปรดเขียนถึงเราโดยตรง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Your report is saved, and will be sent when the server can be reached.</source>
+        <translation type="unfinished">บันทึกรายงานแล้ว จะส่งเมื่อติดต่อเซิร์ฟเวอร์ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Your report is saved, and will be sent once you&apos;re signed in.</source>
+        <translation type="unfinished">บันทึกรายงานแล้ว จะส่งเมื่อคุณลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>The speech model is starting - the first captions may be slow.</source>
+        <translation type="unfinished">โมเดลรู้จำเสียงกำลังเริ่ม - คำบรรยายแรกๆ อาจช้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>The translator is starting - captions first, translations a little later.</source>
+        <translation type="unfinished">ตัวแปลกำลังเริ่ม - คำบรรยายมาก่อน คำแปลตามมาทีหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>The server is restarting - captions carry on in a moment.</source>
+        <translation type="unfinished">เซิร์ฟเวอร์กำลังรีสตาร์ท - คำบรรยายจะกลับมาในไม่ช้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Lots of speech at once - live updates slowed; captions continue</source>
+        <translation type="unfinished">มีเสียงพูดพร้อมกันมาก - อัปเดตสดช้าลง คำบรรยายยังทำงาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Listening moved to another device</source>
+        <translation type="unfinished">การฟังย้ายไปอุปกรณ์อื่นแล้ว</translation>
+    </message>
+</context>
+<context>
+    <name>DictationKey</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Ctrl</source>
+        <translation type="unfinished">Ctrl</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Alt</source>
+        <translation type="unfinished">Alt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Shift</source>
+        <translation type="unfinished">Shift</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Win</source>
+        <extracomment>the Windows logo key</extracomment>
+        <translation type="unfinished">Win</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right Ctrl</source>
+        <translation type="unfinished">Ctrl ขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left Ctrl</source>
+        <translation type="unfinished">Ctrl ซ้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right Shift</source>
+        <translation type="unfinished">Shift ขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left Shift</source>
+        <translation type="unfinished">Shift ซ้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right Alt</source>
+        <translation type="unfinished">Alt ขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left Alt</source>
+        <translation type="unfinished">Alt ซ้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right Win</source>
+        <extracomment>the Windows logo key on the right</extracomment>
+        <translation type="unfinished">Win ขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Insert</source>
+        <extracomment>the Insert key, as written on a keyboard</extracomment>
+        <translation type="unfinished">Insert</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Delete</source>
+        <translation type="unfinished">Delete</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Home</source>
+        <translation type="unfinished">Home</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>End</source>
+        <translation type="unfinished">End</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Page Up</source>
+        <translation type="unfinished">Page Up</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Page Down</source>
+        <translation type="unfinished">Page Down</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left arrow</source>
+        <translation type="unfinished">ลูกศรซ้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right arrow</source>
+        <translation type="unfinished">ลูกศรขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Up arrow</source>
+        <translation type="unfinished">ลูกศรขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Down arrow</source>
+        <translation type="unfinished">ลูกศรลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Space</source>
+        <translation type="unfinished">Space</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Enter</source>
+        <translation type="unfinished">Enter</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Tab</source>
+        <translation type="unfinished">Tab</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Backspace</source>
+        <translation type="unfinished">Backspace</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Esc</source>
+        <translation type="unfinished">Esc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Pause</source>
+        <extracomment>the Pause key, as written on a keyboard</extracomment>
+        <translation type="unfinished">Pause</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Scroll Lock</source>
+        <extracomment>the Scroll Lock key, as written on a keyboard</extracomment>
+        <translation type="unfinished">Scroll Lock</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Print Screen</source>
+        <translation type="unfinished">Print Screen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Menu</source>
+        <extracomment>the key that opens a program&apos;s right-click menu</extracomment>
+        <translation type="unfinished">เมนู</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That key types. Hold it with Ctrl, Alt or Win, or choose another.</source>
+        <translation type="unfinished">ปุ่มนั้นใช้พิมพ์ กดค้างพร้อม Ctrl, Alt หรือ Win หรือเลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Esc cancels dictation: choose another key.</source>
+        <translation type="unfinished">Esc ใช้ยกเลิกการพิมพ์ด้วยเสียง: เลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Windows keeps that one for itself: choose another.</source>
+        <translation type="unfinished">Windows สงวนปุ่มนั้นไว้: เลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Every program uses that one (copy, paste…): add Alt or Shift to it.</source>
+        <translation type="unfinished">ทุกโปรแกรมใช้ปุ่มนั้น (คัดลอก วาง…): เพิ่ม Alt หรือ Shift</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>On their own, only Right Ctrl or Ctrl + Win work: hold Ctrl, Alt or Shift with a key.</source>
+        <translation type="unfinished">กดเดี่ยวได้แค่ Ctrl ขวาหรือ Ctrl + Win: กด Ctrl, Alt หรือ Shift พร้อมปุ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Letting go of Alt opens a program&apos;s menu, and your words would go there: hold Ctrl with it too.</source>
+        <translation type="unfinished">ปล่อย Alt จะเปิดเมนูของโปรแกรม และคำพูดจะไปอยู่ตรงนั้น: กด Ctrl ค้างไว้ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That&apos;s one of Polyglotic&apos;s own hotkeys: choose another.</source>
+        <translation type="unfinished">นั่นคือปุ่มลัดของ Polyglotic เอง: เลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Polyglotic can&apos;t use that key: choose another.</source>
+        <translation type="unfinished">Polyglotic ใช้ปุ่มนั้นไม่ได้: เลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Dictation key</source>
+        <translation type="unfinished">ปุ่มพิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Press a key or combination… (Esc: stop)</source>
+        <translation type="unfinished">กดปุ่มหรือปุ่มผสม… (Esc: หยุด)</translation>
+    </message>
+</context>
+<context>
+    <name>DictationSign</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Didn&apos;t catch that</source>
+        <translation type="unfinished">ฟังไม่ทัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>No microphone found</source>
+        <translation type="unfinished">ไม่พบไมค์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Hold {key} while you speak</source>
+        <translation type="unfinished">กด {key} ค้างไว้ขณะพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Hold the key while you speak</source>
+        <translation type="unfinished">กดปุ่มค้างไว้ขณะพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Cancelled</source>
+        <translation type="unfinished">ยกเลิกแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>No answer from the server - nothing typed</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ไม่ตอบ - ไม่ได้พิมพ์อะไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not connected to the server - nothing typed</source>
+        <translation type="unfinished">ไม่ได้เชื่อมต่อเซิร์ฟเวอร์ - ไม่ได้พิมพ์อะไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Another window has the keyboard - nothing typed</source>
+        <translation type="unfinished">หน้าต่างอื่นถือคีย์บอร์ดอยู่ - ไม่ได้พิมพ์อะไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Couldn&apos;t type it here</source>
+        <translation type="unfinished">พิมพ์ตรงนี้ไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Sign in to dictate</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้เพื่อพิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Dictation</source>
+        <translation type="unfinished">พิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Listening</source>
+        <translation type="unfinished">กำลังฟัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Working…</source>
+        <translation type="unfinished">กำลังประมวลผล…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Hold {key} and speak</source>
+        <translation type="unfinished">กด {key} ค้างไว้แล้วพูด</translation>
+    </message>
+</context>
+<context>
+    <name>FeedbackDialog</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>A problem</source>
+        <translation type="unfinished">ปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>A suggestion</source>
+        <translation type="unfinished">ข้อเสนอแนะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>A question</source>
+        <translation type="unfinished">คำถาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>I&apos;d like to work on Polyglotic</source>
+        <translation type="unfinished">ฉันอยากร่วมสร้าง Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Your email or Discord name</source>
+        <translation type="unfinished">อีเมลหรือชื่อ Discord ของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Help&apos;s &quot;no captions?&quot; check is added to your report: ticks and crosses only. This is exactly what&apos;s added:</source>
+        <translation type="unfinished">ผลตรวจ &quot;ไม่มีคำบรรยาย?&quot; ของหน้าช่วยเหลือจะแนบไปกับรายงาน: ผ่านหรือไม่ผ่านเท่านั้น สิ่งที่แนบคือ:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Attach the app&apos;s log</source>
+        <translation type="unfinished">แนบบันทึกของแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>This is exactly what&apos;s sent. The log records what the app did - never captions, audio or your settings.</source>
+        <translation type="unfinished">นี่คือสิ่งที่ส่งไปทั้งหมด บันทึกนี้จดว่าแอปทำอะไร - ไม่มีคำบรรยาย เสียง หรือการตั้งค่าของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this PC yet.</source>
+        <translation type="unfinished">พีซีเครื่องนี้ยังไม่มีบันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
+        <translation type="unfinished">ส่งไปด้วย: {versions} และ ID ของเซสชันการฟัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Also sent: {versions}.</source>
+        <translation type="unfinished">ส่งไปด้วย: {versions}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>No screenshot is taken.</source>
+        <translation type="unfinished">ไม่มีการจับภาพหน้าจอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Please don&apos;t paste captions of other people&apos;s words. We may read feedback with the help of AI tools (Anthropic&apos;s Claude) to sort and summarise it.</source>
+        <translation type="unfinished">โปรดอย่าวางคำบรรยายคำพูดของคนอื่น เราอาจอ่านความคิดเห็นโดยใช้เครื่องมือ AI (Claude ของ Anthropic) ช่วยจัดหมวดและสรุป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Send</source>
+        <translation type="unfinished">ส่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Report a problem</source>
+        <translation type="unfinished">รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Suggest something</source>
+        <translation type="unfinished">เสนอแนะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Ask a question</source>
+        <translation type="unfinished">ถามคำถาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Help build Polyglotic</source>
+        <translation type="unfinished">ร่วมสร้าง Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>What happened, roughly when, and what you were captioning (the kind of app is enough).</source>
+        <translation type="unfinished">เกิดอะไรขึ้น ประมาณเมื่อไร และกำลังทำคำบรรยายอะไรอยู่ (บอกประเภทแอปก็พอ)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>What would make Polyglotic better for you?</source>
+        <translation type="unfinished">อะไรจะทำให้ Polyglotic ดีขึ้นสำหรับคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>Ask us anything.</source>
+        <translation type="unfinished">ถามอะไรก็ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>A little about you, and what you&apos;d like to work on.</source>
+        <translation type="unfinished">เล่าเกี่ยวกับตัวคุณสักนิด และอยากทำส่วนไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>How can we reach you? (needed, so we can reply)</source>
+        <translation type="unfinished">ติดต่อคุณได้อย่างไร (จำเป็น เพื่อให้เราตอบได้)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>How can we reply? (optional)</source>
+        <translation type="unfinished">ตอบกลับทางไหน (ไม่บังคับ)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>{count} of {limit}</source>
+        <translation type="unfinished">{count}/{limit}</translation>
+    </message>
+</context>
+<context>
+    <name>FirstRun</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/first_run.py"/>
+        <source>Back</source>
+        <translation type="unfinished">ย้อนกลับ</translation>
+    </message>
+</context>
+<context>
+    <name>Help</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Help</source>
+        <translation type="unfinished">ช่วยเหลือ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>No captions?</source>
+        <translation type="unfinished">ไม่มีคำบรรยาย?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>This looks at what Polyglotic is doing now, in order, and stops at the first thing that&apos;s wrong.</source>
+        <translation type="unfinished">ตรวจสิ่งที่ Polyglotic กำลังทำทีละขั้น และหยุดที่ปัญหาแรกที่พบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Check again</source>
+        <translation type="unfinished">ตรวจอีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Set up</source>
+        <translation type="unfinished">การตั้งค่าเริ่มต้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Questions</source>
+        <translation type="unfinished">คำถาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Privacy notice</source>
+        <translation type="unfinished">ประกาศความเป็นส่วนตัว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Tester agreement</source>
+        <translation type="unfinished">ข้อตกลงผู้ทดสอบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>What&apos;s new</source>
+        <translation type="unfinished">มีอะไรใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The release notes are in English.</source>
+        <translation type="unfinished">บันทึกประจำรุ่นเป็นภาษาอังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Still stuck?</source>
+        <translation type="unfinished">ยังติดอยู่ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your report comes with this check&apos;s result: ticks and crosses only, nothing you&apos;ve heard or read.</source>
+        <translation type="unfinished">รายงานจะแนบผลการตรวจนี้: ผ่านหรือไม่ผ่านเท่านั้น ไม่มีสิ่งที่คุณได้ยินหรืออ่าน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Report a problem</source>
+        <translation type="unfinished">รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Version {version}</source>
+        <translation type="unfinished">เวอร์ชัน {version}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this PC until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">การเปลี่ยนแปลงจะไม่ถูกเก็บบนพีซีเครื่องนี้จนกว่าจะรีสตาร์ท Polyglotic แล้วคำที่บันทึกจะกลับมาจากบัญชีของคุณ ไฟล์เดิมเก็บไว้ที่ {path} เผื่อเราขอในรายงาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">คำที่บันทึกกำลังกลับมาจากบัญชีของคุณ ไฟล์เดิมเก็บไว้ที่ {path} เผื่อเราขอในรายงาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this PC was damaged and has been set aside</source>
+        <translation type="unfinished">ข้อมูลการเรียนบนพีซีเครื่องนี้เสียหายและถูกแยกเก็บไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Signed in, and connected to the server</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้แล้ว และเชื่อมต่อเซิร์ฟเวอร์แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>{name} is added on Home</source>
+        <translation type="unfinished">เพิ่ม {name} ที่หน้าแรกแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sound from {name} in the last 30 seconds</source>
+        <translation type="unfinished">เสียงจาก {name} ใน 30 วินาทีล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Speech heard</source>
+        <translation type="unfinished">ได้ยินเสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Captions shown</source>
+        <translation type="unfinished">แสดงคำบรรยายแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Something is added on Home</source>
+        <translation type="unfinished">มีบางอย่างเพิ่มที่หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sound from it in the last 30 seconds</source>
+        <translation type="unfinished">เสียงจากสิ่งนั้นใน 30 วินาทีล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Connecting to the server…</source>
+        <translation type="unfinished">กำลังเชื่อมต่อเซิร์ฟเวอร์…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Listening for sound…</source>
+        <translation type="unfinished">กำลังรอเสียง…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Listening for speech…</source>
+        <translation type="unfinished">กำลังรอเสียงพูด…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Waiting for the first caption…</source>
+        <translation type="unfinished">กำลังรอคำบรรยายแรก…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Not signed in</source>
+        <translation type="unfinished">ยังไม่ได้ลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this PC used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้ที่บัญชีด้วยรหัสเชิญ - รหัสที่พีซีเครื่องนี้เคยใช้ใช้ได้อีก - หรือรหัสในอีเมล Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Plus has ended</source>
+        <translation type="unfinished">Plus หมดแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Get Plus on Account, and captions start again by themselves. Your words and lookups stay; a transcript is gone when you quit, unless you save it.</source>
+        <translation type="unfinished">ซื้อ Plus ที่บัญชี แล้วคำบรรยายจะเริ่มใหม่เอง คำและการค้นยังอยู่ บันทึกคำบรรยายจะหายเมื่อออก ถ้าไม่บันทึกไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Polyglotic needs an update</source>
+        <translation type="unfinished">Polyglotic ต้องอัปเดต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the tray and start it again.</source>
+        <translation type="unfinished">แอปจะดาวน์โหลดอัปเดตแล้วรีสตาร์ทเอง ถ้าไม่ ให้ออกจากถาดระบบแล้วเปิดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The server is busy</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ยุ่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It has as many listening as it can carry right now. Polyglotic tries again by itself - nothing to do.</source>
+        <translation type="unfinished">ตอนนี้มีผู้ฟังเต็มที่รับได้ Polyglotic จะลองใหม่เอง - ไม่ต้องทำอะไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Not connected to the server</source>
+        <translation type="unfinished">ไม่ได้เชื่อมต่อเซิร์ฟเวอร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่ ถ้ายังเกิดอีก ให้รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Nothing is added to caption</source>
+        <translation type="unfinished">ยังไม่ได้เพิ่มอะไรให้ทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the PC plays.</source>
+        <translation type="unfinished">ที่หน้าแรก เพิ่มแอป (สูงสุด 3) หรือเลือกทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>{name} isn&apos;t open</source>
+        <translation type="unfinished">{name} ไม่ได้เปิดอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Open it. It&apos;s captioned once it&apos;s open.</source>
+        <translation type="unfinished">เปิดเลย จะได้คำบรรยายทันทีที่เปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>{name} is quiet: no sound from it in the last 30 seconds</source>
+        <translation type="unfinished">{name} เงียบ: ไม่มีเสียงใน 30 วินาทีล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this PC&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">กำลังเล่นเสียงอยู่ไหม เสียงออกไปที่ลำโพงหรือหูฟังของพีซีเครื่องนี้ และไม่ได้ปิดเสียงไว้ใช่ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">พีซีเงียบ: ไม่มีเสียงใดเล่นใน 30 วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">เล่นอะไรสักอย่าง ถ้าคุณฟังผ่านหูฟังที่ไม่ใช่อุปกรณ์หลักของพีซี ให้ตั้งเป็นอุปกรณ์หลัก หรือเพิ่มแอปแทน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your microphone is quiet: no sound from it in 30 seconds</source>
+        <translation type="unfinished">ไมค์ของคุณเงียบ: ไม่มีเสียงใน 30 วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
+        <translation type="unfinished">ปิดเสียงไว้ หรือเลือกไมค์ตัวอื่นในการตั้งค่าเสียงของพีซีหรือเปล่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to hear what the Mac plays</source>
+        <translation type="unfinished">Polyglotic ไม่ได้รับอนุญาตให้ฟังเสียงที่ Mac เล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>In System Settings, open Privacy &amp; Security, then Screen &amp; System Audio Recording, and turn on Polyglotic under System Audio Recording Only. Then quit Polyglotic and open it again.</source>
+        <extracomment>macOS System Settings&apos; own names (macOS 15 and later): keep them as the Mac shows them in the language</extracomment>
+        <translation type="unfinished">ในการตั้งค่าระบบ ให้เปิด &quot;ความเป็นส่วนตัวและความปลอดภัย&quot; แล้วเปิด &quot;การบันทึกหน้าจอและเสียงระบบ&quot; และเปิด Polyglotic ใต้ &quot;การบันทึกเสียงระบบเท่านั้น&quot; จากนั้นออกจาก Polyglotic แล้วเปิดใหม่อีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to use the microphone</source>
+        <translation type="unfinished">Polyglotic ไม่ได้รับอนุญาตให้ใช้ไมโครโฟน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>In System Settings, open Privacy &amp; Security, then Microphone, and turn on Polyglotic. Then quit Polyglotic and open it again.</source>
+        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
+        <translation type="unfinished">ในการตั้งค่าระบบ ให้เปิด &quot;ความเป็นส่วนตัวและความปลอดภัย&quot; แล้วเปิด &quot;ไมโครโฟน&quot; และเปิด Polyglotic จากนั้นออกจาก Polyglotic แล้วเปิดใหม่อีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sound, but no speech heard</source>
+        <translation type="unfinished">มีเสียง แต่ไม่ได้ยินเสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Music and effects aren&apos;t captioned. Is someone talking, loudly enough to hear over anything else?</source>
+        <translation type="unfinished">ดนตรีและเอฟเฟกต์จะไม่มีคำบรรยาย มีคนพูดดังพอจะได้ยินเหนือเสียงอื่นไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Captions are paused</source>
+        <translation type="unfinished">คำบรรยายหยุดชั่วคราว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">เลือก ทำต่อ ที่หน้าแรกหรือเมนูถาดระบบ หรือกด Ctrl+Alt+P</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The caption windows are hidden</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายถูกซ่อน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">กด Ctrl+Alt+H หรือใช้ ซ่อนทั้งหมด ที่หน้าแรกหรือเมนูถาดระบบ บันทึกคำบรรยายของแอปจะบอกว่าคำบรรยายมาถึงหรือไม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Captions are failing on the server</source>
+        <translation type="unfinished">คำบรรยายล้มเหลวที่เซิร์ฟเวอร์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ยังลองเองต่อไป - ไม่ต้องเปลี่ยนอะไรบนพีซีเครื่องนี้ ถ้านานเกินไม่กี่นาที ให้รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Speech was heard, but no caption has been drawn</source>
+        <translation type="unfinished">ได้ยินเสียงพูด แต่ไม่มีคำบรรยายแสดง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>If the app&apos;s transcript shows captions, its caption window may be off-screen: Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">ถ้าบันทึกคำบรรยายของแอปมีคำบรรยาย หน้าต่างคำบรรยายอาจอยู่นอกจอ: รีเซ็ตตำแหน่ง ที่หน้าแรกจะนำทุกหน้าต่างกลับมา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (Windows 11)</source>
+        <translation type="unfinished">ทำคำบรรยายแอปที่คุณเพิ่ม (Windows 11)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
+        <translation type="unfinished">ที่หน้าแรก เพิ่มแอปที่มีเสียงได้สูงสุด 3 แอป แต่ละแอปมีหน้าต่างคำบรรยายของตัวเองพร้อมชื่อ แอปที่เพิ่มแต่ยังไม่เปิดจะมีคำบรรยายเมื่อเปิด Windows 10 แยกแอปไม่ได้ จึงทำคำบรรยายทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption one app, and everything else apart</source>
+        <translation type="unfinished">ทำคำบรรยายแอปเดียว และอย่างอื่นแยกกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the PC plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. Windows can leave out only one app, so it&apos;s there with one app at a time (Windows 11).</source>
+        <translation type="unfinished">เมื่อเพิ่มแอปเดียวที่หน้าแรก ให้เปิด ทำคำบรรยายเสียงอื่นที่พีซีเล่นด้วย: ทุกอย่างยกเว้นแอปนั้นจะมีหน้าต่างคำบรรยายของตัวเองชื่อ อย่างอื่นทั้งหมด - การโทรในหน้าต่างหนึ่ง เกมหรือวิดีโอในอีกหน้าต่าง ไม่ซ้ำกัน Windows ยกเว้นได้แค่แอปเดียว จึงใช้ได้ทีละแอป (Windows 11)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the PC plays</source>
+        <translation type="unfinished">ทำคำบรรยายทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">ที่หน้าแรก เลือกทุกเสียงที่พีซีเล่น: ทุกอย่างที่เล่นผ่านลำโพงหรือหูฟังหลัก ในชื่อ พีซีเครื่องนี้ ถ้าหูฟังไม่ใช่อุปกรณ์หลัก ให้ตั้งเป็นอุปกรณ์หลัก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption your own microphone</source>
+        <translation type="unfinished">ทำคำบรรยายไมค์ของคุณเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the tray menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">เปิด แสดงเสียงพูดของฉันที่นี่ ในการตั้งค่าหน้าต่างคำบรรยาย หรือ ทำคำบรรยายเสียงพูดของฉัน ในเมนูถาดระบบสำหรับทุกหน้าต่าง จะปิดอยู่จนกว่าคุณจะเปิด และเสียงไมค์ไปเซิร์ฟเวอร์เฉพาะตอนที่มีหน้าต่างแสดงอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Move, lock and resize the caption windows</source>
+        <translation type="unfinished">ย้าย ล็อก และปรับขนาดหน้าต่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all (Ctrl+Alt+L) lets clicks pass through; Hide all is Ctrl+Alt+H; Pause captions is Ctrl+Alt+P. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">ลากหน้าต่างคำบรรยายเพื่อย้าย หรือลากขอบเพื่อปรับขนาด ล็อกทั้งหมด (Ctrl+Alt+L) ให้การคลิกทะลุ ซ่อนทั้งหมดคือ Ctrl+Alt+H หยุดคำบรรยายชั่วคราวคือ Ctrl+Alt+P หาหน้าต่างไม่เจอ? รีเซ็ตตำแหน่ง ที่หน้าแรกจะนำทุกหน้าต่างกลับมา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Over a game</source>
+        <translation type="unfinished">บนเกม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายไม่เคยแย่งคีย์บอร์ดหรือเมาส์ของเกม: ไม่เคยเป็นหน้าต่างที่ใช้งานอยู่ วางไว้ตรงที่ไม่บังสิ่งที่ต้องดู แล้ว ล็อกทั้งหมด (Ctrl+Alt+L) ให้การคลิกไปถึงเกม ซ่อนทั้งหมด (Ctrl+Alt+H) ตอนต่อสู้ ปุ่มลัดใช้ได้ขณะเล่นเกมและยังเปลี่ยนไม่ได้ เกมแบบเต็มจอเฉพาะจะบังทุกหน้าต่าง: เลือกแบบไร้ขอบหรือเต็มจอแบบหน้าต่างแทน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Dictate into any program (preview)</source>
+        <translation type="unfinished">พิมพ์ด้วยเสียงในทุกโปรแกรม (ทดลอง)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">เปิด พิมพ์ด้วยเสียง ใน การตั้งค่า &gt; พิมพ์ด้วยเสียง หรือเมนูถาดระบบ กด {key} ค้างไว้แล้วพูด ปล่อยแล้วคำพูดจะถูกพิมพ์ตรงเคอร์เซอร์ Esc ยกเลิกก่อนพิมพ์ ถ้าจะใช้ปุ่มหรือปุ่มผสมอื่น คลิกปุ่มใน การตั้งค่า &gt; พิมพ์ด้วยเสียง แล้วกดปุ่มที่ต้องการ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>What we keep</source>
+        <translation type="unfinished">สิ่งที่เราเก็บ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">มีแค่เสียงพูดที่ออกจากพีซีเครื่องนี้: เซิร์ฟเวอร์ของเราเปลี่ยนเป็นคำบรรยายและคำแปล และไม่เคยเก็บเสียง คำบรรยาย หรือคำแปล พีซีเครื่องนี้เก็บเสียงพูดที่จบแล้ว 2 นาทีล่าสุดของแต่ละแอปไว้ในหน่วยความจำ และส่งอีกครั้งเมื่อคุณขอเท่านั้น บันทึกคำบรรยายไม่เคยออกจากพีซีเครื่องนี้ และหายเมื่อปิด Polyglotic ถ้าไม่บันทึกไว้ เราเก็บบัญชี จำนวนนาที บันทึกของแต่ละเซสชัน (ไม่มีสิ่งที่พูดหรือชื่อแอป) และคำในพจนานุกรมที่คุณค้น บันทึก หรือทำเครื่องหมาย - ไม่มีประโยครอบข้าง สถิติการใช้งานและจำนวนคำจะแชร์เมื่อคุณเปิดเท่านั้น (บัญชี &gt; เลือกสิ่งที่จะแชร์) และลบข้อมูลการเรียนได้ที่บัญชี ประกาศความเป็นส่วนตัวด้านล่างอธิบายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Why is a line wrong?</source>
+        <translation type="unfinished">ทำไมบรรทัดหนึ่งผิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Captions and translations are made by machine and can be wrong, most of all with names, slang, music behind a voice and several people talking at once. Add slang, memes and names you hear often - rizz, yyds, a streamer&apos;s name - in Names and slang, under Settings &gt; Speech, so they&apos;re spelled your way.</source>
+        <translation type="unfinished">คำบรรยายและคำแปลทำโดยเครื่อง จึงผิดได้ โดยเฉพาะชื่อ คำสแลง ดนตรีหลังเสียงพูด และหลายคนพูดพร้อมกัน เพิ่มคำสแลง มีม และชื่อที่ได้ยินบ่อย - rizz, yyds, ชื่อสตรีมเมอร์ - ใน ชื่อและคำสแลง ที่ การตั้งค่า &gt; เสียงพูด เพื่อให้สะกดตามที่คุณต้องการ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>When do captions appear?</source>
+        <translation type="unfinished">คำบรรยายขึ้นเมื่อไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">คงที่ ค่าเริ่มต้น: แต่ละประโยคขึ้นครั้งเดียว สมบูรณ์และแปลแล้ว ราวครึ่งวินาทีหลังจบ มีแถบเล็กเคลื่อนใต้คำบรรยายระหว่างรอ และถ้าผู้พูดพูดต่อ บรรทัดจางจะแสดงคำที่พูดถึงตอนนั้น พรีวิว: บรรทัดแรกจางๆ หลังราว 2 วินาที แล้วคำบรรยายฉบับสมบูรณ์และคำแปลเมื่อจบประโยค สด: คำขึ้นตามที่พูดและเขียนใหม่จนจบประโยค เลือกได้ใน การตั้งค่า &gt; จังหวะ หรือในการตั้งค่าหน้าต่างคำบรรยาย ทุกแบบจะไม่มีใครพูดนานเกิน เวลารอข้อความนานสุด (3 วินาที ถ้าไม่เปลี่ยน) โดยที่คุณยังไม่เห็นข้อความ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Look up a word, and keep it</source>
+        <translation type="unfinished">ค้นคำ และเก็บไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Point at a word in a caption window or a transcript (the window unlocked): its reading and first meaning appear. Click it for the whole entry, or drag across a phrase. Add to deck keeps it with the line it was in; Known stops it being marked; Save to puts it in a category of yours. Esc closes the card.</source>
+        <translation type="unfinished">ชี้คำในหน้าต่างคำบรรยายหรือบันทึกคำบรรยาย (เมื่อไม่ได้ล็อก): จะเห็นคำอ่านและความหมายแรก คลิกเพื่อดูทั้งรายการ หรือลากคลุมวลี เพิ่มลงสำรับ เก็บคำพร้อมบรรทัดที่พบ รู้แล้ว หยุดทำเครื่องหมาย บันทึกไปที่ ใส่ลงหมวดของคุณ Esc ปิดการ์ด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Where are my words?</source>
+        <translation type="unfinished">คำของฉันอยู่ไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this PC and, with your account, on our server, so they follow you to another PC.</source>
+        <translation type="unfinished">คำที่ค้นและบันทึกอยู่ที่หน้าคำศัพท์ เก็บไว้บนพีซีเครื่องนี้ และบนเซิร์ฟเวอร์ของเราเมื่อมีบัญชี จึงตามคุณไปพีซีเครื่องอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Put your words into Anki</source>
+        <translation type="unfinished">นำคำไปใส่ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words &gt; Export for Anki. The deck file (.apkg) is the easy way: double-click it and Anki adds a Polyglotic deck with its own note type - word, reading, meaning, the sentence with the word in bold, its translation - and Anki&apos;s own text-to-speech for sound. The CSV imports as it is into Anki&apos;s Basic (front and back), whatever Anki&apos;s language. For a note type of your own, pick it in Anki&apos;s import dialog and match its fields to the columns by number: 1 word, 4 reading, 5 meaning, 6 sentence, 7 translation. Keep to one of the two: a word stays the kind of note it first came as. Exporting again updates the same cards rather than doubling them, and leaves your own notes and tags on words that haven&apos;t changed here; tick Only words not exported yet to keep the file short. Anki may call 行 (háng) and 行 (xíng) duplicates - it compares the first field only. They are two words: keep both.</source>
+        <translation type="unfinished">คำศัพท์ &gt; ส่งออกสำหรับ Anki ไฟล์สำรับ (.apkg) ง่ายที่สุด: ดับเบิลคลิก แล้ว Anki จะเพิ่มสำรับ Polyglotic พร้อมชนิดโน้ตของตัวเอง - คำ คำอ่าน ความหมาย ประโยคที่มีคำเป็นตัวหนา คำแปล - และเสียงอ่านของ Anki เอง ไฟล์ CSV นำเข้าได้ตรงๆ ในชนิด Basic ของ Anki (หน้าและหลัง) ไม่ว่า Anki จะเป็นภาษาใด ถ้าใช้ชนิดโน้ตของคุณเอง ให้เลือกในหน้าต่างนำเข้าของ Anki แล้วจับคู่ฟิลด์กับคอลัมน์ตามเลข: 1 คำ, 4 คำอ่าน, 5 ความหมาย, 6 ประโยค, 7 คำแปล ใช้แบบใดแบบหนึ่งเท่านั้น: คำจะคงชนิดโน้ตแบบที่เข้ามาครั้งแรก ส่งออกอีกครั้งจะอัปเดตการ์ดเดิมแทนการเพิ่มซ้ำ และคงโน้ตและแท็กของคุณบนคำที่ไม่เปลี่ยนที่นี่ ติ๊ก เฉพาะคำที่ยังไม่ส่งออก เพื่อให้ไฟล์สั้น Anki อาจมองว่า 行 (háng) กับ 行 (xíng) ซ้ำกัน เพราะเทียบแค่ฟิลด์แรก ทั้งสองเป็นคนละคำ: เก็บไว้ทั้งคู่</translation>
+    </message>
+</context>
+<context>
+    <name>Home</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this PC was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">ข้อมูลการเรียนบนพีซีเครื่องนี้เสียหาย จึงแยกเก็บไว้เป็น {name} คำที่บันทึกกำลังกลับมาจากบัญชีของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">ข้อมูลการเรียนบนพีซีเครื่องนี้เสียหาย จึงไม่เก็บการเปลี่ยนแปลงที่นี่จนกว่าจะรีสตาร์ท Polyglotic แล้วคำที่บันทึกจะกลับมาจากบัญชีของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Sign in</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Minutes captioned this month: {used}</source>
+        <translation type="unfinished">นาทีที่มีคำบรรยายเดือนนี้: {used}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Minutes this month: {used} of {total}</source>
+        <translation type="unfinished">นาทีเดือนนี้: {used} จาก {total}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>{problem}. {fix}</source>
+        <extracomment>a problem, then how to fix it: two sentences of their own</extracomment>
+        <translation type="unfinished">{problem} {fix}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Paused</source>
+        <translation type="unfinished">หยุดชั่วคราว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Pick what to caption</source>
+        <translation type="unfinished">เลือกสิ่งที่จะทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Not connected</source>
+        <translation type="unfinished">ไม่ได้เชื่อมต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Connecting</source>
+        <translation type="unfinished">กำลังเชื่อมต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Listening</source>
+        <translation type="unfinished">กำลังฟัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Reconnecting</source>
+        <translation type="unfinished">กำลังเชื่อมต่อใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>The server is busy</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ยุ่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Not signed in</source>
+        <translation type="unfinished">ยังไม่ได้ลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Update needed</source>
+        <translation type="unfinished">ต้องอัปเดต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Listening moved</source>
+        <translation type="unfinished">ย้ายการฟังแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Plus has ended</source>
+        <translation type="unfinished">Plus หมดแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Stopped</source>
+        <translation type="unfinished">หยุดแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Can&apos;t reach Polyglotic&apos;s server</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์ Polyglotic ไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic&apos;s server is restarting</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ Polyglotic กำลังรีสตาร์ท</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic&apos;s server has a problem</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ Polyglotic มีปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This network is blocking Polyglotic</source>
+        <translation type="unfinished">เครือข่ายนี้บล็อก Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Can&apos;t connect securely</source>
+        <translation type="unfinished">เชื่อมต่ออย่างปลอดภัยไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this PC&apos;s date and time</source>
+        <translation type="unfinished">ตรวจวันที่และเวลาของพีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your PCs</source>
+        <translation type="unfinished">Polyglotic เปิดอยู่บนพีซีของคุณหลายเครื่องเกินไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Too many sign-in tries</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้หลายครั้งเกินไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>{line}.</source>
+        <extracomment>Home&apos;s line on why the server can&apos;t be reached, as a sentence in Help</extracomment>
+        <translation type="unfinished">{line}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This PC&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
+        <extracomment>{date}, {time}: what this PC&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">วันที่หรือเวลาของพีซีเครื่องนี้ดูเหมือนจะผิด: แสดงเป็น {date} {time} คำบรรยายยังใช้งานได้ หากต้องการแก้ ให้เปิด ตั้งเวลาโดยอัตโนมัติ ในการตั้งค่า Windows หัวข้อเวลาและภาษา &gt; วันที่และเวลา แล้วเลือก ซิงค์เดี๋ยวนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>you need a code from us: an invite, or the one in your Plus email</source>
+        <translation type="unfinished">คุณต้องใช้รหัสจากเรา: รหัสเชิญ หรือรหัสในอีเมล Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the tray</source>
+        <translation type="unfinished">ทำต่อด้วย Ctrl+Alt+P หรือจากถาดระบบ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>every caption window hidden over %n minute(s) - show them to carry on</source>
+        <translation type="unfinished">
+            <numerusform>หน้าต่างคำบรรยายทั้งหมดถูกซ่อนไว้นานกว่า %n นาที - แสดงหน้าต่างเพื่อทำต่อ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>nothing is captioned yet</source>
+        <translation type="unfinished">ยังไม่มีอะไรทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Help can check what&apos;s wrong</source>
+        <translation type="unfinished">หน้าช่วยเหลือตรวจได้ว่าอะไรผิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่ - ถ้ายังหยุดอีก หน้าช่วยเหลือตรวจได้ว่าอะไรผิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>trying again in {seconds} s</source>
+        <translation type="unfinished">ลองอีกใน {seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>captions in {languages}</source>
+        <translation type="unfinished">คำบรรยายภาษา {languages}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>captions without translation</source>
+        <translation type="unfinished">คำบรรยายไม่มีคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>captions have stopped. Your words and lookups stay; a transcript is gone when you quit, unless you save it - get Plus to listen again</source>
+        <translation type="unfinished">คำบรรยายหยุดแล้ว คำและการค้นยังอยู่ บันทึกคำบรรยายจะหายเมื่อออก ถ้าไม่บันทึกไว้ - ซื้อ Plus เพื่อฟังต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>your speech not captioned</source>
+        <translation type="unfinished">ไม่ได้ทำคำบรรยายเสียงของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>getting the update - Polyglotic restarts by itself when it&apos;s ready</source>
+        <translation type="unfinished">กำลังดาวน์โหลดอัปเดต - Polyglotic จะรีสตาร์ทเองเมื่อพร้อม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
+        <translation type="unfinished">ดาวน์โหลดอัปเดตแล้ว - ออกจากถาดระบบแล้วเปิด Polyglotic ใหม่เพื่อติดตั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>no update is ready yet - Polyglotic looks again every few minutes, or ask us for the newest installer</source>
+        <translation type="unfinished">ยังไม่มีอัปเดต - Polyglotic จะตรวจใหม่ทุกไม่กี่นาที หรือขอตัวติดตั้งล่าสุดจากเรา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this copy can&apos;t update itself - install the newest Polyglotic (ask us for it)</source>
+        <translation type="unfinished">สำเนานี้อัปเดตเองไม่ได้ - ติดตั้ง Polyglotic ล่าสุด (ขอจากเรา)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the Microsoft Store updates this copy - open the Store, go to Library and choose Get updates</source>
+        <extracomment>&quot;Library&quot; and &quot;Get updates&quot; are the Microsoft Store app&apos;s own words</extracomment>
+        <translation type="unfinished">Microsoft Store เป็นผู้อัปเดตสำเนานี้ - เปิด Store ไปที่ คลัง แล้วเลือก รับการอัปเดต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this PC seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">พีซีเครื่องนี้ดูเหมือนออฟไลน์ ตรวจการเชื่อมต่ออินเทอร์เน็ต ถ้าใช้ได้ ปัญหาอยู่ที่เรา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
+        <translation type="unfinished">ตรวจอินเทอร์เน็ต ถ้าใช้ได้ เราน่าจะล่มอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>not your internet - the problem is ours. Captions come back by themselves</source>
+        <translation type="unfinished">ไม่ใช่อินเทอร์เน็ตของคุณ - ปัญหาอยู่ที่เรา คำบรรยายจะกลับมาเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>captions come back by themselves in a moment</source>
+        <translation type="unfinished">คำบรรยายจะกลับมาเองในไม่ช้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>a firewall or proxy on this network won&apos;t let it reach its server. Try another network, or ask whoever runs this one</source>
+        <translation type="unfinished">ไฟร์วอลล์หรือพร็อกซีบนเครือข่ายนี้ไม่ให้เชื่อมเซิร์ฟเวอร์ ลองเครือข่ายอื่น หรือถามผู้ดูแลเครือข่าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>something on this network is in the way - a Wi-Fi sign-in page, a firewall or an antivirus. Sign in to the Wi-Fi, or try another network</source>
+        <translation type="unfinished">มีบางอย่างบนเครือข่ายนี้ขวางอยู่ - หน้าลงชื่อเข้า Wi-Fi ไฟร์วอลล์ หรือแอนติไวรัส ลงชื่อเข้า Wi-Fi หรือลองเครือข่ายอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this PC says it&apos;s {date}, which can&apos;t be right. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now</source>
+        <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">พีซีเครื่องนี้บอกว่าวันนี้คือ {date} ซึ่งไม่น่าถูกต้อง เปิด ตั้งเวลาโดยอัตโนมัติ ในการตั้งค่า Windows หัวข้อเวลาและภาษา &gt; วันที่และเวลา แล้วเลือก ซิงค์เดี๋ยวนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
+        <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
+        <translation type="unfinished">มีบางอย่างบนเครือข่ายนี้ขวางอยู่ด้วยใบรับรองที่หมดอายุ ส่วนใหญ่คือการสแกน HTTPS ของแอนติไวรัส หรือ VPN ปิดสิ่งนั้นสำหรับ Polyglotic หรือลองเครือข่ายอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>your account has as many open as it can. Quit it on one of them, and captions start here by themselves</source>
+        <translation type="unfinished">บัญชีของคุณเปิดครบจำนวนแล้ว ปิดในเครื่องใดเครื่องหนึ่ง แล้วคำบรรยายจะเริ่มที่นี่เอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
+        <translation type="unfinished">มีการลงชื่อเข้าใช้ไม่สำเร็จจากเครือข่ายนี้มากเกินไป เซิร์ฟเวอร์จึงรอก่อนให้พีซีเครื่องนี้เข้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>playing</source>
+        <translation type="unfinished">กำลังเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quiet</source>
+        <translation type="unfinished">เงียบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>not open - captioned when it opens</source>
+        <translation type="unfinished">ไม่ได้เปิด - มีคำบรรยายเมื่อเปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the PC plays</source>
+        <translation type="unfinished">ทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the PC plays</source>
+        <translation type="unfinished">เสียงอื่นทั้งหมดที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>captioning while hidden</source>
+        <translation type="unfinished">กำลังทำคำบรรยายขณะซ่อนอยู่</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>paused after %n minute(s) hidden - show it to carry on</source>
+        <translation type="unfinished">
+            <numerusform>หยุดชั่วคราวหลังจากซ่อนไว้ %n นาที - แสดงเพื่อทำต่อ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Colour</source>
+        <translation type="unfinished">สี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Rename</source>
+        <translation type="unfinished">เปลี่ยนชื่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This window&apos;s language</source>
+        <translation type="unfinished">ภาษาของหน้าต่างนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Original only (no translation)</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น (ไม่แปล)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Captions</source>
+        <translation type="unfinished">คำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Transcript</source>
+        <translation type="unfinished">บันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your speech shows in this window - click to stop</source>
+        <translation type="unfinished">เสียงของคุณแสดงในหน้าต่างนี้ - คลิกเพื่อหยุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show my speech in this window</source>
+        <translation type="unfinished">แสดงเสียงพูดของฉันในหน้าต่างนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Hidden - Ctrl+Alt+H</source>
+        <translation type="unfinished">ซ่อนอยู่ - Ctrl+Alt+H</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">แสดงหน้าต่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Stop captioning {app}</source>
+        <translation type="unfinished">หยุดทำคำบรรยาย {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Colour of {app}&apos;s label</source>
+        <translation type="unfinished">สีป้ายของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Rename {app}</source>
+        <translation type="unfinished">เปลี่ยนชื่อ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>New name for {app}</source>
+        <translation type="unfinished">ชื่อใหม่ของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>{app}&apos;s window&apos;s language</source>
+        <translation type="unfinished">ภาษาหน้าต่างของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show my speech in {app}&apos;s window</source>
+        <translation type="unfinished">แสดงเสียงพูดของฉันในหน้าต่างของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show {app}&apos;s caption window</source>
+        <translation type="unfinished">แสดงหน้าต่างคำบรรยายของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open {app}&apos;s transcript</source>
+        <translation type="unfinished">เปิดบันทึกคำบรรยายของ {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption {app}</source>
+        <translation type="unfinished">ทำคำบรรยาย {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption</source>
+        <translation type="unfinished">ทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the PC plays.</source>
+        <translation type="unfinished">ยังไม่มีคำบรรยายจนกว่าคุณจะเพิ่มแอป หรือเลือกทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the PC plays (in its own window)</source>
+        <translation type="unfinished">ทำคำบรรยายเสียงอื่นที่พีซีเล่นด้วย (ในหน้าต่างแยก)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>With one app only</source>
+        <translation type="unfinished">แอปเดียวเท่านั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Add an app</source>
+        <translation type="unfinished">เพิ่มแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>apps with sound open, playing first</source>
+        <translation type="unfinished">แอปที่มีเสียง เรียงแอปที่กำลังเล่นก่อน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Refresh</source>
+        <translation type="unfinished">รีเฟรช</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>3 of 3 - stop one to add another</source>
+        <translation type="unfinished">3/3 - หยุดแอปหนึ่งเพื่อเพิ่มแอปอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>No app has sound open. Play something, then Refresh.</source>
+        <translation type="unfinished">ไม่มีแอปที่มีเสียง เล่นอะไรสักอย่างแล้วกดรีเฟรช</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Try it on a sample</source>
+        <translation type="unfinished">ลองกับตัวอย่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>a short recording, played and captioned like any app (FLEURS, CC BY 4.0)</source>
+        <translation type="unfinished">เสียงบันทึกสั้นๆ เล่นและทำคำบรรยายเหมือนแอปทั่วไป (FLEURS, CC BY 4.0)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Pick an app to caption yours</source>
+        <translation type="unfinished">เลือกแอปที่จะทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Apps</source>
+        <translation type="unfinished">แอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays</source>
+        <translation type="unfinished">ทุกเสียงที่พีซีเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Try apps again</source>
+        <translation type="unfinished">ลองแอปอีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your speech is labelled</source>
+        <translation type="unfinished">ชื่อของเสียงคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This PC</source>
+        <translation type="unfinished">พีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>1 app + everything else</source>
+        <translation type="unfinished">1 แอป + อย่างอื่นทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>{n} of {limit}</source>
+        <translation type="unfinished">{n}/{limit}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>My speech: shown in {windows} - sent to the server only while a window shows it</source>
+        <translation type="unfinished">เสียงของฉัน: แสดงใน {windows} - ส่งไปเซิร์ฟเวอร์เฉพาะตอนที่หน้าต่างแสดงอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>My speech: not shown in any window - turn it on with a row&apos;s microphone, or a window&apos;s settings</source>
+        <translation type="unfinished">เสียงของฉัน: ไม่แสดงในหน้าต่างใด - เปิดด้วยไมค์ของแถว หรือการตั้งค่าหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>My speech: not shown - add an app first, then turn it on with its row&apos;s microphone, or its window&apos;s settings</source>
+        <translation type="unfinished">เสียงของฉัน: ไม่แสดง - เพิ่มแอปก่อน แล้วเปิดด้วยไมค์ของแถวนั้น หรือการตั้งค่าหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: Windows on this PC couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">แทนแอป: Windows บนพีซีเครื่องนี้แยกเสียงแอปเดียวไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of Windows)</source>
+        <translation type="unfinished">แทนแอป (ตัวเลือกเดียวใน Windows รุ่นนี้)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps</source>
+        <translation type="unfinished">แทนแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays except {app}, in a window of its own</source>
+        <translation type="unfinished">ทุกเสียงที่พีซีเล่นยกเว้น {app} ในหน้าต่างแยก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>With one app only - Windows can leave just one app out</source>
+        <translation type="unfinished">แอปเดียวเท่านั้น - Windows ยกเว้นได้แค่แอปเดียว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>One app beside everything else - turn that off to add another</source>
+        <translation type="unfinished">แอปเดียวข้างอย่างอื่นทั้งหมด - ปิดเพื่อเพิ่มแอปอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Stop the sample</source>
+        <translation type="unfinished">หยุดตัวอย่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Home</source>
+        <translation type="unfinished">หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Set your level so we know which words to explain</source>
+        <translation type="unfinished">ตั้งระดับของคุณ เพื่อให้เรารู้ว่าควรอธิบายคำไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Set your level</source>
+        <translation type="unfinished">ตั้งระดับของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">ไว้ทีหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Restart now</source>
+        <translation type="unfinished">รีสตาร์ตเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Download anyway</source>
+        <translation type="unfinished">ดาวน์โหลดเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Later</source>
+        <translation type="unfinished">ไว้ทีหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>All the changes</source>
+        <translation type="unfinished">การเปลี่ยนแปลงทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Close</source>
+        <translation type="unfinished">ปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Listening moved to another device.</source>
+        <translation type="unfinished">การฟังย้ายไปอุปกรณ์อื่นแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Listen here</source>
+        <translation type="unfinished">ฟังที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption windows</source>
+        <translation type="unfinished">หน้าต่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Lock all</source>
+        <translation type="unfinished">ล็อกทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Hide all</source>
+        <translation type="unfinished">ซ่อนทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Join windows</source>
+        <translation type="unfinished">รวมหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Reset positions</source>
+        <translation type="unfinished">รีเซ็ตตำแหน่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Separate windows</source>
+        <translation type="unfinished">แยกหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Each caption window back at its own place</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายแต่ละอันกลับที่เดิม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>The caption windows as one, a column each</source>
+        <translation type="unfinished">รวมหน้าต่างคำบรรยายเป็นหน้าต่างเดียว คนละคอลัมน์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>With two apps or more</source>
+        <translation type="unfinished">เมื่อมีสองแอปขึ้นไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Version {version} is ready. Restart to install it.</source>
+        <translation type="unfinished">เวอร์ชัน {version} พร้อมแล้ว รีสตาร์ตเพื่อติดตั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Or later: it installs the next time Polyglotic starts.</source>
+        <translation type="unfinished">หรือไว้ทีหลัง: จะติดตั้งเมื่อ Polyglotic เริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Version {version} is available: {size} MB to download.</source>
+        <translation type="unfinished">มีเวอร์ชัน {version} แล้ว: ต้องดาวน์โหลด {size} MB</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Version {version} is available.</source>
+        <translation type="unfinished">มีเวอร์ชัน {version} แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your connection is metered, so it isn&apos;t downloaded by itself. It is once you&apos;re on a connection that isn&apos;t.</source>
+        <translation type="unfinished">การเชื่อมต่อของคุณเป็นแบบคิดตามปริมาณข้อมูล จึงไม่ดาวน์โหลดเอง จะดาวน์โหลดเมื่อคุณใช้การเชื่อมต่อที่ไม่คิดตามปริมาณข้อมูล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Downloading. This can take a few minutes.</source>
+        <translation type="unfinished">กำลังดาวน์โหลด อาจใช้เวลาสักครู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>What&apos;s new in Polyglotic {version}</source>
+        <translation type="unfinished">มีอะไรใหม่ใน Polyglotic {version}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also new since your last update: {versions}.</source>
+        <translation type="unfinished">สิ่งใหม่ตั้งแต่การอัปเดตครั้งก่อนด้วย: {versions}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>The release notes are in English.</source>
+        <translation type="unfinished">บันทึกประจำรุ่นเป็นภาษาอังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic couldn&apos;t start last time.</source>
+        <translation type="unfinished">ครั้งที่แล้ว Polyglotic เริ่มทำงานไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic ran into an error last time.</source>
+        <translation type="unfinished">ครั้งที่แล้ว Polyglotic เกิดข้อผิดพลาด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Send a report…</source>
+        <translation type="unfinished">ส่งรายงาน…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>No thanks</source>
+        <translation type="unfinished">ไม่เป็นไร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>The report can include the app&apos;s log, which records what went wrong - never what you heard or said. You see it before it&apos;s sent.</source>
+        <translation type="unfinished">รายงานแนบบันทึกของแอปได้ ซึ่งจดว่าอะไรผิดพลาด - ไม่มีสิ่งที่คุณได้ยินหรือพูด คุณเห็นก่อนส่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Start Polyglotic with Windows?</source>
+        <translation type="unfinished">เริ่ม Polyglotic พร้อม Windows ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Start with Windows</source>
+        <translation type="unfinished">เริ่มพร้อม Windows</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
+        <translation type="unfinished">รออยู่ในถาดระบบ คำบรรยายจึงห่างแค่คลิกเดียวเมื่อเล่นหรือดู ปิดได้ใน แอปเริ่มต้น ของ Windows</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Something wrong, or an idea?</source>
+        <translation type="unfinished">มีอะไรผิด หรือมีไอเดียไหม</translation>
+    </message>
+</context>
+<context>
+    <name>JoinedWindow</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Captions</source>
+        <translation type="unfinished">คำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Lock all windows</source>
+        <translation type="unfinished">ล็อกหน้าต่างทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">ล็อก - การคลิกทะลุไปข้างใต้ Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>This window</source>
+        <translation type="unfinished">หน้าต่างนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>This window: Separate windows, all caption settings</source>
+        <translation type="unfinished">หน้าต่างนี้: แยกหน้าต่าง การตั้งค่าคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>All caption settings…</source>
+        <translation type="unfinished">การตั้งค่าคำบรรยายทั้งหมด…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Colours, font, word links, timing and the rest - for every window, in Settings</source>
+        <translation type="unfinished">สี ฟอนต์ จับคู่คำ จังหวะ และอื่นๆ - สำหรับทุกหน้าต่าง ในการตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Separate windows</source>
+        <translation type="unfinished">แยกหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
+        <source>Each app&apos;s caption window back at its own place</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายของแต่ละแอปกลับที่เดิม</translation>
+    </message>
+</context>
+<context>
+    <name>Lab</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>{px} px</source>
+        <translation type="unfinished">{px} px</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>{seconds}s</source>
+        <translation type="unfinished">{seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>{percent}%</source>
+        <translation type="unfinished">{percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Lab - experimental</source>
+        <translation type="unfinished">แล็บ - ทดลอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Settings to try by feel. Each changes the caption windows and the preview at once. Tell us what works - they may change or go.</source>
+        <translation type="unfinished">การตั้งค่าให้ลองตามความรู้สึก แต่ละข้อเปลี่ยนหน้าต่างคำบรรยายและตัวอย่างทันที บอกเราว่าอะไรได้ผล - อาจเปลี่ยนหรือหายไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>New captions stay bright</source>
+        <translation type="unfinished">คำบรรยายใหม่ยังสว่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>How long a caption stays at full brightness after it arrives, so several arriving together all look new. 0 s: only the newest.</source>
+        <translation type="unfinished">คำบรรยายสว่างเต็มที่นานเท่าใดหลังมาถึง เพื่อให้หลายรายการที่มาพร้อมกันดูใหม่ 0 วินาที: เฉพาะล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>At once</source>
+        <translation type="unfinished">ทันที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Gradually</source>
+        <translation type="unfinished">ค่อยๆ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Then it dims</source>
+        <translation type="unfinished">แล้วหรี่ลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>At once, or fading over a second and a half.</source>
+        <translation type="unfinished">ทันที หรือค่อยๆ จางในหนึ่งวินาทีครึ่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Older captions</source>
+        <translation type="unfinished">คำบรรยายเก่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>How bright the captions before the newest stay. 100%: as bright as the newest. The translation dims a little less.</source>
+        <translation type="unfinished">คำบรรยายก่อนล่าสุดสว่างแค่ไหน 100%: สว่างเท่าล่าสุด คำแปลหรี่น้อยกว่าเล็กน้อย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Older captions dim</source>
+        <translation type="unfinished">คำบรรยายเก่าจางลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>All at once to Older captions&apos; brightness, or step by step: each caption back a little dimmer, over this many captions.</source>
+        <translation type="unfinished">จางลงทั้งหมดพร้อมกันเท่าความสว่างของคำบรรยายเก่า หรือทีละขั้น: คำบรรยายที่ย้อนไปแต่ละอันจางลงอีกนิด ตลอดคำบรรยายจำนวนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>As now</source>
+        <translation type="unfinished">เหมือนตอนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Same as finished</source>
+        <translation type="unfinished">เหมือนฉบับสมบูรณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Dimmer</source>
+        <translation type="unfinished">หรี่กว่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Italic</source>
+        <translation type="unfinished">ตัวเอียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Colour</source>
+        <translation type="unfinished">สี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Text still being spoken</source>
+        <translation type="unfinished">ข้อความที่ยังพูดอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>How a line that may still change looks beside finished text. As now: Steady&apos;s and Quick preview&apos;s dim italic line, Live updates&apos; a little dim. Colour: the theme&apos;s blue.</source>
+        <translation type="unfinished">บรรทัดที่ยังเปลี่ยนได้ดูอย่างไรข้างข้อความที่สมบูรณ์ เหมือนตอนนี้: บรรทัดจางตัวเอียงของ คงที่ และ พรีวิว ของ สด หรี่เล็กน้อย สี: สีฟ้าของธีม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Bar</source>
+        <translation type="unfinished">แถบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Three dots</source>
+        <translation type="unfinished">สามจุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Ellipsis</source>
+        <translation type="unfinished">จุดไข่ปลา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>While a caption is on its way</source>
+        <translation type="unfinished">ระหว่างที่คำบรรยายกำลังมา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>The sign under the captions that speech was heard. Ellipsis: the line still being spoken ends in one; with none yet, one stands where the bar would.</source>
+        <translation type="unfinished">สัญลักษณ์ใต้คำบรรยายว่าได้ยินเสียงพูด จุดไข่ปลา: บรรทัดที่ยังพูดอยู่จบด้วยสิ่งนี้ ถ้ายังไม่มีบรรทัด จะอยู่ตรงตำแหน่งแถบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Underline thickness</source>
+        <translation type="unfinished">ความหนาเส้นใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A word link&apos;s underline, finer than Word links&apos; Thin, Medium and Thick. Picking one of those there again puts it back.</source>
+        <translation type="unfinished">เส้นใต้ของจับคู่คำ บางกว่า บาง กลาง และ หนา ของจับคู่คำ เลือกหนึ่งในนั้นอีกครั้งจะกลับเป็นแบบเดิม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Space above the translation</source>
+        <translation type="unfinished">ระยะเหนือคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Between what was said and its translation.</source>
+        <translation type="unfinished">ระหว่างสิ่งที่พูดกับคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Space between captions</source>
+        <translation type="unfinished">ระยะระหว่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Between one caption and the next.</source>
+        <translation type="unfinished">ระหว่างคำบรรยายหนึ่งกับคำบรรยายถัดไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Gap between new captions</source>
+        <translation type="unfinished">ช่วงห่างของคำบรรยายใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Captions that arrive together come in one at a time, at least this far apart and in order - none is dropped. 0 s: as they come. None waits longer than the longest wait for text.</source>
+        <translation type="unfinished">คำบรรยายที่มาพร้อมกันจะเข้ามาทีละรายการ ห่างกันอย่างน้อยเท่านี้และตามลำดับ - ไม่มีรายการใดหาย 0 วินาที: ตามที่มา ไม่มีรายการใดรอนานกว่าเวลารอข้อความนานสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Gap between new lines</source>
+        <translation type="unfinished">ช่วงห่างระหว่างบรรทัดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A new caption&apos;s lines show one at a time, this far apart, instead of all together. 0 s: together, as now. None waits longer than the longest wait for text.</source>
+        <translation type="unfinished">บรรทัดของคำบรรยายใหม่จะแสดงทีละบรรทัด ห่างกันเท่านี้ แทนที่จะมาพร้อมกันทั้งหมด 0 s: พร้อมกันเหมือนตอนนี้ ไม่มีบรรทัดใดรอนานกว่าเวลารอข้อความที่นานที่สุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Reset the lab</source>
+        <translation type="unfinished">รีเซ็ตแล็บ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Every setting in the Lab as Polyglotic has it.</source>
+        <translation type="unfinished">การตั้งค่าในแล็บทั้งหมดตามค่าของ Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Your speech on the right</source>
+        <translation type="unfinished">เสียงพูดของคุณอยู่ด้านขวา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>What you say lines up on the right, as in a chat.</source>
+        <translation type="unfinished">สิ่งที่คุณพูดจะชิดขวา เหมือนในแชท</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A tint behind your speech</source>
+        <translation type="unfinished">สีพื้นหลังใต้เสียงพูดของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A soft panel of your label&apos;s colour behind what you say.</source>
+        <translation type="unfinished">พื้นหลังสีอ่อนตามสีป้ายของคุณใต้สิ่งที่คุณพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A bar beside your speech</source>
+        <translation type="unfinished">แถบข้างเสียงพูดของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A line of your label&apos;s colour at the side of what you say.</source>
+        <translation type="unfinished">เส้นสีตามป้ายของคุณข้างสิ่งที่คุณพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Badge</source>
+        <translation type="unfinished">ป้าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>None</source>
+        <translation type="unfinished">ไม่มี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Your speech&apos;s label</source>
+        <translation type="unfinished">ป้ายเสียงพูดของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>&quot;You&quot; over what you say: as now, in a badge, or not shown.</source>
+        <translation type="unfinished">&quot;คุณ&quot; เหนือสิ่งที่คุณพูด: เหมือนตอนนี้ ในป้าย หรือไม่แสดง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Off</source>
+        <translation type="unfinished">ปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Translation below</source>
+        <translation type="unfinished">คำแปลอยู่ด้านล่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Line by line</source>
+        <translation type="unfinished">ทีละบรรทัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Line by line: a line of what was said, then the line of its translation, both cut where their words match. A long clause that can&apos;t be cut so wraps as it does now.</source>
+        <translation type="unfinished">ทีละบรรทัด: บรรทัดของสิ่งที่พูด ตามด้วยบรรทัดคำแปล ทั้งสองตัดตรงที่คำตรงกัน ประโยคยาวที่ตัดแบบนั้นไม่ได้จะขึ้นบรรทัดใหม่เหมือนตอนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Captions fill the width</source>
+        <translation type="unfinished">คำบรรยายเต็มความกว้าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Off: each clause on a row of its own, as now. Translation below: a caption&apos;s clauses run on in lines as wide as the window, and its translation fills the lines under them. No Arrows while captions fill the width.</source>
+        <translation type="unfinished">ปิด: แต่ละอนุประโยคอยู่แถวของตัวเองเหมือนตอนนี้ คำแปลอยู่ด้านล่าง: อนุประโยคของคำบรรยายต่อกันเป็นบรรทัดกว้างเท่าหน้าต่าง และคำแปลเติมบรรทัดข้างใต้ ไม่มีลูกศรขณะที่คำบรรยายเต็มความกว้าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>At line ends too</source>
+        <translation type="unfinished">ท้ายบรรทัดด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Space</source>
+        <translation type="unfinished">เว้นวรรค</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Between clauses</source>
+        <translation type="unfinished">ระหว่างอนุประโยค</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>When captions fill the width: an ellipsis where one clause ends and the next begins, one at the end of every line that runs on as well, or only a space. Choosing one while Captions fill the width is Off sets it to Translation below.</source>
+        <translation type="unfinished">เมื่อคำบรรยายเต็มความกว้าง: จุดไข่ปลาตรงที่อนุประโยคหนึ่งจบและอนุประโยคถัดไปเริ่ม เพิ่มที่ท้ายทุกบรรทัดที่ยังต่อด้วย หรือเว้นวรรคอย่างเดียว เลือกอย่างใดอย่างหนึ่งขณะที่คำบรรยายเต็มความกว้างปิดอยู่ จะตั้งเป็นคำแปลอยู่ด้านล่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>New layout</source>
+        <translation type="unfinished">เลย์เอาต์ใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Captions are laid out a new way, however they fill the width: Arrows and word links work in all of them and in Learning load, and Line by line always fills its lines.</source>
+        <translation type="unfinished">จัดวางคำบรรยายด้วยวิธีใหม่ ไม่ว่าจะเติมความกว้างแบบใด ลูกศรและจับคู่คำใช้ได้ในทุกแบบและในชุดคำที่กำลังเรียน และทีละบรรทัดจะเติมบรรทัดให้เต็มเสมอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Captions run on</source>
+        <translation type="unfinished">คำบรรยายต่อเนื่องกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A caption carries on in the line the one before ended in, instead of starting a line of its own. Turning it on also turns on New layout and Line by line.</source>
+        <translation type="unfinished">คำบรรยายจะต่อในบรรทัดที่คำบรรยายก่อนหน้าจบ แทนที่จะขึ้นบรรทัดใหม่ของตัวเอง เมื่อเปิด จะเปิดเลย์เอาต์ใหม่และทีละบรรทัดด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Parts lined up</source>
+        <translation type="unfinished">จัดส่วนให้ตรงกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Each part of what was said starts at the same place as its translation, so a word&apos;s translation is under it - however captions fill the width. Turning it on also turns on New layout.</source>
+        <translation type="unfinished">แต่ละส่วนของสิ่งที่พูดเริ่มที่ตำแหน่งเดียวกับคำแปล คำแปลของคำจึงอยู่ใต้คำนั้น ไม่ว่าคำบรรยายจะเต็มความกว้างแบบใด เมื่อเปิด จะเปิดเลย์เอาต์ใหม่ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">ชุดคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>A set number of the next words past what you know, each coloured by how often you have heard it since: red, orange, yellow, green, then ready to check. In place of the marks under new words. Its words and settings are on Learning.</source>
+        <translation type="unfinished">คำจำนวนคงที่ซึ่งเป็นคำถัดไปจากคำที่คุณรู้แล้ว แต่ละคำมีสีตามจำนวนครั้งที่คุณได้ยินนับจากนั้น: แดง ส้ม เหลือง เขียว แล้วจึงพร้อมตรวจ ใช้แทนเครื่องหมายใต้คำใหม่ คำและการตั้งค่าอยู่ที่หน้าการเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>{open} - its words, the check and its settings.</source>
+        <translation type="unfinished">{open} - คำศัพท์ การตรวจ และการตั้งค่าของมัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Open it on Learning</source>
+        <translation type="unfinished">เปิดในหน้าการเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Dimmed</source>
+        <translation type="unfinished">ทำให้จาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Words outside the load</source>
+        <translation type="unfinished">คำที่อยู่นอกชุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Rarer words you don&apos;t know yet, in Learning load: as now, or dimmed so the load&apos;s words stand out. Dimmed turns Learning load on.</source>
+        <translation type="unfinished">คำที่พบน้อยกว่าซึ่งคุณยังไม่รู้ ในชุดคำที่กำลังเรียน: เหมือนตอนนี้ หรือทำให้จางเพื่อให้คำในชุดเด่นขึ้น การเลือกทำให้จางจะเปิดชุดคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Only the newest</source>
+        <translation type="unfinished">เฉพาะล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>All at once</source>
+        <translation type="unfinished">พร้อมกันทั้งหมด</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Over %n caption(s)</source>
+        <translation type="unfinished">
+            <numerusform>ตลอด %n คำบรรยาย</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>No dimming</source>
+        <translation type="unfinished">ไม่หรี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>As they come</source>
+        <translation type="unfinished">ตามที่มา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Together</source>
+        <translation type="unfinished">พร้อมกัน</translation>
+    </message>
+</context>
+<context>
+    <name>Languages</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>English</source>
+        <translation type="unfinished">อังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Chinese (Simplified)</source>
+        <translation type="unfinished">จีน (ตัวย่อ)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Chinese (Traditional)</source>
+        <translation type="unfinished">จีน (ตัวเต็ม)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Cantonese</source>
+        <translation type="unfinished">กวางตุ้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>French</source>
+        <translation type="unfinished">ฝรั่งเศส</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Portuguese</source>
+        <translation type="unfinished">โปรตุเกส</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Spanish</source>
+        <translation type="unfinished">สเปน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Japanese</source>
+        <translation type="unfinished">ญี่ปุ่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Turkish</source>
+        <translation type="unfinished">ตุรกี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Russian</source>
+        <translation type="unfinished">รัสเซีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Arabic</source>
+        <translation type="unfinished">อาหรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Korean</source>
+        <translation type="unfinished">เกาหลี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Thai</source>
+        <translation type="unfinished">ไทย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Italian</source>
+        <translation type="unfinished">อิตาลี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>German</source>
+        <translation type="unfinished">เยอรมัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Vietnamese</source>
+        <translation type="unfinished">เวียดนาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Malay</source>
+        <translation type="unfinished">มลายู</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Indonesian</source>
+        <translation type="unfinished">อินโดนีเซีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Filipino</source>
+        <translation type="unfinished">ฟิลิปปินส์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Hindi</source>
+        <translation type="unfinished">ฮินดี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Polish</source>
+        <translation type="unfinished">โปแลนด์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Czech</source>
+        <translation type="unfinished">เช็ก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Dutch</source>
+        <translation type="unfinished">ดัตช์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Ukrainian</source>
+        <translation type="unfinished">ยูเครน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Mandarin</source>
+        <translation type="unfinished">จีนกลาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Mongolian and Kazakh aren&apos;t offered yet: the translation model writes them in a script most of their speakers don&apos;t read.</source>
+        <translation type="unfinished">ยังไม่มีภาษามองโกเลียและคาซัค: โมเดลแปลเขียนด้วยอักษร ที่ผู้พูดส่วนใหญ่ไม่ได้อ่าน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Mongolian</source>
+        <translation type="unfinished">มองโกเลีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Kazakh</source>
+        <translation type="unfinished">คาซัค</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Taken off your caption windows&apos; languages, as they aren&apos;t offered any more: {languages}.</source>
+        <translation type="unfinished">นำออกจากภาษาของหน้าต่างคำบรรยายแล้ว เพราะไม่มีให้ใช้อีก: {languages}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Detect automatically</source>
+        <extracomment>A choice for a source&apos;s spoken language: the speech model finds the language itself, each time someone speaks</extracomment>
+        <translation type="unfinished">ตรวจหาอัตโนมัติ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Detect · %Ln language(s)</source>
+        <extracomment>Short, on a button: the spoken language is found automatically, among this many languages</extracomment>
+        <translation type="unfinished">
+            <numerusform>ตรวจหา · %Ln ภาษา</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Any of the %Ln language(s) below</source>
+        <translation type="unfinished">
+            <numerusform>ภาษาใดก็ได้จาก %Ln ภาษาด้านล่าง</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Always hear as</source>
+        <extracomment>A heading over a list of languages: pick one and the app hears this app&apos;s speech as that language every time, rather than detecting it</extracomment>
+        <translation type="unfinished">ฟังเป็นภาษานี้เสมอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Always {language}</source>
+        <extracomment>Short, on a button: this app&apos;s speech is always heard as {language} (named by the learner, not detected)</extracomment>
+        <translation type="unfinished">{language} เสมอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Find a language</source>
+        <translation type="unfinished">ค้นหาภาษา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>No language by that name</source>
+        <translation type="unfinished">ไม่มีภาษาชื่อนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Swedish</source>
+        <translation type="unfinished">สวีเดน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Danish</source>
+        <translation type="unfinished">เดนมาร์ก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Finnish</source>
+        <translation type="unfinished">ฟินแลนด์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Persian</source>
+        <translation type="unfinished">เปอร์เซีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Greek</source>
+        <translation type="unfinished">กรีก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Hungarian</source>
+        <translation type="unfinished">ฮังการี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Macedonian</source>
+        <translation type="unfinished">มาซิโดเนีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Romanian</source>
+        <translation type="unfinished">โรมาเนีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Mandarin (Simplified characters)</source>
+        <translation type="unfinished">จีนกลาง (อักษรตัวย่อ)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Cantonese (Hong Kong characters)</source>
+        <translation type="unfinished">กวางตุ้ง (อักษรฮ่องกง)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>This sounds like {language}. Always hear it as {language}?</source>
+        <translation type="unfinished">ฟังดูเหมือน{language} ฟังเป็น{language}เสมอไหม</translation>
+    </message>
+</context>
+<context>
+    <name>Learning</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Reset</source>
+        <translation type="unfinished">รีเซ็ต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Full dictionary</source>
+        <translation type="unfinished">พจนานุกรมเต็ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Basic dictionary</source>
+        <translation type="unfinished">พจนานุกรมพื้นฐาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>No dictionary yet</source>
+        <translation type="unfinished">ยังไม่มีพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>CC-CEDICT, with pinyin. Lookups, your level, word introductions, the words you hear and save, and an Anki deck.</source>
+        <translation type="unfinished">CC-CEDICT พร้อมพินอิน การค้นคำ ระดับของคุณ การแนะนำคำ คำที่ได้ยินและบันทึก และสำรับ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>ECDICT, with meanings in Chinese. Lookups, your level, word introductions, the words you hear and save, and an Anki deck.</source>
+        <translation type="unfinished">ECDICT พร้อมความหมายภาษาจีน การค้นคำ ระดับของคุณ การแนะนำคำ คำที่ได้ยินและบันทึก และสำรับ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>From open data, meanings not checked by a person. Lookups, your level, word introductions, the words you hear and save, and an Anki deck.</source>
+        <translation type="unfinished">จากข้อมูลเปิด ความหมายยังไม่ได้ตรวจโดยคน การค้นคำ ระดับของคุณ การแนะนำคำ คำที่ได้ยินและบันทึก และสำรับ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Captions and translation work without one, and a word you look up says what it is in that line&apos;s translation.</source>
+        <translation type="unfinished">คำบรรยายและคำแปลใช้ได้แม้ไม่มีพจนานุกรม และคำที่คุณค้นจะบอกว่าคำนั้นคืออะไรในคำแปลของบรรทัดนั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>There&apos;s no {language} dictionary to download yet. Captions and translation work, and a word you look up says what it is in that line&apos;s translation.</source>
+        <translation type="unfinished">ยังไม่มีพจนานุกรม{language}ให้ดาวน์โหลด คำบรรยายและคำแปลยังใช้ได้ และคำที่คุณค้นจะบอกว่าคำนั้นคืออะไรในคำแปลของบรรทัดนั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
+        <translation type="unfinished">พจนานุกรมพื้นฐานจากข้อมูลเปิด (ความหมายยังไม่ได้ตรวจโดยคน) หากมีพร้อมแล้ว: ค้นคำในคำบรรยาย{language}ได้เมื่ออยู่ในพีซีเครื่องนี้แล้ว คำบรรยายและคำแปลใช้ได้ไม่ว่ากรณีใด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
+        <translation type="unfinished">พจนานุกรมพื้นฐานจากข้อมูลเปิด (ความหมายยังไม่ได้ตรวจโดยคน) หากมีพร้อมแล้ว: การ์ดของภาษานั้นจะเสนอให้เมื่อคุณเพิ่ม{language} คำบรรยายและคำแปลใช้ได้ไม่ว่ากรณีใด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data, meanings not checked by a person: lookups in {language} captions once it&apos;s downloaded. Until then captions and translation work, without lookups.</source>
+        <translation type="unfinished">พจนานุกรมพื้นฐานจากข้อมูลเปิด ความหมายยังไม่ได้ตรวจโดยคน: ค้นคำในคำบรรยาย{language}ได้เมื่อดาวน์โหลดแล้ว ระหว่างนี้คำบรรยายและคำแปลยังใช้ได้ แต่ค้นคำไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Captions and translation work; there are no lookups or word introductions yet. We&apos;ll add a dictionary when one passes our check.</source>
+        <translation type="unfinished">คำบรรยายและคำแปลใช้ได้ ยังไม่มีการค้นคำหรือการแนะนำคำ เราจะเพิ่มพจนานุกรมเมื่อมีอันที่ผ่านการตรวจของเรา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>No new words are pointed out. Words you&apos;ve saved or put in your deck still show in their colours.</source>
+        <translation type="unfinished">ไม่ชี้คำใหม่ คำที่บันทึกหรืออยู่ในสำรับยังแสดงสีของตัวเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The commonest new words and the ones you keep hearing - at most about one word in twenty, and two a line.</source>
+        <translation type="unfinished">คำใหม่ที่พบบ่อยที่สุดและคำที่ได้ยินซ้ำๆ - มากสุดราวหนึ่งในยี่สิบคำ และสองคำต่อบรรทัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Every word that&apos;s new to you. Busy in fast speech; good for slow, careful listening.</source>
+        <translation type="unfinished">ทุกคำที่ใหม่สำหรับคุณ เยอะเมื่อพูดเร็ว เหมาะกับการฟังช้าๆ อย่างตั้งใจ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Reset {language}&apos;s known words?</source>
+        <translation type="unfinished">รีเซ็ตคำที่รู้แล้วใน{language}ไหม</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>About %Ln word(s) you marked known in bulk will count as new again, and your level goes back to: {level}. Words you marked yourself stay as you set them.</source>
+        <translation type="unfinished">
+            <numerusform>คำประมาณ %Ln คำที่คุณทำเครื่องหมายว่ารู้แล้วพร้อมกันจะกลับเป็นคำใหม่ และระดับของคุณจะกลับไปที่ {level} คำที่คุณทำเครื่องหมายเองยังคงเหมือนเดิม</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Your level</source>
+        <translation type="unfinished">ระดับของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Change your level</source>
+        <translation type="unfinished">เปลี่ยนระดับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Words at or below your level count as known, and the next ones are pointed out. Nothing is tested: a click on any word corrects it.</source>
+        <translation type="unfinished">คำที่ระดับของคุณหรือต่ำกว่าถือว่ารู้แล้ว และชี้คำถัดไป ไม่มีการทดสอบ: คลิกคำใดก็แก้ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>You can change it while {language} is in use.</source>
+        <translation type="unfinished">เปลี่ยนได้ขณะใช้{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Every word</source>
+        <translation type="unfinished">ทุกคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Past what you know</source>
+        <translation type="unfinished">เกินจากที่คุณรู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Off</source>
+        <translation type="unfinished">ปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">จับคู่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Which words are joined to their translation while word links are on.</source>
+        <translation type="unfinished">คำใดบ้างที่ถูกโยงกับคำแปลเมื่อเปิดจับคู่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>No dictionary ranks {language} words yet, so only key words are linked.</source>
+        <translation type="unfinished">{language}: ยังไม่มีพจนานุกรมที่จัดอันดับความถี่ของคำ จึงจับคู่เฉพาะคำสำคัญ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Start links at</source>
+        <translation type="unfinished">เริ่มจับคู่ที่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>What you know</source>
+        <translation type="unfinished">สิ่งที่คุณรู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Make {language} your main language</source>
+        <translation type="unfinished">ตั้ง{language}เป็นภาษาหลัก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>From the next time Polyglotic starts</source>
+        <translation type="unfinished">ตั้งแต่ Polyglotic เริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Stop learning {language}</source>
+        <translation type="unfinished">เลิกเรียน{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Its words are kept - delete them on Account</source>
+        <translation type="unfinished">คำของภาษานี้ยังเก็บไว้ - ลบได้ที่บัญชี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>How many of the most common words</source>
+        <translation type="unfinished">คำที่ใช้บ่อยที่สุดกี่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The first {count}</source>
+        <translation type="unfinished">{count} คำแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Another number…</source>
+        <translation type="unfinished">จำนวนอื่น…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Mark known</source>
+        <translation type="unfinished">ทำเครื่องหมายว่ารู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Mark the most common words known</source>
+        <translation type="unfinished">ทำเครื่องหมายคำที่ใช้บ่อยที่สุดว่ารู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Every word up to the number you choose counts as known - your level moves there. Words you marked yourself stay as you set them.</source>
+        <translation type="unfinished">ทุกคำจนถึงจำนวนที่คุณเลือกจะนับว่ารู้แล้ว ระดับของคุณจะย้ายไปที่นั่น คำที่คุณทำเครื่องหมายเองยังคงเหมือนเดิม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Undo</source>
+        <translation type="unfinished">เลิกทำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Back to: {level}</source>
+        <translation type="unfinished">กลับไปที่ {level}</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>About %Ln more word(s) count as known now.</source>
+        <translation type="unfinished">
+            <numerusform>ตอนนี้มีคำที่รู้แล้วเพิ่มขึ้นประมาณ %Ln คำ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Reset…</source>
+        <translation type="unfinished">รีเซ็ต…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Marked in bulk. Reset takes your level back to: {level}.</source>
+        <translation type="unfinished">ทำเครื่องหมายพร้อมกันแล้ว การรีเซ็ตจะพาระดับของคุณกลับไปที่ {level}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Learning window</source>
+        <translation type="unfinished">ช่วงคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Words in the window</source>
+        <translation type="unfinished">จำนวนคำในช่วง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Words in the learning window</source>
+        <translation type="unfinished">จำนวนคำในช่วงคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>{least} to {most}</source>
+        <translation type="unfinished">{least} ถึง {most}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Every word past what you know can be pointed out, however rare. Hover or click any word to look it up.</source>
+        <translation type="unfinished">คำใดก็ตามที่ถัดจากคำที่คุณรู้อาจถูกชี้ให้เห็น ไม่ว่าจะพบน้อยเพียงใด ชี้หรือคลิกคำใดก็ได้เพื่อค้นดู</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The next words past what you know are the ones pointed out. Rarer words are left alone: hover or click one to look it up.</source>
+        <translation type="unfinished">คำที่ชี้ให้เห็นคือคำถัดจากคำที่คุณรู้ คำที่พบน้อยกว่าจะปล่อยไว้: ชี้หรือคลิกคำเพื่อค้นดู</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Unlimited</source>
+        <translation type="unfinished">ไม่จำกัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Custom</source>
+        <translation type="unfinished">กำหนดเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Learning</source>
+        <translation type="unfinished">การเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>For each language you learn, Polyglotic keeps your words: lookups use its dictionary, your level estimates which words you know, and captions point out new ones. Captions and translation work in every language, whatever you choose here.</source>
+        <translation type="unfinished">สำหรับทุกภาษาที่คุณเรียน Polyglotic เก็บคำของคุณ: การค้นคำใช้พจนานุกรมของภาษานั้น ระดับใช้ประเมินคำที่รู้ และคำบรรยายชี้คำใหม่ คำบรรยายและคำแปลใช้ได้ทุกภาษา ไม่ว่าจะเลือกอะไรที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Languages you&apos;re learning</source>
+        <translation type="unfinished">ภาษาที่คุณเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>None yet. Pick one below for lookups, your level and word introductions.</source>
+        <translation type="unfinished">ยังไม่มี เลือกภาษาด้านล่างเพื่อการค้นคำ ระดับ และการแนะนำคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Learn another language</source>
+        <translation type="unfinished">เรียนภาษาอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Choose a language</source>
+        <translation type="unfinished">เลือกภาษา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Learn it</source>
+        <translation type="unfinished">เรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Word introductions</source>
+        <translation type="unfinished">การแนะนำคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Captions point out words that are probably new to you, so you notice them as you hear them. They&apos;re guessed from your level; a click on any word corrects it.</source>
+        <translation type="unfinished">คำบรรยายชี้คำที่น่าจะใหม่สำหรับคุณ เพื่อให้สังเกตเห็นขณะได้ยิน คาดจากระดับของคุณ คลิกคำใดก็แก้ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A few per caption</source>
+        <translation type="unfinished">ไม่กี่คำต่อคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Every new word</source>
+        <translation type="unfinished">ทุกคำใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dotted yellow: a word new to you. Dashed green: a word in your deck. A saved word takes its category&apos;s colour. Only finished captions in a language you&apos;re learning are marked.</source>
+        <translation type="unfinished">จุดเหลือง: คำใหม่สำหรับคุณ เส้นประเขียว: คำในสำรับ คำที่บันทึกใช้สีของหมวด ทำเครื่องหมายเฉพาะคำบรรยายฉบับสมบูรณ์ในภาษาที่คุณเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Where they go: hear a word a few times and it joins Words you keep hearing, on Words. Add it to your deck there or from its lookup, and it goes into your next Anki export.</source>
+        <translation type="unfinished">ไปที่ไหน: ได้ยินคำหนึ่งไม่กี่ครั้ง แล้วจะเข้า คำที่ได้ยินบ่อย ในหน้าคำศัพท์ เพิ่มลงสำรับที่นั่นหรือจากการค้น แล้วจะอยู่ในการส่งออก Anki ครั้งถัดไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Words and Anki</source>
+        <translation type="unfinished">คำศัพท์และ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Your deck, your saved words and the words you keep hearing are on Words. Each language exports a deck of its own.</source>
+        <translation type="unfinished">สำรับ คำที่บันทึก และคำที่ได้ยินบ่อยอยู่ที่หน้าคำศัพท์ แต่ละภาษาส่งออกสำรับของตัวเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Open Words</source>
+        <translation type="unfinished">เปิดคำศัพท์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>How to import into Anki</source>
+        <translation type="unfinished">วิธีนำเข้า Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this PC</source>
+        <translation type="unfinished">พจนานุกรมในพีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
+        <translation type="unfinished">ดาวน์โหลดไว้สำหรับภาษาที่คุณเรียน การลบจะคืนพื้นที่ และจะค้นคำในภาษานั้นไม่ได้จนกว่าจะดาวน์โหลดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>None yet: when you learn a language, its card offers its dictionary.</source>
+        <translation type="unfinished">ยังไม่มี: เมื่อคุณเรียนภาษาใด การ์ดของภาษานั้นจะเสนอพจนานุกรมให้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Your learning data</source>
+        <translation type="unfinished">ข้อมูลการเรียนของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">คำที่คุณค้น บันทึก และทำเครื่องหมายเก็บบนพีซีเครื่องนี้ และบนเซิร์ฟเวอร์ของเราเป็นคำในพจนานุกรมและเวลา ลบได้ในทุกภาษาที่เรียน - เหมือนที่บัญชี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>{language}: version {version}, {size}</source>
+        <translation type="unfinished">{language}: เวอร์ชัน {version}, {size}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Remove</source>
+        <translation type="unfinished">ลบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>{language} - {tier}</source>
+        <translation type="unfinished">{language} - {tier}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>{size} MB</source>
+        <translation type="unfinished">{size} MB</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>less than a minute left</source>
+        <translation type="unfinished">เหลือไม่ถึงหนึ่งนาที</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>about %n minute(s) left</source>
+        <translation type="unfinished">
+            <numerusform>เหลือประมาณ %n นาที</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It won&apos;t try again by itself.</source>
+        <translation type="unfinished">จะไม่ลองใหม่เองอีก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Trying again in {seconds} s (try {tries} of {total}).</source>
+        <translation type="unfinished">จะลองใหม่ใน {seconds} วินาที (ครั้งที่ {tries} จาก {total})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>No connection.</source>
+        <translation type="unfinished">ไม่มีการเชื่อมต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>The download stalled: no data for {seconds} s.</source>
+        <translation type="unfinished">การดาวน์โหลดค้าง: ไม่มีข้อมูลมา {seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Our server answered with an error ({status}).</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ของเราตอบกลับด้วยข้อผิดพลาด ({status})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Paused: Windows says this connection is metered. {size} left to download.</source>
+        <translation type="unfinished">หยุดชั่วคราว: Windows บอกว่าการเชื่อมต่อนี้เป็นแบบคิดตามปริมาณข้อมูล เหลือต้องดาวน์โหลดอีก {size}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this PC: it needs {size} free.</source>
+        <translation type="unfinished">พื้นที่ในพีซีเครื่องนี้ไม่พอ: ต้องมีที่ว่าง {size}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Refused: the list of dictionaries failed our signature check, so nothing was downloaded.</source>
+        <translation type="unfinished">ถูกปฏิเสธ: รายการพจนานุกรมไม่ผ่านการตรวจลายเซ็นของเรา จึงไม่ได้ดาวน์โหลดอะไรเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Refused: the file didn&apos;t match our list, so it was deleted.</source>
+        <translation type="unfinished">ถูกปฏิเสธ: ไฟล์ไม่ตรงกับรายการของเรา จึงถูกลบแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Refused: the file isn&apos;t the {language} dictionary, so it was deleted.</source>
+        <translation type="unfinished">ถูกปฏิเสธ: ไฟล์ไม่ใช่พจนานุกรม{language} จึงถูกลบแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary needs a newer Polyglotic. Update the app to get it.</source>
+        <translation type="unfinished">พจนานุกรมนี้ต้องใช้ Polyglotic เวอร์ชันใหม่กว่า อัปเดตแอปเพื่อรับพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary isn&apos;t ready to download yet.</source>
+        <translation type="unfinished">พจนานุกรมนี้ยังดาวน์โหลดไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Waiting for another dictionary to finish.</source>
+        <translation type="unfinished">กำลังรอให้พจนานุกรมอื่นเสร็จ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">กำลังตรวจรายการพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Downloading: {done} of {total} MB</source>
+        <translation type="unfinished">กำลังดาวน์โหลด: {done} จาก {total} MB</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the file.</source>
+        <translation type="unfinished">กำลังตรวจไฟล์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Opening the dictionary.</source>
+        <translation type="unfinished">กำลังเปิดพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Download</source>
+        <translation type="unfinished">ดาวน์โหลด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Cancel</source>
+        <translation type="unfinished">ยกเลิก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Retry</source>
+        <translation type="unfinished">ลองใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Download anyway</source>
+        <translation type="unfinished">ดาวน์โหลดเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Get it now</source>
+        <translation type="unfinished">รับตอนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this PC: version {version}, {size}.</source>
+        <translation type="unfinished">ในพีซีเครื่องนี้: เวอร์ชัน {version}, {size}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
+        <translation type="unfinished">มีเวอร์ชันใหม่กว่า ({size}) รอการเชื่อมต่อที่ไม่คิดตามปริมาณข้อมูล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download.</source>
+        <translation type="unfinished">พจนานุกรม: ต้องดาวน์โหลด {size}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>The list of dictionaries couldn&apos;t be checked.</source>
+        <translation type="unfinished">ตรวจรายการพจนานุกรมไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Download progress</source>
+        <translation type="unfinished">ความคืบหน้าการดาวน์โหลด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>The {language} dictionary is ready: look up words in {language} captions.</source>
+        <translation type="unfinished">พจนานุกรม{language}พร้อมแล้ว: ค้นคำในคำบรรยาย{language}ได้เลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>The {language} dictionary couldn&apos;t be downloaded: see Learning.</source>
+        <translation type="unfinished">ดาวน์โหลดพจนานุกรม{language}ไม่ได้: ดูที่หน้าการเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Remove the {language} dictionary too?</source>
+        <translation type="unfinished">ลบพจนานุกรม{language}ด้วยไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">จะคืนพื้นที่ {size} ในพีซีเครื่องนี้ และจะดาวน์โหลดใหม่ถ้าคุณเรียน{language}ภายหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Remove it</source>
+        <translation type="unfinished">ลบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Keep it</source>
+        <translation type="unfinished">เก็บไว้</translation>
+    </message>
+</context>
+<context>
+    <name>LearningLanguage</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>Chinese</source>
+        <translation type="unfinished">จีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/languages.py"/>
+        <source>English</source>
+        <translation type="unfinished">อังกฤษ</translation>
+    </message>
+</context>
+<context>
+    <name>LearningLoad</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Red</source>
+        <translation type="unfinished">แดง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Orange</source>
+        <translation type="unfinished">ส้ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Yellow</source>
+        <translation type="unfinished">เหลือง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Green</source>
+        <translation type="unfinished">เขียว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Ready to check</source>
+        <translation type="unfinished">พร้อมตรวจ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>{colour}: waiting for room in the next colour</source>
+        <translation type="unfinished">{colour}: กำลังรอที่ว่างในสีถัดไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>{colour}: heard {heard} of {needed}</source>
+        <translation type="unfinished">{colour}: ได้ยินแล้ว {heard} จาก {needed} ครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>I know this</source>
+        <translation type="unfinished">ฉันรู้คำนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Not yet</source>
+        <translation type="unfinished">ยังไม่รู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Add to my load</source>
+        <translation type="unfinished">เพิ่มในชุดของฉัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">ชุดคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>An experiment, turned on in {lab}, where you can turn it off.</source>
+        <translation type="unfinished">เป็นการทดลอง เปิดไว้ใน {lab} ซึ่งคุณปิดได้ที่นั่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Settings &gt; Lab</source>
+        <translation type="unfinished">การตั้งค่า &gt; แล็บ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>In the load</source>
+        <translation type="unfinished">อยู่ในชุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Next to enter</source>
+        <translation type="unfinished">คำที่จะเข้าถัดไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Graduated</source>
+        <translation type="unfinished">จบแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>I know these</source>
+        <translation type="unfinished">ฉันรู้คำเหล่านี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">ไว้ทีหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Show more</source>
+        <translation type="unfinished">แสดงเพิ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Add the next words now</source>
+        <translation type="unfinished">เพิ่มคำถัดไปตอนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>They come in ahead of graduations, and the load grows by them.</source>
+        <translation type="unfinished">คำเหล่านี้เข้ามาก่อนที่คำอื่นจะจบ และชุดจะใหญ่ขึ้นตามจำนวนนั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Words in the load</source>
+        <translation type="unfinished">จำนวนคำในชุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Raise it and the next words come in at once. Lower it and the words heard least leave first; they keep their counts and come back when there is room.</source>
+        <translation type="unfinished">เพิ่มแล้วคำถัดไปจะเข้ามาทันที ลดแล้วคำที่ได้ยินน้อยที่สุดจะออกก่อน โดยยังเก็บจำนวนครั้งไว้และกลับมาเมื่อมีที่ว่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Times heard to change colour</source>
+        <translation type="unfinished">จำนวนครั้งที่ได้ยินเพื่อเปลี่ยนสี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Red, orange, yellow, green: a word moves on each time it has been heard this often, then is ready to check.</source>
+        <translation type="unfinished">แดง ส้ม เหลือง เขียว: คำจะเลื่อนไปขั้นถัดไปทุกครั้งที่ได้ยินครบจำนวนนี้ แล้วจึงพร้อมตรวจ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>What counts as hearing a word</source>
+        <translation type="unfinished">อะไรนับว่าได้ยินคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Every time it is said</source>
+        <translation type="unfinished">ทุกครั้งที่มีคนพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Once a caption</source>
+        <translation type="unfinished">หนึ่งครั้งต่อคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Once a session</source>
+        <translation type="unfinished">หนึ่งครั้งต่อเซสชัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Once a day</source>
+        <translation type="unfinished">วันละหนึ่งครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your PC plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">นับเฉพาะเสียงที่พีซีของคุณเล่น ในคำบรรยายที่เสร็จแล้ว ไม่นับสิ่งที่คุณพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Most words in one colour</source>
+        <translation type="unfinished">จำนวนคำสูงสุดในหนึ่งสี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>No limit</source>
+        <translation type="unfinished">ไม่จำกัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>For orange, yellow and green. When a colour is full, a word waits in the one before it, the most heard first.</source>
+        <translation type="unfinished">ใช้กับส้ม เหลือง และเขียว เมื่อสีใดเต็ม คำจะรออยู่ในสีก่อนหน้า โดยคำที่ได้ยินมากที่สุดได้ไปก่อน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>In your load: {words} of {size}. Ready to check: {ready}. Graduated in the last 7 days: {week}.</source>
+        <translation type="unfinished">ในชุดของคุณ: {words} จาก {size} พร้อมตรวจ: {ready} จบใน 7 วันที่ผ่านมา: {week}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>This language&apos;s dictionary has no word frequencies yet, so it has no learning load.</source>
+        <translation type="unfinished">พจนานุกรมของภาษานี้ยังไม่มีความถี่ของคำ จึงยังไม่มีชุดคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>None yet. A word is ready to check once it has passed green; then one click here says whether you know it.</source>
+        <translation type="unfinished">ยังไม่มี คำจะพร้อมตรวจเมื่อผ่านสีเขียวแล้ว จากนั้นคลิกที่นี่หนึ่งครั้งเพื่อบอกว่าคุณรู้คำนั้นหรือไม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>No words here now.</source>
+        <translation type="unfinished">ตอนนี้ไม่มีคำที่นี่</translation>
+    </message>
+</context>
+<context>
+    <name>LevelPicker</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>Words you know</source>
+        <translation type="unfinished">คำที่คุณรู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>About how many {language} words do you know?</source>
+        <translation type="unfinished">{language}: คุณรู้คำศัพท์ประมาณกี่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>The most common words up to here count as known, the next ones are pointed out, and rarer ones are left alone. Nothing is tested: change it any time, and a click on any word corrects it.</source>
+        <translation type="unfinished">คำที่พบบ่อยที่สุดจนถึงตรงนี้ถือว่ารู้แล้ว คำถัดไปจะถูกชี้ให้เห็น และคำที่พบน้อยกว่าจะปล่อยไว้ ไม่มีการทดสอบ: เปลี่ยนได้ทุกเมื่อ และคลิกคำใดก็แก้ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>Not sure - start at about {count}</source>
+        <translation type="unfinished">ไม่แน่ใจ - เริ่มที่ประมาณ {count} คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>I&apos;m just starting</source>
+        <translation type="unfinished">เพิ่งเริ่มต้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>About {count} - HSK {level}</source>
+        <translation type="unfinished">ประมาณ {count} คำ - HSK {level}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>{count} or more</source>
+        <translation type="unfinished">{count} คำขึ้นไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/level_picker.py"/>
+        <source>About {count}</source>
+        <translation type="unfinished">ประมาณ {count} คำ</translation>
+    </message>
+</context>
+<context>
+    <name>LookupCard</name>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Heard in %Ln caption(s)</source>
+        <translation type="unfinished">
+            <numerusform>ได้ยินใน %Ln คำบรรยาย</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>+%Ln more reading(s)</source>
+        <translation type="unfinished">
+            <numerusform>+%Ln คำอ่านอื่น</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Here: {words}</source>
+        <extracomment>what the word looked up is in the translation of its caption line, e.g. &quot;Here: ngân hàng&quot;: what it means here</extracomment>
+        <translation type="unfinished">ในที่นี้: {words}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>From the {language} dictionary</source>
+        <extracomment>the card&apos;s word was found in another language&apos;s dictionary than its caption line&apos;s, e.g. &quot;From the English dictionary&quot;</extracomment>
+        <translation type="unfinished">จากพจนานุกรม{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The Chinese dictionary is missing</source>
+        <translation type="unfinished">ไม่มีพจนานุกรมจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The English dictionary is missing</source>
+        <translation type="unfinished">ไม่มีพจนานุกรมอังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The Chinese dictionary can&apos;t be opened</source>
+        <translation type="unfinished">เปิดพจนานุกรมจีนไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The English dictionary can&apos;t be opened</source>
+        <translation type="unfinished">เปิดพจนานุกรมอังกฤษไม่ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The Chinese dictionary is damaged</source>
+        <translation type="unfinished">พจนานุกรมจีนเสียหาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The English dictionary is damaged</source>
+        <translation type="unfinished">พจนานุกรมอังกฤษเสียหาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Reinstall Polyglotic to repair it (ask us for the installer). Your words and settings are kept.</source>
+        <translation type="unfinished">ติดตั้ง Polyglotic ใหม่เพื่อซ่อม (ขอตัวติดตั้งจากเรา) คำและการตั้งค่ายังอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>new</source>
+        <translation type="unfinished">ใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>in your deck</source>
+        <translation type="unfinished">ในสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>known</source>
+        <translation type="unfinished">รู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>ignored</source>
+        <translation type="unfinished">ข้าม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>The {language} dictionary is used once you learn {language}. Captions and translation still work.</source>
+        <translation type="unfinished">จะใช้พจนานุกรม{language}เมื่อคุณเรียน{language} คำบรรยายและคำแปลยังใช้ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No dictionary for {language} yet. Captions and translation still work.</source>
+        <translation type="unfinished">ยังไม่มีพจนานุกรม{language} คำบรรยายและคำแปลยังใช้ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No Chinese for it in the dictionary</source>
+        <translation type="unfinished">ไม่มีคำจีนสำหรับคำนี้ในพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>{language} is on your Learning page now, with its dictionary to download there ({size} MB).</source>
+        <translation type="unfinished">{language}อยู่ในหน้าการเรียนของคุณแล้ว ดาวน์โหลดพจนานุกรมได้ที่นั่น ({size} MB)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>{language} is on your Learning page now.</source>
+        <translation type="unfinished">{language} อยู่ในหน้าการเรียนของคุณแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Learning {language} too?</source>
+        <translation type="unfinished">เรียน{language}ด้วยไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Learn {language} too</source>
+        <translation type="unfinished">เรียน{language}ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">ไว้ทีหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Backspace</source>
+        <translation type="unfinished">Backspace</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
+        <translation type="unfinished">พีซีเครื่องนี้ยังไม่มีเสียงอ่าน{language} Windows เพิ่มให้ฟรี: การตั้งค่า &gt; เวลาและภาษา &gt; เสียงพูด &gt; เพิ่มเสียง แล้วเลือก{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Open speech settings</source>
+        <translation type="unfinished">เปิดการตั้งค่าเสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>basic dictionary</source>
+        <translation type="unfinished">พจนานุกรมพื้นฐาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>chengyu</source>
+        <translation type="unfinished">สำนวนจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Measure word: {words}</source>
+        <translation type="unfinished">ลักษณนาม: {words}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Not in the dictionary</source>
+        <translation type="unfinished">ไม่มีในพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Not in the dictionary as a whole - {meaning}</source>
+        <translation type="unfinished">ไม่มีในพจนานุกรมทั้งคำ - {meaning}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Not in the dictionary as a whole</source>
+        <translation type="unfinished">ไม่มีในพจนานุกรมทั้งคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Add to deck</source>
+        <translation type="unfinished">เพิ่มลงสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Known</source>
+        <translation type="unfinished">รู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Save to</source>
+        <translation type="unfinished">บันทึกไปที่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Remove</source>
+        <translation type="unfinished">นำออก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Copied</source>
+        <translation type="unfinished">คัดลอกแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Copy</source>
+        <translation type="unfinished">คัดลอก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>New category</source>
+        <translation type="unfinished">หมวดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Inside this word</source>
+        <translation type="unfinished">ภายในคำนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Words and characters</source>
+        <translation type="unfinished">คำและตัวอักษร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Chinese for it</source>
+        <translation type="unfinished">ภาษาจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>not in the dictionary</source>
+        <translation type="unfinished">ไม่มีในพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this PC</source>
+        <translation type="unfinished">ไม่มีเสียงอ่าน{language}บนพีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Stop (R)</source>
+        <translation type="unfinished">หยุด (R)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Say it again, slower (R)</source>
+        <translation type="unfinished">พูดอีกครั้ง ช้าลง (R)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Say it (R)</source>
+        <translation type="unfinished">พูด (R)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Look up {word}</source>
+        <translation type="unfinished">ค้น {word}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Save to {category}</source>
+        <translation type="unfinished">บันทึกไปที่ {category}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Put it in the words you&apos;re learning</source>
+        <translation type="unfinished">ใส่ในคำที่กำลังเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>I know this word - don&apos;t highlight it</source>
+        <translation type="unfinished">รู้คำนี้แล้ว - ไม่ต้องเน้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Remove from your saved words</source>
+        <translation type="unfinished">นำออกจากคำที่บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Add it to the languages on your Learning page</source>
+        <translation type="unfinished">เพิ่มในภาษาของหน้าการเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Don&apos;t ask about this language again</source>
+        <translation type="unfinished">ไม่ต้องถามเรื่องภาษานี้อีก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Back (Backspace)</source>
+        <translation type="unfinished">ย้อนกลับ (Backspace)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Close (Esc)</source>
+        <translation type="unfinished">ปิด (Esc)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens Windows&apos; Settings, where voices are added</source>
+        <translation type="unfinished">เปิดการตั้งค่า Windows ที่ใช้เพิ่มเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Copy the word, its reading and meaning (Ctrl+C)</source>
+        <translation type="unfinished">คัดลอกคำ คำอ่าน และความหมาย (Ctrl+C)</translation>
+    </message>
+</context>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Home</source>
+        <translation type="unfinished">หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Words</source>
+        <translation type="unfinished">คำศัพท์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Learning</source>
+        <translation type="unfinished">การเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Account</source>
+        <translation type="unfinished">บัญชี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Settings</source>
+        <translation type="unfinished">การตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Help</source>
+        <translation type="unfinished">ช่วยเหลือ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/main_window.py"/>
+        <source>Captions and translations are made by machine and can be wrong.</source>
+        <translation type="unfinished">คำบรรยายและคำแปลทำโดยเครื่อง จึงผิดได้</translation>
+    </message>
+</context>
+<context>
+    <name>Maintenance</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>{day} {time}</source>
+        <extracomment>a weekday&apos;s name and a time on it: &quot;Sunday 00:30&quot;</extracomment>
+        <translation type="unfinished">{day} {time}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance</source>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance until {time}</source>
+        <extracomment>Home&apos;s title and the tray&apos;s while Polyglotic&apos;s server is in it</extracomment>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนดถึง {time}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>not your internet - captions come back by themselves when it&apos;s over</source>
+        <extracomment>Home&apos;s line under &quot;Planned maintenance until 15:30&quot;</extracomment>
+        <translation type="unfinished">ไม่ใช่อินเทอร์เน็ตของคุณ - คำบรรยายจะกลับมาเองเมื่อปรับปรุงเสร็จ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance until {time}: captions pause until then, and come back by themselves.</source>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนดถึง {time}: คำบรรยายจะหยุดชั่วคราวจนถึงตอนนั้น แล้วกลับมาเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance today, {start}-{end}: captions pause then, and come back by themselves.</source>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนดวันนี้ {start}-{end}: คำบรรยายจะหยุดชั่วคราวในช่วงนั้น แล้วกลับมาเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance tomorrow, {start}-{end}: captions pause then, and come back by themselves.</source>
+        <translation type="unfinished">ปิดปรับปรุงตามกำหนดพรุ่งนี้ {start}-{end}: คำบรรยายจะหยุดชั่วคราวในช่วงนั้น แล้วกลับมาเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Captions pause at {start} for planned maintenance, until {end}</source>
+        <translation type="unfinished">คำบรรยายจะหยุดชั่วคราวเวลา {start} เพื่อปิดปรับปรุงตามกำหนด ถึง {end}</translation>
+    </message>
+</context>
+<context>
+    <name>OneCopy</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
+        <translation type="unfinished">Polyglotic เปิดอยู่แล้ว แต่ไม่ตอบสนอง รอสักครู่ แล้วเปิดอีกครั้ง หากยังไม่ขึ้นมา ให้สิ้นสุด Polyglotic ในตัวจัดการงาน แล้วเปิดอีกครั้ง</translation>
+    </message>
+</context>
+<context>
+    <name>Pages</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/widgets.py"/>
+        <source>Opens in your browser</source>
+        <translation type="unfinished">เปิดในเบราว์เซอร์</translation>
+    </message>
+</context>
+<context>
+    <name>Panels</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>{seconds}s</source>
+        <translation type="unfinished">{seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Never</source>
+        <translation type="unfinished">ไม่เลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>{hours} h</source>
+        <translation type="unfinished">{hours} ชม.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>{minutes} min</source>
+        <translation type="unfinished">{minutes} นาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Speech</source>
+        <translation type="unfinished">เสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Languages</source>
+        <translation type="unfinished">ภาษา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each window picks its own language - or Original only - and whether your speech shows there.</source>
+        <translation type="unfinished">แต่ละหน้าต่างเลือกภาษาของตัวเอง - หรือต้นฉบับเท่านั้น - และจะแสดงเสียงของคุณที่นั่นหรือไม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Every window</source>
+        <translation type="unfinished">ทุกหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Spoken language</source>
+        <translation type="unfinished">ภาษาที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Detect finds the language each time someone speaks, and handles mixed talk. Name it and every caption is heard as that language: steadier for an app that speaks one, but a line in another may come out wrong.</source>
+        <translation type="unfinished">การตรวจหาอัตโนมัติจะหาภาษาทุกครั้งที่มีคนพูด และรับมือกับบทสนทนาหลายภาษาได้ เมื่อเลือกภาษา คำบรรยายทุกบรรทัดจะถูกฟังเป็นภาษานั้น เสถียรกว่าสำหรับแอปที่พูดภาษาเดียว แต่บรรทัดที่เป็นภาษาอื่นอาจออกมาผิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Simplified ({sample})</source>
+        <translation type="unfinished">ตัวย่อ ({sample})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Traditional ({sample})</source>
+        <translation type="unfinished">ตัวเต็ม ({sample})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show Mandarin in</source>
+        <translation type="unfinished">แสดงภาษาจีนกลางเป็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The characters Mandarin&apos;s captions are written in, Detect included. Lookups, the transcript, copy and Anki use the same; translations into Chinese keep the language you picked.</source>
+        <translation type="unfinished">ตัวอักษรที่ใช้เขียนคำบรรยายภาษาจีนกลาง รวมถึงตอนตรวจหาอัตโนมัติ การค้นคำ บทถอดความ การคัดลอก และ Anki ใช้แบบเดียวกัน ส่วนคำแปลเป็นภาษาจีนยังคงเป็นภาษาที่คุณเลือก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Second language</source>
+        <translation type="unfinished">ภาษาที่สอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Lines already in a window&apos;s language get no translation there. Pick a second language and they get one into it, in yellow like every translation.</source>
+        <translation type="unfinished">บรรทัดที่เป็นภาษาของหน้าต่างอยู่แล้วจะไม่แปลที่นั่น เลือกภาษาที่สองแล้วจะแปลเป็นภาษานั้น สีเหลืองเหมือนคำแปลทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Translate live captions</source>
+        <translation type="unfinished">แปลคำบรรยายสด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
+        <translation type="unfinished">เมื่อใช้ สด (จังหวะ) ปิด: คำบรรยายสดแสดงสิ่งที่พูด และคำแปลมาตอนเว้นจังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Names and slang</source>
+        <translation type="unfinished">ชื่อและคำสแลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>e.g. rizz, no cap, yyds, 鸡你太美, 原神</source>
+        <translation type="unfinished">เช่น rizz, no cap, yyds, 鸡你太美, 原神</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slang, memes and names the speech model might mishear, written your way and separated by commas. Used only to recognise speech; the server doesn&apos;t keep them.</source>
+        <translation type="unfinished">คำสแลง มีม และชื่อที่โมเดลเสียงอาจฟังผิด เขียนแบบที่คุณต้องการ คั่นด้วยจุลภาค ใช้เพื่อจำเสียงพูดเท่านั้น เซิร์ฟเวอร์ไม่เก็บไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>For example slang - rizz, no cap, yyds (永远的神), 绝绝子; memes - 鸡你太美; a streamer&apos;s name or a game&apos;s - Valorant, 原神. Write each the way you want to see it.</source>
+        <translation type="unfinished">เช่น คำสแลง - rizz, no cap, yyds (永远的神), 绝绝子 มีม - 鸡你太美 ชื่อสตรีมเมอร์หรือเกม - Valorant, 原神 เขียนแต่ละคำแบบที่อยากเห็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Translate into</source>
+        <translation type="unfinished">แปลเป็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Original only (no translation)</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น (ไม่แปล)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show my speech here</source>
+        <translation type="unfinished">แสดงเสียงพูดของฉันที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Your microphone is sent to the server only while this is on.</source>
+        <translation type="unfinished">ส่งเสียงไมค์ไปเซิร์ฟเวอร์เฉพาะตอนที่เปิดข้อนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>This window - {app}</source>
+        <translation type="unfinished">หน้าต่างนี้ - {app}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Add an app first: each window&apos;s language gets a row here.</source>
+        <translation type="unfinished">เพิ่มแอปก่อน: ภาษาของแต่ละหน้าต่างจะมีแถวที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Lines already in {language} are translated into</source>
+        <translation type="unfinished">บรรทัดที่เป็น{language}อยู่แล้วแปลเป็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>None</source>
+        <translation type="unfinished">ไม่มี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Lines already in {language} are translated into:</source>
+        <translation type="unfinished">บรรทัดที่เป็น{language}อยู่แล้วแปลเป็น:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Timing</source>
+        <translation type="unfinished">จังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Steady</source>
+        <translation type="unfinished">คงที่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Quick preview</source>
+        <translation type="unfinished">พรีวิว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Live updates</source>
+        <translation type="unfinished">สด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Caption timing</source>
+        <translation type="unfinished">จังหวะคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>, </source>
+        <extracomment>between the times in a list, &quot;1.5s, 3s&quot; (Chinese: 、)</extracomment>
+        <translation type="unfinished">,</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>{times} into each caption</source>
+        <translation type="unfinished">{times} ในแต่ละคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Dim lines at</source>
+        <translation type="unfinished">บรรทัดจางที่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Fixed: a first guess at the words, replaced by the finished caption.</source>
+        <translation type="unfinished">คงที่: คำที่เดาไว้ก่อน จะแทนด้วยคำบรรยายฉบับสมบูรณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Live updates every</source>
+        <translation type="unfinished">อัปเดตสดทุก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Shorter: text sooner, rewritten more often; the first update waits for a second of speech.</source>
+        <translation type="unfinished">สั้นลง: ข้อความเร็วขึ้น เขียนใหม่บ่อยขึ้น อัปเดตแรกรอเสียงพูดหนึ่งวินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Less than a second of speech is too little for the speech model to tell the language.</source>
+        <translation type="unfinished">เสียงพูดไม่ถึงหนึ่งวินาทีน้อยเกินกว่าที่โมเดลเสียงจะบอกภาษาได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
+        <translation type="unfinished">เมื่อใช้ สด: แปลบรรทัดที่ขยับอยู่ด้วย ปิด: คำบรรยายสดแสดงสิ่งที่พูด และคำแปลมาตอนเว้นจังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Longest wait for text</source>
+        <translation type="unfinished">เวลารอข้อความนานสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Shorter: text sooner while someone talks on, more half sentences - the same in every timing.</source>
+        <translation type="unfinished">สั้นลง: ข้อความเร็วขึ้นเมื่อมีคนพูดต่อ ประโยคครึ่งๆ มากขึ้น - เหมือนกันทุกจังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Text can still change for</source>
+        <translation type="unfinished">ข้อความยังเปลี่ยนได้นาน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How long words on screen may still be corrected as more is heard. Shorter: fewer words change while you read, and more mistakes stay as first heard - most of all when Live updates come faster than every second.</source>
+        <translation type="unfinished">คำบนหน้าจอยังถูกแก้ไขได้อีกนานเท่าใดเมื่อได้ยินมากขึ้น สั้นลง: คำที่เปลี่ยนระหว่างที่คุณอ่านจะน้อยลง แต่ข้อผิดพลาดที่ค้างอยู่ตามที่ได้ยินครั้งแรกจะมากขึ้น - โดยเฉพาะเมื่อโหมดสดอัปเดตถี่กว่าวินาทีละครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Steady: each sentence once, finished, about half a second after it ends - with a dim line first if the speaker talks on for {seconds} seconds.</source>
+        <translation type="unfinished">คงที่: แต่ละประโยคครั้งเดียว สมบูรณ์ ราวครึ่งวินาทีหลังจบ - มีบรรทัดจางก่อนถ้าผู้พูดพูดต่อ {seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Quick preview: words in about 2 seconds, in a dim line; the full caption and its translation about half a second after the sentence ends.</source>
+        <translation type="unfinished">พรีวิว: คำขึ้นในราว 2 วินาทีเป็นบรรทัดจาง คำบรรยายเต็มและคำแปลราวครึ่งวินาทีหลังจบประโยค</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Live updates: the caption rewrites itself while the speaker goes on.</source>
+        <translation type="unfinished">สด: คำบรรยายเขียนตัวเองใหม่ขณะผู้พูดพูดต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Text still updates every {seconds}: the longest wait for text, below, is shorter.</source>
+        <translation type="unfinished">ข้อความยังอัปเดตทุก {seconds}: เวลารอข้อความนานสุดด้านล่างสั้นกว่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Polyglotic (Default)</source>
+        <translation type="unfinished">Polyglotic (ค่าเริ่มต้น)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Look</source>
+        <translation type="unfinished">รูปลักษณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Every caption window.</source>
+        <translation type="unfinished">ทุกหน้าต่างคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Preset</source>
+        <translation type="unfinished">ชุดสี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A matched set of colours for the text and the panel. Pick one, then change any colour.</source>
+        <translation type="unfinished">ชุดสีที่เข้ากันสำหรับข้อความและแผง เลือกหนึ่งชุด แล้วเปลี่ยนสีใดก็ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>What was said</source>
+        <translation type="unfinished">สิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The colour of the words as they were spoken.</source>
+        <translation type="unfinished">สีของคำตามที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The translation</source>
+        <translation type="unfinished">คำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The colour of the translation. Keep it different from what was said, so you can tell the two apart at a glance.</source>
+        <translation type="unfinished">สีของคำแปล ใช้สีต่างจากสิ่งที่พูด เพื่อแยกออกได้ในแวบเดียว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The panel</source>
+        <translation type="unfinished">แผง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The box behind the text. How solid it is is the slider below.</source>
+        <translation type="unfinished">กล่องหลังข้อความ ความทึบปรับด้วยแถบเลื่อนด้านล่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Panel: how solid</source>
+        <translation type="unfinished">แผง: ความทึบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>0 % is no box at all; 100 % hides the video behind the text. Over a bright film, 70 % or more keeps the text readable.</source>
+        <translation type="unfinished">0% คือไม่มีกล่อง 100% บังวิดีโอหลังข้อความ หนังที่สว่างควรใช้ 70% ขึ้นไปเพื่อให้อ่านง่าย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Font</source>
+        <translation type="unfinished">ฟอนต์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this PC. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">ฟอนต์ใดก็ได้บนพีซีเครื่องนี้ ภาษาจีนและญี่ปุ่นจะใช้ฟอนต์ที่มีตัวอักษรนั้นถ้าฟอนต์ของคุณไม่มี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show the original above the translation</source>
+        <translation type="unfinished">แสดงต้นฉบับเหนือคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>What was said, in its own language, over its translation. Off: just the translation.</source>
+        <translation type="unfinished">สิ่งที่พูดในภาษาเดิมของมัน เหนือคำแปล ปิด: แสดงแค่คำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show the language</source>
+        <translation type="unfinished">แสดงภาษา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Which language each caption was spoken in, in small type above it.</source>
+        <translation type="unfinished">แต่ละคำบรรยายพูดเป็นภาษาอะไร เป็นตัวเล็กด้านบน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show the source</source>
+        <translation type="unfinished">แสดงแหล่งที่มา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The app&apos;s name, or “You”, above each caption, in its colour. Names and colours are on Home.</source>
+        <translation type="unfinished">ชื่อแอป หรือ “คุณ” เหนือแต่ละคำบรรยาย ในสีของมัน ชื่อและสีอยู่ที่หน้าแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">จับคู่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off</source>
+        <translation type="unfinished">ปิด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>On hover</source>
+        <translation type="unfinished">เมื่อชี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Underline</source>
+        <translation type="unfinished">เส้นใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Arrows</source>
+        <translation type="unfinished">ลูกศร</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Style</source>
+        <translation type="unfinished">รูปแบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Which words of what was said and its translation mean the same. On hover: point at a word. Underline: matching words share a colour. Arrows: curves join them. The button on a caption window turns this off and on.</source>
+        <translation type="unfinished">คำไหนในสิ่งที่พูดกับคำแปลมีความหมายเดียวกัน เมื่อชี้: ชี้ที่คำ เส้นใต้: คำที่ตรงกันใช้สีเดียวกัน ลูกศร: เส้นโค้งเชื่อมคำ ปุ่มบนหน้าต่างคำบรรยายเปิดปิดสิ่งนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Thin</source>
+        <translation type="unfinished">บาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Medium</source>
+        <translation type="unfinished">กลาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Thick</source>
+        <translation type="unfinished">หนา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How thick the line under linked words is. Thicker is easier to see under Chinese characters.</source>
+        <translation type="unfinished">เส้นใต้คำที่จับคู่หนาแค่ไหน หนากว่าจะเห็นง่ายกว่าใต้ตัวอักษรจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Close</source>
+        <translation type="unfinished">ใกล้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Far</source>
+        <translation type="unfinished">ไกล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Underline gap</source>
+        <translation type="unfinished">ระยะเส้นใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How far below the words the underline is - always below letters like g and y, never through them.</source>
+        <translation type="unfinished">เส้นใต้อยู่ต่ำกว่าคำแค่ไหน - อยู่ใต้ตัวอย่าง g และ y เสมอ ไม่ตัดผ่าน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Key words</source>
+        <translation type="unfinished">คำสำคัญ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Most words</source>
+        <translation type="unfinished">คำส่วนใหญ่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Detail</source>
+        <translation type="unfinished">รายละเอียด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
+        <translation type="unfinished">คำสำคัญ: เฉพาะคำที่มีความหมาย คำส่วนใหญ่: รวมสรรพนาม 是 这个 และคำทำนองนี้ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">คำที่จับคู่กัน - ทั้งในคำพูดและคำแปล - จะใช้สีของคู่นั้น เหมือนเส้นใต้ เมื่อตั้งพินอินเป็นสีของคู่คำด้วย คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Which words are pointed out as new is on {learning}.</source>
+        <translation type="unfinished">คำที่ชี้ว่าเป็นคำใหม่ ตั้งได้ที่หน้า{learning}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Learning</source>
+        <translation type="unfinished">การเรียน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin</source>
+        <translation type="unfinished">พินอิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin above Chinese</source>
+        <translation type="unfinished">พินอินเหนือภาษาจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. It isn&apos;t part of the text: copying and looking up words work as before.</source>
+        <translation type="unfinished">พยางค์เล็กๆ เหนืออักษรจีนแต่ละตัว ทั้งในสิ่งที่พูดและในคำแปลเป็นภาษาจีน ไม่ได้เป็นส่วนหนึ่งของข้อความ: การคัดลอกและการค้นหาคำยังทำงานเหมือนเดิม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Zhuyin</source>
+        <translation type="unfinished">จู้อิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Readings above Chinese</source>
+        <translation type="unfinished">คำอ่านเหนือภาษาจีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Zhuyin (bopomofo, ㄅㄆㄇㄈ) is how readers in Taiwan learn the sounds: the same readings as pinyin, in its symbols and tone marks.</source>
+        <translation type="unfinished">จู้อิน (ปอพอมอฟอ, ㄅㄆㄇㄈ) คือวิธีที่ผู้อ่านในไต้หวันเรียนเสียง: คำอ่านเดียวกับพินอิน เขียนด้วยสัญลักษณ์และเครื่องหมายวรรณยุกต์ของมัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Every word</source>
+        <translation type="unfinished">ทุกคำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know</source>
+        <translation type="unfinished">เกินจากที่คุณรู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin over</source>
+        <translation type="unfinished">พินอินเหนือ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
+        <translation type="unfinished">เกินจากที่คุณรู้: แสดงเฉพาะเหนือคำที่เกินเส้นคำที่รู้ในการเรียน คือคำที่ลิงก์คำชี้ไป ยิ่งเรียนมาก ยิ่งมีให้อ่านน้อยลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small</source>
+        <translation type="unfinished">เล็ก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin size</source>
+        <translation type="unfinished">ขนาดพินอิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Beside the characters&apos; own size. Medium reads better in a small window.</source>
+        <translation type="unfinished">เทียบกับขนาดของตัวอักษร ขนาดกลางอ่านง่ายกว่าในหน้าต่างเล็ก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Same as its line</source>
+        <translation type="unfinished">เหมือนบรรทัดของมัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Its word link&apos;s colour</source>
+        <translation type="unfinished">สีของคู่คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Custom</source>
+        <translation type="unfinished">กำหนดเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin colour</source>
+        <translation type="unfinished">สีพินอิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">สีของคู่คำ: พินอินใช้สีของคู่คำที่คำนั้นอยู่ ถ้ามี - เมื่อเปิด “ใส่สีคำที่จับคู่ด้วย” ในจับคู่คำ คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Custom pinyin colour</source>
+        <translation type="unfinished">สีพินอินที่กำหนดเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The one colour pinyin is drawn in, over any line.</source>
+        <translation type="unfinished">สีเดียวที่ใช้แสดงพินอิน ไม่ว่าบรรทัดไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Behaviour</source>
+        <translation type="unfinished">การแสดงผล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in</source>
+        <translation type="unfinished">เลื่อนขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Appear</source>
+        <translation type="unfinished">ปรากฏ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>New captions</source>
+        <translation type="unfinished">คำบรรยายใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the PC&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">เลื่อนขึ้น: คำบรรยายใหม่เลื่อนขึ้นเข้าที่จากด้านล่าง - ยกเว้นเมื่อปิดเอฟเฟกต์ภาพเคลื่อนไหวของพีซี ปรากฏ: ไม่มีอะไรขยับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Fade after quiet</source>
+        <translation type="unfinished">จางหายเมื่อเงียบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Captions disappear after this long with nobody talking. Never: they stay until the next line.</source>
+        <translation type="unfinished">คำบรรยายหายไปเมื่อไม่มีใครพูดนานเท่านี้ ไม่เลย: อยู่จนถึงบรรทัดถัดไป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stop listening when hidden</source>
+        <translation type="unfinished">หยุดฟังเมื่อซ่อนอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A hidden caption window stops listening after this long, so nothing more of its app is sent. Showing it starts it again.</source>
+        <translation type="unfinished">หน้าต่างคำบรรยายที่ซ่อนอยู่จะหยุดฟังหลังจากเวลานี้ จึงไม่มีอะไรจากแอปของมันถูกส่งไปอีก เมื่อแสดงหน้าต่างก็จะเริ่มใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Show a hidden caption window when speech starts</source>
+        <translation type="unfinished">แสดงหน้าต่างคำบรรยายที่ซ่อนอยู่เมื่อเริ่มมีเสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the tray says it&apos;s still captioning.</source>
+        <translation type="unfinished">ปิด: หน้าต่างยังซ่อนอยู่ และถาดระบบจะบอกว่ายังทำคำบรรยายอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Reset</source>
+        <translation type="unfinished">รีเซ็ต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Reset the look to Polyglotic&apos;s defaults</source>
+        <translation type="unfinished">รีเซ็ตรูปลักษณ์เป็นค่าเริ่มต้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colours, panel, font, word links and fading, as Polyglotic first had them. The windows&apos; places are Home&apos;s Reset positions.</source>
+        <translation type="unfinished">สี แผง ฟอนต์ จับคู่คำ และการจางหาย ตามที่ Polyglotic ตั้งไว้แต่แรก ตำแหน่งหน้าต่างใช้ รีเซ็ตตำแหน่ง ที่หน้าแรก</translation>
+    </message>
+</context>
+<context>
+    <name>Plan</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus, free while you test, until {date}</source>
+        <translation type="unfinished">Plus ฟรีระหว่างทดสอบ จนถึง {date}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus, free while you test Polyglotic</source>
+        <translation type="unfinished">Plus ฟรีระหว่างที่คุณทดสอบ Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus, renews {date}</source>
+        <translation type="unfinished">Plus ต่ออายุ {date}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus until {date}</source>
+        <translation type="unfinished">Plus ถึง {date}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus</source>
+        <translation type="unfinished">Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus - your payment didn&apos;t go through; we&apos;ll try again until {date}</source>
+        <translation type="unfinished">Plus - การชำระเงินไม่สำเร็จ เราจะลองอีกครั้งจนถึง {date}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus is paused: your payment didn&apos;t go through</source>
+        <translation type="unfinished">Plus หยุดชั่วคราว: การชำระเงินไม่สำเร็จ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus has ended</source>
+        <translation type="unfinished">Plus สิ้นสุดแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus has ended: your payment didn&apos;t go through</source>
+        <translation type="unfinished">Plus สิ้นสุดแล้ว: การชำระเงินไม่สำเร็จ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus has ended: you asked for a refund</source>
+        <translation type="unfinished">Plus สิ้นสุดแล้ว: คุณขอคืนเงิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>No Plus on this account</source>
+        <translation type="unfinished">บัญชีนี้ไม่มี Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Plus ends when you stop listening</source>
+        <translation type="unfinished">Plus สิ้นสุดเมื่อคุณหยุดฟัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
+        <source>Get Plus</source>
+        <translation type="unfinished">รับ Plus</translation>
+    </message>
+</context>
+<context>
+    <name>ProblemReport</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>{minutes} min {seconds} s</source>
+        <extracomment>a duration: minutes and seconds</extracomment>
+        <translation type="unfinished">{minutes} นาที {seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>{seconds} s</source>
+        <extracomment>a duration in seconds</extracomment>
+        <translation type="unfinished">{seconds} วินาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Report a problem</source>
+        <translation type="unfinished">รายงานปัญหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Tell us what happened, if you like. What&apos;s ticked goes with it, so we can see the problem again and fix it - untick anything you&apos;d rather not send.</source>
+        <translation type="unfinished">เล่าว่าเกิดอะไรขึ้นได้ถ้าต้องการ สิ่งที่ติ๊กไว้จะส่งไปด้วย เพื่อให้เราเห็นปัญหาซ้ำและแก้ได้ - เอาติ๊กออกจากสิ่งที่ไม่อยากส่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>What happened, and roughly when? (optional)</source>
+        <translation type="unfinished">เกิดอะไรขึ้น และประมาณเมื่อไร (ไม่บังคับ)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>This includes other people&apos;s voices.</source>
+        <translation type="unfinished">มีเสียงของคนอื่นอยู่ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Also sent: {versions}, and the listening session&apos;s ID. Kept for 30 days to fix the problem, then deleted. No screenshot is taken.</source>
+        <translation type="unfinished">ส่งไปด้วย: {versions} และ ID ของเซสชันการฟัง เก็บไว้ 30 วันเพื่อแก้ปัญหา แล้วลบทิ้ง ไม่มีการจับภาพหน้าจอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Send</source>
+        <translation type="unfinished">ส่ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Cancel</source>
+        <translation type="unfinished">ยกเลิก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Look</source>
+        <translation type="unfinished">รูปลักษณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>The app&apos;s log</source>
+        <translation type="unfinished">บันทึกของแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Your settings</source>
+        <translation type="unfinished">การตั้งค่าของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this PC: the app, the system and the audio devices</source>
+        <translation type="unfinished">เกี่ยวกับพีซีเครื่องนี้: แอป ระบบ และอุปกรณ์เสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Captions from the last few minutes, as shown</source>
+        <translation type="unfinished">คำบรรยายในไม่กี่นาทีล่าสุด ตามที่แสดง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Help&apos;s &quot;no captions?&quot; check</source>
+        <translation type="unfinished">การตรวจ &quot;ไม่มีคำบรรยาย?&quot; ของหน้าช่วยเหลือ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>%n caption(s)</source>
+        <translation type="unfinished">
+            <numerusform>คำบรรยาย %n รายการ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>Audio from {source}</source>
+        <extracomment>{source} is an app&apos;s name as the tester knows it, or &quot;your mic&quot;</extracomment>
+        <translation type="unfinished">เสียงจาก {source}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>{duration} of speech</source>
+        <extracomment>how much speech a source&apos;s audio part holds: &quot;1 min 40 s of speech&quot;</extracomment>
+        <translation type="unfinished">เสียงพูด {duration}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>your mic</source>
+        <extracomment>the user&apos;s own mic, as a source in &quot;Audio from {source}&quot;</extracomment>
+        <translation type="unfinished">ไมค์ของคุณ</translation>
+    </message>
+</context>
+<context>
+    <name>Settings</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Lock all caption windows</source>
+        <translation type="unfinished">ล็อกหน้าต่างคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Pause captions</source>
+        <translation type="unfinished">หยุดคำบรรยายชั่วคราว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hide all caption windows</source>
+        <translation type="unfinished">ซ่อนหน้าต่างคำบรรยายทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Third-party notices</source>
+        <translation type="unfinished">ประกาศของบุคคลที่สาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Settings</source>
+        <translation type="unfinished">การตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Appearance</source>
+        <translation type="unfinished">รูปลักษณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>This window and the transcripts. The caption windows stay as they are.</source>
+        <translation type="unfinished">หน้าต่างนี้และบันทึกคำบรรยาย หน้าต่างคำบรรยายคงเดิม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Theme</source>
+        <translation type="unfinished">ธีม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Its colours and headings.</source>
+        <translation type="unfinished">สีและหัวข้อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this PC</source>
+        <translation type="unfinished">ตามพีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Light</source>
+        <translation type="unfinished">สว่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Dark</source>
+        <translation type="unfinished">มืด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Light or dark</source>
+        <translation type="unfinished">สว่างหรือมืด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>A few parts change at the next start.</source>
+        <translation type="unfinished">บางส่วนเปลี่ยนเมื่อเริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Language</source>
+        <translation type="unfinished">ภาษา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>The app&apos;s language</source>
+        <translation type="unfinished">ภาษาของแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Menus, buttons and help - not your captions. It changes the next time Polyglotic starts.</source>
+        <translation type="unfinished">เมนู ปุ่ม และความช่วยเหลือ - ไม่ใช่คำบรรยายของคุณ เปลี่ยนเมื่อ Polyglotic เริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hotkeys</source>
+        <translation type="unfinished">ปุ่มลัด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>They work from any program, including a game.</source>
+        <translation type="unfinished">ใช้ได้จากทุกโปรแกรม รวมถึงเกม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Updates</source>
+        <translation type="unfinished">อัปเดต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Updates download quietly and apply the next time Polyglotic starts.</source>
+        <translation type="unfinished">อัปเดตดาวน์โหลดเงียบๆ และใช้เมื่อ Polyglotic เริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Check now</source>
+        <translation type="unfinished">ตรวจสอบเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Restart now</source>
+        <translation type="unfinished">รีสตาร์ตเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>About Polyglotic</source>
+        <translation type="unfinished">เกี่ยวกับ Polyglotic</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Captions and translations are made by machine and can be wrong.</source>
+        <translation type="unfinished">คำบรรยายและคำแปลทำโดยเครื่อง จึงผิดได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Want to help build Polyglotic?</source>
+        <translation type="unfinished">อยากช่วยสร้าง Polyglotic ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Text size</source>
+        <translation type="unfinished">ขนาดข้อความ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic&apos;s own words: this window, a word&apos;s card, menus, and the buttons on caption windows and transcripts. Captions keep their own size: A- and A+ on each caption window and transcript.</source>
+        <translation type="unfinished">ข้อความของ Polyglotic เอง: หน้าต่างนี้ การ์ดคำ เมนู และปุ่มบนหน้าต่างคำบรรยายและบันทึกคำบรรยาย คำบรรยายมีขนาดของตัวเอง: A- และ A+ บนแต่ละหน้าต่างคำบรรยายและบันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Smaller</source>
+        <translation type="unfinished">เล็กลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Normal</source>
+        <translation type="unfinished">ปกติ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Larger</source>
+        <translation type="unfinished">ใหญ่ขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Largest</source>
+        <translation type="unfinished">ใหญ่ที่สุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Transcripts</source>
+        <translation type="unfinished">บันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>How far back a transcript window scrolls and searches. Copy all and Save always have the whole session.</source>
+        <translation type="unfinished">หน้าต่างบันทึกคำบรรยายเลื่อนและค้นหาย้อนหลังได้ไกลแค่ไหน คัดลอกทั้งหมด และ บันทึก มีทั้งเซสชันเสมอ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Newest {count} lines</source>
+        <extracomment>{count} is always 1,000</extracomment>
+        <translation type="unfinished">{count} บรรทัดล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Last 3 hours</source>
+        <translation type="unfinished">3 ชั่วโมงล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Whole session</source>
+        <translation type="unfinished">ทั้งเซสชัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>How far back transcripts go</source>
+        <translation type="unfinished">บันทึกคำบรรยายย้อนหลังได้ไกลแค่ไหน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Ask to save before quitting</source>
+        <translation type="unfinished">ถามให้บันทึกก่อนออก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>With Last 3 hours or Whole session: Quit asks about a transcript of more than 300 lines that isn&apos;t saved.</source>
+        <translation type="unfinished">เมื่อเลือก 3 ชั่วโมงล่าสุด หรือ ทั้งเซสชัน: ตอนออกจะถามถึงบันทึกคำบรรยายที่ยาวเกิน 300 บรรทัดและยังไม่ได้บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Dictation (preview)</source>
+        <translation type="unfinished">พิมพ์ด้วยเสียง (ทดลอง)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hold a key and speak; let go, and your words are typed where your cursor is, in any program. Your voice goes to our server only while you hold the key, and nothing is kept.</source>
+        <translation type="unfinished">กดปุ่มค้างแล้วพูด ปล่อยแล้วคำของคุณจะถูกพิมพ์ตรงเคอร์เซอร์ ในทุกโปรแกรม เสียงของคุณไปเซิร์ฟเวอร์ของเราเฉพาะตอนกดค้าง และไม่มีอะไรถูกเก็บ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Dictation</source>
+        <translation type="unfinished">พิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Reset</source>
+        <translation type="unfinished">รีเซ็ต</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Back to {key}</source>
+        <translation type="unfinished">กลับเป็น {key}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Key</source>
+        <translation type="unfinished">ปุ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right Ctrl, F9, Ctrl + Alt + D… A key on its own, or with Ctrl, Alt or Win, is Polyglotic&apos;s while dictation is on; Right Ctrl alone still works in other programs.</source>
+        <translation type="unfinished">คลิก แล้วกดปุ่มหรือปุ่มผสมที่ต้องการกดค้าง: Right Ctrl, F9, Ctrl + Alt + D… ปุ่มเดี่ยว หรือคู่กับ Ctrl, Alt หรือ Win เป็นของ Polyglotic ขณะเปิดพิมพ์ด้วยเสียง Right Ctrl อย่างเดียวยังใช้ในโปรแกรมอื่นได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Dictation&apos;s language</source>
+        <translation type="unfinished">ภาษาของการพิมพ์ด้วยเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
+        <translation type="unfinished">ตรวจหาภาษาอัตโนมัติจะพิมพ์ทุกภาษาที่คุณพูด ทุกครั้งที่กดค้าง ตั้งภาษาเดียว - อังกฤษ จีนกลาง… - แล้วจะฟังเป็นภาษานั้นเสมอ: วลีสั้นจะไม่ถูกฟังเป็นภาษาอื่น เมนูในถาดระบบสลับได้ด้วย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Australian spelling</source>
+        <translation type="unfinished">การสะกดแบบออสเตรเลีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>English comes out as colour, centre and organise.</source>
+        <translation type="unfinished">ภาษาอังกฤษจะออกมาเป็น colour, centre และ organise</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Another program has {key}: choose another.</source>
+        <translation type="unfinished">โปรแกรมอื่นใช้ {key} อยู่: เลือกปุ่มอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Another program has {key}: kept {kept}.</source>
+        <translation type="unfinished">โปรแกรมอื่นใช้ {key} อยู่: ใช้ {kept} ต่อ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hold {key} and speak; let go, and it&apos;s typed.</source>
+        <translation type="unfinished">กด {key} ค้างแล้วพูด ปล่อยแล้วจะพิมพ์ให้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Look</source>
+        <translation type="unfinished">รูปลักษณ์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Timing</source>
+        <translation type="unfinished">จังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Speech</source>
+        <translation type="unfinished">เสียงพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>App</source>
+        <translation type="unfinished">แอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Lab</source>
+        <translation type="unfinished">แล็บ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Settings sections</source>
+        <translation type="unfinished">ส่วนการตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>App language</source>
+        <translation type="unfinished">ภาษาของแอป</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>From the next start</source>
+        <translation type="unfinished">ตั้งแต่เริ่มครั้งหน้า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Machine draft</source>
+        <translation type="unfinished">ฉบับร่างโดยเครื่อง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>No native speaker has checked the app&apos;s text in this language yet.</source>
+        <translation type="unfinished">ยังไม่มีเจ้าของภาษาตรวจข้อความของแอปในภาษานี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Tell us what reads wrong</source>
+        <translation type="unfinished">บอกเราว่าตรงไหนอ่านแล้วแปลก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>another program has it</source>
+        <translation type="unfinished">โปรแกรมอื่นใช้อยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Version {version}, from the Microsoft Store, which keeps it up to date.</source>
+        <translation type="unfinished">เวอร์ชัน {version} จาก Microsoft Store ซึ่งอัปเดตให้เอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Version {version} ({channel}).</source>
+        <translation type="unfinished">เวอร์ชัน {version} ({channel})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Checking for updates…</source>
+        <translation type="unfinished">กำลังตรวจหาอัปเดต…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic is up to date.</source>
+        <translation type="unfinished">Polyglotic เป็นเวอร์ชันล่าสุดแล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Version {version} is ready. Restart to install it.</source>
+        <translation type="unfinished">เวอร์ชัน {version} พร้อมแล้ว รีสตาร์ตเพื่อติดตั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Couldn&apos;t reach the update server. Polyglotic looks again later.</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์อัปเดตไม่ได้ Polyglotic จะตรวจอีกครั้งภายหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>The update couldn&apos;t be downloaded. Polyglotic tries again later.</source>
+        <translation type="unfinished">ดาวน์โหลดอัปเดตไม่ได้ Polyglotic จะลองอีกครั้งภายหลัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Version {version} is available. Your connection is metered, so it waits: Home offers to download it anyway.</source>
+        <translation type="unfinished">มีเวอร์ชัน {version} แล้ว การเชื่อมต่อของคุณเป็นแบบคิดตามปริมาณข้อมูล จึงรอไว้ก่อน: หน้าแรกมีปุ่มให้ดาวน์โหลดเลย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>This copy wasn&apos;t installed by the installer, so it can&apos;t update itself.</source>
+        <translation type="unfinished">สำเนานี้ไม่ได้ติดตั้งด้วยตัวติดตั้ง จึงอัปเดตตัวเองไม่ได้</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsPopover</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{app} - playing</source>
+        <translation type="unfinished">{app} - กำลังเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{app} - starts when it plays</source>
+        <translation type="unfinished">{app} - เริ่มเมื่อเล่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Captioning starts when {app} plays sound - its first seconds can be missed</source>
+        <translation type="unfinished">เริ่มทำคำบรรยายเมื่อ {app} มีเสียง - อาจพลาดช่วงวินาทีแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Translate into</source>
+        <translation type="unfinished">แปลเป็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>The language this window&apos;s captions are translated into</source>
+        <translation type="unfinished">ภาษาที่คำบรรยายของหน้าต่างนี้แปลเป็น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Original only (no translation)</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น (ไม่แปล)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Spoken language</source>
+        <translation type="unfinished">ภาษาที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>What this app&apos;s speech is in. Detect finds the language each time someone speaks, and handles mixed talk. Name it and every caption is heard as that language: short or mumbled speech is never taken for another.</source>
+        <translation type="unfinished">ภาษาที่พูดในแอปนี้ การตรวจหาอัตโนมัติจะหาภาษาทุกครั้งที่มีคนพูด และรับมือกับบทสนทนาหลายภาษาได้ เมื่อเลือกภาษา คำบรรยายทุกบรรทัดจะถูกฟังเป็นภาษานั้น คำพูดสั้นๆ หรือไม่ชัดจะไม่ถูกเข้าใจผิดว่าเป็นภาษาอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Heard as Detect for now: another window hears a different language</source>
+        <translation type="unfinished">ตอนนี้ฟังแบบอัตโนมัติ: อีกหน้าต่างฟังภาษาอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>This server takes one spoken language for every window, so while the windows name different ones, every app is detected. Your choice is kept.</source>
+        <translation type="unfinished">เซิร์ฟเวอร์นี้รับภาษาที่พูดได้ภาษาเดียวสำหรับทุกหน้าต่าง ขณะที่หน้าต่างระบุภาษาต่างกัน ทุกแอปจึงใช้อัตโนมัติ ตัวเลือกของคุณยังเก็บไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>A line spoken in this window&apos;s language gets no translation. Show it in another language instead, or leave it.</source>
+        <translation type="unfinished">บรรทัดที่พูดเป็นภาษาของหน้าต่างนี้จะไม่แปล แสดงเป็นอีกภาษาแทน หรือปล่อยไว้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Lines already in this window&apos;s language</source>
+        <translation type="unfinished">บรรทัดที่เป็นภาษาของหน้าต่างนี้อยู่แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Captioning</source>
+        <translation type="unfinished">กำลังทำคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>The app this window captions - pick another here</source>
+        <translation type="unfinished">แอปที่หน้าต่างนี้ทำคำบรรยาย - เลือกแอปอื่นได้ที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Don&apos;t see your app here? Make sure it&apos;s playing audio.</source>
+        <translation type="unfinished">ไม่เห็นแอปของคุณใช่ไหม ตรวจว่ากำลังเล่นเสียงอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Your microphone is sent to the server only while this is on</source>
+        <translation type="unfinished">ไมโครโฟนของคุณส่งไปเซิร์ฟเวอร์เฉพาะตอนที่เปิดข้อนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Timing</source>
+        <translation type="unfinished">จังหวะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>for every window</source>
+        <translation type="unfinished">สำหรับทุกหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>When captions appear, for every window. The full choice is in Settings.</source>
+        <translation type="unfinished">คำบรรยายขึ้นเมื่อไร สำหรับทุกหน้าต่าง ตัวเลือกทั้งหมดอยู่ในการตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Text size</source>
+        <translation type="unfinished">ขนาดข้อความ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Smaller text</source>
+        <translation type="unfinished">ข้อความเล็กลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Bigger text</source>
+        <translation type="unfinished">ข้อความใหญ่ขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Translation size</source>
+        <translation type="unfinished">ขนาดคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Smaller translation</source>
+        <translation type="unfinished">คำแปลเล็กลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Bigger translation</source>
+        <translation type="unfinished">คำแปลใหญ่ขึ้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{percent}%</source>
+        <translation type="unfinished">{percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Lines already in {language}</source>
+        <translation type="unfinished">บรรทัดที่เป็น{language}อยู่แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Leave as they are</source>
+        <translation type="unfinished">ปล่อยไว้ตามเดิม</translation>
+    </message>
+</context>
+<context>
+    <name>SignInDialog</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign in</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Enter your code</source>
+        <translation type="unfinished">ใส่รหัสของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Your invite code, or the code in your Plus email: 16 letters and digits. Capitals and dashes don&apos;t matter.</source>
+        <translation type="unfinished">รหัสเชิญ หรือรหัสในอีเมล Plus: ตัวอักษรและตัวเลข 16 ตัว ตัวพิมพ์ใหญ่และขีดไม่มีผล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This PC has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">พีซีเครื่องนี้เคยลงชื่อเข้าใช้แล้ว: รหัสเชิญที่ใช้ตอนนั้นใช้ที่นี่ได้อีก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Signing in…</source>
+        <translation type="unfinished">กำลังลงชื่อเข้าใช้…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Signed in.</source>
+        <translation type="unfinished">ลงชื่อเข้าใช้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>That isn&apos;t one of our codes - they have 16 letters and digits, like 7KQM-X2PD-9VHT-C4RA.</source>
+        <translation type="unfinished">นี่ไม่ใช่รหัสของเรา - รหัสของเรามีตัวอักษรและตัวเลข 16 ตัว เช่น 7KQM-X2PD-9VHT-C4RA</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another PC or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">รหัสนี้ใช้ไม่ได้: อาจพิมพ์ผิด ใช้บนพีซีเครื่องอื่นแล้ว หรือหมดอายุ ตรวจอีกครั้ง หรือเขียนถึงเราแล้วเราจะช่วยแก้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
+        <translation type="unfinished">การสมัครสมาชิกของรหัสนี้ถูกยกเลิกก่อนใช้ จึงไม่ได้ Plus หากต้องการ Plus ให้สมัครใหม่บนเว็บไซต์ของเรา - หรือเขียนถึงเราถ้าคุณไม่ได้ยกเลิก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This account has Plus by subscription already, so the code wasn&apos;t used. Keep it for later, or give it to someone.</source>
+        <translation type="unfinished">บัญชีนี้มี Plus แบบสมัครสมาชิกอยู่แล้ว จึงไม่ได้ใช้รหัส เก็บไว้ใช้ทีหลัง หรือให้คนอื่นก็ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">การลงชื่อเข้าใช้ของพีซีเครื่องนี้หมดอายุ ออกจากระบบที่บัญชี แล้วลงชื่อเข้าใช้ด้วยรหัสนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code starts a new account - sign out first, then use it.</source>
+        <translation type="unfinished">รหัสนี้จะสร้างบัญชีใหม่ - ออกจากระบบก่อน แล้วค่อยใช้</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Too many tries from this network. Try again in %n minute(s).</source>
+        <translation type="unfinished">
+            <numerusform>ลองจากเครือข่ายนี้หลายครั้งเกินไป ลองใหม่ในอีก %n นาที</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
+        <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">พีซีเครื่องนี้บอกว่าวันนี้คือ {date} ซึ่งไม่น่าถูกต้อง และการเชื่อมต่อที่ปลอดภัยต้องใช้วันที่ที่ถูกต้อง เปิด ตั้งเวลาโดยอัตโนมัติ ในการตั้งค่า Windows หัวข้อเวลาและภาษา &gt; วันที่และเวลา แล้วเลือก ซิงค์เดี๋ยวนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network.</source>
+        <translation type="unfinished">มีบางอย่างบนเครือข่ายนี้ขวางอยู่ด้วยใบรับรองที่หมดอายุ ส่วนใหญ่คือการสแกน HTTPS ของแอนติไวรัส หรือ VPN ปิดสิ่งนั้นสำหรับ Polyglotic หรือลองเครือข่ายอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Something on this network is in the way - a Wi-Fi sign-in page, a firewall, a proxy or an antivirus. Sign in to the Wi-Fi, or try another network.</source>
+        <translation type="unfinished">มีบางอย่างบนเครือข่ายนี้ขวางอยู่ - หน้าลงชื่อเข้า Wi-Fi ไฟร์วอลล์ พร็อกซี หรือแอนติไวรัส ลงชื่อเข้า Wi-Fi หรือลองเครือข่ายอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Polyglotic&apos;s server isn&apos;t answering - it&apos;s not your internet. Try again in a few minutes.</source>
+        <translation type="unfinished">เซิร์ฟเวอร์ Polyglotic ไม่ตอบ - ไม่ใช่ปัญหาอินเทอร์เน็ตของคุณ ลองใหม่ในอีกไม่กี่นาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Couldn&apos;t reach Polyglotic&apos;s server. Check your internet; if it&apos;s working, we&apos;re probably down - try again in a few minutes.</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์ Polyglotic ไม่ได้ ตรวจอินเทอร์เน็ต ถ้าใช้ได้ เราน่าจะล่มอยู่ - ลองใหม่ในอีกไม่กี่นาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Couldn&apos;t reach the server. Check your internet connection and try again.</source>
+        <translation type="unfinished">ติดต่อเซิร์ฟเวอร์ไม่ได้ ตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out</source>
+        <translation type="unfinished">ออกจากระบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this PC?</source>
+        <translation type="unfinished">ออกจากระบบ Polyglotic บนพีซีเครื่องนี้ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
+        <translation type="unfinished">คำบรรยายจะหยุดจนกว่าคุณจะลงชื่อเข้าใช้อีกครั้ง - ด้วยรหัสเชิญเดิม: ใช้ได้อีกบนพีซีเครื่องนี้ คำที่บันทึกและข้อมูลการเรียนยังอยู่ ทั้งบนพีซีเครื่องนี้และเซิร์ฟเวอร์ของเรา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">การเปลี่ยนแปลงที่พีซีเครื่องนี้ยังไม่ได้ส่งไปเซิร์ฟเวอร์จะถูกทิ้ง เพื่อไม่ให้ไปถึงคนที่ลงชื่อเข้าใช้คนถัดไป</translation>
+    </message>
+</context>
+<context>
+    <name>SoundCard</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This PC&apos;s default</source>
+        <translation type="unfinished">ค่าเริ่มต้นของพีซีเครื่องนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This PC&apos;s default ({device})</source>
+        <translation type="unfinished">ค่าเริ่มต้นของพีซีเครื่องนี้ ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Microphone level</source>
+        <translation type="unfinished">ระดับไมโครโฟน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Sound</source>
+        <translation type="unfinished">เสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>What you hear</source>
+        <translation type="unfinished">สิ่งที่คุณได้ยิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Speakers</source>
+        <translation type="unfinished">ลำโพง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">สำหรับทุกเสียงที่พีซีเล่น แอปที่คุณเพิ่มจะได้ยินผ่านลำโพงใดก็ได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>What you say</source>
+        <translation type="unfinished">สิ่งที่คุณพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Caption what I say</source>
+        <translation type="unfinished">ทำคำบรรยายสิ่งที่ฉันพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>In every window. Your microphone is sent to the server only while this is on.</source>
+        <translation type="unfinished">ในทุกหน้าต่าง ไมโครโฟนของคุณจะส่งไปยังเซิร์ฟเวอร์เฉพาะตอนที่เปิดสิ่งนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Microphone</source>
+        <translation type="unfinished">ไมโครโฟน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Your microphone&apos;s level now</source>
+        <translation type="unfinished">ระดับไมโครโฟนของคุณตอนนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Shown while what you say is captioned</source>
+        <translation type="unfinished">แสดงขณะทำคำบรรยายสิ่งที่คุณพูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this PC&apos;s default is used</source>
+        <translation type="unfinished">ไม่ได้เสียบอยู่ - ใช้ค่าเริ่มต้นของพีซีเครื่องนี้</translation>
+    </message>
+</context>
+<context>
+    <name>SpokenList</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/spoken_list.py"/>
+        <source>Spoken language</source>
+        <translation type="unfinished">ภาษาที่พูด</translation>
+    </message>
+</context>
+<context>
+    <name>SpokenNudge</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/spoken_nudge.py"/>
+        <source>Yes</source>
+        <translation type="unfinished">ใช่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/spoken_nudge.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">ไว้ก่อน</translation>
+    </message>
+</context>
+<context>
+    <name>TranscriptWindow</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Couldn&apos;t save {name}. It may be open in another program, or the folder may be read-only - close it or pick another folder, and try again.</source>
+        <translation type="unfinished">บันทึก {name} ไม่ได้ อาจเปิดอยู่ในโปรแกรมอื่น หรือโฟลเดอร์อาจอ่านได้อย่างเดียว - ปิดไฟล์หรือเลือกโฟลเดอร์อื่น แล้วลองอีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>checked by the best model</source>
+        <translation type="unfinished">ตรวจโดยโมเดลที่ดีที่สุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>No matches.</source>
+        <translation type="unfinished">ไม่พบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Nothing yet - finished captions collect here.</source>
+        <translation type="unfinished">ยังไม่มี - คำบรรยายฉบับสมบูรณ์จะรวมอยู่ที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Copy</source>
+        <translation type="unfinished">คัดลอก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Copy what was said</source>
+        <translation type="unfinished">คัดลอกสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Copy the translation</source>
+        <translation type="unfinished">คัดลอกคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>{app} - shows my speech</source>
+        <translation type="unfinished">{app} - แสดงเสียงพูดของฉัน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>{app} - Transcript</source>
+        <translation type="unfinished">{app} - บันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Original only (no translation)</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น (ไม่แปล)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Caption timing - for every window</source>
+        <translation type="unfinished">จังหวะคำบรรยาย - สำหรับทุกหน้าต่าง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Smaller text (Ctrl+wheel)</source>
+        <translation type="unfinished">ข้อความเล็กลง (Ctrl+ล้อเมาส์)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Bigger text (Ctrl+wheel)</source>
+        <translation type="unfinished">ข้อความใหญ่ขึ้น (Ctrl+ล้อเมาส์)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Search the transcript</source>
+        <translation type="unfinished">ค้นในบันทึกคำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Clear the search</source>
+        <translation type="unfinished">ล้างการค้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Copy all</source>
+        <translation type="unfinished">คัดลอกทั้งหมด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Save transcript as…</source>
+        <translation type="unfinished">บันทึกเป็นไฟล์…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Save the finished captions as text, subtitles (SRT) or CSV</source>
+        <translation type="unfinished">บันทึกคำบรรยายฉบับสมบูรณ์เป็นข้อความ ซับไตเติล (SRT) หรือ CSV</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Copy all, Save transcript as…</source>
+        <translation type="unfinished">คัดลอกทั้งหมด, บันทึกเป็นไฟล์…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>More: Copy all, Save transcript as…</source>
+        <translation type="unfinished">เพิ่มเติม: คัดลอกทั้งหมด, บันทึกเป็นไฟล์…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Settings</source>
+        <translation type="unfinished">การตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Translate into: {language}</source>
+        <translation type="unfinished">แปลเป็น: {language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Original only - no translation</source>
+        <translation type="unfinished">ต้นฉบับเท่านั้น - ไม่แปล</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>%Ln match(es)</source>
+        <translation type="unfinished">
+            <numerusform>ตรงกัน %Ln รายการ</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>in the newest %Ln line(s)</source>
+        <translation type="unfinished">
+            <numerusform>ใน %Ln บรรทัดล่าสุด</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>the newest {n} of {total} lines · all in Copy all and Save</source>
+        <translation type="unfinished">{n} บรรทัดล่าสุดจาก {total} · ทั้งหมดอยู่ใน คัดลอกทั้งหมด และ บันทึก</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>%Ln line(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln บรรทัด</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>following</source>
+        <translation type="unfinished">กำลังติดตาม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>scrolled back</source>
+        <translation type="unfinished">เลื่อนย้อนอยู่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>gone when you quit, unless you save it</source>
+        <translation type="unfinished">จะหายเมื่อออก ถ้าไม่ได้บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Back to live · {n} new</source>
+        <translation type="unfinished">กลับไปสด · ใหม่ {n}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Back to live</source>
+        <translation type="unfinished">กลับไปสด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Save transcript</source>
+        <translation type="unfinished">บันทึกไฟล์คำบรรยาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>Text (*.txt);;Subtitles (*.srt);;Spreadsheet (*.csv)</source>
+        <translation type="unfinished">ข้อความ (*.txt);;ซับไตเติล (*.srt);;สเปรดชีต (*.csv)</translation>
+    </message>
+</context>
+<context>
+    <name>Transcripts</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Save the transcript?</source>
+        <translation type="unfinished">บันทึกเป็นไฟล์ไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Save the transcript of {app} before quitting?</source>
+        <translation type="unfinished">บันทึกคำบรรยายของ {app} เป็นไฟล์ก่อนออกไหม</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>It has %Ln line(s), and it&apos;s gone when Polyglotic quits.</source>
+        <translation type="unfinished">
+            <numerusform>มี %Ln บรรทัด และจะหายไปเมื่อปิด Polyglotic</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Save…</source>
+        <translation type="unfinished">บันทึก…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Quit without saving</source>
+        <translation type="unfinished">ออกโดยไม่บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Cancel</source>
+        <translation type="unfinished">ยกเลิก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Don&apos;t ask again</source>
+        <translation type="unfinished">ไม่ต้องถามอีก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcripts.py"/>
+        <source>Transcript</source>
+        <translation type="unfinished">บันทึกคำบรรยาย</translation>
+    </message>
+</context>
+<context>
+    <name>Words</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{percent}%</source>
+        <translation type="unfinished">{percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Not enough heard yet</source>
+        <translation type="unfinished">ยังได้ยินไม่พอ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Shows once you&apos;ve heard %Ln word(s) in 7 days, so one short session doesn&apos;t swing it.</source>
+        <translation type="unfinished">
+            <numerusform>จะแสดงเมื่อคุณได้ยิน %Ln คำใน 7 วัน เพื่อไม่ให้เซสชันสั้นๆ ครั้งเดียวทำให้เพี้ยน</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Every word you heard, you knew.</source>
+        <translation type="unfinished">คุณรู้ทุกคำที่ได้ยิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Every word you heard was new to you.</source>
+        <translation type="unfinished">ทุกคำที่ได้ยินเป็นคำใหม่สำหรับคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Most words you heard were new to you.</source>
+        <translation type="unfinished">คำที่ได้ยินส่วนใหญ่เป็นคำใหม่สำหรับคุณ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>%Ln word(s) in {total} was new to you.</source>
+        <extracomment>&quot;1 word in 11 was new to you&quot;: the share of words not known, as one in so many</extracomment>
+        <translation type="unfinished">
+            <numerusform>%Ln คำจาก {total} คำเป็นคำใหม่สำหรับคุณ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{follow} is &quot;can follow, with effort&quot;; {comfortable} &quot;comfortable, guess the rest&quot;.</source>
+        <translation type="unfinished">{follow} คือ &quot;ตามได้ แต่ต้องพยายาม&quot; {comfortable} คือ &quot;สบาย เดาส่วนที่เหลือได้&quot;</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>of the words you heard, you knew</source>
+        <translation type="unfinished">ของคำที่ได้ยิน คุณรู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{minutes} min</source>
+        <translation type="unfinished">{minutes} นาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{hours} h</source>
+        <translation type="unfinished">{hours} ชม.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{hours} h {minutes} min</source>
+        <translation type="unfinished">{hours} ชม. {minutes} นาที</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{time} in the last 7 days</source>
+        <translation type="unfinished">{time} ใน 7 วันที่ผ่านมา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this PC.</source>
+        <translation type="unfinished">เวลาที่เปิดคำบรรยาย นับบนพีซีเครื่องนี้</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>+%Ln new in the last 7 days</source>
+        <translation type="unfinished">
+            <numerusform>+%Ln คำใหม่ใน 7 วันที่ผ่านมา</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Heard in a finished caption at least once; names and your own speech don&apos;t count.</source>
+        <translation type="unfinished">ได้ยินอย่างน้อยหนึ่งครั้งในคำบรรยายฉบับสมบูรณ์ ไม่นับชื่อเฉพาะและเสียงของคุณเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>{met} met</source>
+        <translation type="unfinished">พบแล้ว {met}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>coverage {percent}</source>
+        <translation type="unfinished">ความครอบคลุม {percent}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>What you&apos;ve heard</source>
+        <translation type="unfinished">สิ่งที่คุณได้ยิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this PC from finished captions, and kept here.</source>
+        <translation type="unfinished">นับบนพีซีเครื่องนี้จากคำบรรยายฉบับสมบูรณ์ และเก็บไว้ที่นี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Words met</source>
+        <translation type="unfinished">คำที่พบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Coverage, last 7 days</source>
+        <translation type="unfinished">ความครอบคลุม 7 วันล่าสุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Listening</source>
+        <translation type="unfinished">การฟัง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Not set yet - words count as known up to a middle level.</source>
+        <translation type="unfinished">ยังไม่ได้ตั้ง - ถือว่ารู้คำถึงระดับกลาง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Just starting - no words known yet</source>
+        <translation type="unfinished">เพิ่งเริ่มต้น - ยังไม่มีคำที่รู้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>About {count} of the most common words</source>
+        <translation type="unfinished">คำที่พบบ่อยที่สุดประมาณ {count} คำ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>{scheme}: just starting</source>
+        <translation type="unfinished">{scheme}: เพิ่งเริ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>{scheme}: {level}</source>
+        <translation type="unfinished">{scheme}: {level}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>HSK {level}</source>
+        <translation type="unfinished">HSK {level}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>Top {last}</source>
+        <translation type="unfinished">{last} อันดับแรก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>{first}-{last}</source>
+        <translation type="unfinished">{first}-{last}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>{known} known · {deck} in your deck · {new} new</source>
+        <translation type="unfinished">รู้แล้ว {known} · ในสำรับ {deck} · ใหม่ {new}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>{known} known · {deck} in your deck · {new} new · {unheard} not heard yet</source>
+        <translation type="unfinished">รู้แล้ว {known} · ในสำรับ {deck} · ใหม่ {new} · ยังไม่ได้ยิน {unheard}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>{band}: {counts}</source>
+        <translation type="unfinished">{band}: {counts}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>known</source>
+        <translation type="unfinished">รู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>in your deck</source>
+        <translation type="unfinished">ในสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>new (heard, not known)</source>
+        <translation type="unfinished">ใหม่ (ได้ยินแล้ว ยังไม่รู้)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>not heard yet</source>
+        <translation type="unfinished">ยังไม่ได้ยิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>By frequency</source>
+        <translation type="unfinished">ตามความถี่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>By HSK level</source>
+        <translation type="unfinished">ตามระดับ HSK</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>Show the bands</source>
+        <translation type="unfinished">แสดงช่วง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>Words met, by HSK level</source>
+        <translation type="unfinished">คำที่พบ ตามระดับ HSK</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>Rarer</source>
+        <translation type="unfinished">พบน้อยกว่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
+        <source>Words met, by frequency</source>
+        <translation type="unfinished">คำที่พบ ตามความถี่ที่ใช้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Known</source>
+        <comment>a button: mark the word known</comment>
+        <translation type="unfinished">รู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>New</source>
+        <translation type="unfinished">ใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>In your deck</source>
+        <translation type="unfinished">ในสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Known</source>
+        <translation type="unfinished">รู้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Ignored</source>
+        <translation type="unfinished">ข้าม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Add to deck</source>
+        <translation type="unfinished">เพิ่มลงสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Remove</source>
+        <translation type="unfinished">นำออก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Look it up</source>
+        <translation type="unfinished">ค้นคำนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Change its status</source>
+        <translation type="unfinished">เปลี่ยนสถานะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Estimated from your level - pick one to set it yourself</source>
+        <translation type="unfinished">ประเมินจากระดับของคุณ - เลือกเองได้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Move it to another category</source>
+        <translation type="unfinished">ย้ายไปหมวดอื่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Remove from your saved words</source>
+        <translation type="unfinished">นำออกจากคำที่บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>Clear</source>
+        <translation type="unfinished">ล้างการเลือก</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
+        <source>%Ln word(s) picked</source>
+        <translation type="unfinished">
+            <numerusform>เลือกแล้ว %Ln คำ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>HSK 3.0 (2025 exam syllabus)</source>
+        <translation type="unfinished">HSK 3.0 (หลักสูตรสอบปี 2025)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>HSK 3.0 (2021 standard)</source>
+        <translation type="unfinished">HSK 3.0 (มาตรฐานปี 2021)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>The most common English words</source>
+        <translation type="unfinished">คำภาษาอังกฤษที่พบบ่อยที่สุด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Couldn&apos;t write {name}. It may be open in another program, or the folder may be read-only - close it or pick another folder, and try again.</source>
+        <translation type="unfinished">เขียน {name} ไม่ได้ อาจเปิดอยู่ในโปรแกรมอื่น หรือโฟลเดอร์อาจอ่านได้อย่างเดียว - ปิดไฟล์หรือเลือกโฟลเดอร์อื่น แล้วลองอีกครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>No new words since the last export - {name} is empty.</source>
+        <translation type="unfinished">ไม่มีคำใหม่ตั้งแต่ส่งออกครั้งล่าสุด - {name} ว่างเปล่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>No words to export yet - {name} is empty. Save a word or add it to your deck first.</source>
+        <translation type="unfinished">ยังไม่มีคำให้ส่งออก - {name} ว่างเปล่า บันทึกคำหรือเพิ่มลงสำรับก่อน</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>%Ln word(s) written to {name}.</source>
+        <translation type="unfinished">
+            <numerusform>เขียน %Ln คำลงใน {name} แล้ว</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>heard %Ln time(s)</source>
+        <translation type="unfinished">
+            <numerusform>ได้ยิน %Ln ครั้ง</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>{n} since it went in your deck</source>
+        <translation type="unfinished">{n} ครั้งหลังเข้าสำรับ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>you said it %Ln time(s)</source>
+        <translation type="unfinished">
+            <numerusform>คุณพูดคำนี้ %Ln ครั้ง</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>%Ln word(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln คำ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Change colour</source>
+        <translation type="unfinished">เปลี่ยนสี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Colour for {name}</source>
+        <translation type="unfinished">สีของ {name}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Category name</source>
+        <translation type="unfinished">ชื่อหมวด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Delete</source>
+        <translation type="unfinished">ลบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Delete the category and the words saved in it</source>
+        <translation type="unfinished">ลบหมวดและคำที่บันทึกไว้ในหมวดนั้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Your level</source>
+        <translation type="unfinished">ระดับของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Change your level</source>
+        <translation type="unfinished">เปลี่ยนระดับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Reading your words…</source>
+        <translation type="unfinished">กำลังอ่านคำของคุณ…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Words you keep hearing</source>
+        <translation type="unfinished">คำที่คุณได้ยินบ่อย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Words new to you, most heard first - add the useful ones to your deck.</source>
+        <translation type="unfinished">คำใหม่สำหรับคุณ เรียงจากได้ยินบ่อยสุด - เพิ่มคำที่มีประโยชน์ลงสำรับ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>I know these</source>
+        <translation type="unfinished">ฉันรู้คำเหล่านี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Nothing yet - words new to you show here once you&apos;ve heard them a few times.</source>
+        <translation type="unfinished">ยังไม่มี - คำใหม่สำหรับคุณจะแสดงที่นี่เมื่อได้ยินไม่กี่ครั้ง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Show more</source>
+        <translation type="unfinished">แสดงเพิ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Show fewer</source>
+        <translation type="unfinished">แสดงน้อยลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Your words</source>
+        <translation type="unfinished">คำของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Every word you&apos;ve met. Correct any status by hand.</source>
+        <translation type="unfinished">ทุกคำที่คุณพบ แก้สถานะใดก็ได้ด้วยตัวเอง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Show words with this status</source>
+        <translation type="unfinished">แสดงคำที่มีสถานะนี้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>All statuses</source>
+        <translation type="unfinished">ทุกสถานะ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Search - word, reading or meaning</source>
+        <translation type="unfinished">ค้น - คำ คำอ่าน หรือความหมาย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Search your words</source>
+        <translation type="unfinished">ค้นคำของคุณ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Clear the search</source>
+        <translation type="unfinished">ล้างการค้น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>New again</source>
+        <translation type="unfinished">กลับเป็นคำใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Ignore</source>
+        <translation type="unfinished">ข้าม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Saved words</source>
+        <translation type="unfinished">คำที่บันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Each category has its own colour, wherever its words are heard again. Yellow and white are best avoided: on the captions they mean a translation and what was said.</source>
+        <translation type="unfinished">แต่ละหมวดมีสีของตัวเอง ทุกที่ที่ได้ยินคำในหมวดนั้นอีก ควรเลี่ยงสีเหลืองและขาว: บนคำบรรยายสีเหล่านี้หมายถึงคำแปลและสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>New category</source>
+        <translation type="unfinished">หมวดใหม่</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Add</source>
+        <translation type="unfinished">เพิ่ม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Move to…</source>
+        <translation type="unfinished">ย้ายไปที่…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>None yet - click a word in a caption and pick a category to save it.</source>
+        <translation type="unfinished">ยังไม่มี - คลิกคำในคำบรรยายแล้วเลือกหมวดเพื่อบันทึก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Export for Anki</source>
+        <translation type="unfinished">ส่งออกไป Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Saved words and words in your deck, with their sentences: a CSV file Anki can import, or a deck file - double-click it and Anki adds them with Polyglotic&apos;s card style, no set-up.</source>
+        <translation type="unfinished">คำที่บันทึกและคำในสำรับ พร้อมประโยค: ไฟล์ CSV ที่ Anki นำเข้าได้ หรือไฟล์สำรับ - ดับเบิลคลิกแล้ว Anki จะเพิ่มคำด้วยรูปแบบการ์ดของ Polyglotic ไม่ต้องตั้งค่า</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Only words not exported yet</source>
+        <translation type="unfinished">เฉพาะคำที่ยังไม่ได้ส่งออก</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>CSV file</source>
+        <translation type="unfinished">ไฟล์ CSV</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Anki deck file (.apkg)</source>
+        <translation type="unfinished">ไฟล์สำรับ Anki (.apkg)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>How to import into Anki</source>
+        <translation type="unfinished">วิธีนำเข้า Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Show all ({count})</source>
+        <translation type="unfinished">แสดงทั้งหมด ({count})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>{count} more - filter or search to find them.</source>
+        <translation type="unfinished">อีก {count} คำ - กรองหรือค้นเพื่อหา</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>No matches.</source>
+        <translation type="unfinished">ไม่พบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>None yet - words appear here as you hear them.</source>
+        <translation type="unfinished">ยังไม่มี - คำจะแสดงที่นี่เมื่อคุณได้ยิน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Heard in: {sentence}</source>
+        <translation type="unfinished">ได้ยินใน: {sentence}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Remove saved words</source>
+        <translation type="unfinished">ลบคำที่บันทึก</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Remove %Ln saved word(s)? The lines they were saved from go with them.</source>
+        <translation type="unfinished">
+            <numerusform>ลบคำที่บันทึก %Ln คำไหม ประโยคที่บันทึกมาจะถูกลบไปด้วย</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Export words for Anki</source>
+        <translation type="unfinished">ส่งออกคำไป Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>CSV files (*.csv)</source>
+        <translation type="unfinished">ไฟล์ CSV (*.csv)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Export words as an Anki deck file</source>
+        <translation type="unfinished">ส่งออกคำเป็นไฟล์สำรับ Anki</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Anki deck files (*.apkg)</source>
+        <translation type="unfinished">ไฟล์สำรับ Anki (*.apkg)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Writing {name}…</source>
+        <translation type="unfinished">กำลังเขียน {name}…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Chinese</source>
+        <translation type="unfinished">จีน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>English</source>
+        <translation type="unfinished">อังกฤษ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>{language} · %Ln word(s) met</source>
+        <translation type="unfinished">
+            <numerusform>{language} · พบ %Ln คำ</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>Words</source>
+        <translation type="unfinished">คำศัพท์</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>These are your {running} words. {chosen} is used from the next time Polyglotic starts, and keeps its own words.</source>
+        <translation type="unfinished">นี่คือคำ{running}ของคุณ {chosen}จะใช้ตั้งแต่ Polyglotic เริ่มครั้งหน้า และเก็บคำของตัวเอง</translation>
+    </message>
+</context>
+</TS>

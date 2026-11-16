@@ -1,0 +1,861 @@
+# Release notes
+
+What changed in each version of Polyglotic, in plain words for the people
+who use it. One source, used four times (polyglotic-hq RELEASING.md
+section 10): the GitHub Release's text above the SHA-256s (`release.yml`),
+the app's What's new, the website's What's new and the Discord post.
+
+- **A pull request people would notice** adds one line under Unreleased,
+  in New, Better or Fixed (the pull request template asks; "none" is fine
+  for the rest). Say what changed for the learner, not how it was done.
+  A server change people would notice (a better translator, a new
+  language) gets a line too, in the next app release.
+- **No promise the work doesn't back:** no speed or accuracy figures
+  unless polyglotic-hq says they can be claimed, and nothing about privacy
+  beyond what the privacy notice says (polyglotic-hq project 181's
+  CLAIMS-V2.md).
+- **At a release,** Unreleased moves under `## X.Y.Z - YYYY-MM-DD` in the
+  release's prep pull request, before the tag or the alpha's build:
+  `python -m tools.package.release_notes vX.Y.Z --cut --date YYYY-MM-DD`
+  (Melbourne's day; `--dry-run` shows it first). The three empty groups
+  stay for the next line. A tag without its section doesn't release
+  (`python -m tools.package.release_notes vX.Y.Z`), and a line under a
+  version can't sit under Unreleased too.
+
+## Unreleased
+
+### New
+
+- Every language with a dictionary keeps your words, as Chinese and
+  English do: learn Russian, Spanish, Japanese or any other language
+  whose dictionary is downloaded, and a word's card has Save to, Add to
+  deck and Known; Words has a section for the language, with its own
+  categories and what you've heard; and captions count and mark its
+  words against your level, a number of words. Each language's words are
+  kept in their own file on this PC.
+- An Anki deck for every language with a dictionary: Words' Export
+  writes a language's words to its own deck (Polyglotic::Russian) with
+  its own note type, the word marked in its sentence, and Anki reads it
+  aloud in that language's voice.
+- Learning shows your level for every language whose dictionary is
+  downloaded - Change your level, Mark the most common words known - as
+  it does for Chinese and English.
+- Zhuyin (bopomofo, ㄅㄆㄇㄈ) above Chinese, for readers who learnt it in
+  Taiwan: Settings - Look - Pinyin - Readings above Chinese: Pinyin or
+  Zhuyin. The same readings, with zhuyin's tone marks, over what was said
+  and over translations into Chinese.
+- Pinyin's colour (Settings - Look - Pinyin): the same as its line, its
+  word link's colour, or one you pick. And in Word links, "Colour the
+  linked words too": the words a link joins take its colour, so a word,
+  its pinyin and its translation can all match. Link colours are
+  darkened to stay readable on a light panel.
+- French has a dictionary: download it on Learning and French words in
+  captions can be looked up - l'homme and d'accord are read as their
+  words.
+- Word lookups in German, Portuguese, Italian, Indonesian, Arabic, Hindi
+  and Polish, with English meanings: download the language's dictionary
+  on Learning. Arabic words are found with "and" or "the" written onto
+  them, and Italian's dell'anno is read as its two words.
+- Word lookups in Turkish, with English meanings: a word is found under
+  its suffixes (verilen is vermek, evlerimizde is ev), and names under
+  theirs (Afrika'daki is Afrika).
+- Word lookups in Dutch, Ukrainian, Persian, Swedish, Czech, Romanian,
+  Greek, Filipino and Macedonian, with English meanings: download the
+  language's dictionary on Learning. Persian's داستان‌ها and می‌کنم are
+  found as their words, and Filipino's isang as isa.
+- Word lookups in Thai, with English meanings and Paiboon romanization:
+  download Thai's dictionary on Learning. Thai captions, written without
+  spaces, are read as their words.
+- Mandarin's captions can be shown in Traditional characters: Settings >
+  Speech > Show Mandarin in (and a transcript's Languages), with Detect
+  too. Lookups, the transcript, copy and Anki follow. On a Taiwan or
+  Hong Kong Windows it starts at Traditional.
+- Pinyin above Chinese (Settings - Look - Pinyin): a small syllable
+  over each Chinese character, in what was said and in translations into
+  Chinese, on caption windows and transcripts, Small or Medium. It isn't part of the text: copying, looking
+  up words and Anki cards work as before. Off unless you turn it on.
+  Pinyin over Past what you know puts it only over the words past your
+  known line, the ones word links point out, so there's less to read as
+  you learn.
+- Fill the width in one click: a new button on a caption window's strip
+  (beside Word links) turns on New layout, Line by line and Captions run
+  on together, in every window, so captions use the window's whole width.
+  Click it again to go back to how they were. The Lab's rows show and
+  change the same settings.
+- Line up the parts in one click: a button beside it on a caption window's
+  strip puts each part of what was said at the same place as its
+  translation, so a word's translation sits under it - now in every way
+  captions fill the width (a clause a row, Translation below and Line by
+  line), not only Line by line. It turns on New layout with it.
+- Sound on Home: choose which speakers Everything the PC plays is heard
+  from and which microphone is captioned (this PC's default, or one
+  plugged in), turn Caption what I say on or off, and see your
+  microphone's level while it's on. Settings > Speech has the same card.
+  Dictation uses the microphone chosen too.
+
+### Better
+
+- A word card in the downloaded dictionaries shows the word's everyday
+  meaning first: Spanish's "de" is "of", not the letter's name; Arabic's
+  بعد is "after"; old and rare meanings come last. A word you marked by
+  hand may show as new again where its first meaning changed.
+- A German compound or a hyphenated word the dictionary hasn't got
+  (Internetmaterialien, Blog-Erfahrung) is looked up by its parts: the
+  card says it isn't in the dictionary as a whole and shows each part's
+  meaning, and a word link over it counts its parts as words you know or
+  don't.
+- A caption window's strip buttons say what they do: rest the mouse on
+  one (word links, fill the width, line up the parts, lock, settings,
+  close, the mic mark) and a label above the window says it, in the
+  interface's language.
+- Selecting in a caption window follows the mouse character by character,
+  in every language: drag over 刚 then 刚刚 then 刚刚呢, and copy gives
+  exactly what's highlighted. A double-click selects a whole word.
+- Polyglotic keeps, on your PC, how often you've looked up each word and
+  when you last did, with the rest of your learning data, and deletes it
+  with your learning data.
+- Japanese captions' word links are cut at Japanese words, as the word
+  card splits them.
+
+- Explanations in Settings, Learning, Account, Help and Home keep to a
+  readable line length instead of running the full width of the window,
+  and Settings' rows line up from one section to the next.
+
+### Fixed
+
+- Clicking a word once - to select it, or hear it on its card - no longer
+  marks it as a word you don't know: common words such as "the" and
+  "that" were being dotted as new and linked after one click. Clicking a
+  less common word twice still does, and words one click had marked go
+  back to what your level says.
+- Deleting your learning data with "Also delete it from this PC" also
+  empties the words of a language you've stopped learning, or whose
+  dictionary you removed. Before, only the languages open at the time
+  were emptied on this PC.
+- Pinyin shows with Translation below and Line by line too (the Lab's
+  ways of filling the width without the New layout): it was missing there,
+  over what was said in Chinese and over translations into Chinese. And
+  with Chinese not learned (so no Chinese dictionary to read it from), a
+  translation into Chinese no longer has an empty gap above it.
+- What your speakers play, even turned right down, and what your
+  headphones let out are now rarely captioned as your own speech. Your
+  own speech is still captioned while something plays.
+- Before you choose a language to learn, a caption's words can be looked
+  up whatever language Polyglotic's own text is in: a German interface's
+  first Chinese caption had no word to click, yet said "Click any word to
+  look it up". The hint now shows only where a word can be looked up.
+- Polyglotic no longer lists itself, or another copy of itself, under Add
+  an app when its sample or a word's sound plays.
+- Lab: Between clauses can be chosen while Captions fill the width is Off,
+  and choosing one sets it to Translation below; before, it was greyed out.
+- "Polyglotic's server is restarting" shows only when the server said it
+  was restarting; otherwise it says it can't reach the server, and tries
+  again as before.
+- Home says Paused, not Listening, while every caption window has paused
+  after being hidden, and says how to carry on.
+- Anki: a deck file and a CSV each remember their own exports, so "Only
+  words not exported yet" in one no longer leaves out the words you sent
+  to the other.
+- Links inside a line of text (Settings > Look's "Learning", the Lab's
+  "Open it on Learning") are readable: they were dark blue on the dark
+  theme.
+- What's new's All the changes opens Help at What's new's heading, with the
+  newest version's notes from their start - not in the middle of them.
+- An update's card on Home has its frame again, like the cards beside it.
+- A custom learning window typed in full-width digits (１２００, from a Chinese
+  or Japanese keyboard) is taken as the number, not ignored.
+- A Chinese word with several readings shows the everyday one first on
+  its card: 结果 jié guǒ ("result") before jiē guǒ ("to bear fruit"),
+  教授 jiào shòu ("professor"), 东西 dōng xi ("thing"), 更 gèng ("more").
+  About 200 words change, and a caption's word counts for that reading.
+- Lab: Captions run on and Parts lined up can always be switched on, and
+  switching one on turns on what it needs with it (New layout, and Line
+  by line for Captions run on); before, they stayed greyed out until
+  both were set. Dimmed, for words outside the learning load, likewise
+  turns the load on.
+- In the Lab's new layout with Captions run on, a caption no longer draws
+  over the last line of the one before when that one's translation ran
+  past what was said: it starts on the line below.
+
+## 0.1.6 - 2026-11-15
+
+### New
+
+- Select captions to copy: drag from a word across lines, captions or
+  into the translation, then right-click the highlight to copy it (or
+  Ctrl+C while Polyglotic's main window has the keyboard). A drag within
+  one phrase still looks the phrase up, and can be copied the same way;
+  Esc or a click elsewhere lets go. It never takes the keyboard from a
+  game.
+- The learning window on Learning has two more choices: Unlimited, where
+  any word past what you know can be pointed out, and Custom, where you
+  type how many words it holds (10 to 100,000).
+- Mark the most common words known at once: on Learning, a language's
+  card marks the first 1,000 to 10,000 words known (or a number you
+  type), with Undo right after and Reset later. Words you marked
+  yourself stay as you set them.
+- Pick several words at once in Words' lists and the learning load's:
+  Shift-click a second word to pick every word between, Ctrl-click to
+  add one, or Shift and the arrow keys; then "I know these", Add to
+  deck, or the list's other actions, for all of them.
+- Lab: New layout, to try (Settings - Lab). With Captions fill the width
+  set to Line by line, turn on Captions run on and a caption carries on
+  in the line the one before ended in, so a wide window's lines fill up.
+  Parts lined up puts each word's translation under it. Arrows work
+  however captions fill the width. Off unless you turn it on.
+
+### Better
+
+- Word links in Russian, Spanish, French, Vietnamese and 23 more languages
+  know their own small words: articles are no longer linked, and words
+  like pronouns no longer count as key links.
+- Korean, Hindi and Persian words are underlined whole, not a syllable or
+  a letter at a time.
+- A transcript says "Copied" when you copy: by the mouse for a line's
+  Copy, and on the button for Copy all.
+- A caption window's settings no longer offer Copy the newest caption.
+  Copy all captions is still there, and right-click a caption to copy
+  that one.
+- The learning load's switch (Settings > Lab) and its card on Learning
+  lead to each other: "Open it on Learning" under the switch, and the
+  card says where it's turned on.
+- Copy any text in the main window: drag across it with the mouse, then
+  press Ctrl+C or right-click for Copy and Select all - on Home, Learning,
+  Words, Settings, Help and Account. Copy with nothing selected copies all
+  of the text you right-clicked.
+- Copy from the word card: once it's pinned, drag across the word, its
+  readings and meanings, its parts or the sentence it came from, then
+  right-click to copy it - the card never takes the keyboard from your
+  game. Ctrl+C copies it too while Polyglotic's window has the keyboard.
+- Copy from a transcript: drag across its lines (Shift-click to extend),
+  then press Ctrl+C or right-click for Copy and Select all. What was said
+  and its translation are copied as they show, in order. A click on a word
+  still looks it up.
+- "Looks wrong?" is gone: a caption or transcript line no longer offers
+  it, nor does a transcript line's right-click menu, and Ctrl+Alt+W no
+  longer checks the newest line.
+- What's new after an update: the first time Polyglotic starts after it
+  updates, Home says what changed in the new version in a few lines,
+  until you close it, and Help keeps every version's notes. A new
+  install doesn't show it.
+- On a metered connection, an update isn't downloaded by itself: Home
+  says how big it is and offers Download anyway, as the dictionaries do.
+  On any other connection updates download as before.
+
+### Fixed
+
+- When you switch between English and Chinese with only a short pause, a
+  caption no longer loses the sentence in the first language: both parts
+  stay, each translated.
+- Numbers written as words, like 二十 (twenty) and 十五 (fifteen), are no
+  longer pointed out as new words or linked "Past what you know": they
+  count as known, as 20 and 15 do.
+- Chinese captions are cut into the words you'd read: 生活中的 is 中 + 的,
+  not 中的 "to hit the target", and 有了 is no longer "to be pregnant".
+  Names, idioms and HSK words such as 有的 stay whole.
+- On a small screen (1280 x 720, or 1366 x 768 at 150 %), Polyglotic's
+  pages no longer scroll sideways or cut words off, in any language or text
+  size up to Windows' 150 % with Larger: rows of buttons, switches and
+  Settings' sections go onto a second line instead, and Words' tables
+  narrow their columns.
+- Word links "Past what you know" no longer link words you know: very
+  common words your level's syllabus leaves out (与, 而, 一个), common
+  names (美国, America) and numbers. With no level set, a Chinese
+  caption had 62 % of its words linked; it now has 44 %, as at 1,000
+  words.
+- Learning Chinese and English, a word link now follows the language
+  you hear: a word you know is no longer linked because its translation
+  is one you don't, and "Every word" for one language no longer links
+  every word of the other's captions.
+- "Past what you know" in Russian or Vietnamese linked every word. With
+  the language's dictionary downloaded, words past the 1,000 commonest
+  are linked, and Learning lets you choose where links start.
+- English words such as "thousands", "chilies" and "don't" are found in the
+  dictionary by their base word: their card shows it, and "Past what you
+  know" no longer links them as rare.
+- Word links no longer vanish from a whole line of a caption when its
+  finished text differs by a word from what was already shown. The words
+  that stayed the same keep their links.
+- Two parts of a caption that share a line no longer use the same
+  colour for different word links. A caption's links are now numbered
+  across the whole caption.
+- Learning's word-introduction sample shows its Chinese in the same
+  typeface as your captions.
+- A name spelt by sound no longer shows other words inside it on its
+  card: 德克萨斯 (Texas) no longer lists 萨斯 as "SARS", nor 纳米比亚
+  (Namibia) 纳米 as "nanometre". Names like 北京大学 still show 北京 and
+  大学.
+- A caption window's question "This sounds like Mandarin. Always hear it
+  as Mandarin?" no longer covers the top caption: the captions make room
+  below it. Left unanswered, it goes after a minute and is asked again
+  the next time you start Polyglotic.
+- Lab: word links are drawn in Learning load too. They were switched off
+  while it was on.
+- A word that isn't in its line's language's dictionary is looked up in
+  the window's translation languages' dictionaries and your other
+  languages', and the card says which one answered ("From the English
+  dictionary").
+- With several languages learned, a word is looked up in its own
+  language's dictionary on any line: an English word in a Chinese line gets
+  its English entry, a Chinese word in an English line (or a line whose
+  language wasn't recognised) can be hovered and looked up where before it
+  couldn't, and a Russian word in an English or Chinese line opens
+  Russian's dictionary. The same goes for any language learned whose
+  writing tells it apart.
+- What your speakers play quietly, or your headphones let out, is far less
+  often captioned as your own speech. Your own speech, even quiet, is
+  still captioned.
+
+## 0.1.5 - 2026-11-15
+
+### New
+
+- Chinese and English dictionaries work at once for a learner of both.
+  A word on a Chinese line is looked up in the Chinese dictionary and one
+  on an English line in the English one, on both caption lines, whichever
+  you learn first. Words you save, put in your deck or hear count toward
+  their own language, each with its own level, categories, Words section
+  and Anki export. A language you add works at once.
+- Deleting your learning data on Account with "Also delete it from this
+  PC" ticked now deletes it on this PC in every language you're learning,
+  not only one. If some of it can't be deleted, Home says which language.
+- Russian's dictionary: learn Russian on the Learning page and its card
+  offers the dictionary to download (about 13 MB; 62 MB once unpacked). A
+  bar and a line say what it's doing - downloading 4.5 of 13.1 MB,
+  checking the file - and, if it stops, why: no connection (it tries
+  again by itself and carries on where it stopped), a metered connection
+  (Download anyway), not enough room. Words in Russian captions can be
+  looked up as soon as it's in, no restart, and Home says so if you're
+  elsewhere. Learning lists the dictionaries on this PC with their size,
+  and Remove.
+- Vietnamese's dictionary: learn Vietnamese on the Learning page and its
+  card offers the dictionary to download (about 2 MB; 4.5 MB once
+  unpacked), with meanings in English. It finds words as Vietnamese
+  writes them, of one syllable or several ("học sinh", student, is one
+  word), and words in Vietnamese captions can be looked up as soon as
+  it's in, no restart.
+- A word you look up in a caption now says what it is in that line's
+  translation, in your language: "Here: ngân hàng", first on its card,
+  hovered or pinned. It comes from the word links the caption already
+  has, so it works for every language pair - and for a language with no
+  dictionary yet, it's what the card shows. It isn't kept with a saved
+  word or put on an Anki card.
+
+- Planned maintenance is said ahead: from a day before, Home says when
+  ("Planned maintenance today, 15:00-15:30") in your own time, and the
+  caption windows say it once, five minutes before. During it, Home and
+  the tray say "Planned maintenance until 15:30" instead of "Polyglotic's
+  server is down" - even while the server can't be reached - and
+  captions come back by themselves at the end, with what's said from then
+  on.
+- Any of the 30 languages Polyglotic hears can now be chosen as a
+  window's Spoken language - Russian, Japanese, Korean, Spanish and the
+  rest, not only English, Mandarin and Cantonese. Detect says what it
+  covers ("Detect · 30 languages"), and a language chosen reads "Always
+  Russian". The list puts the languages you chose last first, then your
+  own, each also written in its own words ("Russian · Русский"); in
+  Settings - Speech you can type to find one. Dictation's Detect choice
+  is now called "Detect automatically" too.
+- When Detect has heard an app speak one language for a while, its
+  caption window asks: "This sounds like Russian. Always hear it as
+  Russian?" Yes sets that window's Spoken language - short or mumbled
+  speech is then never taken for another language; Not now keeps Detect
+  and the window won't ask about that language again.
+- Polyglotic's own words in Spanish, French, German, Portuguese (Brazil),
+  Italian, Japanese, Korean, Vietnamese, Indonesian, Turkish, Russian,
+  Polish, Dutch, Ukrainian, Filipino, Thai, Hindi, Malay and Czech:
+  Settings > App language, or "Like this PC" picks one when Windows is in
+  it. They're drafted by machine and not yet
+  checked by native speakers - Settings says so, with "Tell us what reads
+  wrong" beside it.
+- When an update has downloaded, Home says so - "Version X is ready.
+  Restart to install it." - with what's new in two lines, Restart now and
+  Later; the tray's menu offers it too. Polyglotic never restarts by
+  itself: Later leaves it for the next time it starts. Settings - App -
+  Updates now says what Check now found.
+- Text size: Settings > App > Text size makes Polyglotic's own words
+  smaller or larger - Settings, Words, Help, a word's card and its
+  explanations, menus, and the buttons on caption windows and transcripts
+  - at once, on top of Windows' own text size. Captions keep their own
+  size (A- and A+ on each caption window and transcript).
+- Dictation (preview) is held on Right Ctrl, a key nearly every keyboard
+  has, or on any key or combination you choose: in Settings - Dictation,
+  click the key and press the one you want - F9, Ctrl + Alt + D... If a key
+  can't be used (it types, Windows keeps it, another program has it), it
+  says why and keeps the one you had. A key you already chose stays.
+- Translation size, in a caption window's settings under Text size: the
+  translation from half to twice the size of what was said, for each
+  window, with "Same as what was said" to put it back. 100 %, as before,
+  unless you change it.
+- A caption window's text goes from 60 % to 400 % now (it was 70 % to
+  200 %), with a slider between A- and A+ in its settings to land between
+  their steps.
+- Your own speech lines up on the right, like a chat, in a caption window
+  that shows it beside what you hear. Settings - Lab puts it
+  back on the left, and has more to try: a tint behind it, a bar at its
+  side, and its "You" label as a badge or not shown.
+- You choose how long words on screen may still be corrected as more is
+  heard: Settings - Timing, "Text can still change for", from
+  0 to 3 seconds (3 as before). Shorter means fewer words changing while
+  you read, and more mistakes left as they were first heard.
+- Settings - Lab: Older captions dim all at once, as now, or
+  step by step - each caption back a little dimmer, over 2 to 6 captions.
+- Settings - Lab, more to try: Captions fill the width - what was said runs
+  on across the window's width, its translation in the lines below it or
+  line by line under it - with what stands between clauses run together;
+  and Gap between new lines, so a new caption's lines arrive one at a time.
+  Off until you choose them.
+
+- Your level is now about how many words you know. Adding a language
+  on Learning asks once - "About how many Chinese words do you know?" -
+  with a few choices (for Chinese, each beside its HSK level) and "Not
+  sure". The most common words up to there count as known, the next ones
+  are the ones pointed out in captions, and rarer words are left alone
+  until you hover or click them. Nothing changes for a level you already
+  set until you choose again (Words - Change your level). A language you
+  add from now on also starts with word links only on words past what
+  you know.
+- Learning has two new choices for each language. Learning window: how
+  many of the next words past what you know are pointed out - 100, 500,
+  1,000 or 2,000 (once your level is a number of words). Word links:
+  every word, only words past what you know (or from a place you pick),
+  or off for that language.
+- Lab: Learning load, a second way to see new words (Settings - Lab,
+  off until you turn it on). A set number of the next
+  words past what you know - 500 unless you change it - are coloured in
+  captions by how often you've heard them since: red, orange, yellow,
+  green, each with its own underline. A word past green is ready to
+  check: one click says "I know this" and the next word takes its place.
+- Copy captions from a caption window: right-click a caption to copy it,
+  or use Copy the newest caption and Copy all captions in the window's
+  settings. You get each caption's time, what was said and its
+  translation, as the transcript's Copy gives them, ready to paste
+  anywhere.
+- Copy on a word's card: the word, its reading and meaning, ready to
+  paste. Ctrl+C does the same while a Polyglotic window has the keyboard.
+- Right-click a line in a transcript for two more copies: Copy what was
+  said, and Copy the translation, each on its own without the time.
+- Transcripts can keep a whole lecture: Settings > App > Transcripts lets a
+  transcript window scroll back and search the last 3 hours or the whole
+  session, not only its newest 1,000 lines. Copy all and Save still have
+  the whole session; the caption windows stay as short and quick as before.
+  With either of those chosen, Quit asks before a long transcript that
+  isn't saved is gone: Save..., Quit without saving or Cancel ("Don't ask
+  again" turns it off; the same card turns it back on).
+- Hidden caption windows stop listening after 15 minutes, so a window
+  you hid and forgot no longer keeps sending its app's sound. Home and
+  the tray say so, and showing the windows (Ctrl+Alt+H, the tray, or
+  Captions on Home) carries on. While a hidden window is still captioning,
+  the tray and Home say that too. Settings - Timing - Behaviour sets
+  the time (5, 15 or 60 minutes, or Never) and can bring a hidden window
+  back when speech starts. A window whose transcript is open keeps
+  captioning: you're reading it there.
+- The privacy notice is now version 3.1 (polyglotic.io/privacy). What
+  changed: it says that a dictionary you choose to download comes
+  through Cloudflare, which processes your IP address to deliver it, and
+  that your learning load and the dictionaries you download stay on
+  your PC.
+
+### Better
+
+- When this PC's clock looks wrong, Home says so in one quiet line - the
+  date and time it shows, and where to set it - and captions keep working.
+  When an out-of-date certificate on the network is what's in the way, most
+  often an antivirus's HTTPS scanning or a VPN, Polyglotic says that
+  instead of asking you to check a clock that's right.
+- The app's language in Settings is a list, each language by its own
+  name, none pinned first. A language whose text was drafted by machine
+  and not yet checked by a native speaker says "Machine draft" beside
+  it, with "Tell us what reads wrong".
+- Live updates: a long stretch of speech now finishes in pieces, at a
+  pause or a breath, as it does in Steady. The words you've already read
+  stay as they are instead of all being rewritten when the speaker
+  finally stops.
+- Live updates with several apps talking at once: live updates used to
+  stop for seconds at a time (only finished captions came) when two or
+  three apps talked together at a fast setting. Now they slow down
+  evenly, each app in turn, and the caption window says so once: "Lots
+  of speech at once - live updates slowed; captions continue".
+- Captions settle: words a caption has shown for about three seconds,
+  and lines above its last two, no longer change when Polyglotic hears
+  the speech again - their translations stay too. Only the newest words
+  are still corrected.
+- The line saying Cantonese and Vietnamese speech is captioned less
+  accurately is gone from Settings, from each caption
+  window's settings and from Help's questions.
+- Polyglotic no longer asks which language you're learning before it
+  opens. It starts translating into your PC's language when captions can
+  be translated into it (else English) and detects the language spoken;
+  choose the language you're learning on Learning, and change any of
+  them in Settings whenever you like.
+- It doesn't ask your level before it opens either. Until you set it,
+  words count as known up to a middle level (HSK 3, or the 3,000 most
+  common English words), and a quiet line on Home offers to set it.
+- Language lists start with your PC's own language, then every other
+  language by name; Chinese and English are no longer pinned on top for
+  everyone.
+- Settings - Timing shows only the chosen timing's own
+  settings, in seconds, each with what it trades: Quick preview says when
+  its dim lines come, and Live updates says when the longest wait for
+  text makes it update sooner than the interval you chose.
+- Settings is bigger and sorted by what you come to change, in six
+  sections at its top: Look, Timing, Speech, Dictation, App and the
+  experimental Lab - every setting one click away, each with a line saying
+  what it does. A caption window's "All caption settings…" opens it on
+  Look, and the tray's "More languages…" on Dictation; the small Look
+  window is gone, and so are Home's Languages
+  and Timing panels (the window's settings keep a Timing shortcut).
+  Resetting the look no longer moves your caption windows: Home's Reset
+  positions does that.
+
+- Polyglotic's window opens sooner when you start it, and answers your
+  first click sooner.
+
+### Fixed
+
+- Pointing at a word with 's in an English caption - "the game's graphics" -
+  said it wasn't in the dictionary. It now shows the word's own entry, and
+  counts it as heard.
+- Looking up a word in a caption in a language Polyglotic has no dictionary for
+  yet - Vietnamese, say - could show "Chinese for it" with unrelated Chinese
+  words, matched by chance in the dictionary's English meanings. It now says
+  there's no dictionary for that language yet.
+- Opening Polyglotic while it was already running started a second copy,
+  and the two could overwrite each other's settings. Now only one runs:
+  opening it again brings the one that's running to the front - from the
+  tray, or minimised.
+- Scrolling Settings with the mouse wheel changed the lists and sliders it
+  passed over - the timing, the background, the Lab, even the app's
+  language. The wheel now scrolls the page. A slider takes the wheel only
+  after you click it, and a list only while it's open. The same goes for a
+  transcript's settings, Learning and Words.
+- Some PCs couldn't sign in or caption: "Check this PC's date and time",
+  though the date was right. An out-of-date certificate kept by Windows
+  (or an antivirus) stopped the secure connection to Polyglotic's server.
+  The connection now checks everything else as before and goes ahead; a
+  PC whose clock is wrong connects too. The update check does the same.
+- The grey hint in a box with nothing typed in it yet - Names and slang's
+  "e.g. rizz, no cap, yyds" in Settings - was too faint to read easily.
+  It's as clear as the other secondary text now, in every theme.
+- An update cut short by a connection that drops started again from
+  nothing at the next try, so on a shaky connection it could take many
+  tries to arrive. It now carries on from where it stopped, and is still
+  checked whole before it's installed.
+- Settings - App - Hotkeys wrote Ctrl+Alt+L, P and H in English while the
+  rest of the app wrote them in its own language (Strg+Alt+L in German).
+  They're written the same way everywhere now.
+- Report a problem on a laptop's short screen, at a larger text size or in a
+  longer language (German, Japanese), was squeezed to fit: the line for what
+  happened covered the first part and the last lines were cut off. Now the
+  window fits the screen and what's between the title and Send scrolls.
+- Moving the mouse over a caption window while a caption was sliding in
+  stopped it halfway, its last lines cut off at the bottom for as long as
+  the mouse stayed. The caption now settles in place at once, whole.
+- Dictation with the server out of reach said "Working…" for 10 seconds
+  before giving up. It now says "Not connected to the server" at once,
+  and nothing you said is sent later.
+- With "Caption my own speech" on, what you dictated also showed as a
+  "You" line, and its minutes counted twice. While the dictation key is
+  held, your mic now goes to dictation only; a line you were saying as
+  you pressed it is finished with what you said before.
+- After choosing another language to learn - English instead of Chinese,
+  say - Words went on showing the other language's words without saying
+  so, until Polyglotic started again. It now says whose words they are
+  and that the new language is used from the next start.
+- Fast speech with no pauses (a quick-talking video, say) was cut into
+  captions every 6 seconds wherever the cut fell: mid-word, each piece
+  ending in a full stop, often with the last word or two repeated at the
+  start of the next. It's now cut at the quietest moment just before,
+  with no words repeated and no full stop where the speech goes on.
+- On some PCs (one seen on Windows 10), Polyglotic froze for about a
+  second as Home opened, while it asked Windows which apps play sound.
+  It now asks in the background.
+- When Windows' text size changes while Polyglotic is open, a caption
+  window's or transcript's notice ("Paused", "Reconnecting...") and Back
+  to live, the "Looks wrong?" card and the pages of the main window all
+  grow with it - nothing is cut off until a restart.
+- A word you save is coloured at once, on the line you saved it from too:
+  a line still being spoken - the dim one Steady shows during a long
+  stretch of speech, and Quick preview's - showed saved words only once
+  its finished caption came. Un-saving takes the colour off at once.
+- Saved words stand out on every colour preset: on Paper's cream their
+  colours were too pale to read, and where a category's colour matched
+  its line's own (Saved's blue in Teletext's cyan translation) a saved
+  word looked like the rest of the line. They're darker on Paper now, and
+  a word that would match its line has a soft tint of its colour behind it.
+- A problem report's log no longer shows your Windows user folder's
+  name in the updater's lines (it was hidden everywhere else already).
+
+## 0.1.4 - 2026-11-12
+
+### New
+
+- On Windows 10 version 2004 or later, Polyglotic now tries captioning
+  apps one by one, as on Windows 11. If Windows on your PC can't, it
+  says so once and captions everything the PC plays, as before; Try
+  apps again on Home tries once more, and so does each Windows update.
+- Dictation (preview), off until you turn it on in Settings > App or
+  the tray: hold a key (Insert, unless you pick another), speak, let
+  go, and your words are typed where your cursor is, in any program.
+  It detects the language each time, or set one of 30 - English,
+  Mandarin, Cantonese... - from Settings or the tray, and it's always
+  heard as that; English can come out in Australian spelling. Esc
+  cancels before the text arrives.
+- Hear a word: the speaker beside Close on a word's card says it aloud
+  in one of Windows' own voices, and again more slowly on the next
+  click (R does the same in Polyglotic's own windows). It's said on
+  your PC - nothing is sent - and it's left out of your captions. If
+  Windows has no voice for the word's language, the card says how to
+  add one, free, in Windows' Settings.
+
+### Better
+
+- The first screen asks only that you agree to the tester agreement;
+  it no longer asks you to state your age (the agreement and the
+  privacy notice say who Polyglotic is for).
+
+### Fixed
+
+- With "Caption my own speech" on, sound from your speakers that your
+  mic picks up is caught more often and not shown as yours - when it
+  reaches the mic late, as from Bluetooth speakers, or while Windows'
+  volume is low and the speakers are turned up.
+- Signing in, updates and reports could be refused before they reached
+  our server ("Something on this network is in the way"). Fixed on our
+  side for every version, and the app now says who it is.
+- Your invite code now works again on the PC you used it on, as often
+  as you need: after signing out, or if Polyglotic ever asks you to
+  sign in again, type the same code. Another PC still needs its own
+  code.
+
+## 0.1.3 - 2026-11-11
+
+One change: the first screen's yes is for people 14 or older (it was 16).
+
+## 0.1.2 - 2026-11-11
+
+### New
+
+- Testing the alpha? Report a problem - the flag on a caption window's
+  top bar, the tray's menu, Home, Account and Help - can now send what
+  was shown and heard in the last few minutes, so we can see the
+  problem again. You see each part first and can untick it; reports
+  are deleted after 30 days.
+- A shorter tester agreement: seven points. The app asks you to agree
+  to it once more.
+
+## 0.1.1 - 2026-11-11
+
+Nothing you'd notice: from this version, Polyglotic checks that an update
+comes from us before it installs it.
+
+## 0.1.0 - 2026-11-11
+
+The first test version, for friends: unsigned, on the alpha channel, with
+captions from a server on our own PC. Thank you for trying it - tell us
+what breaks with Report a problem.
+
+### New
+
+- Captions of what you hear, with a translation underneath: pick up to
+  three apps, each in a caption window of its own, or everything the PC
+  plays.
+- Your own speech captioned too, in the window you choose ("Show my speech
+  here").
+- A translation language for each window, or the original only.
+- Three caption timings: Steady (each sentence appears once, finished),
+  Quick preview and Live updates.
+- Caption windows as a panel, moved and resized from any edge, with
+  bigger or smaller text, a lock, and a fade - they never take the focus
+  from your game.
+- A transcript for each app: search it, copy it, or save it as text, SRT
+  or CSV.
+- Look up any word in a caption: Chinese (CC-CEDICT, with HSK 3.0 levels)
+  and English (ECDICT) dictionaries on your PC, with how common each word
+  is.
+- Mark words as learning, known or ignored; words you don't know yet are
+  marked in finished captions.
+- Words: your saved words, the words you keep hearing, and how much of
+  what you hear you already know.
+- Export for Anki: a ready-made deck file (.apkg) or a CSV, each card with
+  the sentence you heard the word in.
+- "Looks wrong?" on a finished line asks the server to check it again with
+  its best models.
+- Report a problem and Suggest something, from Help.
+- The interface in English, Simplified Chinese and Traditional Chinese
+  (the Chinese wording is still being reviewed).
+- Three looks - Margin, Glaze and Signal - in light and dark; text follows
+  Windows' text size.
+- Sign in with your invite code. Usage statistics are sent only if you
+  agree, and never what's said.
+- Updates download quietly and apply the next time Polyglotic starts.
+- Click a word in a language you aren't learning - Japanese in a
+  Japanese stream - and its card asks once whether you're learning it
+  too: Learn it too adds it to Learning; Not now doesn't ask again. In
+  a language with no dictionary yet, the card says so rather than "Not
+  in the dictionary".
+- A Learning page, beside Words: the languages you're learning and
+  what each one's dictionary gives, your level, and Word
+  introductions - Off, A few per caption or Every new word - with what
+  the marked words mean and where they go. "You're learning" and
+  "Common words only" moved there.
+- Ten colour presets for the caption windows, in Settings - Captions:
+  Classic (as before), Broadcast, Teletext, Ember, Violet, Forest,
+  Paper, Quiet, High contrast and Clear (safe for every kind of colour
+  blindness). Change any colour after: type its exact value, or Pick…
+  it.
+- A live preview at the top of Settings - Captions shows two captions
+  as your caption windows will: every change to the colours, panel,
+  font or word links shows there at once.
+- Word links can be Arrows again: a curve joins each word to its
+  translation, as well as their shared colour (Settings - Captions -
+  Word links).
+- Pick the app a caption window captions from the window itself: click
+  its name, or Captioning in its settings. Browsers and the main apps
+  are listed even before they play, and start captioning when they do.
+- In every timing, a small loading bar under the newest caption shows
+  that speech is being heard and its caption is on its way - for your
+  own speech too. With Windows' animation effects off, it stands
+  still.
+- Choose how new captions arrive, for every window, in Settings -
+  Captions - Behaviour: Slide in (the default) or Appear.
+- Each caption window has its own spoken language in its settings: a
+  Chinese stream in one window and an English call in another are each
+  heard as what they are, and Detect is there for mixed talk. Lines
+  already in a window's language can be shown in another language from
+  the same settings.
+- Longest wait for text, in Settings - Captions - Timing: how long
+  anyone can talk before you see text, in every timing - from 2 to 6
+  seconds, 3 unless you change it. A smaller number means more
+  updates.
+- A caption window opens as soon as you choose an app, or everything
+  your PC plays, and says it's waiting for audio until the first
+  captions come.
+
+### Better
+
+- After you send a report or a suggestion, a notification says when it
+  has reached us - or that it's saved to send later - so you see it in
+  a game or a call too. Not while Polyglotic's Home is in front, which
+  says it already.
+- Moving the mouse across a caption window's words is lighter: only
+  the captions it passes over are redrawn, and a lookup card following
+  the mouse looks up the word it stops on, not every word on the way.
+- The Panel | Strip choice is gone from the caption windows' settings:
+  every window is a panel the size you set, and one you had as a strip
+  opens as a panel.
+- Settings is bigger and has three sections at its top: Captions,
+  Learning and App. Captions holds every caption window's settings in
+  one place - the look, word links, timing, fading and names and
+  slang - each with a line saying what it does. A caption window's
+  "All caption settings…" opens it; the small Look window is gone, and
+  so are Home's Languages and Timing panels (the window's settings
+  keep a Timing shortcut). Resetting the look no longer moves your
+  caption windows: Home's Reset positions does that.
+- A caption window's settings show Timing on one line, the timing now
+  on a button that opens the three choices; all of it is in Settings.
+- Settings' "Ask me the first-run questions again" is split where each
+  answer belongs: change your level on Learning, and what you share on
+  Account.
+- Steady is the default timing again: each sentence appears once,
+  finished and translated. A timing you chose stays; Help's "When do
+  captions appear?" says what each does.
+- In Steady and Quick preview, someone talking on without a pause is
+  captioned in shorter pieces, so the next caption comes sooner.
+- When Polyglotic's server can't be reached, Home, the caption windows
+  and the tray say why - no internet, our server down or restarting, a
+  firewall or proxy, the PC's clock - whose problem it is, and what to
+  do, instead of just "Reconnecting".
+- Signing in while Polyglotic's server can't be reached says whose
+  problem it is, instead of always asking you to check your internet.
+- Captions no longer fade away when nobody is talking, unless you
+  choose a time in Settings - Captions - Fade after quiet. A time you
+  chose before is kept.
+- The caption font Polyglotic picks is now called "Polyglotic
+  (Default)".
+- Quick preview's dim first lines come with their translation too,
+  until the finished caption replaces them.
+- Names and slang shows examples you'll recognise (rizz, yyds, 鸡你太美, a
+  streamer's or a game's name), and takes Chinese commas and 、 between
+  them.
+- "Looks wrong?" now says what it does and what it sends before it
+  sends anything: choose Send report, or Cancel.
+- Steady, Quick preview and Live updates each say what they do when
+  you point at them, and so do a caption window's settings, All
+  caption settings… and Open transcript.
+- A locked caption window says how to unlock it (Ctrl+Alt+L) when you
+  lock it, then shows the keys faintly in its corner.
+- A caption window's settings no longer have Position: drag the window
+  where you want it, and it stays there.
+- Word links have a button of their own on each caption window. The
+  text size buttons (A- / A+) moved into the window's settings. While
+  the original is hidden, the button is dimmed and says why: word
+  links need what was said shown.
+- The newest caption stands out: as it comes in, the captions before
+  it slide up and step back a little, and it rises into place from
+  below - quicker when people talk quicker - so you can tell what just
+  came in from the corner of your eye. Nothing moves under the mouse;
+  with Windows' animation effects off, it simply appears. With
+  Windows' high contrast, nothing steps back. While you've scrolled
+  back to read, every caption is at full brightness.
+- Word links' underlines sit below letters like g and y instead of
+  through them, and you can make them thinner or thicker and closer or
+  further in Settings - Captions - Word links.
+- Words: Your words shows its first 8 words, then Show all - or search
+  for the one you want - instead of every word you've met.
+- Words: Saved words shows its first 8 words, then Show all, instead
+  of every word you've saved.
+- Words: Words you keep hearing shows the top 5, and Show more adds 10
+  at a time.
+- Words: Export for Anki links to How to import into Anki, on our
+  website's help.
+- The first run has Back on every screen after the first, keeping what
+  you entered, and asks for your code before the main window opens.
+- Save transcript as... and Export for Anki open in your Documents
+  folder, or where you saved last - never in the app's own folder,
+  which updates replace.
+- Quick preview keeps its dim line up to date while someone talks on,
+  instead of one first guess and then nothing until they pause.
+- Steady no longer goes quiet through a long stretch of talk: once
+  someone has talked for 3 seconds, a dim, translated line shows what
+  they've said so far, until the finished caption takes its place.
+  Quick preview and Live updates never leave you longer than that
+  without text either.
+
+### Fixed
+
+- Exporting your words for Anki no longer freezes the app while the
+  file is written, and it says where the file went.
+- Dragging a slider in Settings no longer floods the server with your
+  settings, which could make it turn away the speech sent at the same
+  moment. The server now gets a change once you let go, and only one
+  it needs.
+- Dragging the panel's slider in Settings > Captions no longer holds
+  up the app: the caption windows follow it as you drag, and it's
+  saved once you let go.
+- Your level's screen, learning Chinese, opens faster and no longer
+  flashes its drop-down as a window of its own first.
+- Polyglotic open on too many of your PCs, or too many failed sign-ins
+  from your network, say so - they read "Reconnecting", like a dropped
+  connection.
+- Polyglotic's windows show its own icon, in their title bars and in
+  Alt-Tab, instead of Windows' plain one.
+- A code from a Plus email whose subscription was cancelled before it
+  was used says so, and how to get Plus, instead of "This code doesn't
+  work".
+- A new caption's last line - often its translation - no longer stays
+  cut off at the bottom of the caption window after sliding in.
+- A caption on its way when you changed what's captioned is no longer
+  lost: it's shown once the new captioning starts.
+- A caption window's panel stays the size you set: it no longer grows
+  and shrinks with the text as live captions come, and a joined
+  window's quiet column shows its panel beside the others.
+- After locking and unlocking Windows, moving the mouse over a caption
+  window shows its top bar again.
+- A caption window Windows minimises - "Show desktop", for one - comes
+  straight back instead of staying gone until you restart Polyglotic.
+- A caption window's top bar - its icons and its app's name - is
+  readable on every colour preset and any panel colour you pick: dark
+  on Paper's cream, where it was white.
+- The first run's Your data screen no longer flashes a scroll bar over
+  its text as it opens.

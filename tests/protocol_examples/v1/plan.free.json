@@ -1,0 +1,19 @@
+{
+  "type": "plan",
+  "tier": "free",
+  "source": "subscription",
+  "status": "ended",
+  "until": null,
+  "next": null,
+  "paid_at": "2026-10-03T13:00:00.000Z",
+  "period": "month",
+  "free_minutes": null,
+  "message": {
+    "code": "plus_ended_payment",
+    "at": null,
+    "action": "get_plus"
+  },
+  "actions": [
+    "get_plus"
+  ]
+}

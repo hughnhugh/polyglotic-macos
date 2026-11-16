@@ -1,0 +1,99 @@
+"""Qt's own parts the interface shows with no window's stylesheet naming
+their fonts (polyglotic-hq 215): the tray's menu, a caption window's
+tooltip, and a Qt dialog with no window under it (the sign-out question).
+Their Chinese is in the interface's Chinese face, which the app puts
+behind every font at start (`style.use_chinese_behind_every_font`) -
+before it, in MS UI Gothic, a Japanese face, as Windows draws Chinese a
+font list has no face for in an English locale; the `japanese_font` check
+finds that in zh_CN and zh_TW.
+
+Not timed: Qt's own, and nothing of the interface's runs in them."""
+
+from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QAbstractButton, QApplication, QToolTip, QWidget
+
+from polyglotic_desktop.ui.app import DesktopApp
+from polyglotic_desktop.ui.sign_in import sign_out_question
+from polyglotic_desktop.ui_next import style
+from tools.ui_lab import caption_window
+from tools.ui_lab.home import MadeUpApps, Memory
+from tools.ui_lab.lab import Lab, State
+
+
+def tray_menu(lab: Lab) -> QWidget:
+    """The tray's menu as the app makes it, for a dark taskbar."""
+    desktop = DesktopApp(Memory({}), None, MadeUpApps())
+    desktop._style_tray_menu(light=False)
+    menu = desktop.tray_menu
+    style.size_qt_parts(menu)  # at the app's text size, as `main` has it
+    menu.popup(QPoint(200, 200))
+    lab.pump()
+    lab.closing.append(menu.close)
+    lab.closing.append(desktop.close)
+    return menu
+
+
+def caption_tooltip(lab: Lab) -> QWidget:
+    """A caption window's button's tooltip (Qt's: a window of its own, in
+    Qt's tooltip font - the caption window has no stylesheet)."""
+    shown = caption_window.window(lab, captions=3)
+    caption_window.hovered(lab, shown)
+    button = next(
+        b for b in shown.findChildren(QAbstractButton) if b.toolTip() and b.isVisible()
+    )
+    QToolTip.showText(
+        button.mapToGlobal(QPoint(0, button.height())), button.toolTip(), button
+    )
+    lab.pump()
+    lab.closing.append(QToolTip.hideText)
+    lab.closing.append(shown.close)
+    return next(
+        w
+        for w in QApplication.topLevelWidgets()
+        if w.metaObject().className() == "QTipLabel" and w.isVisible()
+    )
+
+
+def timing_tooltip(lab: Lab) -> QWidget:
+    """A caption timing's tooltip in a window's settings: what Steady does
+    (F22, 249)."""
+    shown = caption_window.window(lab, captions=3)
+    caption_window.hovered(lab, shown)
+    shown.toggle_settings()
+    popover = shown.popover
+    assert popover is not None
+    button = next(
+        b
+        for b in popover.findChildren(QAbstractButton)
+        if b.objectName() == "settings_popover.caption_window.steady"
+    )
+    lab.pump()  # the popover's own events first: one of them hides a tooltip
+    # at the screen's corner: the lab's work area is bigger than its screen,
+    # and Qt shows no tooltip off every screen
+    QToolTip.showText(QPoint(10, 10), button.toolTip())
+    lab.closing.append(QToolTip.hideText)
+    lab.closing.append(shown.close)
+    return next(
+        w
+        for w in QApplication.topLevelWidgets()
+        if w.metaObject().className() == "QTipLabel" and w.isVisible()
+    )
+
+
+def dialog(lab: Lab) -> QWidget:
+    """The sign-out question, with no window under it: Qt's message box."""
+    box = sign_out_question(None, unsent=True)
+    box.show()
+    lab.pump()
+    return box
+
+
+STATES = [
+    State(f"ui_next.qt_{name}", run, gated=True)
+    for name, run in (
+        ("tray_menu", tray_menu),
+        ("caption_tooltip", caption_tooltip),
+        ("timing_tooltip", timing_tooltip),
+        ("dialog", dialog),
+    )
+]

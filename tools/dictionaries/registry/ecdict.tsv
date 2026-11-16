@@ -1,0 +1,5 @@
+# Entry IDs that aren't their key's hash (decision 0007). Written by
+# `python -m tools.dictionaries.update_ids`; edit by hand only to fix
+# a wrong match. Columns, tab-separated:
+#   id      <key>     <entry ID>  <note>  this key has this ID
+#   merged  <old ID>  <entry ID>  <note>  that entry became this one

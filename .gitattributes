@@ -1,0 +1,7 @@
+* text=auto
+*.onnx binary
+*.sh text eol=lf
+*.ttf binary
+*.png binary
+*.qm binary
+*.flac binary

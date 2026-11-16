@@ -1,0 +1,5 @@
+{
+  "type": "auth_failed",
+  "reason": "token_not_valid",
+  "retry_after": null
+}

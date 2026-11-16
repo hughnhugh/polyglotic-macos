@@ -1,0 +1,243 @@
+[project]
+name = "polyglotic-desktop"
+version = "0.0.0"  # not the app's: releases take theirs from the git tag (decision 0015)
+description = "Polyglotic's Windows app: live captions, translations and word lookups over anything you hear."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "genanki>=0.13.1",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.31.1",
+    "pydantic>=2.14.2",
+    "pynacl>=1.6.2",
+    "pyside6-essentials>=6.12.0",
+    "soundfile>=0.14.0",
+    "velopack>=1.2.161",
+    "websockets>=17.4",
+    # macOS only (polyglotic-hq 411): Core Audio taps for one app, everything
+    # else and the whole system; PortAudio for the mic
+    "catap>=0.6.1; sys_platform == 'darwin'",
+    "sounddevice>=0.5.6; sys_platform == 'darwin'",
+]
+
+[dependency-groups]
+dev = [
+    "anki>=26.9.4",
+    "import-linter>=2.15",
+    "mypy>=2.4.1",
+    "pip-audit>=2.10.1",
+    "pre-commit>=4.7.0",
+    "pytest>=9.2.0",
+    "pyyaml>=6.0.3",
+    "ruff>=0.17.3",
+    "types-pyyaml>=6.0.12.20261103",
+]
+languages = [
+    "simplemma>=2.0.0",
+    "sudachidict-small>=20261015",
+    "sudachipy>=0.6",
+]
+package = [
+    "pyinstaller>=6.22.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+required-version = ">=0.13.5"
+# `languages`: the word splits for the basic dictionary packs (decision
+# 0035) - in development and CI, not in the installer (`package` builds
+# with --no-default-groups) until the user decides on them (DECISIONS #65)
+default-groups = ["dev", "languages"]
+
+# ---------------------------------------------------------------------------
+# ruff: lint and format. Defaults plus import sorting (I), bugbear (B),
+# pyupgrade (UP) and simplify (SIM). Add a rule family when a class of bug
+# actually appears, not before.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests", "tools"]
+
+[tool.ruff.lint]
+extend-select = ["I", "B", "UP", "SIM"]
+
+# ---------------------------------------------------------------------------
+# mypy: normal mode overall; strict for core and the protocol (connection).
+# `strict = true` inside an override applies to every module (checked with
+# mypy 2.4.1 on 2026-11-04), so the override lists strict's flags one by one
+# (`mypy --help`, under --strict).
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+platform = "win32"  # the app is Windows': the same result on any machine that checks it
+files = ["src", "tests", "tools"]
+mypy_path = "src"
+explicit_package_bases = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+[[tool.mypy.overrides]]
+module = [
+    "polyglotic_desktop.core",
+    "polyglotic_desktop.core.*",
+    "polyglotic_desktop.connection",
+    "polyglotic_desktop.connection.*",
+]
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_return_any = true
+no_implicit_reexport = true
+strict_equality = true
+extra_checks = true
+
+# Libraries that ship no type information (checked 2026-11-04; PyInstaller
+# 2026-11-05 - only the release build uses it, and only its archive reader).
+# sudachipy ships a .pyi but no py.typed marker (0.7.0, 2026-11-07).
+# catap and sounddevice are installed only on a Mac (polyglotic-hq 411), so
+# mypy elsewhere - and `--platform darwin` on Windows and Linux - can't see them.
+[[tool.mypy.overrides]]
+module = [
+    "onnxruntime", "soundfile", "genanki", "PyInstaller.*", "sudachipy",
+    "catap", "sounddevice",
+]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The repo root, so tests can import `tools` (the dictionary build).
+pythonpath = ["."]
+# each test file imported by its path, not its bare name: two test files of
+# the same name in two folders both run (polyglotic-hq 209, 213)
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
+markers = [
+    "windows_only: needs Windows itself - its APIs, paths or file rules, or the app's OS adapters (decision 0038); skipped on macOS and Linux",
+    "macos_only: needs macOS itself - its frameworks (the Keychain, Core Foundation) or file rules (polyglotic-hq 409); skipped on Windows and Linux",
+]
+
+# ---------------------------------------------------------------------------
+# import-linter: the import rule (ENGINEERING.md) and independent contexts
+# (DOMAIN.md), checked by `lint-imports` in CI. Loosen a contract only with
+# a decision record in docs/decisions/ saying why.
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_package = "polyglotic_desktop"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+id = "layers"
+name = "Layers: main wires; ui (and ui_next beside it), connection, platform and adapters sit on perf and core; core sits on ports (decisions 0001, 0008, 0031, 0032)"
+type = "layers"
+layers = [
+    "polyglotic_desktop.main | polyglotic_desktop.harness",
+    "polyglotic_desktop.ui | polyglotic_desktop.ui_next | polyglotic_desktop.connection | polyglotic_desktop.platform | polyglotic_desktop.adapters",
+    "polyglotic_desktop.perf",
+    "polyglotic_desktop.core",
+    "polyglotic_desktop.ports",
+]
+
+[[tool.importlinter.contracts]]
+id = "os-in-one-place"
+name = "The OS is picked in one place: only main's os_adapters (and the Windows-only harness) import platform.windows, platform.macos or the Windows credential store (decision 0038)"
+type = "protected"
+protected_modules = [
+    "polyglotic_desktop.platform.windows",
+    "polyglotic_desktop.platform.macos",
+    "polyglotic_desktop.adapters.windows_credentials",
+]
+allowed_importers = ["polyglotic_desktop.main", "polyglotic_desktop.harness"]
+
+[[tool.importlinter.contracts]]
+id = "views-no-qt"
+name = "The new interface's views are plain Python: no Qt, testable without it (decision 0031)"
+type = "forbidden"
+source_modules = ["polyglotic_desktop.ui_next.views"]
+forbidden_modules = ["PySide6", "shiboken6"]
+
+[[tool.importlinter.contracts]]
+id = "core-no-infrastructure"
+name = "core and ports use no Qt, platform or infrastructure libraries: plain Python, no I/O (decisions 0001, 0008)"
+type = "forbidden"
+source_modules = ["polyglotic_desktop.core", "polyglotic_desktop.ports"]
+forbidden_modules = [
+    # Qt
+    "PySide6",
+    "shiboken6",
+    # audio capture and Windows APIs
+    "comtypes",
+    "ctypes",
+    "pyaudiowpatch",
+    "pycaw",
+    "pythoncom",
+    "pywintypes",
+    "sounddevice",
+    "soundfile",
+    "soundcard",
+    "win32api",
+    "win32con",
+    "win32gui",
+    "win32process",
+    "winreg",
+    # speech detection and models
+    "numpy",
+    "onnxruntime",
+    "torch",
+    # network
+    "aiohttp",
+    "http",
+    "httpx",
+    "requests",
+    "socket",
+    "ssl",
+    "websockets",
+    # storage
+    "sqlite3",
+    # protocol models (connection only, decision 0011)
+    "pydantic",
+    "pydantic_core",
+    # updates, crash reports, analytics
+    "posthog",
+    "sentry_sdk",
+    "velopack",
+    # processes
+    "subprocess",
+    # word splits (adapters only, decision 0035)
+    "simplemma",
+    "sudachipy",
+]
+
+[[tool.importlinter.contracts]]
+id = "contexts-independent"
+name = "Contexts inside core are independent; they meet through core.shared (decision 0002)"
+type = "independence"
+modules = [
+    "polyglotic_desktop.core.listening",
+    "polyglotic_desktop.core.learning",
+    "polyglotic_desktop.core.lexicon",
+    "polyglotic_desktop.core.releases",
+]
+
+[[tool.importlinter.contracts]]
+id = "shared-imports-no-context"
+name = "core.shared (events and IDs) depends on no context (decision 0002)"
+type = "forbidden"
+source_modules = ["polyglotic_desktop.core.shared"]
+forbidden_modules = [
+    "polyglotic_desktop.core.listening",
+    "polyglotic_desktop.core.learning",
+    "polyglotic_desktop.core.lexicon",
+    "polyglotic_desktop.core.releases",
+]

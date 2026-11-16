@@ -1,0 +1,15 @@
+{
+  "type": "plan",
+  "tier": "plus",
+  "source": "subscription",
+  "status": "active",
+  "until": "2027-01-03T13:00:00.000Z",
+  "next": null,
+  "paid_at": "2026-12-03T13:00:00.000Z",
+  "period": "month",
+  "free_minutes": null,
+  "message": null,
+  "actions": [
+    "cancel"
+  ]
+}

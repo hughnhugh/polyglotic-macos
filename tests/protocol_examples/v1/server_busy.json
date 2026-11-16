@@ -1,0 +1,4 @@
+{
+  "type": "server_busy",
+  "retry_after": 30
+}

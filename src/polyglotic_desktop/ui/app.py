@@ -1,0 +1,990 @@
+"""The app as one piece behind its windows: settings, the caption feed, the
+session's state, the commands and the tray, kept in step.
+
+`DesktopApp` is what `main` builds and talks to; the new interface's
+windows (`ui_next`, wired by `main`'s `Hub`) follow it:
+- `feed.receive(update)` - caption updates, from any thread;
+- `caption_failed()` - a finished caption failed on the server: several
+  in a row, and `captions_failing` tells Home and the caption windows,
+  until a caption arrives again or the session's state changes;
+- `set_connection(state, retry_in, unreachable)` - the listening
+  session's state, kept here (`connection`, `retry_in`, and while it
+  waits to try again, why the server can't be reached - `unreachable`,
+  polyglotic-hq 251) and announced (`connection_changed`) for Home, the
+  caption windows, the transcripts and the tray;
+  `set_minutes(used, left)` and `show_notice(code)` - the server's
+  `minutes` and `notice`, announced for Home and the caption windows;
+- `settings` - the user's choices, saved through the `SettingsStore` port
+  as they change; `main` turns them into the connection's settings and
+  the capture's sources, and follows `settings.changed`;
+- `set_app_sources(apps)` - which app each source id is (`main`'s
+  `Sources`), so captions are labelled with its name and colour (the
+  learner's own, if they set one) - on this PC only (`source_labels`);
+- the named commands the tray, Home, the caption windows and the hotkeys
+  share: `open_window` (`window_wanted`), `pause` (checkable - `main`
+  pauses the timing rules), `caption_mic` (checkable, saved),
+  `dictation` (checkable, saved: dictation on or off - polyglotic-hq 283)
+  and its language's menu (Detect, English, Mandarin, Cantonese, the one
+  chosen, "More languages…" - `set_dictation_languages`),
+  `lock_windows` (checkable, saved) and `hide_windows` (checkable) for
+  every caption window, `quit`; `report_problem` and `suggest` (in the
+  tray, on Home and on Account), which ask for the feedback form:
+  `feedback_wanted.emit(kind)`, opened by `main` (project 053);
+  `work_with_us`, a quiet line in Settings' About card - the same form,
+  to say you'd like to work on Polyglotic; Help's "Report a problem" asks
+  for it with the "no captions?" check's result attached:
+  `check_report_wanted.emit(summary)` (project 096);
+- `set_activity(provider)` - what each source being captured has done
+  (sound and speech heard), for that check (`caption_facts`);
+- `hotkeys` - the commands with a system-wide hotkey (Ctrl+Alt+ the
+  letter, as in the proof of concept), shown in the tray menu;
+  `hotkey_pressed.emit(letter)` from any thread runs one on the Qt thread
+  (`main` registers them with Windows); `hotkeys_taken` stops showing the
+  ones another app already has;
+- the window theme (`theme`), applied at start, when the learner changes
+  it and when Windows turns light or dark (`themed`);
+- the tray icon, its state following the app's: listening (captioning),
+  idle, or paused - drawn for the taskbar's own light or dark
+  (`light_taskbar`, from `main`: Windows' taskbar can differ from its apps)
+  - and its tooltip, the state Home shows (`show_state_title`) and a
+  hidden caption window's (`show_hidden`: captioning while hidden, or
+  paused after a time hidden - polyglotic-hq 335); the first
+  time the main window is closed rather than quit, a message from the tray
+  saying the app is still running there (`note_in_tray`, once per PC);
+  its menu opens wholly on the work area, above the taskbar, as Windows'
+  own tray menus do (`tray_menu_place`).
+
+It holds no rules: what to show is core's, what to do with the user's
+choices is `main`'s.
+"""
+
+import logging
+import time
+from collections.abc import Callable
+from enum import StrEnum
+
+from PySide6.QtCore import (
+    QLocale,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTimer,
+    Signal,
+    Slot,
+)
+from PySide6.QtGui import QAction, QCursor, QGuiApplication, QKeySequence
+from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
+
+from polyglotic_desktop.core.listening.captions import CaptionUpdate
+from polyglotic_desktop.core.listening.check import Facts, SourceActivity, Ticked
+from polyglotic_desktop.core.listening.failing import FailingCaptions
+from polyglotic_desktop.core.listening.held_back import LIVE_UPDATES_HELD_BACK
+from polyglotic_desktop.core.listening.history import CaptionHistory
+from polyglotic_desktop.core.listening.sources import (
+    EVERYTHING_ELSE,
+    MIC,
+    SAMPLE,
+    WHOLE_SYSTEM,
+    SourceId,
+    SourceLabel,
+)
+from polyglotic_desktop.core.listening.unreachable import Unreachable
+from polyglotic_desktop.core.listening.unstable import UnstableConnection
+from polyglotic_desktop.core.listening.warm_up import (
+    MODELS_WARMING_UP,
+    SERVER_RESTARTING,
+    TRANSLATOR_WARMING_UP,
+    warm_up_over,
+)
+from polyglotic_desktop.ports.capture import AppList
+from polyglotic_desktop.ports.settings import SettingsStore
+from polyglotic_desktop.ui import theme
+from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
+from polyglotic_desktop.ui.captions import CaptionFeed
+from polyglotic_desktop.ui.icons import TrayState, tray_icon
+from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui.settings import (
+    SOURCE_KEY_EVERYTHING_ELSE,
+    SOURCE_KEY_MIC,
+    SOURCE_KEY_SAMPLE,
+    SOURCE_KEY_SYSTEM,
+    Settings,
+    load_rules_changes,
+)
+
+log = logging.getLogger(__name__)
+
+DARK_TRAY_MENU = """
+
+QMenu { background: #2c2c2c; color: #ffffff; border: 1px solid #454545; padding: 3px 0; }
+QMenu::item { padding: 4px 16px 4px 28px; margin: 0 4px; border-radius: 4px; }
+QMenu::item:selected { background: #3d3d3d; }
+QMenu::item:disabled { color: #787878; }
+QMenu::separator { height: 1px; background: #454545; margin: 3px 0; }
+"""
+"""The tray menu on a dark taskbar: Windows 11's dark menu colours (on a
+light one, Qt's Windows 11 style draws Windows' light menu as it is)."""
+
+
+class ConnectionState(StrEnum):
+    """The listening session's state, as Home shows it (`main` maps the
+    connection's own states onto these)."""
+
+    NOT_CONNECTED = "not_connected"
+    CONNECTING = "connecting"
+    LISTENING = "listening"
+    WAITING = "waiting"  # to reconnect
+    SERVER_BUSY = "server_busy"  # to reconnect: the server is full (208)
+    SIGN_IN_NEEDED = "sign_in_needed"  # no device token, or it was refused
+    UPDATE_NEEDED = "update_needed"  # the server needs a newer app
+    MOVED = "moved"  # the account listens on another device (project 095)
+    PLUS_ENDED = "plus_ended"  # the server closed listening: Plus ended (4009, 185)
+    STOPPED = "stopped"  # for another reason, until the user acts
+
+
+def tray_menu_place(at: QPoint, size: QSize, area: QRect) -> QPoint:
+    """Where the tray's menu opens (its top left): upwards from `at` (the
+    mouse on the tray icon), kept wholly on the work area `area` - so above
+    a taskbar at the bottom, below one at the top, beside one at a side, as
+    Windows' own tray menus open. Qt placed it against the whole screen:
+    its last entries (Quit) sat over the taskbar, where a mouse jumping
+    straight onto Quit missed it (polyglotic-hq 141)."""
+    x = min(at.x(), area.x() + area.width() - size.width())
+    y = min(at.y() - size.height(), area.y() + area.height() - size.height())
+    return QPoint(max(x, area.x()), max(y, area.y()))
+
+
+TIP_MAX = 127
+"""The most a tray icon's tooltip can hold, in UTF-16 units: Windows keeps
+it in NOTIFYICONDATA's 128-unit `szTip` with its end, and Qt cuts anything
+longer there - mid-word (polyglotic-hq 336)."""
+
+
+def _units(text: str) -> int:
+    return len(text.encode("utf-16-le")) // 2
+
+
+def fitted_tip(lines: list[str], limit: int = TIP_MAX) -> str:
+    """The tray's tooltip from its lines - the state first, the hidden
+    windows' after it (335) - within `limit`: the lines between the first
+    and the last go first (Home's rows say "captioning while hidden" too;
+    the last, what to do, stays), then the last is cut at a word with "…".
+    Never cut mid-word by Windows (polyglotic-hq 336: "Captioning VLC media
+    player while hidden" with a window paused ran to "show the windows to
+    c" in English, and far shorter in German)."""
+    kept = [line for line in lines if line]
+    while len(kept) > 2 and _units("\n".join(kept)) > limit:
+        del kept[1]
+    text = "\n".join(kept)
+    if _units(text) <= limit:
+        return text
+    head = "\n".join(kept[:-1])
+    room = limit - _units(head) - (1 if head else 0) - 1  # the line break, the "…"
+    words = kept[-1].split(" ")
+    last = ""
+    for word in words:
+        longer = f"{last} {word}" if last else word
+        if _units(longer) > room:
+            break
+        last = longer
+    if not last:  # one word longer than the room: cut it
+        last = kept[-1][: max(0, room)]
+    fitted = f"{head}\n{last}…" if head else f"{last}…"
+    return fitted if _units(fitted) <= limit else text[: limit - 1] + "…"
+
+
+class DesktopApp(QObject):
+    hotkey_pressed = Signal(str)
+    """A hotkey's letter, from any thread (queued to the Qt thread)."""
+    feedback_wanted = Signal(str)
+    """The feedback form, opened on a kind (`problem`, `suggestion`, ...)."""
+    check_report_wanted = Signal(str)
+    """The feedback form for a problem, with Help's check result (ticks and
+    crosses, no content) to attach."""
+    window_wanted = Signal(bool)
+    """The main window, in front: True from the tray - on the page where
+    the learner picks what to caption while nothing is (the first run,
+    polyglotic-hq DECISIONS.md #25); False: on whatever page it shows
+    (nothing asks for that since "Looks wrong?" went, polyglotic-hq 339)."""
+    caption_notice = Signal(str)
+    """A notice the caption windows show briefly (a server notice;
+    listening moved)."""
+    connection_changed = Signal(object, object)
+    """The listening session's state (a ConnectionState) and the seconds
+    until it tries again (or None)."""
+    minutes_changed = Signal(float, object)
+    connection_unstable = Signal(bool)
+    """The listening session's connection keeps dropping or has stalled
+    (True), or it has held again (False): said on Home and the caption
+    windows (core.listening.unstable)."""
+    captions_failing = Signal(bool)
+    """Captions are failing on the server (True), or that's over (False):
+    said on Home and the caption windows (core.listening.failing)."""
+    """This month's minutes (used, left or None)."""
+    home_notice = Signal(str)
+    """A line Home shows for a while (a server notice, what became of a
+    report); empty: the one it shows is over (a warm-up, once captions
+    show it is)."""
+    themed = Signal()
+    """The window's theme changed (the `theme` module has the new colours)."""
+    labels_changed = Signal()
+    """Which app a source is changed (`set_app_sources`): its captions'
+    label (`source_labels`) may be another."""
+    dictation_settings_wanted = Signal()
+    """The tray's "More languages…" for dictation: Settings > App."""
+
+    def __init__(
+        self,
+        store: SettingsStore | None,
+        tools: LearningTools | None,
+        apps: AppList | None,
+        your_sources: tuple[SourceId, ...] = (MIC,),
+        history: CaptionHistory | None = None,
+        light_taskbar: Callable[[], bool] | None = None,
+    ) -> None:
+        super().__init__()
+        self.settings = Settings(store, self)
+        # the window's theme first: what's built next takes its colours
+        self._look = (self.settings.value.theme, self.settings.value.window_theme)
+        theme.apply(self._look[1], self._look[0])
+        QGuiApplication.styleHints().colorSchemeChanged.connect(self._system_theme)
+        self.tools = tools
+        if tools is not None:  # the learner's choices for its language (323)
+            self._follow_language_choices()
+            self.settings.changed.connect(self._follow_language_choices)
+            # and its learning load's rules, while the Lab's mode is on (324)
+            self._follow_load_rules()
+            self.settings.changed.connect(self._follow_load_rules)
+            tools.load_rules_raised.connect(self._keep_load_rules)
+        self.history = history or CaptionHistory(your_sources=your_sources)
+        self.feed = CaptionFeed(self.history, tools, self)
+        self.feed.captioned.connect(self._captioned)
+        self.feed.applied.connect(self._applied)
+        self._warming_up: str | None = None
+        """The warm-up notice on Home's banner, if one is: it comes off once
+        the captions show the warm-up is over (`warm_up_over`)."""
+        self._restarting = False
+        """The server's restart notice is on Home's banner: it comes off once
+        the session listens again (`set_connection`)."""
+        self.connection = ConnectionState.NOT_CONNECTED
+        """The listening session's state now (`set_connection`)."""
+        self.retry_in: float | None = None
+        self.unreachable: Unreachable | None = None
+        """Why the server can't be reached, while the session waits to try
+        again (`set_connection`; None: not known, or not waiting)."""
+        value = self.settings.value
+
+        self.open_window = self._action("app.open", self.tr("Open Polyglotic"))
+        self.pause = self._action(
+            "app.pause", self.tr("Pause captions"), checkable=True
+        )
+        self.caption_mic = self._action(
+            "app.caption_mic", self.tr("Caption my own speech"), checkable=True
+        )
+        self.caption_mic.setChecked(value.caption_mic)
+        self.dictation = self._action(
+            "app.dictation", self.tr("Dictation (preview)"), checkable=True
+        )
+        self.dictation.setChecked(value.dictation)
+        # dictation's language at the tray, as modes: Detect, English,
+        # Mandarin... (`set_dictation_languages`; polyglotic-hq 283)
+        self.dictation_language_menu = QMenu(self.tr("Dictation language"))
+        self.dictation_language_menu.setObjectName("app.dictation_language")
+        self.dictation_language_menu.menuAction().setObjectName(
+            "app.dictation_language"
+        )
+        self._dictation_languages: list[tuple[str, str]] = []
+        self._dictation_shown = 0
+        self._dictation_shown_as = value.dictation_language
+        self.more_dictation_languages = self._action(
+            "app.dictation_more", self.tr("More languages…")
+        )
+        self.more_dictation_languages.triggered.connect(self.dictation_settings_wanted)
+        self._show_dictation_languages()  # Detect only, until `main` names them
+        self.lock_windows = self._action(
+            "windows.lock", self.tr("Lock all caption windows"), checkable=True
+        )
+        self.lock_windows.setToolTip(
+            self.tr("Clicks pass through them to what's underneath")
+        )
+        self.lock_windows.setChecked(value.locked)
+        self.hide_windows = self._action(
+            "windows.hide", self.tr("Hide all caption windows"), checkable=True
+        )
+        self.show_delay = self._action(
+            "captions.delay", self.tr("Show each caption's delay"), checkable=True
+        )
+        self.show_delay.setToolTip(
+            self.tr(
+                "Above each caption: how long after the speech started and"
+                " ended it showed, and the server's share"
+            )
+        )
+        self.show_delay.setChecked(value.show_delay)
+        self.quit = self._action("app.quit", self.tr("Quit"))
+        self.install_update = self._action("app.install_update", "")
+        """The tray's "Restart to install version X", while an update is
+        downloaded (polyglotic-hq 299): `main` quits and installs it."""
+        self.install_update.setVisible(False)
+        self.quit_check: Callable[[], bool] | None = None
+        """Asked before Quit goes on (`may_quit`): `main` hands it the
+        transcripts' question (polyglotic-hq 334)."""
+        self.report_problem = self._action(
+            "feedback.problem", self.tr("Report a problem…")
+        )
+        self.suggest = self._action(
+            "feedback.suggestion", self.tr("Suggest something…")
+        )
+        self.report_problem.triggered.connect(
+            lambda: self.feedback_wanted.emit("problem")
+        )
+        self.suggest.triggered.connect(lambda: self.feedback_wanted.emit("suggestion"))
+        self.work_with_us = self._action("feedback.work_with_us", self.tr("Tell us"))
+        self.work_with_us.triggered.connect(
+            lambda: self.feedback_wanted.emit("work_with_us")
+        )
+        self.quit.setToolTip(
+            self.tr(
+                "Stop captioning and close Polyglotic - closing the window keeps it in the tray"
+            )
+        )
+        self.pause.toggled.connect(
+            lambda on: self.pause.setText(
+                self.tr("Resume") if on else self.tr("Pause captions")
+            )
+        )
+
+        self.hotkeys = {
+            "L": self.lock_windows,
+            "P": self.pause,
+            "H": self.hide_windows,
+        }
+        """Ctrl+Alt+ the letter, system-wide: lock, pause, hide. (W, the
+        newest line checked with the best model, went with "Looks wrong?":
+        polyglotic-hq 339.)"""
+        self._activity: Callable[[], dict[SourceId, SourceActivity]] = dict
+        self._last_caption: float | None = None
+        self._drops = UnstableConnection()
+        """The listening session's drops (`set_connection`)."""
+        self._stalled = False  # the connection stalled (`connection_stalled`)
+        self._unstable = False  # as last said (`connection_unstable`)
+        self._held = QTimer(self, singleShot=True)
+        self._held.timeout.connect(self._held_again)
+        self._failures = FailingCaptions()
+        """Finished captions failed on the server in a row (`caption_failed`)."""
+        self.feed.captioned.connect(self._captions_back)
+        # found off the interface thread; main's sources read the same one
+        self.apps = AppsWithSound(apps, self) if apps is not None else None
+        self.open_window.triggered.connect(self.show_window)
+        self.quit.triggered.connect(self._quit)
+        self.caption_mic.toggled.connect(
+            lambda on: self.settings.update(caption_mic=on)
+        )
+        self.dictation.toggled.connect(lambda on: self.settings.update(dictation=on))
+        self.lock_windows.toggled.connect(lambda on: self.settings.update(locked=on))
+        self.show_delay.toggled.connect(lambda on: self.settings.update(show_delay=on))
+        self.settings.changed.connect(self._settings_changed)
+        for key, action in self.hotkeys.items():
+            # shown in menus; Windows' hotkey does the work, from anywhere
+            action.setShortcut(QKeySequence(f"Ctrl+Alt+{key}"))
+            action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+        self.hotkey_pressed.connect(self._hotkey, Qt.ConnectionType.QueuedConnection)
+        self.tray: QSystemTrayIcon | None = None
+        self.tray_menu = self._tray_menu()
+        self.tray_menu.aboutToShow.connect(self._style_tray_menu)
+        self.state_title = ""
+        """The state Home shows, for the tray's tooltip (`show_state_title`)."""
+        self.hidden_line = ""
+        """Hidden caption windows' line in the tray's tooltip (`show_hidden`)."""
+        self.banner_in_view: Callable[[], bool] = lambda: False
+        """Whether Home's banner is in front of the learner now (`main`'s
+        main window sets it): a report's outcome is then said there only,
+        not in the tray too (`show_feedback`; polyglotic-hq 279)."""
+        # Windows doesn't say when only the taskbar turns light or dark
+        self._light_taskbar = light_taskbar or (lambda: theme.system_theme() == "light")
+        self._taskbar_check = QTimer(self)
+        self._taskbar_check.setInterval(10_000)
+        self._taskbar_check.timeout.connect(self._show_tray_state)
+        self.pause.toggled.connect(self._show_tray_state)
+        self._apps: dict[SourceId, tuple[str, str]] = {}
+
+    # -- source labels ----------------------------------------------------------------
+
+    def set_app_sources(self, apps: dict[SourceId, tuple[str, str]]) -> None:
+        """Each app captured: its source id -> (its name, what it's called
+        on screen). From `main`'s `Sources`, on the Qt thread."""
+        if dict(apps) != self._apps:
+            self._apps = dict(apps)
+            self.labels_changed.emit()
+
+    def source_labels(self) -> dict[SourceId, SourceLabel]:
+        """How each source's captions are labelled: the learner's name for
+        it, or its own ("You" for the mic, "This PC" for everything it
+        plays, "Everything else" beside one app, an app's on-screen name);
+        and its colour."""
+        value = self.settings.value
+        names = {
+            SOURCE_KEY_MIC: self.tr("You"),
+            SOURCE_KEY_SYSTEM: self.tr("This PC"),
+        }
+        ids = {SOURCE_KEY_MIC: MIC, SOURCE_KEY_SYSTEM: WHOLE_SYSTEM}
+        for source_id, (name, title) in self._apps.items():
+            names[name], ids[name] = title, source_id
+        # last: the colours the others had before it existed stay theirs
+        names[SOURCE_KEY_EVERYTHING_ELSE] = self.tr("Everything else")
+        ids[SOURCE_KEY_EVERYTHING_ELSE] = EVERYTHING_ELSE
+        names[SOURCE_KEY_SAMPLE] = self.tr("Sample")  # Home's (polyglotic-hq 176)
+        ids[SOURCE_KEY_SAMPLE] = SAMPLE
+        colors = value.source_colors_for(names)
+        return {
+            ids[key]: SourceLabel(value.source_names.get(key) or own, colors[key])
+            for key, own in names.items()
+        }
+
+    def set_activity(
+        self, provider: Callable[[], dict[SourceId, SourceActivity]]
+    ) -> None:
+        """What each source being captured has done (`main`'s pipeline), for
+        Help's check."""
+        self._activity = provider
+
+    def caption_facts(self) -> Facts:
+        """What Help's "no captions?" check looks at, as it is now."""
+        value = self.settings.value
+        labels = self.source_labels()
+        activity = self._activity()
+        by_name = {name: sid for sid, (name, _) in self._apps.items()}
+        ticked: list[Ticked] = []
+        for name in value.apps:
+            found = by_name.get(name)
+            if found is not None:
+                ticked.append(Ticked(found, labels[found].name, "app"))
+            elif WHOLE_SYSTEM in activity:  # no per-app capture here (Windows 10)
+                ticked.append(Ticked(WHOLE_SYSTEM, labels[WHOLE_SYSTEM].name, "system"))
+            else:
+                shown = value.source_names.get(name) or name
+                ticked.append(Ticked(SourceId(f"app:{name}"), shown, "app"))
+        if value.whole_system and all(t.id != WHOLE_SYSTEM for t in ticked):
+            ticked.append(Ticked(WHOLE_SYSTEM, labels[WHOLE_SYSTEM].name, "system"))
+        if value.captions_everything_else and WHOLE_SYSTEM not in activity:
+            label = labels[EVERYTHING_ELSE].name
+            ticked.append(Ticked(EVERYTHING_ELSE, label, "system"))
+        if value.caption_mic:
+            ticked.append(Ticked(MIC, labels[MIC].name, "mic"))
+        return Facts(
+            now=time.monotonic(),
+            connection=str(self.connection),
+            paused=self.pause.isChecked(),
+            overlays_hidden=self.hide_windows.isChecked(),
+            ticked=ticked,
+            activity=activity,
+            last_caption=self._last_caption,
+            failing=self._failures.failing,
+            unreachable=self.unreachable,
+        )
+
+    def _action(self, name: str, text: str, checkable: bool = False) -> QAction:
+        action = QAction(text, self)
+        action.setObjectName(name)
+        action.setCheckable(checkable)
+        return action
+
+    def set_dictation_languages(
+        self, choices: list[tuple[str, str]], shown: int = 3
+    ) -> None:
+        """The languages dictation can be set to, as (code, name), the
+        first `shown` of them in the tray's "Dictation language" menu with
+        "Detect automatically" - and the one chosen, if it's another; the
+        rest are in Settings ("More languages…")."""
+        self._dictation_languages, self._dictation_shown = list(choices), shown
+        self._show_dictation_languages()
+
+    def _show_dictation_languages(self, now: bool = True) -> None:
+        """The menu as the setting is: the tick moved at once; the
+        languages listed again (`now`, or else once the event loop runs
+        again - never under the action just triggered, which a rebuild
+        deletes)."""
+        menu = self.dictation_language_menu
+        chosen = self.settings.value.dictation_language or ""
+        shown = self._dictation_languages[: self._dictation_shown]
+        named = dict(self._dictation_languages)
+        if chosen and chosen not in dict(shown) and chosen in named:
+            shown.append((chosen, named[chosen]))
+        wanted = [("", self.tr("Detect automatically")), *shown]
+        there = [a for a in menu.actions() if a.isCheckable()]
+        for action in there:
+            action.setChecked(action.data() == chosen)
+        if [a.data() for a in there] == [code for code, _ in wanted]:
+            return
+        if not now:
+            QTimer.singleShot(0, self._show_dictation_languages)
+            return
+        menu.clear()
+        for code, name in wanted:
+            action = menu.addAction(name)
+            action.setObjectName(f"app.dictation_language.{code or 'detect'}")
+            action.setData(code)
+            action.setCheckable(True)
+            action.setChecked(code == chosen)
+            action.triggered.connect(
+                lambda _on, code=code: self.settings.update(
+                    dictation_language=code or None
+                )
+            )
+        menu.addSeparator()
+        menu.addAction(self.more_dictation_languages)
+
+    def _tray_menu(self) -> QMenu:
+        menu = QMenu()
+        menu.addAction(self.open_window)
+        menu.setDefaultAction(self.open_window)
+        menu.addAction(self.install_update)  # hidden until one is ready
+        menu.addSeparator()
+        for action in (
+            self.pause,
+            self.lock_windows,
+            self.hide_windows,
+            self.caption_mic,
+            self.dictation,
+        ):
+            menu.addAction(action)
+        menu.addMenu(self.dictation_language_menu)
+        for action in (self.show_delay,):
+            menu.addAction(action)
+        menu.addSeparator()
+        menu.addAction(self.report_problem)
+        menu.addAction(self.suggest)
+        menu.addSeparator()
+        menu.addAction(self.quit)
+        return menu
+
+    def show_update_ready(self, version: str | None) -> None:
+        """An update downloaded (`version`), or none: the tray's menu offers
+        to restart into it, under Open - quietly, never a notification over
+        a game or a call (polyglotic-hq 299). Kept after Home's Later."""
+        self.install_update.setVisible(version is not None)
+        if version is not None:
+            self.install_update.setText(
+                self.tr("Restart to install version {version}").format(version=version)
+            )
+
+    def show_dictation_key(self, key: str) -> None:
+        """Dictation's key, in words ("Right Ctrl"), at the right of its
+        line in the tray menu, as a hotkey is (polyglotic-hq 289)."""
+        self.dictation.setText(f"{self.tr('Dictation (preview)')}\t{key}")
+        self.dictation.setToolTip(
+            self.tr(
+                "Hold {key} and speak: your words are typed where your cursor is"
+            ).format(key=key)
+        )
+
+    def hotkeys_taken(self, keys: list[str]) -> None:
+        """Another app already has these hotkeys: stop showing them."""
+        for key in keys:
+            self.hotkeys[key].setShortcut(QKeySequence())
+
+    @Slot(str)
+    def _hotkey(self, key: str) -> None:
+        action = self.hotkeys.get(key)
+        if action is not None:
+            action.trigger()
+
+    def show_tray(self) -> None:
+        """The tray icon, where Windows has a tray: closing the main window
+        then keeps the app running there (`tray` is set)."""
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            return
+        tray = QSystemTrayIcon(self)
+        tray.setToolTip(self._tooltip())
+        # no setContextMenu: Qt would open it against the whole screen, over
+        # the taskbar (`show_tray_menu` opens it above)
+        tray.activated.connect(self._tray_activated)
+        self.tray = tray
+        self._show_tray_state()
+        tray.show()
+        self._taskbar_check.start()
+
+    def _tray_activated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
+        if reason in (
+            QSystemTrayIcon.ActivationReason.Trigger,
+            QSystemTrayIcon.ActivationReason.DoubleClick,
+        ):
+            self.show_window()
+        elif reason is QSystemTrayIcon.ActivationReason.Context:
+            self.show_tray_menu()
+
+    def show_tray_menu(self) -> None:
+        """The tray's menu, from the mouse on the icon - or the icon, opened
+        from the keyboard - wholly on the work area of its screen
+        (`tray_menu_place`), measured as styled for the taskbar now
+        (polyglotic-hq 146: the taskbar may have turned since the icon's
+        last check)."""
+        at = QCursor.pos()
+        icon = self.tray.geometry() if self.tray is not None else QRect()
+        if icon.isValid() and not icon.contains(at):
+            at = icon.center()
+        screen = QGuiApplication.screenAt(at) or QGuiApplication.primaryScreen()
+        menu = self.tray_menu
+        self._style_tray_menu()  # before measuring: dark and light differ in size
+        menu.popup(tray_menu_place(at, menu.sizeHint(), screen.availableGeometry()))
+
+    def show_state_title(self, title: str) -> None:
+        """The state Home shows ("Listening", "Paused", ...): the tray's
+        tooltip says it too."""
+        self.state_title = title
+        if self.tray is not None:
+            self.tray.setToolTip(self._tooltip())
+
+    def show_hidden(self, captioning: list[str], paused_after: int | None) -> None:
+        """Hidden caption windows, in the tray's tooltip (polyglotic-hq
+        335): the apps whose speech they still caption, unseen, and - any
+        paused - the minutes they were hidden before their listening
+        paused."""
+        lines = []
+        if captioning:
+            names = QLocale().createSeparatedList(captioning)
+            lines.append(self.tr("Captioning {apps} while hidden").format(apps=names))
+        if paused_after is not None:
+            lines.append(
+                self.tr(
+                    "Captions paused after %n minute(s) hidden - show the"
+                    " windows to carry on",
+                    "",
+                    paused_after,
+                )
+            )
+        self.hidden_line = "\n".join(lines)
+        if self.tray is not None:
+            self.tray.setToolTip(self._tooltip())
+
+    def _tooltip(self) -> str:
+        title = f"Polyglotic - {self.state_title}" if self.state_title else "Polyglotic"
+        return fitted_tip([title, *self.hidden_line.split("\n")])
+
+    @property
+    def tray_state(self) -> TrayState:
+        """As Home says it: paused if the learner paused captions;
+        listening while the listening session is live and something is
+        picked to caption; idle otherwise."""
+        if self.pause.isChecked():
+            return TrayState.PAUSED
+        live = self.connection is ConnectionState.LISTENING
+        if live and self.settings.value.source_chosen:
+            return TrayState.LISTENING
+        return TrayState.IDLE
+
+    def _show_tray_state(self) -> None:
+        if self.tray is not None:
+            light = self._light_taskbar()
+            self.tray.setIcon(tray_icon(self.tray_state, light))
+            self._style_tray_menu(light)
+
+    def _style_tray_menu(self, light: bool | None = None) -> None:
+        """The tray's menu - and its submenus (Transcript) - for the
+        taskbar as it is: Windows' own tray menus follow the taskbar's light
+        or dark, which can differ from the apps' (Qt follows the apps':
+        polyglotic-hq 141 saw a light menu on a dark taskbar). Kept in step
+        with the icon, and again just before the menu shows."""
+        if light is None:
+            light = self._light_taskbar()
+        sheet = "" if light else DARK_TRAY_MENU
+        submenus = [a.menu() for a in self.tray_menu.actions()]
+        for menu in [self.tray_menu, *(m for m in submenus if isinstance(m, QMenu))]:
+            if menu.styleSheet() != sheet:
+                menu.setStyleSheet(sheet)
+
+    def note_in_tray(self) -> None:
+        """The main window was closed, not quit: the first time on this PC
+        the tray says the app is still running there and how to quit.
+        Closing it used to hide it without a word, and learners thought
+        they had quit (polyglotic-hq 135, finding 10)."""
+        if self.tray is None or self.settings.value.tray_note_shown:
+            return
+        title, text = self.tray_note()
+        self.tray.showMessage(title, text, self.tray.icon(), 10_000)
+        self.settings.update(tray_note_shown=True)
+
+    def tray_note(self) -> tuple[str, str]:
+        """The tray's one-time message (title, text), for the state the
+        tray shows: captioning, paused, or neither."""
+        state = self.tray_state
+        if state is TrayState.LISTENING:
+            title = self.tr("Polyglotic is still captioning")
+        elif state is TrayState.PAUSED:
+            title = self.tr("Polyglotic is still running, with captions paused")
+            return title, self.tr("It's in the tray. Resume or quit from there.")
+        else:
+            title = self.tr("Polyglotic is still running")
+        return title, self.tr("It's in the tray. Quit from there.")
+
+    def show_window(self) -> None:
+        """The main window, in front - on the page where the learner picks
+        what to caption while nothing is chosen, so the first run (after
+        signing in) opens there (polyglotic-hq DECISIONS.md #25)."""
+        self.window_wanted.emit(True)
+
+    def set_minutes(self, used: float, left: float | None) -> None:
+        """This month's minutes, as the server counts them."""
+        self.minutes_changed.emit(used, left)
+
+    def show_notice(self, code: str) -> None:
+        """A server notice (protocol.md, `notice`): on Home for a while and
+        briefly on the caption windows. A code this app doesn't know isn't
+        shown."""
+        text = self._notice_text(code)
+        if text is None:
+            return
+        self._warming_up = (
+            code if code in (MODELS_WARMING_UP, TRANSLATOR_WARMING_UP) else None
+        )
+        self._restarting = code == SERVER_RESTARTING
+        self.home_notice.emit(text)
+        self.caption_notice.emit(text)
+
+    def show_feedback(self, outcome: str, just_sent: bool) -> None:
+        """What became of a report, on Home: `sent`, `refused`, `waiting`
+        (kept to send later), or `sign_in` (kept until the user signs in).
+        A report sent again later says so only once it's through.
+
+        The tray says it too, unless Home's banner is in front of the
+        learner (`banner_in_view`): someone in a game or a call never sees
+        Home (polyglotic-hq 279). It's Windows' own notification, so focus
+        assist (Do not disturb) holds it as it holds any app's; the app adds
+        no sound of its own."""
+        if outcome in ("waiting", "sign_in") and not just_sent:
+            return
+        text = {
+            "sent": self.tr("Thanks - we have your report.")
+            if just_sent
+            else self.tr("Thanks - your earlier report reached us."),
+            "refused": self.tr(
+                "The server couldn't take your report. Please write to us instead."
+            ),
+            "waiting": self.tr(
+                "Your report is saved, and will be sent when the server can be reached."
+            ),
+            "sign_in": self.tr(
+                "Your report is saved, and will be sent once you're signed in."
+            ),
+        }.get(outcome)
+        if text is not None:
+            self._warming_up = None  # Home's banner says this instead
+            self._restarting = False
+            self.home_notice.emit(text)
+            if self.tray is not None and not self.banner_in_view():
+                self.tray.showMessage("Polyglotic", text, self.tray.icon(), 10_000)
+
+    def _notice_text(self, code: str) -> str | None:
+        return {
+            MODELS_WARMING_UP: self.tr(
+                "The speech model is starting - the first captions may be slow."
+            ),
+            TRANSLATOR_WARMING_UP: self.tr(
+                "The translator is starting - captions first, translations a little later."
+            ),
+            SERVER_RESTARTING: self.tr(
+                "The server is restarting - captions carry on in a moment."
+            ),
+            # the app's own notice, not the server's: several apps talking
+            # at once in Live updates (decision 0097)
+            LIVE_UPDATES_HELD_BACK: self.tr(
+                "Lots of speech at once - live updates slowed; captions continue"
+            ),
+        }.get(code)
+
+    def set_connection(
+        self,
+        state: ConnectionState,
+        retry_in: float | None = None,
+        unreachable: Unreachable | None = None,
+    ) -> None:
+        """The listening session's state: kept, announced, and in the tray.
+        `unreachable`: why the server can't be reached, if it's known - a
+        restart's said by the state line from then on, so the banner's
+        notice of it goes (it said the same)."""
+        moved_now = (
+            state is ConnectionState.MOVED
+            and self.connection is not ConnectionState.MOVED
+        )
+        self._note_drop(state)
+        if state is not self.connection and self._failures.captioned():
+            self.captions_failing.emit(False)  # the state line says what's next
+        if (
+            state is ConnectionState.LISTENING
+            and state is not self.connection
+            and self._restarting
+        ):  # the restart is over: Home said so for two minutes (polyglotic-hq 203)
+            self._restarting = False
+            self.home_notice.emit("")
+        if unreachable is Unreachable.RESTARTING and self._restarting:
+            self._restarting = False
+            self.home_notice.emit("")
+        self.connection, self.retry_in = state, retry_in
+        self.unreachable = unreachable
+        if moved_now:  # one line on the caption windows, once (Home keeps the banner)
+            self.caption_notice.emit(self.tr("Listening moved to another device"))
+        self.connection_changed.emit(state, retry_in)
+        self._show_tray_state()
+
+    def _note_drop(self, state: ConnectionState) -> None:
+        """Listening, then reconnecting, is a drop; listening over (any state
+        but those) forgets them (core.listening.unstable)."""
+        now = time.monotonic()
+        reconnecting = (ConnectionState.WAITING, ConnectionState.CONNECTING)
+        if self.connection is ConnectionState.LISTENING and state in reconnecting:
+            self._drops.dropped(now)
+            clears_at = self._drops.clears_at()
+            if clears_at is not None:
+                self._held.start(max(0, round((clears_at - now) * 1000)))
+        elif state not in (ConnectionState.LISTENING, *reconnecting):
+            self._held.stop()
+            self._drops.stopped(now)
+            self._stalled = False
+        self._say_unstable(now)
+
+    def _held_again(self) -> None:
+        """The connection has held since its last drop: the notice comes off."""
+        self._say_unstable(time.monotonic())
+
+    @Slot(bool)
+    def connection_stalled(self, stalled: bool) -> None:
+        """The connection stalled, or answers flow again
+        (core.listening.unstable.stalled)."""
+        self._stalled = stalled
+        self._say_unstable(time.monotonic())
+
+    def _say_unstable(self, now: float) -> None:
+        """`connection_unstable` when it changes: drops that add up, or a
+        stall now."""
+        dropping = self._drops.unstable(now)
+        unstable = dropping or self._stalled
+        if unstable != self._unstable:
+            self._unstable = unstable
+            # the notice and its cause, for the log (polyglotic-hq 271: "Why
+            # am I seeing connection unstable ... Why doesn't this ever go away")
+            log.info(
+                'the "Connection unstable" notice %s (drops that add up: %s; stalled: %s)',
+                "is on" if unstable else "is off",
+                "yes" if dropping else "no",
+                "yes" if self._stalled else "no",
+            )
+            self.connection_unstable.emit(unstable)
+
+    @Slot()
+    def caption_failed(self) -> None:
+        """A finished caption failed on the server (`processing_failed`)."""
+        if self._failures.failed():
+            self.captions_failing.emit(True)
+
+    def _captions_back(self, _source_id: str) -> None:
+        """A caption arrived: captions failing on the server are over."""
+        if self._failures.captioned():
+            self.captions_failing.emit(False)
+
+    def _follow_language_choices(self) -> None:
+        """The learning tools have what the settings keep for their language
+        (the learning window's size, which words are linked) and for each
+        other language learned; captions follow a change at once."""
+        if self.tools is not None:
+            value = self.settings.value
+            self.tools.set_choices(
+                value.choices_for(self.tools.language),
+                {c: value.choices_for(c) for c in value.learning_languages.all},
+            )
+
+    def _follow_load_rules(self) -> None:
+        """The learner's vocabulary has the learning load's rules the
+        settings keep for its language - or none, while the Lab's mode is
+        off (polyglotic-hq 324)."""
+        if self.tools is not None:
+            self.tools.set_load_rules(
+                self.settings.value.load_rules_for(self.tools.language)
+            )
+
+    def _keep_load_rules(self) -> None:
+        """Words added to the load by hand raised its size: the settings
+        keep the size it has now."""
+        tools = self.tools
+        rules = tools.vocabulary.load.rules if tools is not None else None
+        if tools is not None and rules is not None:
+            value = self.settings.value
+            if rules != value.load_rules_for(tools.language):
+                self.settings.update(**load_rules_changes(value, tools.language, rules))
+
+    def _captioned(self, _source_id: str) -> None:
+        self._last_caption = time.monotonic()
+
+    @Slot(object)
+    def _applied(self, update: CaptionUpdate) -> None:
+        """A caption update shown: a warm-up notice on Home that it shows
+        is over comes off (the caption windows' went after a few seconds)."""
+        if self._warming_up is not None and warm_up_over(self._warming_up, update):
+            self._warming_up = None
+            self.home_notice.emit("")
+
+    # -- keeping things in step -------------------------------------------------------
+
+    def _settings_changed(self) -> None:
+        value = self.settings.value
+        if (value.theme, value.window_theme) != self._look:
+            self._look = (value.theme, value.window_theme)
+            self._retheme()
+        if self.caption_mic.isChecked() != value.caption_mic:
+            self.caption_mic.setChecked(value.caption_mic)
+        if self.lock_windows.isChecked() != value.locked:
+            self.lock_windows.setChecked(value.locked)
+        if self.show_delay.isChecked() != value.show_delay:
+            self.show_delay.setChecked(value.show_delay)
+        if self.dictation.isChecked() != value.dictation:
+            self.dictation.setChecked(value.dictation)
+        if value.dictation_language != self._dictation_shown_as:
+            self._dictation_shown_as = value.dictation_language
+            self._show_dictation_languages(now=False)
+
+        self._show_tray_state()
+
+    def _system_theme(self) -> None:
+        """Windows switched between light and dark: followed if the
+        learner chose "system"; the tray's icon follows the taskbar."""
+        if self._look[1] == "system":
+            self._retheme()
+        self._show_tray_state()
+
+    def _retheme(self) -> None:
+        theme.apply(self._look[1], self._look[0])
+        self.themed.emit()
+
+    def may_quit(self) -> bool:
+        """Whether Quit may go on: `quit_check`'s answer (the transcripts'
+        question, polyglotic-hq 334), or yes."""
+        return self.quit_check() if self.quit_check is not None else True
+
+    def _quit(self) -> None:
+        """The learner's Quit: the app ends, whatever its windows say - once
+        `may_quit` says yes (a transcript not saved, 334).
+
+        `exit()`, not `quit()`: Qt 6's `quit()` first asks every window to
+        close and gives up if one refuses while another still shows - the
+        main window, kept in the tray, refuses; and depending on Qt's own
+        order of windows the caption windows were still up. On a real
+        screen the app then ran on, its tray icon already gone and nothing
+        left to quit it with (polyglotic-hq 141). `main`'s `aboutToQuit`
+        closes and saves every window as before."""
+        if not self.may_quit():
+            return
+        self.close()
+        app = QApplication.instance()
+        if app is not None:
+            app.exit(0)
+
+    def close(self) -> None:
+        self._taskbar_check.stop()
+        if self.tray is not None:
+            self.tray.hide()
+        if self.apps is not None:
+            self.apps.stop()  # its thread ends; no look starts after this
+
+
+__all__ = ["ConnectionState", "DesktopApp"]
