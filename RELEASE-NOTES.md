@@ -26,11 +26,11 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
-- Spanish, Italian and Portuguese words are recorded: the speaker on a
-  word's card says the language's 10,000 commonest words even on a PC
-  with no Windows voice for it. The recordings come after the language's
-  dictionary: Learning says both sizes before the download, and says when
-  they're there.
+- On a Mac, captions stay over full-screen videos and apps, and on
+  every desktop (Space). Polyglotic lives in the menu bar there, not the
+  Dock: its icon at the top of the screen opens Home and Settings.
+- On a Mac, dictation types into the app you're using: hold Right ⌘ and
+  speak. macOS asks once for the Accessibility permission it needs.
 - Every language with a dictionary keeps your words, as Chinese and
   English do: learn Russian, Spanish, Japanese or any other language
   whose dictionary is downloaded, and a word's card has Save to, Add to
@@ -50,14 +50,10 @@ the app's What's new, the website's What's new and the Discord post.
   Zhuyin. The same readings, with zhuyin's tone marks, over what was said
   and over translations into Chinese.
 - Pinyin's colour (Settings - Look - Pinyin): the same as its line, its
-  word link's colour, or one you pick. And linked words in their link's
-  colour, each side on its own - "Colour linked words in what was said"
-  and "Colour linked words in the translation", in Settings - Look - Word
-  links and in a caption window's settings: with both, and pinyin in its
-  word link's colour, a word, its pinyin and its translation all match.
-  Link colours are lightened or darkened only as far as they need to
-  stay readable on the panel, including over a bright scene behind a
-  see-through one.
+  word link's colour, or one you pick. And in Word links, "Colour the
+  linked words too": the words a link joins take its colour, so a word,
+  its pinyin and its translation can all match. Link colours are
+  darkened to stay readable on a light panel.
 - French has a dictionary: download it on Learning and French words in
   captions can be looked up - l'homme and d'accord are read as their
   words.
@@ -152,18 +148,6 @@ the app's What's new, the website's What's new and the Discord post.
   word link's) right after another coloured word keeps its colour; it was
   sometimes drawn plain, most often with captions filling the window's
   width.
-- Check boxes and round choices - on Your data, the level you know,
-  and in the app's other windows - are plain to see in every theme,
-  light or dark: drawn for Windows' own mode, they could all but vanish
-  when it differed from the app's. The code box has an edge you can see
-  too.
-- Learning no longer says "No dictionary yet" for a language whose
-  dictionary came out since you last opened the app: it checks the list
-  of dictionaries as you open it, and says it's checking meanwhile.
-- Pinyin and Zhuyin show over a translation into Chinese as a second
-  language too: English heard in a window set to English, with Chinese
-  as its second language, had its Chinese lines read as English - no
-  reading over them, in any layout.
 - Clicking a word once - to select it, or hear it on its card - no longer
   marks it as a word you don't know: common words such as "the" and
   "that" were being dotted as new and linked after one click. Clicking a
@@ -233,14 +217,6 @@ the app's What's new, the website's What's new and the Discord post.
   Lock all, Hide all and Resume.
 - With Mandarin shown in Traditional characters, the caption preview in
   Settings (Look, and the Lab's) shows them too: it stayed Simplified.
-- With Mandarin shown in Traditional characters, translations into Chinese
-  are in Traditional too - straight into Chinese or as a second language -
-  in the caption windows, the transcript, Copy and Save: they stayed
-  Simplified.
-- A saved or copied transcript puts a second-language line under its own
-  language: with Chinese as English's second language, an English
-  caption's Chinese line was saved in the English column, and the Chinese
-  one was empty.
 
 ## 0.1.6 - 2026-11-15
 

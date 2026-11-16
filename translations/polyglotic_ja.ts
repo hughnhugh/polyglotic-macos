@@ -444,16 +444,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">話された内容のリンクした単語に色を付ける</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">訳のリンクした単語に色を付ける</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">文字を小さく（Ctrl+ホイール）</translation>
     </message>
@@ -3723,11 +3713,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">辞書の一覧を確認しています。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">オープンデータによる簡易辞書（意味は人による確認を受けていません）。用意できていれば、この PC に入ると {language} の字幕で単語を調べられます。どちらの場合も字幕と翻訳は使えます。</translation>
     </message>
@@ -4179,6 +4164,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">辞書の一覧を確認しています。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">ダウンロード中：{done} / {total} MB</translation>
     </message>
@@ -4229,18 +4219,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its commonest words are recorded ({size}).</source>
-        <translation type="unfinished">よく使われる単語は録音済みです（{size}）。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">新しいバージョン（{size}）が従量制でない接続を待っています。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
-        <translation type="unfinished">この辞書：ダウンロードは {size}、続いて録音された単語が {recorded}。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5416,23 +5396,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">話された内容のリンクした単語に色を付ける</translation>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">リンクした単語にも色を付ける</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour, as its underline has.</source>
-        <translation type="unfinished">リンクでつながった単語がその色になります。下線と同じ色です。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">訳のリンクした単語に色を付ける</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">リンクでつながった単語がその色になります。両方をオンにしてピンインも「単語リンクの色」にすると、単語・ピンイン・訳がすべて同じ色になります。</translation>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">リンクでつながった単語（話された言葉と訳の両方）がその色になります。下線と同じ色です。ピンインも「単語リンクの色」にすると、単語・ピンイン・訳がすべて同じ色になります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5501,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">単語リンクの色：リンクでつながった単語のピンインが、そのリンクの色になります。単語リンクでは単語そのものにも色を付けられます。</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">単語リンクの色：ピンインは、その単語にリンクがあればリンクの色になります。単語リンクの「リンクした単語にも色を付ける」と合わせると、単語・ピンイン・訳がすべて同じ色になります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

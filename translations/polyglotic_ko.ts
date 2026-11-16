@@ -444,16 +444,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">말한 내용의 연결된 단어 색칠</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">번역의 연결된 단어 색칠</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">글자 작게 (Ctrl+휠)</translation>
     </message>
@@ -3723,11 +3713,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">사전 목록을 확인하는 중입니다.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">오픈 데이터로 만든 기본 사전(뜻은 사람이 확인하지 않음)으로, 준비된 사전이 있으면 이 PC에 받은 뒤 {language} 자막에서 단어를 찾아볼 수 있습니다. 어느 경우든 자막과 번역은 됩니다.</translation>
     </message>
@@ -4179,6 +4164,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">사전 목록을 확인하는 중입니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">다운로드 중: {done} / {total} MB</translation>
     </message>
@@ -4229,18 +4219,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its commonest words are recorded ({size}).</source>
-        <translation type="unfinished">가장 흔한 단어는 녹음되어 있습니다({size}).</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">새 버전({size})이 데이터 통신 연결이 아닌 연결을 기다리고 있습니다.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
-        <translation type="unfinished">이 사전: 다운로드 {size}, 이어서 녹음된 단어 {recorded}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5416,23 +5396,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">말한 내용의 연결된 단어 색칠</translation>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">연결된 단어도 색칠</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour, as its underline has.</source>
-        <translation type="unfinished">연결로 이어진 단어가 밑줄처럼 그 색이 됩니다.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">번역의 연결된 단어 색칠</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">연결로 이어진 단어가 그 색이 됩니다. 둘 다 켜고 병음도 ‘단어 연결 색’으로 하면 단어, 병음, 번역이 모두 같은 색이 됩니다.</translation>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">연결로 이어진 단어(말한 내용과 번역 모두)가 밑줄처럼 그 색이 됩니다. 병음도 ‘단어 연결 색’으로 하면 단어, 병음, 번역이 모두 같은 색이 됩니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5501,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">단어 연결 색: 연결이 있는 단어의 병음이 그 연결의 색이 됩니다. 단어 연결에서 연결된 단어도 색칠할 수 있습니다.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">단어 연결 색: 병음이 그 단어에 연결이 있으면 연결 색이 됩니다. 단어 연결의 ‘연결된 단어도 색칠’과 함께 쓰면 단어, 병음, 번역이 모두 같은 색이 됩니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

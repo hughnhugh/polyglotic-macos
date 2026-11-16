@@ -14,15 +14,9 @@ import pytest
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QGuiApplication, QMouseEvent
 from PySide6.QtWidgets import QApplication, QPushButton
-from tests.ui_next.made_up import EN, ZH, finished_updates, live_update
+from tests.ui_next.made_up import EN, finished_updates, live_update
 
-from polyglotic_desktop.core.listening.captions import (
-    CaptionKind,
-    CaptionUpdate,
-    Clause,
-)
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
-from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -262,31 +256,3 @@ def test_nothing_copied_is_logged(
         caption = window.view.caption(line.key)
         assert caption is not None
         assert caption.original not in caplog.text
-
-
-def test_a_second_language_line_is_copied_under_its_language(
-    qapp: QApplication,
-) -> None:
-    """English heard in a window into English, Chinese its second language:
-    the server keeps the Chinese line under English; Copy named it English
-    (polyglotic-hq 432)."""
-    window = window_of(qapp, 0)
-    try:
-        window.set_second_languages({EN: ZH})
-        said = CaptionUpdate(
-            CaptionId("c1"),
-            APP,
-            CaptionKind.FINISHED,
-            clauses=(Clause("See you tomorrow.", translations={EN: "明天见。"}),),
-            language=EN,
-            languages_heard=(EN,),
-        )
-        window.view.apply(said)
-        window.apply_changed(new_caption=True)
-        window.controls["copy_all"].trigger()
-        assert copied().endswith(
-            "See you tomorrow.\n    Chinese (Simplified): 明天见。\n"
-        )
-    finally:
-        window.close()
-        window.deleteLater()

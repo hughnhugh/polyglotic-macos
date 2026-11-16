@@ -444,16 +444,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">छोटा टेक्स्ट (Ctrl+व्हील)</translation>
     </message>
@@ -3732,11 +3722,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">खुले डेटा से बना बुनियादी शब्दकोश (जिसके अर्थ किसी व्यक्ति ने नहीं जाँचे), अगर कोई तैयार हो: इस पीसी पर आने के बाद {language} कैप्शन में शब्द देखे जा सकते हैं। कैप्शन और अनुवाद दोनों ही हालात में चलते हैं।</translation>
     </message>
@@ -4191,6 +4176,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">डाउनलोड हो रहा है: {total} MB में से {done}</translation>
     </message>
@@ -4241,18 +4231,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its commonest words are recorded ({size}).</source>
-        <translation type="unfinished">सबसे आम शब्द रिकॉर्ड किए हुए हैं ({size})।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">एक नया संस्करण ({size}) ऐसे कनेक्शन का इंतज़ार कर रहा है जो मीटर्ड न हो।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
-        <translation type="unfinished">इसका शब्दकोश: {size} डाउनलोड करना है, फिर {recorded} रिकॉर्ड किए हुए शब्द।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5430,23 +5410,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">जुड़े शब्दों को भी रंगें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour, as its underline has.</source>
-        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है, जैसे उसका रेखांकन।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है। दोनों चालू हों और पिनयिन शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">किसी जोड़ से जुड़े शब्द - कही गई बात और उसके अनुवाद में - उसका रंग लेते हैं, जैसे उनका रेखांकन। जब पिनयिन भी शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5545,8 +5515,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">शब्द जोड़ का रंग: जहाँ कोई जोड़ हो, पिनयिन अपने शब्द के जोड़ का रंग लेता है। शब्द जोड़ जुड़े शब्दों को भी रंग सकते हैं।</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">शब्द जोड़ का रंग: पिनयिन अपने शब्द के जोड़ का रंग लेता है, जहाँ जोड़ हो - शब्द जोड़ के “जुड़े शब्दों को भी रंगें” के साथ शब्द, उसका पिनयिन और अनुवाद एक रंग में होते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

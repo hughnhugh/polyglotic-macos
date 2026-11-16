@@ -225,13 +225,6 @@ WAIVERS: tuple[Waiver, ...] = (
         " shows nothing cut",
     ),
     Waiver(
-        "clipped_text",
-        "ui_next.w1_translation_in_link_colours",
-        "caption_window.0 > Canvas",
-        "the same as 395's: the translation's linked words drawn again in their"
-        " link's colour (polyglotic-hq 431)",
-    ),
-    Waiver(
         "contrast",
         "ui_next.*",
         "CaptionSurface",
@@ -262,15 +255,6 @@ WAIVERS: tuple[Waiver, ...] = (
         " text a button's words reach its frame, which the check reads as their"
         " background. The app draws it in Windows' own style; the state is here"
         " for its fonts (polyglotic-hq 215)",
-    ),
-    Waiver(
-        "keyboard",
-        "ui_next.first_run_level_*",
-        "level.* (QRadioButton)",
-        "the level picker's choices are one group of radio buttons: Tab reaches"
-        " the group and the arrow keys move within it, as in Windows' own"
-        " dialogs (Qt's way for buttons that exclude each other; polyglotic-hq"
-        " 425 added the state)",
     ),
 )
 """Findings on the new interface accepted on purpose. Keep it short: each

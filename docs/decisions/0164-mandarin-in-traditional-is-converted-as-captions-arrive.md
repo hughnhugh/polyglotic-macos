@@ -1,7 +1,6 @@
 # 0164 Mandarin is shown in Traditional by converting each caption on the PC as it arrives, one character for one
 
-- **Status:** accepted; translations into Chinese (its "Where") replaced by
-  [0204](0204-translations-into-chinese-follow-the-mandarin-script.md) (2026-11-17)
+- **Status:** accepted
 - **Date:** 2026-11-16
 - **Decided by:** polyglotic-hq project 375's brief (the user, 2026-11-16:
   "is traditional mandarin now a valid captioning display method? where is

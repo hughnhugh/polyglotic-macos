@@ -37,7 +37,6 @@ from polyglotic_desktop.core.lexicon.packs import (
     LIST_FORMAT,
     PackListError,
     PackOffer,
-    Rider,
     list_serial,
     read_pack_list,
 )
@@ -117,7 +116,7 @@ class PackList:
     def address(self) -> str:
         return self.base + FOLDER + LIST_NAME
 
-    def file_address(self, offer: PackOffer | Rider) -> str:
+    def file_address(self, offer: PackOffer) -> str:
         """Where `offer`'s download is - its file, gzipped (a plain name: the
         list's reader refused any other), on the list's own host."""
         return self.base + FILES + offer.download

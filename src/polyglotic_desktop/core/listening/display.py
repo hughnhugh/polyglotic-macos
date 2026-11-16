@@ -9,10 +9,7 @@ From the proof of concept's `ui/overlay.py` (`caption_lines`,
   (white - left out if the overlay hides originals and there's a
   translation), then its translation (yellow) into the overlay's target
   language - or, for a clause already in it, into the overlay's **second
-  language**. A live caption's last row trails off. The server keeps a
-  second-language line under its target (`translation_shown`), so the row
-  says the language it is written in, for its font and reading line
-  (polyglotic-hq 427).
+  language**. A live caption's last row trails off.
 - **Word links** are drawn only on settled clauses, never on a live
   caption's last (its words are still changing); one link - one colour -
   per counterpart, so a word said twice for the same thing shares it;
@@ -51,12 +48,7 @@ from collections.abc import Collection, Sequence
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
-from polyglotic_desktop.core.listening.captions import (
-    Clause,
-    Language,
-    WordLink,
-    written_in,
-)
+from polyglotic_desktop.core.listening.captions import Language, WordLink
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
 
@@ -168,10 +160,7 @@ class LinkedWords:
 class CaptionRow:
     """One row an overlay shows for a caption. `clause` is the clause it
     shows; `starts_clause` is true for the first row of the clause's pair.
-    `language` is the row's language (for its font and reading line), None
-    if unknown. `target`: a translation row's target - what its clause
-    keeps its line and links under (`translation_shown`); None: its
-    `language`."""
+    `language` is the row's language (for its font), None if unknown."""
 
     text: str
     kind: RowKind
@@ -179,41 +168,6 @@ class CaptionRow:
     clause: int
     starts_clause: bool
     links: tuple[LinkedWords, ...] = ()
-    target: Language | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class TranslationShown:
-    """A clause's translation as a window shows it: its `text`, the
-    `language` it is written in, and the `target` its clause keeps it and
-    its links under (`Clause.translations`, `.links`)."""
-
-    text: str
-    language: Language
-    target: Language
-
-
-def translation_shown(
-    clause: Clause,
-    said_in: Language | None,
-    target: Language,
-    second: Language | None,
-) -> TranslationShown | None:
-    """The translation a window into `target` shows for `clause`, of a
-    caption said in `said_in` - None for none. A caption already in the
-    target is translated into its `second` language, kept under the target
-    - so its language is the second's (`written_in`; polyglotic-hq 427:
-    read as English, an English caption's Chinese line had no pinyin over
-    it). A line kept under the second language itself (a second target
-    too) is shown where the target has none."""
-    text = clause.translations.get(target)
-    if text:
-        return TranslationShown(text, written_in(target, said_in, second), target)
-    if second is not None and second != target:
-        text = clause.translations.get(second)
-        if text:
-            return TranslationShown(text, second, second)
-    return None
 
 
 def caption_rows(
@@ -234,18 +188,21 @@ def caption_rows(
     last = len(caption.clauses) - 1
     numbered = 0  # links numbered in the clauses before: the next one's first
     for n, clause in enumerate(caption.clauses):
-        shown = translation_shown(clause, caption.language, target, second)
-        translation = shown.text if shown is not None else None
+        language = target
+        translation = clause.translations.get(target) or None
+        if translation is None and second is not None and second != target:
+            translation = clause.translations.get(second) or None
+            language = second
         settled = not (caption.live and n == last)
         original_links: tuple[LinkedWords, ...] = ()
         translation_links: tuple[LinkedWords, ...] = ()
-        if linking and shown is not None and settled:
+        if linking and translation is not None and settled:
             original_links, translation_links = numbered_links(
-                clause.links.get(shown.target, ()),
+                clause.links.get(language, ()),
                 options.link_detail,
                 options.max_links,
                 len(clause.original),
-                len(shown.text),
+                len(translation),
             )
             if numbered:
                 original_links = _from(original_links, numbered)
@@ -264,21 +221,27 @@ def caption_rows(
                 )
             )
             starts = False
-        if shown is not None:
+        if translation is not None:
             rows.append(
                 CaptionRow(
-                    shown.text,
+                    translation,
                     RowKind.TRANSLATION,
-                    shown.language,
+                    language,
                     n,
                     starts,
                     translation_links,
-                    shown.target,
                 )
             )
     if caption.live and rows:
         end = rows[-1]
-        rows[-1] = replace(end, text=end.text + LIVE_TRAIL)
+        rows[-1] = CaptionRow(
+            end.text + LIVE_TRAIL,
+            end.kind,
+            end.language,
+            end.clause,
+            end.starts_clause,
+            end.links,
+        )
     return rows
 
 
@@ -395,16 +358,18 @@ def counterpart(
         if partner is None or partner.language is None:
             return None
         language: Language | None = partner.language
-        kept = partner.target or partner.language
-        mine, other = clause.original, clause.translations.get(kept, "")
-        pairs = [(k.original, k.translation) for k in clause.links.get(kept, ())]
+        mine, other = clause.original, clause.translations.get(partner.language, "")
+        pairs = [
+            (k.original, k.translation) for k in clause.links.get(partner.language, ())
+        ]
     else:
         if row.language is None:
             return None
         language = caption.language
-        kept = row.target or row.language
-        mine, other = clause.translations.get(kept, ""), clause.original
-        pairs = [(k.translation, k.original) for k in clause.links.get(kept, ())]
+        mine, other = clause.translations.get(row.language, ""), clause.original
+        pairs = [
+            (k.translation, k.original) for k in clause.links.get(row.language, ())
+        ]
     start, end = span
     found = sorted(
         {

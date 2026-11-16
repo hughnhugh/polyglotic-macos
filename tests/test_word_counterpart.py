@@ -244,12 +244,6 @@ def test_the_translation_shown_is_the_one_used() -> None:
     )  # the mic, already in the window's English: its second, Chinese
     found = look_up(caption(already, language="en"), "like", target=EN, second=ZH)
     assert found == Counterpart("喜欢", ZH)
-    kept = clause("I like it", "我喜欢", (("like", "喜欢"),), into=EN)
-    # as the server keeps it: under the target (polyglotic-hq 427)
-    found = look_up(caption(kept, language="en"), "like", target=EN, second=ZH)
-    assert found == Counterpart("喜欢", ZH)
-    back = look_up(caption(kept, language="en"), "喜欢", EN, 1, second=ZH)
-    assert back == Counterpart("like", EN)
 
 
 def test_only_on_a_finished_caption() -> None:

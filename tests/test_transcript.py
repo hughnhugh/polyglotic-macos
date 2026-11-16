@@ -73,7 +73,7 @@ def test_text_has_each_finished_caption_with_its_translations() -> None:
 
 
 def test_srt_cues_are_timed_from_the_session_start() -> None:
-    assert as_srt(CAPTIONS, [EN], START) == (
+    assert as_srt(CAPTIONS, EN, START) == (
         "1\n"
         "00:00:01,000 --> 00:00:03,000\n"
         "你好，今天。\n"
@@ -90,7 +90,7 @@ def test_an_srt_cue_never_runs_into_the_next() -> None:
         caption(1, Clause("一。"), at=0.0, took=5.0),
         caption(2, Clause("二。"), at=3.0, took=1.0),
     ]
-    srt = as_srt(close, [], START)
+    srt = as_srt(close, None, START)
     assert "00:00:00,000 --> 00:00:03,000" in srt
     assert "00:00:03,000 --> 00:00:04,500" in srt
 
@@ -143,46 +143,3 @@ def test_a_captions_translation_alone_one_language_a_line() -> None:
     assert translation_text(both, [EN, ZH]) == "Hello.\n你好。"
     assert translation_text(untranslated, [EN]) == ""
     assert translation_text(first, []) == ""  # Original only
-
-
-# polyglotic-hq 432: in a window into English with Chinese its second
-# language, an English caption's Chinese line comes under the window's
-# language, English (protocol.md's `second_languages`) - it was saved and
-# copied in the English column, and the Chinese column was empty.
-SECONDS = {EN: ZH}
-SECOND_LINE = [
-    caption(
-        1, Clause("你好，", {EN: "Hello,"}), Clause("今天。", {EN: "today."}), at=1.0
-    ),
-    caption(2, Clause("See you.", {EN: "明天见。"}), at=4.0, language="en"),
-]
-
-
-def test_a_second_language_line_is_saved_under_its_own_language() -> None:
-    rows = list(csv.reader(io.StringIO(as_csv(SECOND_LINE, [EN, ZH], seconds=SECONDS))))
-    assert [row[3:] for row in rows] == [
-        ["language", "original", "en", "zh"],
-        ["zh", "你好，今天。", "Hello, today.", ""],
-        ["en", "See you.", "", "明天见。"],
-    ]
-    names = {"en": "English", "zh": "Chinese"}
-    text = as_text(SECOND_LINE, [EN, ZH], names, seconds=SECONDS)
-    assert "    Chinese: 明天见。" in text
-    assert "English: 明天见" not in text
-    assert "    English: Hello, today." in text
-
-
-def test_a_second_language_line_is_copied_and_cued_as_the_window_shows_it() -> None:
-    first, second = SECOND_LINE
-    assert translation_text(second, [EN, ZH], SECONDS) == "明天见。"
-    assert translation_text(first, [EN, ZH], SECONDS) == "Hello, today."
-    srt = as_srt(SECOND_LINE, [EN, ZH], START, SECONDS)
-    assert "See you.\n明天见。" in srt and "你好，今天。\nHello, today." in srt
-
-
-def test_a_line_already_in_its_key_stays_there() -> None:
-    """Only a caption said in the window's language has its line written in
-    the second; one said in another language is in the window's."""
-    heard_en = caption(1, Clause("Hi.", {ZH: "嗨。"}), at=1.0, language="en")
-    rows = list(csv.reader(io.StringIO(as_csv([heard_en], [ZH, EN], seconds={ZH: EN}))))
-    assert rows[1][5:] == ["嗨。", ""]

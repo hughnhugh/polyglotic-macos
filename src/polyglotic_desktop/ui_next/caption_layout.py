@@ -24,7 +24,6 @@ time. Holds caption text in its layouts: never log them.
 from collections import OrderedDict
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field, replace
-from functools import lru_cache
 
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import (
@@ -79,7 +78,7 @@ from polyglotic_desktop.ui_next.views.pour import (
     pour_paired,
     pour_stacked,
 )
-from polyglotic_desktop.ui_next.views.presets import readable_through
+from polyglotic_desktop.ui_next.views.presets import readable_at
 
 LATIN_FAMILIES = ("Segoe UI Variable Display", "Segoe UI", *fonts.also("latin"))
 CJK_FAMILIES = {  # Windows' first; then another OS's own (`fonts`)
@@ -210,20 +209,12 @@ class Ink:
     link's, or `reading`."""
     reading: QColor | None = None
     """The colour picked for readings (`ReadingColour.CUSTOM`)."""
-    said_in_link_colours: bool = False
-    """Linked words in what was said drawn in their link's colour (395;
-    on its own since 431)."""
-    translation_in_link_colours: bool = False
-    """Linked words in the translation drawn in their link's colour (395;
-    on its own since 431: the user, 2026-11-17, "toggleable
-    separately")."""
+    link_words: bool = False
+    """Linked words drawn in their link's colour (395)."""
     panel: str | None = None
     """The panel's colour ("#rrggbb"): a link's colour as a word or a
     reading is drawn in it is made readable on it (`readable_on`) - they're
     picked for dark panels. None: as they are."""
-    panel_opacity: float = 1.0
-    """How solid the panel is: below 1, a link's colour is made readable
-    on it seen over a light or a black video too (431)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -525,12 +516,7 @@ class CaptionLayout:
             selections, dotted, links = split_marks(
                 marks(line, row.index) if marks else ()
             )
-            coloured = (
-                ink.said_in_link_colours
-                if original
-                else ink.translation_in_link_colours
-            )
-            if coloured and links:
+            if ink.link_words and links:
                 selections += _coloured_words(links, ink, color)
             drawn_whole(selections)
             row.layout.draw(painter, top_left, selections)
@@ -1028,44 +1014,29 @@ def drawn_whole(selections: list[QTextLayout.FormatRange]) -> None:
 
 LINK_CONTRAST = 5.0
 """A word or a reading drawn in its link's colour reaches this against the
-panel drawn solid, as faint as it's drawn: 4.5:1 (`AA_TEXT`) with room to
-spare - and, seen through a panel that isn't solid, large text's 3:1 over
-a light or a black video (`readable_through`, 431)."""
+panel, as faint as it's drawn: 4.5:1 (`AA_TEXT`) with room for the game
+showing through a panel that isn't solid."""
 
 
 def link_ink(colour: QColor, ink: Ink, row: QColor, faint: float = 1.0) -> QColor:
     """A link's `colour` as a word or a reading is drawn in it: as faint as
     its `row`'s text (and `faint` again: a reading's), and readable so on
-    the panel (`Ink.panel`), solid and seen through at its opacity
-    (`Ink.panel_opacity`) - moved towards white on a dark panel, black on
-    a light one, only as far as it needs (395, 431)."""
+    the panel (`Ink.panel`) - moved towards white on a dark panel, black on
+    a light one, only as far as it needs (395)."""
     alpha = row.alphaF()
     found = QColor(colour)
     if ink.panel is not None:
         found = QColor(
-            _link_shade(
-                colour.name(),
-                ink.panel,
-                ink.panel_opacity,
-                alpha * faint,
-            )
+            readable_at(colour.name(), ink.panel, alpha * faint, LINK_CONTRAST)
         )
     found.setAlphaF(alpha)
     return found
 
 
-@lru_cache(maxsize=4096)
-def _link_shade(colour: str, panel: str, opacity: float, alpha: float) -> str:
-    """`readable_through`, kept: each linked word of each row is drawn in
-    one at every paint, and a link colour's shade is the same each time."""
-    return readable_through(colour, panel, opacity, alpha, LINK_CONTRAST)
-
-
 def _coloured_words(
     links: Sequence[Linked], ink: Ink, row: QColor
 ) -> list[QTextLayout.FormatRange]:
-    """A row's linked words in their links' colours
-    (`Ink.said_in_link_colours`, `Ink.translation_in_link_colours`)."""
+    """A row's linked words in their links' colours (`Ink.link_words`)."""
     found = []
     for start, end, colour, _ in links:
         part = QTextLayout.FormatRange()
@@ -1084,8 +1055,7 @@ def _reading_colours(
 ) -> list[QColor | None]:
     """Each reading's own colour, as `Ink.reading_colour` says - None for
     its row's: its word link's where a link joins its character, or the
-    colour picked (395) - whether or not the words are (431: the user,
-    2026-11-17, "toggleable separately")."""
+    colour picked (395)."""
     if ink.reading_colour is ReadingColour.CUSTOM and ink.reading is not None:
         picked = QColor(ink.reading)
         picked.setAlphaF(row.alphaF() * picked.alphaF())

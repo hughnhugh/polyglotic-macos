@@ -30,7 +30,6 @@ from polyglotic_desktop.core.listening.captions import Clause, Language
 from polyglotic_desktop.core.listening.display import (
     DisplayOptions,
     ReadingSize,
-    ReadingSystem,
     RowKind,
     WordLinks,
 )
@@ -228,28 +227,6 @@ def test_a_translation_into_chinese_carries_pinyin_too(
                 f"e{n}", clause("I play games", "我打游戏", into=into), language=EN
             )
         )
-    window.apply_changed(new_caption=True)
-    window.canvas.repaint()
-    assert drawn(window, RowKind.TRANSLATION) >= 3 * 2
-    assert drawn(window, RowKind.ORIGINAL) == 0
-
-
-@pytest.mark.parametrize("lab", list(LABS))
-@pytest.mark.parametrize("system", list(ReadingSystem))
-def test_a_second_language_translation_into_chinese_carries_its_reading(
-    qapp: QApplication, lab: str, system: ReadingSystem
-) -> None:
-    """The user's settings (polyglotic-hq 427, preview 2: "translation
-    lines still don't have pinyin/zhuyin"): English heard, the window's
-    language English, Chinese its second - the server keeps the Chinese
-    line under English, the target - so the row read as English and had
-    no reading over it, in every layout, pinyin or Zhuyin."""
-    look = replace(PINYIN, reading_system=system)
-    window = read_window(qapp, LABS[lab], 0, look, translate_into=EN)
-    window.set_second_languages({EN: ZH})
-    for n in range(3):
-        kept = clause("I play games", "我打游戏", (("play", "打"),), into=EN)
-        window.view.apply(finished(f"e{n}", kept, language=EN))
     window.apply_changed(new_caption=True)
     window.canvas.repaint()
     assert drawn(window, RowKind.TRANSLATION) >= 3 * 2

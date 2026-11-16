@@ -444,16 +444,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">Фарбувати зв’язані слова в сказаному</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">Фарбувати зв’язані слова в перекладі</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Дрібніше (Ctrl+коліщатко)</translation>
     </message>
@@ -3741,11 +3731,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Перевірка списку словників.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Базовий словник із відкритих даних (значення не перевірені людиною), якщо він готовий: пошук слів у субтитрах мовою «{language}», коли він буде на цьому ПК. Субтитри й переклад працюють у будь-якому разі.</translation>
     </message>
@@ -4203,6 +4188,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Перевірка списку словників.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Завантаження: {done} з {total} МБ</translation>
     </message>
@@ -4253,18 +4243,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its commonest words are recorded ({size}).</source>
-        <translation type="unfinished">Найуживаніші слова записано ({size}).</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Нова версія ({size}) чекає на безлімітне з&apos;єднання.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
-        <translation type="unfinished">Словник: завантажити {size}, потім {recorded} записаних слів.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5444,23 +5424,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">Фарбувати зв’язані слова в сказаному</translation>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">Фарбувати й зв’язані слова</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour, as its underline has.</source>
-        <translation type="unfinished">Кожне слово, яке з’єднує зв’язок, отримує його колір, як і його лінія.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">Фарбувати зв’язані слова в перекладі</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Кожне слово, яке з’єднує зв’язок, отримує його колір. Якщо ввімкнено обидва, а піньїнь у кольорі зв’язку слова, слово, його піньїнь і переклад збігаються за кольором.</translation>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Слова, які з’єднує зв’язок, - у сказаному і в перекладі - отримують його колір, як і їхня лінія. Якщо піньїнь теж у кольорі зв’язку слова, слово, його піньїнь і переклад збігаються за кольором.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5559,8 +5529,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">Колір зв’язку слова: піньїнь отримує колір зв’язку свого слова, де він є. Зв’язки слів можуть фарбувати й самі зв’язані слова.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Колір зв’язку слова: піньїнь отримує колір зв’язку свого слова, якщо він є, - разом із «Фарбувати й зв’язані слова» у Зв’язках слів слово, його піньїнь і переклад збігаються за кольором.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

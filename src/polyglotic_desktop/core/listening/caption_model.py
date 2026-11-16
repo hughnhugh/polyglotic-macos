@@ -46,12 +46,7 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
 from polyglotic_desktop.core.listening.captions import Clause, Language, WordLink
-from polyglotic_desktop.core.listening.display import (
-    LinkDetail,
-    RowKind,
-    TranslationShown,
-    translation_shown,
-)
+from polyglotic_desktop.core.listening.display import LinkDetail, RowKind
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionId
@@ -220,8 +215,7 @@ class ClauseModel:
     original: str
     translation: str | None
     language: Language | None
-    """The translation's language (the target, or the second language) -
-    what it is written in, for its font and reading line."""
+    """The translation's language (the target, or the second language)."""
     settled: bool
     original_units: tuple[Unit, ...]
     translation_units: tuple[Unit, ...]
@@ -301,13 +295,7 @@ def caption_model(
     clauses: list[ClauseModel] = []
     for n, clause in enumerate(caption.clauses):
         settled = not (caption.live and n == last)
-        shown = (
-            translation_shown(clause, caption.language, target, second)
-            if target is not None
-            else None
-        )
-        language = shown.language if shown is not None else target
-        translation = shown.text if shown is not None else None
+        language, translation = _translated(clause, target, second)
         old = kept[n] if n < len(kept) else None
         if (
             old is not None
@@ -318,7 +306,7 @@ def caption_model(
         ):
             clauses.append(old)
         else:
-            clauses.append(_clause_model(clause, shown, target, settled))
+            clauses.append(_clause_model(clause, language, translation, settled))
     links: list[Link] = []
     for n, model in enumerate(clauses):
         for pairs in model.pairs:
@@ -343,21 +331,28 @@ def caption_model(
     )
 
 
+def _translated(
+    clause: Clause, target: Language | None, second: Language | None
+) -> tuple[Language | None, str | None]:
+    if target is None:
+        return None, None
+    translation = clause.translations.get(target) or None
+    if translation is None and second is not None and second != target:
+        found = clause.translations.get(second) or None
+        if found is not None:
+            return second, found
+    return target, translation
+
+
 def _clause_model(
-    clause: Clause,
-    shown: TranslationShown | None,
-    target: Language | None,
-    settled: bool,
+    clause: Clause, language: Language | None, translation: str | None, settled: bool
 ) -> ClauseModel:
-    """`shown`: its translation as the window shows it (None: none);
-    `target`: the window's."""
-    translation = shown.text if shown is not None else None
     original_units = units(clause.original)
     translation_units = units(translation) if translation else ()
     pairs: tuple[_Pairs, ...] = ()
     cuts: tuple[tuple[int, int], ...] = ()
-    if settled and shown is not None and translation:
-        sent = clause.links.get(shown.target, ())
+    if settled and translation and language is not None:
+        sent = clause.links.get(language, ())
         pairs = _grouped(sent, len(clause.original), len(translation))
         cuts = matching_cuts(
             clause.original,
@@ -369,7 +364,7 @@ def _clause_model(
     return ClauseModel(
         clause.original,
         translation,
-        shown.language if shown is not None else target,
+        language,
         settled,
         original_units,
         translation_units,

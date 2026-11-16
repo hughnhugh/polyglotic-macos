@@ -49,10 +49,6 @@ class PackLine:
     size: int = 0
     """What this app would download for it, in bytes - gzipped (0: not
     known yet)."""
-    recorded_offered: int = 0
-    """Its commonest words recorded, downloaded by themselves after it: their
-    size, gzipped, where the list has them for this app (decision 0192; 0:
-    none)."""
     installed_version: str = ""
     installed_size: int = 0
     progress: PackProgress | None = None
@@ -63,11 +59,7 @@ class PackLine:
     """A newer version waits for a connection that isn't metered (its
     size; 0: none)."""
     credits: str = ""
-    """Whose data it is, from the list: shown as it is (names, not words) -
-    and who said its recorded words, from their file."""
-    recorded_size: int = 0
-    """Its commonest words are recorded on this PC: the file's size
-    (decision 0133; 0: none)."""
+    """Whose data it is, from the list: shown as it is (names, not words)."""
     unlisted: bool = False
     """No list is held, and the last try couldn't read one (offline, a
     server error, refused): whether a pack can be had isn't known - not
@@ -78,10 +70,6 @@ class PackLine:
     (the storage answers 404 - before the first upload). Nothing to
     download yet (329's QA, 330); Retry looks again. Not when it isn't
     known (no list held, none read): then it can't be told."""
-    checking: bool = False
-    """The list held - kept from an earlier run, or read over an hour ago -
-    is being checked again and has no pack for it (polyglotic-hq 425):
-    until the answer, it isn't said to have none."""
 
     @property
     def installed(self) -> bool:
@@ -100,9 +88,6 @@ class PackKnown(StrEnum):
     """None can be had: not in the list held, or none published (a 404)."""
     UNKNOWN = "unknown"
     """No list held: none read yet, or it couldn't be read."""
-    CHECKING = "checking"
-    """Not offered in the list held, which is old and being checked again
-    (polyglotic-hq 425): no promise either way, and it says it's checking."""
 
 
 def pack_known(line: PackLine | None) -> PackKnown:
@@ -116,8 +101,6 @@ def pack_known(line: PackLine | None) -> PackKnown:
         return PackKnown.NONE_YET
     if line.size or line.newer_app or line.installed or progress is not None:
         return PackKnown.OFFERED
-    if line.checking:
-        return PackKnown.CHECKING
     return PackKnown.UNKNOWN
 
 

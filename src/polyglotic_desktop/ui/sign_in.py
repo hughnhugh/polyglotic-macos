@@ -124,7 +124,6 @@ class SignInDialog(TextDialog):
         self.code = QLineEdit()
         self.code.setObjectName("sign_in.code")
         self.code.setPlaceholderText("7KQM-X2PD-9VHT-C4RA")
-        self.code.setAccessibleName(title.text())  # a screen reader's name for it
         self.code.setMaxLength(40)
         self.code.returnPressed.connect(self._sign_in)
         layout.addWidget(self.code)

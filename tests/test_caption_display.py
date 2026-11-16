@@ -108,32 +108,6 @@ def test_a_clause_already_in_the_target_is_translated_into_the_second_language()
     ]
 
 
-def test_a_second_language_line_kept_under_the_target_is_in_the_second() -> None:
-    """The server keeps a caption's line in the target's second language
-    under the target ({"en": "明天见。"}: English heard, English the target,
-    Chinese its second - its `target_language`): the row is in Chinese, for
-    its font and pinyin, and its links are the target's (polyglotic-hq 427:
-    the user's preview 2, "translation lines still don't have
-    pinyin/zhuyin" - the row said English)."""
-    said = caption(
-        Clause("See you tomorrow.", {EN: "明天见。"}, {EN: (link(4, 7, 0, 1),)}),
-        language="en",
-    )
-    rows = caption_rows(said, EN, ZH, COLOURS)
-    assert texts(rows) == [
-        ("See you tomorrow.", RowKind.ORIGINAL),
-        ("明天见。", RowKind.TRANSLATION),
-    ]
-    assert (rows[1].language, rows[1].target) == (ZH, EN)
-    assert rows[0].links == (LinkedWords(4, 7, 0),)
-    assert rows[1].links == (LinkedWords(0, 1, 0),)
-    # a caption in another language: its line under the target is the target's
-    heard = caption(Clause("明天见。", {EN: "See you tomorrow."}), language="zh")
-    assert caption_rows(heard, EN, ZH, COLOURS)[1].language == EN
-    # no second language: the target's own (a mixed line rewritten in it)
-    assert caption_rows(said, EN, None, COLOURS)[1].language == EN
-
-
 def test_a_live_captions_last_row_trails_off() -> None:
     rows = caption_rows(
         caption(Clause("你好，", {EN: "Hello,"}), Clause("今天"), live=True),

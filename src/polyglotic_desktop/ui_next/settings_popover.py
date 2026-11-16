@@ -12,9 +12,7 @@ it while open - a shortcut, the rest in Settings), Panel | Strip, Text size
 rehearsal feedback F9, 249; with a slider between them in 5 % steps, 60 to
 400 %: polyglotic-hq 305), Translation size (A-, a slider and A+: the
 translation's text as a share of what was said's, 50 to 200 %, and "Same
-as what was said"; shown while it has a translation; 305), Colour linked
-words in what was said and in the translation (two switches, each on its
-own, for every window, as in Settings: 431), Copy all
+as what was said"; shown while it has a translation; 305), Copy all
 captions (to the clipboard, as the transcript's Copy writes them:
 polyglotic-hq 333; Copy the newest caption went in 339), Open transcript, Join windows, Stop
 captioning, and All caption settings... - Settings > Captions in the
@@ -133,8 +131,6 @@ ROWS = (
     "timing",
     "text_size",
     "translation_size",
-    "said_colours",
-    "translation_colours",
     "copy_all",
     "transcript",
     "join",
@@ -151,8 +147,6 @@ COLUMN_ROWS = (
     "timing",
     "text_size",
     "translation_size",
-    "said_colours",
-    "translation_colours",
     "copy_all",
     "transcript",
     "stop",
@@ -569,15 +563,6 @@ class SettingsPopover(QWidget):
         if name != self._window.key:
             self._window.app_wanted.emit(name)
         self.refresh()
-
-    def _said_colours_row(self) -> QWidget:
-        """Linked words in what was said in their link's colour, for every
-        window - as Settings > Captions > Word links (431)."""
-        return self._wide(self.owner.controls["said_colours"], switch=True)
-
-    def _translation_colours_row(self) -> QWidget:
-        """And in the translation, on its own (431)."""
-        return self._wide(self.owner.controls["translation_colours"], switch=True)
 
     def _show_mic_row(self) -> QWidget:
         row = QWidget(self)

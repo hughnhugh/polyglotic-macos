@@ -169,11 +169,6 @@ class CaptionWindows(QObject):
     """A window's filled lines button: on or off, for every window (372)."""
     aligned_wanted = Signal(bool)
     """A window's parts lined up button: on or off, for every window (372)."""
-    said_colours_wanted = Signal(bool)
-    """A window's popover: linked words in what was said in their link's
-    colour, on or off, for every window (431)."""
-    translation_colours_wanted = Signal(bool)
-    """And in the translation (431)."""
     timing_wanted = Signal(str)
     app_wanted = Signal(str, str)
     """A window's key, and an app's name: caption that app there instead
@@ -368,8 +363,6 @@ class CaptionWindows(QObject):
         window.links_wanted.connect(self.links_wanted)
         window.fill_wanted.connect(self.fill_wanted)
         window.aligned_wanted.connect(self.aligned_wanted)
-        window.said_colours_wanted.connect(self.said_colours_wanted)
-        window.translation_colours_wanted.connect(self.translation_colours_wanted)
         window.app_choices = lambda: self.app_choices(key)
         window.recent_spoken = self.recent_spoken
         window.spoken_declined.connect(lambda code: self._spoken_declined(window, code))

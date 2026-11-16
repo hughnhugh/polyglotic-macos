@@ -13,16 +13,11 @@ import pytest
 from PySide6.QtCore import QEvent, QPointF, QRect, Qt
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QMouseEvent, QPalette
 from PySide6.QtWidgets import QApplication, QLabel, QToolButton, QWidget
-from tests.ui_next.made_up import EN, OTHER_APP, ZH, finished_updates
+from tests.ui_next.made_up import EN, OTHER_APP, finished_updates
 
-from polyglotic_desktop.core.listening.captions import (
-    CaptionKind,
-    CaptionUpdate,
-    Clause,
-)
 from polyglotic_desktop.core.listening.recheck import RecheckOutcome, RecheckResult
 from polyglotic_desktop.core.listening.sources import SourceLabel
-from polyglotic_desktop.core.listening.timing import CaptionId, CaptionMode
+from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -392,41 +387,6 @@ def test_saved_as_text_srt_or_csv(window: TranscriptWindow, tmp_path: Path) -> N
     assert (tmp_path / "t.txt").read_text(encoding="utf-8").count("English:") == 10
     assert (tmp_path / "t.srt").read_text(encoding="utf-8").startswith("1\n")
     assert (tmp_path / "t.csv").read_bytes().startswith(b"\xef\xbb\xbf")
-
-
-def test_a_second_language_line_is_saved_and_copied_under_its_language(
-    qapp: QApplication, tmp_path: Path
-) -> None:
-    """English heard in a window into English, Chinese its second language:
-    the server keeps the Chinese line under English, and Save and Copy put
-    it in the English column, the Chinese one empty (polyglotic-hq 432)."""
-    transcript = Transcript(APP, EN, second=ZH, mic=MIC)
-    said = CaptionUpdate(
-        CaptionId("c1"),
-        APP,
-        CaptionKind.FINISHED,
-        clauses=(Clause("See you tomorrow.", translations={EN: "明天见。"}),),
-        language=EN,
-        languages_heard=(EN,),
-    )
-    transcript.apply(said)
-    shown = TranscriptWindow("Discord.exe", transcript, DISCORD, TranscriptChoices())
-    shown.show()
-    qapp.processEvents()
-    try:
-        shown.save_to(tmp_path / "t.csv")
-        text = (tmp_path / "t.csv").read_text(encoding="utf-8-sig")
-        [row] = list(csv.DictReader(io.StringIO(text)))
-        assert (row["en"], row["zh"]) == ("", "明天见。")
-        assert "Chinese (Simplified): 明天见。" in shown.text()
-        assert "English:" not in shown.text()
-        shown.save_to(tmp_path / "t.srt")
-        srt = (tmp_path / "t.srt").read_text(encoding="utf-8")
-        assert "See you tomorrow.\n明天见。" in srt
-        shown._copy_line(shown.transcript.lines[0].key, "translation")
-        assert QGuiApplication.clipboard().text() == "明天见。"
-    finally:
-        shown.close()
 
 
 def test_a_saved_csv_names_the_app_on_every_row(

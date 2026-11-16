@@ -444,16 +444,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">Koloruj powiązane słowa w tym, co powiedziano</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">Koloruj powiązane słowa w tłumaczeniu</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Mniejszy tekst (Ctrl+kółko)</translation>
     </message>
@@ -3741,11 +3731,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Sprawdzanie listy słowników.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Podstawowy słownik z otwartych danych (znaczenia niesprawdzone przez człowieka), jeśli jakiś jest gotowy: wyszukiwanie słów w napisach ({language}), gdy będzie na tym komputerze. Napisy i tłumaczenie działają w każdym przypadku.</translation>
     </message>
@@ -4203,6 +4188,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Sprawdzanie listy słowników.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Pobieranie: {done} z {total} MB</translation>
     </message>
@@ -4253,18 +4243,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its commonest words are recorded ({size}).</source>
-        <translation type="unfinished">Najczęstsze słowa są nagrane ({size}).</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Nowsza wersja ({size}) czeka na połączenie, które nie jest taryfowe.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
-        <translation type="unfinished">Słownik: {size} do pobrania, potem {recorded} nagranych słów.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5444,23 +5424,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in what was said</source>
-        <translation type="unfinished">Koloruj powiązane słowa w tym, co powiedziano</translation>
+        <source>Colour the linked words too</source>
+        <translation type="unfinished">Koloruj też powiązane słowa</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour, as its underline has.</source>
-        <translation type="unfinished">Każde słowo, które łączy powiązanie, dostaje jego kolor, jak jego linia.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour linked words in the translation</source>
-        <translation type="unfinished">Koloruj powiązane słowa w tłumaczeniu</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Każde słowo, które łączy powiązanie, dostaje jego kolor. Gdy oba są włączone, a pinyin ma kolor powiązania słowa, słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
+        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Słowa, które łączy powiązanie - w tym, co powiedziano, i w tłumaczeniu - dostają jego kolor, jak ich linia. Gdy pinyin też ma kolor powiązania słowa, słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5559,8 +5529,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">Kolor powiązania słowa: pinyin dostaje kolor powiązania swojego słowa, tam gdzie ono jest. Powiązania słów mogą też kolorować powiązane słowa.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Kolor powiązania słowa: pinyin dostaje kolor powiązania swojego słowa, jeśli jest - razem z „Koloruj też powiązane słowa” w Powiązaniach słów słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

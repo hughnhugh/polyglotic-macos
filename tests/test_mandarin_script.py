@@ -1,7 +1,7 @@
 """Mandarin's captions in the script the learner reads (polyglotic-hq 375;
-decision 0164): each caption's Mandarin converted as it arrives - what was
-said, unless it is Japanese or Cantonese, and translations written in
-Mandarin (432) - the choice kept in the settings, and Taiwan's and Hong Kong's Windows
+decision 0164): each caption's Mandarin converted as it arrives - its
+originals only, never a translation or a Japanese or Cantonese caption -
+the choice kept in the settings, and Taiwan's and Hong Kong's Windows
 starting at Traditional."""
 
 from tests.lexicon.sample import CEDICT_SAMPLE, chinese_sample
@@ -43,12 +43,12 @@ def upper(text: str) -> str:
     return text.replace("头发", "頭髮").replace("发", "發")
 
 
-def test_mandarins_originals_and_translations_into_chinese_are_converted() -> None:
+def test_mandarins_originals_are_converted_and_nothing_else() -> None:
     written = mandarin_written(update("zh"), upper)
     first, second = written.clauses
     assert (first.original, second.original) == ("我的頭髮", "發展")
-    assert first.translations == {EN: "hair"}  # not Chinese: as it came
-    assert second.translations == {Language("zh"): "發展"}  # 432
+    assert first.translations == {EN: "hair"}  # a translation stays as picked
+    assert second.translations == {Language("zh"): "发展"}
     assert first.links == {EN: (LINK,)}  # spans kept: one character for one
     assert written.caption_id == "c1" and written.language == "zh"
 
@@ -58,50 +58,7 @@ def test_mixed_captions_are_converted_but_japanese_and_cantonese_are_not() -> No
         "We had 頭髮"
     )
     for language in ("ja", "yue"):
-        written = mandarin_written(update(language), upper)
-        assert [c.original for c in written.clauses] == ["我的头发", "发展"]
-        # its translation into Chinese is Mandarin all the same (432)
-        assert written.clauses[1].translations == {Language("zh"): "發展"}
-
-
-def second_line(said_in: str, key: str, line: str) -> CaptionUpdate:
-    return CaptionUpdate(
-        CaptionId("c3"),
-        SourceId("app"),
-        CaptionKind.FINISHED,
-        clauses=(Clause("x", translations={Language(key): line}, links={EN: (LINK,)}),),
-        language=Language(said_in),
-        languages_heard=(Language(said_in),),
-    )
-
-
-def test_a_second_language_line_in_chinese_is_converted_too() -> None:
-    """English heard in a window into English, Chinese its second language:
-    the server keeps the Chinese line under English (protocol.md's
-    `second_languages`) - the learner who chose Traditional saw it in
-    Simplified (polyglotic-hq 432)."""
-    seconds = {EN: Language("zh")}
-    written = mandarin_written(second_line("en", "en", "头发"), upper, seconds)
-    assert written.clauses[0].translations == {EN: "頭髮"}
-    assert written.clauses[0].links == {EN: (LINK,)}
-    # not without that second language, nor where the line is in the key's
-    # own language (French heard: the line under English is English)
-    assert mandarin_written(second_line("en", "en", "头发"), upper).clauses[
-        0
-    ].translations == {EN: "头发"}
-    heard_fr = mandarin_written(second_line("fr", "en", "头发"), upper, seconds)
-    assert heard_fr.clauses[0].translations == {EN: "头发"}
-
-
-def test_other_scripts_lines_stay_as_they_came() -> None:
-    """Japanese as Chinese's second language (kanji are not Mandarin), and
-    a translation into Traditional Chinese (already Traditional)."""
-    japanese = second_line("zh", "zh", "头发")
-    seconds = {Language("zh"): Language("ja")}
-    written = mandarin_written(japanese, upper, seconds)
-    assert written.clauses[0].translations == {Language("zh"): "头发"}
-    hant = mandarin_written(second_line("en", "zh-hant", "头发"), upper)
-    assert hant.clauses[0].translations == {Language("zh-hant"): "头发"}
+        assert mandarin_written(update(language), upper) == update(language)
 
 
 def test_a_withdrawal_passes_as_it_is() -> None:
@@ -125,12 +82,6 @@ def test_the_session_converts_only_while_traditional_is_wanted() -> None:
     script.traditional = True
     shown = script.caption(plain)
     assert [c.original for c in shown.clauses] == ["我的頭髮", "發展"]
-    assert shown.clauses[1].translations == {Language("zh"): "發展"}
-    # a second-language line in Chinese, as the settings name it (432)
-    line = second_line("en", "en", "头发")
-    assert script.caption(line).clauses[0].translations == {EN: "头发"}
-    script.seconds = {EN: Language("zh")}
-    assert script.caption(line).clauses[0].translations == {EN: "頭髮"}
     # the dictionary now finds a converted word by its Simplified form: 瞭
     # (OpenCC's, in 瞭解) is only "variant of 了[liao3]" in CC-CEDICT
     found = dictionary.lookup("瞭")[0]

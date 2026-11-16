@@ -439,14 +439,10 @@ class CaptionLook:
     reading_custom: str = "#9ad0ff"
     """The colour picked for readings, with `reading_colour` CUSTOM (kept
     while another is chosen, so Custom brings it back)."""
-    said_in_link_colours: bool = False
-    """Linked words in what was said take their link's colour, as their
-    underline has (395)."""
-    translation_in_link_colours: bool = False
-    """Linked words in the translation take their link's colour - each on
-    its own (431: the user, 2026-11-17, "toggleable separately"). With
-    both, and pinyin in its word link's colour, a word, its pinyin and its
-    translation all match."""
+    link_words: bool = False
+    """Linked words take their link's colour, as their underline has - what
+    was said and its translation (395): with pinyin in its word link's
+    colour, a word, its pinyin and its translation all match."""
 
 
 INTRO_SEC = 8.0

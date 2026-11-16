@@ -86,20 +86,3 @@ def test_the_links_at_a_word() -> None:
 def test_units_are_words_and_wide_characters() -> None:
     assert [(a, b) for a, b, _ in units("so I bought")] == [(0, 2), (3, 4), (5, 11)]
     assert len(units("我买了很多。")) == 5  # the full stop stays with 多
-
-
-def test_a_second_language_line_kept_under_the_target_is_in_the_second() -> None:
-    """The one layout reads the translation's language for its font and
-    pinyin: a caption already in the target, its line in the second
-    language kept under the target, is in the second - its links still the
-    target's (polyglotic-hq 427)."""
-    from polyglotic_desktop.ui.recorded_captions import clause
-
-    zh = Language("zh")
-    history = CaptionHistory()
-    already = clause("I like it", "我喜欢", (("like", "喜欢"),))  # under English
-    history.apply(finished("a", already, language=EN))
-    model = caption_model(history.captions[0], EN, zh)
-    assert model.clauses[0].language == zh
-    assert [model.text(link.translation[0]) for link in model.links] == ["喜欢"]
-    assert caption_model(history.captions[0], EN).clauses[0].language == EN

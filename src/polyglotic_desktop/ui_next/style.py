@@ -25,10 +25,8 @@ Windows' own do. Captions keep their own size (a caption window's A- /
 A+): neither factor touches them.
 """
 
-import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QGuiApplication
 from PySide6.QtWidgets import QApplication, QMenu, QToolTip
@@ -349,65 +347,6 @@ def _role(role: str) -> str:
     return f'QLabel[role="{role}"]'
 
 
-TICK_SVG = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
-    '<path d="M3.5 8.5l3 3 6-7" fill="none" stroke="{colour}" stroke-width="2" '
-    'stroke-linecap="round" stroke-linejoin="round"/></svg>'
-)
-"""A check box's tick (`tick`), drawn in the indicator's 16 x 16."""
-_ticks: tempfile.TemporaryDirectory[str] | None = None
-
-
-def tick(colour: str) -> str:
-    """A check box's tick in `colour`, as a file: a stylesheet's `image`
-    reads one only from a file. Written once per colour, into a folder of
-    this run's own that goes when it ends. "" if it can't be written: the
-    box is then filled without its tick, its state still plain."""
-    global _ticks
-    try:
-        if _ticks is None:
-            _ticks = tempfile.TemporaryDirectory(prefix="polyglotic-")
-        path = Path(_ticks.name) / f"tick-{QColor(colour).name()[1:]}.svg"
-        if not path.exists():
-            path.write_text(TICK_SVG.format(colour=colour), encoding="utf-8")
-    except OSError:
-        return ""
-    return path.as_posix()
-
-
-def _indicators(t: Theme) -> str:
-    """Check boxes' and radio buttons' boxes in the theme's colours, not
-    Windows' (polyglotic-hq 425: the consent screen's were drawn for
-    Windows' light or dark mode - on a window in the other, 1.1:1 against
-    its background, unseen). Their edge is TEXT_DIM and a checked one is
-    filled with ACCENT, each at least 3:1 against the window and its cards
-    (WCAG 2.2's 1.4.11; tests/ui/test_check_boxes.py). As big as Windows
-    11's own: 20 px with the edge, at 100 %."""
-    box = px(18)
-    ring = (box + 2) // 2  # a radio button's round
-    checked = tick(t["ACCENT_TEXT"])
-    image = f' image: url("{checked}");' if checked else ""
-    ACCENT, ACCENT_TEXT = t["ACCENT"], t["ACCENT_TEXT"]
-    TEXT, TEXT_DIM, TEXT_FAINT = t["TEXT"], t["TEXT_DIM"], t["TEXT_FAINT"]
-    dot = (
-        "qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, "
-        f"stop:0 {ACCENT_TEXT}, stop:0.38 {ACCENT_TEXT}, stop:0.46 {ACCENT}, "
-        f"stop:1 {ACCENT})"
-    )
-    return f"""
-QCheckBox::indicator, QRadioButton::indicator {{
-    width: {box}px; height: {box}px; border: 1px solid {TEXT_DIM}; background: transparent;
-}}
-QCheckBox::indicator {{ border-radius: 3px; }}
-QRadioButton::indicator {{ border-radius: {ring}px; }}
-QCheckBox::indicator:hover, QRadioButton::indicator:hover {{ border-color: {TEXT}; }}
-QCheckBox::indicator:checked {{ background: {ACCENT}; border-color: {ACCENT};{image} }}
-QRadioButton::indicator:checked {{ background: {dot}; border-color: {ACCENT}; }}
-QCheckBox::indicator:disabled, QRadioButton::indicator:disabled {{ border-color: {TEXT_FAINT}; }}
-QCheckBox::indicator:checked:disabled {{ background: {TEXT_FAINT}; border-color: {TEXT_FAINT}; }}
-"""
-
-
 def stylesheet(t: Theme) -> str:
     """A window's stylesheet in theme `t`'s colours, its text at the text
     size now (`px`): today's, and the new parts'."""
@@ -488,10 +427,6 @@ QTabBar::tab:selected {{ color: {TEXT}; border-bottom: 2px solid {ACCENT}; }}
 QTableWidget {{ background: {SURFACE}; border: 1px solid {BORDER}; gridline-color: {BORDER}; }}
 QHeaderView::section {{ background: {SURFACE_2}; color: {TEXT_DIM}; border: none; padding: 5px; }}
 QCheckBox {{ spacing: 8px; }}
-{_indicators(t)}
-/* the first run's code box: its edge at least 3:1 (425; BORDER is 1.3:1) */
-#SignInDialog QLineEdit {{ border-color: {TEXT_FAINT}; }}
-#SignInDialog QLineEdit:focus {{ border-color: {FOCUS}; }}
 #Sidebar {{ background: {SIDEBAR}; border-right: 1px solid {BORDER}; }}
 #NavButton {{
     background: transparent; border: none; border-radius: 8px; text-align: left;

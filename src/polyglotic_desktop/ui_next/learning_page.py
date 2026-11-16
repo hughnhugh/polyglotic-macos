@@ -186,9 +186,6 @@ def what_it_gives(
             "translation work, and a word you look up says what it is in that "
             "line's translation."
         ).format(language=name)
-    if tier is Tier.BASIC and known is PackKnown.CHECKING and not on_card:
-        # the list held is old and being checked: not a no from it (425)
-        return _tr("Checking the list of dictionaries.")
     if tier is Tier.BASIC and known is not PackKnown.OFFERED and on_card:
         return pc_or_mac(
             _tr(

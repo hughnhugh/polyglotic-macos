@@ -425,14 +425,6 @@ class Transcript:
             return []
         return [target] if second is None or second == target else [target, second]
 
-    def seconds(self) -> dict[Language, Language]:
-        """The second language of the window's language, as `transcript`'s
-        exports read it: a line already in the window's language is
-        translated into the second, kept under the window's language
-        (polyglotic-hq 432)."""
-        target, second = self.target, self.second
-        return {} if target is None or second is None else {target: second}
-
     def foot(self) -> Foot:
         """What the line under the list says now (and, while following, the
         newest line seen - for "N new" once scrolled back)."""

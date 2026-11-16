@@ -147,32 +147,6 @@ def readable_at(colour: str, under: str, alpha: float, ratio: float = AA_TEXT) -
     return end
 
 
-LARGE_TEXT = 3.0
-"""WCAG 2.2's 1.4.3 for large text, which caption text is."""
-
-VIDEOS = ("#f3f5f7", "#000000")
-"""A light video and a black one: what a panel that isn't solid is seen
-over, at its worst (284)."""
-
-
-def readable_through(
-    colour: str, panel: str, opacity: float, alpha: float, ratio: float
-) -> str:
-    """`colour` drawn `alpha` opaque, readable as a caption's text is
-    (polyglotic-hq 431): `ratio` on `panel` drawn solid (`readable_at`),
-    and 3:1 - large text's floor - on it seen at its `opacity` over a
-    light or a black video (`VIDEOS`). Moved towards white on a dark
-    panel, black on a light one, only as far as it needs. 395 checked the
-    solid panel only: on Classic's 72 % over a light video, #e040fb was at
-    2.4:1."""
-    found = readable_at(colour, panel, alpha, ratio)
-    if opacity >= 1.0:
-        return found
-    for video in VIDEOS:
-        found = readable_at(found, _mix(video, panel, opacity), alpha, LARGE_TEXT)
-    return found
-
-
 def _mix(colour: str, towards: str, share: float) -> str:
     a, b = colour.lstrip("#"), towards.lstrip("#")
     mixed = (

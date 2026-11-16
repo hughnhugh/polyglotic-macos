@@ -297,8 +297,7 @@ MATCHED = CaptionLook(
     reading_lines=("zh",),
     reading_size=ReadingSize.MEDIUM,  # Small's 11 px is under the lab's 12 (369)
     reading_colour=ReadingColour.LINK,
-    said_in_link_colours=True,
-    translation_in_link_colours=True,
+    link_words=True,
 )
 """Pinyin in its word link's colour, and the linked words too: a word, its
 pinyin and its translation all match (polyglotic-hq 395)."""
@@ -315,19 +314,6 @@ def _drawn(lab: Lab, look: CaptionLook) -> QWidget:
 def pinyin_in_link_colours(lab: Lab) -> QWidget:
     """395: pinyin, the word and its translation in the link's colour."""
     return _drawn(lab, MATCHED)
-
-
-def translation_in_link_colours(lab: Lab) -> QWidget:
-    """431: each side on its own (the user, 2026-11-17: "toggleable
-    separately") - only the translation's linked words in their link's
-    colour, what was said and its pinyin in their own; readable on
-    Classic's panel at its own 72 %."""
-    look = replace(
-        MATCHED,
-        said_in_link_colours=False,
-        reading_colour=ReadingColour.SAME,
-    )
-    return _drawn(lab, look)
 
 
 def pinyin_in_link_colours_paper(lab: Lab) -> QWidget:
@@ -715,7 +701,6 @@ STATES = [
         ("w1_linked_arrows", linked_arrows, True),
         ("w1_pinyin_in_link_colours", pinyin_in_link_colours, True),
         ("w1_pinyin_in_link_colours_paper", pinyin_in_link_colours_paper, True),
-        ("w1_translation_in_link_colours", translation_in_link_colours, True),
         ("w1_pinyin_custom", pinyin_custom, True),
         ("w1_zhuyin", zhuyin, True),
         ("w3_english_card", english_card, False),

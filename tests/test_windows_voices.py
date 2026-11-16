@@ -11,7 +11,6 @@ if sys.platform != "win32":
     pytest.skip("Windows only", allow_module_level=True)
 
 from polyglotic_desktop.main import os_adapters
-from polyglotic_desktop.platform.recorded_voices import Recordings
 from polyglotic_desktop.platform.speaking import SILENT, SpeakerThread, trimmed
 from polyglotic_desktop.platform.windows.voices import WindowsVoices, can_play
 from polyglotic_desktop.ports.speaker import Voice
@@ -63,7 +62,7 @@ def test_a_voice_that_isnt_installed_fails_as_an_os_error(
 def test_main_hands_over_windows_speaker() -> None:
     windows_speaker = os_adapters().speaker
     assert windows_speaker is not None
-    speaker = windows_speaker(Recordings())
+    speaker = windows_speaker()
     try:
         assert isinstance(speaker, SpeakerThread)
     finally:

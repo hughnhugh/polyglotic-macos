@@ -683,10 +683,8 @@ def look_ink(ink: Ink, look: CaptionLook) -> Ink:
         unfinished_ink(ink, look),
         reading_colour=look.reading_colour,
         reading=QColor(look.reading_custom),
-        said_in_link_colours=look.said_in_link_colours,
-        translation_in_link_colours=look.translation_in_link_colours,
+        link_words=look.link_words,
         panel=look.background,
-        panel_opacity=look.opacity,
     )
 
 
@@ -1941,11 +1939,6 @@ class CaptionWindow(QWidget):
     """The strip's filled lines button: on or off, for every window (372)."""
     aligned_wanted = Signal(bool)
     """The strip's parts lined up button: on or off, for every window (372)."""
-    said_colours_wanted = Signal(bool)
-    """The popover's "Colour linked words in what was said": on or off, for
-    every window (431)."""
-    translation_colours_wanted = Signal(bool)
-    """The popover's "Colour linked words in the translation" (431)."""
     timing_wanted = Signal(str)
     join_wanted = Signal()
     """Join windows: every caption window into one, a column each (109's 2a)."""
@@ -3009,16 +3002,6 @@ class CaptionWindow(QWidget):
             checkable=True,
         ).triggered.connect(lambda on: self.aligned_wanted.emit(bool(on)))
         self._action(
-            "said_colours",
-            _tr("Colour linked words in what was said"),
-            checkable=True,
-        ).triggered.connect(lambda on: self.said_colours_wanted.emit(bool(on)))
-        self._action(
-            "translation_colours",
-            _tr("Colour linked words in the translation"),
-            checkable=True,
-        ).triggered.connect(lambda on: self.translation_colours_wanted.emit(bool(on)))
-        self._action(
             "smaller",
             "A-",
             _tr("Smaller text (Ctrl+wheel)"),
@@ -3199,13 +3182,6 @@ class CaptionWindow(QWidget):
         button, on while New layout and Parts lined up are."""
         self.controls["fill"].setChecked(self.look.lab.filled)
         self.controls["aligned"].setChecked(self.look.lab.lined_up)
-        linked = self.look.word_links is not WordLinks.OFF  # else nothing to colour
-        for name, on in (
-            ("said_colours", self.look.said_in_link_colours),
-            ("translation_colours", self.look.translation_in_link_colours),
-        ):
-            self.controls[name].setChecked(on)
-            self.controls[name].setEnabled(linked)
 
     def _name_buttons(self) -> None:
         """What a screen reader says for each of the strip's buttons: its
@@ -3871,10 +3847,7 @@ class CaptionWindow(QWidget):
         names = {str(code): language_name(str(code)) for code in languages}
         zone = datetime.now().astimezone().tzinfo  # the times this PC shows
         captions = self.view.captions_of(lines)
-        seconds = {} if target is None or second is None else {target: second}
-        return as_text(
-            captions, languages, names, self.labels.you.name, zone, seconds=seconds
-        )
+        return as_text(captions, languages, names, self.labels.you.name, zone)
 
     def copy_all(self) -> None:
         """The settings' Copy all captions."""
