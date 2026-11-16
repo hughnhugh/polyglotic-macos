@@ -1,0 +1,134 @@
+# The basic dictionary packs (decision 0035): built from their pinned
+# sources, and the coverage probe run over them - a language stays in the
+# basic tier only while its pack finds at least 90 % of the content words
+# in its 100 FLEURS sentences (polyglotic-hq projects 157 and 164); and
+# Russian's finds at least 95 % of running words (polyglotic-hq 298).
+# Vietnamese's ranks are its words counted in OPUS's OpenSubtitles (64 MB,
+# about 90 s; polyglotic-hq 325); Thai's its words counted in Common
+# Voice's Thai sentences (6 MB, a few seconds; polyglotic-hq 389).
+#
+# Only when what the packs are made of changes, and weekly (a source
+# pinned by checksum that moved fails here first): the sources are about
+# 350 MB, cached between runs.
+name: Dictionary packs
+
+on:
+  pull_request:
+    # Every repo file the two steps load, and nothing more (polyglotic-hq
+    # 234): tests/tools/test_packs_paths.py imports them as the steps do and
+    # fails on a file missing here, or a line here no step loads. Not the
+    # Chinese dictionary's build.py, cedict's registry or update_ids.py.
+    paths:
+      - ".github/workflows/dictionary-packs.yml"
+      - "uv.lock"
+      - "tools/__init__.py"
+      - "tools/dictionaries/__init__.py"
+      - "tools/dictionaries/cedict.py"
+      - "tools/dictionaries/coverage.py"
+      - "tools/dictionaries/entry_ids.py"
+      - "tools/dictionaries/frequency.py"
+      - "tools/dictionaries/jmdict.py"
+      - "tools/dictionaries/kaikki.py"
+      - "tools/dictionaries/packs.py"
+      - "tools/dictionaries/rank_check.py"
+      - "tools/dictionaries/russian.py"
+      - "tools/dictionaries/sources.py"
+      - "tools/dictionaries/spanish.py"
+      - "tools/dictionaries/thai.py"
+      - "tools/dictionaries/treebanks.py"
+      - "tools/dictionaries/vietnamese.py"
+      - "tools/dictionaries/wordfreq_ranks.py"
+      - "tools/dictionaries/probe/*.txt"
+      - "tools/dictionaries/registry/jmdict.tsv"
+      - "tools/dictionaries/registry/wiktar.tsv"
+      - "tools/dictionaries/registry/wiktcs.tsv"
+      - "tools/dictionaries/registry/wiktde.tsv"
+      - "tools/dictionaries/registry/wiktel.tsv"
+      - "tools/dictionaries/registry/wiktes.tsv"
+      - "tools/dictionaries/registry/wiktfa.tsv"
+      - "tools/dictionaries/registry/wiktfr.tsv"
+      - "tools/dictionaries/registry/wikthi.tsv"
+      - "tools/dictionaries/registry/wiktid.tsv"
+      - "tools/dictionaries/registry/wiktms.tsv"
+      - "tools/dictionaries/registry/wiktit.tsv"
+      - "tools/dictionaries/registry/wiktmk.tsv"
+      - "tools/dictionaries/registry/wiktnl.tsv"
+      - "tools/dictionaries/registry/wiktpl.tsv"
+      - "tools/dictionaries/registry/wiktpt.tsv"
+      - "tools/dictionaries/registry/wiktro.tsv"
+      - "tools/dictionaries/registry/wiktru.tsv"
+      - "tools/dictionaries/registry/wiktsv.tsv"
+      - "tools/dictionaries/registry/wiktth.tsv"
+      - "tools/dictionaries/registry/wikttl.tsv"
+      - "tools/dictionaries/registry/wikttr.tsv"
+      - "tools/dictionaries/registry/wiktuk.tsv"
+      - "tools/dictionaries/registry/wiktvi.tsv"
+      - "src/polyglotic_desktop/__init__.py"
+      - "src/polyglotic_desktop/adapters/__init__.py"
+      - "src/polyglotic_desktop/adapters/*_split.py"
+      - "src/polyglotic_desktop/adapters/sqlite_dictionary.py"
+      - "src/polyglotic_desktop/core/__init__.py"
+      - "src/polyglotic_desktop/core/lexicon/__init__.py"
+      - "src/polyglotic_desktop/core/lexicon/arabic.py"
+      - "src/polyglotic_desktop/core/lexicon/basic.py"
+      - "src/polyglotic_desktop/core/lexicon/chinese.py"
+      - "src/polyglotic_desktop/core/lexicon/compounds.py"
+      - "src/polyglotic_desktop/core/lexicon/english.py"
+      - "src/polyglotic_desktop/core/lexicon/entries.py"
+      - "src/polyglotic_desktop/core/lexicon/pinyin.py"
+      - "src/polyglotic_desktop/core/lexicon/readings.py"
+      - "src/polyglotic_desktop/core/lexicon/thai.py"
+      - "src/polyglotic_desktop/core/lexicon/turkish.py"
+      - "src/polyglotic_desktop/core/lexicon/vietnamese.py"
+      - "src/polyglotic_desktop/core/shared/__init__.py"
+      - "src/polyglotic_desktop/ports/__init__.py"
+      - "src/polyglotic_desktop/ports/dictionary.py"
+      - "src/polyglotic_desktop/ports/word_split.py"
+      - "tests/lexicon/sample.py"
+      - "tests/lexicon/test_basic.py"
+      - "tests/tools/test_coverage.py"
+      - "tests/tools/test_packs.py"
+      - "tests/tools/test_spanish_forms.py"
+      - "tests/tools/wordfreq_data.py"
+  schedule:
+    - cron: "17 19 * * 0"  # Mondays 06:17 in Sydney
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  packs:
+    name: Build the packs and probe their coverage (Windows)
+    # On the user's PC, as the runner's own account (decision 0025)
+    runs-on: [self-hosted, windows]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      # The checksums in sources.py are what make a build reproducible;
+      # the cache only saves downloading
+      - name: Cache the pinned sources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-pack-sources-${{ hashFiles('tools/dictionaries/sources.py', 'tools/dictionaries/treebanks.py') }}
+
+      - name: Build the packs (fails under the basic floor)
+        run: uv run --no-sync python -m tools.dictionaries.packs
+
+      - name: The coverage probe and 174's hard Spanish forms, as tests
+        env:
+          POLYGLOTIC_PACKS: build/dictionaries/packs
+        run: uv run --no-sync pytest tests/tools/test_coverage.py tests/tools/test_spanish_forms.py -v

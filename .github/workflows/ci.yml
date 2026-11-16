@@ -1,0 +1,113 @@
+# CI (polyglotic-hq ENGINEERING.md, "Quality checks"), on the user's PC
+# (decision 0025). The release train (decision 0167, polyglotic-hq 379):
+# - **A pull request** runs Checks (Linux) here - lint, format, types, the
+#   import rule and the tests that don't need Windows - and the secret scan
+#   (secrets.yml). Quick, on the Linux runner.
+# - **The Windows jobs** (Checks (Windows), UI lab (Windows): windows.yml)
+#   run here on a push to main, on a pull request labelled `train` (Claude's
+#   train branch: ready pull requests merged together, checked once), and
+#   when run by hand (Actions > CI > Run workflow, any branch). A pull
+#   request that changes the Windows-only parts runs them too, through
+#   windows-parts.yml.
+# - **A draft** pull request runs nothing until it's marked ready.
+#
+# Not for a change to Markdown alone where nothing reads it (polyglotic-hq
+# project 055: Actions minutes): the root, docs/ and .github/. Markdown
+# anywhere else still runs CI. The secret scan runs on every change.
+name: CI
+
+on:
+  pull_request:
+    # ready_for_review: a draft marked ready runs, and the train's pull
+    # request, opened as a draft with its label, starts its checks that way
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - "*.md"
+      - "docs/**/*.md"
+      - ".github/*.md"
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+      - "docs/**/*.md"
+      - ".github/*.md"
+  workflow_dispatch:
+
+# A newer push to the same pull request or branch cancels the older run.
+#
+# A pull request labelled `stacked` - a lower branch of a stack, whose top
+# pull request tests the whole tree - runs no jobs (polyglotic-hq 344: 50
+# runs queued for three runners, 2026-11-15). A label, not a base branch:
+# the stack's top isn't based on main either. Adding or taking off a label
+# starts nothing; the next push (or a re-run) does.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    # The tests that don't need Windows, on Linux (decision 0038): what
+    # would break a macOS or Linux build shows here first. `windows_only`
+    # tests are skipped. On the user's PC, in Docker, as the secret scan
+    # (polyglotic-hq 069, decision 0025). Never for outside contributors.
+    name: Checks (Linux)
+    if: ${{ !github.event.pull_request.draft && !contains(github.event.pull_request.labels.*.name, 'stacked') }}
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # tags and main, for tests/test_schema_versions.py
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      # The runner can't install packages: unpacked into the job's own folder
+      - name: Qt's system libraries
+        run: bash tools/linux_qt_libs.sh "$RUNNER_TEMP/qt-libs" >> "$GITHUB_ENV"
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      # The same result as on Windows: mypy checks as win32 on any machine
+      # (pyproject.toml), and these were Checks (Windows)' steps until the
+      # train (decision 0167), so a pull request gets them without a
+      # Windows runner
+      - name: Lint (ruff)
+        run: uv run --no-sync ruff check --output-format=github
+
+      - name: Format (ruff format --check)
+        run: uv run --no-sync ruff format --check
+
+      - name: Types (mypy)
+        run: uv run --no-sync mypy
+
+      # As macOS and Linux would see it: only Windows' own modules may fail
+      # there (decision 0038; tools/mypy_platforms.py)
+      - name: Types on macOS and Linux (mypy --platform)
+        run: uv run --no-sync python -m tools.mypy_platforms
+
+      - name: Import rule (import-linter)
+        run: uv run --no-sync lint-imports
+
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      - name: Tests (pytest; Windows-only ones skipped)
+        # its peak memory against the container's cap, and a kill for memory
+        # (exit 137) named with the step (tools/ci_memory.py, polyglotic-hq 344, 350)
+        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest)" -- uv run --no-sync pytest -p no:cacheprovider
+
+  windows:
+    # Not on an ordinary pull request (decision 0167): a push to main, the
+    # train's pull request, or by hand
+    name: Windows
+    if: >-
+      ${{ github.event_name != 'pull_request' || (
+      contains(github.event.pull_request.labels.*.name, 'train')
+      && !github.event.pull_request.draft
+      && !contains(github.event.pull_request.labels.*.name, 'stacked')) }}
+    uses: ./.github/workflows/windows.yml

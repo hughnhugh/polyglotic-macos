@@ -1,0 +1,50 @@
+# Daily: is the public update feed what we published? (polyglotic-hq
+# project 032, checklist for D5, item 8; decision 0018.) Anyone who could
+# write the update storage or change the domain's DNS could serve testers
+# other code; this compares what the feed serves now, channel by channel,
+# with the SHA-256s the release workflow recorded on that channel's latest
+# GitHub Release - the feed's as the storage served it after the upload
+# merged it (decision 0020), not as it was built - and fails, which emails
+# the repo's owner, on any difference. Each channel against its own
+# Release (project 066, Low 5): following only the newest Release would
+# leave the alpha's feed unchecked once a beta is newest.
+# tools/package/feed_check.py does the work, with the standard library only.
+#
+# Off until there's a feed: it runs only once the repository variable
+# UPDATE_FEED is set (https://updates.<domain>/).
+name: Feed check
+
+on:
+  schedule:
+    - cron: "41 5 * * *" # daily, 05:41 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  feed:
+    name: Each channel's public feed matches its latest Release
+    if: vars.UPDATE_FEED != ''
+    # On the user's PC, in Docker: a self-hosted runner (polyglotic-hq
+    # project 069, decision 0025). Its image has curl and jq but not gh;
+    # feed_check.py reads the GitHub API with GH_TOKEN (urllib), not gh.
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 15
+    env:
+      UPDATE_FEED: ${{ vars.UPDATE_FEED }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: false
+
+      # Nothing of the app is installed: the check needs the standard library only.
+      - name: Each channel's feed, signature, installer and full package against its latest Release
+        run: uv run --no-project --python 3.12 python -m tools.package.feed_check

@@ -1,0 +1,398 @@
+# A release: a version tag builds the app once, and that build is published
+# to each channel - once the update storage exists - recording what was
+# published (decisions 0018 and 0044; polyglotic-hq project 032's checklist
+# for D5, items 2-8).
+#
+# What a run does is tools/package/release_plan.py's (decision 0044):
+# - a tag on main, pushed: built, packed for the alpha, published there;
+# - a tag on its release/vX.Y branch, pushed (a hotfix): built and recorded
+#   on its GitHub Release, published nowhere yet - the alpha follows main;
+# - Release run by hand on a tag with a channel: a promotion - the build
+#   recorded on the tag's Release, checked by SHA-256, repacked for that
+#   channel with no rebuild (tools/package/promote.py), and published;
+# - Release run by hand on a branch: a dry run as v0.0.1 - built, a
+#   promotion rehearsed on the build (.github/actions/build-and-pack, as
+#   Package's), what the publish would take checked, nothing published.
+#
+# - Started only by a tag (v0.1.0) or by hand; never by a pull request, so
+#   no one else's code runs with the release's secrets.
+# - Read-only by default; only the release job may write, and only to this
+#   repo's Releases.
+# - One job builds (or promotes) and publishes (decision 0050), so nothing
+#   a release needs passes through GitHub's artifact storage - full from
+#   2026-11-08 to 2026-12-01 (polyglotic-hq DECISIONS.md #98).
+# - Everything pinned: actions by commit, vpk by version
+#   (.config/dotnet-tools.json), PyInstaller and every Python package by
+#   uv.lock; the checkout keeps no credentials.
+# - The upload's secrets live in the `release` environment (R2_ACCESS_KEY_ID,
+#   R2_SECRET_ACCESS_KEY, R2_ENDPOINT, R2_BUCKET; a token for the releases
+#   bucket only, rotated every 6 months). Until they exist the upload is
+#   skipped and nothing is published: the build is kept on a draft
+#   Release (which can't be promoted: it published nothing).
+# - The previous release is fetched from the public feed for delta packages
+#   once the repository variable UPDATE_FEED (https://updates.<domain>/) is
+#   set - for a release from main only; the daily feed check
+#   (feed-check.yml) uses it too.
+# - The feed is signed and recorded as the storage serves it (decision
+#   0020): `vpk upload` merges the feed built here with the one already
+#   there, so tools/package/publish.sh uploads, fetches the feed back,
+#   checks it's our merge (every asset built in it unchanged, nothing newer
+#   that wasn't built here), and only then - once the `release` environment
+#   holds FEED_SIGNING_KEY - signs it with its channel (decision 0019) and
+#   uploads releases.<channel>.json.sig beside it. SHA256SUMS-<channel> on
+#   the tag's Release records the served feed, which the public feed and
+#   the daily feed check are compared with. Apps with the public key built
+#   in (main.FEED_KEYS) refuse a feed without a signature.
+# - One GitHub Release per tag: the notes (RELEASE-NOTES.md), the build
+#   (its full package and SHA256SUMS-build, what a promotion starts from),
+#   and a SHA256SUMS-<channel> with the installer and feed for each channel
+#   it's published to - beside the same build as the Microsoft Store's MSIX
+#   for that channel, which the user uploads to Partner Center (decision
+#   0056).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: On a tag, the channel to publish its build to (a promotion); on a branch, the channel a dry run rehearses promoting to
+        type: choice
+        options: [win-x64-alpha, win-x64-beta, win-x64-stable]
+        default: win-x64-beta
+
+# One release at a time, never cancelled half-way.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    name: The tag, its notes and what this run does
+    # On the user's PC, in Docker: a self-hosted runner (polyglotic-hq
+    # project 069, decision 0025). Never for outside contributors.
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.plan.outputs.tag }}
+      kind: ${{ steps.plan.outputs.kind }}
+      channel: ${{ steps.plan.outputs.channel }}
+      build: ${{ steps.plan.outputs.build }}
+      deltas: ${{ steps.plan.outputs.deltas }}
+      build_channel: ${{ steps.plan.outputs.build_channel }}
+      build_package: ${{ steps.plan.outputs.build_package }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # main and the release branches, to place the tag
+
+      # A run by hand is a dry run as v0.0.1: Velopack refuses 0.0.0 (it
+      # must be >= 0.0.1), and package.yml's rehearsal installs 0.0.1 and
+      # updates to 0.0.2.
+      - name: A release tag, v plus MAJOR.MINOR.PATCH
+        id: tag
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then tag="$REF_NAME"; else tag=v0.0.1; fi
+          if ! printf '%s' "$tag" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'; then
+            echo "::error::$tag isn't a release tag (v plus MAJOR.MINOR.PATCH)"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: false
+
+      # The notes' one source (polyglotic-hq RELEASING.md section 10, G7): a
+      # tag whose version has no section in RELEASE-NOTES.md stops here,
+      # before the build. A dry run (no tag) checks the file still parses.
+      - name: The release notes for this version (RELEASE-NOTES.md)
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then
+            uv run --no-project --python 3.12 python -m tools.package.release_notes "$TAG"
+          else
+            uv run --no-project --python 3.12 python -c "import tools.package.release_notes as n; n.parse(n.NOTES.read_text(encoding='utf-8'))"
+            echo "A dry run: no tag, so no version's notes are required"
+          fi
+
+      # Signed tags (project 032, item 7): once .github/allowed_signers holds
+      # the user's SSH signing key, an unsigned or wrongly signed tag stops
+      # the release here - a promotion's run on the tag too.
+      - name: The tag's signature
+        if: github.ref_type == 'tag'
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -f .github/allowed_signers ]; then
+            git -c gpg.format=ssh -c gpg.ssh.allowedSignersFile=.github/allowed_signers verify-tag "$REF_NAME"
+          else
+            echo "::warning::Tags aren't verified yet: no .github/allowed_signers"
+          fi
+
+      # Release, hotfix, promotion or dry run - or refused (decision 0044).
+      # Where the tag's commit is (main, its release branch) from git; what
+      # its published Release holds (the build, its channels) from GitHub.
+      - name: What this run does (tools/package/release_plan.py)
+        id: plan
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+          CHANNEL: ${{ inputs.channel }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          by_hand=$([ "$EVENT" = workflow_dispatch ] && echo --by-hand || true)
+          uv run --no-project --python 3.12 python -m tools.package.release_plan \
+            --ref-type "$REF_TYPE" --tag "$REF_NAME" --channel "$CHANNEL" $by_hand \
+            --output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # One job makes the release and publishes it (decision 0050): built from
+  # source (a release, a hotfix, a dry run) or, for a promotion, the tag's
+  # recorded build repacked - then uploaded and recorded from this job's own
+  # disk. Nothing passes through GitHub's artifact storage, which a release
+  # can't count on: it was full from 2026-11-08 to 2026-12-01 and blocks
+  # uploads at the account's $0 limit (polyglotic-hq DECISIONS.md #98). The
+  # build's steps are package.yml's (.github/actions/build-and-pack). The
+  # publishing steps run on a tag only: a run by hand on a branch is a dry
+  # run, and stops once it has shown what the publish would take.
+  release:
+    name: Build or promote, then publish
+    needs: tag
+    if: needs.tag.outputs.build == 'true' || needs.tag.outputs.kind == 'promote'
+    # On the user's PC, as the user: a self-hosted runner (polyglotic-hq
+    # project 069, decision 0025). Never for outside contributors.
+    runs-on: [self-hosted, windows]
+    timeout-minutes: 60
+    # The upload's secrets are the `release` environment's, for a tag only
+    # (its deployments are limited to tags v*); a dry run has none.
+    environment: ${{ github.ref_type == 'tag' && 'release' || '' }}
+    permissions:
+      contents: write # the GitHub Release that records what was published
+    defaults:
+      run:
+        shell: bash
+    env:
+      TAG: ${{ needs.tag.outputs.tag }}
+      KIND: ${{ needs.tag.outputs.kind }}
+      CHANNEL: ${{ needs.tag.outputs.channel }} # empty for a hotfix's own run
+      BUILD: ${{ needs.tag.outputs.build_package }}
+      BUILD_CHANNEL: ${{ needs.tag.outputs.build_channel }}
+      UPDATE_FEED: ${{ vars.UPDATE_FEED }}
+      HAS_R2: ${{ secrets.R2_SECRET_ACCESS_KEY != '' }}
+      UV_NO_CACHE: "1" # a release is made from the lockfile alone
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: false
+
+      - name: The app and its packing tools (fails if uv.lock is out of date)
+        run: uv sync --locked --no-default-groups --group package
+
+      # The .NET SDK vpk needs, in the runner's own folder (the default,
+      # Program Files, would need admin on the user's PC)
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Velopack's packing tool, at the version in .config/dotnet-tools.json
+        run: dotnet tool restore
+
+      # A release, a hotfix or a dry run: built once, from source, as
+      # Package builds main. A dry run also rehearses a promotion on it.
+      - name: Build and pack (package.yml's steps)
+        if: needs.tag.outputs.build == 'true'
+        uses: ./.github/actions/build-and-pack
+        with:
+          tag: ${{ needs.tag.outputs.tag }}
+          channel: ${{ needs.tag.outputs.build_channel }}
+          previous_feed: ${{ needs.tag.outputs.deltas == 'true' && vars.UPDATE_FEED || '' }}
+          promote_to: ${{ needs.tag.outputs.kind == 'dry-run' && needs.tag.outputs.channel || '' }}
+
+      - name: Record what was built (SHA-256)
+        if: needs.tag.outputs.build == 'true'
+        run: |
+          (cd releases && sha256sum -- *) > build/package/SHA256SUMS
+          {
+            echo '## The packed app'
+            echo '```json'
+            cat build/package/summary.json
+            echo '```'
+            echo '## Packages (SHA-256)'
+            echo '```'
+            cat build/package/SHA256SUMS
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A promotion: the tag's recorded build, never a rebuild (decision
+      # 0044). The build is the tag's: its full package and SHA256SUMS-build,
+      # as the tag's own run recorded them. Once the feed is public, the copy
+      # the alpha's testers were served must be the same bytes too.
+      - name: The build, as the tag's Release records it (and as the feed serves it)
+        if: needs.tag.outputs.kind == 'promote'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p build/promote
+          gh release download "$TAG" --pattern "$BUILD" --pattern SHA256SUMS-build --dir build/promote
+          recorded=$(grep -F "$BUILD" build/promote/SHA256SUMS-build | cut -d' ' -f1)
+          if [ -n "$UPDATE_FEED" ] && curl -fsSIo /dev/null "${UPDATE_FEED%/}/$BUILD"; then
+            served=$(curl -fsSL "${UPDATE_FEED%/}/$BUILD" | sha256sum | cut -d' ' -f1)
+            if [ "$served" != "$recorded" ]; then
+              echo "::error::the feed serves $BUILD as $served; the Release recorded $recorded"
+              exit 1
+            fi
+            echo "$BUILD: the feed serves the recorded build"
+          fi
+
+      - name: Unpacked, stamped for the channel, packed again - and checked to be the same build
+        if: needs.tag.outputs.kind == 'promote'
+        run: |
+          uv run --no-sync python -m tools.package.promote unpack "build/promote/$BUILD" \
+            --sums build/promote/SHA256SUMS-build --channel "$CHANNEL" --out build/promote
+          # the version's notes, as its build was packed with (decision 0090)
+          notes=build/promote/version-notes.md
+          uv run --no-sync python -m tools.package.release_notes "$TAG" --out "$notes" || rm -f "$notes"
+          [ -s "$notes" ] || notes=""
+          bash tools/package/pack.sh "${TAG#v}" "$CHANNEL" build/promote/app releases build/promote/Polyglotic.ico "$notes"
+          uv run --no-sync python -m tools.package.promote compare "build/promote/$BUILD" \
+            "releases/Polyglotic-${TAG#v}-$CHANNEL-full.nupkg" --channel "$CHANNEL" | tee -a "$GITHUB_STEP_SUMMARY"
+          # and for the Microsoft Store, from the same promoted files (decision 0056)
+          store="build/store/Polyglotic-${TAG#v}-$CHANNEL.msix"
+          uv run --no-sync python -m tools.package.msix pack "${TAG#v}" build/promote/app "$store" | tee -a "$GITHUB_STEP_SUMMARY"
+          uv run --no-sync python -m tools.package.msix compare "$store" build/promote/app
+          mkdir -p build/package
+          (cd releases && sha256sum -- *) > build/package/SHA256SUMS
+
+      # Everything the upload and the Release take, on this job's own disk -
+      # made here, not fetched from anywhere (decision 0050). For a dry run,
+      # what the tag's own run would publish: the build's channel's files.
+      # A dry run ends here.
+      - name: What the publish takes, made by this job
+        run: |
+          channel=$([ "$KIND" = dry-run ] && echo "$BUILD_CHANNEL" || echo "$CHANNEL")
+          need=(build/package/SHA256SUMS)
+          if [ "$KIND" != promote ]; then
+            need+=("releases/$BUILD" build/package/summary.json)
+          fi
+          if [ -n "$channel" ]; then
+            need+=("releases/Polyglotic-$channel-Setup.exe" "releases/releases.$channel.json")
+            need+=("build/store/Polyglotic-${TAG#v}-$channel.msix") # the Store's (decision 0056)
+          fi
+          for file in "${need[@]}"; do
+            if [ ! -s "$file" ]; then
+              echo "::error::$file isn't here: the publish has nothing to take it from"
+              exit 1
+            fi
+            echo "here: $file ($(wc -c < "$file") bytes)"
+          done
+          if [ "$GITHUB_REF_TYPE" != tag ]; then
+            echo "A dry run: nothing is uploaded, signed or recorded"
+          fi
+
+      # Upload; fetch the feed back as served; check it's our merge; sign it
+      # (with the key) and upload the signature; record it (decision 0020).
+      # package.yml runs the same script against a folder on every pull
+      # request that could change it.
+      - name: Upload, then check, sign and record the feed as served
+        if: github.ref_type == 'tag' && env.HAS_R2 == 'true' && env.CHANNEL != ''
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          FEED_SIGNING_KEY: ${{ secrets.FEED_SIGNING_KEY }}
+        run: bash tools/package/publish.sh "$CHANNEL" s3 releases build/package/SHA256SUMS
+
+      # releases/ now holds the feed as the storage serves it (above): the
+      # public address must serve the same bytes.
+      - name: The public feed is what was uploaded
+        if: github.ref_type == 'tag' && env.HAS_R2 == 'true' && env.CHANNEL != '' && vars.UPDATE_FEED != ''
+        run: |
+          feed="releases.$CHANNEL.json"
+          curl -fsSL "${UPDATE_FEED%/}/$feed" -o "$RUNNER_TEMP/$feed"
+          cmp "releases/$feed" "$RUNNER_TEMP/$feed"
+          if [ -f "releases/$feed.sig" ]; then
+            curl -fsSL "${UPDATE_FEED%/}/$feed.sig" -o "$RUNNER_TEMP/$feed.sig"
+            cmp "releases/$feed.sig" "$RUNNER_TEMP/$feed.sig"
+          fi
+
+      # One Release per tag. The tag's own run creates it: the version's
+      # notes (RELEASE-NOTES.md, checked in the tag job), the build (what a
+      # promotion starts from) and, unless it's a hotfix, the alpha's
+      # SHA-256s. A promotion adds its channel's SHA-256s, installer and feed.
+      - name: Record what was published (job summary and the GitHub Release)
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          published=$([ "$HAS_R2" = true ] && echo yes || echo "no - the update storage isn't set up yet")
+          uv run --no-project --python 3.12 python -m tools.package.release_notes "$TAG" --out "$RUNNER_TEMP/version-notes.md"
+          files=()
+          if [ "$KIND" != promote ]; then # the tag's own run records the build
+            (cd releases && sha256sum -- "$BUILD") > "$RUNNER_TEMP/SHA256SUMS-build"
+            files+=("$RUNNER_TEMP/SHA256SUMS-build" "releases/$BUILD" build/package/summary.json)
+          fi
+          if [ -n "$CHANNEL" ]; then
+            cp build/package/SHA256SUMS "$RUNNER_TEMP/SHA256SUMS-$CHANNEL"
+            files+=("$RUNNER_TEMP/SHA256SUMS-$CHANNEL" releases/Polyglotic-"$CHANNEL"-Setup.exe releases/releases."$CHANNEL".json*)
+            store="build/store/Polyglotic-${TAG#v}-$CHANNEL.msix" # uploaded to Partner Center by hand
+            files+=("$store")
+          fi
+          {
+            if [ "$KIND" = promote ]; then
+              echo
+              echo "## Promoted to $CHANNEL ($(date -u +%Y-%m-%d))"
+              echo "The build $BUILD_CHANNEL got, repacked for $CHANNEL: the same files, checked by SHA-256 (decision 0044)."
+            else
+              cat "$RUNNER_TEMP/version-notes.md"
+              echo
+              echo "## The build"
+              echo '```'
+              cat "$RUNNER_TEMP/SHA256SUMS-build"
+              echo '```'
+              if [ -z "$CHANNEL" ]; then
+                echo "A hotfix: published to no channel yet. Run Release by hand on $TAG with each channel that has the bug."
+              fi
+            fi
+            if [ -n "$CHANNEL" ]; then
+              echo "## $TAG on $CHANNEL"
+              echo "Published to the update feed: $published"
+              echo '```'
+              cat build/package/SHA256SUMS
+              echo '```'
+              echo "The Microsoft Store's package, the same files, for Partner Center (decision 0056):"
+              echo '```'
+              (cd build/store && sha256sum -- "$(basename "$store")")
+              echo '```'
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY" > "$RUNNER_TEMP/notes.md"
+          if [ "$KIND" = promote ]; then
+            gh release view "$TAG" --json body --jq .body > "$RUNNER_TEMP/body.md"
+            cat "$RUNNER_TEMP/notes.md" >> "$RUNNER_TEMP/body.md"
+            gh release upload "$TAG" "${files[@]}"
+            gh release edit "$TAG" --notes-file "$RUNNER_TEMP/body.md"
+          else
+            draft=$([ "$HAS_R2" = true ] && echo "" || echo "--draft")
+            gh release create "$TAG" --verify-tag $draft \
+              --title "Polyglotic ${TAG#v}" --notes-file "$RUNNER_TEMP/notes.md" "${files[@]}"
+          fi

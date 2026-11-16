@@ -1,0 +1,262 @@
+# The app testers install: PyInstaller one folder, checked and timed
+# (tools/package/build.py, decision 0016), then packed by Velopack into the
+# installer and update packages (decision 0017). Nothing is published here.
+#
+# - On pushes to main that could change the result (not on pull requests:
+#   the Windows build costs twice the Actions minutes - polyglotic-hq
+#   project 055, decision 0021), and when run by hand on a branch (Actions
+#   > Package > Run workflow), it also publishes the build as the release
+#   workflow would (tools/package/publish.sh) to a folder standing in for
+#   the update storage, then packs the same folder as the next version and
+#   publishes that over it - Velopack merges the two feeds, and the merge
+#   is checked, signed with a throwaway key and recorded as served
+#   (decision 0020). The packages are kept three days as an artifact.
+#   A newer push to main cancels the older build.
+# - Only by hand - on GitHub's own runner ("github_hosted"; it uses Actions
+#   minutes), or on the PC's runner in the runner's own Windows account
+#   ("install_here", decision 0045) - it also installs the build (Setup.exe
+#   --silent), checks the installed copy, and proves the installed updater
+#   reads the served feed: the installed app finds and downloads the next
+#   version from it. On the PC it then uninstalls it again. Never in the
+#   user's own account: the job refuses unless it runs as a runner's
+#   account (polyglotic-hq scripts/RUNNERS.md).
+# - Its build and pack steps are .github/actions/build-and-pack's, which
+#   release.yml's one job runs too (decision 0050): what Package checks on
+#   main is how a release is built, and a release hands nothing over
+#   through GitHub's artifact storage.
+name: Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tools/package/**"
+      - "tools/dictionaries/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".config/dotnet-tools.json"
+      - "THIRD_PARTY_NOTICES.md"
+      - ".github/workflows/package.yml"
+      - ".github/actions/build-and-pack/**"
+  # by hand, on a branch whose pull request changes packaging, before it merges
+  workflow_dispatch:
+    inputs:
+      github_hosted:
+        description: On GitHub's own Windows runner (uses Actions minutes), where the build is installed and update-tested
+        type: boolean
+        default: false
+      install_here:
+        description: On the PC's runner, install the build in the runner's own Windows account, update-test it, then uninstall it (decision 0045)
+        type: boolean
+        default: false
+
+# A check is superseded by a newer run on the same branch.
+concurrency:
+  group: package-check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TAG: v0.0.1
+  CHANNEL: win-x64-alpha
+  # The promotion rehearsed on every build here, to the beta (a release's
+  # dry run rehearses it to the channel it's given: release.yml)
+  REHEARSE_PROMOTION: win-x64-beta
+
+jobs:
+  package:
+    name: PyInstaller and Velopack (Windows)
+    # On the user's PC, as the user: a self-hosted runner (polyglotic-hq
+    # project 069, decision 0025) - or GitHub's, by hand (github_hosted).
+    runs-on: ${{ inputs.github_hosted && 'windows-latest' || fromJSON('["self-hosted", "windows"]') }}
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          # the release path pins uv too (project 032, item 4); setup-uv
+          # checks the download against its known checksums
+          version: "0.13.5"
+          # a check may use uv's cache; a release never does (release.yml)
+          enable-cache: true
+
+      - name: Install the app and PyInstaller only (fails if uv.lock is out of date)
+        run: uv sync --locked --no-default-groups --group package
+
+      # The pinned sources are checked against their SHA-256 either way
+      # (tools/dictionaries/sources.py); the cache only saves downloading.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      # The .NET SDK vpk needs, in the runner's own folder (the default,
+      # Program Files, would need admin on the user's PC)
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Velopack's packing tool, at the version in .config/dotnet-tools.json
+        run: dotnet tool restore
+
+      # The dictionaries, PyInstaller, Velopack's pack, and a promotion
+      # rehearsed on the build: release.yml's steps too (decision 0050)
+      - name: Build and pack, as a release does
+        uses: ./.github/actions/build-and-pack
+        with:
+          tag: ${{ env.TAG }}
+          channel: ${{ env.CHANNEL }}
+          promote_to: ${{ env.REHEARSE_PROMOTION }}
+
+      # On GitHub's throwaway runner, or by hand in a runner's own account on
+      # the PC - never the user's (decisions 0025, 0045): the account is
+      # checked first, and nothing is installed under any other name.
+      - name: This job runs in a runner's own Windows account, not the user's
+        if: ${{ runner.environment != 'github-hosted' && inputs.install_here }}
+        run: |
+          account=${USERNAME:-$(whoami)}
+          account=${account##*\\}
+          case "$account" in
+            polyglotic-runner|polyglotic-runner[0-9])
+              echo "Installing in $account's own account"
+              echo "IN_RUNNER_ACCOUNT=yes" >> "$GITHUB_ENV" ;; # the uninstall's condition
+            *) echo "::error::not a runner's own account (polyglotic-hq scripts/RUNNERS.md): nothing is installed"; exit 1 ;;
+          esac
+
+      - name: Install it here, as a tester would (Setup.exe, silently)
+        if: ${{ runner.environment == 'github-hosted' || inputs.install_here }}
+        timeout-minutes: 8
+        run: |
+          # Silent, Setup installs (running the app's install hook) and
+          # doesn't start the app; with `-- <app args>` Velopack 1.2.161's
+          # Setup panics and hangs - so the installed copy is started here
+          timeout 300 ./releases/Polyglotic-*-Setup.exe --silent --log "$(cygpath -w "$RUNNER_TEMP/setup.log")" || {
+            echo "::error::Setup.exe failed or hung"; cat "$RUNNER_TEMP/setup.log" || true; exit 1; }
+          grep -q "Installation completed successfully" "$RUNNER_TEMP/setup.log"
+          report="$RUNNER_TEMP/first-run.json"
+          timeout 300 "$(cygpath -u "$LOCALAPPDATA")/Polyglotic/current/Polyglotic.exe" --check-install "$(cygpath -w "$report")"
+          cat "$report"
+          grep -q '"ok": true' "$report"
+          grep -q '"installed": true' "$report"
+
+      # The release's own publishing steps, against a folder: Velopack's
+      # `vpk upload local` runs the same merge as `vpk upload s3` (its
+      # _ObjectStore.cs), only the storage differs. The key is made here and
+      # thrown away: nothing signed with it reaches anyone.
+      - name: Published to a folder standing in for the update storage, as a release would be
+        run: |
+          # Python on Windows ends its lines with \r\n
+          keys=$(uv run --no-sync python -m tools.package.sign_feed generate | tr -d '\r')
+          key=$(printf '%s\n' "$keys" | sed -n 's/^private[^:]*: *//p')
+          echo "::add-mask::$key"
+          printf '%s\n' "$keys" | sed -n 's/^public[^:]*: *//p' > "$RUNNER_TEMP/public-key"
+          echo "FEED_SIGNING_KEY=$key" >> "$GITHUB_ENV" # for the next step too
+          FEED_SIGNING_KEY="$key" bash tools/package/publish.sh "$CHANNEL" "$RUNNER_TEMP/storage" releases build/package/SHA256SUMS
+
+      # The case project 042 found: the next release's own feed lists only
+      # itself (no `vpk download` here, as before UPDATE_FEED is set), the
+      # storage's merge lists both - and the merge is what's signed.
+      - name: The next version published over it - the merged feed checked, signed and recorded
+        run: |
+          next="$RUNNER_TEMP/next"
+          bash tools/package/pack.sh 0.0.2 "$CHANNEL" dist/Polyglotic "$next"
+          feed="releases.$CHANNEL.json"
+          cp "$next/$feed" "$RUNNER_TEMP/built-$feed"
+          bash tools/package/publish.sh "$CHANNEL" "$RUNNER_TEMP/storage" "$next" "$RUNNER_TEMP/next-SHA256SUMS"
+          served="$RUNNER_TEMP/storage/$feed"
+          if cmp -s "$RUNNER_TEMP/built-$feed" "$served"; then
+            echo "::error::the storage's feed is the built one: no merge to test"; exit 1
+          fi
+          grep -q 'Polyglotic-0.0.1-' "$served" # the merge kept the last release
+          grep -q 'Polyglotic-0.0.2-' "$served"
+          cmp "$next/$feed" "$served" # recorded as served
+          # (from stdin: sha256sum escapes a path with backslashes)
+          grep -qF "$(sha256sum < "$served" | cut -d' ' -f1) " "$RUNNER_TEMP/next-SHA256SUMS"
+          key=$(cat "$RUNNER_TEMP/public-key")
+          uv run --no-sync python -m tools.package.sign_feed verify "$served" --channel "$CHANNEL" --key "$key"
+          # signed for this channel only: as another channel's feed it's refused
+          if uv run --no-sync python -m tools.package.sign_feed verify "$served" --channel win-x64-beta --key "$key"; then
+            echo "::error::the signature passed for another channel"; exit 1
+          fi
+
+      - name: The installed copy finds and downloads the next version from the feed as served
+        if: ${{ runner.environment == 'github-hosted' || inputs.install_here }}
+        timeout-minutes: 8
+        run: |
+          report="$RUNNER_TEMP/update.json"
+          timeout 300 "$(cygpath -u "$LOCALAPPDATA")/Polyglotic/current/Polyglotic.exe" --check-install "$(cygpath -w "$report")" --updates "$(cygpath -w "$RUNNER_TEMP/storage")"
+          cat "$report"
+          grep -q '"update_found": "0.0.2"' "$report"
+          grep -q '"update_downloaded": true' "$report"
+
+      # The runner's account keeps nothing: Velopack's own uninstall (which
+      # runs the app's uninstall hook), even if a step above failed - and
+      # only once the account was checked to be a runner's, never the user's
+      - name: Uninstalled again, on the PC
+        if: ${{ always() && env.IN_RUNNER_ACCOUNT == 'yes' }}
+        timeout-minutes: 3
+        run: |
+          home="$(cygpath -u "$LOCALAPPDATA")/Polyglotic"
+          if [ -f "$home/Update.exe" ]; then
+            timeout 120 "$home/Update.exe" uninstall --silent
+          fi
+          if [ -e "$home/current/Polyglotic.exe" ]; then
+            echo "::error::still installed in $home"; exit 1
+          fi
+          echo "Nothing installed in the runner's account"
+
+      - name: Record what was made (SHA-256)
+        run: |
+          (cd releases && sha256sum -- *) > build/package/SHA256SUMS
+          {
+            echo '## The packed app'
+            echo '```json'
+            cat build/package/summary.json
+            echo '```'
+            echo '## Packages (SHA-256)'
+            echo '```'
+            cat build/package/SHA256SUMS
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Nothing a release needs is kept here: a release builds and
+      # publishes in one job (decision 0050), so a full artifact storage
+      # (2026-11-08 to 2026-12-01, polyglotic-hq DECISIONS.md #98) fails no
+      # Package run - the uploads may fail. The whole package (about
+      # 160 MB) only on a run by hand, for a day; a push to main has already
+      # proved the packed app starts (check-install above), so it keeps
+      # just the checksums and summary - at ~20 merges a day the full
+      # package overran the plan's 0.5 GB of Actions storage (2026-11-06).
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        continue-on-error: true
+        with:
+          name: Polyglotic-${{ env.CHANNEL }}
+          path: |
+            releases
+            build/package/SHA256SUMS
+            build/package/summary.json
+          retention-days: 1
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        continue-on-error: true
+        with:
+          name: Polyglotic-${{ env.CHANNEL }}-checksums
+          path: |
+            build/package/SHA256SUMS
+            build/package/summary.json
+          retention-days: 3
+          if-no-files-found: error

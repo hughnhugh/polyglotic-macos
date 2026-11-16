@@ -1,0 +1,41 @@
+# Dependency updates: weekly, one grouped pull request per ecosystem.
+# Security alerts and security updates are separate repository settings,
+# off as of 2026-11-04; the weekly pip-audit workflow covers known
+# vulnerabilities meanwhile.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # vpk, Velopack's packing tool, in .config/dotnet-tools.json. Keep it at
+  # the velopack version in uv.lock: tests/tools/test_vpk_pin.py fails
+  # until both move.
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dotnet-tools:
+        patterns: ["*"]
+
+  # The hook versions in .pre-commit-config.yaml (ruff, gitleaks).
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      hooks:
+        patterns: ["*"]

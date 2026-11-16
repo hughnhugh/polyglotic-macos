@@ -1,0 +1,50 @@
+# The Windows jobs (windows.yml) on a pull request that changes what only
+# CI's own Windows runs can show (decision 0167, polyglotic-hq 379): an
+# ordinary pull request runs Checks (Linux) and the secret scan, and its
+# Windows side is checked on Claude's train. GitHub matches `paths` against
+# the whole pull request (its three-dot diff with main), for nothing: no
+# runner decides.
+#
+# Short on purpose. The agents work on Windows and run the Windows-only
+# tests they touch, and the UI lab for a change to the interface, before
+# they push (polyglotic-hq projects/README.md), so those wait for the train.
+# On 2026-11-15, a list that also took the UI lab, main.py and every test
+# that needs Windows matched 52 of the 80 pull requests that ran CI. What's
+# left is what no run at a desk shows:
+# - the workflows themselves;
+# - CI's machinery on the runners: the PC's lock and main's timing records
+#   (tools/ci_lock.py, tools/timing_record.py, tools/start_record.py);
+# - the dependencies, whose wheels differ by OS: a Dependabot pull request
+#   is run by no one at a desk.
+name: CI (Windows parts)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/windows.yml"
+      - ".github/workflows/windows-parts.yml"
+      - "tools/ci_lock.py"
+      - "tools/timing_record.py"
+      - "tools/start_record.py"
+      - "pyproject.toml"
+      - "uv.lock"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    # Not a draft, not a lower branch of a stack, and not the train, which
+    # ci.yml checks on Windows already
+    name: Windows
+    if: >-
+      ${{ !github.event.pull_request.draft
+      && !contains(github.event.pull_request.labels.*.name, 'stacked')
+      && !contains(github.event.pull_request.labels.*.name, 'train') }}
+    uses: ./.github/workflows/windows.yml

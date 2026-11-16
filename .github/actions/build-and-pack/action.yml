@@ -1,0 +1,105 @@
+# The app built and packed: the dictionaries from their pinned sources,
+# PyInstaller one folder, checked and timed (tools/package/build.py,
+# decision 0016), then packed by Velopack into the installer and update
+# packages (tools/package/pack.sh, decision 0017) and as the Microsoft
+# Store's MSIX (tools/package/msix.py, decision 0056) - and, if asked, a
+# promotion's own steps rehearsed on the build (decision 0044).
+#
+# One definition for both callers, so what Package checks on main is how a
+# release is built (decision 0050): package.yml's check, and release.yml's
+# one job, which builds and publishes with no hand-over through GitHub's
+# artifact storage. The caller has checked out the repo, synced the
+# locked environment with the package group, and restored Velopack's
+# packing tool (`dotnet tool restore`). Leaves the packages in `releases/`,
+# the Store's in `build/store/`, and the build's summary in
+# `build/package/summary.json`.
+name: Build and pack
+description: PyInstaller one folder, checked and timed, then packed by Velopack - and a promotion rehearsed on it, if asked
+
+inputs:
+  tag:
+    description: The version's tag, v plus MAJOR.MINOR.PATCH
+    required: true
+  channel:
+    description: The update channel to pack for
+    required: true
+  previous_feed:
+    description: The public update feed, to fetch the last release for delta packages (empty before the first)
+    default: ""
+  promote_to:
+    description: Rehearse a promotion of the build to this channel (decision 0044); empty for none
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Build the dictionaries from their pinned sources
+      shell: bash
+      run: uv run --no-sync python -m tools.dictionaries.build
+
+    - name: PyInstaller one folder, checked and timed
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        CHANNEL: ${{ inputs.channel }}
+      run: uv run --no-sync python -m tools.package.build "$TAG" --channel "$CHANNEL"
+
+    - name: The last release, for delta packages
+      if: inputs.previous_feed != ''
+      shell: bash
+      env:
+        CHANNEL: ${{ inputs.channel }}
+        PREVIOUS_FEED: ${{ inputs.previous_feed }}
+      run: dotnet vpk download http --url "$PREVIOUS_FEED" --channel "$CHANNEL" --outputDir releases --allowEmptyChannel
+
+    # The version's notes go into the feed (decision 0090): the app's
+    # offer to restart into an update shows their first lines. A dry run's
+    # tag has no section in RELEASE-NOTES.md, so it packs without notes.
+    - name: Pack the installer and the update package
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        CHANNEL: ${{ inputs.channel }}
+      run: |
+        notes=build/package/version-notes.md
+        uv run --no-sync python -m tools.package.release_notes "$TAG" --out "$notes" || rm -f "$notes"
+        [ -s "$notes" ] || notes=""
+        bash tools/package/pack.sh "${TAG#v}" "$CHANNEL" dist/Polyglotic releases build/package/Polyglotic.ico "$notes"
+        ls -l releases
+
+    # The same build packed again, for the Microsoft Store (decision 0056):
+    # dist/Polyglotic as it is, in an MSIX, checked to hold its files byte for
+    # byte. Unsigned - the Store signs what it publishes. In build/store, not
+    # releases/, so the update feed never lists it.
+    - name: The Microsoft Store's package, from the same build
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        CHANNEL: ${{ inputs.channel }}
+      run: |
+        store="build/store/Polyglotic-${TAG#v}-$CHANNEL.msix"
+        uv run --no-sync python -m tools.package.msix pack "${TAG#v}" dist/Polyglotic "$store" | tee -a "$GITHUB_STEP_SUMMARY"
+        uv run --no-sync python -m tools.package.msix compare "$store" dist/Polyglotic | tee -a "$GITHUB_STEP_SUMMARY"
+
+    # A promotion's own steps on this build (decision 0044; release.yml runs
+    # them on a tag's recorded build): the full package unpacked, its stamp
+    # given another channel, packed again by Velopack, and checked to hold
+    # this build's files byte for byte - only release.json and sq.version
+    # differ, in the channel. Nothing here is published or kept.
+    - name: The build promoted to another channel, as a promotion would - the same files, by SHA-256
+      if: inputs.promote_to != ''
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        CHANNEL: ${{ inputs.channel }}
+        REHEARSE_PROMOTION: ${{ inputs.promote_to }}
+      run: |
+        build="releases/Polyglotic-${TAG#v}-$CHANNEL-full.nupkg"
+        out="$RUNNER_TEMP/promoted"
+        uv run --no-sync python -m tools.package.promote unpack "$build" --channel "$REHEARSE_PROMOTION" --out "$out"
+        notes=build/package/version-notes.md # the build's own, as a promotion's are
+        [ -s "$notes" ] || notes=""
+        bash tools/package/pack.sh "${TAG#v}" "$REHEARSE_PROMOTION" "$out/app" "$out/releases" "$out/Polyglotic.ico" "$notes"
+        uv run --no-sync python -m tools.package.promote compare "$build" \
+          "$out/releases/Polyglotic-${TAG#v}-$REHEARSE_PROMOTION-full.nupkg" --channel "$REHEARSE_PROMOTION" | tee -a "$GITHUB_STEP_SUMMARY"
+        rm -rf "$out"

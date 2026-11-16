@@ -1,0 +1,189 @@
+# The two Windows jobs, Checks (Windows) and UI lab (Windows): the heavy
+# part of CI, on the PC's two Windows runners (decision 0025), about 20-30
+# minutes each. Called, not run on its own (decision 0167, polyglotic-hq
+# 379, the release train):
+# - by ci.yml on a push to main, on a pull request labelled `train` (Claude's
+#   train branch, which combines ready pull requests), and when run by hand
+#   (Actions > CI > Run workflow, on any branch);
+# - by windows-parts.yml on a pull request that changes the Windows-only
+#   parts (that workflow's `paths` list).
+# Every other pull request runs Checks (Linux) and the secret scan only.
+# Lint, format, types and the import rule run on Linux (ci.yml), where the
+# result is the same: mypy checks as win32 on any machine (pyproject.toml).
+name: Windows
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Checks (Windows)
+    # On the user's PC, as the runner's own standard Windows account, not
+    # the user (a self-hosted runner: polyglotic-hq project 069, decision
+    # 0025 and its 2026-11-06 amendments). Never for outside contributors.
+    runs-on: [self-hosted, windows]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # tags and main, for tests/test_schema_versions.py
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      # Built, not committed (decision 0034): each .qm from its .ts
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      # Beside the other runner's heavy steps, never while its start test
+      # is timed: the lock is the PC's own (tools/ci_lock.py, polyglotic-hq 312)
+      - name: Tests (pytest)
+        run: uv run --no-sync python -m tools.ci_lock shared -- uv run --no-sync pytest
+
+  ui-lab:
+    # The UI lab (decision 0031): every state of the interface offscreen, a
+    # PNG and a timing JSON each, the code checks (tools/ui_lab/checks.py)
+    # and the golden images (tools/ui_lab/goldens.py). The new interface's
+    # parts fail the pull request over their budgets (perf/budgets.py), on a
+    # finding, or on a picture unlike its approved golden; today's interface
+    # is recorded, not gated. The tables are on the run's page; the JSON is
+    # kept a week (small); when the gate fails, only the failing states'
+    # pictures, goldens and diffs, for 3 days (Actions storage is small).
+    # On a pull request, a part over its budget but not 1.5x slower than
+    # main's record on this PC is a warning, not a failure; main's own runs
+    # keep that record and are held to the budget (decision 0136).
+    # Then the start with a big learner, held to its budget (decision 0046).
+    name: UI lab (Windows)
+    runs-on: [self-hosted, windows]
+    timeout-minutes: 40  # every language's walk (294); the start's waits for the lock and a calm PC (312)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      - name: Drive the states; gate the new parts' budgets
+        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab --gate
+
+      # Windows' Text size at 200 % (simulated: the system font Qt reads),
+      # polyglotic-hq 138: the checks and budgets again - nothing clipped,
+      # nothing scrolling sideways - without the goldens, which are at 100 %
+      - name: The same at 200 % text size
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/text-200 --gate --text-size 200
+
+      # The interface in every other language it's offered in (polyglotic-hq
+      # 156, 176, 294): every state's code checks - text clipped at the size
+      # its widget gives it, a symbol drawn as a box, Chinese in a Japanese
+      # face - each language in its own process, four at a time; not the
+      # budgets (side by side they'd be slow) or the goldens (English's)
+      - name: The same in every other language
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.ci_lock shared -- uv run --no-sync python -m tools.ui_lab languages --out build/ui-lab/languages --jobs 4
+
+      # The app's own Largest text size (Settings > App, polyglotic-hq 292,
+      # decision 0084), every state built at it, in each interface language:
+      # the checks and budgets - nothing clipped - without the goldens
+      - name: The same at the app's Largest text size
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest --gate --app-text-size largest
+
+      - name: The same at Largest in Simplified Chinese
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_CN --gate --app-text-size largest --language zh_CN
+
+      - name: The same at Largest in Traditional Chinese
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_TW --gate --app-text-size largest --language zh_TW
+
+      # The start with a big learner (polyglotic-hq 229): main() to the
+      # window with a made-up learner of 30,000 words met, on the real
+      # CC-CEDICT, within its budget - --check-install's start has an empty
+      # learner. CC-CEDICT alone, from its pinned sources, checked against
+      # their SHA-256 either way (tools/dictionaries/sources.py); the cache
+      # only saves downloading them (about 9 MB)
+      - if: ${{ !cancelled() }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: chinese-dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The real CC-CEDICT, from its pinned sources
+        id: cedict
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.dictionaries.build --only cedict
+
+      # Word links "past what you know" on 100 real FLEURS captions, on the
+      # real CC-CEDICT: no word a learner knows is linked (polyglotic-hq 338)
+      - name: Word links on real captions
+        if: ${{ !cancelled() && steps.cedict.outcome == 'success' }}
+        env:
+          POLYGLOTIC_REAL_DICTIONARIES: build/dictionaries
+        run: uv run --no-sync pytest tests/tools/test_links_measured.py -p no:cacheprovider
+
+      # A word's everyday reading first on the real CC-CEDICT, and a reading
+      # line's lone readings as 364 judged them (polyglotic-hq 369); every reading
+      # put first by hand is one the word has (polyglotic-hq 366)
+      - name: Readings in order on the real dictionary
+        if: ${{ !cancelled() && steps.cedict.outcome == 'success' }}
+        env:
+          POLYGLOTIC_REAL_DICTIONARIES: build/dictionaries
+        run: uv run --no-sync pytest tests/lexicon/test_reading_order.py tests/lexicon/test_chinese_readings.py -p no:cacheprovider
+
+      - name: The start with 30,000 words met, within its budget
+        if: ${{ !cancelled() && steps.cedict.outcome == 'success' }}
+        env:
+          POLYGLOTIC_REAL_DICTIONARIES: build/dictionaries
+        # alone on the PC as far as CI goes: it waits for the other runner's
+        # heavy steps to end, and keeps new ones waiting (tools/ci_lock.py)
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync pytest tests/ui/test_start_with_a_big_learner.py -p no:cacheprovider
+
+      # The start a learner sees: real windows on a private desktop, on to
+      # the first answered click. Recorded beside main's, not gated yet
+      # (decision 0111, polyglotic-hq 322).
+      - name: The start with real windows, recorded
+        if: ${{ !cancelled() && steps.cedict.outcome == 'success' }}
+        env:
+          POLYGLOTIC_REAL_DICTIONARIES: build/dictionaries
+        # alone on the PC, as the offscreen start is (tools/ci_lock.py, decision 0105)
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync pytest tests/ui/test_start_with_real_windows.py -p no:cacheprovider
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        # An upload isn't the check: the lab's gate has already passed or failed.
+        # A full artifact store (2026-11-08) mustn't fail the lab with it.
+        continue-on-error: true
+        with:
+          name: ui-lab-timings
+          path: |
+            build/ui-lab/summary.json
+            build/ui-lab/summary.md
+          retention-days: 7
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        # An upload isn't the check: the lab's gate has already passed or failed.
+        # A full artifact store (2026-11-08) mustn't fail the lab with it.
+        continue-on-error: true
+        with:
+          name: ui-lab-failed
+          path: |
+            build/ui-lab/failed/
+            build/ui-lab/text-200/failed/
+            build/ui-lab/largest*/failed/
+            build/ui-lab/languages/*/failed/
+          retention-days: 3
+          if-no-files-found: ignore
