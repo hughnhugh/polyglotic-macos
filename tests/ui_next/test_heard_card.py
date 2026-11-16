@@ -25,6 +25,7 @@ from polyglotic_desktop.ui_next.heard_card import (
     percent,
     summary_line,
 )
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.word_bands import BY_FREQUENCY, BY_LEVEL, WordBands
 from polyglotic_desktop.ui_next.words_page import WordsPage
 
@@ -130,7 +131,10 @@ def test_listening_in_hours_and_minutes() -> None:
     assert duration(1234 * 3600) == "1,234 h"
     number, meaning, note = listening_lines(45600, 11400)
     assert (number, meaning) == ("12 h 40 min", "3 h 10 min in the last 7 days")
-    assert note == "Time captions were on, counted on this PC."
+    assert note == pc_or_mac(
+        "Time captions were on, counted on this PC.",
+        "Time captions were on, counted on this Mac.",
+    )
 
 
 def test_words_shows_listening_as_captions_come(

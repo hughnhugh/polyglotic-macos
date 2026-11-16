@@ -627,7 +627,7 @@ def updater(feed: str) -> VelopackUpdater:
     """The installer's updates from `feed`, checked against `FEED_KEYS` when
     it's the built-in feed and they're set. Checked packages are kept beside
     `current` in the install folder (Velopack's place for files that may go
-    with an uninstall) - on a Mac, outside the app (`verified_feed_folder`)."""
+    with an uninstall)."""
     release = this_release()
     signed = feed == UPDATES and bool(FEED_KEYS)
     return VelopackUpdater(
@@ -635,32 +635,9 @@ def updater(feed: str) -> VelopackUpdater:
         FEED_KEYS if signed else (),
         release.channel,
         release.version,
-        verified_feed_folder(),
+        Path(sys.executable).parent.parent / "verified-feed",
         open_url=_open_url,
     )
-
-
-def verified_feed_folder(
-    executable: str | Path | None = None, home: Path | None = None
-) -> Path:
-    """Where the signed feed and its checked package wait for Velopack
-    (decision 0019): beside `current` in Velopack's install folder on
-    Windows (`%LOCALAPPDATA%/Polyglotic/verified-feed`); on a Mac, in
-    `~/Library/Caches/Polyglotic/verified-feed` - never inside the app
-    bundle, whose signature seals everything in it, so a file written there
-    would break the signature macOS keeps the learner's permissions under
-    (polyglotic-hq 430, decision 0196). `executable`: the packed app's
-    (`sys.executable` unless given)."""
-    path = Path(executable if executable is not None else sys.executable)
-    if path.parent.name == "MacOS" and path.parent.parent.name == "Contents":
-        return (
-            (home or Path.home())
-            / "Library"
-            / "Caches"
-            / "Polyglotic"
-            / "verified-feed"
-        )
-    return path.parent.parent / "verified-feed"
 
 
 def pack_storage(
@@ -869,23 +846,40 @@ def os_adapters(system: str = sys.platform) -> OsAdapters:
 
 
 def macos_adapters() -> OsAdapters:
-    """The Mac's (polyglotic-hq 409, 411): its own system, Keychain and one
-    copy; its capture - Core Audio taps and the mic - with the apps playing,
-    the sound devices and the known apps; and what the first Mac build
-    doesn't have yet saying so through its port (`platform/macos/not_yet`)."""
+    """The Mac's (polyglotic-hq 409, 411, 429): its own system, Keychain and
+    one copy; its capture - Core Audio taps and the mic - with the apps
+    playing, the sound devices and the known apps; the caption windows over
+    full-screen apps and every Space; dictation's key and its words typed;
+    and what the Mac build doesn't have yet saying so through its port
+    (`platform/macos/not_yet`)."""
     from polyglotic_desktop.platform.macos import (
         apps,
         capture,
         categories,
         devices,
+        hold_key,
         keychain,
         not_yet,
+        on_top,
         one_copy,
+        text_input,
     )
     from polyglotic_desktop.platform.macos import system as mac
 
     def credentials(service: str | None) -> CredentialStore:
         return keychain.KeychainStore(service) if service else keychain.KeychainStore()
+
+    def dictation_key(
+        key: str,
+        on_down: Callable[[], None],
+        on_up: Callable[[], None],
+        on_other: Callable[[], None],
+    ) -> HoldKey:
+        """Dictation's key - and, the first time it's taken during a run
+        without the Accessibility permission its words are typed with,
+        macOS's box asking for it (polyglotic-hq 429)."""
+        text_input.allowed()
+        return hold_key.MacHoldKey(key, on_down, on_up, on_other)
 
     return OsAdapters(
         app_list=apps.MacAppList,
@@ -905,8 +899,8 @@ def macos_adapters() -> OsAdapters:
         copy_lock=one_copy.FileLock,
         let_to_front=one_copy.let_to_front,
         keys=not_yet.held,
-        on_top=not_yet.QtOnTop,
-        foreground_watch=not_yet.NoForegroundWatch,
+        on_top=on_top.MacOnTop,
+        foreground_watch=on_top.FrontWatch,
         light_taskbar=mac.light_menu_bar,
         taskbar_identity=not_yet.same_name,
         store_package=not_yet.none_found,
@@ -917,9 +911,9 @@ def macos_adapters() -> OsAdapters:
         seconds_since_launch=mac.seconds_since_launch,
         read_fonts=not_yet.not_done,
         make_native_window=not_yet.not_made,
-        hold_key=not_yet.NoHoldKey,
-        type_text=not_yet.type_text,
-        keyboard_window=not_yet.keyboard_window,
+        hold_key=dictation_key,
+        type_text=text_input.type_text,
+        keyboard_window=text_input.keyboard_window,
         metered=not_yet.not_metered,
         common_apps=categories.COMMON_APPS,
         sound_devices=devices.sound_devices,

@@ -38,6 +38,7 @@ from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui.theme import SOURCE_COLORS
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.home import PickerCard
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.transcripts import Transcripts
 from polyglotic_desktop.ui_next.views.home import (
     AppRow,
@@ -203,8 +204,9 @@ def test_homes_switch_says_why_it_is_off(
     built, view, commands = card
     switch = built.everything_else
     assert not switch.isHidden() and switch.switch.isEnabled()
-    assert switch.detail.text() == (
-        "Everything the PC plays except Web Browser, in a window of its own"
+    assert switch.detail.text() == pc_or_mac(
+        "Everything the PC plays except Web Browser, in a window of its own",
+        "Everything the Mac plays except Web Browser, in a window of its own",
     )
     switch.switch.click()
     assert commands.calls[-1] == ("set_everything_else", (True,))
@@ -228,7 +230,9 @@ def test_homes_switch_on_shows_its_row_and_the_limit(
     view.follow(Picker(captioned=(row(APP), ELSE_ROW), everything_else=True))
     assert built.everything_else.switch.isChecked()
     assert list(built.rows) == [APP, KEY]
-    assert built.rows[KEY].status.text() == "everything else the PC plays"
+    assert built.rows[KEY].status.text() == pc_or_mac(
+        "everything else the PC plays", "everything else the Mac plays"
+    )
     assert not built.rows[KEY].stop.isHidden()  # x turns it off
     assert built.count.text() == "1 app + everything else"
     assert not built.full.isHidden()
