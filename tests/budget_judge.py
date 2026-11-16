@@ -166,32 +166,8 @@ def longest_allowed(budget: Budget) -> float:
     return max(budget.ms, budgets.SLOT.ms)
 
 
-GITHUB_MAC_TIMES = 2.0
-"""On GitHub's own Mac runner a median is held to twice its budget
-(decision 0195): that VM's noise is the size of a budget of a few ms (its
-50 ms sleeps took 125-151 ms: polyglotic-hq 420), so it can't tell a slow
-app from a slow VM. Twice still catches a doubling; every run is still held
-to the slot budget, and a person's Mac and every other runner to the
-budget itself."""
-
-
-def on_githubs_mac() -> bool:
-    return (
-        sys.platform == "darwin"
-        and os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted"
-    )
-
-
-def median_allowed(budget: Budget) -> float:
-    """What the median may take: the budget, or `GITHUB_MAC_TIMES` it on
-    GitHub's Mac."""
-    return budget.ms * (GITHUB_MAC_TIMES if on_githubs_mac() else 1.0)
-
-
 def fits(budget: Budget, sample: Sampled) -> bool:
-    return sample.median <= median_allowed(
-        budget
-    ) and sample.longest <= longest_allowed(budget)
+    return sample.median <= budget.ms and sample.longest <= longest_allowed(budget)
 
 
 def _load(sample: Sampled) -> float | None:
@@ -244,7 +220,7 @@ def within(
             if judged.on_a_busy_pc
             else ""
         )
-        + f"{budget.name} over its {median_allowed(budget):g} ms (any one run"
+        + f"{budget.name} over its {budget.ms:g} ms (any one run"
         f" {longest_allowed(budget):g} ms) in {_all(len(tries))}: "
         + "; ".join(f"try {n}: {t.describe()}" for n, t in enumerate(tries, 1))
         + f"; {busy_pc.describe(busy[-1])}"
