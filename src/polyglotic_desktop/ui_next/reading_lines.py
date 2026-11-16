@@ -395,18 +395,17 @@ def draw(
     fainter - or each in its own of `colours` (one per reading; None: in
     `colour`), as fainter (395: pinyin in its word link's colour)."""
     painter.save()
-    painter.setPen(_faint(colour))
-    ranges = []
-    at_char = 0
-    for reading, own in zip(readings, colours, strict=False):
-        if own is not None:
-            part = QTextLayout.FormatRange()
-            part.start, part.length = at_char, len(reading.text)
-            part.format = QTextCharFormat()
-            part.format.setForeground(_faint(own))
-            ranges.append(part)
-        at_char += len(reading.text) + len(_BREAK)
-    _drawn(readings, font).draw(painter, at, ranges)
+    faint = _faint(colour)
+    painter.setPen(faint)
+    layout = _drawn(readings, font)
+    if not any(own is not None for own in colours):
+        layout.draw(painter, at)
+    else:  # a line a reading, each drawn once in its own colour (437): not
+        # Qt's format range a reading, which draws each one's line again
+        for i in range(layout.lineCount()):
+            own = colours[i] if i < len(colours) else None
+            painter.setPen(faint if own is None else _faint(own))
+            layout.lineAt(i).draw(painter, at)
     painter.restore()
 
 

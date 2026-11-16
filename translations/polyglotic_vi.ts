@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong lời nói</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong bản dịch</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Chữ nhỏ hơn (Ctrl+cuộn chuột)</translation>
     </message>
@@ -1407,11 +1417,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">Không gõ được ở đây</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">Không được phép gõ - xem Cài đặt &gt; Nhập bằng giọng nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -3718,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Đang kiểm tra danh sách từ điển.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Từ điển cơ bản từ dữ liệu mở (nghĩa chưa được người kiểm tra), nếu đã có sẵn: tra từ trong phụ đề {language} khi nó có trên máy này. Phụ đề và bản dịch vẫn hoạt động trong mọi trường hợp.</translation>
     </message>
@@ -4166,11 +4176,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Waiting for another dictionary to finish.</source>
         <translation type="unfinished">Đang chờ một từ điển khác tải xong.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Đang kiểm tra danh sách từ điển.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5401,13 +5406,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Tô màu cả các từ được liên kết</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong lời nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Các từ một liên kết nối - trong lời nói và bản dịch - mang màu của nó, như gạch chân. Khi pinyin cũng theo màu liên kết của từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Mỗi từ mà một liên kết nối sẽ mang màu của nó, như gạch chân.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong bản dịch</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Mỗi từ mà một liên kết nối sẽ mang màu của nó. Khi bật cả hai và pinyin theo màu liên kết của từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5506,8 +5521,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Màu liên kết của từ: pinyin mang màu liên kết của từ chứa nó, nếu có - cùng với “Tô màu cả các từ được liên kết” trong Liên kết từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Màu liên kết của từ: pinyin mang màu liên kết của từ nó, nếu có. Liên kết từ cũng có thể tô màu các từ được liên kết.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6035,17 +6050,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Tiếng Anh ra dạng colour, centre và organise.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic không được phép gõ vào ứng dụng khác, nên những gì bạn nói không được gõ. Trong Cài đặt hệ thống, mở &quot;Quyền riêng tư &amp; Bảo mật&quot;, rồi &quot;Trợ năng&quot;, và bật Polyglotic.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">Mở Cài đặt hệ thống</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

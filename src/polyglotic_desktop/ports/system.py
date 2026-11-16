@@ -8,9 +8,6 @@ hands over:
 - `Hotkeys` - Ctrl+Alt+L, P and H, wherever the learner is;
 - `HoldKey`, `TypeText`, `KeyboardWindow` - dictation's key, held, and
   its text typed into the program with the keyboard (polyglotic-hq 283);
-  `TypingPermission` - where the OS lets an app type only with the
-  learner's leave (a Mac's Accessibility), whether it has it and where to
-  give it (polyglotic-hq 438);
 - `KeyState` - whether a key or the mouse is held now, for the settings
   popovers;
 - `LightTaskbar` - whether the taskbar the tray icon sits on is light;
@@ -93,20 +90,6 @@ class HoldKey(Protocol):
 TypeText = Callable[[str], bool]
 """Types text into the program that has the keyboard, as the keyboard
 would - the clipboard untouched; False if the OS took none of it."""
-
-
-class TypingPermission(Protocol):
-    """The OS's leave to type into other programs, where it asks for one
-    (a Mac: Privacy & Security > Accessibility; Windows has none)."""
-
-    def allowed(self) -> bool:
-        """Whether the app has it now - asking nothing."""
-        ...
-
-    def open_settings(self) -> None:
-        """Opens the OS's settings where the learner gives it."""
-        ...
-
 
 KeyboardWindow = Callable[[], int]
 """The window that has the keyboard now, as the OS's handle (0: none) -

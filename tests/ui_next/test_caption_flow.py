@@ -8,7 +8,7 @@ budgets. Offscreen, made-up captions."""
 from collections.abc import Iterator
 from dataclasses import replace
 from functools import partial
-from itertools import pairwise
+from itertools import cycle, pairwise
 
 import pytest
 import shiboken6
@@ -527,7 +527,8 @@ def test_a_live_update_is_within_a_new_captions_budget(
         )
         for n in range(12)
     ]
-    updates = iter(grown * 4)
+    # as many as the tries take: 24 a try, and a busy PC's third ran out (437)
+    updates = cycle(grown)
 
     def arrive() -> None:
         window.view.apply(next(updates))

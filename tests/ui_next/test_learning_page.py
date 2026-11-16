@@ -454,3 +454,31 @@ def test_an_open_pack_language_with_no_line_yet_says_not_set(
     assert level is not None and level.text().startswith("Not set yet")
     assert "the words you hear and save" in card.gives.text()
     assert "come later" not in card.gives.text()
+
+
+def test_learn_another_says_checking_while_an_old_list_is_checked(
+    qapp: QApplication,
+) -> None:
+    """425 (preview 2): from the list an earlier run kept, "Learn another
+    language" named a language published since "No dictionary yet". While
+    that list is checked again it says so instead - its tier as it is - and
+    once the list comes, what it offers."""
+    from polyglotic_desktop.ui_next.views.learning import PackLine
+
+    lines = {"de": PackLine(checking=True)}
+    page = made()
+    page.pack_line = lambda code: lines.get(code)
+    languages = LearningLanguages("zh")
+    page.show_learning(
+        languages, cards(languages, ("zh",), levels), WordIntroductions.A_FEW, "zh"
+    )
+    at = page.choices.findData("de")
+    page.choices.setCurrentIndex(at)
+    assert page.choices.itemText(at) == "German - Basic dictionary"
+    assert page.chosen_gives.text() == "Checking the list of dictionaries."
+    lines["de"] = PackLine(size=13_000_000)  # the list came: offered
+    page.show_learning(
+        languages, cards(languages, ("zh",), levels), WordIntroductions.A_FEW, "zh"
+    )
+    assert page.choices.currentText() == "German - Basic dictionary"
+    assert "once it's downloaded" in page.chosen_gives.text()

@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Koloruj powiązane słowa w tym, co powiedziano</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Koloruj powiązane słowa w tłumaczeniu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Mniejszy tekst (Ctrl+kółko)</translation>
     </message>
@@ -1415,11 +1425,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">Nie udało się tu wpisać</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">Brak zgody na wpisywanie – zobacz Ustawienia &gt; Dyktowanie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -3736,6 +3741,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Sprawdzanie listy słowników.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Podstawowy słownik z otwartych danych (znaczenia niesprawdzone przez człowieka), jeśli jakiś jest gotowy: wyszukiwanie słów w napisach ({language}), gdy będzie na tym komputerze. Napisy i tłumaczenie działają w każdym przypadku.</translation>
     </message>
@@ -4190,11 +4200,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Waiting for another dictionary to finish.</source>
         <translation type="unfinished">Czekanie na zakończenie innego słownika.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Sprawdzanie listy słowników.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5429,13 +5434,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Koloruj też powiązane słowa</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Koloruj powiązane słowa w tym, co powiedziano</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Słowa, które łączy powiązanie - w tym, co powiedziano, i w tłumaczeniu - dostają jego kolor, jak ich linia. Gdy pinyin też ma kolor powiązania słowa, słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Każde słowo, które łączy powiązanie, dostaje jego kolor, jak jego linia.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Koloruj powiązane słowa w tłumaczeniu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Każde słowo, które łączy powiązanie, dostaje jego kolor. Gdy oba są włączone, a pinyin ma kolor powiązania słowa, słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5534,8 +5549,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Kolor powiązania słowa: pinyin dostaje kolor powiązania swojego słowa, jeśli jest - razem z „Koloruj też powiązane słowa” w Powiązaniach słów słowo, jego pinyin i tłumaczenie pasują do siebie.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Kolor powiązania słowa: pinyin dostaje kolor powiązania swojego słowa, tam gdzie ono jest. Powiązania słów mogą też kolorować powiązane słowa.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6065,17 +6080,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Angielski wychodzi jako colour, centre i organise.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic nie ma zgody na wpisywanie w innych aplikacjach, więc nic z tego, co mówisz, nie zostanie wpisane. W Ustawieniach systemowych otwórz „Prywatność i ochrona”, potem „Dostępność”, i włącz Polyglotic.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">Otwórz Ustawienia systemowe</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

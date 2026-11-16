@@ -344,7 +344,8 @@ def test_a_live_update_in_a_full_poured_window_is_within_budget(
         )
         for n in range(12)
     ]
-    updates = iter(grown * 4)
+    # as many as the tries take: 24 a try, and a busy PC's third ran out (437)
+    updates = itertools.cycle(grown)
 
     def arrive() -> None:
         window.view.apply(next(updates))

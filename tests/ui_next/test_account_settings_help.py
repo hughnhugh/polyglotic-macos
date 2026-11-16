@@ -533,40 +533,6 @@ def key_event(kind: QEvent.Type, key: Qt.Key, scan: int = 0, vk: int = 0) -> QKe
     return QKeyEvent(kind, key, Qt.KeyboardModifier.NoModifier, scan, vk, 0)
 
 
-def test_settings_say_when_the_os_doesnt_let_dictation_type(
-    qapp: QApplication,
-) -> None:
-    """polyglotic-hq 438: a Mac without the Accessibility permission -
-    Settings > Dictation says why nothing is typed and where to allow it,
-    with a way to System Settings; asked again each time it shows, so it
-    goes once the learner has given it. Windows asks nothing: never shown."""
-    page, _keys = settings_page()
-    page.show_section("dictation")
-    page.show()
-    settle()
-    assert not page.typing_not_allowed.isVisible()  # no permission asked here
-    allowed = [False]
-    page.typing_allowed = lambda: allowed[0]
-    page.hide()
-    page.show()
-    settle()
-    assert page.typing_not_allowed.isVisible()
-    words = " ".join(texts(page.typing_not_allowed))
-    assert "Privacy & Security" in words and "Accessibility" in words
-    opened: list[bool] = []
-    page.typing_settings_wanted.connect(lambda: opened.append(True))
-    page.typing_settings.click()
-    assert opened == [True]
-    allowed[0] = True  # given in System Settings meanwhile
-    page.hide()
-    page.show()
-    settle()
-    assert not page.typing_not_allowed.isVisible()
-    allowed[0] = False  # taken away: dictation's sign says so, then Settings
-    page.show_typing_permission()
-    assert page.typing_not_allowed.isVisible()
-
-
 def test_settings_dictation_key_is_pressed_in_a_box(qapp: QApplication) -> None:
     """polyglotic-hq 289: click the key, press the one you want - taken if
     nothing refuses it, refused with why if something does, Reset back to

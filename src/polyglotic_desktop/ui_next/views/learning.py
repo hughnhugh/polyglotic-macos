@@ -70,6 +70,10 @@ class PackLine:
     (the storage answers 404 - before the first upload). Nothing to
     download yet (329's QA, 330); Retry looks again. Not when it isn't
     known (no list held, none read): then it can't be told."""
+    checking: bool = False
+    """The list held - kept from an earlier run, or read over an hour ago -
+    is being checked again and has no pack for it (polyglotic-hq 425):
+    until the answer, it isn't said to have none."""
 
     @property
     def installed(self) -> bool:
@@ -88,6 +92,9 @@ class PackKnown(StrEnum):
     """None can be had: not in the list held, or none published (a 404)."""
     UNKNOWN = "unknown"
     """No list held: none read yet, or it couldn't be read."""
+    CHECKING = "checking"
+    """Not offered in the list held, which is old and being checked again
+    (polyglotic-hq 425): no promise either way, and it says it's checking."""
 
 
 def pack_known(line: PackLine | None) -> PackKnown:
@@ -101,6 +108,8 @@ def pack_known(line: PackLine | None) -> PackKnown:
         return PackKnown.NONE_YET
     if line.size or line.newer_app or line.installed or progress is not None:
         return PackKnown.OFFERED
+    if line.checking:
+        return PackKnown.CHECKING
     return PackKnown.UNKNOWN
 
 

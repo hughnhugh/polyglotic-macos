@@ -1700,14 +1700,11 @@ class TranscriptWindow(QWidget):
 
     def _export(self, captions: list[Caption], kind: str) -> str:
         languages = self.transcript.languages()
+        seconds = self.transcript.seconds()
         names = {str(code): language_name(str(code)) for code in languages}
         you = self.list.you.name
         if kind == "srt":
-            return as_srt(
-                captions,
-                languages[0] if languages else None,
-                self.transcript.started_at,
-            )
+            return as_srt(captions, languages, self.transcript.started_at, seconds)
         # the times the list shows: this PC's (the exports' own default is
         # UTC, as stored)
         zone = self.list.zone or datetime.now().astimezone().tzinfo
@@ -1719,8 +1716,8 @@ class TranscriptWindow(QWidget):
                 caption.source_id: you if caption.by_you else self.label.name
                 for caption in captions
             }
-            return as_csv(captions, languages, zone, sources)
-        return as_text(captions, languages, names, you, zone)
+            return as_csv(captions, languages, zone, sources, seconds)
+        return as_text(captions, languages, names, you, zone, seconds=seconds)
 
     def text(self) -> str:
         """What Copy all copies: the whole session's lines (or, searching,
@@ -1762,7 +1759,8 @@ class TranscriptWindow(QWidget):
             text = "\n".join(caption.original for caption in captions)
         elif part == "translation":
             languages = self.transcript.languages()
-            text = "\n".join(translation_text(c, languages) for c in captions)
+            seconds = self.transcript.seconds()
+            text = "\n".join(translation_text(c, languages, seconds) for c in captions)
         else:
             text = self._export(captions, "text")
         if text:

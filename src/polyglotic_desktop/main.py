@@ -327,7 +327,6 @@ from polyglotic_desktop.ports.system import (
     StorePackage,
     TaskbarIdentity,
     TypeText,
-    TypingPermission,
 )
 from polyglotic_desktop.ports.updates import Update
 from polyglotic_desktop.ports.word_split import WordSplit
@@ -744,9 +743,6 @@ class OsAdapters:
     what to call when it goes down, comes up, and is part of a shortcut."""
     type_text: TypeText
     keyboard_window: KeyboardWindow
-    typing_permission: TypingPermission | None = None
-    """The OS's leave to type, where it asks for one: a Mac's Accessibility
-    (polyglotic-hq 438). None on Windows, which asks none."""
     common_apps: tuple[CommonApp, ...] = ()
     """Browsers and the main apps a caption window lists before they play."""
     sound_devices: Callable[[], SoundDevices] = SoundDevices
@@ -850,42 +846,23 @@ def os_adapters(system: str = sys.platform) -> OsAdapters:
 
 
 def macos_adapters() -> OsAdapters:
-    """The Mac's (polyglotic-hq 409, 411, 429): its own system, Keychain and
-    one copy; its capture - Core Audio taps and the mic - with the apps
-    playing, the sound devices and the known apps; the caption windows over
-    full-screen apps and every Space; dictation's key and its words typed;
-    Esc and clicks elsewhere, read (`keys`);
-    and what the Mac build doesn't have yet saying so through its port
-    (`platform/macos/not_yet`)."""
+    """The Mac's (polyglotic-hq 409, 411): its own system, Keychain and one
+    copy; its capture - Core Audio taps and the mic - with the apps playing,
+    the sound devices and the known apps; and what the first Mac build
+    doesn't have yet saying so through its port (`platform/macos/not_yet`)."""
     from polyglotic_desktop.platform.macos import (
         apps,
         capture,
         categories,
         devices,
-        hold_key,
         keychain,
-        keys,
         not_yet,
-        on_top,
         one_copy,
-        text_input,
     )
     from polyglotic_desktop.platform.macos import system as mac
 
     def credentials(service: str | None) -> CredentialStore:
         return keychain.KeychainStore(service) if service else keychain.KeychainStore()
-
-    def dictation_key(
-        key: str,
-        on_down: Callable[[], None],
-        on_up: Callable[[], None],
-        on_other: Callable[[], None],
-    ) -> HoldKey:
-        """Dictation's key - and, the first time it's taken during a run
-        without the Accessibility permission its words are typed with,
-        macOS's box asking for it (polyglotic-hq 429)."""
-        text_input.allowed()
-        return hold_key.MacHoldKey(key, on_down, on_up, on_other)
 
     return OsAdapters(
         app_list=apps.MacAppList,
@@ -904,9 +881,9 @@ def macos_adapters() -> OsAdapters:
         start_at_sign_in=None,
         copy_lock=one_copy.FileLock,
         let_to_front=one_copy.let_to_front,
-        keys=keys.MacKeys(),
-        on_top=on_top.MacOnTop,
-        foreground_watch=on_top.FrontWatch,
+        keys=not_yet.held,
+        on_top=not_yet.QtOnTop,
+        foreground_watch=not_yet.NoForegroundWatch,
         light_taskbar=mac.light_menu_bar,
         taskbar_identity=not_yet.same_name,
         store_package=not_yet.none_found,
@@ -917,10 +894,9 @@ def macos_adapters() -> OsAdapters:
         seconds_since_launch=mac.seconds_since_launch,
         read_fonts=not_yet.not_done,
         make_native_window=not_yet.not_made,
-        hold_key=dictation_key,
-        type_text=text_input.type_text,
-        keyboard_window=text_input.keyboard_window,
-        typing_permission=text_input.Permission(),
+        hold_key=not_yet.NoHoldKey,
+        type_text=not_yet.type_text,
+        keyboard_window=not_yet.keyboard_window,
         metered=not_yet.not_metered,
         common_apps=categories.COMMON_APPS,
         sound_devices=devices.sound_devices,
@@ -1104,7 +1080,8 @@ def caption_look(value: AppSettings) -> CaptionLook:
         reading_system=ReadingSystem(value.reading_system),
         reading_colour=ReadingColour(value.reading_colour),
         reading_custom=value.reading_custom_color,
-        link_words=value.link_words_coloured,
+        said_in_link_colours=value.said_in_link_colours,
+        translation_in_link_colours=value.translation_in_link_colours,
     )
 
 
@@ -1452,8 +1429,9 @@ def shows_traditional(value: AppSettings) -> bool:
 
 
 class MandarinScript:
-    """ "Show Mandarin in: Traditional" (polyglotic-hq 375; decision 0164):
-    each caption's Mandarin converted on this PC as it arrives, before the
+    """ "Show Mandarin in: Traditional" (polyglotic-hq 375, 432; decision
+    0164): each caption's Mandarin - what was said and translations into
+    Chinese - converted on this PC as it arrives, before the
     caption windows, the transcript or a lookup see it - so what's shown,
     copied, looked up and kept is one text. The converter's table (1 MB)
     is read the first time a caption needs it, on the session's thread;
@@ -1466,6 +1444,10 @@ class MandarinScript:
         self._chinese = chinese
         self.traditional = False
         """Wanted now: set on the interface thread, read on the session's."""
+        self.seconds: Mapping[Language, Language] = {}
+        """Each target's second language (the settings' `second_languages`),
+        so a second-language line in Chinese is written as Mandarin too
+        (polyglotic-hq 432): set whole on the interface thread."""
         self._converter: TraditionalChinese | None = None
         self._told: ChineseDictionary | None = None
         self._loading = threading.Lock()
@@ -1492,7 +1474,7 @@ class MandarinScript:
         if dictionary is not None and dictionary is not self._told:
             dictionary.read_traditional(converter.simplified_of())
             self._told = dictionary
-        return mandarin_written(update, converter.convert)
+        return mandarin_written(update, converter.convert, self.seconds)
 
 
 def session_languages(
@@ -1570,7 +1552,8 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "reading_system": look.reading_system.value,
         "reading_colour": look.reading_colour.value,
         "reading_custom_color": look.reading_custom,
-        "link_words_coloured": look.link_words,
+        "said_in_link_colours": look.said_in_link_colours,
+        "translation_in_link_colours": look.translation_in_link_colours,
     }
 
 
@@ -2177,6 +2160,9 @@ class Hub:
             self.window.isVisible() and self.window.current == "learning"
         )
         packs.changed.connect(self.show_learning)
+        # an old list checked again as Learning opens, not "No dictionary
+        # yet" from it until the two-minute check (425)
+        self.learning.shown.connect(packs.learning_opened)
         packs.line_changed.connect(
             lambda code: self.learning.show_pack(code, packs.line(code))
         )
@@ -2787,6 +2773,11 @@ or none published."""
 LIST_AGAIN_SEC = 600.0
 """Learning asks for the list again at most this often once it has one (a
 download asks for it every time)."""
+LIST_OLD_AFTER_SEC = 3600.0
+"""A list read this long ago - or kept from an earlier run - is checked
+again when Learning opens (`PackDelivery.learning_opened`; polyglotic-hq
+425: preview 2's Learning said "No dictionary yet" for two minutes from
+the list an earlier version had kept)."""
 PACK_OLD_CLOSED_AFTER_MS = 2000
 """A replaced pack's file is closed this long after the new one is in: a
 lookup under way on another thread finishes on it first."""
@@ -2896,6 +2887,12 @@ class PackDelivery(QObject):
         ready, whatever list is kept; anything else, it couldn't be checked
         (polyglotic-hq 330)."""
         self._list_asked = -LIST_AGAIN_SEC  # when Learning last asked for the list
+        self._list_read: float | None = None
+        """When this run last read the list (None: not yet - the one held, if
+        any, was kept by an earlier run)."""
+        self.list_checking = False
+        """The list held is being checked again, for Learning (425): until
+        the answer, no line says no dictionary can be had from it."""
         self.on_learning: Callable[[], bool] = lambda: False
         """Whether the learner is looking at Learning (`main`): no notice then."""
         self._asked: set[str] = set()  # downloads the learner asked for, this run
@@ -2953,6 +2950,8 @@ class PackDelivery(QObject):
             or "none",
             "kept" if self.offers is not None else "not fetched yet",
         )
+        if self.on_learning():  # Learning was open before the packs were
+            self.learning_opened()
 
     def wanted_list(self, codes: Sequence[str]) -> None:
         """Learning shows `codes`' cards: fetch the list if one of them is a
@@ -2964,7 +2963,31 @@ class PackDelivery(QObject):
         recent = self.offers is not None and now - self._list_asked < LIST_AGAIN_SEC
         if missing and not recent:  # Learning shows often; the list changes rarely
             self._list_asked = now
+            self.list_checking = True
             self.deliveries.refresh()
+
+    def learning_opened(self) -> None:
+        """Learning (with "Learn another language") came into view: a list
+        kept from an earlier run, or read over an hour ago, is checked again
+        now - not only at the two-minute check - and its lines say it's
+        checking until the answer (polyglotic-hq 425). Once in a while at
+        most (`LIST_AGAIN_SEC`): a list that couldn't be read is said as
+        before, and asked for again on a later visit."""
+        if self.deliveries is None or self.list_checking:
+            return
+        now = time.monotonic()
+        if not self._list_old() or now - self._list_asked < LIST_AGAIN_SEC:
+            return
+        self._list_asked = now
+        self.list_checking = True
+        self.changed.emit()  # "checking", not a no from the old list
+        self.deliveries.refresh()
+
+    def _list_old(self) -> bool:
+        """The list held (if any) wasn't read in this run, or was read over
+        `LIST_OLD_AFTER_SEC` ago."""
+        read = self._list_read
+        return read is None or time.monotonic() - read >= LIST_OLD_AFTER_SEC
 
     def check_updates(self) -> None:
         """A newer version of each pack on this PC, fetched quietly - only on
@@ -2980,6 +3003,7 @@ class PackDelivery(QObject):
     def line(self, code: str) -> PackLine:
         here = self.here.get(code)
         none_published = self.list_problem is Problem.NOT_OFFERED  # a 404 (330)
+        checking = self.list_checking and self._list_old()  # kept, or old (425)
         offers = None if none_published else self.offers  # what can be had now
         offer = (
             best_offer(offers, code, self.meanings, self.reader)
@@ -3010,15 +3034,21 @@ class PackDelivery(QObject):
             ),
             credits=offer.credits if offer is not None else "",
             # no list held, and the last try couldn't read one: unknown
-            unlisted=self.offers is None and self.list_problem not in _READ_OR_NONE,
+            unlisted=(
+                self.offers is None
+                and self.list_problem not in _READ_OR_NONE
+                and not checking
+            ),
             # the list held has nothing for it, or none is published: no
-            # dictionary yet (330)
+            # dictionary yet (330) - unless that list is being checked (425)
             not_offered=(
                 (offers is not None or none_published)
                 and here is None
                 and offer is None
                 and not newer_app
+                and not checking
             ),
+            checking=checking and here is None and offer is None and not newer_app,
         )
 
     def installed_lines(self) -> list[InstalledPackLine]:
@@ -3124,7 +3154,10 @@ class PackDelivery(QObject):
         couldn't be read, None if none is), and why it couldn't: Learning
         then says so rather than "checking" for good - and none published
         (a 404) as no dictionary to download yet (330)."""
-        if offers != self.offers or problem != self.list_problem:
+        if problem is None:
+            self._list_read = time.monotonic()
+        was_checking, self.list_checking = self.list_checking, False
+        if offers != self.offers or problem != self.list_problem or was_checking:
             self.offers, self.list_problem = offers or self.offers, problem
             self.changed.emit()
 
@@ -3205,6 +3238,10 @@ def new_interface(
     windows.links_wanted.connect(panels.look.set_links_shown)  # a window's button
     windows.fill_wanted.connect(panels.look.set_filled)  # and its filled lines (372)
     windows.aligned_wanted.connect(panels.look.set_lined_up)  # and parts lined up
+    windows.said_colours_wanted.connect(panels.look.set_said_in_link_colours)  # 431
+    windows.translation_colours_wanted.connect(
+        panels.look.set_translation_in_link_colours
+    )
     transcripts.panels = panels  # their rails show the same panels
     start_parts.done("caption_windows")  # with the transcripts and panels
     hub = Hub(
@@ -6192,7 +6229,11 @@ def main(argv: list[str] | None = None) -> None:
     listener.mandarin = mandarin = MandarinScript(chinese)
 
     def follow_script() -> None:
-        mandarin.traditional = shows_traditional(desktop.settings.value)
+        value = desktop.settings.value
+        mandarin.traditional = shows_traditional(value)
+        mandarin.seconds = {
+            Language(t): Language(s) for t, s in value.second_languages.items()
+        }
 
     follow_script()
     desktop.settings.changed.connect(follow_script)
@@ -6580,7 +6621,7 @@ def main(argv: list[str] | None = None) -> None:
     # dictation (polyglotic-hq 283, decision 0073): off until turned on;
     # then its key, held, opens the mic, and what was said is typed (imported
     # only now, after the window's first paint, like the connection)
-    from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES, Said
+    from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES
     from polyglotic_desktop.platform.dictation_mic import DictationMic
     from polyglotic_desktop.ui.dictation import Dictating
     from polyglotic_desktop.ui_next.dictation_key import key_words
@@ -6620,11 +6661,6 @@ def main(argv: list[str] | None = None) -> None:
         parent=desktop,
         mic_held=dictation_has_mic,
         forget_unsent=dictation_forget,
-        typing_allowed=(
-            permission.allowed
-            if (permission := system.typing_permission) is not None
-            else lambda: True
-        ),
     )
     # a session that can't be answered says so at once, not after 10 s (299)
     desktop.connection_changed.connect(
@@ -6634,17 +6670,6 @@ def main(argv: list[str] | None = None) -> None:
     listener.dictated = dictating.answered
     dictation_sign = DictationSign()
     dictating.sign_changed.connect(dictation_sign.show_state)
-    if system.typing_permission is not None:  # a Mac's Accessibility (438)
-        settings_page.typing_allowed = system.typing_permission.allowed
-        settings_page.typing_settings_wanted.connect(
-            system.typing_permission.open_settings
-        )
-
-        def typing_not_allowed(state: str, _level: float) -> None:
-            if state == Said.NOT_ALLOWED.value:  # Settings > Dictation says where
-                settings_page.show_typing_permission()
-
-        dictating.sign_changed.connect(typing_not_allowed)
     dictation_key = DictationKeyHeld(
         lambda key: system.hold_key(
             key, dictating.key_down, dictating.key_up, dictating.key_other
@@ -6675,7 +6700,6 @@ def main(argv: list[str] | None = None) -> None:
             value.dictation_australian,
             dictation_key.taken,
         )
-        settings_page.show_typing_permission()
 
     def dictation_key_box(listening: bool) -> None:
         dictation_key.box_listening = listening

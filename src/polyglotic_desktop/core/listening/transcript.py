@@ -19,6 +19,13 @@ to the file they chose.
 - **A caption's translation alone** (`translation_text`): for copying a
   line's translation without the rest (polyglotic-hq 333).
 
+Each translation goes under the language it is written in: a caption
+already in a target is translated into the target's second language, which
+the server keeps under the target (`captions.written_in`; `seconds`, each
+target's second language) - so an English caption's Chinese line, in a
+window into English with Chinese its second, is saved as Chinese, not as
+English (polyglotic-hq 432).
+
 The interface passes its own time zone and source names, so what's saved
 reads as the screen did (polyglotic-hq project 062).
 
@@ -30,8 +37,8 @@ import io
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timedelta, tzinfo
 
-from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.history import Caption
+from polyglotic_desktop.core.listening.captions import Language, written_in
+from polyglotic_desktop.core.listening.history import Caption, join_text
 from polyglotic_desktop.core.listening.sources import SourceId
 
 MIN_CUE_SEC = 1.5
@@ -42,22 +49,48 @@ def finished(captions: Sequence[Caption]) -> list[Caption]:
     return [c for c in captions if not c.live]
 
 
-def _translations(caption: Caption, languages: Sequence[Language]) -> list[str]:
-    """The caption's translation into each language - "" where no clause
-    was translated into it (it was already in that language)."""
+Seconds = Mapping[Language, Language]
+"""Each target's second language (protocol.md's `second_languages`)."""
+
+
+def _translations(
+    caption: Caption, languages: Sequence[Language], seconds: Seconds | None = None
+) -> list[str]:
+    """The caption's translation into each language, clause by clause - a
+    clause with none in it gives its original; "" where no clause was
+    translated into it (it was already in that language). A line is in the
+    language it is written in (`written_in`), whatever its key."""
+    seconds = seconds or {}
+    written = [
+        {
+            written_in(key, caption.language, seconds.get(key)): text
+            for key, text in clause.translations.items()
+        }
+        for clause in caption.clauses
+    ]
     found = []
     for language in languages:
-        translated = any(language in c.translations for c in caption.clauses)
-        found.append(caption.translation(language) if translated else "")
+        translated = any(language in w for w in written)
+        found.append(
+            join_text(
+                w.get(language, c.original)
+                for w, c in zip(written, caption.clauses, strict=True)
+            )
+            if translated
+            else ""
+        )
     return found
 
 
-def translation_text(caption: Caption, languages: Sequence[Language]) -> str:
+def translation_text(
+    caption: Caption, languages: Sequence[Language], seconds: Seconds | None = None
+) -> str:
     """The caption's translations alone - into each of `languages` it was
     translated into, one a line, as `as_text` writes them without their
     language's name; "" for none (the transcript's "Copy the
     translation", polyglotic-hq 333)."""
-    return "\n".join(text for text in _translations(caption, languages) if text)
+    found = _translations(caption, languages, seconds)
+    return "\n".join(text for text in found if text)
 
 
 def as_text(
@@ -67,6 +100,7 @@ def as_text(
     you: str = "You",
     zone: tzinfo | None = None,
     sources: Mapping[SourceId, str] | None = None,
+    seconds: Seconds | None = None,
 ) -> str:
     """The finished captions as plain text. `names` names the languages
     for the translation lines (default: their codes); `sources` names the
@@ -83,7 +117,7 @@ def as_text(
             head += f" {who}:"
         lines = [f"{head} {caption.original}"]
         for language, text in zip(
-            languages, _translations(caption, languages), strict=True
+            languages, _translations(caption, languages, seconds), strict=True
         ):
             if text:
                 lines.append(f"    {names.get(language, language)}: {text}")
@@ -100,11 +134,15 @@ def _source_name(
 
 
 def as_srt(
-    captions: Sequence[Caption], language: Language | None, started_at: datetime
+    captions: Sequence[Caption],
+    languages: Sequence[Language],
+    started_at: datetime,
+    seconds: Seconds | None = None,
 ) -> str:
     """The finished captions as SubRip cues, timed from `started_at` (the
-    listening session's start), each with its translation into `language`
-    under what was said, if there is one."""
+    listening session's start), each with its translations into
+    `languages` under what was said (`translation_text`: the window's
+    language, or for a caption already in it, its second's)."""
     shown = finished(captions)
     cues = []
     for n, caption in enumerate(shown):
@@ -117,10 +155,9 @@ def as_srt(
             if following > start:
                 end = min(end, following)
         lines = [caption.original]
-        if language is not None:
-            [translation] = _translations(caption, [language])
-            if translation:
-                lines.append(translation)
+        translation = translation_text(caption, languages, seconds)
+        if translation:
+            lines.append(translation)
         cues.append(
             f"{n + 1}\n{_srt_time(start)} --> {_srt_time(end)}\n" + "\n".join(lines)
         )
@@ -140,6 +177,7 @@ def as_csv(
     languages: Sequence[Language],
     zone: tzinfo | None = None,
     sources: Mapping[SourceId, str] | None = None,
+    seconds: Seconds | None = None,
 ) -> str:
     """The finished captions as CSV, a row each: time (ISO 8601, in
     `zone`), you (yes/no), its source's name (from `sources`; "" if not
@@ -156,7 +194,7 @@ def as_csv(
                 (sources or {}).get(caption.source_id, ""),
                 caption.language or "",
                 caption.original,
-                *_translations(caption, languages),
+                *_translations(caption, languages, seconds),
             ]
         )
     return out.getvalue()

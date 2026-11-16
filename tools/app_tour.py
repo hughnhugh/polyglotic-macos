@@ -43,10 +43,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from PySide6.QtCore import QPointF, Qt, QTimer
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QPoint, QPointF, Qt, QTimer
+from PySide6.QtGui import QGuiApplication, QPixmap, QRegion
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QAbstractButton, QApplication, QWidget
+from PySide6.QtWidgets import QAbstractButton, QApplication, QScrollArea, QWidget
 from tests import fake_server
 from tests.fakes import MemoryCredentialStore
 
@@ -66,6 +66,8 @@ not the recording's)."""
 TOKEN = DeviceCredentials("install-410-tour", "pgd_" + "t" * 43)
 """The stand-in server takes any token of the protocol's shape."""
 PAGES = ("words", "settings")
+MORE_PAGES = ("learning", "account", "help")
+"""Pictured too, never failing the tour: the rest of the sidebar."""
 
 RESULTS: dict[str, Any] = {"checks": [], "facts": {}, "pictures": []}
 STATE: dict[str, Any] = {}
@@ -257,6 +259,59 @@ def picture(widget: QWidget | None, name: str, what: str) -> None:
         )
 
 
+def extra(widget: QWidget | None, name: str, what: str) -> None:
+    """A picture for the record (the whole app shown, page by page): taken
+    when it can be, noted when not, and never a failed check."""
+    try:
+        if widget is None:
+            raise LookupError("not there")
+        widget.grab().save(str(OUT / f"{name}.png"))
+        RESULTS["pictures"].append(
+            {
+                "file": f"{name}.png",
+                "what": what,
+                "size": [widget.width(), widget.height()],
+            }
+        )
+    except Exception as error:  # noqa: BLE001 - a missing picture isn't a failure
+        RESULTS["facts"].setdefault("pictures_missed", []).append(f"{name}: {error}")
+
+
+def whole(page: QWidget | None, name: str, what: str) -> None:
+    """The page's content at its full length (its scroll area's widget),
+    over the page's own colour (the viewport paints it, not the content)."""
+    areas = [page] if isinstance(page, QScrollArea) else []
+    if page is not None:
+        areas += page.findChildren(QScrollArea)
+    for area in areas:
+        inner = area.widget()
+        if inner is None or not area.isVisible():
+            continue
+        if inner.height() <= area.viewport().height():
+            continue
+        try:
+            ground = area.viewport().grab().toImage().pixelColor(2, 2)
+            shot = QPixmap(inner.size())
+            shot.fill(ground)
+            inner.render(shot, QPoint(0, 0), QRegion(), QWidget.RenderFlag.DrawChildren)
+            shot.save(str(OUT / f"{name}.png"))
+            RESULTS["pictures"].append(
+                {
+                    "file": f"{name}.png",
+                    "what": what,
+                    "size": [inner.width(), inner.height()],
+                }
+            )
+        except Exception as error:  # noqa: BLE001 - a missing picture isn't a failure
+            RESULTS["facts"].setdefault("pictures_missed", []).append(
+                f"{name}: {error}"
+            )
+        return
+    RESULTS["facts"].setdefault("pictures_missed", []).append(
+        f"{name}: fits one screen"
+    )
+
+
 def facts() -> dict[str, Any]:
     screens = [
         {"size": [s.size().width(), s.size().height()], "ratio": s.devicePixelRatio()}
@@ -392,6 +447,69 @@ def tour() -> Step:
             yield pause(1.5)
             picture(window, page, page.capitalize())
 
+    for page in MORE_PAGES:
+        if page in getattr(window, "pages", {}):
+            window.go_to(page)
+            yield pause(1.5)
+            extra(window, page, page.capitalize())
+            whole(window.pages[page], f"{page}-full", f"{page.capitalize()}, all of it")
+    for page in ("home", "words"):
+        window.go_to(page)
+        yield pause(1.0)
+        whole(window.pages[page], f"{page}-full", f"{page.capitalize()}, all of it")
+    settings = getattr(window, "pages", {}).get("settings")
+    sections = next((w for w in [settings, *(settings.findChildren(QWidget) if settings else [])]
+                     if hasattr(w, "show_section")), None)  # fmt: skip
+    if sections is not None:
+        window.go_to("settings")
+        for key in ("look", "timing", "speech", "dictation", "app", "lab"):
+            try:
+                sections.show_section(key)
+            except Exception as error:  # noqa: BLE001
+                RESULTS["facts"].setdefault("pictures_missed", []).append(
+                    f"{key}: {error}"
+                )
+                continue
+            yield pause(1.2)
+            extra(window, f"settings-{key}", f"Settings, {key}")
+            whole(settings, f"settings-{key}-full", f"Settings, {key}, all of it")
+    window.go_to("home")
+    yield pause(0.5)
+
+    captions = caption_window()
+    if captions is not None and hasattr(captions, "toggle_settings"):
+        captions.toggle_settings()
+        yield pause(1.2)
+        extra(getattr(captions, "popover", None), "caption-settings",
+              "The caption window's settings")  # fmt: skip
+        if getattr(captions, "settings_open", False):
+            captions.toggle_settings()
+        yield pause(0.5)
+
+    tray = getattr(STATE.get("desktop"), "tray", None)
+    if tray is not None:
+        try:
+            tray.icon().pixmap(88, 88).save(str(OUT / "menu-bar-icon.png"))
+            RESULTS["pictures"].append(
+                {
+                    "file": "menu-bar-icon.png",
+                    "what": "The menu-bar icon",
+                    "size": [88, 88],
+                }
+            )
+        except Exception as error:  # noqa: BLE001
+            RESULTS["facts"].setdefault("pictures_missed", []).append(
+                f"menu-bar-icon: {error}"
+            )
+        menu = tray.contextMenu()
+        if menu is not None:
+            menu.adjustSize()
+            extra(menu, "menu-bar-menu", "The menu-bar icon's menu")
+    else:
+        RESULTS["facts"].setdefault("pictures_missed", []).append(
+            "menu-bar: no tray (none on this desktop)"
+        )
+
     STATE["interface"].transcripts.show(PLAYER)
     transcript = lambda: next(
         (w for w in QApplication.topLevelWidgets()
@@ -399,6 +517,16 @@ def tour() -> Step:
     yield wait(lambda: transcript() is not None, 10, "the transcript")
     yield pause(1.0)
     picture(transcript(), "transcript", "The transcript")
+    shown = transcript()
+    if shown is not None and hasattr(shown, "_open_popover"):
+        try:
+            shown._open_popover()
+        except Exception as error:  # noqa: BLE001
+            RESULTS["facts"].setdefault("pictures_missed", []).append(
+                f"transcript-settings: {error}"
+            )
+        yield pause(1.0)
+        extra(shown, "transcript-settings", "The transcript with its settings open")
     check("no error box", not STATE.get("error_boxes"), STATE.get("error_boxes"))
 
 

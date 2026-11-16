@@ -435,9 +435,15 @@ class LookView(Shared[CaptionLook]):
             )
         )
 
-    def set_link_words(self, on: bool) -> None:
-        """Linked words in their link's colour, or their line's (395)."""
-        self.change(replace(self.value, link_words=on))
+    def set_said_in_link_colours(self, on: bool) -> None:
+        """Linked words in what was said in their link's colour, or their
+        line's (395, 431)."""
+        self.change(replace(self.value, said_in_link_colours=on))
+
+    def set_translation_in_link_colours(self, on: bool) -> None:
+        """Linked words in the translation in their link's colour, or their
+        line's (431)."""
+        self.change(replace(self.value, translation_in_link_colours=on))
 
     def set_fade_after(self, seconds: float | None) -> None:
         self.change(replace(self.value, fade_after=seconds))

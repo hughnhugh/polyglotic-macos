@@ -24,6 +24,7 @@ time. Holds caption text in its layouts: never log them.
 from collections import OrderedDict
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import (
@@ -31,6 +32,7 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetricsF,
+    QGlyphRun,
     QPainter,
     QPainterPath,
     QPen,
@@ -78,7 +80,7 @@ from polyglotic_desktop.ui_next.views.pour import (
     pour_paired,
     pour_stacked,
 )
-from polyglotic_desktop.ui_next.views.presets import readable_at
+from polyglotic_desktop.ui_next.views.presets import readable_through
 
 LATIN_FAMILIES = ("Segoe UI Variable Display", "Segoe UI", *fonts.also("latin"))
 CJK_FAMILIES = {  # Windows' first; then another OS's own (`fonts`)
@@ -209,12 +211,20 @@ class Ink:
     link's, or `reading`."""
     reading: QColor | None = None
     """The colour picked for readings (`ReadingColour.CUSTOM`)."""
-    link_words: bool = False
-    """Linked words drawn in their link's colour (395)."""
+    said_in_link_colours: bool = False
+    """Linked words in what was said drawn in their link's colour (395;
+    on its own since 431)."""
+    translation_in_link_colours: bool = False
+    """Linked words in the translation drawn in their link's colour (395;
+    on its own since 431: the user, 2026-11-17, "toggleable
+    separately")."""
     panel: str | None = None
     """The panel's colour ("#rrggbb"): a link's colour as a word or a
     reading is drawn in it is made readable on it (`readable_on`) - they're
     picked for dark panels. None: as they are."""
+    panel_opacity: float = 1.0
+    """How solid the panel is: below 1, a link's colour is made readable
+    on it seen over a light or a black video too (431)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -516,10 +526,19 @@ class CaptionLayout:
             selections, dotted, links = split_marks(
                 marks(line, row.index) if marks else ()
             )
-            if ink.link_words and links:
-                selections += _coloured_words(links, ink, color)
-            drawn_whole(selections)
-            row.layout.draw(painter, top_left, selections)
+            coloured = (
+                ink.said_in_link_colours
+                if original
+                else ink.translation_in_link_colours
+            )
+            words = _coloured_words(links, ink, color) if coloured and links else []
+            if words and not selections:
+                in_colours(painter, row.layout, top_left, color, words)
+                painter.setPen(color)
+            else:  # beside other marks (the load, saved words): Qt's ranges
+                selections += [_format_range(word) for word in words]
+                drawn_whole(selections)
+                row.layout.draw(painter, top_left, selections)
             if row.above and row.above_font is not None:
                 reading_lines.draw(
                     painter,
@@ -1014,36 +1033,117 @@ def drawn_whole(selections: list[QTextLayout.FormatRange]) -> None:
 
 LINK_CONTRAST = 5.0
 """A word or a reading drawn in its link's colour reaches this against the
-panel, as faint as it's drawn: 4.5:1 (`AA_TEXT`) with room for the game
-showing through a panel that isn't solid."""
+panel drawn solid, as faint as it's drawn: 4.5:1 (`AA_TEXT`) with room to
+spare - and, seen through a panel that isn't solid, large text's 3:1 over
+a light or a black video (`readable_through`, 431)."""
 
 
 def link_ink(colour: QColor, ink: Ink, row: QColor, faint: float = 1.0) -> QColor:
     """A link's `colour` as a word or a reading is drawn in it: as faint as
     its `row`'s text (and `faint` again: a reading's), and readable so on
-    the panel (`Ink.panel`) - moved towards white on a dark panel, black on
-    a light one, only as far as it needs (395)."""
+    the panel (`Ink.panel`), solid and seen through at its opacity
+    (`Ink.panel_opacity`) - moved towards white on a dark panel, black on
+    a light one, only as far as it needs (395, 431)."""
     alpha = row.alphaF()
     found = QColor(colour)
     if ink.panel is not None:
         found = QColor(
-            readable_at(colour.name(), ink.panel, alpha * faint, LINK_CONTRAST)
+            _link_shade(
+                colour.name(),
+                ink.panel,
+                ink.panel_opacity,
+                alpha * faint,
+            )
         )
     found.setAlphaF(alpha)
     return found
 
 
-def _coloured_words(
-    links: Sequence[Linked], ink: Ink, row: QColor
-) -> list[QTextLayout.FormatRange]:
-    """A row's linked words in their links' colours (`Ink.link_words`)."""
-    found = []
-    for start, end, colour, _ in links:
-        part = QTextLayout.FormatRange()
-        part.start, part.length = start, end - start
-        part.format = QTextCharFormat()
-        part.format.setForeground(link_ink(colour, ink, row))
-        found.append(part)
+@lru_cache(maxsize=4096)
+def _link_shade(colour: str, panel: str, opacity: float, alpha: float) -> str:
+    """`readable_through`, kept: each linked word of each row is drawn in
+    one at every paint, and a link colour's shade is the same each time."""
+    return readable_through(colour, panel, opacity, alpha, LINK_CONTRAST)
+
+
+Coloured = tuple[int, int, QColor]
+"""Characters `[start, end)` of a row drawn in a colour of their own."""
+
+
+def _coloured_words(links: Sequence[Linked], ink: Ink, row: QColor) -> list[Coloured]:
+    """A row's linked words in their links' colours
+    (`Ink.said_in_link_colours`, `Ink.translation_in_link_colours`), in
+    the row's order."""
+    found = [
+        (start, end, link_ink(colour, ink, row)) for start, end, colour, _ in links
+    ]
+    return sorted(found, key=lambda word: word[:2])
+
+
+def _format_range(word: Coloured) -> QTextLayout.FormatRange:
+    """`word` as the format range `QTextLayout.draw` colours it with, beside
+    other marks' ranges."""
+    start, end, colour = word
+    part = QTextLayout.FormatRange()
+    part.start, part.length = start, end - start
+    part.format = QTextCharFormat()
+    part.format.setForeground(colour)
+    return part
+
+
+def in_colours(
+    painter: QPainter,
+    layout: QTextLayout,
+    at: QPointF,
+    colour: QColor,
+    words: Sequence[Coloured],
+) -> None:
+    """`layout` drawn with its top left at `at`, in `colour`, and `words`
+    (in order, apart) each in its own: every glyph drawn once, in one
+    colour (437). `QTextLayout.draw` with a format range a word draws
+    each word's line again under a clip of its own, and unites the
+    clips: with both sides' linked words coloured, a run-on live update
+    went over a new caption's budget on CI (Windows, 2026-11-17)."""
+    for which, runs in _runs(layout, tuple((start, end) for start, end, _ in words)):
+        painter.setPen(colour if which < 0 else words[which][2])
+        for run in runs:
+            painter.drawGlyphRun(at, run)
+
+
+Runs = list[tuple[int, list[QGlyphRun]]]
+"""A layout's glyphs in the order drawn, in parts: each part's word (its
+index among the coloured words; -1 for none, the row's colour) and its
+glyph runs."""
+
+_RUNS: dict[int, tuple[QTextLayout, tuple[tuple[int, int], ...], Runs]] = {}
+"""Each laid-out row's `Runs`, by the layout's identity, while its words
+are the same: a row is drawn at every paint, and laid out once."""
+RUNS_KEPT = 600
+
+
+def _runs(layout: QTextLayout, spans: tuple[tuple[int, int], ...]) -> Runs:
+    kept = _RUNS.get(id(layout))
+    if kept is not None and kept[0] is layout and kept[1] == spans:
+        return kept[2]
+    if len(_RUNS) >= RUNS_KEPT:
+        _RUNS.clear()
+    found: Runs = []
+    for i in range(layout.lineCount()):
+        line = layout.lineAt(i)
+        first = line.textStart()
+        last = first + line.textLength()
+        done = first
+        for which, (start, end) in enumerate(spans):
+            start, end = max(start, done), min(end, last)
+            if start >= end:
+                continue
+            if start > done:
+                found.append((-1, line.glyphRuns(done, start - done)))
+            found.append((which, line.glyphRuns(start, end - start)))
+            done = end
+        if done < last:
+            found.append((-1, line.glyphRuns(done, last - done)))
+    _RUNS[id(layout)] = (layout, spans, found)
     return found
 
 
@@ -1055,7 +1155,8 @@ def _reading_colours(
 ) -> list[QColor | None]:
     """Each reading's own colour, as `Ink.reading_colour` says - None for
     its row's: its word link's where a link joins its character, or the
-    colour picked (395)."""
+    colour picked (395) - whether or not the words are (431: the user,
+    2026-11-17, "toggleable separately")."""
     if ink.reading_colour is ReadingColour.CUSTOM and ink.reading is not None:
         picked = QColor(ink.reading)
         picked.setAlphaF(row.alphaF() * picked.alphaF())

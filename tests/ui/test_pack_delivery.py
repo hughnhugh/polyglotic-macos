@@ -290,3 +290,126 @@ def test_learning_asks_for_the_list_once_in_a_while(
     listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
     assert len(listed) == 1
     packs.close()
+
+
+def _german_published_since(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A newer list on the stand-in, with a German pack the kept one hasn't."""
+    built = tmp_path / "built-de"
+    tiny_pack(built, language="de", dictionary="wiktde")
+    newer = tmp_path / "bucket-de"
+    previous = server.folder / "packs" / "v1" / "list.signed"
+    assert publish(monkeypatch, newer, built, "2026.11.16", previous, "de") == 0
+    server.folder = newer
+
+
+def _kept_list(server: StandIn, folder: Path) -> None:
+    """An earlier run's list (Russian's only), kept in `folder`."""
+    earlier = delivery(server, folder, {})
+    earlier.wanted_list(["ru"])
+    until(lambda: earlier.offers is not None)
+    earlier.close()
+    assert earlier.deliveries is not None
+    earlier.deliveries.join(5)
+
+
+def test_an_old_list_is_checked_again_as_learning_opens(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """425 (preview 2): started with the list an earlier run kept, Learning
+    said "No dictionary yet" for a language published since, for two
+    minutes, until the update check read the list. Opening Learning checks
+    the old list at once, says it's checking meanwhile, and then offers the
+    new language; opened again with the list just read, it isn't asked for."""
+    from polyglotic_desktop.ui_next.views.learning import PackKnown, pack_known
+
+    folder = tmp_path / "packs"
+    _kept_list(server, folder)
+    _german_published_since(server, tmp_path, monkeypatch)
+    packs = delivery(server, folder, {})
+    assert packs.offers is not None  # the kept list: no German in it
+    assert packs.line("de").not_offered  # what it says until Learning opens
+    changes: list[None] = []
+    packs.changed.connect(lambda: changes.append(None))
+    packs.learning_opened()
+    german = packs.line("de")
+    assert german.checking and not german.not_offered and not german.unlisted
+    assert pack_known(german) is PackKnown.CHECKING
+    assert changes  # Learning says it's checking
+    until(lambda: packs.line("de").size > 0)  # the new language is offered
+    german = packs.line("de")
+    assert not german.checking and pack_known(german) is PackKnown.OFFERED
+    asked = len([p for p, _, _ in server.requests if p == "packs/v1/list.signed"])
+    packs.learning_opened()  # read just now: not again
+    QTest.qWait(300)
+    listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
+    assert len(listed) == asked
+    packs.close()
+
+
+def test_an_old_list_that_cant_be_checked_says_what_it_did(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """425: a check of the old list that fails says what it said before -
+    the kept list's answer - not "checking" for good."""
+    folder = tmp_path / "packs"
+    _kept_list(server, folder)
+    server.faults.status["packs/v1/list.signed"] = 500
+    packs = delivery(server, folder, {})
+    packs.learning_opened()
+    assert packs.line("de").checking
+    until(lambda: not packs.list_checking)
+    german = packs.line("de")
+    assert german.not_offered and not german.checking
+    assert packs.list_problem is Problem.SERVER
+    assert packs.line("ru").size > 0  # the kept list's offer stands
+    packs.close()
+
+
+def test_a_list_read_over_an_hour_ago_is_checked_again(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """425: read in this run, but over an hour ago - checked again as
+    Learning opens; read within the hour, not."""
+    packs = delivery(server, tmp_path / "packs", {})
+    packs.learning_opened()  # none kept: read now
+    until(lambda: packs.offers is not None and not packs.list_checking)
+    asked = len([p for p, _, _ in server.requests if p == "packs/v1/list.signed"])
+    packs.learning_opened()
+    assert not packs.list_checking  # within the hour
+    assert packs._list_read is not None
+    packs._list_read -= main.LIST_OLD_AFTER_SEC + 1  # an hour on
+    packs._list_asked -= main.LIST_OLD_AFTER_SEC + 1
+    packs.learning_opened()
+    assert packs.list_checking
+    until(lambda: not packs.list_checking)
+    listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
+    assert len(listed) == asked + 1
+    packs.close()
+
+
+def test_learning_coming_into_view_asks_for_the_old_list_to_be_checked(
+    tmp_path: Path, qapp: QApplication
+) -> None:
+    """425: the main window's Learning page, opened, is what checks the list
+    (`PackDelivery.learning_opened`)."""
+    from tests.ui.fakes import Built
+
+    built = Built()
+    try:
+        packs = main.PackDelivery(
+            tmp_path / "packs", {}, "en", main.pack_reader(FROM_SOURCE)
+        )
+        opened: list[None] = []
+        packs.learning_opened = lambda: opened.append(None)  # type: ignore[method-assign]
+        built.hub.use_packs(packs)
+        built.hub.window.show()
+        built.hub.window.go_to("home")
+        qapp.processEvents()
+        assert opened == []
+        built.hub.window.go_to("learning")
+        qapp.processEvents()
+        assert opened == [None]
+    finally:
+        built.close()

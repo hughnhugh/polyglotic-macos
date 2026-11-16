@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">ตัวอักษรเล็กลง (Ctrl+ล้อเมาส์)</translation>
     </message>
@@ -1407,11 +1417,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">พิมพ์ตรงนี้ไม่ได้</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">ไม่ได้รับอนุญาตให้พิมพ์ - ดู การตั้งค่า &gt; พิมพ์ด้วยเสียง</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -3718,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">กำลังตรวจรายการพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">พจนานุกรมพื้นฐานจากข้อมูลเปิด (ความหมายยังไม่ได้ตรวจโดยคน) หากมีพร้อมแล้ว: ค้นคำในคำบรรยาย{language}ได้เมื่ออยู่ในพีซีเครื่องนี้แล้ว คำบรรยายและคำแปลใช้ได้ไม่ว่ากรณีใด</translation>
     </message>
@@ -4166,11 +4176,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Waiting for another dictionary to finish.</source>
         <translation type="unfinished">กำลังรอให้พจนานุกรมอื่นเสร็จ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">กำลังตรวจรายการพจนานุกรม</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5401,13 +5406,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">ใส่สีคำที่จับคู่ด้วย</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในสิ่งที่พูด</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">คำที่จับคู่กัน - ทั้งในคำพูดและคำแปล - จะใช้สีของคู่นั้น เหมือนเส้นใต้ เมื่อตั้งพินอินเป็นสีของคู่คำด้วย คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">คำที่จับคู่แต่ละคำจะใช้สีของคู่นั้น เหมือนเส้นใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">คำที่จับคู่แต่ละคำจะใช้สีของคู่นั้น เมื่อเปิดทั้งสองอย่างและตั้งพินอินเป็นสีของคู่คำ คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5506,8 +5521,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">สีของคู่คำ: พินอินใช้สีของคู่คำที่คำนั้นอยู่ ถ้ามี - เมื่อเปิด “ใส่สีคำที่จับคู่ด้วย” ในจับคู่คำ คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">สีของคู่คำ: พินอินจะใช้สีของคู่ของคำนั้น ถ้ามีคู่ จับคู่คำยังใส่สีให้คำที่จับคู่ได้ด้วย</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6035,17 +6050,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">ภาษาอังกฤษจะออกมาเป็น colour, centre และ organise</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic ไม่ได้รับอนุญาตให้พิมพ์ลงในแอปอื่น สิ่งที่คุณพูดจึงไม่ถูกพิมพ์ ในการตั้งค่าระบบ ให้เปิด &quot;ความเป็นส่วนตัวและความปลอดภัย&quot; แล้วเปิด &quot;การช่วยการเข้าถึง&quot; และเปิด Polyglotic</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">เปิดการตั้งค่าระบบ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

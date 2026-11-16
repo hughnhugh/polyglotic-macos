@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">छोटा टेक्स्ट (Ctrl+व्हील)</translation>
     </message>
@@ -1411,11 +1421,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">यहाँ टाइप नहीं हो सका</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
-        <source>Not allowed to type - see Settings &gt; Dictation</source>
-        <translation type="unfinished">टाइप करने की अनुमति नहीं है - सेटिंग &gt; बोलकर टाइपिंग देखें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -3727,6 +3732,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">खुले डेटा से बना बुनियादी शब्दकोश (जिसके अर्थ किसी व्यक्ति ने नहीं जाँचे), अगर कोई तैयार हो: इस पीसी पर आने के बाद {language} कैप्शन में शब्द देखे जा सकते हैं। कैप्शन और अनुवाद दोनों ही हालात में चलते हैं।</translation>
     </message>
@@ -4178,11 +4188,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Waiting for another dictionary to finish.</source>
         <translation type="unfinished">दूसरे शब्दकोश के पूरा होने का इंतज़ार।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -5415,13 +5420,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">जुड़े शब्दों को भी रंगें</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">किसी जोड़ से जुड़े शब्द - कही गई बात और उसके अनुवाद में - उसका रंग लेते हैं, जैसे उनका रेखांकन। जब पिनयिन भी शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है, जैसे उसका रेखांकन।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है। दोनों चालू हों और पिनयिन शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5520,8 +5535,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">शब्द जोड़ का रंग: पिनयिन अपने शब्द के जोड़ का रंग लेता है, जहाँ जोड़ हो - शब्द जोड़ के “जुड़े शब्दों को भी रंगें” के साथ शब्द, उसका पिनयिन और अनुवाद एक रंग में होते हैं।</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">शब्द जोड़ का रंग: जहाँ कोई जोड़ हो, पिनयिन अपने शब्द के जोड़ का रंग लेता है। शब्द जोड़ जुड़े शब्दों को भी रंग सकते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6050,17 +6065,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">अंग्रेज़ी colour, centre और organise के रूप में आती है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
-        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
-        <translation type="unfinished">Polyglotic को दूसरे ऐप्स में टाइप करने की अनुमति नहीं है, इसलिए आप जो बोलते हैं वह टाइप नहीं होता। सिस्टम सेटिंग्ज़ में &quot;गोपनीयता और सुरक्षा&quot; खोलें, फिर &quot;सुलभता&quot;, और Polyglotic चालू करें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">सिस्टम सेटिंग्ज़ खोलें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
