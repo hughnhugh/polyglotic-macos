@@ -35,7 +35,6 @@ from polyglotic_desktop.ui_next import help_page
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
 from polyglotic_desktop.ui_next.learning_page import LearningPage
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.learning import LanguageCard
@@ -441,7 +440,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     339) - and the notice and the tester agreement a click away."""
     [kept] = [text for title, text in help_page.questions() if title == "What we keep"]
     for words in (
-        pc_or_mac("Only speech leaves this PC", "Only speech leaves this Mac"),
+        "Only speech leaves this PC",
         "never stores the audio",
         "last 2 minutes",
         "sends it again only when you ask",
@@ -452,7 +451,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     assert "crash reports" not in kept  # the notice v2: none are sent yet
     # a transcript lasts only this session: not "stays ... unless" (228)
     assert "it's gone when you quit Polyglotic unless you save it" in kept
-    assert "transcript stays on this" not in kept
+    assert "transcript stays on this PC" not in kept
     names = ("help.privacy_notice", "help.tester_agreement")
     page = HelpPage(lambda: facts_with(True))
     assert opened_by(page, names, monkeypatch) == [PRIVACY_NOTICE, TESTER_AGREEMENT]

@@ -13,9 +13,27 @@
 #   a stand-in server on the machine, captioning the app's own FLEURS
 #   sample fed straight in (tools/app_tour.py); pictures by each window's
 #   own grab() and checks.json;
-# - pack: Polyglotic.app (PyInstaller, Apple silicon, ad hoc signed), its
-#   parts and signature checked, `--check-install` run on it
-#   (tools/package/build.py);
+# - pack: Polyglotic.app (PyInstaller, Apple silicon), its parts and
+#   signature checked, `--check-install` run on it (tools/package/build.py).
+#   Signed with the release's self-signed certificate when the repo has it
+#   (secrets MACOS_SIGNING_P12, base64 PKCS#12, and MACOS_SIGNING_PASSWORD:
+#   the public copy, polyglotic-hq 422, decision 0196), in a temporary
+#   keychain deleted at the end; ad hoc without them (this private repo, a
+#   fork);
+# - release: pack, for a release - `version` stamped, the certificate
+#   required - then Velopack's packages (tools/package/pack.sh, polyglotic-hq
+#   430, decision 0202): the full package, the portable zip testers
+#   download first (the app with Velopack's UpdateMac in it, signed again
+#   with the certificate) and the channel's feed, checked
+#   (tools/package/macos_release.py) and kept 1 day with their SHA256SUMS
+#   as `macos-release-<run id>` for publish-mac.sh, which signs the feed on
+#   the PC - the feed's key never reaches GitHub;
+# - updates (on by default, with pack or release): the app updating itself
+#   rehearsed - the built app packed as 0.0.1
+#   and 0.0.2 into a feed in a folder, 0.0.1 unzipped into ~/Applications,
+#   0.0.2 found, downloaded and applied at the next start, and the updated
+#   app still verifying with the built app's designated requirement
+#   (tools/package/macos_update_rehearsal.sh);
 # - measure: BlackHole installed, the sound devices listed, and whether a
 #   system-audio permission can be written for a tap (tools/macos_measure.py)
 #   - reported, never failing the job;
@@ -25,16 +43,14 @@
 #   app's own capture (`--check-capture`), and the permission taken away
 #   (NOT_ALLOWED); about 3 minutes plus `drift_minutes`. Fails only on a
 #   fail; unknown is what the machine didn't let us see.
-# - parity: the caption windows over a full-screen TextEdit, read from the
-#   window list (levels and order, never pictures), and dictation's typing
-#   and key (tools/macos_parity_checks.py, polyglotic-hq 429); about 2
-#   minutes. On by default, so the mirror's --parts leaves it on.
 #
 # How Claude runs it (gh, from a desktop worktree):
 #   gh workflow run macos.yml --ref <branch> [-f pack=false -f measure=false ...]
 #   gh run list --workflow macos.yml --limit 3          # the run's id
 #   gh run watch <id> --exit-status                     # or look later
 #   gh run download <id> --dir build/macos-run          # the artifact below
+# A release runs on the public copy, which has the certificate (polyglotic-hq
+# 422's publish-mac.sh: macos_mirror.sh <ref> --release 0.1.7 --parts pack).
 # The artifact `macos-<run id>` (kept 1 day): tour/ (checks.json, *.png),
 # pack/ (summary.json, check-install.json), measure.json, capture/
 # (capture.json, packed-capture.json, not-allowed.json); and, only with
@@ -66,10 +82,6 @@ on:
         description: Mac capture's checks on BlackHole (taps, the mic, the packed app's capture)
         type: boolean
         default: true
-      parity:
-        description: The caption windows over a full-screen app, and dictation typing into TextEdit
-        type: boolean
-        default: true
       drift_minutes:
         description: How long the capture part's clock-drift check listens
         type: string
@@ -78,6 +90,18 @@ on:
         description: Upload the packed app's zip too (about 150 MB, kept 1 day)
         type: boolean
         default: false
+      release:
+        description: Pack a release (needs version and the signing certificate); keep its zip and SHA-256 1 day
+        type: boolean
+        default: false
+      version:
+        description: The release's version, e.g. 0.1.7 (with release)
+        type: string
+        default: ""
+      updates:
+        description: With pack or release, the app updating itself, rehearsed (0.0.1 to 0.0.2 from a feed in a folder)
+        type: boolean
+        default: true
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -117,6 +141,16 @@ jobs:
           sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize
           uv run --no-sync python -c "import platform, PySide6; print(platform.mac_ver(), PySide6.__version__)"
 
+      - name: The release's version (with release)
+        if: ${{ inputs.release }}
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release needs version, e.g. 0.1.7 (got '$VERSION')"; exit 1
+          fi
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
       - name: The interface's translations (.qm)
         run: uv run --no-sync python -m tools.i18n build
 
@@ -133,30 +167,56 @@ jobs:
         if: ${{ !cancelled() && inputs.tests }}
         run: uv run --no-sync lint-imports
 
-      # 429: TextEdit full-screen, the caption window's level and place read
-      # from the window list; typed words read back through Accessibility
-      - name: The caption windows over full-screen apps, and dictation's typing
-        if: ${{ !cancelled() && inputs.parity }}
-        run: uv run --no-sync python -m tools.macos_parity_checks "$OUT/parity/parity.json"
-
       # The pinned sources are checked against their SHA-256 either way
       # (tools/dictionaries/sources.py); the cache only saves downloading.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
         with:
           path: build/dictionary-sources
           key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
 
       - name: The dictionaries, from their pinned sources (the card and the app need them)
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
         run: uv run --no-sync python -m tools.dictionaries.build
 
       - name: The app on macOS's windows, captioning a replayed recording
         if: ${{ !cancelled() && inputs.tour }}
         run: uv run --no-sync python -m tools.app_tour "$OUT/tour" --limit 300
 
+      # The certificate is only ever in this keychain and, for a moment, the
+      # runner's temp folder; nothing prints it or its password.
+      - name: The signing certificate, in a temporary keychain (ad hoc without it)
+        if: ${{ !cancelled() && (inputs.pack || inputs.release) }}
+        env:
+          P12: ${{ secrets.MACOS_SIGNING_P12 }}
+          P12_PASSWORD: ${{ secrets.MACOS_SIGNING_PASSWORD }}
+          RELEASE: ${{ inputs.release }}
+        run: |
+          if [ -z "$P12" ]; then
+            if [ "$RELEASE" = true ]; then echo "a release needs the signing certificate"; exit 1; fi
+            echo "No signing certificate here: the app is signed ad hoc"; exit 0
+          fi
+          kc="$RUNNER_TEMP/polyglotic-signing.keychain-db"
+          kcpass="$(openssl rand -hex 24)"
+          security create-keychain -p "$kcpass" "$kc"
+          security set-keychain-settings -lut 21600 "$kc"
+          security unlock-keychain -p "$kcpass" "$kc"
+          echo "SIGNING_KEYCHAIN=$kc" >> "$GITHUB_ENV"
+          umask 077
+          printf '%s' "$P12" | base64 --decode > "$RUNNER_TEMP/signing.p12"
+          security import "$RUNNER_TEMP/signing.p12" -k "$kc" -P "$P12_PASSWORD" -f pkcs12 -T /usr/bin/codesign > /dev/null
+          rm -f "$RUNNER_TEMP/signing.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$kcpass" "$kc" > /dev/null
+          # shellcheck disable=SC2046
+          security list-keychains -d user -s "$kc" $(security list-keychains -d user | tr -d '"')
+          # self-signed, so not "valid" (-v): its SHA-1 names it exactly
+          identity="$(security find-identity -p codesigning "$kc" | awk '/"Polyglotic Mac Signing"/ { print $2; exit }')"
+          if [ -z "$identity" ]; then echo "no 'Polyglotic Mac Signing' identity in the certificate"; exit 1; fi
+          echo "POLYGLOTIC_CODESIGN_IDENTITY=$identity" >> "$GITHUB_ENV"
+          echo "Signing with Polyglotic Mac Signing ($identity)"
+
       - name: Polyglotic.app, packed and checked
-        if: ${{ !cancelled() && inputs.pack }}
+        if: ${{ !cancelled() && (inputs.pack || inputs.release) }}
         run: |
           # as a release builds it: the app and PyInstaller only (no dev
           # tools, no word splits: decision 0123 keeps simplemma out)
@@ -165,7 +225,44 @@ jobs:
           uv run --no-sync python -m tools.package.build "$TAG" --channel "$CHANNEL" || status=$?
           mkdir -p "$OUT/pack"
           cp build/package/summary.json build/package/check-install.json "$OUT/pack/" 2>/dev/null || true
+          if [ "$status" = 0 ] && [ -d dist/Polyglotic.app ]; then
+            codesign --verify --deep --strict dist/Polyglotic.app
+            codesign --display --verbose=2 dist/Polyglotic.app 2>&1 | grep -E '^(Identifier|Authority|Signature|TeamIdentifier)=' || true
+          fi
           exit "$status"
+
+      # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        if: ${{ !cancelled() && (inputs.release || (inputs.pack && inputs.updates)) }}
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Velopack's packing tool, at the version in .config/dotnet-tools.json
+        if: ${{ !cancelled() && (inputs.release || (inputs.pack && inputs.updates)) }}
+        run: dotnet tool restore
+
+      # The feed is signed on the PC by publish-mac.sh (the key never comes
+      # here), after these files and their SHA256SUMS are checked there.
+      - name: The release's packages and feed, signed with the certificate and checked
+        if: ${{ !cancelled() && inputs.release }}
+        run: |
+          codesign --display --verbose=2 dist/Polyglotic.app 2>&1 | grep -qx 'Authority=Polyglotic Mac Signing' ||
+            { echo "the release isn't signed with Polyglotic Mac Signing"; exit 1; }
+          stamped="v$(jq -r .version build/package/summary.json)"
+          [ "$stamped" = "$TAG" ] || { echo "stamped $stamped, asked $TAG"; exit 1; }
+          notes=build/version-notes.md
+          uv run --no-sync python -m tools.package.release_notes "$TAG" --out "$notes"
+          rm -rf build/package/release && mkdir -p build/package/release
+          bash tools/package/pack.sh "${TAG#v}" "$CHANNEL" dist/Polyglotic.app build/package/release "" "$notes"
+          uv run --no-sync python -m tools.package.macos_release check build/package/release             --version "${TAG#v}" --channel "$CHANNEL" --built dist/Polyglotic.app
+          cd build/package/release
+          ls -l
+          shasum -a 256 -c SHA256SUMS
+
+      - name: The app updating itself, rehearsed (0.0.1 to 0.0.2, applied, still signed)
+        if: ${{ !cancelled() && (inputs.pack || inputs.release) && inputs.updates }}
+        timeout-minutes: 20
+        run: bash tools/package/macos_update_rehearsal.sh dist/Polyglotic.app "$OUT/updates"
 
       - name: What the machine allows for capture (measured, never failing)
         if: ${{ !cancelled() && inputs.measure }}
@@ -189,6 +286,11 @@ jobs:
           uv run --no-sync python -m tools.macos_capture_checks "$OUT/capture/capture.json" \
             --drift-minutes "$DRIFT_MINUTES" "${app[@]}"
 
+      - name: The temporary keychain, deleted
+        if: ${{ always() }}
+        run: |
+          if [ -n "${SIGNING_KEYCHAIN:-}" ]; then security delete-keychain "$SIGNING_KEYCHAIN" && echo deleted; fi
+
       - name: Say what ran
         if: ${{ !cancelled() }}
         run: |
@@ -200,15 +302,22 @@ jobs:
             fi
             if [ -f "$OUT/pack/summary.json" ]; then
               echo "### Pack"
-              uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); print('- size', d['size_mb'], 'MB, zipped', d['zipped_mb'], 'MB; problems:', d['problems'] or 'none')" "$OUT/pack/summary.json"
+              uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); print('- size', d['size_mb'], 'MB, zipped', d['zipped_mb'], 'MB; problems:', d['problems'] or 'none'); s=d.get('signature') or {}; print('- signed by', ', '.join(s.get('authority') or []) or 'ad hoc'); " "$OUT/pack/summary.json"
+            fi
+            if [ -f build/package/release/SHA256SUMS ]; then
+              echo "### Release (SHA-256)"
+              echo '~~~'; cat build/package/release/SHA256SUMS; echo '~~~'
+            fi
+            if [ -f "$OUT/updates/updated-seen.txt" ]; then
+              echo "### Updates"
+              for r in first update applied after; do
+                [ -f "$OUT/updates/$r.json" ] && echo "- $r.json written" || echo "- **no** $r.json"
+              done
+              echo '~~~'; cat "$OUT/updates/updated-seen.txt"; echo '~~~'
             fi
             if [ -f "$OUT/measure.json" ]; then
               echo "### Measured"
               uv run --no-sync python -c "import json,sys; print('~~~'); print(json.dumps(json.load(open(sys.argv[1]))['summary'], indent=1)); print('~~~')" "$OUT/measure.json"
-            fi
-            if [ -f "$OUT/parity/parity.json" ]; then
-              echo "### Parity"
-              uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/parity/parity.json"
             fi
             if [ -f "$OUT/capture/capture.json" ]; then
               echo "### Capture"
@@ -228,9 +337,21 @@ jobs:
             ${{ env.OUT }}/pack/
             ${{ env.OUT }}/measure.json
             ${{ env.OUT }}/capture/
-            ${{ env.OUT }}/parity/
+            ${{ env.OUT }}/updates/
           retention-days: 1
           if-no-files-found: ignore
+
+      - name: Keep the release's zip and its SHA-256 (release only; 1 day)
+        # a full storage fails no check (344): publish-mac.sh stops if it's missing
+        if: ${{ !cancelled() && inputs.release }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos-release-${{ github.run_id }}
+          path: build/package/release/
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0  # already a zip
 
       - name: Keep the packed app's zip (only when asked; 1 day)
         if: ${{ !cancelled() && inputs.keep_app }}

@@ -242,6 +242,8 @@ def test_hotkeys_say_none_works_here() -> None:
     """So the menus stop showing them (`ui.app.hotkeys_taken`)."""
     keys = not_yet.NoHotkeys({"l": lambda: None, "p": lambda: None})
     assert keys.start() == ["l", "p"]
+    assert not not_yet.NoHoldKey("right_ctrl", None, None, None).start()
+    assert not not_yet.type_text("hello")
 
 
 def test_the_mac_captures_with_its_own_taps_and_mic() -> None:

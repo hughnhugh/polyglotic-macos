@@ -22,7 +22,6 @@ from polyglotic_desktop.platform.audio_buffer import AudioBuffer
 from polyglotic_desktop.ports.capture import SoundDevice, SoundDevices
 from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.home import HomePage
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.sound_card import SoundCard
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
@@ -292,7 +291,7 @@ def test_the_card_lists_the_devices_and_chooses_one(qapp: QApplication) -> None:
     card = card_of(view, qapp)  # shown: the devices looked at
     names = [card.speakers.itemText(n) for n in range(card.speakers.count())]
     assert names == [
-        pc_or_mac("This PC's", "This Mac's") + " default (Speakers (Realtek Audio))",
+        "This PC's default (Speakers (Realtek Audio))",
         "Headphones (USB Headset)",
         "Speakers (Realtek Audio)",
     ]
@@ -306,17 +305,13 @@ def test_the_card_lists_the_devices_and_chooses_one(qapp: QApplication) -> None:
 def test_an_unplugged_choice_says_the_default_is_used(qapp: QApplication) -> None:
     card = card_of(view_with(Sound(PLUGGED, mic="{gone}")), qapp)
     assert card.mics.currentIndex() == 0
-    assert card.mics.currentText() == pc_or_mac(
-        "Not plugged in - this PC's default is used",
-        "Not plugged in - this Mac's default is used",
-    )
+    assert card.mics.currentText() == "Not plugged in - this PC's default is used"
 
 
 def test_what_you_hear_and_what_you_say_are_told_apart(qapp: QApplication) -> None:
     card = card_of(view_with(Sound(PLUGGED)), qapp)
     words = card.speakers_row.detail.text()
-    assert pc_or_mac("Everything the PC plays", "Everything the Mac plays") in words
-    assert "Apps you add" in words
+    assert "Everything the PC plays" in words and "Apps you add" in words
     assert card.speakers.accessibleName() == "Speakers"
     assert card.mics.accessibleName() == "Microphone"
     assert card.my_speech.switch.text() == "Caption what I say"

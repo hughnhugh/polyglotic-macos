@@ -229,6 +229,10 @@ class AppSettings:
     # "Start Polyglotic with Windows?" was asked, after a good session -
     # once only, whatever the answer (polyglotic-hq 176)
     start_with_windows_asked: bool = False
+    # on a Mac, "Move Polyglotic to Applications?" was asked, the app run
+    # from macOS's temporary copy - once only, whatever the answer
+    # (polyglotic-hq 433, decision 0205)
+    applications_offered: bool = False
     # Home's line asking for the level (the first run doesn't: polyglotic-hq
     # 293) was answered Not now - never again; setting the level ends it too
     level_line_dismissed: bool = False
