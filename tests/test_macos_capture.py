@@ -604,7 +604,9 @@ def test_everything_else_leaves_out_the_app_and_polyglotic() -> None:
     cap.start(Heard())
     try:
         wait_for(lambda: len(opened) == 1)
-        assert cap.capturing == "everything else"
+        # named once the open has returned to the capture's thread, a moment
+        # after: GitHub's Mac read it in between (polyglotic-hq 420)
+        wait_for(lambda: cap.capturing == "everything else")
     finally:
         cap.stop()
     # Chrome and its helper; Polyglotic's other copy; not this process (from

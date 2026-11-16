@@ -517,7 +517,7 @@ class CaptionLayout:
             )
             if ink.link_words and links:
                 selections += _coloured_words(links, ink, color)
-            row.layout.draw(painter, top_left, selections)
+            row.layout.draw(painter, top_left, by_line(row.layout, selections))
             if row.above and row.above_font is not None:
                 reading_lines.draw(
                     painter,
@@ -984,6 +984,33 @@ def split_marks(
         selection.format = format_
         selections.append(selection)
     return selections, dotted, links
+
+
+def by_line(
+    layout: QTextLayout, selections: list[QTextLayout.FormatRange]
+) -> list[QTextLayout.FormatRange]:
+    """`selections` cut where `layout`'s lines break, so each lies on one
+    line. Qt drew a range over a line break (a word the pour split, 309)
+    with a region that reached the next word, then skipped that word's own
+    colour as drawn already: a learning-load word after a split one was
+    drawn plain, on Windows at some widths and on GitHub's Mac (the split
+    word itself there: polyglotic-hq 420)."""
+    if layout.lineCount() < 2:
+        return selections
+    breaks = [layout.lineAt(n).textStart() for n in range(1, layout.lineCount())]
+    cut: list[QTextLayout.FormatRange] = []
+    for selection in selections:
+        start, end = selection.start, selection.start + selection.length
+        for edge in [b for b in breaks if start < b < end] + [end]:
+            piece = QTextLayout.FormatRange()
+            piece.start, piece.length, piece.format = (
+                start,
+                edge - start,
+                selection.format,
+            )
+            cut.append(piece)
+            start = edge
+    return cut
 
 
 LINK_CONTRAST = 5.0

@@ -8,7 +8,7 @@ from collections import Counter
 
 import pytest
 from PySide6.QtCore import QPointF, QRectF
-from PySide6.QtGui import QColor, QImage, QPainter
+from PySide6.QtGui import QColor, QImage, QPainter, QTextCharFormat, QTextLayout
 from PySide6.QtWidgets import QApplication
 from tests.ui.test_learning_load_view import SPANS, hear, learner, on, shown
 
@@ -19,6 +19,7 @@ from polyglotic_desktop.ui_next.caption_layout import (
     CaptionStyle,
     Ink,
     LaidLine,
+    by_line,
     span_rects,
 )
 from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS, CaptionMarks
@@ -140,3 +141,63 @@ def test_the_marks_are_the_same_poured_or_in_rows(qapp: QApplication) -> None:
             assert rects and all(
                 r.width() > 4 and r.right() <= width + 1.5 for r in rects
             )
+
+
+def test_the_word_after_one_split_over_two_lines_keeps_its_colour(
+    qapp: QApplication,
+) -> None:
+    """Polyglotic-hq 420: Qt drew a coloured range over a line break with a
+    region that reached the next word, and skipped that word's colour as
+    already drawn: 游戏 after 电脑 split over two lines was drawn plain, on
+    Windows at some widths and on GitHub's Mac (电脑 itself there). Every
+    width that splits 电脑 with 游戏 whole on the next line is tried."""
+    tools = learner()
+    hear(tools, "电脑 电脑 电脑")  # orange
+    hear(tools, " ".join(["游戏"] * 6))  # yellow
+    marks = CaptionMarks(tools)
+    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
+    _, _, yellow, _ = (QColor(colour) for colour in STAGE_COLOURS)
+    engine = CaptionLayout(CaptionStyle(fill=Fill.STACKED))
+    widest = int(
+        engine.laid(shown(), 4000, 1.0).rows[0].layout.lineAt(0).naturalTextWidth()
+    )
+    tried = 0
+    for width in range(40, widest, 2):
+        laid = engine.laid(shown(), width, 1.0)
+        row = next(row for row in laid.rows if row.index == 0)
+        split = len(span_rects(row.layout, *SPANS["电脑"])) == 2
+        game = span_rects(row.layout, *SPANS["游戏"])
+        if not split or len(game) != 1:
+            continue
+        tried += 1
+        image = QImage(width + 20, int(laid.height) + 20, QImage.Format.Format_ARGB32)
+        image.fill(QColor("#101014"))
+        painter = QPainter(image)
+        ink = Ink(QColor("#ffffff"), QColor("#ffffff"))
+        engine.paint(painter, shown(), laid, AT, ink, marks)
+        painter.end()
+        assert count(image, game, row.top, yellow) > 8, (
+            width,
+            seen(image, game, row.top),
+        )
+    assert tried
+
+
+def test_a_colour_over_a_line_break_is_drawn_a_line_at_a_time(
+    qapp: QApplication,
+) -> None:
+    """Polyglotic-hq 420: on GitHub's Mac a stage's colour on a word the
+    pour split over two lines was drawn plain. Each range now lies on one
+    line, the word's format on both halves; a range on one line is kept."""
+    engine = CaptionLayout(CaptionStyle(fill=Fill.STACKED))
+    laid = engine.laid(shown(), narrow(engine), 1.0)
+    layout = next(row for row in laid.rows if row.index == 0).layout
+    second = layout.lineAt(1).textStart()
+    orange = QTextCharFormat()
+    orange.setForeground(QColor("#ffa033"))
+    over, within = QTextLayout.FormatRange(), QTextLayout.FormatRange()
+    over.start, over.length, over.format = second - 1, 2, orange
+    within.start, within.length, within.format = 0, 1, orange
+    cut = by_line(layout, [over, within])
+    assert [(r.start, r.length) for r in cut] == [(second - 1, 1), (second, 1), (0, 1)]
+    assert all(r.format.foreground().color() == QColor("#ffa033") for r in cut)
