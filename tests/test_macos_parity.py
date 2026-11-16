@@ -395,23 +395,37 @@ def test_every_word_is_made_with_one_block_that_lives_on(
 
 
 class FakeVoiceLookup:
-    """`AVSpeechSynthesisVoice` as GitHub's Mac answered a fresh process on
-    2026-11-17 (polyglotic-hq 452): `speechVoices` names a voice that
-    `voiceWithIdentifier:` says isn't there (`by_id` None) - or, when
-    `by_id` is set, gives it."""
+    """`AVSpeechSynthesisVoice` as GitHub's Mac answered a running process on
+    2026-11-17 (polyglotic-hq 452): its voices changed, and the id it had
+    given Samantha was known neither by id nor in its list. `known` are
+    the ids `voiceWithIdentifier:` still gives; `listed` the voices
+    `speechVoices` names now (object: id, name, language); `usual` the
+    voice `voiceWithLanguage:` gives (0: none)."""
 
-    LISTED: ClassVar[dict[int, str]] = {101: "com.apple.voice.Daniel", 102: "Sam"}
-
-    def __init__(self, by_id: int | None) -> None:
-        self.by_id = by_id
+    def __init__(
+        self,
+        known: dict[str, int],
+        listed: dict[int, tuple[str, str, str]],
+        usual: int = 0,
+    ) -> None:
+        self.known = known
+        self.listed = listed
+        self.usual = usual
         self.asked: list[str] = []
 
     def install(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        strings: dict[int, str] = {}
+
+        def string(value: str) -> int:
+            strings[1000 + len(strings)] = value
+            return 999 + len(strings)
+
+        self.strings = strings
         monkeypatch.setattr(voices.objc, "cls", lambda name: 1)
-        monkeypatch.setattr(voices.objc, "string", lambda value: 0)
+        monkeypatch.setattr(voices.objc, "string", string)
         monkeypatch.setattr(voices.cf, "release", lambda ref: None)
         monkeypatch.setattr(voices.objc, "send", self.send)
-        monkeypatch.setattr(voices.objc, "items", lambda array: list(self.LISTED))
+        monkeypatch.setattr(voices.objc, "items", lambda array: list(self.listed))
         monkeypatch.setattr(voices.objc, "text", lambda ref: ref)
 
     def send(
@@ -419,31 +433,51 @@ class FakeVoiceLookup:
     ) -> object:
         self.asked.append(selector)
         if selector == "voiceWithIdentifier:":
-            return self.by_id
+            return self.known.get(self.strings[cast(int, args[0])])
+        if selector == "voiceWithLanguage:":
+            return self.usual
         if selector == "speechVoices":
             return 7
-        if selector == "identifier":
-            return self.LISTED[cast(int, receiver)]
-        raise AssertionError(selector)
+        fields = {"identifier": 0, "name": 1, "language": 2}
+        return self.listed[cast(int, receiver)][fields[selector]]
 
 
-def test_a_voice_macos_refuses_by_id_is_found_in_its_list(
+SAMANTHA = Voice("com.apple.voice.compact.en-US.Samantha", "Samantha", "en-US")
+
+
+def test_a_voice_macos_still_knows_is_asked_for_by_id(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """GitHub's Mac, 2026-11-17: Samantha, listed by `speechVoices` in the
-    same process, was refused by `voiceWithIdentifier:` - the word ended
-    unsaid ("the voice isn't on this Mac now"). The list's own voice is
-    used then."""
-    lookup = FakeVoiceLookup(by_id=None)
+    lookup = FakeVoiceLookup({SAMANTHA.id: 55}, {})
     lookup.install(monkeypatch)
-    assert voices.voice_with_id("Sam") == 102
-    assert voices.voice_with_id("com.apple.voice.Gone") is None
-
-
-def test_a_voice_given_by_id_isnt_looked_for_in_the_list(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    lookup = FakeVoiceLookup(by_id=55)
-    lookup.install(monkeypatch)
-    assert voices.voice_with_id("Sam") == 55
+    assert voices.av_voice(SAMANTHA) == 55
     assert lookup.asked == ["voiceWithIdentifier:"]
+
+
+def test_a_voice_whose_id_macos_changed_is_found_by_name_and_language(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """GitHub's Mac, 2026-11-17: macOS's voices changed under the process
+    (165 listed, a second later 180) and Samantha's id was gone by id and
+    from the list - the word ended unsaid. The same voice is used under its
+    new id."""
+    listed = {
+        101: ("com.apple.voice.compact.en-GB.Daniel", "Daniel", "en-GB"),
+        102: ("com.apple.voice.compact.en-AU.Samantha", "Samantha", "en-AU"),
+        103: ("com.apple.voice.premium.en-US.Samantha", "Samantha", "en-US"),
+    }
+    lookup = FakeVoiceLookup({}, listed, usual=101)
+    lookup.install(monkeypatch)
+    assert voices.av_voice(SAMANTHA) == 103
+
+
+def test_a_voice_gone_from_macos_gives_way_to_its_languages_own(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lookup = FakeVoiceLookup({}, {}, usual=101)
+    lookup.install(monkeypatch)
+    assert voices.av_voice(SAMANTHA) == 101
+    assert lookup.strings[max(lookup.strings)] == "en-US"  # asked for its language
+    nothing = FakeVoiceLookup({}, {}, usual=0)
+    nothing.install(monkeypatch)
+    assert voices.av_voice(SAMANTHA) is None

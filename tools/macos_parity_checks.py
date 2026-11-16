@@ -448,37 +448,41 @@ class Checks:
                 trace.append(("stop", ms()))
                 super().stop()
 
+        from polyglotic_desktop.platform.macos import cf as _cf
         from polyglotic_desktop.platform.macos import voices as _voices
 
-        def traced_voice(voice_id: str) -> int | None:
+        real_av_voice = _voices.av_voice
+
+        def traced_voice(voice: Any) -> int | None:
             send, p = _objc.send, _c.c_void_p
             kind = _objc.cls("AVSpeechSynthesisVoice")
-            ident = _objc.string(voice_id)
-            from polyglotic_desktop.platform.macos import cf as _cf
-
+            ident = _objc.string(voice.id)
             with _cf.owned(ident):
                 by_id = send(kind, "voiceWithIdentifier:", ident, argtypes=[p])
             if by_id:
                 return int(by_id)
             listed = _objc.items(send(kind, "speechVoices"))
-            hit = next(
-                (v for v in listed if _objc.text(send(v, "identifier")) == voice_id),
-                None,
+            same = [
+                (_objc.text(send(v, "identifier")), _objc.text(send(v, "language")))
+                for v in listed
+                if _objc.text(send(v, "name")) == voice.name
+                or _objc.text(send(v, "language")) == voice.language
+            ]
+            chosen = real_av_voice(voice)
+            what = _objc.text(send(chosen, "identifier")) if chosen else None
+            trace.append(
+                (
+                    "by-id-nil",
+                    ms(),
+                    voice.id,
+                    len(listed),
+                    sorted(same, key=lambda x: voice.name not in (x[0] or ""))[:12],
+                    what,
+                )
             )
-            trace.append(("by-id-nil", ms(), len(listed), hit is not None))
-            if hit is None:
-                back = None
-                for i in range(50):
-                    time.sleep(0.1)
-                    ident = _objc.string(voice_id)
-                    with _cf.owned(ident):
-                        if send(kind, "voiceWithIdentifier:", ident, argtypes=[p]):
-                            back = (i + 1) * 100
-                            break
-                trace.append(("by-id-back-after-ms", ms(), back))
-            return hit
+            return chosen
 
-        _voices.voice_with_id = traced_voice
+        _voices.av_voice = traced_voice
         speaker = SpeakerThread(TracedVoices(), TracedPlayer)
         speaker.look_for_voices()
         self.pump(lambda: bool(speaker.voices()), 30)

@@ -227,9 +227,9 @@ class MacVoices:
         with objc.pool():
             objc.load("AVFoundation")
             send, p = objc.send, ctypes.c_void_p
-            chosen = voice_with_id(voice.id)
+            chosen = av_voice(voice)
             if not chosen:
-                raise OSError("the voice isn't on this Mac now")
+                raise OSError("no voice for the language on this Mac now")
             said = objc.string(text)
             with cf.owned(said):
                 utterance = send(
@@ -288,24 +288,33 @@ class MacVoices:
         return self._synthesizer
 
 
-def voice_with_id(voice_id: str) -> int | None:
-    """The `AVSpeechSynthesisVoice` with `voice_id`, or None if macOS hasn't
-    it. Asked by its id, and when that answers nil, looked for among the
-    voices macOS lists: on GitHub's Mac (2026-11-17, polyglotic-hq 452) a
-    fresh process was refused a voice by id that the list had just named,
-    twice 0.1 s apart, while other processes were given it - the card said
-    nothing. The list is what the card's voices came from."""
+def av_voice(voice: Voice) -> int | None:
+    """The `AVSpeechSynthesisVoice` to say a word in `voice` with, or None if
+    macOS has no voice for its language. By its id; when macOS no longer
+    knows the id, the voice of the same name and language it lists now,
+    else its own voice for the language. On GitHub's Mac (2026-11-17,
+    polyglotic-hq 452) macOS's voices changed under a running process -
+    165 listed, a second later 180, and the id it had just given Samantha
+    unknown by id and in the list for the next 15 s - and the card said
+    nothing ("the voice isn't on this Mac now")."""
     send, p = objc.send, ctypes.c_void_p
     kind = objc.cls("AVSpeechSynthesisVoice")
-    ident = objc.string(voice_id)
+    ident = objc.string(voice.id)
     with cf.owned(ident):
         chosen = send(kind, "voiceWithIdentifier:", ident, argtypes=[p])
     if chosen:
         return int(chosen)
     for listed in objc.items(send(kind, "speechVoices")):
-        if objc.text(send(listed, "identifier")) == voice_id:
+        named = objc.text(send(listed, "name"))
+        if (
+            named == voice.name
+            and objc.text(send(listed, "language")) == voice.language
+        ):
             return listed
-    return None
+    tag = objc.string(voice.language)
+    with cf.owned(tag):
+        usual = send(kind, "voiceWithLanguage:", tag, argtypes=[p])
+    return int(usual) if usual else None
 
 
 def _listed(voice: int) -> Listed:
