@@ -15,6 +15,7 @@ from polyglotic_desktop.ui_next.controls import label
 from polyglotic_desktop.ui_next.home import HomePage, StateCard
 from polyglotic_desktop.ui_next.languages import not_offered_note
 from polyglotic_desktop.ui_next.main_window import FLOOR, FRAME, MINIMUM, MainWindow
+from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.home import (
     AddableApp,
@@ -418,7 +419,7 @@ def test_paused_home_says_how_to_resume(qapp: QApplication) -> None:
     page, _ = home(Picker())
     page.show_state(HomeState(ListeningState.LISTENING, chosen=True, paused=True))
     assert page.state.title_label.text() == "Paused"
-    assert page.state.detail.text() == "resume with Ctrl+Alt+P, or from the tray"
+    assert page.state.detail.text() == keys("resume with Ctrl+Alt+P, or from the tray")
 
 
 def test_the_banner_in_the_windows_words(qapp: QApplication) -> None:
@@ -694,9 +695,9 @@ def test_home_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
     page, _ = home(Picker(captioned=(_row("discord"),), hidden=True))
     page.show_state(HomeState(ListeningState.LISTENING, chosen=True, paused=True))
     row = page.picker_card.rows["discord"]
-    assert page.lock.toolTip() == "Ctrl+Alt+L"
-    assert page.hide_all.toolTip() == "Ctrl+Alt+H"
-    assert row.captions.toolTip() == "Hidden - Ctrl+Alt+H"
+    assert page.lock.toolTip() == keys("Ctrl+Alt+L")
+    assert page.hide_all.toolTip() == keys("Ctrl+Alt+H")
+    assert row.captions.toolTip() == keys("Hidden - Ctrl+Alt+H")
 
     pause, lock, hide = page._actions  # type: ignore[attr-defined]
     for action in (pause, lock, hide):
@@ -707,11 +708,11 @@ def test_home_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         row.captions.toolTip(),
         page.state.detail.text(),
     ]
-    assert not any("Ctrl+Alt" in text for text in shown), shown
+    assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in shown), shown
     assert page.state.detail.text() == "resume here or from the tray"
     assert row.captions.toolTip() == "Hidden - turn off Hide all to show it"
 
     lock.setShortcut(QKeySequence("Ctrl+Alt+L"))  # one that works is named
-    assert page.lock.toolTip() == "Ctrl+Alt+L" and not page.hide_all.toolTip()
+    assert page.lock.toolTip() == keys("Ctrl+Alt+L") and not page.hide_all.toolTip()
     page.close()
     page.deleteLater()

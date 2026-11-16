@@ -2972,13 +2972,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Polyglotic beim Anmelden öffnen?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Mit Windows starten</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Beim Anmelden öffnen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Es wartet im Infobereich, so sind Untertitel nur einen Klick entfernt, wenn du spielst oder schaust. Unter Autostart-Apps in Windows lässt es sich ausschalten.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Es öffnet sich, wenn du dich anmeldest, so sind Untertitel nur einen Klick entfernt, wenn du spielst oder schaust. Unter Anmeldeobjekte in den Systemeinstellungen lässt es sich ausschalten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4676,6 +4691,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Noch keine Stimme für {language} auf diesem Mac. macOS fügt kostenlos eine hinzu: Systemeinstellungen &gt; Bedienungshilfen &gt; Gesprochene Inhalte &gt; Systemstimme &gt; Stimmen verwalten, dann {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Spracheinstellungen öffnen</translation>
     </message>
@@ -4771,6 +4791,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Keine Stimme für {language} auf diesem Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Stopp (R)</translation>
     </message>
@@ -4833,6 +4858,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Öffnet die Windows-Einstellungen, wo Stimmen hinzugefügt werden</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Öffnet die Systemeinstellungen, wo Stimmen hinzugefügt werden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>

@@ -2966,13 +2966,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Polyglotic girişte açılsın mı?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows ile başlat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Girişte aç</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Sistem tepsisinde bekler, böylece oynarken ya da izlerken altyazılar bir tık uzakta olur. Windows&apos;un Başlangıç uygulamalarından kapatılabilir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Giriş yaptığınızda açılır, böylece oynarken ya da izlerken altyazılar bir tık uzakta olur. Sistem Ayarları&apos;ndaki Giriş Öğeleri&apos;nden kapatılabilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4662,6 +4677,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Bu Mac&apos;te henüz {language} sesi yok. macOS ücretsiz ekler: Sistem Ayarları &gt; Erişilebilirlik &gt; Seslendirilen İçerik &gt; Sistem sesi &gt; Sesleri Yönet, sonra {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Konuşma ayarlarını aç</translation>
     </message>
@@ -4757,6 +4777,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Bu Mac&apos;te {language} sesi yok</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Durdur (R)</translation>
     </message>
@@ -4819,6 +4844,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Seslerin eklendiği Windows Ayarları&apos;nı açar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Seslerin eklendiği Sistem Ayarları&apos;nı açar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>

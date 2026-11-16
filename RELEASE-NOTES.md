@@ -26,10 +26,6 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
-- On a Mac, captions stay over full-screen videos and apps, and on
-  every desktop (Space); the app leaves the Dock while only captions show.
-- On a Mac, dictation types into the app you're using: hold Right ⌘ and
-  speak. macOS asks once for the Accessibility permission it needs.
 - Every language with a dictionary keeps your words, as Chinese and
   English do: learn Russian, Spanish, Japanese or any other language
   whose dictionary is downloaded, and a word's card has Save to, Add to

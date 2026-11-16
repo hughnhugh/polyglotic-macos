@@ -2966,13 +2966,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Mở Polyglotic khi đăng nhập?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Khởi động cùng Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Mở khi đăng nhập</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Ứng dụng chờ ở khay hệ thống, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Ứng dụng khởi động của Windows.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Ứng dụng mở khi bạn đăng nhập, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Mục đăng nhập của Cài đặt hệ thống.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4662,6 +4677,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Máy Mac này chưa có giọng {language}. macOS thêm miễn phí: Cài đặt hệ thống &gt; Trợ năng &gt; Nội dung được đọc &gt; Giọng nói hệ thống &gt; Quản lý giọng nói, rồi chọn {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Mở cài đặt giọng nói</translation>
     </message>
@@ -4757,6 +4777,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Máy Mac này không có giọng {language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Dừng (R)</translation>
     </message>
@@ -4819,6 +4844,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Mở Cài đặt của Windows, nơi thêm giọng đọc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Mở Cài đặt hệ thống, nơi thêm giọng nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
