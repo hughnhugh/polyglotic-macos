@@ -1,7 +1,9 @@
 """Dictation's key in words, and the box that listens for the one the learner wants (polyglotic-hq 289, decision 0081).
 
 - `key_words`: a key as its keys are labelled, joined - "Right Ctrl",
-  "Ctrl + Alt + D", "F9" - for Settings, the tray, the sign and Help.
+  "Ctrl + Alt + D", "F9" - for Settings, the tray, the sign and Help; on a
+  Mac as its menus write it, "Right ⌘", "⌃⌘D" (polyglotic-hq 429: Qt's Ctrl
+  is Command there and its Meta, kept as "win", Control).
 - `refusal_words`: why a key can't be dictation's, plainly.
 - `KeyCapture`: what was pressed, from the keys going down and up - a
   key with the modifiers held at that moment ("ctrl+alt+d"), or, if only
@@ -21,14 +23,43 @@ from polyglotic_desktop.core.listening.dictation_keys import (
     Modifier,
     Refusal,
 )
+from polyglotic_desktop.ui_next import os_words
 
 
 def _tr(text: str) -> str:
     return QApplication.translate("DictationKey", text)
 
 
+MAC_SYMBOLS = {
+    Modifier.WIN.value: "⌃",
+    Modifier.ALT.value: "⌥",
+    Modifier.SHIFT.value: "⇧",
+    Modifier.CTRL.value: "⌘",
+}
+"""A Mac's modifiers as its keyboards and menus print them, in Apple's
+order (Control, Option, Shift, Command). Qt's names: on a Mac Qt's Ctrl
+is Command and its Meta ("win") is Control (polyglotic-hq 429)."""
+
+
+def _mac_name(part: str) -> str | None:
+    """A modifier's label on a Mac ("⌘", "Right ⌘"); None for another key."""
+    if part in MAC_SYMBOLS:
+        return MAC_SYMBOLS[part]
+    side, _, modifier = part.partition("_")
+    if modifier not in MAC_SYMBOLS:
+        return None
+    symbol = MAC_SYMBOLS[modifier]
+    if side == "right":
+        #: a modifier key on the right of a Mac's keyboard: {key} is its symbol (⌘)
+        return _tr("Right {key}").format(key=symbol)
+    #: a modifier key on the left of a Mac's keyboard: {key} is its symbol (⌘)
+    return _tr("Left {key}").format(key=symbol)
+
+
 def _name(part: str) -> str:
     """One key's label, as most keyboards print it."""
+    if os_words.on_a_mac() and (mac := _mac_name(part)) is not None:
+        return mac
     names = {
         "ctrl": _tr("Ctrl"),
         "alt": _tr("Alt"),
@@ -73,31 +104,50 @@ def _name(part: str) -> str:
 
 
 def key_words(key: DictationKey | str) -> str:
-    """The key as its keys are labelled: "Right Ctrl", "Ctrl + Alt + D"."""
+    """The key as its keys are labelled: "Right Ctrl", "Ctrl + Alt + D"; on
+    a Mac as its menus write it: "Right ⌘", "⌃⌘D"."""
     parsed = DictationKey.parse(key) if isinstance(key, str) else key
     if parsed is None:
         return str(key)
+    if os_words.on_a_mac():
+        held = "".join(
+            symbol
+            for name, symbol in MAC_SYMBOLS.items()
+            if Modifier(name) in parsed.modifiers
+        )
+        return held + (_name(parsed.key) if parsed.key else "")
     return " + ".join(_name(part) for part in parsed.parts)
 
 
 def refusal_words(refusal: Refusal | None) -> str:
     """Why a key can't be dictation's; None: a key Polyglotic can't hold."""
     texts = {
-        Refusal.TYPES: _tr(
-            "That key types. Hold it with Ctrl, Alt or Win, or choose another."
+        Refusal.TYPES: os_words.pc_or_mac(
+            _tr("That key types. Hold it with Ctrl, Alt or Win, or choose another."),
+            _tr("That key types. Hold it with ⌘ or ⌃, or choose another."),
         ),
         Refusal.ESCAPE: _tr("Esc cancels dictation: choose another key."),
-        Refusal.WINDOWS: _tr("Windows keeps that one for itself: choose another."),
-        Refusal.EVERY_PROGRAM: _tr(
-            "Every program uses that one (copy, paste…): add Alt or Shift to it."
+        Refusal.WINDOWS: os_words.pc_or_mac(
+            _tr("Windows keeps that one for itself: choose another."),
+            _tr("macOS keeps that one for itself: choose another."),
         ),
-        Refusal.MODIFIER: _tr(
-            "On their own, only Right Ctrl or Ctrl + Win work: hold Ctrl, Alt or"
-            " Shift with a key."
+        Refusal.EVERY_PROGRAM: os_words.pc_or_mac(
+            _tr("Every program uses that one (copy, paste…): add Alt or Shift to it."),
+            _tr("Every app uses that one (copy, paste…): add ⌥ or ⇧ to it."),
         ),
-        Refusal.ALT: _tr(
-            "Letting go of Alt opens a program's menu, and your words would go"
-            " there: hold Ctrl with it too."
+        Refusal.MODIFIER: os_words.pc_or_mac(
+            _tr(
+                "On their own, only Right Ctrl or Ctrl + Win work: hold Ctrl, Alt or"
+                " Shift with a key."
+            ),
+            _tr("On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key."),
+        ),
+        Refusal.ALT: os_words.pc_or_mac(
+            _tr(
+                "Letting go of Alt opens a program's menu, and your words would go"
+                " there: hold Ctrl with it too."
+            ),
+            _tr("⌥ with a key types a character of its own: hold ⌘ with it too."),
         ),
         Refusal.APP_HOTKEY: _tr(
             "That's one of Polyglotic's own hotkeys: choose another."
@@ -123,6 +173,9 @@ _RIGHT_SCAN_CODES = {0x11D, 0x36, 0x138, 0x15C}
 """Windows' scan codes (with the extended bit) of Right Ctrl, Right Shift,
 Right Alt and Right Win; the left ones differ."""
 _RIGHT_VKS = {0xA3, 0xA1, 0xA5, 0x5C}
+_MAC_RIGHT_KEY_CODES = {0x36, 0x3C, 0x3D, 0x3E}
+"""A Mac's key codes of Right Command, Right Shift, Right Option and Right
+Control (Qt's `nativeVirtualKey` there); the left ones differ."""
 _QT_KEYS: dict[Qt.Key, str] = {
     **{getattr(Qt.Key, f"Key_F{n}"): f"f{n}" for n in range(1, 25)},
     **{getattr(Qt.Key, f"Key_{c}"): c.lower() for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
@@ -179,11 +232,14 @@ def modifier_of(event: QKeyEvent) -> str | None:
     modifier = None if qt_key is None else _MODIFIER_KEYS.get(qt_key)
     if modifier is None:
         return None
-    right = (
-        event.nativeScanCode() in _RIGHT_SCAN_CODES
-        or event.nativeVirtualKey() in _RIGHT_VKS
-        or qt_key in (Qt.Key.Key_AltGr, Qt.Key.Key_Super_R)
-    )
+    if os_words.on_a_mac():
+        right = event.nativeVirtualKey() in _MAC_RIGHT_KEY_CODES
+    else:
+        right = (
+            event.nativeScanCode() in _RIGHT_SCAN_CODES
+            or event.nativeVirtualKey() in _RIGHT_VKS
+            or qt_key in (Qt.Key.Key_AltGr, Qt.Key.Key_Super_R)
+        )
     return f"{'right' if right else 'left'}_{modifier.value}"
 
 
@@ -192,8 +248,8 @@ def key_of(event: QKeyEvent) -> str | None:
     names it; None for one dictation can't be held on (a number pad digit,
     punctuation)."""
     vk = event.nativeVirtualKey()  # Windows': the key whatever the layout or Shift
-    if 0x41 <= vk <= 0x5A or 0x30 <= vk <= 0x39:
-        return chr(vk).lower()
+    if not os_words.on_a_mac() and (0x41 <= vk <= 0x5A or 0x30 <= vk <= 0x39):
+        return chr(vk).lower()  # a Mac's codes differ (Tab is 0x30): Qt's key there
     qt_key = _qt_key(event)
     name = None if qt_key is None else _QT_KEYS.get(qt_key)
     keypad = bool(event.modifiers() & Qt.KeyboardModifier.KeypadModifier)

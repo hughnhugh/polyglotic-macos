@@ -8,6 +8,9 @@ hands over:
 - `Hotkeys` - Ctrl+Alt+L, P and H, wherever the learner is;
 - `HoldKey`, `TypeText`, `KeyboardWindow` - dictation's key, held, and
   its text typed into the program with the keyboard (polyglotic-hq 283);
+  `TypingPermission` - where the OS lets an app type only with the
+  learner's leave (a Mac's Accessibility), whether it has it and where to
+  give it (polyglotic-hq 438);
 - `KeyState` - whether a key or the mouse is held now, for the settings
   popovers;
 - `LightTaskbar` - whether the taskbar the tray icon sits on is light;
@@ -20,7 +23,9 @@ hands over:
 - `ErrorBox` - the box an installed app shows when it can't start, without
   Qt;
 - `LaunchClock` - seconds since this process was launched, for the
-  install check's start time.
+  install check's start time;
+- `Translocation` - whether macOS runs the app from a temporary copy it
+  can't update itself in, and moving it to Applications (polyglotic-hq 433).
 
 Audio has its own: `ports/capture.py`; the device token too:
 `ports/credentials.py`.
@@ -91,6 +96,20 @@ TypeText = Callable[[str], bool]
 """Types text into the program that has the keyboard, as the keyboard
 would - the clipboard untouched; False if the OS took none of it."""
 
+
+class TypingPermission(Protocol):
+    """The OS's leave to type into other programs, where it asks for one
+    (a Mac: Privacy & Security > Accessibility; Windows has none)."""
+
+    def allowed(self) -> bool:
+        """Whether the app has it now - asking nothing."""
+        ...
+
+    def open_settings(self) -> None:
+        """Opens the OS's settings where the learner gives it."""
+        ...
+
+
 KeyboardWindow = Callable[[], int]
 """The window that has the keyboard now, as the OS's handle (0: none) -
 dictation types only into the one that had it when the speech was cut."""
@@ -130,3 +149,24 @@ closed - for when the app can't start, so not through Qt."""
 LaunchClock = Callable[[], float]
 """Seconds since this process was launched (the interpreter and the
 imports included)."""
+
+
+class Translocation(Protocol):
+    """macOS's App Translocation (polyglotic-hq 433, decision 0205): an app
+    downloaded from the internet and opened outside Applications (from
+    Downloads, say) runs from a read-only copy macOS makes at a random path,
+    which Velopack can't replace, so it never updates."""
+
+    def translocated(self) -> bool:
+        """Whether this app runs from such a copy."""
+        ...
+
+    def move(self) -> Path:
+        """Moves the app itself (not the copy) into Applications - or the
+        user's own Applications folder when that one can't be written - and
+        returns where it is now. Raises `OSError` if it can't."""
+        ...
+
+    def reopen(self, app: Path) -> None:
+        """Opens the app at `app` once this process has ended."""
+        ...

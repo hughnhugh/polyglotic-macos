@@ -66,7 +66,7 @@ hands over the themes, the hotkeys' commands, "Tell us" and the caption
 settings' views, and connects what the page asks for.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 from PySide6.QtCore import QEvent, QLocale, Qt, Signal
 from PySide6.QtGui import QAction, QKeySequence, QShowEvent
@@ -91,6 +91,7 @@ from polyglotic_desktop.core.listening.dictation_keys import (
     DictationKey,
     refusal,
 )
+from polyglotic_desktop.ui_next import os_words
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Combo,
@@ -141,6 +142,13 @@ def hotkey_name(key: str, action: QAction) -> str:
         "H": _tr("Hide all caption windows"),
     }
     return names.get(key) or action.text().replace("&", "")
+
+
+def _own_hotkey_modifiers() -> str:
+    """The app's own hotkeys' modifiers, as `DictationKey` keeps them: Ctrl
+    + Alt, and on a Mac Control + Command - Qt's Meta ("win") and Ctrl
+    there (polyglotic-hq 428's ⌃⌘L, P, H; 438)."""
+    return "ctrl+win" if os_words.on_a_mac() else "ctrl+alt"
 
 
 def _button(text: str, name: str) -> QPushButton:
@@ -203,6 +211,10 @@ class SettingsPage(Page):
     dictation_key_listening = Signal(bool)
     """The key box listens for a key: dictation's own key must let keys
     through meanwhile."""
+    typing_settings_wanted = Signal()
+    """"Open System Settings" beside "isn't allowed to type": `main` opens
+    the OS's settings where the learner gives it (a Mac's Accessibility,
+    polyglotic-hq 438)."""
 
     def __init__(
         self,
@@ -225,6 +237,10 @@ class SettingsPage(Page):
         super().__init__(_tr("Settings"))
         self._sound = sound
         self._hotkeys = hotkeys
+        self.typing_allowed: Callable[[], bool] | None = None
+        """Whether the OS lets the app type, where it asks (a Mac's
+        Accessibility: `main` sets it, polyglotic-hq 438); None: it asks
+        nothing, as Windows."""
         self._notices: str | None = None
         self._sheet = ""
         """The main window's stylesheet (`use_sheet`), on the parts shown."""
@@ -512,6 +528,7 @@ class SettingsPage(Page):
         self.dictation_key_note.setObjectName("settings.dictation_key_note")
         card.add(self.dictation_key_note)
         self.dictation_key_note.hide()  # after its parent: never a window of its own
+        card.add(self._typing_permission())
         self.dictation_language = Combo()
         self.dictation_language.setObjectName("settings.dictation_language")
         self.dictation_language.setAccessibleName(_tr("Dictation's language"))
@@ -546,6 +563,43 @@ class SettingsPage(Page):
         )
         card.add(self.dictation_australian)
         return card
+
+    def _typing_permission(self) -> QWidget:
+        """Where the OS hasn't let the app type (a Mac without the
+        Accessibility permission, polyglotic-hq 438): why nothing is typed,
+        and the way to System Settings. Hidden until then."""
+        self.typing_not_allowed = QWidget()
+        self.typing_not_allowed.setObjectName("settings.typing_not_allowed")
+        rows = QVBoxLayout(self.typing_not_allowed)
+        rows.setContentsMargins(0, 0, 0, 0)
+        rows.setSpacing(8)
+        why = label(
+            #: macOS System Settings' own names: keep them as the Mac shows them
+            _tr(
+                "Polyglotic isn't allowed to type into other apps, so nothing"
+                " you say is typed. In System Settings, open Privacy & Security,"
+                " then Accessibility, and turn on Polyglotic."
+            ),
+            "Faint",
+            wrap=True,
+        )
+        rows.addWidget(why)
+        self.typing_settings = _button(
+            _tr("Open System Settings"), "settings.typing_settings"
+        )
+        self.typing_settings.clicked.connect(self.typing_settings_wanted)
+        button_row = QHBoxLayout()
+        button_row.addWidget(self.typing_settings)
+        button_row.addStretch(1)
+        rows.addLayout(button_row)
+        self.typing_not_allowed.hide()
+        return self.typing_not_allowed
+
+    def show_typing_permission(self) -> None:
+        """Asks the OS again whether the app may type, and shows why not
+        and the way to its settings if it may not."""
+        allowed = self.typing_allowed() if self.typing_allowed is not None else True
+        self.typing_not_allowed.setHidden(allowed)
 
     def show_dictation(
         self,
@@ -590,7 +644,10 @@ class SettingsPage(Page):
         """A key pressed in the box (or Reset): refused with why, or asked
         for (`dictation_key_wanted`) - unless it's the key already."""
         key = DictationKey.parse(pressed) if pressed else None
-        own = (DictationKey.parse(f"ctrl+alt+{k.lower()}") for k in self._hotkeys)
+        own = (
+            DictationKey.parse(f"{_own_hotkey_modifiers()}+{k.lower()}")
+            for k in self._hotkeys
+        )
         refused = refusal(key, [k for k in own if k]) if key else None
         if key is None or refused is not None:
             self._dictation_note(refusal_words(refused))
@@ -812,6 +869,7 @@ class SettingsPage(Page):
 
     def showEvent(self, event: QShowEvent) -> None:
         self.refresh()  # a hotkey another program had is shown as not available
+        self.show_typing_permission()  # given in System Settings meanwhile (438)
         super().showEvent(event)
 
     def refresh(self) -> None:

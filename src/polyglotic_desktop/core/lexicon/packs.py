@@ -10,6 +10,19 @@ a new format comes, so an app never needs a pack it can't read: it takes
 the newest one *it* reads (`best_offer`) and leaves the rest
 (`needs_newer_app` says when there are only those).
 
+A pack may have **riders** (decision 0133): files that go with it - for
+now its commonest words recorded (`audio`). The list names them inside
+their pack's own entry (`riders`), which an app from before them doesn't
+read: it takes the pack as it always did. A rider has its own `min_app`
+(decision 0192), so one can be added to a pack already published without
+hiding the pack from an app that can't play it. An app takes the riders it
+reads (`riders_wanted`).
+
+A dictionary **built into the app** (CC-CEDICT) has no pack, so its riders
+have an entry of their own (`built_in`, decision 0197): the dictionary's
+name, its language, and its riders. An app from before them doesn't read
+it, and the packs are read as before (`read_built_in`).
+
 Plain Python: bytes in, choices out. Fetching the list, its signature,
 the download and the files are `adapters.dictionary_packs`'.
 """
@@ -43,9 +56,35 @@ FROM_SOURCE = "0.0.0"
 every pack its formats and word splits allow, whatever `min_app` says."""
 
 
+RIDER_SUFFIXES = {"audio": ".audio"}
+"""Each kind of rider this code knows, and how its file's name ends; a
+kind it doesn't know is left out of a pack's riders (a newer list's)."""
+
+
 class PackListError(ValueError):
     """The list can't be read as a list at all (not its shape, or a newer
     list format). Says which, never the contents."""
+
+
+@dataclass(frozen=True)
+class Rider:
+    """A file that goes with one published pack (decision 0133): `kind` is
+    `audio` (its commonest words recorded). Its version is its pack's; its
+    `min_app` its own (decision 0192): the first app that plays it."""
+
+    kind: str
+    format: str
+    """The rider file's own format (`adapters.audio_file.FORMAT`)."""
+    min_app: str
+    file: str
+    size: int
+    sha256: str
+    gz_size: int
+    gz_sha256: str
+
+    @property
+    def download(self) -> str:
+        return self.file + ".gz"
 
 
 @dataclass(frozen=True)
@@ -83,6 +122,8 @@ class PackOffer:
     """One line: whose data it is, under what licence - said on Learning."""
     credits_text: str = ""
     """The pack's credits in full (Markdown), written beside its file."""
+    riders: tuple[Rider, ...] = ()
+    """The files that go with this version of the pack (decision 0133)."""
 
     @property
     def key(self) -> tuple[str, str]:
@@ -190,6 +231,7 @@ def _offer(raw: object) -> PackOffer | None:
         size=int(raw["size"]),
         gz_size=int(raw["gz_size"]),
         credits_text=credits_text,
+        riders=_riders(raw.get("riders"), raw["dictionary"]),
     )
     if not (
         CODE.fullmatch(offer.language)
@@ -209,21 +251,99 @@ def _offer(raw: object) -> PackOffer | None:
 
 
 @dataclass(frozen=True)
+class BuiltIn:
+    """The riders of a dictionary built into the app (decision 0197):
+    `dictionary` is its name (`cedict`), `language` the one it's learned
+    for (`zh`)."""
+
+    dictionary: str
+    language: str
+    riders: tuple[Rider, ...]
+
+
+def read_built_in(data: bytes) -> tuple[BuiltIn, ...]:
+    """The built-in dictionaries' riders a list names (`built_in`): an
+    entry that is malformed is left out, as are its riders that are
+    (`_riders`). Only for a list `read_pack_list` has read: anything else
+    has none."""
+    try:
+        whole = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return ()
+    raw = whole.get("built_in") if isinstance(whole, dict) else None
+    found = []
+    for item in raw if isinstance(raw, list) else ():
+        if not isinstance(item, dict):
+            continue
+        dictionary, language = item.get("dictionary"), item.get("language")
+        if not (
+            isinstance(dictionary, str)
+            and isinstance(language, str)
+            and DICTIONARY_NAME.fullmatch(dictionary)
+            and CODE.fullmatch(language)
+        ):
+            continue
+        riders = _riders(item.get("riders"), dictionary)
+        if riders:
+            found.append(BuiltIn(dictionary, language, riders))
+    return tuple(found)
+
+
+def _riders(raw: object, dictionary: str) -> tuple[Rider, ...]:
+    """A pack's riders as its entry lists them: one that is malformed, or of
+    a kind this code doesn't know, is left out - the pack and its other
+    riders stay. Fields a newer list adds are ignored."""
+    found = []
+    for item in raw if isinstance(raw, list) else ():
+        if not isinstance(item, dict):
+            continue
+        texts = ("kind", "format", "min_app", "file", "sha256", "gz_sha256")
+        sizes = [item.get("size"), item.get("gz_size")]
+        if not all(isinstance(item.get(name), str) for name in texts) or not all(
+            isinstance(n, int) and not isinstance(n, bool) and n > 0 for n in sizes
+        ):
+            continue
+        rider = Rider(
+            **{name: item[name] for name in texts},
+            size=int(item["size"]),
+            gz_size=int(item["gz_size"]),
+        )
+        suffix = RIDER_SUFFIXES.get(rider.kind)
+        if (
+            suffix is not None
+            and safe_file_name(rider.file)
+            and rider.file.endswith(suffix)
+            and rider.file.startswith(f"{dictionary}-")
+            and version_key(rider.min_app) is not None
+            and SHA256_HEX.fullmatch(rider.sha256)
+            and SHA256_HEX.fullmatch(rider.gz_sha256)
+        ):
+            found.append(rider)
+    return tuple(found)
+
+
+@dataclass(frozen=True)
 class Reader:
-    """What this app reads: the file formats, the word splits it has, and
-    its version (`FROM_SOURCE`: any `min_app`)."""
+    """What this app reads: the file formats, the word splits it has, its
+    version (`FROM_SOURCE`: any `min_app`), and the riders' kinds and
+    formats (`riders`: `("audio", "1")`)."""
 
     formats: frozenset[str]
     splits: frozenset[str]
     app_version: str
+    riders: frozenset[tuple[str, str]] = frozenset()
 
     def reads(self, offer: PackOffer) -> bool:
         if offer.format not in self.formats or offer.split not in self.splits:
             return False
+        return self.new_enough(offer.min_app)
+
+    def new_enough(self, min_app: str) -> bool:
+        """Whether this app is `min_app` or newer (from source: always)."""
         if self.app_version == FROM_SOURCE:
             return True
         app = version_key(self.app_version)
-        needed = version_key(offer.min_app)
+        needed = version_key(min_app)
         return app is not None and needed is not None and app >= needed
 
 
@@ -253,6 +373,17 @@ def needs_newer_app(
     Polyglotic reads them (say so; never offer them)."""
     found = _for(offers, language, meanings)
     return bool(found) and not any(reader.reads(o) for o in found)
+
+
+def riders_wanted(offer: PackOffer | BuiltIn, reader: Reader) -> list[Rider]:
+    """The riders of `offer` (a pack's, or a built-in dictionary's) this app
+    takes: those of a kind and format it reads, and whose `min_app` it is."""
+    return [
+        rider
+        for rider in offer.riders
+        if (rider.kind, rider.format) in reader.riders
+        and reader.new_enough(rider.min_app)
+    ]
 
 
 @dataclass(frozen=True)

@@ -1170,6 +1170,18 @@
     <name>DictationKey</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right {key}</source>
+        <extracomment>a modifier key on the right of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} rechts</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left {key}</source>
+        <extracomment>a modifier key on the left of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} links</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Ctrl</source>
         <translation type="unfinished">Strg</translation>
     </message>
@@ -1331,6 +1343,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That key types. Hold it with ⌘ or ⌃, or choose another.</source>
+        <translation type="unfinished">Diese Taste tippt. Halte sie mit ⌘ oder ⌃, oder wähle eine andere.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Esc cancels dictation: choose another key.</source>
         <translation type="unfinished">Esc bricht das Diktat ab: Wähle eine andere Taste.</translation>
     </message>
@@ -1341,8 +1358,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>macOS keeps that one for itself: choose another.</source>
+        <translation type="unfinished">Die behält macOS für sich: Wähle eine andere.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Every program uses that one (copy, paste…): add Alt or Shift to it.</source>
         <translation type="unfinished">Jedes Programm nutzt sie (Kopieren, Einfügen…): Nimm Alt oder Umschalt dazu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Every app uses that one (copy, paste…): add ⌥ or ⇧ to it.</source>
+        <translation type="unfinished">Die nutzt jede App (Kopieren, Einsetzen …): Nimm ⌥ oder ⇧ dazu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1351,8 +1378,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key.</source>
+        <translation type="unfinished">Allein gehen nur ⌘ rechts oder ⌃⌘: Halte ⌘, ⌥ oder ⇧ mit einer Taste.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Letting go of Alt opens a program&apos;s menu, and your words would go there: hold Ctrl with it too.</source>
         <translation type="unfinished">Beim Loslassen von Alt öffnet sich das Menü eines Programms, und deine Worte landeten dort: Halte auch Strg.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>⌥ with a key types a character of its own: hold ⌘ with it too.</source>
+        <translation type="unfinished">⌥ mit einer Taste tippt ein eigenes Zeichen: Halte ⌘ mit dazu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1421,6 +1458,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">Konnte es hier nicht tippen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not allowed to type - see Settings &gt; Dictation</source>
+        <translation type="unfinished">Tippen nicht erlaubt – siehe Einstellungen &gt; Diktat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2982,13 +3024,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Polyglotic beim Anmelden öffnen?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Mit Windows starten</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Beim Anmelden öffnen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Es wartet im Infobereich, so sind Untertitel nur einen Klick entfernt, wenn du spielst oder schaust. Unter Autostart-Apps in Windows lässt es sich ausschalten.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Es öffnet sich, wenn du dich anmeldest, so sind Untertitel nur einen Klick entfernt, wenn du spielst oder schaust. Unter Anmeldeobjekte in den Systemeinstellungen lässt es sich ausschalten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3790,6 +3847,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Die häufigsten Wörter sind aufgenommen ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Your level</source>
         <translation type="unfinished">Dein Niveau</translation>
     </message>
@@ -4246,6 +4308,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Sein Wörterbuch: {size} zum Herunterladen, danach {recorded} aufgenommene Wörter.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Its dictionary: {size} to download.</source>
         <translation type="unfinished">Sein Wörterbuch: {size} zum Herunterladen.</translation>
     </message>
@@ -4686,6 +4753,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Noch keine Stimme für {language} auf diesem Mac. macOS fügt kostenlos eine hinzu: Systemeinstellungen &gt; Bedienungshilfen &gt; Gesprochene Inhalte &gt; Systemstimme &gt; Stimmen verwalten, dann {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Spracheinstellungen öffnen</translation>
     </message>
@@ -4781,6 +4853,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Keine Stimme für {language} auf diesem Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Stopp (R)</translation>
     </message>
@@ -4843,6 +4920,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Öffnet die Windows-Einstellungen, wo Stimmen hinzugefügt werden</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Öffnet die Systemeinstellungen, wo Stimmen hinzugefügt werden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4932,6 +5014,44 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">Die Untertitel pausieren um {start} wegen geplanter Wartung, bis {end}</translation>
+    </message>
+</context>
+<context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Polyglotic in „Programme“ verschieben?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic wurde außerhalb deines Ordners „Programme“ geöffnet, vielleicht aus „Downloads“. Deshalb führt dein Mac es aus einer vorübergehenden Kopie aus. Von dort kann es sich nicht selbst aktualisieren.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">So geht es von Hand: Beende Polyglotic, ziehe es im Finder in „Programme“ und öffne es dort.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">In „Programme“ verschieben</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">Nicht jetzt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic konnte sich nicht in „Programme“ verschieben.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">Danach öffnet sich Polyglotic wieder aus „Programme“.</translation>
     </message>
 </context>
 <context>
@@ -6065,6 +6185,17 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Englisch kommt als colour, centre und organise heraus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
+        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
+        <translation type="unfinished">Polyglotic darf nicht in andere Apps tippen, deshalb wird nichts getippt, was du sagst. Öffne in den Systemeinstellungen „Datenschutz &amp; Sicherheit“, dann „Bedienungshilfen“, und aktiviere Polyglotic.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Open System Settings</source>
+        <translation type="unfinished">Systemeinstellungen öffnen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

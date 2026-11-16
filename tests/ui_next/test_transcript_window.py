@@ -26,6 +26,7 @@ from polyglotic_desktop.core.listening.timing import CaptionId, CaptionMode
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.languages import show_mandarin_in_traditional
 from polyglotic_desktop.ui_next.panels import LanguagesPanel, TimingPanel
 from polyglotic_desktop.ui_next.transcript_window import (
     FOLD_BELOW,
@@ -420,6 +421,15 @@ def test_a_second_language_line_is_saved_and_copied_under_its_language(
         assert (row["en"], row["zh"]) == ("", "明天见。")
         assert "Chinese (Simplified): 明天见。" in shown.text()
         assert "English:" not in shown.text()
+        # "Show Mandarin in: Traditional": its lines named by it (433)
+        show_mandarin_in_traditional(True)
+        try:
+            assert "Chinese (Traditional): 明天见。" in shown.text()
+            shown.save_to(tmp_path / "t.txt")
+            saved = (tmp_path / "t.txt").read_text(encoding="utf-8-sig")
+            assert "Chinese (Traditional):" in saved and "Simplified" not in saved
+        finally:
+            show_mandarin_in_traditional(False)
         shown.save_to(tmp_path / "t.srt")
         srt = (tmp_path / "t.srt").read_text(encoding="utf-8")
         assert "See you tomorrow.\n明天见。" in srt

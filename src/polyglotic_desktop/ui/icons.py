@@ -11,6 +11,10 @@ for the word, and the dotted mark that goes under a new word.
   didn't read at a glance - polyglotic-hq 141, 146) - each for a light and
   a dark taskbar: ink on a dark taskbar is only 1.05:1, so a dark taskbar
   gets a paper square.
+- The Mac's menu-bar icon in the same three states, as template images
+  (polyglotic-hq 428): black and its opacity only, so macOS draws it in
+  the menu bar's own colour, light or dark, as it does its own icons. A
+  template has no pink: listening has the dots, idle the bar alone.
 
 Up to 32 px the icons come from masters drawn on the 16-pixel grid (every
 edge on a whole pixel; 32 is exactly twice 16), larger ones from the
@@ -30,6 +34,7 @@ from PySide6.QtSvg import QSvgRenderer
 ICONS = Path(str(files("polyglotic_desktop.ui") / "assets" / "icons"))
 ICO_SIZES = (16, 20, 24, 32, 48, 256)  # the .ico's: Windows' usual set
 TRAY_SIZES = (16, 20, 24, 32)  # the tray at 100%, 125%, 150% and 200% scaling
+MENU_BAR_SIZES = (16, 18, 32, 36)  # the menu bar's icon, and on a Retina screen
 SMALL_UP_TO = 32  # the 16-pixel master up to this size, the 64-unit one above
 
 
@@ -82,4 +87,19 @@ def tray_icon(state: TrayState, light_taskbar: bool) -> QIcon:
     icon = QIcon()
     for size in TRAY_SIZES:
         icon.addPixmap(QPixmap.fromImage(render(master, size)))
+    return icon
+
+
+def menu_bar_icon(state: TrayState, _light_menu_bar: bool = True) -> QIcon:
+    """The Mac's menu-bar icon in `state`: a template (`isMask`), which macOS
+    draws for a light or a dark menu bar itself (the flag is ignored)."""
+    return _template(state)
+
+
+@cache
+def _template(state: TrayState) -> QIcon:
+    icon = QIcon()
+    for size in MENU_BAR_SIZES:
+        icon.addPixmap(QPixmap.fromImage(render(f"tray-template-{state}", size)))
+    icon.setIsMask(True)
     return icon

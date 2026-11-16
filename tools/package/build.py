@@ -36,15 +36,15 @@ icon an .icns and its Info.plist from `info_plist` (the permission prompts'
 wording); the build's files (3.) in `Contents/Resources` (`Layout`); signed
 ad hoc once they're in (`sign`), or with the certificate
 POLYGLOTIC_CODESIGN_IDENTITY names (the release's self-signed one: decision
-0196); zipped by `ditto` as a tester would get it (`MACOS_ZIP`), and named
-for the release with its SHA-256 beside it (`release_zip`). There are no
-updates on macOS yet: Velopack doesn't pack it.
+0196); zipped by `ditto` for its size (`MACOS_ZIP`). Velopack packs it
+afterwards, as on Windows (`pack.sh`; polyglotic-hq 430, decision 0202):
+the zip a tester downloads is Velopack's portable one, which can update
+itself.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import importlib.util
 import json
 import os
@@ -321,6 +321,9 @@ def info_plist(version: str) -> dict[str, object]:
         "NSHighResolutionCapable": True,
         "NSMicrophoneUsageDescription": MIC_USE,
         "NSAudioCaptureUsageDescription": AUDIO_USE,
+        # an accessory from the start: no Dock icon, and the caption windows
+        # allowed over full-screen apps (polyglotic-hq 429, decision 0201)
+        "LSUIElement": True,
     }
 
 
@@ -732,26 +735,6 @@ def ditto_zip(app: Path) -> int:
     return path.stat().st_size
 
 
-def release_zip(
-    zipped: Path, version: str, channel: str, folder: Path
-) -> dict[str, object]:
-    """The download as a release keeps it (polyglotic-hq 422):
-    `Polyglotic-<version>-<channel>.zip` in `folder`, and beside it
-    `<that name>.sha256`, one line `shasum -a 256 -c` reads. The release
-    step checks the zip against it before uploading."""
-    name = f"{NAME}-{version}-{channel}.zip"
-    folder.mkdir(parents=True, exist_ok=True)
-    target = folder / name
-    shutil.copyfile(zipped, target)
-    digest = hashlib.sha256()
-    with target.open("rb") as f:
-        for block in iter(lambda: f.read(1 << 20), b""):
-            digest.update(block)
-    sha = digest.hexdigest()
-    (folder / f"{name}.sha256").write_bytes(f"{sha}  {name}\n".encode())
-    return {"zip": name, "sha256": sha, "bytes": target.stat().st_size}
-
-
 def biggest(folder: Path, n: int = 12) -> list[tuple[str, float]]:
     files = [p for p in folder.rglob("*") if p.is_file()]
     files.sort(key=lambda p: p.stat().st_size, reverse=True)
@@ -871,10 +854,8 @@ def build(
     found += over_start_budget(check, start_limit)
     found += packs_as_decided(check)
     files = [p for p in folder.rglob("*") if p.is_file()]
-    released = None
     if macos:
         zipped = ditto_zip(folder)
-        released = release_zip(WORK / MACOS_ZIP, version, channel, WORK / "release")
     summary = {
         "version": version,
         "channel": channel,
@@ -882,7 +863,6 @@ def build(
         "files": len(files),
         "size_mb": mb(sum(p.stat().st_size for p in files)),
         "zipped_mb": mb(zipped if macos else zipped_size(folder)),
-        "release_zip": released,
         "check_install": check,
         "start_judged_against_ms": start_limit,
         "signature": signature,

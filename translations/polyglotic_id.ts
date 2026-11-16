@@ -1166,6 +1166,18 @@
     <name>DictationKey</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right {key}</source>
+        <extracomment>a modifier key on the right of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} kanan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left {key}</source>
+        <extracomment>a modifier key on the left of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} kiri</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Ctrl</source>
         <translation type="unfinished">Ctrl</translation>
     </message>
@@ -1327,6 +1339,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That key types. Hold it with ⌘ or ⌃, or choose another.</source>
+        <translation type="unfinished">Tombol itu mengetik. Tahan bersama ⌘ atau ⌃, atau pilih yang lain.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Esc cancels dictation: choose another key.</source>
         <translation type="unfinished">Esc membatalkan dikte: pilih tombol lain.</translation>
     </message>
@@ -1337,8 +1354,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>macOS keeps that one for itself: choose another.</source>
+        <translation type="unfinished">macOS menyimpan yang itu untuk dirinya: pilih yang lain.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Every program uses that one (copy, paste…): add Alt or Shift to it.</source>
         <translation type="unfinished">Semua program memakai tombol itu (salin, tempel…): tambahkan Alt atau Shift.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Every app uses that one (copy, paste…): add ⌥ or ⇧ to it.</source>
+        <translation type="unfinished">Setiap aplikasi memakainya (salin, tempel…): tambahkan ⌥ atau ⇧.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1347,8 +1374,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key.</source>
+        <translation type="unfinished">Sendirian, hanya ⌘ kanan atau ⌃⌘ yang berfungsi: tahan ⌘, ⌥ atau ⇧ dengan sebuah tombol.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Letting go of Alt opens a program&apos;s menu, and your words would go there: hold Ctrl with it too.</source>
         <translation type="unfinished">Melepas Alt membuka menu program, dan kata-katamu akan masuk ke sana: tahan juga Ctrl.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>⌥ with a key types a character of its own: hold ⌘ with it too.</source>
+        <translation type="unfinished">⌥ dengan sebuah tombol mengetik karakternya sendiri: tahan ⌘ juga.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1417,6 +1454,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">Tidak bisa mengetik di sini</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not allowed to type - see Settings &gt; Dictation</source>
+        <translation type="unfinished">Tidak diizinkan mengetik - lihat Pengaturan &gt; Dikte</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2976,13 +3018,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Buka Polyglotic saat kamu masuk?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Mulai bersama Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Buka saat masuk</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Aplikasi menunggu di baki sistem, jadi subtitle tinggal sekali klik saat kamu bermain atau menonton. Aplikasi Startup Windows bisa mematikannya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Aplikasi terbuka saat kamu masuk, jadi subtitle tinggal sekali klik saat kamu bermain atau menonton. Item Masuk di Pengaturan Sistem bisa mematikannya.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3780,6 +3837,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Kata-kata yang paling umum sudah direkam ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Your level</source>
         <translation type="unfinished">Levelmu</translation>
     </message>
@@ -4234,6 +4296,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Kamusnya: {size} untuk diunduh, lalu {recorded} kata yang direkam.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Its dictionary: {size} to download.</source>
         <translation type="unfinished">Kamusnya: {size} untuk diunduh.</translation>
     </message>
@@ -4672,6 +4739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Belum ada suara {language} di Mac ini. macOS menambahkannya gratis: Pengaturan Sistem &gt; Aksesibilitas &gt; Konten Lisan &gt; Suara sistem &gt; Kelola Suara, lalu {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Buka pengaturan ucapan</translation>
     </message>
@@ -4767,6 +4839,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Tidak ada suara {language} di Mac ini</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Berhenti (R)</translation>
     </message>
@@ -4829,6 +4906,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Membuka Pengaturan Windows, tempat suara ditambahkan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Membuka Pengaturan Sistem, tempat suara ditambahkan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4918,6 +5000,44 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">Subtitle dijeda pukul {start} untuk pemeliharaan terjadwal, hingga {end}</translation>
+    </message>
+</context>
+<context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Pindahkan Polyglotic ke Aplikasi?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic dibuka di luar folder Aplikasi, mungkin dari Unduhan, jadi Mac Anda menjalankannya dari salinan sementara. Dari sana, Polyglotic tidak bisa memperbarui dirinya sendiri.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">Untuk melakukannya sendiri: keluar dari Polyglotic, seret ke Aplikasi di Finder, lalu buka dari sana.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">Pindahkan ke Aplikasi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">Nanti saja</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic tidak bisa memindahkan dirinya ke Aplikasi.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">Setelah dipindahkan, Polyglotic terbuka lagi dari Aplikasi.</translation>
     </message>
 </context>
 <context>
@@ -6050,6 +6170,17 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Bahasa Inggris keluar sebagai colour, centre, dan organise.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
+        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
+        <translation type="unfinished">Polyglotic tidak diizinkan mengetik di app lain, jadi tidak ada ucapanmu yang diketik. Di Pengaturan Sistem, buka &quot;Privasi &amp; Keamanan&quot;, lalu &quot;Aksesibilitas&quot;, dan nyalakan Polyglotic.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Open System Settings</source>
+        <translation type="unfinished">Buka Pengaturan Sistem</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

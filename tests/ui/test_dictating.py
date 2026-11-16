@@ -31,7 +31,12 @@ from polyglotic_desktop.ports.capture import MicPiece
 from polyglotic_desktop.ui.app import ConnectionState
 from polyglotic_desktop.ui.dictation import Dictating
 from polyglotic_desktop.ui.settings import AppSettings, Settings
-from polyglotic_desktop.ui_next.dictation_sign import DictationSign, said_text
+from polyglotic_desktop.ui_next.dictation_sign import (
+    LONGER_SAID_MS,
+    SAID_MS,
+    DictationSign,
+    said_text,
+)
 
 WINDOW, OTHER_WINDOW = 0x100, 0x200
 
@@ -73,6 +78,7 @@ class Rig:
         self.types = True
         self.window = WINDOW
         self.esc = False
+        self.allowed = True
         self.sessions: list[bool] = []
         self.signed_in = signed_in
         self.now = 100.0
@@ -90,6 +96,7 @@ class Rig:
             clock=lambda: self.now,
             mic_held=lambda held, tail: self.mic_held.append((held, tail)),
             forget_unsent=self._forget,
+            typing_allowed=lambda: self.allowed,
         )
         self.dictating.sign_changed.connect(
             lambda state, _level: self.signs.append(state)
@@ -279,6 +286,30 @@ def test_typing_refused_is_said(rig: Rig) -> None:
     rig.mic.last_piece(0.0, 1.2)
     rig.answer("Refused.")
     assert rig.signs[-1] == Said.NOT_TYPED.value
+
+
+def test_typing_the_os_hasnt_allowed_says_so(rig: Rig) -> None:
+    """A Mac without the Accessibility permission (polyglotic-hq 438): the
+    sign says it isn't allowed, not that it couldn't type there - and it
+    stays up longer, as something to do."""
+    rig.types, rig.allowed = False, False
+    rig.hold(1.0)
+    rig.mic.last_piece(0.0, 1.2)
+    rig.answer("Refused.")
+    assert rig.signs[-1] == Said.NOT_ALLOWED.value
+    assert "Settings > Dictation" in said_text(Said.NOT_ALLOWED.value)
+
+
+def test_the_sign_keeps_not_allowed_up_longer(qapp: QApplication) -> None:
+    sign = DictationSign()
+    try:
+        sign.show_state(Said.NOT_ALLOWED.value)
+        assert sign.isVisible()
+        assert sign._hide_later.interval() == LONGER_SAID_MS > SAID_MS
+        sign.show_state(Said.NOTHING_HEARD.value)
+        assert sign._hide_later.interval() == SAID_MS
+    finally:
+        shiboken6.delete(sign)
 
 
 def test_esc_cancels_and_the_late_answer_is_ignored(rig: Rig) -> None:

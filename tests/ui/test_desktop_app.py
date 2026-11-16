@@ -6,6 +6,7 @@ and the tray saying the state Home shows - and, once, that the app is
 still running there; the tray asking for the main window. Made-up apps
 only."""
 
+import sys
 import threading
 
 import pytest
@@ -223,7 +224,8 @@ def test_hotkeys_lock_pause_and_hide_from_any_thread(qapp: QApplication) -> None
     339)."""
     app = make_app()
     shown = {k: a.shortcut().toString() for k, a in app.hotkeys.items()}
-    assert shown == {"L": "Ctrl+Alt+L", "P": "Ctrl+Alt+P", "H": "Ctrl+Alt+H"}
+    keys = "Meta+Ctrl+" if sys.platform == "darwin" else "Ctrl+Alt+"  # ⌃⌘ (428)
+    assert shown == {k: keys + k for k in "LPH"}
     for key in "LPH":
         worker = threading.Thread(target=app.hotkey_pressed.emit, args=(key,))
         worker.start()

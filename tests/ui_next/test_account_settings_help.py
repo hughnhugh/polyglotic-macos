@@ -31,10 +31,12 @@ from polyglotic_desktop.core.listening.check import (
 )
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
-from polyglotic_desktop.ui_next import help_page
+from polyglotic_desktop.ui_next import help_page, os_words
 from polyglotic_desktop.ui_next.account_page import AccountPage
+from polyglotic_desktop.ui_next.dictation_key import key_words
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
 from polyglotic_desktop.ui_next.learning_page import LearningPage
+from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
@@ -481,8 +483,15 @@ def test_help_says_how_to_dictate_with_the_key_chosen(qapp: QApplication) -> Non
         shiboken6.delete(page)
 
 
+@pytest.fixture
+def pc(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The key's words and the box as on a PC, whatever this machine is
+    (a Mac's: `test_dictation_key_on_a_mac`)."""
+    monkeypatch.setattr(os_words, "on_a_mac", lambda: False)
+
+
 def test_settings_turn_dictation_on_choose_its_key_and_language(
-    qapp: QApplication,
+    qapp: QApplication, pc: None
 ) -> None:
     """Dictation's card (polyglotic-hq 283): off until turned on; each change
     asked for as the settings name it; a key another program has said."""
@@ -533,7 +542,43 @@ def key_event(kind: QEvent.Type, key: Qt.Key, scan: int = 0, vk: int = 0) -> QKe
     return QKeyEvent(kind, key, Qt.KeyboardModifier.NoModifier, scan, vk, 0)
 
 
-def test_settings_dictation_key_is_pressed_in_a_box(qapp: QApplication) -> None:
+def test_settings_say_when_the_os_doesnt_let_dictation_type(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 438: a Mac without the Accessibility permission -
+    Settings > Dictation says why nothing is typed and where to allow it,
+    with a way to System Settings; asked again each time it shows, so it
+    goes once the learner has given it. Windows asks nothing: never shown."""
+    page, _keys = settings_page()
+    page.show_section("dictation")
+    page.show()
+    settle()
+    assert not page.typing_not_allowed.isVisible()  # no permission asked here
+    allowed = [False]
+    page.typing_allowed = lambda: allowed[0]
+    page.hide()
+    page.show()
+    settle()
+    assert page.typing_not_allowed.isVisible()
+    words = " ".join(texts(page.typing_not_allowed))
+    assert "Privacy & Security" in words and "Accessibility" in words
+    opened: list[bool] = []
+    page.typing_settings_wanted.connect(lambda: opened.append(True))
+    page.typing_settings.click()
+    assert opened == [True]
+    allowed[0] = True  # given in System Settings meanwhile
+    page.hide()
+    page.show()
+    settle()
+    assert not page.typing_not_allowed.isVisible()
+    allowed[0] = False  # taken away: dictation's sign says so, then Settings
+    page.show_typing_permission()
+    assert page.typing_not_allowed.isVisible()
+
+
+def test_settings_dictation_key_is_pressed_in_a_box(
+    qapp: QApplication, pc: None
+) -> None:
     """polyglotic-hq 289: click the key, press the one you want - taken if
     nothing refuses it, refused with why if something does, Reset back to
     Right Ctrl; the dictation key let go meanwhile."""
@@ -698,22 +743,98 @@ def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         topics = " ".join(t.text.text() for t in page.findChildren(Topic))
         return topics + " " + " ".join(f.text() for f in page.fixes.values())
 
-    assert "Ctrl+Alt+L" in said() and "Ctrl+Alt+P" in said()
+    assert keys("Ctrl+Alt+L") in said() and keys("Ctrl+Alt+P") in said()
     page.show_hotkeys([])  # none works
-    assert "Ctrl+Alt" not in said(), said()
+    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
     assert "Lock all, on Home or in the tray menu, lets clicks pass" in said()
     assert "Choose Resume on Home or in the tray menu." in said()
     facts[0] = hidden
     page.check_again.click()
-    assert "Ctrl+Alt" not in said(), said()
+    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
     assert "Use Hide all on Home or the tray menu." in said()
 
     page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
-    assert "Ctrl+Alt+P" not in said()
-    assert "Lock all (Ctrl+Alt+L) so clicks go" in said()  # Over a game
-    assert "Press Ctrl+Alt+H" in said()
+    assert keys("Ctrl+Alt+P") not in said()
+    assert keys("Lock all (Ctrl+Alt+L) so clicks go") in said()  # Over a game
+    assert keys("Press Ctrl+Alt+H") in said()
     every = {t for p in Problem for t in help_page.problem(p, "Video Player", ())}
     every |= {t for pair in help_page.set_up(()) for t in pair}
-    assert not any("Ctrl+Alt" in text for text in every)
+    assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in every)
     page.close()
     page.deleteLater()
+
+
+def test_dictation_key_on_a_mac(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 429: on a Mac the key is named as its menus write it
+    (Qt's Ctrl is Command, its Meta Control: "right_ctrl" is Right ⌘), the
+    box reads a Mac's key codes (Tab is 0x30, which is "0" on Windows), and
+    a refusal names a Mac's keys."""
+    monkeypatch.setattr(os_words, "on_a_mac", lambda: True)
+    assert key_words("right_ctrl") == "Right ⌘"
+    assert key_words("ctrl+win+d") == "⌃⌘D"
+    assert key_words("ctrl+alt+shift+f9") == "⌥⇧⌘F9"
+    page, _keys = settings_page()
+    page.show_section("dictation")
+    page.show()
+    settle()
+    assert page.dictation_key.text() == "Right ⌘"
+    page.show_dictation(True, "f9", None, False)  # so Right ⌘ is a change
+    wanted: list[str] = []
+    page.dictation_key_wanted.connect(wanted.append)
+    box = page.dictation_key
+
+    def down(key: Qt.Key, vk: int) -> None:
+        QApplication.sendEvent(box, key_event(QEvent.Type.KeyPress, key, 0, vk))
+
+    def up(key: Qt.Key, vk: int) -> None:
+        QApplication.sendEvent(box, key_event(QEvent.Type.KeyRelease, key, 0, vk))
+
+    box.click()  # Right Command alone
+    down(Qt.Key.Key_Control, 0x36)
+    up(Qt.Key.Key_Control, 0x36)
+    assert wanted == ["right_ctrl"]
+    box.click()  # Control + Command + D
+    down(Qt.Key.Key_Meta, 0x3B)
+    down(Qt.Key.Key_Control, 0x37)
+    down(Qt.Key.Key_D, 0x02)
+    assert wanted[-1] == "ctrl+win+d"
+    up(Qt.Key.Key_D, 0x02)
+    up(Qt.Key.Key_Control, 0x37)
+    up(Qt.Key.Key_Meta, 0x3B)
+    box.click()  # Left Command alone: refused, said with a Mac's keys
+    down(Qt.Key.Key_Control, 0x37)
+    up(Qt.Key.Key_Control, 0x37)
+    assert page.dictation_key_note.text() == (
+        "On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key."
+    )
+    box.click()  # Tab: a key that types, not the digit 0
+    press(box, Qt.Key.Key_Tab, 0, 0x30)
+    assert page.dictation_key_note.text() == (
+        "That key types. Hold it with ⌘ or ⌃, or choose another."
+    )
+    assert wanted == ["right_ctrl", "ctrl+win+d"]
+    # ⌃⌘L, the Mac's Lock hotkey (polyglotic-hq 428, 438): one of the app's
+    # own - not "another program has it" once the OS refuses it
+    box.click()
+    down(Qt.Key.Key_Meta, 0x3B)
+    down(Qt.Key.Key_Control, 0x37)
+    down(Qt.Key.Key_L, 0x25)
+    assert page.dictation_key_note.text() == (
+        "That's one of Polyglotic's own hotkeys: choose another."
+    )
+    assert wanted == ["right_ctrl", "ctrl+win+d"]
+    up(Qt.Key.Key_L, 0x25)
+    up(Qt.Key.Key_Control, 0x37)
+    up(Qt.Key.Key_Meta, 0x3B)
+    # ⌥⌘L is Windows' combination, not the Mac's hotkey: free to take
+    box.click()
+    down(Qt.Key.Key_Alt, 0x3A)
+    down(Qt.Key.Key_Control, 0x37)
+    down(Qt.Key.Key_L, 0x25)
+    assert wanted[-1] == "ctrl+alt+l"
+    up(Qt.Key.Key_L, 0x25)
+    up(Qt.Key.Key_Control, 0x37)
+    up(Qt.Key.Key_Alt, 0x3A)
+    page.close()

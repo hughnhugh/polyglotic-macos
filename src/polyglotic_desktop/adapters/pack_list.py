@@ -35,9 +35,12 @@ from nacl.signing import VerifyKey
 from polyglotic_desktop.adapters.signed_feed import FeedNotTrusted, fetch, verify
 from polyglotic_desktop.core.lexicon.packs import (
     LIST_FORMAT,
+    BuiltIn,
     PackListError,
     PackOffer,
+    Rider,
     list_serial,
+    read_built_in,
     read_pack_list,
 )
 
@@ -111,12 +114,15 @@ class PackList:
         self._keys = keys
         self._kept = kept
         self._get = get
+        self.built_in: tuple[BuiltIn, ...] = ()
+        """The built-in dictionaries' riders (decision 0197) of the list
+        last fetched or kept (`fetch`, `kept`)."""
 
     @property
     def address(self) -> str:
         return self.base + FOLDER + LIST_NAME
 
-    def file_address(self, offer: PackOffer) -> str:
+    def file_address(self, offer: PackOffer | Rider) -> str:
         """Where `offer`'s download is - its file, gzipped (a plain name: the
         list's reader refused any other), on the list's own host."""
         return self.base + FILES + offer.download
@@ -127,7 +133,7 @@ class PackList:
         (the kept copy stays as it was), and the fetch's own OSError if it
         can't be fetched."""
         whole = self._get(self.address)
-        offers, serial = self._checked(whole)
+        offers, serial, built_in = self._checked(whole)
         kept = self._kept_serial()
         if kept is not None and serial < kept:
             raise PackListNotTrusted("the list is older than the one kept")
@@ -135,13 +141,17 @@ class PackList:
         part = self._kept / (LIST_NAME + ".part")
         part.write_bytes(whole)
         part.replace(self._kept / LIST_NAME)  # one file, one rename: never half
+        self.built_in = built_in
         return offers
 
     def kept(self) -> tuple[PackOffer, ...] | None:
         """The list as last fetched, checked again - None if there's none,
         or it doesn't pass now (a key retired since, a file changed)."""
         try:
-            return self._checked((self._kept / LIST_NAME).read_bytes())[0]
+            offers, _, self.built_in = self._checked(
+                (self._kept / LIST_NAME).read_bytes()
+            )
+            return offers
         except (OSError, PackListNotTrusted) as e:
             if not isinstance(e, FileNotFoundError):
                 log.info("kept packs list not used (%s)", type(e).__name__)
@@ -153,7 +163,9 @@ class PackList:
         except (OSError, PackListNotTrusted):
             return None
 
-    def _checked(self, whole: bytes) -> tuple[tuple[PackOffer, ...], int]:
+    def _checked(
+        self, whole: bytes
+    ) -> tuple[tuple[PackOffer, ...], int, tuple[BuiltIn, ...]]:
         if len(whole) > LIST_BYTES_MAX:
             raise PackListNotTrusted("the list is too big")
         signature, data = split_signed_list(whole)
@@ -169,4 +181,4 @@ class PackList:
             raise PackListNotTrusted(str(e)) from None
         if left_out:
             log.warning("packs list: %d entries can't be read, left out", left_out)
-        return offers, serial
+        return offers, serial, read_built_in(data)

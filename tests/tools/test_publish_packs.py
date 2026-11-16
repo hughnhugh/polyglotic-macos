@@ -234,7 +234,7 @@ def test_only_a_missing_live_list_starts_a_new_one() -> None:
 
         return get
 
-    assert publish_packs.previous_list(None, failing(404)) == ((), 0)
+    assert publish_packs.previous_list(None, failing(404)) == ((), 0, ())
     with pytest.raises(SystemExit):
         publish_packs.previous_list(None, failing(503))
 

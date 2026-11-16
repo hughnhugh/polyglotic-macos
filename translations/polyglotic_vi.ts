@@ -1166,6 +1166,18 @@
     <name>DictationKey</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right {key}</source>
+        <extracomment>a modifier key on the right of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} phải</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left {key}</source>
+        <extracomment>a modifier key on the left of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">{key} trái</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Ctrl</source>
         <translation type="unfinished">Ctrl</translation>
     </message>
@@ -1327,6 +1339,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That key types. Hold it with ⌘ or ⌃, or choose another.</source>
+        <translation type="unfinished">Phím đó gõ chữ. Giữ nó cùng ⌘ hoặc ⌃, hoặc chọn phím khác.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Esc cancels dictation: choose another key.</source>
         <translation type="unfinished">Esc dùng để hủy nhập giọng nói: hãy chọn phím khác.</translation>
     </message>
@@ -1337,8 +1354,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>macOS keeps that one for itself: choose another.</source>
+        <translation type="unfinished">macOS giữ phím đó cho riêng mình: chọn phím khác.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Every program uses that one (copy, paste…): add Alt or Shift to it.</source>
         <translation type="unfinished">Mọi chương trình đều dùng phím đó (sao chép, dán…): thêm Alt hoặc Shift.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Every app uses that one (copy, paste…): add ⌥ or ⇧ to it.</source>
+        <translation type="unfinished">Ứng dụng nào cũng dùng phím đó (sao chép, dán…): thêm ⌥ hoặc ⇧.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1347,8 +1374,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key.</source>
+        <translation type="unfinished">Khi đứng một mình, chỉ ⌘ phải hoặc ⌃⌘ dùng được: giữ ⌘, ⌥ hoặc ⇧ cùng một phím.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Letting go of Alt opens a program&apos;s menu, and your words would go there: hold Ctrl with it too.</source>
         <translation type="unfinished">Nhả Alt sẽ mở menu của chương trình và lời của bạn sẽ vào đó: giữ thêm Ctrl.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>⌥ with a key types a character of its own: hold ⌘ with it too.</source>
+        <translation type="unfinished">⌥ cùng một phím gõ ra ký tự riêng: giữ thêm ⌘.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1417,6 +1454,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">Không gõ được ở đây</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not allowed to type - see Settings &gt; Dictation</source>
+        <translation type="unfinished">Không được phép gõ - xem Cài đặt &gt; Nhập bằng giọng nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2976,13 +3018,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">Mở Polyglotic khi đăng nhập?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Khởi động cùng Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">Mở khi đăng nhập</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Ứng dụng chờ ở khay hệ thống, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Ứng dụng khởi động của Windows.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">Ứng dụng mở khi bạn đăng nhập, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Mục đăng nhập của Cài đặt hệ thống.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3780,6 +3837,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Những từ thông dụng nhất đã được thu âm ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Your level</source>
         <translation type="unfinished">Trình độ của bạn</translation>
     </message>
@@ -4234,6 +4296,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Từ điển: cần tải {size}, sau đó {recorded} từ đã thu âm.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Its dictionary: {size} to download.</source>
         <translation type="unfinished">Từ điển: cần tải {size}.</translation>
     </message>
@@ -4672,6 +4739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Máy Mac này chưa có giọng {language}. macOS thêm miễn phí: Cài đặt hệ thống &gt; Trợ năng &gt; Nội dung được đọc &gt; Giọng nói hệ thống &gt; Quản lý giọng nói, rồi chọn {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Mở cài đặt giọng nói</translation>
     </message>
@@ -4767,6 +4839,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Máy Mac này không có giọng {language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Dừng (R)</translation>
     </message>
@@ -4829,6 +4906,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Mở Cài đặt của Windows, nơi thêm giọng đọc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">Mở Cài đặt hệ thống, nơi thêm giọng nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4918,6 +5000,44 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">Phụ đề tạm dừng lúc {start} để bảo trì theo kế hoạch, đến {end}</translation>
+    </message>
+</context>
+<context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Chuyển Polyglotic vào Ứng dụng?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic được mở từ bên ngoài thư mục Ứng dụng, có lẽ từ Tải về, nên máy Mac chạy nó từ một bản sao tạm thời. Từ đó, nó không thể tự cập nhật.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">Để tự làm: thoát Polyglotic, kéo nó vào Ứng dụng trong Finder, rồi mở nó từ đó.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">Chuyển vào Ứng dụng</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">Để sau</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic không thể tự chuyển vào Ứng dụng.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">Sau khi chuyển, Polyglotic sẽ mở lại từ Ứng dụng.</translation>
     </message>
 </context>
 <context>
@@ -6050,6 +6170,17 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">Tiếng Anh ra dạng colour, centre và organise.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
+        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
+        <translation type="unfinished">Polyglotic không được phép gõ vào ứng dụng khác, nên những gì bạn nói không được gõ. Trong Cài đặt hệ thống, mở &quot;Quyền riêng tư &amp; Bảo mật&quot;, rồi &quot;Trợ năng&quot;, và bật Polyglotic.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Open System Settings</source>
+        <translation type="unfinished">Mở Cài đặt hệ thống</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

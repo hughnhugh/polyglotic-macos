@@ -102,7 +102,7 @@ import threading
 import time
 import traceback
 import uuid
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
@@ -200,11 +200,14 @@ from polyglotic_desktop.core.lexicon.meanings import short_meaning
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem
 from polyglotic_desktop.core.lexicon.pack_download import Step as PackStep
 from polyglotic_desktop.core.lexicon.packs import (
+    BuiltIn,
     InstalledPack,
     PackOffer,
     Reader,
+    Rider,
     best_offer,
     needs_newer_app,
+    riders_wanted,
     update_for,
 )
 from polyglotic_desktop.core.lexicon.vietnamese import VietnameseSplit
@@ -291,6 +294,7 @@ from polyglotic_desktop.core.shared import (
     WordStatus,
 )
 from polyglotic_desktop.perf import start_parts
+from polyglotic_desktop.perf.turns import short_turns
 from polyglotic_desktop.perf.watchdog import Watchdog
 from polyglotic_desktop.platform.sample import SampleCapture, SoundOut, sample_file
 from polyglotic_desktop.ports.capture import (
@@ -326,11 +330,19 @@ from polyglotic_desktop.ports.system import (
     OsVersion,
     StorePackage,
     TaskbarIdentity,
+    Translocation,
     TypeText,
+    TypingPermission,
 )
 from polyglotic_desktop.ports.updates import Update
 from polyglotic_desktop.ports.word_split import WordSplit
-from polyglotic_desktop.ui import icons, interface_language, one_copy, theme
+from polyglotic_desktop.ui import (
+    icons,
+    interface_language,
+    move_to_applications,
+    one_copy,
+    theme,
+)
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
 from polyglotic_desktop.ui.consent import ConsentDialog, agreement_needed
@@ -387,6 +399,7 @@ from polyglotic_desktop.ui_next.home import WHATS_NEW_ON_HOME, HomePage, hotkey_
 from polyglotic_desktop.ui_next.languages import (
     learned_name,
     own_targets,
+    show_mandarin_in_traditional,
     taken_off_note,
 )
 from polyglotic_desktop.ui_next.learning_page import LearningPage, reset_question
@@ -448,6 +461,7 @@ from polyglotic_desktop.ui_next.word_speech import WordSpeech
 from polyglotic_desktop.ui_next.words_page import OpenLanguages, WordsPage
 
 if TYPE_CHECKING:  # imported where first used, after the window's first paint
+    from polyglotic_desktop.adapters.audio_file import SqliteAudio
     from polyglotic_desktop.adapters.pack_downloads import PackDeliveries
     from polyglotic_desktop.connection import protocol
     from polyglotic_desktop.connection.client import Connection
@@ -458,6 +472,7 @@ if TYPE_CHECKING:  # imported where first used, after the window's first paint
     from polyglotic_desktop.connection.sign_in import RedeemResult
     from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
     from polyglotic_desktop.platform.audio_buffer import AudioBuffer
+    from polyglotic_desktop.platform.recorded_voices import Recordings
     from polyglotic_desktop.platform.speaking import SpeakerThread
     from polyglotic_desktop.platform.speech_detection import Audio
     from polyglotic_desktop.platform.speech_pipeline import SpeechPipeline
@@ -476,6 +491,27 @@ CAPTION_LOG_BYTES, CAPTION_LOG_FILES = 2_000_000, 4
 busy listening (ids, sizes and times; never caption text)."""
 
 CRASH_NOTE = "crashed.json"  # an error nothing caught, for the next start
+
+
+def moved_to_applications(
+    place: Translocation | None,
+    settings: Settings,
+    offer: Callable[[Translocation], Path | None] = move_to_applications.offer,
+) -> bool:
+    """On a Mac run from macOS's temporary copy (App Translocation), where
+    Velopack can't update it: "Move Polyglotic to Applications?", asked once
+    whatever the answer (decision 0205). True when it moved and opens again
+    from there once this copy ends - `main` ends it."""
+    if place is None or settings.value.applications_offered or not place.translocated():
+        return False
+    log.info("run from macOS's temporary copy: offering to move to Applications")
+    settings.update(applications_offered=True)
+    moved = offer(place)
+    if moved is None:
+        return False
+    place.reopen(moved)
+    log.info("moved to Applications: opening it there")
+    return True
 
 
 def installed() -> bool:
@@ -627,7 +663,7 @@ def updater(feed: str) -> VelopackUpdater:
     """The installer's updates from `feed`, checked against `FEED_KEYS` when
     it's the built-in feed and they're set. Checked packages are kept beside
     `current` in the install folder (Velopack's place for files that may go
-    with an uninstall)."""
+    with an uninstall) - on a Mac, outside the app (`verified_feed_folder`)."""
     release = this_release()
     signed = feed == UPDATES and bool(FEED_KEYS)
     return VelopackUpdater(
@@ -635,9 +671,32 @@ def updater(feed: str) -> VelopackUpdater:
         FEED_KEYS if signed else (),
         release.channel,
         release.version,
-        Path(sys.executable).parent.parent / "verified-feed",
+        verified_feed_folder(),
         open_url=_open_url,
     )
+
+
+def verified_feed_folder(
+    executable: str | Path | None = None, home: Path | None = None
+) -> Path:
+    """Where the signed feed and its checked package wait for Velopack
+    (decision 0019): beside `current` in Velopack's install folder on
+    Windows (`%LOCALAPPDATA%/Polyglotic/verified-feed`); on a Mac, in
+    `~/Library/Caches/Polyglotic/verified-feed` - never inside the app
+    bundle, whose signature seals everything in it, so a file written there
+    would break the signature macOS keeps the learner's permissions under
+    (polyglotic-hq 430, decision 0196). `executable`: the packed app's
+    (`sys.executable` unless given)."""
+    path = Path(executable if executable is not None else sys.executable)
+    if path.parent.name == "MacOS" and path.parent.parent.name == "Contents":
+        return (
+            (home or Path.home())
+            / "Library"
+            / "Caches"
+            / "Polyglotic"
+            / "verified-feed"
+        )
+    return path.parent.parent / "verified-feed"
 
 
 def pack_storage(
@@ -705,13 +764,15 @@ class OsAdapters:
     hotkeys: Callable[[Mapping[str, Callable[[], None]]], Hotkeys]
     sound_out: Callable[[], SoundOut]
     """Plays the sample aloud (176)."""
-    speaker: Callable[[], SpeakerThread] | None
+    speaker: Callable[[Recordings], SpeakerThread] | None
     """Says a looked-up word aloud in one of the OS's own voices (polyglotic-hq
-    286, decision 0077): the `Speaker` port on a thread of its own. None
-    where the OS has none yet (macOS, 409): the word card offers no voice."""
+    286, decision 0077) - or the word's recording where a pack has one
+    (decision 0133): the `Speaker` port on a thread of its own. None where
+    the OS has none: the word card offers no voice, recorded words
+    included."""
     start_at_sign_in: Callable[[str], StartWithWindows] | None
     """The app, at this executable, starting when the learner signs in (176).
-    None where the OS has none yet (macOS, 409): Home never offers it."""
+    None where the OS has none: Home never offers it."""
     copy_lock: Callable[[str], CopyLock]
     """The lock the one copy for this name holds (polyglotic-hq 310)."""
     let_to_front: LetToFront
@@ -743,6 +804,9 @@ class OsAdapters:
     what to call when it goes down, comes up, and is part of a shortcut."""
     type_text: TypeText
     keyboard_window: KeyboardWindow
+    typing_permission: TypingPermission | None = None
+    """The OS's leave to type, where it asks for one: a Mac's Accessibility
+    (polyglotic-hq 438). None on Windows, which asks none."""
     common_apps: tuple[CommonApp, ...] = ()
     """Browsers and the main apps a caption window lists before they play."""
     sound_devices: Callable[[], SoundDevices] = SoundDevices
@@ -751,6 +815,10 @@ class OsAdapters:
     """Whether the OS calls the connection metered: a dictionary pack's
     download asks first on one (decision 0122), and an update found waits
     for the learner (polyglotic-hq 345)."""
+    translocation: Callable[[], Translocation] | None = None
+    """Whether macOS runs the app from a temporary copy it can't update
+    itself in, and the move to Applications (polyglotic-hq 433). None where
+    an OS has no such thing (Windows)."""
 
 
 def os_adapters(system: str = sys.platform) -> OsAdapters:
@@ -788,12 +856,15 @@ def os_adapters(system: str = sys.platform) -> OsAdapters:
     from polyglotic_desktop.platform.windows import one_copy as copies
     from polyglotic_desktop.platform.windows import system as windows
 
-    def speaker() -> SpeakerThread:
-        """Windows' voices, imported only now: never on the start's path."""
+    def speaker(recordings: Recordings) -> SpeakerThread:
+        """Windows' voices, imported only now: never on the start's path -
+        and before them the words recorded for a language (decision 0133)."""
+        from polyglotic_desktop.platform.recorded_voices import RecordedVoices
         from polyglotic_desktop.platform.speaking import SpeakerThread
         from polyglotic_desktop.platform.windows import voices
 
-        return SpeakerThread(voices.WindowsVoices(), voices.WaveOut)
+        said = RecordedVoices(voices.WindowsVoices(), recordings)
+        return SpeakerThread(said, voices.WaveOut)
 
     def credentials(target: str | None) -> CredentialStore:
         store = windows_credentials.WindowsCredentialStore
@@ -846,23 +917,56 @@ def os_adapters(system: str = sys.platform) -> OsAdapters:
 
 
 def macos_adapters() -> OsAdapters:
-    """The Mac's (polyglotic-hq 409, 411): its own system, Keychain and one
-    copy; its capture - Core Audio taps and the mic - with the apps playing,
-    the sound devices and the known apps; and what the first Mac build
-    doesn't have yet saying so through its port (`platform/macos/not_yet`)."""
+    """The Mac's (polyglotic-hq 409, 411, 428, 429): its own system, Keychain
+    and one copy; its capture - Core Audio taps and the mic - with the apps
+    playing, the sound devices and the known apps; its hotkeys (Carbon),
+    voices (AVFoundation) and login item (ServiceManagement); the caption
+    windows over full-screen apps and every Space; dictation's key and its
+    words typed; Esc and clicks elsewhere, read (`keys`); and what the Mac
+    build doesn't have yet saying so through its port
+    (`platform/macos/not_yet`)."""
     from polyglotic_desktop.platform.macos import (
         apps,
         capture,
         categories,
         devices,
+        hold_key,
+        hotkeys,
         keychain,
+        keys,
         not_yet,
+        on_top,
         one_copy,
+        startup,
+        text_input,
+        translocation,
     )
     from polyglotic_desktop.platform.macos import system as mac
 
+    def speaker(recordings: Recordings) -> SpeakerThread:
+        """macOS's voices, imported only now: never on the start's path -
+        and before them the words recorded for a language (decision 0133)."""
+        from polyglotic_desktop.platform.macos import voices
+        from polyglotic_desktop.platform.recorded_voices import RecordedVoices
+        from polyglotic_desktop.platform.speaking import SpeakerThread
+
+        said = RecordedVoices(voices.MacVoices(), recordings)
+        return SpeakerThread(said, voices.AudioPlayer)
+
     def credentials(service: str | None) -> CredentialStore:
         return keychain.KeychainStore(service) if service else keychain.KeychainStore()
+
+    def dictation_key(
+        key: str,
+        on_down: Callable[[], None],
+        on_up: Callable[[], None],
+        on_other: Callable[[], None],
+    ) -> HoldKey:
+        """Dictation's key - and, the first time it's taken during a run
+        without the Accessibility permission its words are typed with,
+        macOS's box asking for it (polyglotic-hq 429)."""
+        text_input.allowed()
+        return hold_key.MacHoldKey(key, on_down, on_up, on_other)
 
     return OsAdapters(
         app_list=apps.MacAppList,
@@ -875,15 +979,15 @@ def macos_adapters() -> OsAdapters:
         mic_capture=capture.MicCapture,
         outputs_playing=devices.outputs_playing,
         credentials=credentials,
-        hotkeys=not_yet.NoHotkeys,
+        hotkeys=hotkeys.MacHotkeys,
         sound_out=not_yet.NoSound,
-        speaker=None,
-        start_at_sign_in=None,
+        speaker=speaker,
+        start_at_sign_in=startup.LoginItem,
         copy_lock=one_copy.FileLock,
         let_to_front=one_copy.let_to_front,
-        keys=not_yet.held,
-        on_top=not_yet.QtOnTop,
-        foreground_watch=not_yet.NoForegroundWatch,
+        keys=keys.MacKeys(),
+        on_top=on_top.MacOnTop,
+        foreground_watch=on_top.FrontWatch,
         light_taskbar=mac.light_menu_bar,
         taskbar_identity=not_yet.same_name,
         store_package=not_yet.none_found,
@@ -894,12 +998,14 @@ def macos_adapters() -> OsAdapters:
         seconds_since_launch=mac.seconds_since_launch,
         read_fonts=not_yet.not_done,
         make_native_window=not_yet.not_made,
-        hold_key=not_yet.NoHoldKey,
-        type_text=not_yet.type_text,
-        keyboard_window=not_yet.keyboard_window,
+        hold_key=dictation_key,
+        type_text=text_input.type_text,
+        keyboard_window=text_input.keyboard_window,
+        typing_permission=text_input.Permission(),
         metered=not_yet.not_metered,
         common_apps=categories.COMMON_APPS,
         sound_devices=devices.sound_devices,
+        translocation=translocation.MacTranslocation,
     )
 
 
@@ -1433,48 +1539,91 @@ class MandarinScript:
     0164): each caption's Mandarin - what was said and translations into
     Chinese - converted on this PC as it arrives, before the
     caption windows, the transcript or a lookup see it - so what's shown,
-    copied, looked up and kept is one text. The converter's table (1 MB)
-    is read the first time a caption needs it, on the session's thread;
-    then the Chinese dictionary is told the forms it writes
-    (`ChineseDictionary.read_traditional`), so a converted line splits and
-    counts its words as before. `chinese`: the Chinese dictionary open now,
-    if any (one can open later: a language learned beside)."""
+    copied, looked up and kept is one text. The Chinese dictionary is told
+    the forms the converter writes (`ChineseDictionary.read_traditional`)
+    while Traditional is shown - from the start, or from when it's switched
+    on, not from the first caption: a card opened from Words before any
+    caption finds and plays them too - and told none once it's switched off,
+    so it reads as a Simplified learner's again (polyglotic-hq 442).
+    `chinese`: the Chinese dictionary open now, if any (one can open later:
+    a language learned beside - `follow` then)."""
 
     def __init__(self, chinese: Callable[[], ChineseDictionary | None]) -> None:
         self._chinese = chinese
-        self.traditional = False
-        """Wanted now: set on the interface thread, read on the session's."""
+        self._traditional = False
         self.seconds: Mapping[Language, Language] = {}
         """Each target's second language (the settings' `second_languages`),
         so a second-language line in Chinese is written as Mandarin too
         (polyglotic-hq 432): set whole on the interface thread."""
         self._converter: TraditionalChinese | None = None
+        self._forms: dict[str, str] = {}
+        """The converter's `simplified_of`, worked out once (40 ms)."""
         self._told: ChineseDictionary | None = None
         self._loading = threading.Lock()
+        self._telling = threading.Lock()
+
+    @property
+    def traditional(self) -> bool:
+        """Wanted now: set on the interface thread, read on the session's."""
+        return self._traditional
+
+    @traditional.setter
+    def traditional(self, wanted: bool) -> None:
+        self._traditional = wanted
+        self.follow()
+
+    def follow(self) -> None:
+        """The open Chinese dictionary told the converter's forms if
+        Traditional is wanted, or none if not. The converter's table (1 MB,
+        about 0.1 s) is read on a thread of its own the first time: never on
+        the interface thread, and never before the first paint (400)."""
+        if self._traditional and self._converter is None:
+            threading.Thread(
+                target=self._read_and_tell, name="traditional", daemon=True
+            ).start()
+        else:
+            self._tell()
 
     def caption(self, update: CaptionUpdate) -> CaptionUpdate:
         """`update` as the learner reads Mandarin."""
-        if not self.traditional:
+        if not self._traditional:
             return update
-        converter = self._converter
-        if converter is None:
-            with self._loading:
-                if self._converter is None:
-                    # imported here: never before the first paint (400)
-                    from polyglotic_desktop.adapters.traditional_table import (
-                        read_table,
-                    )
-                    from polyglotic_desktop.core.lexicon.traditional import (
-                        TraditionalChinese,
-                    )
-
-                    self._converter = TraditionalChinese(read_table())
-                converter = self._converter
-        dictionary = self._chinese()
-        if dictionary is not None and dictionary is not self._told:
-            dictionary.read_traditional(converter.simplified_of())
-            self._told = dictionary
+        converter = self._read()
+        self._tell()  # a dictionary opened since
         return mandarin_written(update, converter.convert, self.seconds)
+
+    def _read_and_tell(self) -> None:
+        self._read()
+        self._tell()
+
+    def _read(self) -> TraditionalChinese:
+        """The converter, its table read now if not yet - once, whichever
+        thread asks first."""
+        with self._loading:
+            if self._converter is None:
+                # imported here: never before the first paint (400)
+                from polyglotic_desktop.adapters.traditional_table import read_table
+                from polyglotic_desktop.core.lexicon.traditional import (
+                    TraditionalChinese,
+                )
+
+                converter = TraditionalChinese(read_table())
+                self._forms = converter.simplified_of()
+                self._converter = converter
+            return self._converter
+
+    def _tell(self) -> None:
+        """The open dictionary told the forms or none, as wanted now (it may
+        have changed while the table was read): quick, from any thread."""
+        with self._telling:
+            dictionary = self._chinese()
+            if self._traditional and self._converter is not None:
+                if dictionary is not None and dictionary is not self._told:
+                    dictionary.read_traditional(self._forms)
+                    self._told = dictionary
+            elif not self._traditional and self._told is not None:
+                self._told.read_traditional({})
+                self._told = None
 
 
 def session_languages(
@@ -1521,7 +1670,7 @@ def not_working(
 
 def shortcut_text(action: QAction) -> str:
     """`action`'s hotkey as the OS writes it ("Ctrl+Alt+L"; on a Mac, where
-    Qt's Ctrl is Command, "⌥⌘L"); "" for none."""
+    Qt's Ctrl is Command and its Meta Control, "⌃⌘L"); "" for none."""
     return action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
 
 
@@ -2139,6 +2288,7 @@ class Hub:
                 value.choices_for,
                 delivery.line if delivery is not None else lambda _: None,
                 self._quick_marks_of,
+                delivery.recorded_line if delivery is not None else lambda _: (0, ""),
             ),
             value.word_introductions,
             running,
@@ -2310,6 +2460,10 @@ class Hub:
                     self.change_level(code)
                     break  # one question at a time
         packs = self.packs
+        if packs is not None and any(
+            not before.learns(code) for code in languages.all if code in packs.built_in
+        ):
+            packs.check_built_in()  # its recorded words, now (decision 0197)
         for code in before.all:
             removable = packs is not None and code in {
                 p.code
@@ -2764,6 +2918,12 @@ PAGES_STYLED_AFTER_START_MS = 1000
 """The main window's pages not on show get its stylesheet this long after
 the first paint, one a turn (`MainWindow.style_ahead`, decision 0158)."""
 PACK_UPDATES_AFTER_START_MS = 120_000
+BUILT_IN_RECORDED = {"zh": "cedict"}
+"""The dictionaries built into the app whose commonest words are recorded,
+by the language they're learned for: CC-CEDICT's (polyglotic-hq 424). They
+come as riders of their own (decision 0197), only to a learner of the
+language - not in the installer, which every learner downloads.
+"""
 PACK_UPDATES_EVERY_MS = 24 * 3600 * 1000
 """A newer version of a pack on this PC: looked for two minutes after the
 start, then once a day (decision 0122's bandwidth rule)."""
@@ -2811,7 +2971,12 @@ def pack_reader(version: str) -> Reader:
         for m in ("sudachipy", "sudachidict_small")
     ):
         splits.add("japanese")
-    return Reader(frozenset({DICTIONARY_FORMAT}), frozenset(splits), version)
+    from polyglotic_desktop.adapters import audio_file
+
+    riders = {(audio_file.KIND, audio_file.FORMAT)}  # decision 0133
+    return Reader(
+        frozenset({DICTIONARY_FORMAT}), frozenset(splits), version, frozenset(riders)
+    )
 
 
 def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDictionary]:
@@ -2845,8 +3010,12 @@ class PackDelivery(QObject):
     _progress = Signal(object)  # a PackProgress, from the downloads' thread
     _installed = Signal(object, object)  # a PackOffer and its path, from there
     _listed = Signal(object, object)  # the offers (or None) and why, from there
+    _rider = Signal(object, object, object)  # a pack's offer, its rider, its path
+    _warmed = Signal(object)  # a pack's dictionary, its split read, from its thread
     changed = Signal()
     """Learning's cards change: a pack in or out, or the list arrived."""
+    readied = Signal()
+    """A pack's word split has read its data (`ready`)."""
     line_changed = Signal(str)
     """A language's pack line changed: its row only (`line`)."""
     notice = Signal(str)
@@ -2864,8 +3033,22 @@ class PackDelivery(QObject):
         also: Sequence[Path] = (),
         open_url: Any = None,
         parent: QObject | None = None,
+        recordings: Recordings | None = None,
+        built_in: Mapping[str, str] | None = None,
+        built_in_folder: Path | None = None,
+        learning: Callable[[], Collection[str]] = tuple,
     ) -> None:
+        """`built_in`: each language whose dictionary is built into the
+        app, and its name (`{"zh": "cedict"}`), in `built_in_folder`: its
+        recorded words come as riders of their own (decision 0197), for a
+        language `learning` names (the languages learned now)."""
         super().__init__(parent)
+        self.recordings = recordings
+        """Where each open pack's recorded words go, for the speaker."""
+        self.built_in = dict(built_in or {})
+        self._built_in_folder = built_in_folder
+        self._learning = learning
+        self._recorded: dict[str, SqliteAudio] = {}  # each pack's audio file
         self.folder_path = folder
         self.also = tuple(also)
         self.basic = basic
@@ -2880,6 +3063,13 @@ class PackDelivery(QObject):
         self.here: dict[str, tuple[InstalledPack, Path]] = {}
         """The packs open for lookups, by language."""
         self._files: dict[str, SqliteDictionary] = {}  # each one's file, to close
+        self.ready: set[str] = set()
+        """The packs open whose word split has read its data, by language
+        (`readied`). A pack learner's learning data opens only then
+        (polyglotic-hq 436): the read - simplemma's Spanish about 0.4 s of
+        Python on its thread - beside that opening's work on this thread
+        took turns at the interpreter with it, and the interface froze
+        0.4-0.7 s."""
         self.offers: tuple[PackOffer, ...] | None = None
         self.list_problem: Problem | None = None
         """Why the last refresh couldn't read the list (None: it did, or none
@@ -2896,9 +3086,14 @@ class PackDelivery(QObject):
         self.on_learning: Callable[[], bool] = lambda: False
         """Whether the learner is looking at Learning (`main`): no notice then."""
         self._asked: set[str] = set()  # downloads the learner asked for, this run
+        self._warm_lock = threading.Lock()
+        self._to_warm: list[BasicDictionary] = []  # packs whose split reads next
+        self._warmer: threading.Thread | None = None  # the thread reading them
         self._progress.connect(self._step)
         self._installed.connect(self._in)
         self._listed.connect(self._list)
+        self._rider.connect(self._rider_in)
+        self._warmed.connect(self._ready)
 
     # -- the start --------------------------------------------------------------
 
@@ -2924,6 +3119,8 @@ class PackDelivery(QObject):
         removed = folder.remove(folder.outdated())
         if removed:
             log.info("dictionary packs: %d bytes of older versions deleted", removed)
+        for language in self.built_in:  # a built-in dictionary's recorded words
+            self.record(language)
         packs = PackList(
             self._address,
             public_keys(self._keys),
@@ -2937,6 +3134,7 @@ class PackDelivery(QObject):
             self._progress.emit,
             self._installed.emit,
             self._listed.emit,
+            self._rider.emit,
             metered=self._metered,
             open_url=self._open_url,
         )
@@ -2993,10 +3191,22 @@ class PackDelivery(QObject):
         """A newer version of each pack on this PC, fetched quietly - only on
         a connection Windows doesn't call metered; on one, Learning offers
         Get it now (decision 0122)."""
-        if self.deliveries is None or not self.here:
+        if self.deliveries is None:
             return
         for language, (pack, _) in sorted(self.here.items()):
             self.deliveries.want(language, pack.meanings, update=True)
+        self.check_built_in()
+
+    def check_built_in(self) -> None:
+        """The recorded words of each built-in dictionary learned now
+        (decision 0197), fetched quietly if the list has newer ones than
+        this PC: as a pack's update, never on a metered connection."""
+        if self.deliveries is None:
+            return
+        learned = set(self._learning())
+        for language, dictionary in sorted(self.built_in.items()):
+            if language in learned:
+                self.deliveries.want(language, "", built_in=dictionary)
 
     # -- what Learning shows ------------------------------------------------------
 
@@ -3025,6 +3235,16 @@ class PackDelivery(QObject):
         )
         return PackLine(
             size=offer.gz_size if offer is not None else 0,  # what comes down
+            # and then its recorded words, if this app plays them (0192)
+            recorded_offered=(
+                sum(
+                    rider.gz_size
+                    for rider in riders_wanted(offer, self.reader)
+                    if rider.kind == "audio"
+                )
+                if offer is not None
+                else 0
+            ),
             installed_version=here[0].version if here is not None else "",
             installed_size=here[0].size if here is not None else 0,
             progress=progress,
@@ -3032,7 +3252,8 @@ class PackDelivery(QObject):
             update_size=(
                 update.gz_size if update is not None and self._metered() else 0
             ),
-            credits=offer.credits if offer is not None else "",
+            credits=self._credits(code, offer),
+            recorded_size=self._recorded_size(code),
             # no list held, and the last try couldn't read one: unknown
             unlisted=(
                 self.offers is None
@@ -3053,7 +3274,8 @@ class PackDelivery(QObject):
 
     def installed_lines(self) -> list[InstalledPackLine]:
         return [
-            InstalledPackLine(code, pack.version, pack.size)
+            # its recorded words go with it (decision 0192): their space too
+            InstalledPackLine(code, pack.version, pack.size + self._recorded_size(code))
             for code, (pack, path) in sorted(self.here.items())
             if path.parent == self.folder_path  # the installer's own can't go
         ]
@@ -3083,11 +3305,18 @@ class PackDelivery(QObject):
             return
         held = self.here.pop(code, None)
         self.basic.pop(code, None)
+        self.ready.discard(code)
         file = self._files.pop(code, None)
         if file is not None:
             file.close()
+        if self.recordings is not None:  # the speaker's first, then the file
+            self.recordings.use(code, "", "", None)
+        recorded = self._recorded.pop(code, None)
+        if recorded is not None:
+            recorded.close()
         if held is not None and self.deliveries is not None:
-            freed = self.deliveries.folder.remove([held[1]])
+            folder = self.deliveries.folder
+            freed = folder.remove([held[1], *folder.riders(held[0].dictionary)])
             log.info("dictionary pack %s: removed, %d bytes freed", code, freed)
         self.progress.pop(code, None)
         self.changed.emit()
@@ -3168,22 +3397,140 @@ class PackDelivery(QObject):
         self._files[pack.language] = file
         self.here[pack.language] = (pack, path)
         if old is not None:  # a lookup on another thread finishes on it first
-            QTimer.singleShot(PACK_OLD_CLOSED_AFTER_MS, old.close)
-        threading.Thread(  # its word split reads its data, off this thread
-            target=dictionary.words, args=("a",), name="pack warm", daemon=True
-        ).start()
+            # a lambda, not `old.close`: PySide drops a timer's bound method
+            # once nothing else holds its object, so the old file was never
+            # closed, and Windows couldn't delete it (polyglotic-hq 441)
+            QTimer.singleShot(PACK_OLD_CLOSED_AFTER_MS, lambda f=old: f.close())
+        self.record(pack.language)
+        self.ready.discard(pack.language)  # this one's split hasn't read yet
+        self._warm(dictionary)
+
+    def _warm(self, dictionary: BasicDictionary) -> None:
+        """Its word split reads its data, off this thread: on one thread for
+        every pack, one after another - each in short turns at the
+        interpreter (decision 0207), which many reading at once would spend
+        on handing it round (polyglotic-hq 436: 50 packs, 12 s became 100)."""
+        with self._warm_lock:
+            self._to_warm.append(dictionary)
+            if self._warmer is not None:
+                return  # it reads this one after those before it
+            self._warmer = threading.Thread(
+                target=self._warm_each, name="pack warm", daemon=True
+            )
+            self._warmer.start()
+
+    def _warm_each(self) -> None:
+        while True:
+            with self._warm_lock:
+                if not self._to_warm:
+                    self._warmer = None
+                    return
+                dictionary = self._to_warm.pop(0)
+            try:
+                with short_turns():  # the interface's turns kept short (436)
+                    dictionary.words("a")
+            except Exception as e:  # noqa: BLE001 - the next pack still reads
+                log.warning(
+                    "a pack's word split couldn't read: %s", type(e).__name__
+                )  # type only
+            finally:  # failed too: its learner isn't left waiting
+                self._warmed.emit(dictionary)
+
+    @Slot(object)
+    def _ready(self, dictionary: BasicDictionary) -> None:
+        """A pack's word split has read its data: `ready`, if it's still
+        the one open for its language."""
+        language = next((c for c, d in self.basic.items() if d is dictionary), None)
+        if language is not None and language not in self.ready:
+            self.ready.add(language)
+            self.readied.emit()
+
+    @Slot(object, object, object)
+    def _rider_in(self, offer: PackOffer | BuiltIn, rider: Rider, path: Path) -> None:
+        """A pack's recordings arrived: said from the next click on the
+        card's speaker, and the file they replace deleted once it's closed."""
+        self.record(offer.language)
+        self.changed.emit()  # Learning says the pack's words are recorded
+        if self.deliveries is not None:
+            folder = self.deliveries.folder
+            QTimer.singleShot(
+                2 * PACK_OLD_CLOSED_AFTER_MS,
+                lambda: folder.remove(folder.outdated_riders()),
+            )
+
+    def _recorded_size(self, code: str) -> int:
+        recorded = self._recorded.get(code)
+        return recorded.size if recorded is not None else 0
+
+    def _credits(self, code: str, offer: PackOffer | None) -> str:
+        """The pack's credits from the list, and its recorded words' from
+        their file: who said them, under what licence (SIWIS's CC BY asks
+        for its authors and licence where French is heard)."""
+        lines = [offer.credits] if offer is not None and offer.credits else []
+        recorded = self._recorded.get(code)
+        if recorded is not None:
+            said = (recorded.info.get("voice", ""), recorded.info.get("licence", ""))
+            lines.append("; ".join(part for part in said if part))
+        return "\n".join(line for line in lines if line)
+
+    def recorded_line(self, code: str) -> tuple[int, str]:
+        """A built-in dictionary's recorded words on this PC, as its card
+        says them: the file's size (0: none), and who said them."""
+        if code not in self.built_in:
+            return 0, ""
+        return self._recorded_size(code), self._credits(code, None)
+
+    def record(self, language: str) -> None:
+        """`language`'s recorded words from its open pack's audio file - or
+        its built-in dictionary's (decision 0197) - if one is on this PC
+        (decision 0133), given to the speaker: asked as the pack opens (at
+        the start, for a built-in one), and again when an audio file
+        arrives."""
+        from polyglotic_desktop.adapters.audio_file import audio_beside
+
+        held = self.here.get(language)
+        dictionary = held[0].dictionary if held else self.built_in.get(language)
+        if dictionary is None or self.recordings is None:
+            return
+        folders = (self.folder_path, *self.also)
+        if held is None and self._built_in_folder is not None:
+            folders += (self._built_in_folder,)  # one the installer brought
+        found = audio_beside(folders, dictionary)
+        old = self._recorded.pop(language, None)
+        if found is None:
+            self.recordings.use(language, "", "", None)
+        else:
+            self._recorded[language] = found
+            self.recordings.use(
+                language,
+                found.info.get("voice_language", language),
+                found.info.get("voice", "Polyglotic"),
+                found,
+            )
+            log.info(
+                "dictionary pack %s: %s words recorded",
+                language,
+                found.info.get("words", "?"),
+            )
+        if old is not None:  # a lambda, as a replaced pack's file (441)
+            QTimer.singleShot(PACK_OLD_CLOSED_AFTER_MS, lambda f=old: f.close())
 
     def _tell(self, code: str, text: str) -> None:
         if not self.on_learning():
             self.notice.emit(text)
 
     def close(self) -> None:
-        """At the end: the downloads' thread stops after its step; the packs'
-        files are closed."""
+        """At the end: the downloads' thread stops after its step, and the
+        word splits' reads after the one under way; the packs' files are
+        closed."""
         if self.deliveries is not None:
             self.deliveries.close()
+        with self._warm_lock:
+            self._to_warm.clear()
         for file in self._files.values():
             file.close()
+        for recorded in self._recorded.values():
+            recorded.close()
 
 
 def new_interface(
@@ -5122,6 +5469,7 @@ def tools_beside(
     data: Path,
     languages: LearningLanguages,
     own: str | None = None,
+    packs_ready: Collection[str] | None = None,
 ) -> list[tuple[LearningTools, BackgroundLearningStore]]:
     """Every other full language learned (`open_beside`; until one is, every
     other full one but the learner's `own`) and every pack language learned
@@ -5135,11 +5483,13 @@ def tools_beside(
     for itself. One whose learning data is from a newer app - which stops
     a start for the main language - stays closed, said in the log, and its
     lines are looked up as before. Each one opened, with its learning
-    store, to close at the end."""
+    store, to close at the end. `packs_ready`: the packs whose word split
+    has read its data (`PackDelivery.ready`) - only those open; None, every
+    pack open in `tools.basic`."""
     opened = []
     for code in (
         *open_beside(languages, tools.language, own),
-        *packs_beside(languages, tools.basic),
+        *packs_beside(languages, tools.basic if packs_ready is None else packs_ready),
     ):
         if code in tools.also:
             continue
@@ -5644,6 +5994,58 @@ def check_capture(
     return 0 if heard_all else 1
 
 
+def check_parity(report: Path, system: OsAdapters, os_name: str) -> int:
+    """The Mac's hotkeys, voices and login item from inside the packed app,
+    on GitHub's Mac (polyglotic-hq 428): Carbon, AVFoundation and
+    ServiceManagement load in the bundle; ⌃⌘L, P and H are taken and given
+    back; the voices are listed; and macOS takes the app as a login item
+    and lets it go again - each state macOS gives as it goes. Writes what
+    was found (never a word said) to `report` as JSON; 0 if nothing raised
+    and the login item was added and taken off. Refused off a Mac: on
+    Windows it would change the PC's own Run key and hotkeys."""
+    found: dict[str, object] = {"os": os_name}
+    ok = False
+    if not os_name.startswith("macos"):
+        found["error"] = "refused off a Mac: it would change this PC's sign-in"
+    else:
+        from polyglotic_desktop.platform.macos import startup, voices
+
+        ok = True
+
+        def hotkeys_taken() -> object:
+            keys = system.hotkeys({key: lambda: None for key in "LPH"})
+            taken = keys.start()
+            keys.stop()
+            return taken
+
+        service = startup.MainAppService()
+        steps: dict[str, Callable[[], object]] = {
+            "hotkeys_taken": hotkeys_taken,
+            "voices": lambda: len(voices.MacVoices().found()),
+            "status_before": service.status,
+            "register": service.register,
+            "status_registered": service.status,
+            "unregister": service.unregister,
+            "status_after": service.status,
+        }
+        for name, step in steps.items():
+            try:
+                found[name] = step()
+            except Exception as e:  # noqa: BLE001 - reported by type: it's the point
+                found[name] = f"{type(e).__name__}: {e}"
+                ok = False
+        ok = (
+            ok
+            and found.get("register") == 0
+            and found.get("unregister") == 0
+            and found.get("status_after") == startup.NOT_REGISTERED
+        )
+    found["ok"] = ok
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps(found, indent=2), encoding="utf-8")
+    return 0 if ok else 1
+
+
 PACK_CHECKED = {
     "unpacked": True,
     "opened": True,
@@ -5718,7 +6120,7 @@ def try_a_pack(folder: Path) -> dict[str, object]:
     return found
 
 
-INSTALLER_PACK_WORDS = {"ru": "руку", "es": "casas", "ja": "食べ"}
+INSTALLER_PACK_WORDS = {"ru": "руку", "es": "casas", "fr": "hommes", "ja": "食べ"}
 """A word each pack finds through its own table (an inflected form)."""
 
 
@@ -5820,6 +6222,8 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     )
     # GitHub's Mac only (polyglotic-hq 412): refused on Windows
     parser.add_argument("--check-capture", type=Path, help=argparse.SUPPRESS)
+    # GitHub's Mac only (polyglotic-hq 428): refused off a Mac
+    parser.add_argument("--check-parity", type=Path, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -5861,7 +6265,7 @@ def this_copy(argv: list[str] | None = None) -> FirstCopy | None:
     if any(a.startswith(VELOPACK_HOOK) for a in [*given, *sys.argv[1:]]):
         return None
     args = arguments(argv)
-    if args.check_install or args.check_capture:
+    if args.check_install or args.check_capture or args.check_parity:
         return None
     try:
         system = os_adapters()
@@ -5923,6 +6327,8 @@ def main(argv: list[str] | None = None) -> None:
             "mic": lambda: system.mic_capture(None),
         }
         sys.exit(check_capture(args.check_capture, system.os_name(), to_capture))
+    if args.check_parity:
+        sys.exit(check_parity(args.check_parity, system, system.os_name()))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
@@ -5982,6 +6388,13 @@ def main(argv: list[str] | None = None) -> None:
     # the app's own text size (Settings > App), on Windows': every window from
     # the first run's on is built at it (polyglotic-hq 292, decision 0084)
     style.use_app_text_size(Settings(store).value.app_text_size)
+    # on a Mac run from macOS's temporary copy, where it can't update itself:
+    # asked once to move to Applications, and opened again from there (433)
+    place = system.translocation() if system.translocation else None
+    if moved_to_applications(place, Settings(store)):
+        store.close()
+        watchdog.stop()
+        return
     # the dictionary packs (decision 0122): opened after the first paint, into
     # the lookups' own dict every learner's tools read - so a pack downloaded
     # later is looked up at once
@@ -6231,6 +6644,8 @@ def main(argv: list[str] | None = None) -> None:
     def follow_script() -> None:
         value = desktop.settings.value
         mandarin.traditional = shows_traditional(value)
+        # transcripts and Copy name Mandarin's lines by it (433)
+        show_mandarin_in_traditional(mandarin.traditional)
         mandarin.seconds = {
             Language(t): Language(s) for t, s in value.second_languages.items()
         }
@@ -6533,9 +6948,16 @@ def main(argv: list[str] | None = None) -> None:
     # a looked-up word said aloud in one of the PC's voices - and left out of
     # the captions: the sources that hear it are hushed while it plays
     # (polyglotic-hq 286, decision 0077). Nothing is sent anywhere.
-    speaker = system.speaker() if system.speaker is not None else None
+    from polyglotic_desktop.platform.recorded_voices import Recordings
+
+    recordings = Recordings()  # a pack's recorded words (decision 0133)
+    speaker = system.speaker(recordings) if system.speaker is not None else None
     if windows.card is not None and speaker is not None:
-        windows.card.use_speech(WordSpeech(speaker, hush=pipeline.hush, parent=desktop))
+        windows.card.use_speech(
+            WordSpeech(
+                speaker, hush=pipeline.hush, parent=desktop, recorded=recordings.has
+            )
+        )
     if speaker is not None:  # the voices listed once the app has started
         QTimer.singleShot(VOICES_AFTER_START_MS, speaker.look_for_voices)
     # the pages not on show in the window's stylesheet once the start is
@@ -6553,18 +6975,18 @@ def main(argv: list[str] | None = None) -> None:
         also=(installer_packs(args.dictionaries),),
         open_url=_open_pack_url,
         parent=desktop,
+        recordings=recordings,
+        built_in=BUILT_IN_RECORDED,
+        built_in_folder=args.dictionaries,
+        learning=lambda: desktop.settings.value.learning_languages.all,
     )
     hub.use_packs(packs)
     packs.notice.connect(desktop.home_notice)
     if windows.card is not None and isinstance(windows.card.model.offer, LearningOffer):
         windows.card.model.offer.packs = packs  # "Learn it too" says its size
 
-    after_packs: list[Callable[[], None]] = []  # once the packs are opened
-
     def start_packs() -> None:
         packs.start()
-        for act in after_packs:
-            act()
         hub.show_learning()
 
     QTimer.singleShot(PACKS_AFTER_START_MS, start_packs)
@@ -6621,7 +7043,7 @@ def main(argv: list[str] | None = None) -> None:
     # dictation (polyglotic-hq 283, decision 0073): off until turned on;
     # then its key, held, opens the mic, and what was said is typed (imported
     # only now, after the window's first paint, like the connection)
-    from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES
+    from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES, Said
     from polyglotic_desktop.platform.dictation_mic import DictationMic
     from polyglotic_desktop.ui.dictation import Dictating
     from polyglotic_desktop.ui_next.dictation_key import key_words
@@ -6661,6 +7083,11 @@ def main(argv: list[str] | None = None) -> None:
         parent=desktop,
         mic_held=dictation_has_mic,
         forget_unsent=dictation_forget,
+        typing_allowed=(
+            permission.allowed
+            if (permission := system.typing_permission) is not None
+            else lambda: True
+        ),
     )
     # a session that can't be answered says so at once, not after 10 s (299)
     desktop.connection_changed.connect(
@@ -6670,6 +7097,17 @@ def main(argv: list[str] | None = None) -> None:
     listener.dictated = dictating.answered
     dictation_sign = DictationSign()
     dictating.sign_changed.connect(dictation_sign.show_state)
+    if system.typing_permission is not None:  # a Mac's Accessibility (438)
+        settings_page.typing_allowed = system.typing_permission.allowed
+        settings_page.typing_settings_wanted.connect(
+            system.typing_permission.open_settings
+        )
+
+        def typing_not_allowed(state: str, _level: float) -> None:
+            if state == Said.NOT_ALLOWED.value:  # Settings > Dictation says where
+                settings_page.show_typing_permission()
+
+        dictating.sign_changed.connect(typing_not_allowed)
     dictation_key = DictationKeyHeld(
         lambda key: system.hold_key(
             key, dictating.key_down, dictating.key_up, dictating.key_other
@@ -6700,6 +7138,7 @@ def main(argv: list[str] | None = None) -> None:
             value.dictation_australian,
             dictation_key.taken,
         )
+        settings_page.show_typing_permission()
 
     def dictation_key_box(listening: bool) -> None:
         dictation_key.box_listening = listening
@@ -6894,17 +7333,21 @@ def main(argv: list[str] | None = None) -> None:
         "Learn it too") as it's added (306): its dictionary, its learning
         data and its read-ahead; its changes and exposure days going out
         like the others'; its Words section and Learning card; its lines
-        marked from the next paint. One that can't open (a learning data
-        file from a newer app, which stops a start) stays closed, said in
-        the log, and its lines are looked up as before."""
+        marked from the next paint (`show_opened`, in the loop's next
+        turn). A pack language opens once its pack's word split has read
+        its data (`PackDelivery.ready`, 436). One that can't open (a
+        learning data file from a newer app, which stops a start) stays
+        closed, said in the log, and its lines are looked up as before."""
         languages = desktop.settings.value.learning_languages
         wanted = [
             c
             for c in (
                 *open_beside(languages, tools.language, own),
-                # a pack language learned, once its pack is open (0175): one
-                # whose pack comes later is opened then (`packs.changed`)
-                *packs_beside(languages, basic),
+                # a pack language learned, once its pack is open (0175) and
+                # its word split has read its data - never beside that read,
+                # which froze the interface (436): one whose pack comes
+                # later is opened then (`packs.readied`)
+                *packs_beside(languages, packs.ready),
             )
             if c not in tried
         ]
@@ -6912,25 +7355,32 @@ def main(argv: list[str] | None = None) -> None:
             return
         tried.update(wanted)  # once each: one left closed isn't tried again
         for other, store in tools_beside(
-            tools, args.dictionaries, data, languages, own
+            tools, args.dictionaries, data, languages, own, packs.ready
         ):
             beside.append(store)
-            other.prepare()
             other.vocabulary.subscribe(to_server)
             other.vocabulary.subscribe(counted)
             share_finished_days(other.vocabulary, exchange)
             sharing.timeout.connect(
                 partial(share_finished_days, other.vocabulary, exchange)
             )
-            hub.language_opened(other)
-            other.changed.emit("")  # every window's marks worked out again
+            # shown in the loop's next turn: the opening and its showing are
+            # each about 50 ms, never one stretch of both (436)
+            QTimer.singleShot(0, partial(show_opened, other))
+        mandarin.follow()  # Chinese opened beside: told Traditional's forms (442)
+
+    def show_opened(other: LearningTools) -> None:
+        """A language just opened (`open_added`), shown: its read-ahead
+        begun, its Words section and Learning card, its lines marked."""
+        other.prepare()
+        hub.language_opened(other)
+        other.changed.emit("")  # every window's marks worked out again
 
     # after the click's own change is drawn: opening reads its learning data
     desktop.settings.changed.connect(lambda: QTimer.singleShot(0, open_added))
     QTimer.singleShot(0, open_added)  # those learned already: after the window
-    # a pack language's, once the packs are opened and as one arrives (0175)
-    packs.changed.connect(lambda: QTimer.singleShot(0, open_added))
-    after_packs.append(open_added)
+    # a pack language's, once its pack is open and its split read (0175, 436)
+    packs.readied.connect(lambda: QTimer.singleShot(0, open_added))
     checking = QTimer(desktop, interval=CHECK_EVERY_HOURS * 3_600_000)
     checking.timeout.connect(updates.check)
     checking.start()

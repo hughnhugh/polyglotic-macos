@@ -1170,6 +1170,18 @@
     <name>DictationKey</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Right {key}</source>
+        <extracomment>a modifier key on the right of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">दायाँ {key}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Left {key}</source>
+        <extracomment>a modifier key on the left of a Mac&apos;s keyboard: {key} is its symbol (⌘)</extracomment>
+        <translation type="unfinished">बायाँ {key}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Ctrl</source>
         <translation type="unfinished">Ctrl</translation>
     </message>
@@ -1331,6 +1343,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>That key types. Hold it with ⌘ or ⌃, or choose another.</source>
+        <translation type="unfinished">वह कुंजी टाइप करती है। उसे ⌘ या ⌃ के साथ दबाए रखें, या कोई और चुनें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Esc cancels dictation: choose another key.</source>
         <translation type="unfinished">Esc बोलकर टाइपिंग रद्द करता है: दूसरी कुंजी चुनें।</translation>
     </message>
@@ -1341,8 +1358,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>macOS keeps that one for itself: choose another.</source>
+        <translation type="unfinished">macOS उसे अपने लिए रखता है: कोई और चुनें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Every program uses that one (copy, paste…): add Alt or Shift to it.</source>
         <translation type="unfinished">हर प्रोग्राम इसे इस्तेमाल करता है (कॉपी, पेस्ट…): इसके साथ Alt या Shift जोड़ें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Every app uses that one (copy, paste…): add ⌥ or ⇧ to it.</source>
+        <translation type="unfinished">उसे हर ऐप इस्तेमाल करता है (कॉपी, पेस्ट…): उसमें ⌥ या ⇧ जोड़ें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1351,8 +1378,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key.</source>
+        <translation type="unfinished">अकेले में सिर्फ़ दायाँ ⌘ या ⌃⌘ काम करते हैं: किसी कुंजी के साथ ⌘, ⌥ या ⇧ दबाए रखें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>Letting go of Alt opens a program&apos;s menu, and your words would go there: hold Ctrl with it too.</source>
         <translation type="unfinished">Alt छोड़ने पर प्रोग्राम का मेनू खुलता है, और आपके शब्द वहाँ चले जाते: इसके साथ Ctrl भी दबाएँ।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>⌥ with a key types a character of its own: hold ⌘ with it too.</source>
+        <translation type="unfinished">⌥ किसी कुंजी के साथ अपना अलग अक्षर टाइप करता है: साथ में ⌘ भी दबाए रखें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1421,6 +1458,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Couldn&apos;t type it here</source>
         <translation type="unfinished">यहाँ टाइप नहीं हो सका</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not allowed to type - see Settings &gt; Dictation</source>
+        <translation type="unfinished">टाइप करने की अनुमति नहीं है - सेटिंग &gt; बोलकर टाइपिंग देखें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2982,13 +3024,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">लॉग इन करने पर Polyglotic खोलें?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows के साथ शुरू करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">लॉग इन पर खोलें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">यह ट्रे में इंतज़ार करता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। Windows के स्टार्टअप ऐप में इसे बंद किया जा सकता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">यह आपके लॉग इन करते ही खुल जाता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। सिस्टम सेटिंग्ज़ के लॉगिन आइटम में इसे बंद किया जा सकता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3790,6 +3847,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">सबसे आम शब्द रिकॉर्ड किए हुए हैं ({size})।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Your level</source>
         <translation type="unfinished">आपका स्तर</translation>
     </message>
@@ -4246,6 +4308,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">इसका शब्दकोश: {size} डाउनलोड करना है, फिर {recorded} रिकॉर्ड किए हुए शब्द।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Its dictionary: {size} to download.</source>
         <translation type="unfinished">इसका शब्दकोश: {size} डाउनलोड करना है।</translation>
     </message>
@@ -4686,6 +4753,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">इस Mac पर अभी {language} की कोई आवाज़ नहीं है। macOS इसे मुफ़्त में जोड़ता है: सिस्टम सेटिंग्ज़ &gt; ऐक्सेसिबिलिटी &gt; बोली गई सामग्री &gt; सिस्टम वॉइस &gt; वॉइस प्रबंधित करें, फिर {language}।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">स्पीच सेटिंग खोलें</translation>
     </message>
@@ -4781,6 +4853,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">इस Mac पर {language} की कोई आवाज़ नहीं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">रोकें (R)</translation>
     </message>
@@ -4843,6 +4920,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Windows की सेटिंग खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">सिस्टम सेटिंग्ज़ खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4932,6 +5014,44 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">तय रखरखाव के लिए कैप्शन {start} से {end} तक रुकेंगे</translation>
+    </message>
+</context>
+<context>
+    <name>MoveToApplications</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move Polyglotic to Applications?</source>
+        <translation type="unfinished">Polyglotic को ऐप्लिकेशन में ले जाएँ?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
+        <translation type="unfinished">Polyglotic आपके ऐप्लिकेशन फ़ोल्डर के बाहर से खोला गया, शायद डाउनलोड से, इसलिए आपका Mac इसे एक अस्थायी कॉपी से चला रहा है। वहाँ से यह अपने आप अपडेट नहीं हो सकता।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
+        <translation type="unfinished">ख़ुद करने के लिए: Polyglotic बंद करें, Finder में इसे ऐप्लिकेशन में खींचें, और वहीं से खोलें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move to Applications</source>
+        <translation type="unfinished">ऐप्लिकेशन में ले जाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Not now</source>
+        <translation type="unfinished">अभी नहीं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
+        <translation type="unfinished">Polyglotic ख़ुद को ऐप्लिकेशन में नहीं ले जा सका।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
+        <source>Move it, and Polyglotic opens again from Applications.</source>
+        <translation type="unfinished">ले जाने के बाद Polyglotic ऐप्लिकेशन से फिर खुलेगा।</translation>
     </message>
 </context>
 <context>
@@ -6065,6 +6185,17 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>English comes out as colour, centre and organise.</source>
         <translation type="unfinished">अंग्रेज़ी colour, centre और organise के रूप में आती है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Polyglotic isn&apos;t allowed to type into other apps, so nothing you say is typed. In System Settings, open Privacy &amp; Security, then Accessibility, and turn on Polyglotic.</source>
+        <extracomment>macOS System Settings&apos; own names: keep them as the Mac shows them</extracomment>
+        <translation type="unfinished">Polyglotic को दूसरे ऐप्स में टाइप करने की अनुमति नहीं है, इसलिए आप जो बोलते हैं वह टाइप नहीं होता। सिस्टम सेटिंग्ज़ में &quot;गोपनीयता और सुरक्षा&quot; खोलें, फिर &quot;सुलभता&quot;, और Polyglotic चालू करें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Open System Settings</source>
+        <translation type="unfinished">सिस्टम सेटिंग्ज़ खोलें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

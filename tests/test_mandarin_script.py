@@ -4,6 +4,8 @@ said, unless it is Japanese or Cantonese, and translations written in
 Mandarin (432) - the choice kept in the settings, and Taiwan's and Hong Kong's Windows
 starting at Traditional."""
 
+import time
+
 from tests.lexicon.sample import CEDICT_SAMPLE, chinese_sample
 
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
@@ -153,3 +155,58 @@ def test_taiwans_and_hong_kongs_windows_start_at_traditional() -> None:
     assert not reads_traditional("zh_CN", ["zh-TW"])
     assert not reads_traditional("en", ["zh-Hans-CN", "zh-TW"])  # the first Chinese
     assert not reads_traditional("en", ["en-AU", "ja-JP"])
+
+
+ZHE = "著 着 [zhe5] /aspect particle/\n著 著 [zhu4] /to write/\n"
+"""著: written for 着 (zhe) in Traditional, and a Simplified headword of its
+own (zhù) - read as the learner's script says."""
+
+
+def told(dictionary: ChineseDictionary, wanted: bool = True) -> bool:
+    """Whether `dictionary` finds 著 by its Simplified form 着 (or, not
+    `wanted`, doesn't) within a few seconds: the converter's table is read
+    on a thread of its own."""
+    deadline = time.monotonic() + 10
+    while (dictionary.simplified("著") == "着") != wanted:
+        if time.monotonic() > deadline:
+            return False
+        time.sleep(0.01)
+    return True
+
+
+def test_traditional_is_told_to_the_dictionary_from_the_start_not_the_first_caption() -> (
+    None
+):
+    """442: before any caption (a card opened from Words), the dictionary
+    already finds Taiwan's forms - 著 is 着, 於 is 于."""
+    dictionary = ChineseDictionary(chinese_sample(CEDICT_SAMPLE + ZHE))
+    script = MandarinScript(lambda: dictionary)
+    assert dictionary.simplified("著於") == "著於"
+    script.traditional = True  # at the start, or switched on
+    assert told(dictionary)
+    assert dictionary.simplified("著於") == "着于"
+
+
+def test_switched_back_to_simplified_the_dictionary_forgets_traditional() -> None:
+    liao = "了 了 [liao3] /to finish; to understand/\n"
+    dictionary = ChineseDictionary(chinese_sample(CEDICT_SAMPLE + liao + ZHE))
+    script = MandarinScript(lambda: dictionary)
+    script.traditional = True
+    script.caption(update("zh"))
+    assert told(dictionary)
+    assert not dictionary.lookup("瞭")[0].variant_only
+    script.traditional = False
+    assert dictionary.simplified("著於") == "著於"  # at once: nothing to read
+    assert dictionary.lookup("瞭")[0].variant_only  # CC-CEDICT's own again
+    assert script.caption(plain := update("zh")) is plain
+
+
+def test_a_chinese_dictionary_opened_later_is_told_too() -> None:
+    """A language learned beside, opened during the run (`follow`)."""
+    opened: list[ChineseDictionary] = []
+    script = MandarinScript(lambda: opened[0] if opened else None)
+    script.traditional = True
+    later = ChineseDictionary(chinese_sample(CEDICT_SAMPLE + ZHE))
+    opened.append(later)
+    script.follow()
+    assert told(later)

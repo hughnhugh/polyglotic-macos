@@ -78,10 +78,44 @@ def name_list(names: Iterable[str]) -> str:
     return QLocale().createSeparatedList(list(names))
 
 
+# Whether Mandarin's lines are shown in Traditional characters now ("Show
+# Mandarin in", `main.shows_traditional`): `shown_name` names them by it
+_mandarin_traditional = False
+
+
+def show_mandarin_in_traditional(on: bool) -> None:
+    """Mandarin's lines are shown in Traditional characters (`on`) or
+    Simplified ones from now: `main` says so at the start and whenever
+    "Show Mandarin in" changes (polyglotic-hq 433)."""
+    global _mandarin_traditional
+    _mandarin_traditional = on
+
+
 def language_name(code: str) -> str:
-    """A target language's name ("Chinese (Simplified)")."""
+    """A target language's name, to pick it or name it as a language:
+    "French"; Mandarin's target is "Chinese", whatever script its lines are
+    shown in (polyglotic-hq 433: a picker saying "Chinese (Simplified)" over
+    Traditional lines); `zh-hant`'s is "Chinese (Traditional)"."""
+    if code == "zh":
+        return _chinese()
     name = _NAMES.get(code)
     return _tr(name) if name else code
+
+
+def shown_name(code: str) -> str:
+    """The language a line is written in, as a transcript's Save and Copy
+    and the windows' status label it: Mandarin's by the script it's shown in
+    - "Chinese (Traditional)" when "Show Mandarin in" is Traditional (each
+    line is converted as it arrives, decision 0204), else "Chinese
+    (Simplified)" - and every other language by its name."""
+    if code == "zh":
+        return _tr(_NAMES["zh-hant" if _mandarin_traditional else "zh"])
+    return language_name(code)
+
+
+def _chinese() -> str:
+    """Chinese as a language, either script (as Learning names it)."""
+    return QCoreApplication.translate("LearningLanguage", "Chinese")
 
 
 def spoken_names(codes: Iterable[str]) -> str:
@@ -314,11 +348,10 @@ def learned_name(code: str) -> str:
     """A language learned, by name (Learning, the lookup's "Learn it too?"):
     Chinese - not "Chinese (Simplified)": both scripts are learned together
     - English, or a caption language's name."""
-    tr = QCoreApplication.translate
     if code == "zh":
-        return tr("LearningLanguage", "Chinese")
+        return _chinese()
     if code == "en":
-        return tr("LearningLanguage", "English")
+        return QCoreApplication.translate("LearningLanguage", "English")
     return language_name(code)
 
 

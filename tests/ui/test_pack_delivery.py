@@ -5,6 +5,9 @@ removing closes and deletes it, and packs outlive an update of the app."""
 
 from __future__ import annotations
 
+import shutil
+import sqlite3
+import threading
 import time
 from collections.abc import Callable, Iterator
 from pathlib import Path
@@ -13,12 +16,14 @@ import pytest
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from tests.packs_server import StandIn
-from tests.packs_storage import PUBLIC, publish, tiny_pack
+from tests.packs_storage import PRIVATE, PUBLIC, publish, tiny_pack
+from tools.package import publish_packs
 
 from polyglotic_desktop import main
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.pack_download import Problem
 from polyglotic_desktop.core.lexicon.packs import FROM_SOURCE
+from polyglotic_desktop.ui_next.pack_row import megabytes
 
 
 def until(done: Callable[[], bool], seconds: float = 20.0) -> None:
@@ -292,6 +297,147 @@ def test_learning_asks_for_the_list_once_in_a_while(
     packs.close()
 
 
+def test_a_downloaded_packs_recordings_reach_the_speaker_and_go_with_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+) -> None:
+    """The pack's recorded words come down after it and are said without a
+    restart; Learning says they're there, with who said them; removing the
+    pack deletes them with it (decisions 0133, 0192)."""
+    from tests.test_pack_riders import OGG_HEAD, built_with_audio, published
+
+    from polyglotic_desktop.platform.recorded_voices import Recordings
+
+    out = tmp_path / "bucket"
+    built = built_with_audio(tmp_path / "built")
+    assert publish(monkeypatch, out, built) == 0  # the packs alone, first
+    recordings = Recordings()
+    basic: dict[str, BasicDictionary] = {}
+    folder = tmp_path / "packs"
+    with StandIn(out) as stand_in:
+        packs = main.PackDelivery(
+            folder,
+            basic,
+            "en",
+            main.pack_reader(FROM_SOURCE),
+            stand_in.base,
+            (PUBLIC,),
+            recordings=recordings,
+        )
+        packs.start()
+        packs.asked("ru", "download")
+        until(lambda: "ru" in basic)
+        assert recordings.voices() == ()  # this list has no riders
+        assert "recorded" not in main_line_text(packs)
+        packs.close()
+    # then its recordings, beside the pack already published
+    with_audio = tmp_path / "bucket-audio"
+    extra = ("--audio", str(built), "--riders-only", "--version", "2026.11.14")
+    assert published(monkeypatch, with_audio, *extra, previous=out / LIST) == 0
+    shutil.copytree(
+        out / "packs" / "files", with_audio / "packs" / "files", dirs_exist_ok=True
+    )
+    with StandIn(with_audio) as stand_in:
+        packs = main.PackDelivery(
+            folder,
+            basic,
+            "en",
+            main.pack_reader(FROM_SOURCE),
+            stand_in.base,
+            (PUBLIC,),
+            recordings=recordings,
+        )
+        packs.start()  # the pack is here: the daily check brings its riders
+        assert "ru" in packs.here and recordings.voices() == ()
+        packs.check_updates()
+        until(lambda: bool(recordings.voices()))
+        (voice,) = recordings.voices()
+        assert voice.language == "ru-RU"
+        assert recordings.clip(voice, "дом") == OGG_HEAD + b"OggS-the-word"
+        assert not recordings.has(voice, "говорить")
+        line = packs.line("ru")
+        assert line.recorded_size > 0 and "rf_test" in line.credits
+        assert "CC BY 4.0" in line.credits
+        assert "recorded" in main_line_text(packs)
+        (here,) = packs.installed_lines()  # removing it frees both
+        assert here.size == line.installed_size + line.recorded_size
+        assert len(list(folder.glob("wiktru-*"))) == 2  # the pack, the audio
+        # read again (as when a newer file arrives): the one it replaces is
+        # closed, though only its connection is held here - a timer's bound
+        # method dropped with its object never ran (441's lesson, 443)
+        db = packs._recorded["ru"]._db
+        assert db is not None
+        packs.record("ru")
+        QTest.qWait(main.PACK_OLD_CLOSED_AFTER_MS + 900)
+        with pytest.raises(sqlite3.ProgrammingError):
+            db.execute("SELECT 1")
+        assert recordings.clip(voice, "дом") == OGG_HEAD + b"OggS-the-word"
+        packs.asked("ru", "remove")
+        assert "ru" not in basic and recordings.voices() == ()
+        assert not list(folder.glob("wiktru-*"))
+        packs.close()
+
+
+@pytest.mark.parametrize(
+    ("version", "recorded"), [(FROM_SOURCE, True), ("0.1.7", True), ("0.1.6", False)]
+)
+def test_the_offer_names_the_recordings_size_before_the_download(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    qapp: QApplication,
+    version: str,
+    recorded: bool,
+) -> None:
+    """DECISIONS #192 (B; polyglotic-hq 423): the recordings come by
+    themselves after the dictionary, so Learning's offer says both sizes -
+    only where the list has recordings this app takes (0.1.7 on: 0192)."""
+    from tests.test_pack_riders import built_with_audio, published
+
+    built = built_with_audio(tmp_path / "built")
+    out = tmp_path / "bucket"
+    no_list = tmp_path / "no-list.signed"
+    no_list.write_bytes(
+        publish_packs.sign_list(
+            publish_packs.list_bytes([], 1), publish_packs.private_key_from(PRIVATE)
+        )
+    )
+    extra = ("--packs", str(built), "--audio", str(built), "--version", "2026.11.14")
+    assert published(monkeypatch, out, *extra, previous=no_list) == 0
+    with StandIn(out) as stand_in:
+        packs = main.PackDelivery(
+            tmp_path / "packs",
+            {},
+            "en",
+            main.pack_reader(version),
+            stand_in.base,
+            (PUBLIC,),
+        )
+        packs.start()
+        packs.wanted_list(["ru"])
+        until(lambda: packs.offers is not None)
+        line = packs.line("ru")
+        (rider,) = next(o for o in packs.offers or () if o.meanings == "en").riders
+        assert line.size > 0
+        assert line.recorded_offered == (rider.gz_size if recorded else 0)
+        said = main_line_text(packs)
+        if recorded:
+            assert said == (
+                f"Its dictionary: {megabytes(line.size)} MB to download, then "
+                f"{megabytes(rider.gz_size)} MB of recorded words."
+            )
+        else:
+            assert said == f"Its dictionary: {megabytes(line.size)} MB to download."
+        packs.close()
+
+
+LIST = "packs/v1/list.signed"
+
+
+def main_line_text(packs: main.PackDelivery) -> str:
+    from polyglotic_desktop.ui_next.pack_row import shown
+
+    return shown("ru", packs.line("ru"))[0]
+
+
 def _german_published_since(
     server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -413,3 +559,183 @@ def test_learning_coming_into_view_asks_for_the_old_list_to_be_checked(
         assert opened == [None]
     finally:
         built.close()
+
+
+def test_a_built_in_dictionarys_recordings_come_for_its_learner_and_are_said(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+) -> None:
+    """CC-CEDICT is built into the app: its recorded words come as riders of
+    their own (decision 0197) - only while Chinese is learned, at the daily
+    check - and are said from the next click, without a restart; Chinese's
+    card says they're there, their size and who said them. One the
+    installer brought is used as it is."""
+    from tests.test_pack_riders import (
+        CEDICT_VERSION,
+        OGG_HEAD,
+        built_with_audio,
+        published_built_in,
+        recorded_chinese,
+    )
+
+    from polyglotic_desktop.platform.recorded_voices import Recordings
+
+    packs_only = tmp_path / "bucket"
+    built = built_with_audio(tmp_path / "built")
+    assert publish(monkeypatch, packs_only, built) == 0
+    out = tmp_path / "bucket-cedict"
+    audio = recorded_chinese(tmp_path / "zh-audio")
+    extra = ("--version", CEDICT_VERSION)
+    assert published_built_in(monkeypatch, out, audio, packs_only / LIST, *extra) == 0
+    learned: list[str] = ["es"]
+    recordings = Recordings()
+    folder = tmp_path / "packs"
+    installer = tmp_path / "dictionaries"
+    installer.mkdir()
+    with StandIn(out) as stand_in:
+
+        def chinese_delivery() -> main.PackDelivery:
+            packs = main.PackDelivery(
+                folder,
+                {},
+                "en",
+                main.pack_reader(FROM_SOURCE),
+                stand_in.base,
+                (PUBLIC,),
+                recordings=recordings,
+                built_in=main.BUILT_IN_RECORDED,
+                built_in_folder=installer,
+                learning=lambda: tuple(learned),
+            )
+            packs.start()
+            return packs
+
+        packs = chinese_delivery()
+        packs.check_updates()  # Chinese isn't learned: nothing comes
+        QTest.qWait(300)
+        packs.close()
+        assert not any(".audio" in p for p, _, _ in stand_in.requests)
+        assert recordings.voices() == () and packs.recorded_line("zh") == (0, "")
+
+        learned.append("zh")
+        packs = chinese_delivery()
+        packs.check_updates()
+        until(lambda: bool(recordings.voices()))
+        (voice,) = recordings.voices()
+        assert voice.language == "zh-CN"
+        assert recordings.clip(voice, "我们") == OGG_HEAD + b"OggS-women"
+        size, credits = packs.recorded_line("zh")
+        assert size > 0 and "Chatterbox" in credits and "MIT" in credits
+        assert [p.name for p in folder.glob("cedict-*")] == [
+            f"cedict-{CEDICT_VERSION}.audio"
+        ]
+        assert packs.installed_lines() == []  # not a pack: nothing to remove
+        packs.close()
+
+    # the installer's own, with nothing downloaded and no list
+    for path in folder.glob("cedict-*"):
+        path.unlink()
+    recorded_chinese(installer)
+    others = Recordings()
+    packs = main.PackDelivery(
+        folder,
+        {},
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",
+        (PUBLIC,),
+        recordings=others,
+        built_in=main.BUILT_IN_RECORDED,
+        built_in_folder=installer,
+    )
+    packs.start()
+    (voice,) = others.voices()
+    assert others.has(voice, "我们") and packs.recorded_line("zh")[0] > 0
+
+
+def turns(done: Callable[[], bool], seconds: float = 20.0) -> bool:
+    """The event loop's turns, with the interpreter let go between them -
+    `QTest.qWait` keeps it, and a thread running Python (a pack's split
+    reading its data) waits - until `done` or `seconds` have passed."""
+    end = time.monotonic() + seconds
+    while not done() and time.monotonic() < end:
+        QApplication.processEvents()
+        time.sleep(0.01)
+    return done()
+
+
+def test_a_pack_is_ready_once_its_word_split_has_read_its_data(
+    qapp: QApplication, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Its learner opens only then (polyglotic-hq 436): a pack opens for
+    lookups at once, and is `ready` - `readied` said once - when its word
+    split's first read, on a thread of its own, is done; removed, it isn't."""
+    from polyglotic_desktop.adapters.sqlite_dictionary import add_info
+
+    folder = tmp_path / "packs"
+    add_info(tiny_pack(folder, "es", "wiktes"), {"pack_version": "2026.11.14"})
+    read = threading.Event()
+    words = BasicDictionary.words
+
+    def held(self: BasicDictionary, text: str) -> object:
+        read.wait(10)  # the split's first read, held until the test says
+        return words(self, text)
+
+    monkeypatch.setattr(BasicDictionary, "words", held)
+    basic: dict[str, BasicDictionary] = {}
+    packs = main.PackDelivery(
+        folder,
+        basic,
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",  # offline
+        (PUBLIC,),
+    )
+    readied: list[bool] = []
+    packs.readied.connect(lambda: readied.append(True))
+    packs.start()
+    assert "es" in basic  # looked up at once
+    turns(lambda: False, 0.3)  # its read begun, and held
+    assert packs.ready == set() and readied == []  # its split still reading
+
+    read.set()
+    assert turns(lambda: bool(readied)), "its split's read never said so"
+    assert packs.ready == {"es"} and readied == [True]
+    packs.asked("es", "remove")
+    assert packs.ready == set()
+
+
+def test_the_replaced_file_is_closed_and_deleted_when_nothing_else_holds_it(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 441: the swap closes the file it replaces even when
+    nothing else holds it. PySide drops a timer's bound method once its
+    object has no other holder, so `singleShot(ms, old.close)` never ran:
+    the old file's connections stayed open (a connection is freed only by
+    a later garbage collection) and Windows couldn't delete it. Unlike the
+    test above, nothing here holds the old dictionary - only its
+    connections, to see that they were closed (on Linux an open file can
+    be deleted, so the deletion alone proves nothing there)."""
+    basic: dict[str, BasicDictionary] = {}
+    folder = tmp_path / "packs"
+    packs = delivery(server, folder, basic)
+    packs.asked("ru", "download")
+    until(lambda: "ru" in basic)
+    basic["ru"].lookup("дом")  # a connection of this thread's too
+    connections = list(packs._files["ru"]._opened)
+    assert connections
+    old_file = folder / "wiktru-en-2026.11.14.sqlite"
+    built = tmp_path / "built2"
+    tiny_pack(built, padding=10)
+    tiny_pack(built, meanings="zh", padding=10)
+    newer = tmp_path / "bucket2"
+    previous = server.folder / "packs" / "v1" / "list.signed"
+    assert publish(monkeypatch, newer, built, "2026.12.1", previous) == 0
+    server.folder = newer
+    packs.check_updates()
+    until(lambda: packs.line("ru").installed_version == "2026.12.1")
+    QTest.qWait(main.PACK_OLD_CLOSED_AFTER_MS + 900)
+    for connection in connections:
+        with pytest.raises(sqlite3.ProgrammingError):  # closed
+            connection.execute("SELECT 1")
+    assert not old_file.exists()
+    packs.close()

@@ -39,6 +39,7 @@ import argparse
 import dataclasses
 import json
 import os
+import re
 import shutil
 import sqlite3
 import statistics
@@ -152,23 +153,34 @@ def made_up_learner(cedict: Path, words: int, out: Path) -> None:
 
 
 def returning_learner(
-    folder: Path, learning: Path, english: Path | None = None
+    folder: Path,
+    learning: Path,
+    english: Path | None = None,
+    pack_language: str | None = None,
 ) -> Path:
     """A data folder at `folder` for a returning Chinese learner whose
     learning data is a copy of `learning`: the language chosen and the
     tester agreement accepted (no usage statistics, crash reports or
     exposures shared), so the start asks nothing. With `english`, a copy
     of it as English's learning data, and English learned too: both
-    dictionaries open at the start (polyglotic-hq 306)."""
+    dictionaries open at the start (polyglotic-hq 306). With
+    `pack_language`, that language learned too - a pack learner (decision
+    0175): its learning data opens once its pack does, which must be in the
+    dictionaries' `packs` folder (polyglotic-hq 436)."""
     from polyglotic_desktop.adapters.sqlite_outbox import open_outbox
     from polyglotic_desktop.core.shared.papers import TESTER_AGREEMENT_VERSION
     from polyglotic_desktop.ports.consent import Agreement, ConsentChoice
 
     folder.mkdir(parents=True)
     chosen: dict[str, object] = {"learning": "zh"}
+    also: list[str] = []
     if english is not None:
-        chosen["also_learning"] = ["en"]
+        also.append("en")
         shutil.copy(english, folder / "learning-en.sqlite")
+    if pack_language is not None:
+        also.append(pack_language)
+    if also:
+        chosen["also_learning"] = also
     (folder / "settings.json").write_text(json.dumps(chosen), encoding="utf-8")
     shutil.copy(learning, folder / "learning.sqlite")
     at = datetime(2026, 11, 8, tzinfo=UTC)
@@ -212,16 +224,32 @@ class TimedStart:
     """From the first paint to the event loop's first turn: a click made
     before then waits. Only a start with real windows goes on that far;
     None too if it never got there."""
+    pack_busy_ms: float | None = None
+    """A pack learner's start (`timed_start(..., until_pack=...)`): the
+    longest stretch of the interface thread's work the app's watchdog
+    logged from the packs' opening to `PACK_SETTLED_MS` after the pack
+    language's learning data opened (0: none over the watchdog's 50 ms);
+    None if it never opened, or the start wasn't one."""
+    pack_busy_in: str = ""
+    """Where the watchdog said that stretch was (`file.py:function`)."""
 
 
 def timed_start(
-    data: Path, dictionaries: Path, real_windows: bool = False
+    data: Path,
+    dictionaries: Path,
+    real_windows: bool = False,
+    until_pack: str | None = None,
 ) -> TimedStart:
     """A start from `main()`'s call to the main window's first paint, in a
     process of its own, on the learner's data folder `data` and the
     dictionaries in `dictionaries`, with how busy the rest of the PC was
     meanwhile. Offscreen - or with `real_windows`, on a private desktop,
-    going on to the first moment a click is answered (the module's words)."""
+    going on to the first moment a click is answered (the module's words).
+    With `until_pack` (a pack language the learner learns,
+    `returning_learner(..., pack_language=...)`): going on past the paint
+    until that language's learning data has opened and settled, for the
+    interface thread's longest stretch meanwhile (`pack_busy_ms`,
+    polyglotic-hq 436)."""
     report = data.parent / f"{data.name}-start.json"
     command = [
         sys.executable,
@@ -232,6 +260,8 @@ def timed_start(
         str(dictionaries),
         str(report),
     ]
+    if until_pack is not None:
+        command += ["--until-pack", until_pack]
     here = Path(__file__).resolve().parents[1]
     if real_windows:
         said = _on_a_private_desktop(command, data.parent / f"{data.name}.log", here)
@@ -242,13 +272,48 @@ def timed_start(
     found = json.loads(report.read_text(encoding="utf-8"))
     busy = found.get("busy")
     answers = found.get("answers_ms")
+    pack_busy = found.get("pack_busy_ms")
     return TimedStart(
         float(found["window_ms"]),
         None if busy is None else float(busy),
         tuple(found.get("threads", ())),
         {str(part): float(ms) for part, ms in found.get("parts", {}).items()},
         None if answers is None else float(answers),
+        None if pack_busy is None else float(pack_busy),
+        str(found.get("pack_busy_in", "")),
     )
+
+
+PACK_SETTLED_MS = 2000
+"""How long a pack learner's start goes on after the pack language's
+learning data opened: its Words section, Learning's card and the windows'
+marks are drawn by then, and the stretch they made has ended and been
+logged."""
+
+BUSY = re.compile(r"interface thread busy (\d+) ms in (.+?)(?:, of | \(from |$)")
+"""The app's watchdog's line for a long stretch (`perf.watchdog`): how long,
+and where."""
+
+
+def longest_busy(log: Path, since: datetime) -> tuple[float, str]:
+    """The longest stretch the app's watchdog logged in `log` at or after
+    `since` (the log's local times), and where; (0, "") if none."""
+    longest = (0.0, "")
+    try:
+        lines = log.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return longest
+    for line in lines:
+        found = BUSY.search(line)
+        if found is None:
+            continue
+        try:
+            at = datetime.strptime(line[:23], "%Y-%m-%d %H:%M:%S,%f")
+        except ValueError:
+            continue
+        if at >= since and float(found.group(1)) > longest[0]:
+            longest = (float(found.group(1)), found.group(2))
+    return longest
 
 
 UNTIL_IT_ANSWERS = "POLYGLOTIC_START_UNTIL_IT_ANSWERS"
@@ -318,9 +383,13 @@ def ended_now() -> None:
     os._exit(0)
 
 
-def _child(data: Path, dictionaries: Path, report: Path) -> None:
+def _child(
+    data: Path, dictionaries: Path, report: Path, until_pack: str | None = None
+) -> None:
     """`main()` on `data`, timed to the window's first paint, then ended at
-    once - before the connection or anything after the window."""
+    once - before the connection or anything after the window. With
+    `until_pack`, it goes on until that pack language's learning data has
+    opened and settled (`PACK_SETTLED_MS`), then ends."""
     from PySide6.QtCore import QTimer
     from PySide6.QtWidgets import QApplication
     from tests.fakes import MemoryCredentialStore
@@ -382,10 +451,37 @@ def _child(data: Path, dictionaries: Path, report: Path) -> None:
 
     def answered(painted: float) -> None:
         """The event loop's first turn after the paint: a click is answered
-        from now. The start ends here."""
+        from now. The start ends here (a pack learner's goes on)."""
         found["answers_ms"] = round((time.perf_counter() - painted) * 1000, 1)
         report.write_text(json.dumps(found), encoding="utf-8")
+        if until_pack is None:
+            ended_now()
+
+    packs_opened: list[datetime] = []
+
+    def pack_settled() -> None:
+        """The pack language's learning data opened `PACK_SETTLED_MS` ago:
+        the longest stretch since the packs opened, and the start ends."""
+        ms, where = longest_busy(data / "logs" / "polyglotic.log", packs_opened[0])
+        found.update(pack_busy_ms=ms, pack_busy_in=where)
+        report.write_text(json.dumps(found), encoding="utf-8")
         ended_now()
+
+    if until_pack is not None:
+        packs_start = m.PackDelivery.start
+        language_opened = m.Hub.language_opened
+
+        def packs_starting(packs: m.PackDelivery) -> None:
+            packs_opened.append(datetime.now())  # local, as the log's times
+            packs_start(packs)
+
+        def opened(hub: m.Hub, other: m.LearningTools) -> None:
+            language_opened(hub, other)
+            if other.language == until_pack and packs_opened:
+                QTimer.singleShot(PACK_SETTLED_MS, pack_settled)
+
+        m.PackDelivery.start = packs_starting  # type: ignore[assignment]
+        m.Hub.language_opened = opened  # type: ignore[assignment]
 
     class Timed(QApplication):
         def processEvents(self) -> None:  # type: ignore[override]
@@ -404,7 +500,7 @@ def _child(data: Path, dictionaries: Path, report: Path) -> None:
                     },
                 )
                 report.write_text(json.dumps(found), encoding="utf-8")
-                if not until_it_answers:
+                if not until_it_answers and until_pack is None:
                     ended_now()  # nothing after the window: no connection
                 # main goes on - signed out, so nothing is captured, and its
                 # server an address nothing answers at - to its event loop,
@@ -417,6 +513,8 @@ def _child(data: Path, dictionaries: Path, report: Path) -> None:
     argv = [
         "--server",
         "http://127.0.0.1:9",  # never reached: the start ends at the window
+        "--packs-from",
+        "http://127.0.0.1:9",  # nor the packs' storage: a pack is already here
         "--data",
         str(data),
         "--dictionaries",
@@ -440,6 +538,7 @@ def _child(data: Path, dictionaries: Path, report: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--child", nargs=3, type=Path, help=argparse.SUPPRESS)
+    parser.add_argument("--until-pack", help=argparse.SUPPRESS)
     parser.add_argument(
         "--dictionaries",
         type=Path,
@@ -461,7 +560,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     if args.child:
-        _child(*args.child)
+        data, dictionaries, report = args.child
+        _child(data, dictionaries, report, until_pack=args.until_pack)
         return 1  # not reached
     with tempfile.TemporaryDirectory(prefix="learner-start-") as folder:
         learning = Path(folder) / "learning.sqlite"

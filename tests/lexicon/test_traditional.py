@@ -102,3 +102,19 @@ def test_simplified_lines_split_as_before_once_traditional_is_read() -> None:
     before = dictionary.split("宣布布满了"), dictionary.lookup("布")
     dictionary.read_traditional(TraditionalChinese(OPENCC).simplified_of())
     assert (dictionary.split("宣布布满了"), dictionary.lookup("布")) == before
+
+
+def test_a_reading_line_follows_the_forms_told_and_forgotten() -> None:
+    """442: Traditional is told after the start's first readings (the
+    converter's table is read on a thread of its own) and forgotten when
+    switched off - a reading worked out before either isn't kept past it."""
+    dictionary = ChineseDictionary(chinese_sample("你 你 [ni3] /you/\n"))
+
+    def read(text: str) -> list[str]:
+        return [r.text for r in dictionary.readings(text)]
+
+    assert read("妳") == []  # Taiwan's 你: not a form CC-CEDICT has
+    dictionary.read_traditional({"妳": "你"})
+    assert read("妳") == ["nǐ"]
+    dictionary.read_traditional({})
+    assert read("妳") == []

@@ -14,7 +14,8 @@ source, which has no `.github/`, the tests of CI's workflows are skipped."""
 import os
 import re
 import sys
-from collections.abc import Generator
+import threading
+from collections.abc import Generator, Iterator
 from pathlib import Path
 
 import pytest
@@ -152,6 +153,20 @@ def _an_english_pc(monkeypatch: pytest.MonkeyPatch) -> None:
     from polyglotic_desktop.ui_next import languages
 
     monkeypatch.setattr(languages, "own_languages", lambda: ["en"])
+
+
+@pytest.fixture(autouse=True)
+def _pack_warm_ups_end() -> Iterator[None]:
+    """A pack's word split reading its data on its own thread ("pack warm",
+    `main.PackDelivery`) ends with the test that opened it: it runs in short
+    turns at the interpreter (decision 0207), which would time the next
+    test's slots differently - the watchdog's tests missed a slow slot
+    beside one (polyglotic-hq 436). `QTest.qWait` keeps the interpreter, so
+    one can still be reading when a test ends; it's waited for here."""
+    yield
+    for thread in threading.enumerate():
+        if thread.name == "pack warm":
+            thread.join(30)
 
 
 def pytest_configure(config: pytest.Config) -> None:

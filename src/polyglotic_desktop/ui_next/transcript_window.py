@@ -156,6 +156,7 @@ from polyglotic_desktop.ui_next.copying import (
 )
 from polyglotic_desktop.ui_next.languages import (
     language_name,
+    shown_name,
     spoken_names,
     target_languages,
 )
@@ -1701,7 +1702,7 @@ class TranscriptWindow(QWidget):
     def _export(self, captions: list[Caption], kind: str) -> str:
         languages = self.transcript.languages()
         seconds = self.transcript.seconds()
-        names = {str(code): language_name(str(code)) for code in languages}
+        names = {str(code): shown_name(str(code)) for code in languages}
         you = self.list.you.name
         if kind == "srt":
             return as_srt(captions, languages, self.transcript.started_at, seconds)

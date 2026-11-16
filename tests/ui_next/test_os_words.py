@@ -19,20 +19,6 @@ SOURCE = Path(__file__).resolve().parents[2] / "src" / "polyglotic_desktop"
 WINDOWS_WORDS = re.compile(r"\bWindows\b|\bPCs?\b|\bPC's\b")
 WRAPPERS = ("_tr", "_trn", "_tr_app", "tr")
 HIDDEN_ON_A_MAC = {
-    # starting at sign-in: no adapter on a Mac (OsAdapters.start_at_sign_in)
-    "Start Polyglotic with Windows?",
-    "Start with Windows",
-    (
-        "It waits in the tray, so captions are a click away when you play or "
-        "watch. Windows' Startup apps can turn it off."
-    ),
-    # the word card's voice: no voices on a Mac (OsAdapters.speaker)
-    (
-        "No {language} voice on this PC yet. Windows adds one for free: Settings > "
-        "Time & language > Speech > Add voices, then {language}."
-    ),
-    "No {language} voice on this PC",
-    "Opens Windows' Settings, where voices are added",
     # a metered connection: macOS isn't asked (OsAdapters.metered)
     "Paused: Windows says this connection is metered. {size} left to download.",
     # dictation's key: not held on a Mac (OsAdapters.hold_key)
@@ -98,3 +84,43 @@ def test_every_pc_string_has_a_mac_one() -> None:
                     alone.append(f"{path.name}:{node.lineno} {text[:60]}")
     assert alone == [], "say it on a Mac too: pc_or_mac(_tr(pc), _tr(mac))"
     assert mac_says_pc == []
+
+
+@pytest.mark.parametrize(
+    ("text", "mac"),
+    [
+        ("Hidden - Ctrl+Alt+H", "Hidden - ⌃⌘H"),
+        (
+            "Lock all (Ctrl+Alt+L); Pause is Ctrl+Alt+P.",
+            "Lock all (⌃⌘L); Pause is ⌃⌘P.",
+        ),
+        ("Drücke Strg+Alt+H.", "Drücke ⌃⌘H."),  # German's translation
+        ("Ctrl+Alt+D", "Ctrl+Alt+D"),  # dictation's key: not one of the hotkeys
+    ],
+)
+def test_a_mac_names_the_hotkeys_its_own_way(
+    monkeypatch: pytest.MonkeyPatch, text: str, mac: str
+) -> None:
+    """Control+Command on a Mac (polyglotic-hq 428), in every language."""
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert os_words.hotkeys_here(text) == text
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert os_words.hotkeys_here(text) == mac
+
+
+def test_no_text_names_windows_hotkeys_on_a_mac(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every text that names Ctrl+Alt+L, P or H (Help's topics and fixes,
+    Home's paused line, the lock button's tip) says ⌃⌘ on a Mac (428)."""
+    from polyglotic_desktop.core.listening.check import Problem
+    from polyglotic_desktop.ui_next import help_page, home
+    from polyglotic_desktop.ui_next.caption_window import lock_tip
+    from polyglotic_desktop.ui_next.views.home import Detail
+
+    monkeypatch.setattr(sys, "platform", "darwin")
+    texts = [text for _, text in help_page.set_up()]
+    texts += [help_page.problem(p, "Discord")[1] for p in Problem]
+    texts += [home._detail(Detail.RESUME, None), lock_tip("⌃⌘L")]
+    assert not [t for t in texts if re.search(r"(Ctrl|Strg)\+Alt\+[LPH]", t)]
+    assert sum("⌃⌘" in t for t in texts) >= 5

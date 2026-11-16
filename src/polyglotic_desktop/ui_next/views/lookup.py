@@ -309,6 +309,13 @@ class Card:
     """The word is a traditional form (its headword font)."""
     other: str = ""
     """The word's other form: traditional or simplified."""
+    simplified: tuple[str, ...] = ()
+    """Where a Chinese word that isn't written in Simplified is found in
+    Simplified, best first (polyglotic-hq 439): its first entry's headword -
+    the reading the card shows first - then the Traditional converter's
+    form. A recorded word is kept under its Simplified form (decision
+    0197), so a Traditional learner's card plays that recording. () for a
+    word read as written (`Lookup._simplified`)."""
     base: str = ""
     """An inflected English word's entry ("ran" counts for "run")."""
     chengyu: bool = False
@@ -770,6 +777,7 @@ class Lookup:
                 e.traditional == word and e.headword != word for e in entries
             ),
             other=self._other(word, entries) if has_han(word) else "",
+            simplified=self._simplified(word, entries),
             base=self._other(word, entries) if not has_han(word) else "",
             chengyu=any(e.idiom for e in entries),
             status=self._status(first),
@@ -921,6 +929,24 @@ class Lookup:
         first = entries[0]
         reading = said(first) if first.headword != form else first.reading
         return Part(form, reading, "; ".join(definitions(first)[0][:2]))
+
+    def _simplified(
+        self, word: str, entries: Sequence[DictionaryEntry]
+    ) -> tuple[str, ...]:
+        """`Card.simplified`: the dictionary's own pair first - the entry
+        the card shows first, so a Traditional form written for two words
+        (乾: 干 "dry", 乾 "heaven") is the word the card is about - then the
+        converter's (藉口: CC-CEDICT's own headword, then 借口). A word that
+        is a Simplified headword itself (乾 qián, 著 zhù) is read as written
+        unless Traditional is shown - the converter writes it."""
+        dictionary = self._tools().dictionary
+        if not isinstance(dictionary, ChineseDictionary) or not has_han(word):
+            return ()
+        converted = dictionary.simplified(word)
+        if converted == word and any(e.headword == word for e in entries):
+            return ()
+        forms = (entries[0].headword, *((converted,) if converted != word else ()))
+        return () if forms == (word,) else tuple(dict.fromkeys(forms))
 
     @staticmethod
     def _other(word: str, entries: Sequence[DictionaryEntry]) -> str:

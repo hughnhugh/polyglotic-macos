@@ -5,7 +5,6 @@ bundle itself is built and started on GitHub's macOS machine
 (.github/workflows/macos.yml)."""
 
 import ast
-import hashlib
 import plistlib
 import re
 import struct
@@ -125,6 +124,12 @@ def test_the_info_plist_asks_for_the_mic_and_system_audio_in_our_words() -> None
     assert str(info["NSMicrophoneUsageDescription"]).startswith("Polyglotic ")
     assert str(info["NSAudioCaptureUsageDescription"]).startswith("Polyglotic ")
     plistlib.dumps(info)  # what PyInstaller writes it as
+
+
+def test_the_packed_app_is_an_accessory_from_its_start() -> None:
+    """No Dock icon: a window first shown while an app is in the Dock never
+    joins a full-screen app's Space (polyglotic-hq 429, decision 0201)."""
+    assert build.info_plist("0.2.0")["LSUIElement"] is True
 
 
 def test_the_icon_is_one_icns_of_pngs() -> None:
@@ -282,19 +287,3 @@ def test_a_certificate_that_didnt_take_is_a_problem_though_the_bundle_verifies(
         "couldn't sign" in f and "errSecInternalComponent" in f for f in found
     ), found
     assert any("signed ad hoc although" in f for f in found), found
-
-
-def test_the_release_zip_is_named_for_its_version_with_its_sha256_beside_it(
-    tmp_path: Path,
-) -> None:
-    zipped = tmp_path / build.MACOS_ZIP
-    zipped.write_bytes(b"PK\x03\x04 a stand-in zip")
-    kept = build.release_zip(zipped, "0.1.7", "macos-arm64-alpha", tmp_path / "release")
-    name = "Polyglotic-0.1.7-macos-arm64-alpha.zip"
-    sha = hashlib.sha256(zipped.read_bytes()).hexdigest()
-    assert kept == {"zip": name, "sha256": sha, "bytes": zipped.stat().st_size}
-    assert (tmp_path / "release" / name).read_bytes() == zipped.read_bytes()
-    # one line in shasum's own form, LF-ended, for `shasum -a 256 -c`
-    assert (
-        tmp_path / "release" / f"{name}.sha256"
-    ).read_bytes() == f"{sha}  {name}\n".encode()

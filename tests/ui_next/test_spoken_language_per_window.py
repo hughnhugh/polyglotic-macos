@@ -147,7 +147,9 @@ def test_a_second_language_is_asked_for_by_language_and_shown_once_set(
     popover._second_chosen(item(choices, "zh"))
     assert asked == [("en", "zh")]
     window.set_second_languages({EN: ZH})  # the app kept it: every window follows
-    assert popover.second.text().startswith("Chinese (Simplified)")
+    # the picker names the language, whatever its script (polyglotic-hq 433)
+    assert popover.second.text().startswith("Chinese")
+    assert "Simplified" not in popover.second.text()
     window.set_second("zh")  # already so: not asked again
     window.set_second("")
     assert asked == [("en", "zh"), ("en", "")]

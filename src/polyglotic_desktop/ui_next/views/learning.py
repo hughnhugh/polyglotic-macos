@@ -49,6 +49,10 @@ class PackLine:
     size: int = 0
     """What this app would download for it, in bytes - gzipped (0: not
     known yet)."""
+    recorded_offered: int = 0
+    """Its commonest words recorded, downloaded by themselves after it: their
+    size, gzipped, where the list has them for this app (decision 0192; 0:
+    none)."""
     installed_version: str = ""
     installed_size: int = 0
     progress: PackProgress | None = None
@@ -59,7 +63,11 @@ class PackLine:
     """A newer version waits for a connection that isn't metered (its
     size; 0: none)."""
     credits: str = ""
-    """Whose data it is, from the list: shown as it is (names, not words)."""
+    """Whose data it is, from the list: shown as it is (names, not words) -
+    and who said its recorded words, from their file."""
+    recorded_size: int = 0
+    """Its commonest words are recorded on this PC: the file's size
+    (decision 0133; 0: none)."""
     unlisted: bool = False
     """No list is held, and the last try couldn't read one (offline, a
     server error, refused): whether a pack can be had isn't known - not
@@ -215,6 +223,12 @@ class LanguageCard:
     quick: QuickMarksLine | None = None
     """"Mark the first N words known", with Undo and Reset (342): where the
     level can be changed now. None: not offered."""
+    recorded_size: int = 0
+    """A full dictionary's commonest words are recorded on this PC (decision
+    0197): the file's size (0: none). A basic one's say so on its pack's
+    line (`PackLine.recorded_size`)."""
+    recorded_credits: str = ""
+    """Who said them, under what licence, from their file."""
 
     @property
     def no_pack_yet(self) -> bool:
@@ -309,6 +323,7 @@ def cards(
     choices_of: Callable[[str], LanguageChoices] | None = None,
     pack_line: Callable[[str], PackLine | None] = lambda _: None,
     quick_of: Callable[[str], tuple[QuickMarks, int]] | None = None,
+    recorded_of: Callable[[str], tuple[int, str]] = lambda _: (0, ""),
 ) -> tuple[LanguageCard, ...]:
     """The cards, the main language first: `running`, the languages
     whose dictionary and learning data are open now (the full ones, and
@@ -319,7 +334,8 @@ def cards(
     learner chose for a language (None: nothing, anywhere); `pack_line`, a
     basic language's pack as its card says it; `quick_of`, a language's
     Undo and Reset after quick marks, and how many words the last marked
-    (None: no quick marks offered)."""
+    (None: no quick marks offered); `recorded_of`, a full dictionary's
+    recorded words on this PC: their size and credits (decision 0197)."""
     found = []
     for code in languages.all:
         tier = tier_of(code)
@@ -329,6 +345,9 @@ def cards(
         level = level_line(line) if keeps else None
         pack_here = tier is Tier.BASIC and code in packs
         pack = pack_line(code) if tier is Tier.BASIC else None
+        recorded_size, recorded_credits = (
+            recorded_of(code) if tier is Tier.FULL else (0, "")
+        )
         quick = None
         if quick_of is not None and code in running:
             quick = quick_marks_line(code, line, *quick_of(code))
@@ -347,6 +366,8 @@ def cards(
                 choices=choices_of(code) if choices_of else LanguageChoices(),
                 in_words=line is not None and not line.by_level,
                 quick=quick,
+                recorded_size=recorded_size,
+                recorded_credits=recorded_credits,
             )
         )
     return tuple(found)

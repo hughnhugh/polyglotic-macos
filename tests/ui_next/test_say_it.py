@@ -6,6 +6,7 @@ so and leads to Windows' speech settings; the app's own sound is handed
 to the captions' hush; a screen reader gets the state. A stand-in speaker:
 nothing is played."""
 
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -19,7 +20,7 @@ from polyglotic_desktop.ui_next import glyphs
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
 from polyglotic_desktop.ui_next.views.lookup import LookupContext, WordAt
 from polyglotic_desktop.ui_next.views.placement import Rect
-from polyglotic_desktop.ui_next.views.speech import SPEECH_SETTINGS
+from polyglotic_desktop.ui_next.views.speech import MAC_SPEECH_SETTINGS, SPEECH_SETTINGS
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 
 AREA = Rect(0, 0, 1920, 1040)
@@ -190,8 +191,12 @@ def test_the_apps_own_sound_is_handed_to_the_captions_hush(
 
 
 def test_no_voice_says_so_and_leads_to_windows_speech_settings(
-    qapp: QApplication, opened: Opened, hushed: list[tuple[float, float]]
+    qapp: QApplication,
+    opened: Opened,
+    hushed: list[tuple[float, float]],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(sys, "platform", "win32")  # Windows' words (a Mac's: below)
     english_only = Speaker((DAVID,))  # a Chinese learner on an English Windows
     card = LookupCard(learner())
     card.use_speech(WordSpeech(english_only, open_url=opened, parent=card))
@@ -212,6 +217,30 @@ def test_no_voice_says_so_and_leads_to_windows_speech_settings(
         english_only.installed = (DAVID, HUIHUI)  # a voice added meanwhile
         card._render()
         assert glyph(card) is glyphs.Glyph.SPEAKER and not has(card, "add_voice")
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        qapp.processEvents()
+
+
+def test_on_a_mac_no_voice_leads_to_spoken_content(
+    qapp: QApplication, opened: Opened, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The Mac's words and its System Settings page (polyglotic-hq 428)."""
+    monkeypatch.setattr(sys, "platform", "darwin")
+    english_only = Speaker((DAVID,))
+    card = LookupCard(learner())
+    card.use_speech(WordSpeech(english_only, open_url=opened, parent=card))
+    try:
+        pin(card, "电脑")
+        assert card.tip("say") == "No Chinese voice on this Mac"
+        card.do("say")
+        texts = [b.layout.text() for b in card._painted.blocks]
+        assert any("Spoken Content > System voice > Manage Voices" in t for t in texts)
+        assert card.tip("add_voice") == "Opens System Settings, where voices are added"
+        card.do("add_voice")
+        assert opened.urls == [MAC_SPEECH_SETTINGS]
     finally:
         card.close_card()
         card.close()

@@ -1,6 +1,7 @@
 # 0196 The Mac release is signed with our own self-signed certificate
 
-- **Status:** accepted
+- **Status:** accepted; its release zip (`build.release_zip`) replaced by
+  0202, Velopack's portable zip
 - **Date:** 2026-11-16
 - **Decided by:** the user, 2026-11-16 ~23:00 ("a self-signed certificate
   so permissions carry over between versions"; polyglotic-hq 422). Claude

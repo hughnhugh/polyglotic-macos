@@ -435,6 +435,7 @@ def learning(
     packs: Mapping[str, PackLine] | None = None,
     installed: Sequence[InstalledPackLine] = (),
     learning_window: WindowSize | None = None,
+    recorded: Mapping[str, tuple[int, str]] | None = None,
 ) -> Callable[[Lab], QWidget]:
     """Learning (polyglotic-hq 262): the languages being learned, each card
     saying what its dictionary gives and its level, and word introductions
@@ -442,7 +443,9 @@ def learning(
     every one learned, open at once). `packs`: a basic language's pack line
     on its card; `installed`: the packs on this PC (decision 0122).
     `learning_window`: Chinese's level said in words (about 1,000) and this learning
-    window chosen (decision 0144); None: the level picked as HSK 3."""
+    window chosen (decision 0144); None: the level picked as HSK 3.
+    `recorded`: a full dictionary's recorded words, their size and credits
+    (decision 0197)."""
 
     def run(lab: Lab) -> QWidget:
         tools = full_tools()  # Chinese, the level picked
@@ -466,6 +469,7 @@ def learning(
                 here,
                 pack_line=(packs or {}).get,
                 choices_of=lambda _code: LanguageChoices(window_size=learning_window),
+                recorded_of=lambda code: (recorded or {}).get(code, (0, "")),
             ),
             choice,
             running[0],
@@ -933,6 +937,42 @@ STATES = [
                     InstalledPackLine("es", "2026.11.14", 29_500_000),
                     InstalledPackLine("ru", "2026.11.14", 62_439_424),
                 ),
+            ),
+        ),
+        (  # recorded words come after it: the offer says both sizes (423)
+            "learning_pack_offer_recorded",
+            learning(
+                LearningLanguages("zh", ("es",)),
+                WordIntroductions.A_FEW,
+                packs={"es": PackLine(size=9_400_000, recorded_offered=29_002_130)},
+            ),
+        ),
+        (
+            "learning_pack_recorded",  # its commonest words recorded (418)
+            learning(
+                LearningLanguages("zh", ("es",)),
+                WordIntroductions.A_FEW,
+                packs={
+                    "es": PackLine(
+                        installed_version="2026.11.16",
+                        installed_size=29_500_000,
+                        recorded_size=30_277_632,
+                    )
+                },
+                installed=(InstalledPackLine("es", "2026.11.16", 59_777_632),),
+            ),
+        ),
+        (
+            "learning_built_in_recorded",  # CC-CEDICT's words recorded (424)
+            learning(
+                LearningLanguages("zh", ("es",)),
+                WordIntroductions.A_FEW,
+                recorded={
+                    "zh": (
+                        30_512_640,
+                        "Chatterbox Multilingual zh-cmn, built-in voice; MIT",
+                    )
+                },
             ),
         ),
         ("account_signed_out", account(False)),

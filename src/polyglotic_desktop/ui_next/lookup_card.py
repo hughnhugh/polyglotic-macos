@@ -118,6 +118,7 @@ from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS
 from polyglotic_desktop.ui_next.copying import Painted, TextSelection, copy_quietly
 from polyglotic_desktop.ui_next.languages import learned_name
 from polyglotic_desktop.ui_next.load_card import add_text, check_texts, stage_text
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import KeyState
 from polyglotic_desktop.ui_next.views.lookup import (
     Card,
@@ -538,6 +539,9 @@ class LookupCard(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # on a Mac a tool window hides while the app isn't active - and the
+        # app is never active while the learner is in another (polyglotic-hq 429)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setMouseTracking(True)
         self.setObjectName("lookup_card")
@@ -798,7 +802,7 @@ class LookupCard(QWidget):
         language = word_language(card)
         if language is None:
             return None
-        return language, self.speech.state(card.word, language)
+        return language, self.speech.state(card.word, language, card.simplified)
 
     def _lay_out(self, card: Card, width: int) -> _Painted:
         painted = _Painted(width)
@@ -927,14 +931,22 @@ class LookupCard(QWidget):
 
     def _no_voice(self, painted: _Painted, language: str) -> None:
         """No voice for the word's language on this PC: how Windows adds
-        one (Microsoft's steps, polyglotic-hq 286), and a button to it."""
+        one (Microsoft's steps, polyglotic-hq 286), and a button to it - on
+        a Mac, how macOS adds one (Apple's steps, 428)."""
         name = learned_name("zh" if language == "zh-hant" else language)
         painted.space(4)
         painted.text(
-            _tr(
-                "No {language} voice on this PC yet. Windows adds one for free: "
-                "Settings > Time & language > Speech > Add voices, then "
-                "{language}."
+            pc_or_mac(
+                _tr(
+                    "No {language} voice on this PC yet. Windows adds one for free: "
+                    "Settings > Time & language > Speech > Add voices, then "
+                    "{language}."
+                ),
+                _tr(
+                    "No {language} voice on this Mac yet. macOS adds one for free: "
+                    "System Settings > Accessibility > Spoken Content > System "
+                    "voice > Manage Voices, then {language}."
+                ),
             ).format(language=name),
             _ui(12),
             DIM,
@@ -1319,7 +1331,10 @@ class LookupCard(QWidget):
         language, state = saying
         if state is Say.NO_VOICE:
             name = learned_name("zh" if language == "zh-hant" else language)
-            return _tr("No {language} voice on this PC").format(language=name)
+            return pc_or_mac(
+                _tr("No {language} voice on this PC"),
+                _tr("No {language} voice on this Mac"),
+            ).format(language=name)
         if state is Say.SPEAKING:
             return _tr("Stop (R)")
         if self.speech.times_said(card.word, language) % 2:
@@ -1353,7 +1368,10 @@ class LookupCard(QWidget):
             "not_now": _tr("Don't ask about this language again"),
             "back": _tr("Back (Backspace)"),
             "close": _tr("Close (Esc)"),
-            "add_voice": _tr("Opens Windows' Settings, where voices are added"),
+            "add_voice": pc_or_mac(
+                _tr("Opens Windows' Settings, where voices are added"),
+                _tr("Opens System Settings, where voices are added"),
+            ),
             "copy": _tr("Copy the word, its reading and meaning (Ctrl+C)"),
         }.get(what, "")
 
@@ -1465,7 +1483,7 @@ class LookupCard(QWidget):
         if state is Say.NO_VOICE:
             self._voice_help = not self._voice_help
         else:
-            self.speech.toggle(card.word, language)
+            self.speech.toggle(card.word, language, card.simplified)
 
     @staticmethod
     def _say_key(watched: QObject, event: QKeyEvent) -> bool:

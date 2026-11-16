@@ -482,3 +482,34 @@ def test_learn_another_says_checking_while_an_old_list_is_checked(
     )
     assert page.choices.currentText() == "German - Basic dictionary"
     assert "once it's downloaded" in page.chosen_gives.text()
+
+
+def test_a_full_dictionarys_recorded_words_are_said_on_its_card(
+    qapp: QApplication,
+) -> None:
+    """CC-CEDICT's commonest words recorded on this PC (decision 0197): its
+    card says so, with their size, and who said them on hover - only a full
+    language's (a basic one's say it on its pack's line), only with a file."""
+    languages = LearningLanguages("zh", ("en", "ja"))
+
+    def recorded(code: str) -> tuple[int, str]:
+        return {"zh": (30_512_640, "Chatterbox Multilingual zh-cmn; MIT")}.get(
+            code, (0, "")
+        )
+
+    chinese, english, japanese = cards(languages, ("zh",), levels, recorded_of=recorded)
+    assert chinese.recorded_size == 30_512_640 and "MIT" in chinese.recorded_credits
+    assert english.recorded_size == 0 and japanese.recorded_size == 0
+    page = made()
+    page.show_learning(
+        languages,
+        cards(languages, ("zh",), levels, recorded_of=recorded),
+        WordIntroductions.A_FEW,
+        "zh",
+    )
+    shown = {card.code: card for card in page.cards}
+    said = shown["zh"].recorded
+    assert said is not None
+    assert said.text() == "Its commonest words are recorded (30.5 MB)."
+    assert "Chatterbox" in said.toolTip()
+    assert shown["en"].recorded is None and shown["ja"].recorded is None

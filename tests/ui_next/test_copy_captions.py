@@ -26,6 +26,7 @@ from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.languages import show_mandarin_in_traditional
 from polyglotic_desktop.ui_next.settings_popover import COLUMN_ROWS, ROWS
 from polyglotic_desktop.ui_next.views.caption_window import WindowChoices
 from polyglotic_desktop.ui_next.views.captions import Line
@@ -288,5 +289,33 @@ def test_a_second_language_line_is_copied_under_its_language(
             "See you tomorrow.\n    Chinese (Simplified): 明天见。\n"
         )
     finally:
+        window.close()
+        window.deleteLater()
+
+
+def test_traditional_lines_are_copied_as_traditional(qapp: QApplication) -> None:
+    """ "Show Mandarin in: Traditional": each Chinese line arrives converted
+    (polyglotic-hq 432), and Copy names it by its script, not "Chinese
+    (Simplified)" (433)."""
+    window = window_of(qapp, 0)
+    show_mandarin_in_traditional(True)
+    try:
+        window.set_second_languages({EN: ZH})
+        said = CaptionUpdate(
+            CaptionId("c1"),
+            APP,
+            CaptionKind.FINISHED,
+            clauses=(Clause("See you tomorrow.", translations={EN: "明天見。"}),),
+            language=EN,
+            languages_heard=(EN,),
+        )
+        window.view.apply(said)
+        window.apply_changed(new_caption=True)
+        window.controls["copy_all"].trigger()
+        assert copied().endswith(
+            "See you tomorrow.\n    Chinese (Traditional): 明天見。\n"
+        )
+    finally:
+        show_mandarin_in_traditional(False)
         window.close()
         window.deleteLater()

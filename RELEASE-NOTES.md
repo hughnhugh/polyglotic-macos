@@ -26,6 +26,21 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
+- Spanish, Italian and Portuguese words are recorded: the speaker on a
+  word's card says the language's 10,000 commonest words even on a PC
+  with no Windows voice for it. The recordings come after the language's
+  dictionary: Learning says both sizes before the download, and says when
+  they're there.
+- Chinese words are recorded too: the 10,000 commonest words in
+  CC-CEDICT, said by an open voice model. They download quietly for
+  anyone learning Chinese (30 MB, never on a metered connection), and
+  Chinese's card on Learning says when they're there. They play for a
+  word written in Traditional characters too.
+- On a Mac, captions stay over full-screen videos and apps, and on
+  every desktop (Space). Polyglotic lives in the menu bar there, not the
+  Dock: its icon at the top of the screen opens Home and Settings.
+- On a Mac, dictation types into the app you're using: hold Right ⌘ and
+  speak. macOS asks once for the Accessibility permission it needs.
 - Every language with a dictionary keeps your words, as Chinese and
   English do: learn Russian, Spanish, Japanese or any other language
   whose dictionary is downloaded, and a word's card has Save to, Add to
@@ -98,6 +113,10 @@ the app's What's new, the website's What's new and the Discord post.
   Dictation uses the microphone chosen too.
 - A locked caption window can be unlocked from the window itself: rest
   the mouse on the lock in its corner for a moment, then click Unlock.
+- On a Mac, Polyglotic opened from Downloads (or anywhere but
+  Applications) offers once to move itself to Applications and opens
+  again from there: macOS runs it from a temporary copy elsewhere, and
+  from that copy it can't update itself.
 
 ### Better
 
@@ -236,6 +255,9 @@ the app's What's new, the website's What's new and the Discord post.
   language: with Chinese as English's second language, an English
   caption's Chinese line was saved in the English column, and the Chinese
   one was empty.
+- With Mandarin shown in Traditional characters, a saved or copied
+  transcript names its Chinese lines Chinese (Traditional), not Chinese
+  (Simplified); and the language pickers name the language Chinese.
 
 ## 0.1.6 - 2026-11-15
 

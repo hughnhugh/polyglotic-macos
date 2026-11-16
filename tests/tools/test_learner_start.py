@@ -4,11 +4,17 @@ window, which CI's start gate runs on the real CC-CEDICT
 dictionaries, so they're tested on every run."""
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 from tests.ui.test_check_install import sample_dictionaries
-from tools.learner_start import made_up_learner, returning_learner, timed_start
+from tools.learner_start import (
+    longest_busy,
+    made_up_learner,
+    returning_learner,
+    timed_start,
+)
 
 from polyglotic_desktop.adapters.json_settings import JsonSettingsStore
 from polyglotic_desktop.adapters.sqlite_dictionary import write_dictionary
@@ -85,6 +91,47 @@ def test_a_returning_learner_is_asked_nothing(tmp_path: Path) -> None:
     finally:
         store.close()
     assert (data / "learning.sqlite").read_bytes() == learning.read_bytes()
+
+
+def test_a_pack_learner_learns_the_packs_language_too(tmp_path: Path) -> None:
+    """436's start: Chinese, with a pack language beside it (decision 0175)."""
+    learning = tmp_path / "learning.sqlite"
+    made_up_learner(ranked_dictionary(tmp_path / "cedict.sqlite", 5), 5, learning)
+
+    data = returning_learner(tmp_path / "data", learning, pack_language="es")
+
+    store = JsonSettingsStore(data / "settings.json")
+    try:
+        languages = Settings(store).value.learning_languages
+    finally:
+        store.close()
+    assert (languages.main, languages.also) == ("zh", ("es",))
+
+
+def test_the_longest_stretch_is_read_from_the_watchdogs_lines_since(
+    tmp_path: Path,
+) -> None:
+    log = tmp_path / "polyglotic.log"
+    watchdog = "WARNING polyglotic_desktop.perf.watchdog: interface thread busy"
+    log.write_text(
+        f"2026-11-17 02:11:15,407 {watchdog} 250 ms in controls.py:__init__"
+        " (from main.py:new_interface), of 468 ms in a loop outside Qt's\n"
+        "2026-11-17 02:11:16,790 INFO polyglotic_desktop.main: learning data open\n"
+        f"2026-11-17 02:11:17,230 {watchdog} 61 ms in words_page.py:_add"
+        " (from main.py:open_added)\n"
+        f"2026-11-17 02:11:17,530 {watchdog} 87 ms in Qt or a library, outside"
+        " the app's code\n",
+        encoding="utf-8",
+    )
+
+    since = datetime(2026, 11, 17, 2, 11, 16)
+    assert longest_busy(log, since) == (
+        87.0,
+        "Qt or a library, outside the app's code",
+    )
+    assert longest_busy(log, datetime(2026, 11, 17, 2, 11, 17, 300_000))[0] == 87.0
+    assert longest_busy(log, datetime(2026, 11, 17, 2, 12)) == (0.0, "")
+    assert longest_busy(tmp_path / "none.log", since) == (0.0, "")
 
 
 @pytest.mark.windows_only  # the app's own OS adapters

@@ -7,7 +7,9 @@ Windows' own voices (`platform.speaking.SpeakerThread` over
 `platform.windows.voices`, decision 0077): on the PC, offline, free. A better
 voice later - a neural voice from our server, a cloud voice, one bundled with
 the app - is another speaker listing its own voices, and a setting; nothing
-that asks changes.
+that asks changes. The second kind is here: recorded words
+(`RECORDED`), made ahead of time by a speech model we run ourselves, so a
+PC without a voice for a language still says its commonest words.
 
 Times are on the app's clock (`time.perf_counter`, the captures' clock too):
 `sounding` says when the app's own sound plays, so the captions can leave it
@@ -17,6 +19,12 @@ out (`SpeechPipeline.hush`).
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Protocol
+
+RECORDED = "recorded:"
+"""How the id of a recorded voice starts: a language's words spoken ahead of
+time and shipped beside its dictionary (decision 0133;
+`platform.recorded_voices`), not a voice that can say anything. Whoever
+picks a voice asks whether the word is recorded before picking one."""
 
 Sounding = Callable[[float, float], None]
 """Told as a word's sound starts: when (`time.perf_counter`) and for how many

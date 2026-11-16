@@ -20,12 +20,22 @@ from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next.caption_window import LOCKED_SEC, lock_tip, locked_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.unlock_spot import REST_LOOKS, UnlockSpot
 from polyglotic_desktop.ui_next.views.placement import Rect
 
 LOCK_KEYS = "⌥⌘L" if sys.platform == "darwin" else "Ctrl+Alt+L"
 """Qt's Ctrl+Alt+L as the OS writes it: on a Mac Qt's Ctrl is Command,
 written ⌥⌘L there (polyglotic-hq 420: the first Mac run of the suite)."""
+APP_LOCK_KEYS = "⌃⌘L" if sys.platform == "darwin" else "Ctrl+Alt+L"
+"""The app's own lock hotkey as the OS writes it: on a Mac Control+Command
+(`DesktopApp`, polyglotic-hq 428)."""
+APP_HOTKEYS = (
+    "Meta+Ctrl+L, Meta+Ctrl+P, Meta+Ctrl+H"
+    if sys.platform == "darwin"
+    else "Ctrl+Alt+L, Ctrl+Alt+P, Ctrl+Alt+H"
+)
+"""The app's hotkeys as the log names them (Qt's portable text)."""
 
 
 def test_on_locking_it_says_the_hotkey_then_stops(
@@ -86,7 +96,7 @@ def test_the_windows_say_the_app_s_hotkey_and_none_once_taken(
 ) -> None:
     desktop, windows = wired
     (window,) = windows.windows.values()
-    assert window.unlock_keys == LOCK_KEYS
+    assert window.unlock_keys == APP_LOCK_KEYS
     desktop.hotkeys_not_working(["L"])  # another app has it
     assert window.unlock_keys == ""
     desktop.lock_windows.setChecked(True)
@@ -120,7 +130,7 @@ def test_with_no_hotkey_the_windows_say_where_to_unlock_and_the_log_says_why(
     (window,) = windows.windows.values()
     with caplog.at_level("WARNING"):
         desktop.hotkeys_not_working(not_working(desktop.hotkeys, {}, []))
-    assert "not working, not shown: Ctrl+Alt+L, Ctrl+Alt+P, Ctrl+Alt+H" in caplog.text
+    assert f"not working, not shown: {APP_HOTKEYS}" in caplog.text
     assert window.unlock_keys == ""
     assert "rest the mouse on the lock" in window.controls["lock"].toolTip()
     desktop.lock_windows.setChecked(True)
@@ -132,8 +142,8 @@ def test_the_lock_button_s_tip_names_the_hotkey_while_it_works(
 ) -> None:
     _, windows = wired
     (window,) = windows.windows.values()
-    assert window.controls["lock"].toolTip().endswith("Ctrl+Alt+L")
-    assert lock_tip("") != lock_tip("Ctrl+Alt+L")
+    assert window.controls["lock"].toolTip().endswith(keys("Ctrl+Alt+L"))
+    assert lock_tip("") != lock_tip(keys("Ctrl+Alt+L"))
 
 
 def rest_on(spot: UnlockSpot, looks: int) -> None:

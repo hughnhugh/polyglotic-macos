@@ -398,6 +398,18 @@ class LanguageCardView(Card):
         said = what_it_gives(card.code, card.tier, card.pack_here, card.pack_known)
         self.gives = label(said, "Faint", wrap=True)  # "Faint": its style's name
         self.add(self.gives)
+        self.recorded: QLabel | None = None
+        if card.recorded_size:  # a full dictionary's recorded words (0197)
+            self.recorded = label(
+                _tr("Its commonest words are recorded ({size}).").format(
+                    size=size_text(card.recorded_size)
+                ),
+                "Faint",
+                wrap=True,
+            )
+            self.recorded.setObjectName(f"learning.{card.code}.recorded")
+            self.recorded.setToolTip(card.recorded_credits)
+            self.add(self.recorded)
 
         self.pack: PackRow | None = None
         # a basic language's pack (decision 0122) - with none to be had too:

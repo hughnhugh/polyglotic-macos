@@ -387,7 +387,7 @@ class ChineseDictionary:
         """Each level scheme's words by place, once read (`_leveled`)."""
         self._simplified_of: Mapping[str, str] = {}
         """Traditional characters -> the Simplified ones they were converted
-        from (`read_traditional`); {} until Traditional is shown."""
+        from (`read_traditional`); {} while Traditional isn't shown."""
 
     def read_traditional(self, simplified_of: Mapping[str, str]) -> None:
         """From now on, find words in Traditional text by their Simplified
@@ -395,12 +395,16 @@ class ChineseDictionary:
         converter writes Taiwan's and OpenCC's forms, and CC-CEDICT hasn't
         every one (佈滿 is its 布滿, 上週 its 上周), so a converted line
         would split - and count words - unlike the line it came from
-        (polyglotic-hq 375). Safe from any thread: set in one step."""
+        (polyglotic-hq 375). {} forgets them: Traditional no longer shown,
+        lookups, splits and readings are a Simplified reader's again (442).
+        Safe from any thread: set in one step."""
         self._simplified_of = dict(simplified_of)
+        self._read = {}  # readings found, or not, by the forms before
 
-    def _simplified(self, text: str) -> str:
+    def simplified(self, text: str) -> str:
         """`text` with each converted Traditional character back as its
-        Simplified one - the same length."""
+        Simplified one - the same length; `text` as it is until Traditional
+        is shown (`read_traditional`)."""
         of = self._simplified_of
         return "".join(of.get(c, c) for c in text) if of else text
 
@@ -440,7 +444,7 @@ class ChineseDictionary:
         counts the word a learner knows, not a variant of it (375)."""
         entries = [entry_from_record(r) for r in self._file.records(word)]
         if self._simplified_of and all(e.variant_only for e in entries):
-            simplified = self._simplified(word)
+            simplified = self.simplified(word)
             if simplified != word:
                 instead = [entry_from_record(r) for r in self._file.records(simplified)]
                 # a variant's own reading first: 瞭 is 了's liǎo, not le
@@ -572,7 +576,7 @@ class ChineseDictionary:
 
     def _split_run(self, run: str) -> list[tuple[int, int]]:
         words = self._split_data()  # a form -> its commonness
-        simplified = self._simplified(run)  # a converted line splits as before (375)
+        simplified = self.simplified(run)  # a converted line splits as before (375)
         n = len(run)
         # best[i]: (words, sum of squared lengths, -commonness, previous cut)
         # for run[:i]; commonness is the words' summed _commonness

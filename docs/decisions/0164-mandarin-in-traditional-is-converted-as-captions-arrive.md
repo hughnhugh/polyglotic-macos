@@ -44,14 +44,19 @@ forms, TWVariants: OpenCC's `s2tw`), longest phrase first, **one character
 for one** - a table that would change a length is refused, so the
 server's spans, selections and the word under the mouse all still line
 up. The table is OpenCC ver.1.1.9's (Apache-2.0), made into one file by
-`tools/traditional_table.py`, read the first time a caption needs it.
+`tools/traditional_table.py`, read on a thread of its own when
+Traditional is chosen (at the start, or switched on; polyglotic-hq 442).
 
 **Words:** once Traditional is shown, the Chinese dictionary also finds a
 word by its Simplified form (`ChineseDictionary.read_traditional`): where
 the Traditional form isn't one of CC-CEDICT's (佈滿 is its 布滿) the split
 uses the Simplified form, and where it is only "variant of" (宣佈) a
 lookup gives the Simplified word's entries. So a converted line splits as
-the line it came from, and counts the words a learner knows.
+the line it came from, and counts the words a learner knows. The
+dictionary is told when Traditional is chosen, not with the first
+converted caption, so a card opened from Words before any caption finds
+Taiwan's forms too, and told none when it's switched off, so it reads as a
+Simplified learner's again (`MandarinScript`; polyglotic-hq 442).
 
 Enforced by `tests/lexicon/test_traditional.py`, `tests/test_mandarin_script.py`
 and `tests/ui_next/test_mandarin_script_row.py`.
