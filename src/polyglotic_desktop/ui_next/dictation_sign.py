@@ -75,6 +75,9 @@ class DictationSign(QWidget):
         self.setAccessibleName(_tr("Dictation"))
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # on a Mac a tool window hides while the app isn't active - and the
+        # app is never active while the learner is in another (polyglotic-hq 429)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setFont(ui_font())
         self.text = ""
         self.listening = False

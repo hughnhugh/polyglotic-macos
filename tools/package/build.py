@@ -317,6 +317,9 @@ def info_plist(version: str) -> dict[str, object]:
         "NSHighResolutionCapable": True,
         "NSMicrophoneUsageDescription": MIC_USE,
         "NSAudioCaptureUsageDescription": AUDIO_USE,
+        # an accessory from the start: no Dock icon, and the caption windows
+        # allowed over full-screen apps (polyglotic-hq 429, decision 0201)
+        "LSUIElement": True,
     }
 
 

@@ -114,7 +114,12 @@ src/polyglotic_desktop/
       system.py        which macOS this is (`macos-26`), the data folder (`~/Library/Application Support/Polyglotic`, decision 0185), the launch clock (libproc), the menu bar's light or dark, Core Foundation's error box
       keychain.py      the device token in the Keychain through Security.framework's SecItem calls (never the `security` command); the install id outlives signing out (0080)
       one_copy.py      one copy per user and data folder: an exclusive flock in the data folder's `locks/`, let go when the process ends
-      not_yet.py       what the first Mac build hasn't got, each saying so through its port: hotkeys, dictation's key and typing, staying above full-screen apps, the sample aloud (voices and start at sign-in: None in `OsAdapters`)
+      not_yet.py       what the Mac build hasn't got, each saying so through its port: hotkeys, the sample aloud, keys held elsewhere (voices and start at sign-in: None in `OsAdapters`)
+      on_top.py        the caption windows over full-screen apps and on every Space: panels at the screen saver's level, joining every Space, non-activating; the front watch (macOS's notifications); the app an accessory (no Dock icon) for its whole run (polyglotic-hq 429, decision 0201)
+      window_list.py   the windows on screen, front to back: numbers, levels, owners and places only (never titles or pictures)
+      hold_key.py      dictation's key: Carbon's hotkey for a key with modifiers, the modifiers' state for one held alone (Right Command); no event tap (429)
+      text_input.py    dictation's words typed into the front app as Unicode key events, with the Accessibility permission asked once a run; the one Mac file that sends input (429)
+      objc.py          Objective-C's runtime through ctypes: messages typed as stated, blocks, autorelease pools
       capture.py       Core Audio process taps through catap (macOS 14.2+): one app with its helper processes, everything else (all but the app and Polyglotic), the whole system; the mic through PortAudio (sounddevice); each mixed to mono, resampled to 16kHz and stamped; a permission not given (silence while something plays) said as `NOT_ALLOWED` (411)
       apps.py          the apps with sound, for the app picker: Core Audio's processes grouped by the app bundle they live in, named by bundle ID
       categories.py    bundle ID -> category; the known-apps list's public names (those Windows' list has) and Mac-only apps' names
@@ -282,6 +287,7 @@ tools/
   linux_qt_libs.sh   Qt's system libraries for the Linux runner, unpacked without root (decision 0038)
   app_tour.py        the app from source on this OS's real windows, signed in to a stand-in server, captioning the app's own FLEURS sample fed straight in: checks and each window's grab() - Home, a caption window, the card, Words, Settings, the transcript (the macOS job, decision 0186)
   macos_measure.py   what a GitHub macOS machine allows for capture: BlackHole, the sound devices, whether a system-audio permission can be written; reported, never failing (decision 0186)
+  macos_parity_checks.py  the caption windows over a full-screen TextEdit (the window list's levels and order) and dictation's typing and key, on GitHub's macOS machine; pass, fail or unknown each (polyglotic-hq 429)
   macos_capture_checks.py  Mac capture checked on GitHub's macOS machine, on BlackHole: one app's tap, everything else, global and device taps, the mic, the clock's drift, the packed app's own `--check-capture`, and the permission taken away; pass, fail or unknown each, only a fail failing (polyglotic-hq 412)
   private_desktop.py real windows on a Windows desktop of their own, never shown: a command run there, its windows read from outside, pictures by its own grab() (docs/real-windows.md)
   window_icon.py     a window's icon as Windows draws it (title bar, taskbar, Alt-Tab), read from outside its process, and whether it's the app's (docs/real-windows.md)

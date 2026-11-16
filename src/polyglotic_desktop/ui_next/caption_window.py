@@ -183,7 +183,7 @@ from polyglotic_desktop.ui_next.caption_surface import PAD, CaptionSurface
 from polyglotic_desktop.ui_next.glyphs import Glyph, icon, paint, text_width
 from polyglotic_desktop.ui_next.languages import language_name, spoken_names
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
-from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import (
     COLUMN_ROWS,
     ROWS,
@@ -797,9 +797,7 @@ def lock_tip(keys: str) -> str:
     window's): its hotkey, Ctrl+Alt+L, while that works; without it, how
     to unlock again - read before locking (polyglotic-hq 398)."""
     if keys:
-        return hotkeys_here(
-            _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
-        )
+        return _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
     return _tr(
         "Lock - clicks pass through to what's underneath. To unlock, rest the"
         " mouse on the lock in the corner, or use Home or the tray"
@@ -1978,6 +1976,9 @@ class CaptionWindow(QWidget):
         super().__init__(None, WINDOW_FLAGS)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # on a Mac a tool window hides while the app isn't active - and the
+        # app is never active while the learner is in another (polyglotic-hq 429)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setObjectName(f"caption_window.{index}")
         self.setFont(style.ui_font())  # its own words, painted or not
         self.setMouseTracking(True)

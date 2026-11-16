@@ -63,7 +63,7 @@ from polyglotic_desktop.ui_next.controls import (
 from polyglotic_desktop.ui_next.dictation_key import key_words
 from polyglotic_desktop.ui_next.home import Page, unreachable_words
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
-from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 
 CHECK_EVERY_MS = 2000
 KEEP_WHATS_NEW_MS = 500
@@ -507,7 +507,7 @@ def problem(
     `hotkeys`: those that work here, the only ones named."""
     if found is Problem.SERVER_UNREACHABLE:
         return unreachable_words(Unreachable.NO_ANSWER)
-    line, fix = {
+    return {
         Problem.SIGN_IN_NEEDED: (
             _tr("Not signed in"),
             pc_or_mac(
@@ -674,14 +674,13 @@ def problem(
             ),
         ),
     }[found]
-    return line, hotkeys_here(fix)  # "⌃⌘P" on a Mac (428)
 
 
 def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
     """`hotkeys`: those that work here. A topic names its hotkeys only
     while they all work; else it says where else the commands are
     (polyglotic-hq 400)."""
-    topics = [
+    return [
         (
             pc_or_mac(
                 _tr("Caption apps you add (Windows 11)"),
@@ -789,7 +788,6 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
             ),
         ),
     ]
-    return [(title, hotkeys_here(text)) for title, text in topics]  # "⌃⌘L" (428)
 
 
 def dictation_topic(key: str) -> tuple[str, str]:

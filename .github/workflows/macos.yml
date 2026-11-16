@@ -25,11 +25,10 @@
 #   app's own capture (`--check-capture`), and the permission taken away
 #   (NOT_ALLOWED); about 3 minutes plus `drift_minutes`. Fails only on a
 #   fail; unknown is what the machine didn't let us see.
-# - parity: the Mac's hotkeys, voice, menu-bar icon and login item
-#   (tools/macos_parity_checks.py, polyglotic-hq 428) - ⌃⌘L, P and H
-#   pressed by AppleScript, a word said on BlackHole and heard, the
-#   packed app's `--check-parity`; about 2 minutes. On by default, so a
-#   mirror run that names only the older parts runs it too.
+# - parity: the caption windows over a full-screen TextEdit, read from the
+#   window list (levels and order, never pictures), and dictation's typing
+#   and key (tools/macos_parity_checks.py, polyglotic-hq 429); about 2
+#   minutes. On by default, so the mirror's --parts leaves it on.
 #
 # How Claude runs it (gh, from a desktop worktree):
 #   gh workflow run macos.yml --ref <branch> [-f pack=false -f measure=false ...]
@@ -67,14 +66,14 @@ on:
         description: Mac capture's checks on BlackHole (taps, the mic, the packed app's capture)
         type: boolean
         default: true
+      parity:
+        description: The caption windows over a full-screen app, and dictation typing into TextEdit
+        type: boolean
+        default: true
       drift_minutes:
         description: How long the capture part's clock-drift check listens
         type: string
         default: "3"
-      parity:
-        description: The Mac's hotkeys, voice, menu-bar icon and login item (polyglotic-hq 428)
-        type: boolean
-        default: true
       keep_app:
         description: Upload the packed app's zip too (about 150 MB, kept 1 day)
         type: boolean
@@ -134,6 +133,12 @@ jobs:
         if: ${{ !cancelled() && inputs.tests }}
         run: uv run --no-sync lint-imports
 
+      # 429: TextEdit full-screen, the caption window's level and place read
+      # from the window list; typed words read back through Accessibility
+      - name: The caption windows over full-screen apps, and dictation's typing
+        if: ${{ !cancelled() && inputs.parity }}
+        run: uv run --no-sync python -m tools.macos_parity_checks "$OUT/parity/parity.json"
+
       # The pinned sources are checked against their SHA-256 either way
       # (tools/dictionaries/sources.py); the cache only saves downloading.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -183,13 +188,6 @@ jobs:
           if [ -d dist/Polyglotic.app ]; then app=(--app dist/Polyglotic.app); fi
           uv run --no-sync python -m tools.macos_capture_checks "$OUT/capture/capture.json" \
             --drift-minutes "$DRIFT_MINUTES" "${app[@]}"
-
-      - name: The Mac's hotkeys, voice, menu-bar icon and login item
-        if: ${{ !cancelled() && inputs.parity }}
-        run: |
-          app=()
-          if [ -d dist/Polyglotic.app ]; then app=(--app dist/Polyglotic.app); fi
-          uv run --no-sync python -m tools.macos_parity_checks "$OUT/parity" "${app[@]}"
 
       - name: Say what ran
         if: ${{ !cancelled() }}

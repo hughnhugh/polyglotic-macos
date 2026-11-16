@@ -126,6 +126,12 @@ def test_the_info_plist_asks_for_the_mic_and_system_audio_in_our_words() -> None
     plistlib.dumps(info)  # what PyInstaller writes it as
 
 
+def test_the_packed_app_is_an_accessory_from_its_start() -> None:
+    """No Dock icon: a window first shown while an app is in the Dock never
+    joins a full-screen app's Space (polyglotic-hq 429, decision 0201)."""
+    assert build.info_plist("0.2.0")["LSUIElement"] is True
+
+
 def test_the_icon_is_one_icns_of_pngs() -> None:
     png = b"\x89PNG\r\n\x1a\n" + b"x" * 20
     data = build.icns({b"ic07": png, b"ic08": png + b"y"})

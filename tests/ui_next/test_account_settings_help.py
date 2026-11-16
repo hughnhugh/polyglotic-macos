@@ -35,7 +35,6 @@ from polyglotic_desktop.ui_next import help_page
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
 from polyglotic_desktop.ui_next.learning_page import LearningPage
-from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
@@ -699,22 +698,22 @@ def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         topics = " ".join(t.text.text() for t in page.findChildren(Topic))
         return topics + " " + " ".join(f.text() for f in page.fixes.values())
 
-    assert keys("Ctrl+Alt+L") in said() and keys("Ctrl+Alt+P") in said()
+    assert "Ctrl+Alt+L" in said() and "Ctrl+Alt+P" in said()
     page.show_hotkeys([])  # none works
-    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
+    assert "Ctrl+Alt" not in said(), said()
     assert "Lock all, on Home or in the tray menu, lets clicks pass" in said()
     assert "Choose Resume on Home or in the tray menu." in said()
     facts[0] = hidden
     page.check_again.click()
-    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
+    assert "Ctrl+Alt" not in said(), said()
     assert "Use Hide all on Home or the tray menu." in said()
 
     page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
-    assert keys("Ctrl+Alt+P") not in said()
-    assert keys("Lock all (Ctrl+Alt+L) so clicks go") in said()  # Over a game
-    assert keys("Press Ctrl+Alt+H") in said()
+    assert "Ctrl+Alt+P" not in said()
+    assert "Lock all (Ctrl+Alt+L) so clicks go" in said()  # Over a game
+    assert "Press Ctrl+Alt+H" in said()
     every = {t for p in Problem for t in help_page.problem(p, "Video Player", ())}
     every |= {t for pair in help_page.set_up(()) for t in pair}
-    assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in every)
+    assert not any("Ctrl+Alt" in text for text in every)
     page.close()
     page.deleteLater()
