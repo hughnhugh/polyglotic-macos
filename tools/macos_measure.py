@@ -50,12 +50,14 @@ GRANTED = (
 
 
 def grant(client: str, client_type: int, now: int, allowed: bool = True) -> str:
-    """An `access` row allowing `SERVICE` - or denying it, `allowed` False -
-    in the image's own form (17 columns: service, client, client type,
-    allowed (2) or denied (0), reason, version, no code requirement, ...,
-    the time)."""
+    """An `access` row allowing `SERVICE` - or denying it, `allowed` False,
+    as a learner's "Don't Allow" leaves it - in the image's own form (17
+    columns: service, client, client type, allowed (2) or denied (0), the
+    reason (4, set by the system; 2, the user's answer), version, no code
+    requirement, ..., the time)."""
+    answer = "2,4" if allowed else "0,2"
     values = (
-        f"'{SERVICE}','{client}',{client_type},{2 if allowed else 0},4,1,NULL,NULL,NULL,'UNUSED',"
+        f"'{SERVICE}','{client}',{client_type},{answer},1,NULL,NULL,NULL,'UNUSED',"
         f"NULL,0,{now},NULL,NULL,'UNUSED',{now}"
     )
     return f"INSERT OR REPLACE INTO access VALUES({values});"

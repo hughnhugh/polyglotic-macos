@@ -190,11 +190,12 @@ def test_the_second_player_is_afplays_bytes_without_its_restricted_flag(
 
 
 def test_a_denied_row_says_denied() -> None:
-    """The check's "Don't Allow": the same row as the grant, auth_value 0."""
+    """The check's "Don't Allow": the grant's row, denied (auth_value 0) by
+    the user's answer (auth_reason 2)."""
     allowed = macos_measure.grant("io.polyglotic.desktop", 0, 1)
     denied = macos_measure.grant("io.polyglotic.desktop", 0, 1, allowed=False)
-    assert ",0,2,4,1," in allowed and ",0,0,4,1," in denied
-    assert allowed.replace(",0,2,4,1,", ",0,0,4,1,") == denied
+    assert ",0,2,4,1," in allowed and ",0,0,2,1," in denied
+    assert allowed.replace(",0,2,4,1,", ",0,0,2,1,") == denied
 
 
 def test_a_capture_thread_is_found_where_it_waits() -> None:

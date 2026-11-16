@@ -473,6 +473,15 @@ class Run:
                 written[f"{client} {db}"] = sh([*sudo, "sqlite3", db, row], 30)["ok"]
         key = "grants_written" if allowed else "denials_written"
         self.facts.setdefault(key, []).append(written)
+        read = (
+            "SELECT client, auth_value, auth_reason FROM access"
+            f" WHERE service = '{macos_measure.SERVICE}';"
+        )
+        system = sh(["sudo", "sqlite3", macos_measure.SYSTEM_TCC, read])
+        user = sh(["sqlite3", macos_measure.USER_TCC, read])
+        self.facts.setdefault("rows_after", []).append(
+            {"system": system.get("out"), "user": user.get("out")}
+        )
 
     def revoke(self) -> dict[str, bool]:
         delete = f"DELETE FROM access WHERE service = '{macos_measure.SERVICE}';"
