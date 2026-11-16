@@ -22,6 +22,11 @@ main thread (cocoa), the speaker on its own:
 - voice_made: "hello" made into sound (`MacVoices.synthesize`) on a
   thread of its own; how long it took, and how long the word is at each
   pace the card uses (`av_rate`).
+- voice_moved: a word is made in a voice whose id macOS doesn't know - its
+  name and language found in macOS's list, and a name it hasn't gives
+  way to the language's own voice (`voices.av_voice`; polyglotic-hq 452:
+  macOS's voices changed under a running process and the card said
+  nothing).
 - voice_heard: the card's whole path - `SpeakerThread` over `MacVoices`
   and `AudioPlayer` - says a word on macOS's default output, BlackHole,
   and the mic on BlackHole hears it; `sounding` and `ended` are told.
@@ -86,6 +91,10 @@ def plan(app: Path | None) -> list[str]:
         "menu_keys: QKeySequence('Meta+Ctrl+L') as NativeText is ⌃⌘L",
         "voices_listed: MacVoices().found()",
         "voice_made: synthesize('hello', an English voice) at each pace",
+        (
+            "voice_moved: synthesize('hello') in that voice under an id macOS"
+            " hasn't, then with a name it hasn't too"
+        ),
         (
             "voice_heard: BlackHole the default output; SpeakerThread(MacVoices,"
             " AudioPlayer).say('Polyglotic') while MicCapture(BlackHole) listens"
@@ -378,6 +387,37 @@ class Checks:
                 **facts,
             )
 
+    def voice_moved(self) -> None:
+        from polyglotic_desktop.platform.macos.voices import MacVoices
+        from polyglotic_desktop.ports.speaker import Voice
+
+        speech = MacVoices()
+        made: dict[str, Any] = {}
+
+        def make_them() -> None:
+            """As GitHub's Mac did to a running process (polyglotic-hq 452):
+            the voice the card holds has an id macOS no longer knows."""
+            found = speech.found()
+            english = next((v for v in found if v.language == "en-US"), None)
+            if english is None:
+                return
+            made["voice"] = english.name
+            moved = Voice(f"{english.id}.moved", english.name, english.language)
+            made["moved"] = round(speech.synthesize("hello", moved, 1.0).seconds, 3)
+            gone = Voice("polyglotic.gone", "Nobody", english.language)
+            made["gone"] = round(speech.synthesize("hello", gone, 1.0).seconds, 3)
+
+        self.in_thread(make_them, 60)
+        if "voice" not in made:
+            self.add("voice_moved", UNKNOWN, "no en-US voice to move")
+        elif made["moved"] > 0.2 and made["gone"] > 0.2:
+            said = (
+                f"'hello' made under an unknown id: {made['moved']} s, {made['gone']} s"
+            )
+            self.add("voice_moved", PASS, said, **made)
+        else:
+            self.add("voice_moved", FAIL, f"a word too short: {made}", **made)
+
     def voice_heard(self, blackhole_uid: str | None) -> None:
         from polyglotic_desktop.platform.macos import capture
         from polyglotic_desktop.platform.macos.voices import AudioPlayer, MacVoices
@@ -386,104 +426,7 @@ class Checks:
         if blackhole_uid is None:
             self.add("voice_heard", UNKNOWN, "no BlackHole: nothing to hear it on")
             return
-        import ctypes as _c
-
-        from polyglotic_desktop.platform.macos import capture as _cap
-        from polyglotic_desktop.platform.macos import objc as _objc
-
-        trace: list[Any] = []
-        t0 = time.perf_counter()
-
-        def ms() -> int:
-            return round((time.perf_counter() - t0) * 1000)
-
-        class TracedVoices(MacVoices):
-            def synthesize(self, text: str, voice: Any, rate: float) -> Any:
-                trace.append(("synth", ms(), text[:3]))
-                try:
-                    clip = super().synthesize(text, voice, rate)
-                except Exception as e:
-                    trace.append(("synth-failed", ms(), repr(e)))
-                    raise
-                trace.append(("synth-ok", ms(), round(clip.seconds, 3), clip.rate))
-                return clip
-
-        class TracedPlayer(AudioPlayer):
-            def start(self, clip: Any) -> bool:
-                trace.append(("start", ms(), _cap._default_output()))
-                with _objc.pool():
-                    _objc.load("AVFoundation")
-                    from polyglotic_desktop.platform.macos import cf as _cf
-                    from polyglotic_desktop.platform.macos.voices import wav_of
-
-                    data = _cf.create_data(wav_of(clip))
-                    with _cf.owned(data):
-                        error = _c.c_void_p()
-                        player = _objc.send(
-                            _objc.send(_objc.cls("AVAudioPlayer"), "alloc"),
-                            "initWithData:error:",
-                            data,
-                            _c.byref(error),
-                            argtypes=[_c.c_void_p, _c.POINTER(_c.c_void_p)],
-                        )
-                    if not player:
-                        why = None
-                        if error.value:
-                            why = _objc.text(_objc.send(error.value, "description"))
-                        trace.append(("init-failed", ms(), why))
-                        return False
-                    self._player = int(player)
-                    prepared = _objc.send(player, "prepareToPlay", restype=_c.c_bool)
-                    played = _objc.send(player, "play", restype=_c.c_bool)
-                    dur = _objc.send(player, "duration", restype=_c.c_double)
-                    trace.append(
-                        ("played", ms(), bool(prepared), bool(played), round(dur, 3))
-                    )
-                    if not played:
-                        self.stop()
-                        return False
-                    return True
-
-            def stop(self) -> None:
-                trace.append(("stop", ms()))
-                super().stop()
-
-        from polyglotic_desktop.platform.macos import cf as _cf
-        from polyglotic_desktop.platform.macos import voices as _voices
-
-        real_av_voice = _voices.av_voice
-
-        def traced_voice(voice: Any) -> int | None:
-            send, p = _objc.send, _c.c_void_p
-            kind = _objc.cls("AVSpeechSynthesisVoice")
-            ident = _objc.string(voice.id)
-            with _cf.owned(ident):
-                by_id = send(kind, "voiceWithIdentifier:", ident, argtypes=[p])
-            if by_id:
-                return int(by_id)
-            listed = _objc.items(send(kind, "speechVoices"))
-            same = [
-                (_objc.text(send(v, "identifier")), _objc.text(send(v, "language")))
-                for v in listed
-                if _objc.text(send(v, "name")) == voice.name
-                or _objc.text(send(v, "language")) == voice.language
-            ]
-            chosen = real_av_voice(voice)
-            what = _objc.text(send(chosen, "identifier")) if chosen else None
-            trace.append(
-                (
-                    "by-id-nil",
-                    ms(),
-                    voice.id,
-                    len(listed),
-                    sorted(same, key=lambda x: voice.name not in (x[0] or ""))[:12],
-                    what,
-                )
-            )
-            return chosen
-
-        _voices.av_voice = traced_voice
-        speaker = SpeakerThread(TracedVoices(), TracedPlayer)
+        speaker = SpeakerThread(MacVoices(), AudioPlayer)
         speaker.look_for_voices()
         self.pump(lambda: bool(speaker.voices()), 30)
         found = speaker.voices()
@@ -497,7 +440,7 @@ class Checks:
         ended: list[bool] = []
         mic = capture.MicCapture(blackhole_uid)
         mic.start(lambda _start, samples: heard.append(samples))
-        speaking = "polyglotic_desktop"
+        speaking = "polyglotic_desktop.platform.speaking"
         with warnings_of(speaking) as why:
             try:
                 self.pump(lambda: False, 1.5)
@@ -509,40 +452,14 @@ class Checks:
                     ended.append,
                 )
                 self.pump(lambda: bool(ended), 15)
-                trace.append(("ended1", ms(), list(ended)))
-                ended2: list[bool] = []
-                speaker.say(
-                    "Polyglotic",
-                    english,
-                    1.0,
-                    lambda at, s: trace.append(("sounding2", ms())),
-                    ended2.append,
-                )
-                self.pump(lambda: bool(ended2), 15)
-                trace.append(("ended2", ms(), list(ended2)))
                 self.pump(lambda: False, 1.0)
             finally:
                 mic.stop()
                 speaker.close()
         loud = peak(heard)
-        print(
-            "TRACE",
-            json.dumps(
-                {
-                    "trace": trace,
-                    "why": why,
-                    "ended": ended,
-                    "sounding": sounding,
-                    "peak": peak(heard),
-                    "out": _cap._default_output(),
-                }
-            ),
-            flush=True,
-        )
         facts = {"voice": english.name, "sounding": sounding, "ended": ended,
                  "peak_heard": loud, "mic_error": mic.error,
-                 "speaker_warned": why, "trace": trace,
-                 "default_output": _cap._default_output()}  # fmt: skip
+                 "speaker_warned": why}  # fmt: skip
         if ended == [True] and sounding and loud > 0.01:
             self.add(
                 "voice_heard",
@@ -715,7 +632,7 @@ def report(results: list[Result], facts: dict[str, Any]) -> dict[str, Any]:
     return {"summary": summary, "checks": [asdict(r) for r in results], "facts": facts}
 
 
-ISOLATED = ("voices_listed", "voice_made", "voice_heard")
+ISOLATED = ("voices_listed", "voice_made", "voice_moved", "voice_heard")
 """AVFoundation's checks, each in a process of its own with faulthandler:
 a crash there (2026-11-17's first run: exit 139 making a word) names its
 line and leaves the other checks to run."""
@@ -735,7 +652,6 @@ def isolated(out: Path, name: str, blackhole: str | None) -> list[Result]:
     except subprocess.TimeoutExpired:
         return [Result(name, FAIL, "the child process didn't end in 240 s")]
     print(done.stdout, end="", flush=True)
-    print(done.stderr[-1500:], end="", flush=True)
     part = out / f"{name}.json"
     try:
         return [Result(**r) for r in json.loads(part.read_text(encoding="utf-8"))]
@@ -779,8 +695,8 @@ def main(argv: list[str] | None = None) -> int:
         ("menu_keys", checks.menu_keys),
         ("voices_listed", checks.voices_listed),
         ("voice_made", checks.voice_made),
-        *[("voice_heard", lambda: checks.voice_heard(blackhole))]
-        * (1 if "--only" in sys.argv else 12),
+        ("voice_moved", checks.voice_moved),
+        ("voice_heard", lambda: checks.voice_heard(blackhole)),
         ("menu_bar", checks.menu_bar),
         ("login_item", checks.login_item),
     ]

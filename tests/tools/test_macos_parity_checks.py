@@ -32,6 +32,7 @@ def test_the_plan_names_each_check() -> None:
         "menu_keys",
         "voices_listed",
         "voice_made",
+        "voice_moved",
         "voice_heard",
         "menu_bar",
         "login_item",
