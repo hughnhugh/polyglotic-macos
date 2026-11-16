@@ -297,6 +297,9 @@ class SettingsPopover(QWidget):
             | Qt.WindowType.WindowDoesNotAcceptFocus,
         )
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # on a Mac a tool window hides while the app isn't active - and the
+        # app is never active while the learner is in another (polyglotic-hq 429)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setObjectName("settings_popover")

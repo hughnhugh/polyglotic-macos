@@ -29,6 +29,7 @@ from polyglotic_desktop.ports.consent import Agreement, ConsentChoice
 from polyglotic_desktop.ui.consent import ConsentDialog, agreement_needed
 from polyglotic_desktop.ui.delete_learning import DeleteLearningDialog
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 
 SCREENSHOTS = Path(__file__).resolve().parents[2] / "build" / "screenshots"
 
@@ -247,7 +248,10 @@ def test_what_the_service_needs_is_explained_not_asked(qapp: QApplication) -> No
     # why learning data is kept, as the privacy notice says (project 041):
     # saved words and statuses sync; lookups aren't synced, they're kept to
     # learn how people learn
-    assert "saved words and word statuses follow you to another PC" in texts
+    assert (
+        "saved words and word statuses follow you to another "
+        + pc_or_mac("PC", "computer")
+    ) in texts
     assert "your lookups show us how people learn" in texts
     # the server keeps a Windows version only with feedback the user sends
     assert "Windows version" not in texts
@@ -325,7 +329,8 @@ def test_deleting_says_how_many_copies_set_aside_go_with_it(
     assert dialog.set_aside is not None
     assert dialog.set_aside.text() == (
         "This also deletes the 2 copies of your learning data set aside on this "
-        "PC when it was found damaged."
+        + pc_or_mac("PC", "Mac")
+        + " when it was found damaged."
     )
     one = DeleteLearningDialog(set_aside=1)
     assert one.set_aside is not None and "the 1 copy of" in one.set_aside.text()
