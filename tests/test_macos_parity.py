@@ -392,3 +392,58 @@ def test_every_word_is_made_with_one_block_that_lives_on(
     assert speech._block_for(third) is not block  # a new block for a new word
     block.call(8)  # the old one still calls into its own word, kept alive
     assert delivered == [7, 8] and speech._retired[0][0] is block
+
+
+class FakeVoiceLookup:
+    """`AVSpeechSynthesisVoice` as GitHub's Mac answered a fresh process on
+    2026-11-17 (polyglotic-hq 452): `speechVoices` names a voice that
+    `voiceWithIdentifier:` says isn't there (`by_id` None) - or, when
+    `by_id` is set, gives it."""
+
+    LISTED: ClassVar[dict[int, str]] = {101: "com.apple.voice.Daniel", 102: "Sam"}
+
+    def __init__(self, by_id: int | None) -> None:
+        self.by_id = by_id
+        self.asked: list[str] = []
+
+    def install(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(voices.objc, "cls", lambda name: 1)
+        monkeypatch.setattr(voices.objc, "string", lambda value: 0)
+        monkeypatch.setattr(voices.cf, "release", lambda ref: None)
+        monkeypatch.setattr(voices.objc, "send", self.send)
+        monkeypatch.setattr(voices.objc, "items", lambda array: list(self.LISTED))
+        monkeypatch.setattr(voices.objc, "text", lambda ref: ref)
+
+    def send(
+        self, receiver: object, selector: str, *args: object, **_: object
+    ) -> object:
+        self.asked.append(selector)
+        if selector == "voiceWithIdentifier:":
+            return self.by_id
+        if selector == "speechVoices":
+            return 7
+        if selector == "identifier":
+            return self.LISTED[cast(int, receiver)]
+        raise AssertionError(selector)
+
+
+def test_a_voice_macos_refuses_by_id_is_found_in_its_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """GitHub's Mac, 2026-11-17: Samantha, listed by `speechVoices` in the
+    same process, was refused by `voiceWithIdentifier:` - the word ended
+    unsaid ("the voice isn't on this Mac now"). The list's own voice is
+    used then."""
+    lookup = FakeVoiceLookup(by_id=None)
+    lookup.install(monkeypatch)
+    assert voices.voice_with_id("Sam") == 102
+    assert voices.voice_with_id("com.apple.voice.Gone") is None
+
+
+def test_a_voice_given_by_id_isnt_looked_for_in_the_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lookup = FakeVoiceLookup(by_id=55)
+    lookup.install(monkeypatch)
+    assert voices.voice_with_id("Sam") == 55
+    assert lookup.asked == ["voiceWithIdentifier:"]

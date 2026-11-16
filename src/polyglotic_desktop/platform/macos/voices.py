@@ -227,16 +227,11 @@ class MacVoices:
         with objc.pool():
             objc.load("AVFoundation")
             send, p = objc.send, ctypes.c_void_p
-            ident, said = objc.string(voice.id), objc.string(text)
-            with cf.owned(ident, said):
-                chosen = send(
-                    objc.cls("AVSpeechSynthesisVoice"),
-                    "voiceWithIdentifier:",
-                    ident,
-                    argtypes=[p],
-                )
-                if not chosen:
-                    raise OSError("the voice isn't on this Mac now")
+            chosen = voice_with_id(voice.id)
+            if not chosen:
+                raise OSError("the voice isn't on this Mac now")
+            said = objc.string(text)
+            with cf.owned(said):
                 utterance = send(
                     objc.cls("AVSpeechUtterance"),
                     "speechUtteranceWithString:",
@@ -291,6 +286,26 @@ class MacVoices:
                 raise OSError("macOS's speech synthesizer couldn't be made")
             self._synthesizer = int(made)
         return self._synthesizer
+
+
+def voice_with_id(voice_id: str) -> int | None:
+    """The `AVSpeechSynthesisVoice` with `voice_id`, or None if macOS hasn't
+    it. Asked by its id, and when that answers nil, looked for among the
+    voices macOS lists: on GitHub's Mac (2026-11-17, polyglotic-hq 452) a
+    fresh process was refused a voice by id that the list had just named,
+    twice 0.1 s apart, while other processes were given it - the card said
+    nothing. The list is what the card's voices came from."""
+    send, p = objc.send, ctypes.c_void_p
+    kind = objc.cls("AVSpeechSynthesisVoice")
+    ident = objc.string(voice_id)
+    with cf.owned(ident):
+        chosen = send(kind, "voiceWithIdentifier:", ident, argtypes=[p])
+    if chosen:
+        return int(chosen)
+    for listed in objc.items(send(kind, "speechVoices")):
+        if objc.text(send(listed, "identifier")) == voice_id:
+            return listed
+    return None
 
 
 def _listed(voice: int) -> Listed:
