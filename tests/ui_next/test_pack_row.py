@@ -11,6 +11,7 @@ import pytest
 from PySide6.QtWidgets import QApplication, QWidget
 
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem, Step
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import PackRow, shown
 from polyglotic_desktop.ui_next.views.learning import PackLine
 
@@ -21,6 +22,9 @@ def downloading(**fields: Any) -> PackLine:
     progress = PackProgress("ru", Step.DOWNLOADING, 12 * MB, 48 * MB, tries=1)
     return PackLine(size=48 * MB, progress=replace(progress, **fields))
 
+
+THIS = pc_or_mac("PC", "Mac")
+"""Where the pack is: 409's words."""
 
 CASES = [
     (PackLine(size=62_400_000), "Its dictionary: 62.4 MB to download.", ("download",)),
@@ -80,7 +84,7 @@ CASES = [
     ),
     (
         downloading(problem=Problem.NO_ROOM, needed=48 * MB),
-        "Not enough room on this PC: it needs 48.0 MB free.",
+        f"Not enough room on this {THIS}: it needs 48.0 MB free.",
         ("retry", "cancel"),
     ),
     (
@@ -118,7 +122,7 @@ CASES = [
     ),
     (
         PackLine(installed_version="2026.11.14", installed_size=62_400_000),
-        "On this PC: version 2026.11.14, 62.4 MB.",
+        f"On this {THIS}: version 2026.11.14, 62.4 MB.",
         (),
     ),
     (
@@ -128,7 +132,8 @@ CASES = [
             update_size=63 * MB,
         ),
         (
-            "On this PC: version 2026.11.14, 62.4 MB. A newer version (63.0 MB) waits "
+            f"On this {THIS}: version 2026.11.14, 62.4 MB. A newer version (63.0 MB)"
+            " waits "
             "for a connection that isn't metered."
         ),
         ("update",),

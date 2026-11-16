@@ -81,8 +81,8 @@ def run_loop(qapp: QApplication, ms: int) -> None:
     sys.platform != "win32",
     reason="Linux's event dispatcher (GLib) doesn't give the watchdog its"
     " awake / about-to-block pairs: it sees no slow slot there (179's Linux"
-    " checks, 2026-11-08; 171 saw the same)",
-    strict=True,
+    " checks, 2026-11-08; 171 saw the same); a Mac's sometimes does (421)",
+    strict=sys.platform == "linux",
 )
 def test_the_watchdog_names_a_slow_slot_and_its_duration(
     qapp: QApplication,
@@ -131,8 +131,9 @@ def test_the_watchdog_lets_fast_slots_be(
 
 ON_WINDOWS_ONLY = pytest.mark.xfail(
     sys.platform != "win32",
-    reason="Linux's event dispatcher gives the watchdog no stretches (above)",
-    strict=True,
+    reason="Linux's event dispatcher gives the watchdog no stretches (above);"
+    " a Mac's sometimes does: one passed in 421's Mac run, none in 420's",
+    strict=sys.platform == "linux",
 )
 
 
