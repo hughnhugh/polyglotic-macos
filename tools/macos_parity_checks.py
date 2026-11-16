@@ -43,13 +43,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 import threading
 import time
 import traceback
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from functools import partial
 from pathlib import Path
@@ -121,6 +123,27 @@ def run(command: list[str], seconds: int) -> dict[str, Any]:
         "out": done.stdout.strip()[-2000:],
         "said": done.stderr.strip()[-1000:],
     }
+
+
+@contextmanager
+def warnings_of(name: str) -> Iterator[list[str]]:
+    """The warnings logger `name` writes meanwhile, as text: the speaker
+    says why a word wasn't said (`speaking.SpeakerThread._say`) only in its
+    log, which the check otherwise loses (polyglotic-hq 443: voice_heard's
+    "ended [False]" in two runs of five, with nothing saying why)."""
+    said: list[str] = []
+
+    class Kept(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            said.append(record.getMessage())
+
+    logger = logging.getLogger(name)
+    handler = Kept(logging.WARNING)
+    logger.addHandler(handler)
+    try:
+        yield said
+    finally:
+        logger.removeHandler(handler)
 
 
 def peak(samples: list[bytes]) -> float:
@@ -377,23 +400,26 @@ class Checks:
         ended: list[bool] = []
         mic = capture.MicCapture(blackhole_uid)
         mic.start(lambda _start, samples: heard.append(samples))
-        try:
-            self.pump(lambda: False, 1.5)
-            speaker.say(
-                "Polyglotic",
-                english,
-                1.0,
-                lambda at, seconds: sounding.append((at, seconds)),
-                ended.append,
-            )
-            self.pump(lambda: bool(ended), 15)
-            self.pump(lambda: False, 1.0)
-        finally:
-            mic.stop()
-            speaker.close()
+        speaking = "polyglotic_desktop.platform.speaking"
+        with warnings_of(speaking) as why:
+            try:
+                self.pump(lambda: False, 1.5)
+                speaker.say(
+                    "Polyglotic",
+                    english,
+                    1.0,
+                    lambda at, seconds: sounding.append((at, seconds)),
+                    ended.append,
+                )
+                self.pump(lambda: bool(ended), 15)
+                self.pump(lambda: False, 1.0)
+            finally:
+                mic.stop()
+                speaker.close()
         loud = peak(heard)
         facts = {"voice": english.name, "sounding": sounding, "ended": ended,
-                 "peak_heard": loud, "mic_error": mic.error}  # fmt: skip
+                 "peak_heard": loud, "mic_error": mic.error,
+                 "speaker_warned": why}  # fmt: skip
         if ended == [True] and sounding and loud > 0.01:
             self.add(
                 "voice_heard",
@@ -409,7 +435,8 @@ class Checks:
             self.add(
                 "voice_heard",
                 FAIL,
-                f"ended {ended}, sounding {bool(sounding)}, peak {loud}",
+                f"ended {ended}, sounding {bool(sounding)}, peak {loud}"
+                + (f"; the speaker: {'; '.join(why)}" if why else ""),
                 **facts,
             )
 

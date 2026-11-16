@@ -72,3 +72,16 @@ def test_the_job_runs_the_parity_part_by_default() -> None:
     steps = job["jobs"]["macos"]["steps"]
     step = next(s for s in steps if "macos_parity_checks" in s.get("run", ""))
     assert "inputs.parity" in step["if"]
+
+
+def test_voice_heard_keeps_why_the_speaker_gave_up() -> None:
+    """443: `voice_heard` failed with "ended [False]" in two GitHub Mac runs
+    of five and nothing said why; the speaker's warning is kept now."""
+    import logging
+
+    speaking = logging.getLogger("polyglotic_desktop.platform.speaking")
+    with parity.warnings_of("polyglotic_desktop.platform.speaking") as why:
+        speaking.warning("couldn't play a word: %s", "no output device")
+        speaking.info("not a warning")
+    speaking.warning("after: not kept")
+    assert why == ["couldn't play a word: no output device"]
