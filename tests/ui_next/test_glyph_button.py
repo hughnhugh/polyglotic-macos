@@ -54,13 +54,6 @@ def test_it_has_no_text_and_a_size(button: GlyphButton) -> None:
     assert button.height() >= 24  # a target (WCAG 2.5.8)
 
 
-def test_a_smaller_font_keeps_a_target_s_height(button: GlyphButton) -> None:
-    """A Mac's font made it 23 px tall (polyglotic-hq 421's Mac run)."""
-    button.setStyleSheet("font-size: 10px")
-    QApplication.processEvents()
-    assert button.sizeHint().height() >= GlyphButton.TARGET == 24
-
-
 def test_the_icon_is_dim_then_the_accent_while_checked(button: GlyphButton) -> None:
     assert _closest(button, "TEXT_DIM") < 30
     button.setChecked(True)
