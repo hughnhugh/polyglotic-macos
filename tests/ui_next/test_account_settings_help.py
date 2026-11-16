@@ -471,8 +471,11 @@ def test_a_help_topic_opens_and_closes(qapp: QApplication) -> None:
     topic.close()
 
 
-def test_help_says_how_to_dictate_with_the_key_chosen(qapp: QApplication) -> None:
-    """polyglotic-hq 289: Help's dictation topic names the key."""
+def test_help_says_how_to_dictate_with_the_key_chosen(
+    qapp: QApplication, pc: None
+) -> None:
+    """polyglotic-hq 289: Help's dictation topic names the key - in a PC's
+    words, whatever this machine is (a Mac names it "Right ⌘": 429; 443)."""
     page = HelpPage(lambda: facts_with(True))
     try:
         assert page.dictation.name == "Dictate into any program (preview)"
