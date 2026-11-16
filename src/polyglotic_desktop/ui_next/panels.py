@@ -959,16 +959,21 @@ class WordLinksPanel(_LookGroup):
             ),
             self.link_detail,
         )
-        self.link_words = self._switch(
-            "link_words",
-            _tr("Colour the linked words too"),
+        self.said_in_link_colours = self._switch(
+            "said_in_link_colours",
+            _tr("Colour linked words in what was said"),
+            _tr("Each word a link joins takes its colour, as its underline has."),
+            view.set_said_in_link_colours,
+        )
+        self.translation_in_link_colours = self._switch(
+            "translation_in_link_colours",
+            _tr("Colour linked words in the translation"),
             _tr(
-                "The words a link joins - in what was said and in its translation "
-                "- take its colour, as their underline has. With pinyin in its "
-                "word link's colour, a word, its pinyin and its translation all "
-                "match."
+                "Each word a link joins takes its colour. With both on, and pinyin "
+                "in its word link's colour, a word, its pinyin and its translation "
+                "all match."
             ),
-            view.set_link_words,
+            view.set_translation_in_link_colours,
         )
         if learning:
             to_learning = label(
@@ -995,8 +1000,11 @@ class WordLinksPanel(_LookGroup):
         self.link_gap.set_value(value.link_gap)
         self.link_line.setEnabled(underlined)  # On hover draws no underline
         self.link_gap.setEnabled(underlined)
-        self.link_words.set_quietly(value.link_words)
-        self.link_words.setEnabled(value.word_links is not WordLinks.OFF)
+        linked = value.word_links is not WordLinks.OFF  # no links: nothing to colour
+        self.said_in_link_colours.set_quietly(value.said_in_link_colours)
+        self.said_in_link_colours.setEnabled(linked)
+        self.translation_in_link_colours.set_quietly(value.translation_in_link_colours)
+        self.translation_in_link_colours.setEnabled(linked)
 
 
 class ReadingLinesPanel(_LookGroup):
@@ -1087,8 +1095,8 @@ class ReadingLinesPanel(_LookGroup):
             _tr("Pinyin colour"),
             _tr(
                 "Its word link's colour: pinyin takes the colour of its word's "
-                "link, where one joins it - with Word links' “Colour the linked "
-                "words too”, a word, its pinyin and its translation all match."
+                "link, where one joins it. Word links can colour the linked "
+                "words too."
             ),
             self.reading_colour,
         )

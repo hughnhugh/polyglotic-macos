@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Colorer les mots liés dans ce qui est dit</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Colorer les mots liés dans la traduction</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Texte plus petit (Ctrl+molette)</translation>
     </message>
@@ -2972,28 +2982,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">Ouvrir Polyglotic à l&apos;ouverture de session ?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Lancer avec Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">Ouvrir à la connexion</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Il attend dans la zone de notification, pour que les sous-titres soient à un clic quand vous jouez ou regardez. Les applications de démarrage de Windows peuvent le désactiver.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">Il s&apos;ouvre quand vous ouvrez votre session, pour que les sous-titres soient à un clic quand vous jouez ou regardez. Les éléments d&apos;ouverture, dans Réglages Système, peuvent le désactiver.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3737,6 +3732,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Vérification de la liste des dictionnaires.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Un dictionnaire de base issu de données ouvertes (sens non vérifiés par une personne), s&apos;il y en a un de prêt : recherches dans les sous-titres en {language} une fois qu&apos;il est sur ce PC. Les sous-titres et la traduction fonctionnent dans tous les cas.</translation>
     </message>
@@ -4191,11 +4191,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Vérification de la liste des dictionnaires.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Téléchargement : {done} sur {total} Mo</translation>
     </message>
@@ -4246,8 +4241,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Les mots les plus courants sont enregistrés ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Une version plus récente ({size}) attend une connexion non limitée.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Son dictionnaire : {size} à télécharger, puis {recorded} de mots enregistrés.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4691,11 +4696,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Pas encore de voix {language} sur ce Mac. macOS en ajoute une gratuitement : Réglages Système &gt; Accessibilité &gt; Contenu énoncé &gt; Voix du système &gt; Gérer les voix, puis {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Ouvrir les paramètres vocaux</translation>
     </message>
@@ -4791,11 +4791,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Pas de voix {language} sur ce Mac</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Arrêter (R)</translation>
     </message>
@@ -4858,11 +4853,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Ouvre les Paramètres de Windows, où l&apos;on ajoute des voix</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">Ouvre Réglages Système, où l&apos;on ajoute des voix</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5440,13 +5430,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Colorer aussi les mots liés</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Colorer les mots liés dans ce qui est dit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Les mots qu’un lien relie - dans ce qui a été dit et dans sa traduction - prennent sa couleur, comme leur soulignement. Avec le pinyin dans la couleur du lien de son mot, un mot, son pinyin et sa traduction s’accordent.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Chaque mot qu’un lien relie prend sa couleur, comme son soulignement.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Colorer les mots liés dans la traduction</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Chaque mot qu’un lien relie prend sa couleur. Avec les deux activés et le pinyin dans la couleur du lien de son mot, un mot, son pinyin et sa traduction s’accordent.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5545,8 +5545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">La couleur du lien de son mot : le pinyin prend la couleur du lien de son mot, là où il y en a un - avec « Colorer aussi les mots liés » des Liens entre mots, un mot, son pinyin et sa traduction s’accordent.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">La couleur du lien de son mot : le pinyin prend la couleur du lien de son mot, là où un lien le relie. Les liens entre mots peuvent aussi colorer les mots liés.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

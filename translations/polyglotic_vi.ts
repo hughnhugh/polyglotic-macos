@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong lời nói</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong bản dịch</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Chữ nhỏ hơn (Ctrl+cuộn chuột)</translation>
     </message>
@@ -2966,28 +2976,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">Mở Polyglotic khi đăng nhập?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Khởi động cùng Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">Mở khi đăng nhập</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Ứng dụng chờ ở khay hệ thống, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Ứng dụng khởi động của Windows.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">Ứng dụng mở khi bạn đăng nhập, nên phụ đề chỉ cách một cú nhấp khi bạn chơi hoặc xem. Có thể tắt trong Mục đăng nhập của Cài đặt hệ thống.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3728,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Đang kiểm tra danh sách từ điển.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Từ điển cơ bản từ dữ liệu mở (nghĩa chưa được người kiểm tra), nếu đã có sẵn: tra từ trong phụ đề {language} khi nó có trên máy này. Phụ đề và bản dịch vẫn hoạt động trong mọi trường hợp.</translation>
     </message>
@@ -4179,11 +4179,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Đang kiểm tra danh sách từ điển.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Đang tải: {done} / {total} MB</translation>
     </message>
@@ -4234,8 +4229,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Những từ thông dụng nhất đã được thu âm ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Có phiên bản mới hơn ({size}) đang chờ kết nối không tính phí theo dung lượng.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Từ điển: cần tải {size}, sau đó {recorded} từ đã thu âm.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4677,11 +4682,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Máy Mac này chưa có giọng {language}. macOS thêm miễn phí: Cài đặt hệ thống &gt; Trợ năng &gt; Nội dung được đọc &gt; Giọng nói hệ thống &gt; Quản lý giọng nói, rồi chọn {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Mở cài đặt giọng nói</translation>
     </message>
@@ -4777,11 +4777,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Máy Mac này không có giọng {language}</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Dừng (R)</translation>
     </message>
@@ -4844,11 +4839,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Mở Cài đặt của Windows, nơi thêm giọng đọc</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">Mở Cài đặt hệ thống, nơi thêm giọng nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5426,13 +5416,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Tô màu cả các từ được liên kết</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong lời nói</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Các từ một liên kết nối - trong lời nói và bản dịch - mang màu của nó, như gạch chân. Khi pinyin cũng theo màu liên kết của từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Mỗi từ mà một liên kết nối sẽ mang màu của nó, như gạch chân.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Tô màu các từ được liên kết trong bản dịch</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Mỗi từ mà một liên kết nối sẽ mang màu của nó. Khi bật cả hai và pinyin theo màu liên kết của từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5531,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Màu liên kết của từ: pinyin mang màu liên kết của từ chứa nó, nếu có - cùng với “Tô màu cả các từ được liên kết” trong Liên kết từ, một từ, pinyin và bản dịch của nó cùng màu.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Màu liên kết của từ: pinyin mang màu liên kết của từ nó, nếu có. Liên kết từ cũng có thể tô màu các từ được liên kết.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

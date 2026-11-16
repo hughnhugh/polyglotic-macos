@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Warnakan perkataan yang dipautkan dalam apa yang diucapkan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Warnakan perkataan yang dipautkan dalam terjemahan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Teks lebih kecil (Ctrl+roda)</translation>
     </message>
@@ -2966,28 +2976,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">Buka Polyglotic apabila anda log masuk?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Mulakan bersama Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">Buka semasa log masuk</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Ia menunggu dalam dulang sistem, jadi kapsyen hanya satu klik apabila anda bermain atau menonton. Apl Permulaan Windows boleh mematikannya.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">Ia dibuka apabila anda log masuk, jadi kapsyen hanya satu klik apabila anda bermain atau menonton. Item Log Masuk dalam Seting Sistem boleh mematikannya.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3728,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Menyemak senarai kamus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Kamus asas daripada data terbuka (maknanya belum disemak oleh manusia), jika ada yang sedia: cari perkataan dalam kapsyen {language} setelah ia ada pada PC ini. Kapsyen dan terjemahan berfungsi dalam apa jua keadaan.</translation>
     </message>
@@ -4179,11 +4179,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Menyemak senarai kamus.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Memuat turun: {done} daripada {total} MB</translation>
     </message>
@@ -4234,8 +4229,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Perkataan yang paling biasa sudah dirakam ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Versi lebih baharu ({size}) menunggu sambungan yang tidak bermeter.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Kamusnya: {size} untuk dimuat turun, kemudian {recorded} perkataan yang dirakam.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4677,11 +4682,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Belum ada suara {language} pada Mac ini. macOS menambahnya secara percuma: Seting Sistem &gt; Kebolehcapaian &gt; Kandungan Dituturkan &gt; Suara sistem &gt; Urus Suara, kemudian {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Buka tetapan pertuturan</translation>
     </message>
@@ -4777,11 +4777,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Tiada suara {language} pada Mac ini</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Henti (R)</translation>
     </message>
@@ -4844,11 +4839,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Membuka Tetapan Windows, tempat suara ditambah</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">Membuka Seting Sistem, tempat suara ditambah</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5426,13 +5416,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Warnakan juga perkataan yang dipautkan</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Warnakan perkataan yang dipautkan dalam apa yang diucapkan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Perkataan yang disambungkan oleh pautan - dalam pertuturan dan terjemahannya - mengambil warnanya, seperti garis bawahnya. Dengan pinyin dalam warna pautan perkataannya, perkataan, pinyin dan terjemahannya sepadan.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Setiap perkataan yang disambungkan oleh pautan mengambil warnanya, seperti garis bawahnya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Warnakan perkataan yang dipautkan dalam terjemahan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Setiap perkataan yang disambungkan oleh pautan mengambil warnanya. Dengan kedua-duanya hidup dan pinyin dalam warna pautan perkataannya, perkataan, pinyin dan terjemahannya sepadan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5531,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Warna pautan perkataannya: pinyin mengambil warna pautan perkataannya, jika ada - dengan “Warnakan juga perkataan yang dipautkan” dalam Pautan perkataan, perkataan, pinyin dan terjemahannya sepadan.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Warna pautan perkataannya: pinyin mengambil warna pautan perkataannya, jika ada. Pautan perkataan juga boleh mewarnakan perkataan yang dipautkan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

@@ -15,29 +15,53 @@ from dataclasses import replace
 import pytest
 import shiboken6
 from PySide6.QtCore import QPointF
-from PySide6.QtGui import QColor, QFont, QImage, QPainter
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtGui import QColor, QFont, QImage, QPainter, QTextCharFormat
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+from tests.budget_judge import sampled, within
 from tests.ui.fakes import chinese_tools
+from tests.ui.test_learning_load_view import LINE, SPANS
+from tests.ui.test_marks_on_poured_captions import AT, count
+from tests.ui_next.made_up import EN, finished_updates, live_update
 from tests.ui_next.test_caption_window import areas
+from tests.ui_next.test_reading_lines import made_up
+from tests.ui_next.test_reading_lines_shown import LABS, PINYIN, read_window
 
+from polyglotic_desktop.core.listening.captions import Clause, Language
 from polyglotic_desktop.core.listening.display import ReadingColour, WordLinks
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.main import caption_look, look_settings
-from polyglotic_desktop.ui.recorded_captions import APP, MIC, finished
+from polyglotic_desktop.perf import budgets
+from polyglotic_desktop.ui.recorded_captions import APP, MIC, clause, finished
 from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next import reading_lines
 from polyglotic_desktop.ui_next.caption_layout import (
+    LINK_MARK,
+    CaptionLayout,
+    CaptionStyle,
     Ink,
+    Mark,
     _coloured_words,
     _reading_colours,
     link_ink,
+    span_rects,
 )
 from polyglotic_desktop.ui_next.caption_marks import LINK_COLORS
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, look_ink
 from polyglotic_desktop.ui_next.panels import ReadingLinesPanel, WordLinksPanel
+from polyglotic_desktop.ui_next.settings_popover import SettingsPopover
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, WindowChoices
+from polyglotic_desktop.ui_next.views.captions import CaptionLines
+from polyglotic_desktop.ui_next.views.flow import flow_options
+from polyglotic_desktop.ui_next.views.lab import Fill
 from polyglotic_desktop.ui_next.views.panels import LookView
-from polyglotic_desktop.ui_next.views.presets import AA_TEXT, PRESETS, _mix, contrast
+from polyglotic_desktop.ui_next.views.presets import (
+    AA_TEXT,
+    LARGE_TEXT,
+    PRESETS,
+    VIDEOS,
+    _mix,
+    contrast,
+)
 
 MADE: list[QWidget] = []
 ORANGE, VIOLET = QColor(LINK_COLORS[0]), QColor(LINK_COLORS[1])
@@ -97,7 +121,7 @@ def test_a_custom_colour_for_every_reading_as_faint_as_its_line() -> None:
 
 
 def test_linked_words_take_their_links_colour() -> None:
-    ink = Ink(link_words=True)
+    ink = Ink()
     ranges = _coloured_words(
         [(0, 2, ORANGE, 0), (3, 5, VIOLET, 1)], ink, QColor("#fff")
     )
@@ -107,6 +131,141 @@ def test_linked_words_take_their_links_colour() -> None:
         (0, 2, ORANGE.name()),
         (3, 2, VIOLET.name()),
     ]
+
+
+LAYOUTS = {
+    "rows": CaptionStyle(),
+    "stacked": CaptionStyle(fill=Fill.STACKED),
+    "paired": CaptionStyle(fill=Fill.PAIRED),
+    "new-paired": CaptionStyle(flow=flow_options(Fill.PAIRED)),
+    "new-run-on": CaptionStyle(flow=flow_options(Fill.PAIRED, run_on=True)),
+    "new-lined-up": CaptionStyle(flow=flow_options(Fill.PAIRED, aligned=True)),
+    "new-stacked": CaptionStyle(flow=flow_options(Fill.STACKED)),
+}
+
+
+@pytest.mark.parametrize("pinyin", [False, True], ids=["plain", "pinyin"])
+@pytest.mark.parametrize("layout", LAYOUTS)
+@pytest.mark.parametrize("width", [4000, 0], ids=["one-line", "narrow"])
+def test_linked_words_side_by_side_are_each_in_their_links_colour(
+    qapp: QApplication, layout: str, width: int, pinyin: bool
+) -> None:
+    """Every word linked (Chinese has no spaces between them): 研究, 电脑,
+    游戏 and 足球 side by side, each in its own link's colour, in every
+    layout. Qt skipped a coloured range touching one drawn already, so with
+    pinyin above (the characters spread out to fit it) a word after a
+    linked word was drawn plain - 摄影师 after 撞倒 in 395's own picture of
+    real captions - until each range was drawn whole (#796's
+    `drawn_whole`)."""
+    view = CaptionLines((APP,), Language("en"), keep=10)
+    view.set_models(True)
+    view.apply(finished("a", clause(LINE, "This person studies computer games.")))
+    line = view.lines[0]
+    words = ["研究", "电脑", "游戏", "足球"]
+    colours = [QColor(c) for c in LINK_COLORS[: len(words)]]
+
+    def marks(_line: object, row: int) -> list[Mark]:
+        found: list[Mark] = []
+        if row != 0:
+            return found
+        for n, word in enumerate(words):
+            format_ = QTextCharFormat()
+            format_.setUnderlineColor(colours[n])
+            format_.setProperty(LINK_MARK, n)
+            found.append((*SPANS[word], format_))
+        return found
+
+    style = replace(LAYOUTS[layout], reading_lines=frozenset({"zh"} if pinyin else ()))
+    engine = CaptionLayout(style, readings=made_up)
+    if not width:  # narrow: poured or wrapped over two lines
+        widest = engine.laid(line, 4000, 1.0).rows[0].layout.lineAt(0)
+        width = max(40, int(widest.naturalTextWidth() * 0.6))
+    laid = engine.laid(line, width, 1.0)
+    image = QImage(width + 20, int(laid.height) + 20, QImage.Format.Format_ARGB32)
+    image.fill(QColor("#101014"))
+    painter = QPainter(image)
+    ink = Ink(
+        QColor("#ffffff"),
+        QColor("#ffd76e"),
+        said_in_link_colours=True,
+        panel="#101014",
+    )
+    engine.paint(painter, line, laid, AT, ink, marks)
+    painter.end()
+    row = next(row for row in laid.rows if row.index == 0)
+    for word, colour in zip(words, colours, strict=True):
+        rects = span_rects(row.layout, *SPANS[word])
+        assert count(image, rects, row.top, colour) > 8, (word, colour.name(), width)
+
+
+SAID_WORDS = {"研究": 0, "电脑": 1}
+TRANSLATION_WORDS = {"studies": 0, "computer": 1}
+
+
+@pytest.mark.parametrize("layout", ["rows", "new-paired", "new-run-on"])
+@pytest.mark.parametrize(
+    ("said", "translation"),
+    [(False, False), (True, False), (False, True), (True, True)],
+    ids=["neither", "said-only", "translation-only", "both"],
+)
+def test_each_side_is_coloured_on_its_own(
+    qapp: QApplication, layout: str, said: bool, translation: bool
+) -> None:
+    """Polyglotic-hq 431 (the user, 2026-11-17: "toggleable separately"):
+    what was said's linked words in their link's colour, the
+    translation's, both or neither - the other side's in its own row's
+    colour, its underline still the link's."""
+    text = "This person studies computer games."
+    view = CaptionLines((APP,), Language("en"), keep=10)
+    view.set_models(True)
+    view.apply(finished("a", clause(LINE, text)))
+    line = view.lines[0]
+    colours = [ORANGE, VIOLET]
+    spans = {
+        0: {w: (*SPANS[w], n) for w, n in SAID_WORDS.items()},
+        1: {
+            w: (text.index(w), text.index(w) + len(w), n)
+            for w, n in TRANSLATION_WORDS.items()
+        },
+    }
+
+    def marks(_line: object, row: int) -> list[Mark]:
+        found: list[Mark] = []
+        for start, end, n in spans.get(row, {}).values():
+            format_ = QTextCharFormat()
+            format_.setUnderlineColor(colours[n])
+            format_.setProperty(LINK_MARK, n)
+            found.append((start, end, format_))
+        return found
+
+    engine = CaptionLayout(LAYOUTS[layout])
+    laid = engine.laid(line, 900, 1.0)
+    image = QImage(920, int(laid.height) + 20, QImage.Format.Format_ARGB32)
+    image.fill(QColor("#101014"))
+    painter = QPainter(image)
+    ink = Ink(
+        QColor("#ffffff"),
+        QColor("#ffd76e"),
+        said_in_link_colours=said,
+        translation_in_link_colours=translation,
+        panel="#101014",
+    )
+    engine.paint(painter, line, laid, AT, ink, marks)
+    painter.end()
+    rows = {row.index: row for row in laid.rows}
+    for index, on, own in ((0, said, "#ffffff"), (1, translation, "#ffd76e")):
+        row = rows[index]
+        for word, (start, end, n) in spans[index].items():
+            rects = [
+                r.adjusted(0, 0, 0, -r.height() * 0.25)  # the glyphs, not the line
+                for r in span_rects(row.layout, start, end)
+            ]
+            coloured = count(image, rects, row.top, colours[n])
+            plain = count(image, rects, row.top, QColor(own))
+            if on:
+                assert coloured > 8 and plain < coloured, (word, coloured, plain)
+            else:
+                assert plain > 8 and coloured < plain, (word, coloured, plain)
 
 
 @pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.key)
@@ -128,6 +287,37 @@ def test_every_link_colour_reads_on_every_presets_panel(
             drawn = link_ink(QColor(colour), ink, row, faint)
             seen = _mix(background, drawn.name(), drawn.alphaF() * faint)
             assert contrast(seen, background) >= AA_TEXT, (colour, background, faint)
+
+
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.key)
+@pytest.mark.parametrize("alpha", [1.0, 0.6], ids=["newest", "older"])
+@pytest.mark.parametrize("video", VIDEOS, ids=["light-video", "black-video"])
+def test_every_link_colour_reads_through_every_presets_panel(
+    preset: object, alpha: float, video: str
+) -> None:
+    """Polyglotic-hq 431: a linked word, or its pinyin, in its link's
+    colour reads at large text's 3:1 on its panel at the panel's own
+    opacity over a light or a black video (284's videos). On Classic's
+    72 % over a light video, #e040fb was at 2.4:1 before."""
+    background = preset.background  # type: ignore[attr-defined]
+    opacity = preset.opacity  # type: ignore[attr-defined]
+    seen = _mix(video, background, opacity)
+    ink = Ink(panel=background, panel_opacity=opacity)
+    row = QColor("#ffffff")
+    row.setAlphaF(alpha)
+    for faint in (1.0, reading_lines.ALPHA):
+        for colour in LINK_COLORS:
+            drawn = link_ink(QColor(colour), ink, row, faint)
+            found = contrast(_mix(seen, drawn.name(), alpha * faint), seen)
+            assert found >= LARGE_TEXT, (colour, faint, found)
+
+
+def test_a_solid_panel_keeps_the_shades_it_had() -> None:
+    """At 100 % there is no video behind it: the shades are 395's."""
+    ink = Ink(panel="#000000", panel_opacity=1.0)
+    assert all(
+        link_ink(QColor(c), ink, QColor("#ffffff")).name() == c for c in LINK_COLORS
+    )
 
 
 def test_on_a_dark_panel_the_link_colours_are_as_they_are() -> None:
@@ -175,7 +365,7 @@ def test_a_caption_windows_ink_follows_the_look(qapp: QApplication) -> None:
         word_links=WordLinks.COLOURS,
         reading_lines=("zh",),
         reading_colour=ReadingColour.LINK,
-        link_words=True,
+        said_in_link_colours=True,
     )
     window = CaptionWindow(
         "Discord.exe", APP, WindowChoices(), SourceLabel("Discord", "#4dd0e1"),
@@ -189,7 +379,9 @@ def test_a_caption_windows_ink_follows_the_look(qapp: QApplication) -> None:
     qapp.processEvents()
     window.canvas.repaint()  # drawn with it, no error
     ink = window.canvas.ink
-    assert ink.reading_colour is ReadingColour.LINK and ink.link_words
+    assert ink.reading_colour is ReadingColour.LINK and ink.said_in_link_colours
+    assert not ink.translation_in_link_colours
+    assert ink.panel_opacity == look.opacity  # shades read through the panel (431)
     assert ink.panel == look.background
     assert look_ink(Ink(), replace(look, reading_colour=ReadingColour.CUSTOM)).reading
 
@@ -198,23 +390,42 @@ def test_a_caption_windows_ink_follows_the_look(qapp: QApplication) -> None:
 
 
 def test_the_choices_are_saved_and_come_back() -> None:
-    look = CaptionLook(
-        reading_colour=ReadingColour.CUSTOM, reading_custom="#a5f28a", link_words=True
+    for said, translation in ((True, False), (False, True)):
+        look = CaptionLook(
+            reading_colour=ReadingColour.CUSTOM,
+            reading_custom="#a5f28a",
+            said_in_link_colours=said,
+            translation_in_link_colours=translation,
+        )
+        stored = AppSettings.from_stored(look_settings(look)).to_stored()
+        back = caption_look(AppSettings.from_stored(stored))
+        assert (
+            back.reading_colour,
+            back.reading_custom,
+            back.said_in_link_colours,
+            back.translation_in_link_colours,
+        ) == (ReadingColour.CUSTOM, "#a5f28a", said, translation)
+
+
+def test_the_previews_one_switch_comes_back_as_both() -> None:
+    """0.1.7's previews saved one switch for both sides (395): on, it's
+    both on; once either is saved, that wins."""
+    look = caption_look(AppSettings.from_stored({"link_words_coloured": True}))
+    assert look.said_in_link_colours and look.translation_in_link_colours
+    off = caption_look(AppSettings.from_stored({"link_words_coloured": False}))
+    assert not off.said_in_link_colours and not off.translation_in_link_colours
+    chosen = AppSettings.from_stored(
+        {"link_words_coloured": True, "translation_in_link_colours": False}
     )
-    stored = AppSettings.from_stored(look_settings(look)).to_stored()
-    back = caption_look(AppSettings.from_stored(stored))
-    assert (back.reading_colour, back.reading_custom, back.link_words) == (
-        ReadingColour.CUSTOM,
-        "#a5f28a",
-        True,
-    )
+    assert chosen.said_in_link_colours and not chosen.translation_in_link_colours
 
 
 def test_off_and_its_lines_colour_until_chosen_and_wrong_values_are_the_default() -> (
     None
 ):
     assert caption_look(AppSettings()).reading_colour is ReadingColour.SAME
-    assert not caption_look(AppSettings()).link_words
+    assert not caption_look(AppSettings()).said_in_link_colours
+    assert not caption_look(AppSettings()).translation_in_link_colours
     found = AppSettings.from_stored(
         {"reading_colour": "rainbow", "reading_custom_color": "blue"}
     )
@@ -244,8 +455,91 @@ def test_the_word_links_group_colours_the_linked_words(qapp: QApplication) -> No
     view = LookView(CaptionLook(word_links=WordLinks.COLOURS))
     panel = WordLinksPanel(view, notes=True)
     MADE.append(panel)
-    assert not panel.link_words.isChecked()
-    panel.link_words.click()
-    assert view.value.link_words
+    said, translation = panel.said_in_link_colours, panel.translation_in_link_colours
+    assert not said.isChecked() and not translation.isChecked()
+    translation.click()  # the translation's alone (431)
+    assert view.value.translation_in_link_colours
+    assert not view.value.said_in_link_colours
+    said.click()
+    translation.click()
+    assert view.value.said_in_link_colours
+    assert not view.value.translation_in_link_colours
     view.set_word_links(WordLinks.OFF)
-    assert not panel.link_words.isEnabled()  # no links: nothing to colour
+    assert not said.isEnabled() and not translation.isEnabled()  # nothing to colour
+
+
+def test_a_windows_popover_switches_each_side_for_every_window(
+    qapp: QApplication,
+) -> None:
+    """431: the caption window's settings popover has both switches; a
+    click asks for that side in every window (main hands it to Settings'
+    look, which every window follows), showing the look's choice."""
+    window = CaptionWindow(
+        "Discord.exe", APP, WindowChoices(), SourceLabel("Discord", "#4dd0e1"),
+        mic=MIC, areas=areas, learner=chinese_tools(),
+    )  # fmt: skip
+    MADE.append(window)
+    window.set_look(CaptionLook(word_links=WordLinks.COLOURS))
+    asked: list[tuple[str, bool]] = []
+    window.said_colours_wanted.connect(lambda on: asked.append(("said", on)))
+    window.translation_colours_wanted.connect(
+        lambda on: asked.append(("translation", on))
+    )
+    popover = SettingsPopover(window)
+    MADE.append(popover)
+    said = popover.findChild(QPushButton, "settings_popover.said_colours")
+    translation = popover.findChild(QPushButton, "settings_popover.translation_colours")
+    assert said is not None and translation is not None
+    assert not said.isChecked() and said.isEnabled()
+    translation.click()
+    assert asked == [("translation", True)]
+    window.set_look(
+        CaptionLook(word_links=WordLinks.COLOURS, translation_in_link_colours=True)
+    )
+    assert translation.isChecked() and not said.isChecked()
+    window.set_look(CaptionLook(word_links=WordLinks.OFF))
+    assert not said.isEnabled() and not translation.isEnabled()
+
+
+# -- the cost --------------------------------------------------------------------------
+
+
+def test_a_live_update_with_both_sides_coloured_is_within_a_new_captions_budget(
+    qapp: QApplication,
+) -> None:
+    """431: run on, with pinyin and word links as colours, both sides'
+    linked words in their links' colours - Qt draws each coloured word
+    again (about 1 ms more than off, measured 2026-11-17), within today's
+    budget for a new caption."""
+    look = replace(
+        PINYIN,
+        word_links=WordLinks.COLOURS,
+        said_in_link_colours=True,
+        translation_in_link_colours=True,
+        reading_colour=ReadingColour.LINK,
+    )
+    window = read_window(qapp, LABS["run-on"], 150, look)
+    MADE.append(window)
+    pool = finished_updates(8)
+    grown = [
+        replace(
+            live_update("app-live"),
+            clauses=tuple(
+                Clause(
+                    f"{c.original}{'还有更多' * n}",
+                    {EN: f"{c.translations[EN]} {'and more ' * n}"},
+                    c.links,
+                )
+                for c in pool[n % 8].clauses
+            ),
+        )
+        for n in range(12)
+    ]
+    updates = iter(grown * 4)
+
+    def arrive() -> None:
+        window.view.apply(next(updates))
+        window.apply_changed(new_caption=False)
+        window.canvas.repaint()
+
+    within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * 12))

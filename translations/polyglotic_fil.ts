@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Kulayan ang mga salitang naka-ugnay sa sinabi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Kulayan ang mga salitang naka-ugnay sa salin</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Mas maliit na teksto (Ctrl+wheel)</translation>
     </message>
@@ -2972,28 +2982,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">Buksan ang Polyglotic pag nag-log in ka?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Simulan kasabay ng Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">Buksan sa pag-log in</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Naghihintay ito sa system tray, kaya isang click lang ang caption kapag naglalaro o nanonood ka. Mapapatay ito sa Startup apps ng Windows.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">Bubukas ito pag nag-log in ka, kaya isang click lang ang caption kapag naglalaro o nanonood ka. Mapapatay ito sa Login Items ng System Settings.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3737,6 +3732,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Sinusuri ang listahan ng mga diksiyonaryo.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Basic na diksiyonaryo mula sa open data (hindi pa sinuri ng tao ang mga kahulugan), kung may handa na: puwede nang maghanap ng salita sa mga caption na {language} kapag nasa PC na ito. Gumagana ang mga caption at salin alinman ang mangyari.</translation>
     </message>
@@ -4191,11 +4191,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Sinusuri ang listahan ng mga diksiyonaryo.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">Nagda-download: {done} sa {total} MB</translation>
     </message>
@@ -4246,8 +4241,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">Naka-record ang mga pinakakaraniwang salita ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">May mas bagong bersyon ({size}) na naghihintay ng koneksyong hindi metered.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Diksiyonaryo nito: {size} ang ida-download, pagkatapos {recorded} ng mga naka-record na salita.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4691,11 +4696,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Wala pang boses na {language} sa Mac na ito. Libreng nagdadagdag ang macOS: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, pagkatapos {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Buksan ang speech settings</translation>
     </message>
@@ -4791,11 +4791,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Walang boses na {language} sa Mac na ito</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Itigil (R)</translation>
     </message>
@@ -4858,11 +4853,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Binubuksan ang Settings ng Windows, kung saan nagdadagdag ng boses</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">Binubuksan ang System Settings, kung saan nagdadagdag ng boses</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5440,13 +5430,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Kulayan din ang mga salitang naka-ugnay</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Kulayan ang mga salitang naka-ugnay sa sinabi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Ang mga salitang pinag-uugnay ng isang ugnay - sa sinabi at sa salin nito - ay kukuha ng kulay nito, gaya ng linya nila. Kapag ang pinyin ay nasa kulay rin ng ugnay ng salita, magkakatugma ang salita, ang pinyin nito at ang salin nito.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Ang bawat salitang pinag-uugnay ng isang ugnay ay kukuha ng kulay nito, gaya ng linya nito.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Kulayan ang mga salitang naka-ugnay sa salin</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Ang bawat salitang pinag-uugnay ng isang ugnay ay kukuha ng kulay nito. Kapag parehong naka-on at ang pinyin ay nasa kulay ng ugnay ng salita, magkakatugma ang salita, ang pinyin nito at ang salin nito.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5545,8 +5545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Kulay ng ugnay ng salita nito: kukunin ng pinyin ang kulay ng ugnay ng salita nito, kung mayroon - kasama ang “Kulayan din ang mga salitang naka-ugnay” sa Ugnay ng salita, magkakatugma ang salita, ang pinyin nito at ang salin nito.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Kulay ng ugnay ng salita nito: kukunin ng pinyin ang kulay ng ugnay ng salita nito, kung mayroon. Kaya rin ng Ugnay ng salita na kulayan ang mga salitang naka-ugnay.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

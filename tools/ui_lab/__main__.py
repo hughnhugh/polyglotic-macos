@@ -35,6 +35,7 @@ from tools.i18n import __main__ as i18n
 from tools.ui_lab import (
     caption_window,
     design,
+    first_run,
     goldens,
     home,
     joined_window,
@@ -60,7 +61,7 @@ def new_states() -> list[lab.State]:
     new = new_parts.STATES + caption_window.STATES + lookup.STATES
     new += joined_window.STATES + transcript.STATES
     new += panels.STATES + presets.STATES
-    new += home.STATES + pages.STATES + qt_parts.STATES
+    new += home.STATES + pages.STATES + qt_parts.STATES + first_run.STATES
     return new + text_sizes.STATES
 
 

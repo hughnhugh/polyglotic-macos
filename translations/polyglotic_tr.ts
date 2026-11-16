@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Söylenendeki bağlı kelimeleri renklendir</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Çevirideki bağlı kelimeleri renklendir</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">Daha küçük yazı (Ctrl+tekerlek)</translation>
     </message>
@@ -2966,28 +2976,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">Polyglotic girişte açılsın mı?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows ile başlat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">Girişte aç</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">Sistem tepsisinde bekler, böylece oynarken ya da izlerken altyazılar bir tık uzakta olur. Windows&apos;un Başlangıç uygulamalarından kapatılabilir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">Giriş yaptığınızda açılır, böylece oynarken ya da izlerken altyazılar bir tık uzakta olur. Sistem Ayarları&apos;ndaki Giriş Öğeleri&apos;nden kapatılabilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3728,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">Sözlük listesi denetleniyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">Açık verilerden temel bir sözlük (anlamlar bir kişi tarafından kontrol edilmedi), hazır olan varsa: bu bilgisayara geldiğinde {language} altyazılarında kelime arama. Altyazı ve çeviri her durumda çalışır.</translation>
     </message>
@@ -4179,11 +4179,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">Sözlük listesi denetleniyor.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">İndiriliyor: {done} / {total} MB</translation>
     </message>
@@ -4234,8 +4229,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">En sık kullanılan kelimeler kayıtlı ({size}).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Daha yeni bir sürüm ({size}) ölçülü olmayan bir bağlantı bekliyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">Sözlüğü: indirilecek {size}, ardından {recorded} kayıtlı kelime.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4677,11 +4682,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Bu Mac&apos;te henüz {language} sesi yok. macOS ücretsiz ekler: Sistem Ayarları &gt; Erişilebilirlik &gt; Seslendirilen İçerik &gt; Sistem sesi &gt; Sesleri Yönet, sonra {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Konuşma ayarlarını aç</translation>
     </message>
@@ -4777,11 +4777,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Bu Mac&apos;te {language} sesi yok</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Durdur (R)</translation>
     </message>
@@ -4844,11 +4839,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Seslerin eklendiği Windows Ayarları&apos;nı açar</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">Seslerin eklendiği Sistem Ayarları&apos;nı açar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5426,13 +5416,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">Bağlı kelimeleri de renklendir</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">Söylenendeki bağlı kelimeleri renklendir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Bir bağın birleştirdiği kelimeler - söylenende ve çevirisinde - alt çizgileri gibi onun rengini alır. Pinyin de kelimenin bağ renginde olunca bir kelime, pinyini ve çevirisi aynı renkte olur.</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">Bir bağın birleştirdiği her kelime, alt çizgisi gibi onun rengini alır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">Çevirideki bağlı kelimeleri renklendir</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">Bir bağın birleştirdiği her kelime onun rengini alır. İkisi de açıkken ve pinyin kelimenin bağ rengindeyken bir kelime, pinyini ve çevirisi aynı renkte olur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5531,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">Kelimesinin bağ rengi: pinyin, varsa kelimesinin bağının rengini alır - Kelime bağlarındaki “Bağlı kelimeleri de renklendir” ile bir kelime, pinyini ve çevirisi aynı renkte olur.</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">Kelimesinin bağ rengi: pinyin, bir bağ varsa kelimesinin bağının rengini alır. Kelime bağları bağlı kelimeleri de renklendirebilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

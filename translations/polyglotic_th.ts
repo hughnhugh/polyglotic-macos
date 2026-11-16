@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในสิ่งที่พูด</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">ตัวอักษรเล็กลง (Ctrl+ล้อเมาส์)</translation>
     </message>
@@ -2966,28 +2976,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">เปิด Polyglotic เมื่อเข้าสู่ระบบไหม</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">เริ่มพร้อม Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">เปิดเมื่อเข้าสู่ระบบ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">รออยู่ในถาดระบบ คำบรรยายจึงห่างแค่คลิกเดียวเมื่อเล่นหรือดู ปิดได้ใน แอปเริ่มต้น ของ Windows</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">เปิดขึ้นเมื่อคุณเข้าสู่ระบบ คำบรรยายจึงห่างแค่คลิกเดียวเมื่อเล่นหรือดู ปิดได้ใน รายการเข้าสู่ระบบ ของการตั้งค่าระบบ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3728,6 +3723,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">กำลังตรวจรายการพจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">พจนานุกรมพื้นฐานจากข้อมูลเปิด (ความหมายยังไม่ได้ตรวจโดยคน) หากมีพร้อมแล้ว: ค้นคำในคำบรรยาย{language}ได้เมื่ออยู่ในพีซีเครื่องนี้แล้ว คำบรรยายและคำแปลใช้ได้ไม่ว่ากรณีใด</translation>
     </message>
@@ -4179,11 +4179,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">กำลังตรวจรายการพจนานุกรม</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">กำลังดาวน์โหลด: {done} จาก {total} MB</translation>
     </message>
@@ -4234,8 +4229,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">คำที่ใช้บ่อยที่สุดมีเสียงบันทึกไว้ ({size})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">มีเวอร์ชันใหม่กว่า ({size}) รอการเชื่อมต่อที่ไม่คิดตามปริมาณข้อมูล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">พจนานุกรม: ต้องดาวน์โหลด {size} แล้วตามด้วยคำที่บันทึกเสียงไว้ {recorded}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4677,11 +4682,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Mac เครื่องนี้ยังไม่มีเสียง{language} macOS เพิ่มได้ฟรี: การตั้งค่าระบบ &gt; การช่วยการเข้าถึง &gt; เนื้อหาที่พูด &gt; เสียงของระบบ &gt; จัดการเสียง แล้วเลือก{language}</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">เปิดการตั้งค่าเสียงพูด</translation>
     </message>
@@ -4777,11 +4777,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">Mac เครื่องนี้ไม่มีเสียง{language}</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">หยุด (R)</translation>
     </message>
@@ -4844,11 +4839,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">เปิดการตั้งค่า Windows ที่ใช้เพิ่มเสียง</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">เปิดการตั้งค่าระบบ ที่ใช้เพิ่มเสียง</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5426,13 +5416,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">ใส่สีคำที่จับคู่ด้วย</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในสิ่งที่พูด</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">คำที่จับคู่กัน - ทั้งในคำพูดและคำแปล - จะใช้สีของคู่นั้น เหมือนเส้นใต้ เมื่อตั้งพินอินเป็นสีของคู่คำด้วย คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">คำที่จับคู่แต่ละคำจะใช้สีของคู่นั้น เหมือนเส้นใต้</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">ใส่สีคำที่จับคู่ในคำแปล</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">คำที่จับคู่แต่ละคำจะใช้สีของคู่นั้น เมื่อเปิดทั้งสองอย่างและตั้งพินอินเป็นสีของคู่คำ คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5531,8 +5531,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">สีของคู่คำ: พินอินใช้สีของคู่คำที่คำนั้นอยู่ ถ้ามี - เมื่อเปิด “ใส่สีคำที่จับคู่ด้วย” ในจับคู่คำ คำ พินอิน และคำแปลจะเป็นสีเดียวกัน</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">สีของคู่คำ: พินอินจะใช้สีของคู่ของคำนั้น ถ้ามีคู่ จับคู่คำยังใส่สีให้คำที่จับคู่ได้ด้วย</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

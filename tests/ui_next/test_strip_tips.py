@@ -15,7 +15,6 @@ from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_window import STRIP, CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.strip_tips import (
     OVER_CAPTIONS_MS,
     REST_MS,
@@ -92,7 +91,7 @@ def test_every_strip_button_says_what_it_does_on_hover(window: CaptionWindow) ->
     assert said == {name: [window.controls[name].toolTip()] for name in STRIP}
     assert said["stop"] == ["Stop captioning Discord"]
     assert said["lock"] == [
-        keys("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
+        "Lock - clicks pass through to what's underneath, Ctrl+Alt+L"
     ]
 
 

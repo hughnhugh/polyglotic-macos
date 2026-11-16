@@ -55,12 +55,15 @@ from polyglotic_desktop.core.lexicon.pack_download import (
     retry_after,
 )
 from polyglotic_desktop.core.lexicon.packs import (
+    RIDER_SUFFIXES,
     InstalledPack,
     PackOffer,
     Reader,
+    Rider,
     best_offer,
     needs_newer_app,
     newer,
+    riders_wanted,
     update_for,
     version_key,
 )
@@ -208,11 +211,39 @@ class PackFolder:
             freed += size
         return freed
 
-    def part(self, offer: PackOffer) -> Path:
+    def riders(self, dictionary: str) -> list[Path]:
+        """`dictionary`'s rider files in the folder (never `also`): its
+        recordings, of any version."""
+        if not self.folder.is_dir():
+            return []
+        return sorted(
+            path
+            for suffix in RIDER_SUFFIXES.values()
+            for path in self.folder.glob(f"{dictionary}-*{suffix}")
+        )
+
+    def outdated_riders(self) -> list[Path]:
+        """Rider files in the folder a newer version of the same file
+        supersedes (`<dictionary>[-<language>]-<version>.<kind>`): left when
+        a pack's update brought new ones."""
+        newest: dict[tuple[str, str], tuple[tuple[int, ...], Path]] = {}
+        every: list[tuple[tuple[str, str], Path]] = []
+        for suffix in RIDER_SUFFIXES.values():
+            for path in (
+                sorted(self.folder.glob(f"*{suffix}")) if self.folder.is_dir() else ()
+            ):
+                name, _, version = path.name[: -len(suffix)].rpartition("-")
+                key, order = (name, suffix), version_key(version) or ()
+                every.append((key, path))
+                if key not in newest or order > newest[key][0]:
+                    newest[key] = (order, path)
+        return [path for key, path in every if newest[key][1] != path]
+
+    def part(self, offer: PackOffer | Rider) -> Path:
         """Where `offer`'s download comes down, gzipped, until it's whole."""
         return self.folder / (offer.download + ".part")
 
-    def unpacking(self, offer: PackOffer) -> Path:
+    def unpacking(self, offer: PackOffer | Rider) -> Path:
         """Where it's unpacked to, until it's checked and opened."""
         return self.folder / (offer.file + ".part")
 
@@ -254,6 +285,7 @@ class PackDeliveries:
         on_listed: Callable[
             [tuple[PackOffer, ...] | None, Problem | None], None
         ] = lambda _o, _p: None,
+        on_rider: Callable[[PackOffer, Rider, Path], None] = lambda _o, _r, _p: None,
         metered: Callable[[], bool] = lambda: False,
         open_url: OpenUrl | None = None,
         clock: Callable[[], float] = time.monotonic,
@@ -267,6 +299,7 @@ class PackDeliveries:
         self._progress = on_progress
         self._installed = on_installed
         self._listed = on_listed
+        self._rider = on_rider
         self._metered = metered
         self._open_url = open_url
         self._clock = clock
@@ -518,6 +551,8 @@ class PackDeliveries:
         if wanted.update and (
             installed is None or update_for(installed[0], offers, self.reader) is None
         ):
+            if installed is not None and installed[0].version == offer.version:
+                self._riders(wanted, offer, progress)  # one that didn't arrive
             return  # nothing newer after all
         here = installed[0].version if installed is not None else None
         if installed is not None and installed[0].version == offer.version:
@@ -528,6 +563,7 @@ class PackDeliveries:
                 PackProgress(language, Step.DONE, offer.gz_size, offer.gz_size)
             )
             self._installed(offer, installed[1])
+            self._riders(wanted, offer, progress)
             return
         if here is not None and not newer(offer.version, here):
             # never an older version over a newer one, whatever a list says
@@ -572,11 +608,51 @@ class PackDeliveries:
             )
         )
         self._installed(offer, path)
+        self._riders(wanted, offer, progress)
+
+    def _riders(self, wanted: Wanted, offer: PackOffer, progress: PackProgress) -> None:
+        """The pack's riders this app wants and hasn't got (decision 0133),
+        each downloaded and checked as the pack was, quietly: the pack is in
+        use already, so nothing is said, and one that fails is tried again
+        with the next day's check (or the next time its pack is asked for).
+        On a metered connection none is fetched unless the learner said go on."""
+        quiet = replace(progress, update=True)
+        for rider in riders_wanted(offer, self.reader):
+            path = self.folder.folder / rider.file
+            if path.is_file() and path.stat().st_size == rider.size:
+                continue
+            try:
+                if not wanted.metered_ok and not self._go_on and self._metered():
+                    raise PackFailed(Problem.METERED)
+                part = self.folder.part(rider)
+                have = part.stat().st_size if part.is_file() else 0
+                if self._free(self.folder.folder) < rider.gz_size + rider.size:
+                    raise PackFailed(Problem.NO_ROOM)
+                self._download(wanted, rider, part, have, quiet)
+                unpacked = self._checked(rider, part, quiet, offer.language)
+                os.replace(unpacked, path)
+            except Cancelled:
+                return
+            except PackFailed as failed:
+                log.info(
+                    "dictionary pack %s: its %s file not fetched: %s",
+                    offer.language,
+                    rider.kind,
+                    failed.problem.value,
+                )
+                continue
+            log.info(
+                "dictionary pack %s: its %s file is in (%d bytes)",
+                offer.language,
+                rider.kind,
+                rider.size,
+            )
+            self._rider(offer, rider, path)
 
     def _download(
         self,
         wanted: Wanted,
-        offer: PackOffer,
+        offer: PackOffer | Rider,
         part: Path,
         have: int,
         progress: PackProgress,
@@ -586,10 +662,9 @@ class PackDeliveries:
         started = self._clock()
         next_metered = have + METERED_EVERY
         log.info(
-            "dictionary pack %s/%s %s: downloading from byte %d of %d, try %d",
-            offer.language,
-            offer.meanings,
-            offer.version,
+            "dictionary pack %s: %s: downloading from byte %d of %d, try %d",
+            language,
+            offer.file,
             have,
             offer.gz_size,
             progress.tries,
@@ -656,6 +731,39 @@ class PackDeliveries:
         """The download checked whole, unpacked, the unpacked file checked,
         opened as the pack the list says, then put in place."""
         language = offer.language
+        part = self._checked(offer, part, progress, language)
+        self._report(
+            replace(progress, step=Step.OPENING, done=offer.size, total=offer.size),
+            force=True,
+        )
+        pack = _pack_of(part)
+        if pack is None or (pack.language, pack.meanings, pack.version) != (
+            offer.language,
+            offer.meanings,
+            offer.version,
+        ):
+            part.unlink(missing_ok=True)
+            log.warning(
+                "dictionary pack %s: not the pack the list says: deleted", language
+            )
+            raise PackFailed(Problem.UNREADABLE)
+        path = self.folder.folder / offer.file
+        os.replace(part, path)
+        if offer.credits_text:
+            credits = self.folder.folder / f"{offer.dictionary}.CREDITS.md"
+            credits.write_text(offer.credits_text, encoding="utf-8")
+        return path
+
+    def _checked(
+        self,
+        offer: PackOffer | Rider,
+        part: Path,
+        progress: PackProgress,
+        language: str,
+    ) -> Path:
+        """A download (a pack's, or a rider's) checked whole against the
+        list, unpacked, and the unpacked file checked: where it is, still
+        under its unpacking name. Anything else is deleted and refused."""
         started = self._clock()
         if part.stat().st_size != offer.gz_size:
             part.unlink(missing_ok=True)
@@ -696,25 +804,7 @@ class PackDeliveries:
             language,
             self._clock() - started,
         )
-        part = unpacked
-        self._report(replace(checking, step=Step.OPENING, done=offer.size), force=True)
-        pack = _pack_of(part)
-        if pack is None or (pack.language, pack.meanings, pack.version) != (
-            offer.language,
-            offer.meanings,
-            offer.version,
-        ):
-            part.unlink(missing_ok=True)
-            log.warning(
-                "dictionary pack %s: not the pack the list says: deleted", language
-            )
-            raise PackFailed(Problem.UNREADABLE)
-        path = self.folder.folder / offer.file
-        os.replace(part, path)
-        if offer.credits_text:
-            credits = self.folder.folder / f"{offer.dictionary}.CREDITS.md"
-            credits.write_text(offer.credits_text, encoding="utf-8")
-        return path
+        return unpacked
 
     def _report(self, progress: PackProgress, force: bool = False) -> None:
         """Hands progress over - at most every `REPORT_EVERY_SEC` while bytes

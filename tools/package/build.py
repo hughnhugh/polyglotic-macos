@@ -34,13 +34,17 @@ On macOS (decision 0186; the macOS job, .github/workflows/macos.yml) the
 same steps make `dist/Polyglotic.app`, an app bundle for Apple silicon: its
 icon an .icns and its Info.plist from `info_plist` (the permission prompts'
 wording); the build's files (3.) in `Contents/Resources` (`Layout`); signed
-ad hoc once they're in (`sign`); zipped by `ditto` as a tester would get it
-(`MACOS_ZIP`). There are no updates on macOS yet: Velopack doesn't pack it.
+ad hoc once they're in (`sign`), or with the certificate
+POLYGLOTIC_CODESIGN_IDENTITY names (the release's self-signed one: decision
+0196); zipped by `ditto` as a tester would get it (`MACOS_ZIP`), and named
+for the release with its SHA-256 beside it (`release_zip`). There are no
+updates on macOS yet: Velopack doesn't pack it.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -326,12 +330,19 @@ def sign(app: Path) -> dict[str, object]:
     POLYGLOTIC_CODESIGN_IDENTITY names a certificate in the keychain. Then
     verified, with its designated requirement - what macOS keeps a
     permission under: an ad-hoc build's is its hash, so each new build asks
-    again (polyglotic-hq 408, 410)."""
+    again (polyglotic-hq 408, 410). With a certificate the requirement is
+    its identifier and the certificate, the same for every build signed
+    with it, so a learner's permissions carry over (decision 0196); its
+    `authority` is the certificate's name, which an ad-hoc build hasn't."""
     identity = os.environ.get("POLYGLOTIC_CODESIGN_IDENTITY") or "-"
+    command = ["codesign", "--force", "--deep", "--sign", identity]
+    if identity != "-":
+        # Apple's timestamp service is for its own certificates; a
+        # self-signed one asks it in vain and the signing fails.
+        command.append("--timestamp=none")
     signed = subprocess.run(
-        ["codesign", "--force", "--deep", "--sign", identity, str(app)],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
+        [*command, str(app)], capture_output=True, text=True, check=False
+    )
     verified = subprocess.run(
         ["codesign", "--verify", "--deep", "--strict", str(app)],
         capture_output=True, text=True, check=False,
@@ -340,13 +351,39 @@ def sign(app: Path) -> dict[str, object]:
         ["codesign", "--display", "--requirements", "-", str(app)],
         capture_output=True, text=True, check=False,
     )  # fmt: skip
+    shown = subprocess.run(
+        ["codesign", "--display", "--verbose=2", str(app)],
+        capture_output=True, text=True, check=False,
+    )  # fmt: skip
     return {
         "ad_hoc": identity == "-",
         "signed": signed.returncode == 0,
         "verified": verified.returncode == 0,
         "said": (signed.stderr + verified.stderr).strip()[-2000:],
         "designated_requirement": requirement.stdout.strip()[-500:],
+        "authority": [
+            line.partition("=")[2]
+            for line in shown.stderr.splitlines()
+            if line.startswith("Authority=")
+        ],
     }
+
+
+def signature_problems(signature: Mapping[str, object]) -> list[str]:
+    """What's wrong with `sign`'s result. A failed signing is one even when
+    the bundle still verifies: PyInstaller's ad-hoc signature is there
+    underneath, so a certificate that didn't take would ship ad hoc unseen
+    (polyglotic-hq 422)."""
+    found = []
+    if not signature["signed"]:
+        found.append(f"codesign couldn't sign the app bundle: {signature['said']}")
+    if not signature["verified"]:
+        found.append(f"the app bundle's signature doesn't verify: {signature['said']}")
+    if not signature["ad_hoc"] and not signature.get("authority"):
+        found.append(
+            "signed ad hoc although POLYGLOTIC_CODESIGN_IDENTITY names a certificate"
+        )
+    return found
 
 
 def _ico_bitmap(image: QImage) -> bytes:
@@ -695,6 +732,26 @@ def ditto_zip(app: Path) -> int:
     return path.stat().st_size
 
 
+def release_zip(
+    zipped: Path, version: str, channel: str, folder: Path
+) -> dict[str, object]:
+    """The download as a release keeps it (polyglotic-hq 422):
+    `Polyglotic-<version>-<channel>.zip` in `folder`, and beside it
+    `<that name>.sha256`, one line `shasum -a 256 -c` reads. The release
+    step checks the zip against it before uploading."""
+    name = f"{NAME}-{version}-{channel}.zip"
+    folder.mkdir(parents=True, exist_ok=True)
+    target = folder / name
+    shutil.copyfile(zipped, target)
+    digest = hashlib.sha256()
+    with target.open("rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            digest.update(block)
+    sha = digest.hexdigest()
+    (folder / f"{name}.sha256").write_bytes(f"{sha}  {name}\n".encode())
+    return {"zip": name, "sha256": sha, "bytes": target.stat().st_size}
+
+
 def biggest(folder: Path, n: int = 12) -> list[tuple[str, float]]:
     files = [p for p in folder.rglob("*") if p.is_file()]
     files.sort(key=lambda p: p.stat().st_size, reverse=True)
@@ -804,8 +861,8 @@ def build(
     signature = sign(folder) if macos else None
 
     found = problems(folder, layout)
-    if signature is not None and not signature["verified"]:
-        found.append(f"the app bundle's signature doesn't verify: {signature['said']}")
+    if signature is not None:
+        found += signature_problems(signature)
     check = settled_check_install(folder, layout)
     if check.get("exit_code") != 0 or check.get("version") != version:
         found.append(f"--check-install failed: {check}")
@@ -814,13 +871,18 @@ def build(
     found += over_start_budget(check, start_limit)
     found += packs_as_decided(check)
     files = [p for p in folder.rglob("*") if p.is_file()]
+    released = None
+    if macos:
+        zipped = ditto_zip(folder)
+        released = release_zip(WORK / MACOS_ZIP, version, channel, WORK / "release")
     summary = {
         "version": version,
         "channel": channel,
         "build_seconds": build_seconds,
         "files": len(files),
         "size_mb": mb(sum(p.stat().st_size for p in files)),
-        "zipped_mb": mb(ditto_zip(folder) if macos else zipped_size(folder)),
+        "zipped_mb": mb(zipped if macos else zipped_size(folder)),
+        "release_zip": released,
         "check_install": check,
         "start_judged_against_ms": start_limit,
         "signature": signature,

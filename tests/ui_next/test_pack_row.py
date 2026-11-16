@@ -28,6 +28,11 @@ THIS = pc_or_mac("PC", "Mac")
 
 CASES = [
     (PackLine(size=62_400_000), "Its dictionary: 62.4 MB to download.", ("download",)),
+    (  # its recorded words come by themselves after it: both sizes (#192 B)
+        PackLine(size=9_400_000, recorded_offered=29_002_130),
+        "Its dictionary: 9.4 MB to download, then 29.0 MB of recorded words.",
+        ("download",),
+    ),
     (PackLine(), "Checking the list of dictionaries.", ("download",)),
     (  # couldn't be read: no claim either way (330's addendum)
         PackLine(unlisted=True),
@@ -123,6 +128,18 @@ CASES = [
     (
         PackLine(installed_version="2026.11.14", installed_size=62_400_000),
         f"On this {THIS}: version 2026.11.14, 62.4 MB.",
+        (),
+    ),
+    (  # its commonest words recorded (decision 0192)
+        PackLine(
+            installed_version="2026.11.16",
+            installed_size=29_500_000,
+            recorded_size=30_277_632,
+        ),
+        (
+            "On this PC: version 2026.11.16, 29.5 MB. Its commonest words are "
+            "recorded (30.3 MB)."
+        ),
         (),
     ),
     (

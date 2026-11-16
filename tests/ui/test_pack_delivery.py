@@ -5,6 +5,7 @@ removing closes and deletes it, and packs outlive an update of the app."""
 
 from __future__ import annotations
 
+import shutil
 import time
 from collections.abc import Callable, Iterator
 from pathlib import Path
@@ -13,12 +14,14 @@ import pytest
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from tests.packs_server import StandIn
-from tests.packs_storage import PUBLIC, publish, tiny_pack
+from tests.packs_storage import PRIVATE, PUBLIC, publish, tiny_pack
+from tools.package import publish_packs
 
 from polyglotic_desktop import main
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.pack_download import Problem
 from polyglotic_desktop.core.lexicon.packs import FROM_SOURCE
+from polyglotic_desktop.ui_next.pack_row import megabytes
 
 
 def until(done: Callable[[], bool], seconds: float = 20.0) -> None:
@@ -290,3 +293,257 @@ def test_learning_asks_for_the_list_once_in_a_while(
     listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
     assert len(listed) == 1
     packs.close()
+
+
+def test_a_downloaded_packs_recordings_reach_the_speaker_and_go_with_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+) -> None:
+    """The pack's recorded words come down after it and are said without a
+    restart; Learning says they're there, with who said them; removing the
+    pack deletes them with it (decisions 0133, 0192)."""
+    from tests.test_pack_riders import OGG_HEAD, built_with_audio, published
+
+    from polyglotic_desktop.platform.recorded_voices import Recordings
+
+    out = tmp_path / "bucket"
+    built = built_with_audio(tmp_path / "built")
+    assert publish(monkeypatch, out, built) == 0  # the packs alone, first
+    recordings = Recordings()
+    basic: dict[str, BasicDictionary] = {}
+    folder = tmp_path / "packs"
+    with StandIn(out) as stand_in:
+        packs = main.PackDelivery(
+            folder,
+            basic,
+            "en",
+            main.pack_reader(FROM_SOURCE),
+            stand_in.base,
+            (PUBLIC,),
+            recordings=recordings,
+        )
+        packs.start()
+        packs.asked("ru", "download")
+        until(lambda: "ru" in basic)
+        assert recordings.voices() == ()  # this list has no riders
+        assert "recorded" not in main_line_text(packs)
+        packs.close()
+    # then its recordings, beside the pack already published
+    with_audio = tmp_path / "bucket-audio"
+    extra = ("--audio", str(built), "--riders-only", "--version", "2026.11.14")
+    assert published(monkeypatch, with_audio, *extra, previous=out / LIST) == 0
+    shutil.copytree(
+        out / "packs" / "files", with_audio / "packs" / "files", dirs_exist_ok=True
+    )
+    with StandIn(with_audio) as stand_in:
+        packs = main.PackDelivery(
+            folder,
+            basic,
+            "en",
+            main.pack_reader(FROM_SOURCE),
+            stand_in.base,
+            (PUBLIC,),
+            recordings=recordings,
+        )
+        packs.start()  # the pack is here: the daily check brings its riders
+        assert "ru" in packs.here and recordings.voices() == ()
+        packs.check_updates()
+        until(lambda: bool(recordings.voices()))
+        (voice,) = recordings.voices()
+        assert voice.language == "ru-RU"
+        assert recordings.clip(voice, "дом") == OGG_HEAD + b"OggS-the-word"
+        assert not recordings.has(voice, "говорить")
+        line = packs.line("ru")
+        assert line.recorded_size > 0 and "rf_test" in line.credits
+        assert "CC BY 4.0" in line.credits
+        assert "recorded" in main_line_text(packs)
+        (here,) = packs.installed_lines()  # removing it frees both
+        assert here.size == line.installed_size + line.recorded_size
+        assert len(list(folder.glob("wiktru-*"))) == 2  # the pack, the audio
+        packs.asked("ru", "remove")
+        assert "ru" not in basic and recordings.voices() == ()
+        assert not list(folder.glob("wiktru-*"))
+        packs.close()
+
+
+@pytest.mark.parametrize(
+    ("version", "recorded"), [(FROM_SOURCE, True), ("0.1.7", True), ("0.1.6", False)]
+)
+def test_the_offer_names_the_recordings_size_before_the_download(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    qapp: QApplication,
+    version: str,
+    recorded: bool,
+) -> None:
+    """DECISIONS #192 (B; polyglotic-hq 423): the recordings come by
+    themselves after the dictionary, so Learning's offer says both sizes -
+    only where the list has recordings this app takes (0.1.7 on: 0192)."""
+    from tests.test_pack_riders import built_with_audio, published
+
+    built = built_with_audio(tmp_path / "built")
+    out = tmp_path / "bucket"
+    no_list = tmp_path / "no-list.signed"
+    no_list.write_bytes(
+        publish_packs.sign_list(
+            publish_packs.list_bytes([], 1), publish_packs.private_key_from(PRIVATE)
+        )
+    )
+    extra = ("--packs", str(built), "--audio", str(built), "--version", "2026.11.14")
+    assert published(monkeypatch, out, *extra, previous=no_list) == 0
+    with StandIn(out) as stand_in:
+        packs = main.PackDelivery(
+            tmp_path / "packs",
+            {},
+            "en",
+            main.pack_reader(version),
+            stand_in.base,
+            (PUBLIC,),
+        )
+        packs.start()
+        packs.wanted_list(["ru"])
+        until(lambda: packs.offers is not None)
+        line = packs.line("ru")
+        (rider,) = next(o for o in packs.offers or () if o.meanings == "en").riders
+        assert line.size > 0
+        assert line.recorded_offered == (rider.gz_size if recorded else 0)
+        said = main_line_text(packs)
+        if recorded:
+            assert said == (
+                f"Its dictionary: {megabytes(line.size)} MB to download, then "
+                f"{megabytes(rider.gz_size)} MB of recorded words."
+            )
+        else:
+            assert said == f"Its dictionary: {megabytes(line.size)} MB to download."
+        packs.close()
+
+
+LIST = "packs/v1/list.signed"
+
+
+def main_line_text(packs: main.PackDelivery) -> str:
+    from polyglotic_desktop.ui_next.pack_row import shown
+
+    return shown("ru", packs.line("ru"))[0]
+
+
+def _german_published_since(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A newer list on the stand-in, with a German pack the kept one hasn't."""
+    built = tmp_path / "built-de"
+    tiny_pack(built, language="de", dictionary="wiktde")
+    newer = tmp_path / "bucket-de"
+    previous = server.folder / "packs" / "v1" / "list.signed"
+    assert publish(monkeypatch, newer, built, "2026.11.16", previous, "de") == 0
+    server.folder = newer
+
+
+def _kept_list(server: StandIn, folder: Path) -> None:
+    """An earlier run's list (Russian's only), kept in `folder`."""
+    earlier = delivery(server, folder, {})
+    earlier.wanted_list(["ru"])
+    until(lambda: earlier.offers is not None)
+    earlier.close()
+    assert earlier.deliveries is not None
+    earlier.deliveries.join(5)
+
+
+def test_an_old_list_is_checked_again_as_learning_opens(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """425 (preview 2): started with the list an earlier run kept, Learning
+    said "No dictionary yet" for a language published since, for two
+    minutes, until the update check read the list. Opening Learning checks
+    the old list at once, says it's checking meanwhile, and then offers the
+    new language; opened again with the list just read, it isn't asked for."""
+    from polyglotic_desktop.ui_next.views.learning import PackKnown, pack_known
+
+    folder = tmp_path / "packs"
+    _kept_list(server, folder)
+    _german_published_since(server, tmp_path, monkeypatch)
+    packs = delivery(server, folder, {})
+    assert packs.offers is not None  # the kept list: no German in it
+    assert packs.line("de").not_offered  # what it says until Learning opens
+    changes: list[None] = []
+    packs.changed.connect(lambda: changes.append(None))
+    packs.learning_opened()
+    german = packs.line("de")
+    assert german.checking and not german.not_offered and not german.unlisted
+    assert pack_known(german) is PackKnown.CHECKING
+    assert changes  # Learning says it's checking
+    until(lambda: packs.line("de").size > 0)  # the new language is offered
+    german = packs.line("de")
+    assert not german.checking and pack_known(german) is PackKnown.OFFERED
+    asked = len([p for p, _, _ in server.requests if p == "packs/v1/list.signed"])
+    packs.learning_opened()  # read just now: not again
+    QTest.qWait(300)
+    listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
+    assert len(listed) == asked
+    packs.close()
+
+
+def test_an_old_list_that_cant_be_checked_says_what_it_did(
+    server: StandIn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """425: a check of the old list that fails says what it said before -
+    the kept list's answer - not "checking" for good."""
+    folder = tmp_path / "packs"
+    _kept_list(server, folder)
+    server.faults.status["packs/v1/list.signed"] = 500
+    packs = delivery(server, folder, {})
+    packs.learning_opened()
+    assert packs.line("de").checking
+    until(lambda: not packs.list_checking)
+    german = packs.line("de")
+    assert german.not_offered and not german.checking
+    assert packs.list_problem is Problem.SERVER
+    assert packs.line("ru").size > 0  # the kept list's offer stands
+    packs.close()
+
+
+def test_a_list_read_over_an_hour_ago_is_checked_again(
+    server: StandIn, tmp_path: Path
+) -> None:
+    """425: read in this run, but over an hour ago - checked again as
+    Learning opens; read within the hour, not."""
+    packs = delivery(server, tmp_path / "packs", {})
+    packs.learning_opened()  # none kept: read now
+    until(lambda: packs.offers is not None and not packs.list_checking)
+    asked = len([p for p, _, _ in server.requests if p == "packs/v1/list.signed"])
+    packs.learning_opened()
+    assert not packs.list_checking  # within the hour
+    assert packs._list_read is not None
+    packs._list_read -= main.LIST_OLD_AFTER_SEC + 1  # an hour on
+    packs._list_asked -= main.LIST_OLD_AFTER_SEC + 1
+    packs.learning_opened()
+    assert packs.list_checking
+    until(lambda: not packs.list_checking)
+    listed = [p for p, _, _ in server.requests if p == "packs/v1/list.signed"]
+    assert len(listed) == asked + 1
+    packs.close()
+
+
+def test_learning_coming_into_view_asks_for_the_old_list_to_be_checked(
+    tmp_path: Path, qapp: QApplication
+) -> None:
+    """425: the main window's Learning page, opened, is what checks the list
+    (`PackDelivery.learning_opened`)."""
+    from tests.ui.fakes import Built
+
+    built = Built()
+    try:
+        packs = main.PackDelivery(
+            tmp_path / "packs", {}, "en", main.pack_reader(FROM_SOURCE)
+        )
+        opened: list[None] = []
+        packs.learning_opened = lambda: opened.append(None)  # type: ignore[method-assign]
+        built.hub.use_packs(packs)
+        built.hub.window.show()
+        built.hub.window.go_to("home")
+        qapp.processEvents()
+        assert opened == []
+        built.hub.window.go_to("learning")
+        qapp.processEvents()
+        assert opened == [None]
+    finally:
+        built.close()

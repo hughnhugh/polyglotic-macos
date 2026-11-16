@@ -156,7 +156,8 @@ class AppSettings:
     reading_system: str = ReadingSystem.PINYIN.value  # or zhuyin (395)
     reading_colour: str = ReadingColour.SAME.value
     reading_custom_color: str = "#9ad0ff"
-    link_words_coloured: bool = False
+    said_in_link_colours: bool = False  # what was said's linked words (431)
+    translation_in_link_colours: bool = False  # the translation's (431)
     # Settings > Captions > Lab's experimental values (the new interface's
     # `views.lab.CaptionLab`, which reads each one leniently): only those
     # moved from their defaults; {} untouched (polyglotic-hq 284)
@@ -492,6 +493,11 @@ _TUPLES = (  # stored as lists
 )
 
 
+OLD_LINK_WORDS = "link_words_coloured"
+"""0.1.7's previews' one switch for linked words in their link's colour,
+in what was said and the translation alike (395): two since 431."""
+
+
 def _migrated(stored: Mapping[str, object]) -> Mapping[str, object]:
     """What an older version stored, in today's settings: one app picked
     (`app_name`, before several could be) is `apps` with that app alone;
@@ -506,6 +512,9 @@ def _migrated(stored: Mapping[str, object]) -> Mapping[str, object]:
         found["overlay_position"] = "custom"
     if "caption_mode_chosen" not in found:
         found["caption_mode_chosen"] = _caption_mode_chosen_from(found)
+    if found.get(OLD_LINK_WORDS) is True:  # 0.1.7's previews: one for both (431)
+        found.setdefault("said_in_link_colours", True)
+        found.setdefault("translation_in_link_colours", True)
     return found
 
 

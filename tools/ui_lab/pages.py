@@ -935,6 +935,29 @@ STATES = [
                 ),
             ),
         ),
+        (  # recorded words come after it: the offer says both sizes (423)
+            "learning_pack_offer_recorded",
+            learning(
+                LearningLanguages("zh", ("es",)),
+                WordIntroductions.A_FEW,
+                packs={"es": PackLine(size=9_400_000, recorded_offered=29_002_130)},
+            ),
+        ),
+        (
+            "learning_pack_recorded",  # its commonest words recorded (418)
+            learning(
+                LearningLanguages("zh", ("es",)),
+                WordIntroductions.A_FEW,
+                packs={
+                    "es": PackLine(
+                        installed_version="2026.11.16",
+                        installed_size=29_500_000,
+                        recorded_size=30_277_632,
+                    )
+                },
+                installed=(InstalledPackLine("es", "2026.11.16", 59_777_632),),
+            ),
+        ),
         ("account_signed_out", account(False)),
         ("account_signed_in", account(True)),
         ("settings", settings("look")),

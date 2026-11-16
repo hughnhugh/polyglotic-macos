@@ -170,6 +170,10 @@ def shown(code: str, line: PackLine) -> tuple[str, tuple[str, ...], float | None
             _tr("On this PC: version {version}, {size}."),
             _tr("On this Mac: version {version}, {size}."),
         ).format(version=line.installed_version, size=size_text(line.installed_size))
+        if line.recorded_size:
+            said += " " + _tr("Its commonest words are recorded ({size}).").format(
+                size=size_text(line.recorded_size)
+            )
         if line.update_size:
             said += " " + _tr(
                 "A newer version ({size}) waits for a connection that isn't metered."
@@ -177,13 +181,17 @@ def shown(code: str, line: PackLine) -> tuple[str, tuple[str, ...], float | None
             return said, ("update",), None
         return said, (), None
     if line.size:
-        return (
-            _tr("Its dictionary: {size} to download.").format(
+        if line.recorded_offered:  # both sizes before it starts (0192)
+            said = _tr(
+                "Its dictionary: {size} to download, then {recorded} of recorded words."
+            ).format(
+                size=size_text(line.size), recorded=size_text(line.recorded_offered)
+            )
+        else:
+            said = _tr("Its dictionary: {size} to download.").format(
                 size=size_text(line.size)
-            ),
-            ("download",),
-            None,
-        )
+            )
+        return said, ("download",), None
     # Retry tries for real - a pack published since is found - and then says
     # why. None to be had (not in the list held, or none published) isn't
     # "checking"; a list that couldn't be read says only that (330)

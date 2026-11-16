@@ -471,3 +471,42 @@ def test_the_macos_job_checks_capture_after_measure_and_keeps_what_it_found() ->
         if uses(s, "actions/upload-artifact@") and "measure.json" in s["with"]["path"]
     ]
     assert "${{ env.OUT }}/capture/" in kept["with"]["path"]
+
+
+def test_the_macos_job_signs_with_the_release_certificate_in_a_keychain_it_deletes() -> (
+    None
+):
+    """polyglotic-hq 422 (decision 0196): the self-signed certificate comes
+    from the repo's secrets into a temporary keychain, through env only
+    (never `${{` in a script, never printed), sets the identity the build
+    signs with, and the keychain is deleted whatever happened. Without the
+    secrets the app is signed ad hoc, as before, but a release refuses to.
+    A release keeps its zip and .sha256 for publish-mac.sh."""
+    (job,) = workflow("macos.yml")["jobs"].values()
+    steps = job["steps"]
+    runs = [s.get("run", "") for s in steps]
+    signing = next(i for i, r in enumerate(runs) if "security import" in r)
+    pack = next(i for i, r in enumerate(runs) if "tools.package.build" in r)
+    deleted = next(i for i, r in enumerate(runs) if "security delete-keychain" in r)
+    assert signing < pack < deleted
+    step = steps[signing]
+    assert "${{" not in step["run"]
+    assert step["env"]["P12"] == "${{ secrets.MACOS_SIGNING_P12 }}"
+    assert step["env"]["P12_PASSWORD"] == "${{ secrets.MACOS_SIGNING_PASSWORD }}"
+    assert "POLYGLOTIC_CODESIGN_IDENTITY=" in step["run"]
+    assert "a release needs the signing certificate" in step["run"]
+    assert "set-key-partition-list" in step["run"] and "rm -f" in step["run"]
+    assert (
+        'echo "$P12' not in step["run"]
+        and 'cat "$RUNNER_TEMP/signing.p12' not in step["run"]
+    )
+    assert steps[deleted]["if"] == "${{ always() }}"
+    (kept,) = [
+        s
+        for s in steps
+        if uses(s, "actions/upload-artifact@") and "release" in s["name"]
+    ]
+    assert kept["with"]["path"] == "build/package/release/"
+    assert "inputs.release" in kept["if"]
+    inputs = workflow("macos.yml")[True]["workflow_dispatch"]["inputs"]
+    assert inputs["release"]["default"] is False and inputs["version"]["default"] == ""

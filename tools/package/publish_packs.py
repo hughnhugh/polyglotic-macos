@@ -3,6 +3,9 @@ app reads (decision 0122). A dry run unless told to upload.
 
     uv run python -m tools.package.publish_packs ru            # dry run
     uv run python -m tools.package.publish_packs ru --upload   # Claude, at a release
+    # recorded words beside the packs already published (decision 0192)
+    uv run python -m tools.package.publish_packs es it pt --audio FOLDER \\
+        --riders-only --version 2026.11.16                     # dry run
 
 What it does, in order:
 1. takes each language's built pack (`tools.dictionaries.packs` writes
@@ -28,7 +31,16 @@ What it does, in order:
    be uploaded where, files first, the list last - so the list never names
    a file that isn't there yet. `--out` is emptied first only if it's
    empty or an earlier run's (it carries `OUT_MARK`);
-5. only with `--upload`: puts each file in the bucket with wrangler (as
+5. with `--audio FOLDER`: each language's recorded words
+   (`<dictionary>.audio`, built by `tools.dictionaries.audio`) go up as a
+   **rider** of its pack (decision 0133), `<dictionary>-<version>.audio`,
+   named inside each of the pack's entries with its own `min_app`
+   (`--rider-min-app`: the first app that plays them; decision 0192). With
+   `--riders-only` the packs are the ones the list publishes at
+   `--version`, as they are: only the riders and the list go up, and an
+   app that reads the packs still does. A pack published again later
+   without `--audio` carries no riders: give it `--audio` again;
+6. only with `--upload`: puts each file in the bucket with wrangler (as
    polyglotic-hq 280's publish-alpha.sh does; wrangler gets this
    environment without the signing key), then fetches the list back from
    the live address and checks it.
@@ -51,11 +63,13 @@ import sys
 import urllib.error
 import urllib.request
 from collections.abc import Callable, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 from nacl.signing import SigningKey, VerifyKey
 
+from polyglotic_desktop.adapters.audio_file import SUFFIX as AUDIO_SUFFIX
+from polyglotic_desktop.adapters.audio_file import NotAnAudioFile, SqliteAudio
 from polyglotic_desktop.adapters.pack_list import (
     FILES,
     FOLDER,
@@ -69,6 +83,7 @@ from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary, add_
 from polyglotic_desktop.core.lexicon.packs import (
     LIST_FORMAT,
     PackOffer,
+    Rider,
     list_serial,
     read_pack_list,
     version_key,
@@ -81,6 +96,10 @@ LIVE = "https://updates.polyglotic.io/"
 """main.UPDATES: the storage the app reads packs from."""
 MIN_APP = "0.1.5"
 """The first app version that downloads packs: the default `min_app`."""
+RIDER_MIN_APP = "0.1.7"
+"""The first app version that plays a pack's recorded words: the default
+`min_app` of a rider (decision 0192; 0.1.7 on the user's word of
+2026-11-16 ~23:00)."""
 SPLITS = {
     "fr": "elided",
     "it": "elided",
@@ -227,6 +246,50 @@ def stamp(
     )
     target.unlink()  # only the download goes up
     return offer, packed
+
+
+def stamp_audio(
+    built: Path, dictionary: str, out_files: Path, version: str, min_app: str
+) -> tuple[Rider, Path, dict[str, str]]:
+    """`dictionary`'s recorded words (`<dictionary>.audio` in `built`)
+    stamped with the pack's version under their published name in
+    `out_files` and gzipped beside it: the rider the list names, the
+    download's path, and the file's `info` (who said them, the licence).
+    SystemExit if it isn't that dictionary's audio file."""
+    source = built / f"{dictionary}{AUDIO_SUFFIX}"
+    try:
+        file = SqliteAudio(source)
+    except (OSError, NotAnAudioFile) as e:
+        raise SystemExit(f"{source}: no audio file ({type(e).__name__})") from None
+    info = dict(file.info)
+    file.close()
+    if info.get("dictionary") != dictionary:
+        raise SystemExit(
+            f"{source} is {info.get('dictionary')!r}'s, not {dictionary}'s"
+        )
+    name = f"{dictionary}-{version}{AUDIO_SUFFIX}"
+    target = out_files / name
+    shutil.copyfile(source, target)
+    add_info(target, {"version": version})
+    packed = target.with_name(name + ".gz")
+    with (
+        target.open("rb") as raw,
+        packed.open("wb") as out,
+        gzip.GzipFile(filename="", mode="wb", fileobj=out, mtime=0) as squeezed,
+    ):
+        shutil.copyfileobj(raw, squeezed, 1 << 20)
+    rider = Rider(
+        kind="audio",
+        format=info["format"],
+        min_app=min_app,
+        file=name,
+        size=target.stat().st_size,
+        sha256=sha256_of(target),
+        gz_size=packed.stat().st_size,
+        gz_sha256=sha256_of(packed),
+    )
+    target.unlink()  # only the download goes up
+    return rider, packed, info
 
 
 def still_needed(previous: PackOffer, new: PackOffer) -> bool:
@@ -390,6 +453,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--min-app", default=MIN_APP)
     parser.add_argument(
+        "--audio",
+        type=Path,
+        help="a folder of recorded words (<dictionary>.audio): each language's "
+        "goes up as its pack's rider",
+    )
+    parser.add_argument("--rider-min-app", default=RIDER_MIN_APP)
+    parser.add_argument(
+        "--riders-only",
+        action="store_true",
+        help="the riders beside the packs published at --version: no pack "
+        "is stamped or uploaded again",
+    )
+    parser.add_argument(
         "--previous",
         help="the list now published, a list.signed file (default: the live one)",
     )
@@ -400,8 +476,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
-    if version_key(args.version) is None or version_key(args.min_app) is None:
-        print("--version and --min-app are dotted numbers", file=sys.stderr)
+    if any(
+        version_key(v) is None for v in (args.version, args.min_app, args.rider_min_app)
+    ):
+        print("--version and the min apps are dotted numbers", file=sys.stderr)
+        return 2
+    if args.riders_only and (args.audio is None or args.build):
+        print("--riders-only needs --audio, and builds no pack", file=sys.stderr)
         return 2
 
     if args.build:
@@ -432,23 +513,53 @@ def main(argv: Sequence[str] | None = None) -> int:
     (args.out / OUT_MARK).write_text("made by tools.package.publish_packs\n")
     from tools.dictionaries.packs import PACKS
 
-    new, new_files = [], []
+    previous, serial = previous_list(args.previous, _get)
+    new: list[PackOffer] = []
+    new_files: list[Path] = []
+    said_by: dict[str, dict[str, str]] = {}  # each audio file's info
     for language in args.languages:
         pack = PACKS[language]
+        riders: tuple[Rider, ...] = ()
+        if args.audio is not None:
+            rider, path, said_by[pack.name] = stamp_audio(
+                args.audio, pack.name, out_files, args.version, args.rider_min_app
+            )
+            riders = (rider,)
+            new_files.append(path)
+        if args.riders_only:
+            published = [
+                o
+                for o in previous
+                if o.dictionary == pack.name and o.version == args.version
+            ]
+            if not published:
+                print(
+                    f"no {language} pack is published at {args.version}",
+                    file=sys.stderr,
+                )
+                return 1
+            new += [replace(o, riders=riders) for o in published]
+            continue
         for built in built_files(args.packs, pack.name, pack.meanings):
             if not built.is_file():
                 print(f"{built} isn't built: run with --build", file=sys.stderr)
                 return 1
             offer, path = stamp(built, out_files, args.version, args.min_app)
-            new.append(offer)
+            new.append(replace(offer, riders=riders))
             new_files.append(path)
 
-    previous, serial = previous_list(args.previous, _get)
     for old in previous:
-        same = [o for o in new if o.file == old.file and o.sha256 != old.sha256]
-        if same:
+        theirs = {r.file: r.sha256 for r in old.riders}
+        clash = [o.file for o in new if o.file == old.file and o.sha256 != old.sha256]
+        clash += [
+            r.file
+            for o in new
+            for r in o.riders
+            if theirs.get(r.file, r.sha256) != r.sha256
+        ]
+        if clash:
             print(
-                f"{old.file} is published already with other bytes: "
+                f"{clash[0]} is published already with other bytes: "
                 "give this build another --version",
                 file=sys.stderr,
             )
@@ -470,6 +581,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"{o.split} from app {o.min_app}: {o.download} {o.gz_size / 1e6:.1f} MB "
             f"({o.size / 1e6:.1f} MB unpacked) sha256 {o.gz_sha256[:12]}"
         )
+        for r in o.riders:
+            print(
+                f"         with {r.kind} format {r.format} from app {r.min_app}: "
+                f"{r.download} {r.gz_size / 1e6:.1f} MB ({r.size / 1e6:.1f} MB "
+                f"unpacked) sha256 {r.gz_sha256[:12]}"
+            )
+    for name, info in said_by.items():
+        print(f"  {name}'s words: {info.get('words')}, said by {info.get('voice')}")
+        print(f"    credit: {info.get('licence')}")
     print(
         f"{'Uploading' if args.upload else 'Would upload'}, in this order, to {args.bucket}:"
     )

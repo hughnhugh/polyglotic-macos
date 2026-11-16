@@ -444,6 +444,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller text (Ctrl+wheel)</source>
         <translation type="unfinished">छोटा टेक्स्ट (Ctrl+व्हील)</translation>
     </message>
@@ -2972,28 +2982,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open Polyglotic when you log in?</source>
-        <translation type="unfinished">लॉग इन करने पर Polyglotic खोलें?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows के साथ शुरू करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Open at login</source>
-        <translation type="unfinished">लॉग इन पर खोलें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">यह ट्रे में इंतज़ार करता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। Windows के स्टार्टअप ऐप में इसे बंद किया जा सकता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
-        <translation type="unfinished">यह आपके लॉग इन करते ही खुल जाता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। सिस्टम सेटिंग्ज़ के लॉगिन आइटम में इसे बंद किया जा सकता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3737,6 +3732,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Checking the list of dictionaries.</source>
+        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this PC. Captions and translation work either way.</source>
         <translation type="unfinished">खुले डेटा से बना बुनियादी शब्दकोश (जिसके अर्थ किसी व्यक्ति ने नहीं जाँचे), अगर कोई तैयार हो: इस पीसी पर आने के बाद {language} कैप्शन में शब्द देखे जा सकते हैं। कैप्शन और अनुवाद दोनों ही हालात में चलते हैं।</translation>
     </message>
@@ -4191,11 +4191,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
-        <source>Checking the list of dictionaries.</source>
-        <translation type="unfinished">शब्दकोशों की सूची जाँची जा रही है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Downloading: {done} of {total} MB</source>
         <translation type="unfinished">डाउनलोड हो रहा है: {total} MB में से {done}</translation>
     </message>
@@ -4246,8 +4241,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its commonest words are recorded ({size}).</source>
+        <translation type="unfinished">सबसे आम शब्द रिकॉर्ड किए हुए हैं ({size})।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">एक नया संस्करण ({size}) ऐसे कनेक्शन का इंतज़ार कर रहा है जो मीटर्ड न हो।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Its dictionary: {size} to download, then {recorded} of recorded words.</source>
+        <translation type="unfinished">इसका शब्दकोश: {size} डाउनलोड करना है, फिर {recorded} रिकॉर्ड किए हुए शब्द।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4691,11 +4696,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">इस Mac पर अभी {language} की कोई आवाज़ नहीं है। macOS इसे मुफ़्त में जोड़ता है: सिस्टम सेटिंग्ज़ &gt; ऐक्सेसिबिलिटी &gt; बोली गई सामग्री &gt; सिस्टम वॉइस &gt; वॉइस प्रबंधित करें, फिर {language}।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">स्पीच सेटिंग खोलें</translation>
     </message>
@@ -4791,11 +4791,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac</source>
-        <translation type="unfinished">इस Mac पर {language} की कोई आवाज़ नहीं</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">रोकें (R)</translation>
     </message>
@@ -4858,11 +4853,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Windows की सेटिंग खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Opens System Settings, where voices are added</source>
-        <translation type="unfinished">सिस्टम सेटिंग्ज़ खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5440,13 +5430,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Colour the linked words too</source>
-        <translation type="unfinished">जुड़े शब्दों को भी रंगें</translation>
+        <source>Colour linked words in what was said</source>
+        <translation type="unfinished">बोली गई बात में जुड़े शब्दों को रंगें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The words a link joins - in what was said and in its translation - take its colour, as their underline has. With pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">किसी जोड़ से जुड़े शब्द - कही गई बात और उसके अनुवाद में - उसका रंग लेते हैं, जैसे उनका रेखांकन। जब पिनयिन भी शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
+        <source>Each word a link joins takes its colour, as its underline has.</source>
+        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है, जैसे उसका रेखांकन।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour linked words in the translation</source>
+        <translation type="unfinished">अनुवाद में जुड़े शब्दों को रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
+        <translation type="unfinished">किसी जोड़ से जुड़ा हर शब्द उसका रंग लेता है। दोनों चालू हों और पिनयिन शब्द जोड़ के रंग में हो, तो शब्द, उसका पिनयिन और उसका अनुवाद एक रंग में होते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5545,8 +5545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it - with Word links&apos; “Colour the linked words too”, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">शब्द जोड़ का रंग: पिनयिन अपने शब्द के जोड़ का रंग लेता है, जहाँ जोड़ हो - शब्द जोड़ के “जुड़े शब्दों को भी रंगें” के साथ शब्द, उसका पिनयिन और अनुवाद एक रंग में होते हैं।</translation>
+        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">शब्द जोड़ का रंग: जहाँ कोई जोड़ हो, पिनयिन अपने शब्द के जोड़ का रंग लेता है। शब्द जोड़ जुड़े शब्दों को भी रंग सकते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
