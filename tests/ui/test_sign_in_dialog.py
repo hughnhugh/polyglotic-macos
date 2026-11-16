@@ -25,7 +25,6 @@ from polyglotic_desktop.ui.sign_in import (
     confirm_sign_out,
 )
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 
 
 def settle(qapp: QApplication, dialog: SignInDialog, timeout: float = 5.0) -> None:
@@ -89,8 +88,7 @@ def test_signed_in_here_before_the_screen_says_the_same_code_works_again(
     try:
         assert not before.again.isHidden()
         assert before.again.text() == (
-            pc_or_mac("This PC", "This Mac")
-            + " has signed in before: the invite code you used then works "
+            "This PC has signed in before: the invite code you used then works "
             "again here."
         )
         assert never.again.isHidden()
@@ -115,10 +113,7 @@ def test_every_problem_has_a_plain_explanation(qapp: QApplication) -> None:
         problem: dialog.explain(SignInFailed(problem, 420)) for problem in SignInProblem
     }
     assert "16 letters and digits" in texts[SignInProblem.NOT_A_CODE]
-    assert (
-        "used on another " + pc_or_mac("PC", "computer")
-        in texts[SignInProblem.NOT_VALID]
-    )
+    assert "used on another PC" in texts[SignInProblem.NOT_VALID]
     assert "7 minutes" in texts[SignInProblem.TOO_MANY_ATTEMPTS]
     assert "internet connection" in texts[SignInProblem.UNREACHABLE]
     assert texts[SignInProblem.SIGN_OUT_FIRST] == (
@@ -162,11 +157,8 @@ def test_the_server_unreachable_says_whose_side(
     today = QLocale().toString(
         stopped_date.currentDate(), QLocale.FormatType.LongFormat
     )
-    this = pc_or_mac("This PC", "This Mac")
-    assert said(Unreachable.CLOCK).startswith(f"{this} says it's {today}")
-    assert pc_or_mac(
-        "Set time automatically", "Set time and date automatically"
-    ) in said(Unreachable.CLOCK)
+    assert said(Unreachable.CLOCK).startswith(f"This PC says it's {today}")
+    assert "Set time automatically" in said(Unreachable.CLOCK)
     # a certificate out of date, the clock right: an antivirus or a VPN first
     assert "antivirus's HTTPS scanning, or a VPN" in said(Unreachable.OUT_OF_DATE)
 
@@ -207,10 +199,7 @@ def test_signing_out_says_unsent_changes_are_dropped_only_when_there_are_some(
     assert "hasn't sent to our server yet are dropped" in with_unsent
     assert "dropped" not in without
     # the same code signs in again (288): no "new invite code from us"
-    assert (
-        "with the same invite code: it works again on this " + pc_or_mac("PC", "Mac")
-        in without
-    )
+    assert "with the same invite code: it works again on this PC" in without
     assert "new invite code" not in without
 
 

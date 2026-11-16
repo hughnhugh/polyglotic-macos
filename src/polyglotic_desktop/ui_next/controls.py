@@ -728,9 +728,6 @@ class GlyphButton(QToolButton):
 
     GLYPH = 14
     """The icon's square (at 100 % text size)."""
-    TARGET = 24
-    """Its least height, a target WCAG 2.5.8 accepts: a Mac's smaller font
-    made it 23 px (polyglotic-hq 421)."""
 
     def __init__(
         self,
@@ -744,9 +741,9 @@ class GlyphButton(QToolButton):
     def sizeHint(self) -> QSize:
         """As wide as the icon font's glyph made a button (`glyphs.text_width`)
         with the stylesheet's padding either side; as tall as a chip beside
-        it, and never under a target's least height (`TARGET`)."""
+        it."""
         side = style.px(self.GLYPH)
-        height = max(max(self.fontMetrics().height(), side) + 2 * 3 + 2, self.TARGET)
+        height = max(self.fontMetrics().height(), side) + 2 * 3 + 2
         return QSize(glyphs.text_width(side) + 2 * 6 + 2, height)
 
     def minimumSizeHint(self) -> QSize:

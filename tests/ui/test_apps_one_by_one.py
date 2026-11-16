@@ -26,7 +26,6 @@ from polyglotic_desktop.ports.capture import AppCaptureSupport, TrialOutcome
 from polyglotic_desktop.ui.settings import AppSettings, Settings
 from polyglotic_desktop.ui.theme import SOURCE_COLORS
 from polyglotic_desktop.ui_next.home import PickerCard
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.home import (
     AppRow,
     AppStatus,
@@ -201,11 +200,9 @@ def test_the_record_holds_no_apps_name_and_survives_a_restart() -> None:
     assert AppSettings.from_stored({"app_capture_fell_back": {"why": "x" * 200}}) == (
         AppSettings()
     )  # not what this app writes: its default
-    assert fell_back_text() == pc_or_mac(
+    assert fell_back_text() == (
         "Windows on this PC couldn't caption one app alone, so Polyglotic"
-        " captions everything the PC plays. You can try apps again on Home.",
-        "This Mac couldn't caption one app alone, so Polyglotic"
-        " captions everything the Mac plays. You can try apps again on Home.",
+        " captions everything the PC plays. You can try apps again on Home."
     )
 
 
@@ -268,18 +265,14 @@ def test_homes_note_says_why_apps_are_off(
     # Windows 10 before version 2004
     view.follow(Picker(captioned=(SYSTEM_ROW,), whole_system=True, per_app=False))
     assert not note.isHidden() and again.isHidden()
-    assert note.text() == pc_or_mac(
-        "instead of apps (the only choice on this version of Windows)",
-        "instead of apps (the only choice on this version of macOS)",
-    )
+    assert note.text() == "instead of apps (the only choice on this version of Windows)"
     assert not built.everything.buttons[0].isEnabled()
     # tried here and failed: said, with "Try apps again"
     failed = Picker(captioned=(SYSTEM_ROW,), per_app=False, fell_back=True)
     view.follow(failed)
     assert not note.isHidden() and not again.isHidden()
-    assert note.text() == pc_or_mac(
-        "instead of apps: Windows on this PC couldn't caption one app alone",
-        "instead of apps: this Mac couldn't caption one app alone",
+    assert note.text() == (
+        "instead of apps: Windows on this PC couldn't caption one app alone"
     )
     again.click()
     assert commands.calls == [("try_apps_again", ())]
