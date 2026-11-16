@@ -1,86 +1,74 @@
-"""The Mac's parity checks (polyglotic-hq 429): where a caption window is
-against a full-screen app, judged from the window list's order; the plan;
-and the macOS job running them and keeping what they found."""
+"""The macOS job's parity part (polyglotic-hq 428): its plan, its picture of
+the menu-bar icon and its place in the job - here on any OS; the checks
+themselves run on GitHub's Mac (.github/workflows/macos.yml)."""
 
+from collections.abc import Iterator
 from pathlib import Path
 
+import pytest
 import yaml
-from tools.macos_parity_checks import (
-    FAIL,
-    PASS,
-    UNKNOWN,
-    Result,
-    above,
-    exit_code,
-    full_screen_verdict,
-    plan,
-)
+from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QApplication
 
-from polyglotic_desktop.platform.macos.window_list import Listed
+from tools import macos_parity_checks as parity
 
-OURS, TEXTEDIT = 1, 2
-BOX = (0.0, 0.0, 10.0, 10.0)
+WORKFLOW = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "macos.yml"
 
 
-def test_a_caption_window_listed_before_the_full_screen_app_is_above_it() -> None:
-    listed = [
-        Listed(5, 1000, OURS, BOX),
-        Listed(7, 0, TEXTEDIT, BOX),
-        Listed(8, 25, 3, BOX),
-    ]
-    assert above(listed, 5, TEXTEDIT) == (True, True)
-
-
-def test_listed_after_it_is_below() -> None:
-    listed = [Listed(7, 0, TEXTEDIT, BOX), Listed(5, 8, OURS, BOX)]
-    assert above(listed, 5, TEXTEDIT) == (True, False)
-
-
-def test_not_listed_is_not_on_this_space() -> None:
-    assert above([Listed(7, 0, TEXTEDIT, BOX)], 5, TEXTEDIT) == (False, False)
-    assert above([Listed(5, 1000, OURS, BOX)], 5, TEXTEDIT) == (
-        True,
-        False,
-    )  # no TextEdit
-
-
-def test_the_verdicts() -> None:
-    assert full_screen_verdict(True, True, True, True)[0] == PASS
-    assert full_screen_verdict(False, False, True, True)[0] == FAIL
-    assert full_screen_verdict(True, True, False, True)[0] == FAIL  # it took the front
-    assert full_screen_verdict(True, True, True, False)[0] == UNKNOWN
-
-
-def test_only_a_fail_fails_the_run() -> None:
-    assert exit_code([Result("a", PASS, ""), Result("b", UNKNOWN, "")]) == 0
-    assert exit_code([Result("a", FAIL, "")]) == 1
+@pytest.fixture
+def qapp() -> Iterator[QApplication]:
+    app = QApplication.instance() or QApplication(["test"])
+    assert isinstance(app, QApplication)
+    yield app
 
 
 def test_the_plan_names_each_check() -> None:
-    names = " ".join(plan())
-    for check in (
-        "full_screen_qt_only",
-        "locked",
-        "typed",
-        "key_combination",
-        "key_alone",
-    ):
-        assert check in names
+    assert parity.main(["build/parity", "--dry-run"]) == 0
+    steps = parity.plan(Path("dist/Polyglotic.app"))
+    names = [step.split(":", 1)[0] for step in steps]
+    assert names == [
+        "hotkeys_pressed",
+        "hotkeys_taken",
+        "menu_keys",
+        "voices_listed",
+        "voice_made",
+        "voice_heard",
+        "menu_bar",
+        "login_item",
+    ]
+    assert "login_item" not in "".join(parity.plan(None))
 
 
-def test_the_macos_job_runs_them_by_default_and_keeps_what_they_found() -> None:
-    workflow = yaml.safe_load(
-        Path(".github/workflows/macos.yml").read_text(encoding="utf-8")
-    )
-    assert workflow[True]["workflow_dispatch"]["inputs"]["parity"]["default"] is True
-    (job,) = workflow["jobs"].values()
-    step = next(
-        s for s in job["steps"] if "tools.macos_parity_checks" in s.get("run", "")
-    )
+def test_the_keys_are_pressed_with_control_and_command(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sent: list[list[str]] = []
+
+    def run(command: list[str], _seconds: int) -> dict[str, object]:
+        sent.append(command)
+        return {}
+
+    monkeypatch.setattr(parity, "run", run)
+    parity.keystroke("L")
+    assert sent[0][:2] == ["osascript", "-e"]
+    assert 'keystroke "l" using {control down, command down}' in sent[0][2]
+
+
+def test_the_picture_draws_the_template_light_and_dark(
+    qapp: QApplication, tmp_path: Path
+) -> None:
+    picture = tmp_path / "menu-bar.png"
+    parity.drawn_as_macos(picture)
+    image = QImage(str(picture))
+    # the listening icon's square: black on the light bar, white on the dark
+    assert image.pixelColor(12 + 18, 12 + 18).name() == "#000000"
+    assert image.pixelColor(12 + 18, 60 + 12 + 18).name() == "#ffffff"
+
+
+def test_the_job_runs_the_parity_part_by_default() -> None:
+    job = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    inputs = job[True]["workflow_dispatch"]["inputs"]  # "on" reads as True
+    assert inputs["parity"]["default"] is True
+    steps = job["jobs"]["macos"]["steps"]
+    step = next(s for s in steps if "macos_parity_checks" in s.get("run", ""))
     assert "inputs.parity" in step["if"]
-    upload = next(
-        s
-        for s in job["steps"]
-        if s.get("with", {}).get("name") == "macos-${{ github.run_id }}"
-    )
-    assert "parity/" in upload["with"]["path"]

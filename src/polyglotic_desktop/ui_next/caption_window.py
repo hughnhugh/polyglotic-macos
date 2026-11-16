@@ -183,7 +183,7 @@ from polyglotic_desktop.ui_next.caption_surface import PAD, CaptionSurface
 from polyglotic_desktop.ui_next.glyphs import Glyph, icon, paint, text_width
 from polyglotic_desktop.ui_next.languages import language_name, spoken_names
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import (
     COLUMN_ROWS,
     ROWS,
@@ -797,7 +797,9 @@ def lock_tip(keys: str) -> str:
     window's): its hotkey, Ctrl+Alt+L, while that works; without it, how
     to unlock again - read before locking (polyglotic-hq 398)."""
     if keys:
-        return _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
+        return hotkeys_here(
+            _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
+        )
     return _tr(
         "Lock - clicks pass through to what's underneath. To unlock, rest the"
         " mouse on the lock in the corner, or use Home or the tray"

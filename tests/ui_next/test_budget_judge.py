@@ -35,7 +35,9 @@ class Action:
 
 @pytest.fixture(autouse=True)
 def judged(monkeypatch: pytest.MonkeyPatch) -> Iterator[list[budget_judge.Judged]]:
-    """This file's judgements, kept out of the run's summary."""
+    """This file's judgements, kept out of the run's summary; judged as on
+    any machine but GitHub's Mac (decision 0195 has a test of its own)."""
+    monkeypatch.delenv("RUNNER_ENVIRONMENT", raising=False)
     mine: list[budget_judge.Judged] = []
     monkeypatch.setattr(budget_judge, "JUDGED", mine)
     yield mine

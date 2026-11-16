@@ -31,9 +31,10 @@ WINDOWS_ONLY = (
     "polyglotic_desktop.platform.windows",
     "polyglotic_desktop.adapters.windows_credentials",
 )
-NOT_ON_A_MAC_YET = ("speaker", "start_at_sign_in")
+NOT_ON_A_MAC_YET: tuple[str, ...] = ()
 """The record's pieces macOS has none of yet: None, so the app leaves
-them out (the word card's voice, Home's offer to start at sign-in)."""
+them out. Since 428 none: the word card's voice and Home's offer to start
+at sign-in are the Mac's own."""
 
 
 def test_macos_gets_a_whole_record() -> None:
@@ -238,10 +239,9 @@ def test_a_second_copy_finds_the_lock_held(tmp_path: Path) -> None:
 # --- what isn't on a Mac yet ------------------------------------------------
 
 
-def test_hotkeys_say_none_works_here() -> None:
-    """So the menus stop showing them (`ui.app.hotkeys_taken`)."""
-    keys = not_yet.NoHotkeys({"l": lambda: None, "p": lambda: None})
-    assert keys.start() == ["l", "p"]
+def test_dictations_key_isnt_held_yet() -> None:
+    assert not not_yet.NoHoldKey("right_ctrl", None, None, None).start()
+    assert not not_yet.type_text("hello")
 
 
 def test_the_mac_captures_with_its_own_taps_and_mic() -> None:
