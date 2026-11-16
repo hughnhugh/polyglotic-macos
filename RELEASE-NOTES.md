@@ -123,9 +123,10 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Fixed
 
-- With captions filling the window's width, a learning-load word right
-  after a word split over two lines keeps its colour; it was sometimes
-  drawn plain.
+- A coloured word in captions (the learning load's, a saved word's, a
+  word link's) right after another coloured word keeps its colour; it was
+  sometimes drawn plain, most often with captions filling the window's
+  width.
 - Clicking a word once - to select it, or hear it on its card - no longer
   marks it as a word you don't know: common words such as "the" and
   "that" were being dotted as new and linked after one click. Clicking a

@@ -8,7 +8,7 @@ from collections import Counter
 
 import pytest
 from PySide6.QtCore import QPointF, QRectF
-from PySide6.QtGui import QColor, QImage, QPainter, QTextCharFormat, QTextLayout
+from PySide6.QtGui import QColor, QFont, QImage, QPainter, QTextCharFormat, QTextLayout
 from PySide6.QtWidgets import QApplication
 from tests.ui.test_learning_load_view import SPANS, hear, learner, on, shown
 
@@ -19,7 +19,7 @@ from polyglotic_desktop.ui_next.caption_layout import (
     CaptionStyle,
     Ink,
     LaidLine,
-    by_line,
+    drawn_whole,
     span_rects,
 )
 from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS, CaptionMarks
@@ -183,21 +183,37 @@ def test_the_word_after_one_split_over_two_lines_keeps_its_colour(
     assert tried
 
 
-def test_a_colour_over_a_line_break_is_drawn_a_line_at_a_time(
-    qapp: QApplication,
+@pytest.mark.parametrize("spacing", [0.0, 0.3, 0.421875])
+def test_coloured_words_side_by_side_are_each_drawn_in_their_colour(
+    qapp: QApplication, spacing: float
 ) -> None:
-    """Polyglotic-hq 420: on GitHub's Mac a stage's colour on a word the
-    pour split over two lines was drawn plain. Each range now lies on one
-    line, the word's format on both halves; a range on one line is kept."""
-    engine = CaptionLayout(CaptionStyle(fill=Fill.STACKED))
-    laid = engine.laid(shown(), narrow(engine), 1.0)
-    layout = next(row for row in laid.rows if row.index == 0).layout
-    second = layout.lineAt(1).textStart()
-    orange = QTextCharFormat()
-    orange.setForeground(QColor("#ffa033"))
-    over, within = QTextLayout.FormatRange(), QTextLayout.FormatRange()
-    over.start, over.length, over.format = second - 1, 2, orange
-    within.start, within.length, within.format = 0, 1, orange
-    cut = by_line(layout, [over, within])
-    assert [(r.start, r.length) for r in cut] == [(second - 1, 1), (second, 1), (0, 1)]
-    assert all(r.format.foreground().color() == QColor("#ffa033") for r in cut)
+    """Polyglotic-hq 420: Qt skipped a coloured range whose region, rounded
+    out to whole pixels, overlapped the one before it - so with fractional
+    advances (a Mac's font; here letter spacing makes them) the middle of
+    three coloured words was drawn plain."""
+    font = QFont()
+    font.setPixelSize(22)
+    font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, spacing)
+    layout = QTextLayout("AAAABBBBCCCC", font)
+    layout.beginLayout()
+    line = layout.createLine()
+    line.setLineWidth(1000)
+    layout.endLayout()
+    colours = [QColor("#ff6b5e"), QColor("#ffa033"), QColor("#f5e050")]
+    selections = []
+    for n, colour in enumerate(colours):
+        format_ = QTextCharFormat()
+        format_.setForeground(colour)
+        selection = QTextLayout.FormatRange()
+        selection.start, selection.length, selection.format = 4 * n, 4, format_
+        selections.append(selection)
+    drawn_whole(selections)
+    image = QImage(400, 40, QImage.Format.Format_ARGB32)
+    image.fill(QColor("#101014"))
+    painter = QPainter(image)
+    painter.setPen(QColor("#ffffff"))
+    layout.draw(painter, AT, selections)
+    painter.end()
+    for n, colour in enumerate(colours):
+        word = span_rects(layout, 4 * n, 4 * n + 4)
+        assert count(image, word, 0.0, colour) > 8, (spacing, n)
