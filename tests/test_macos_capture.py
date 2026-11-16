@@ -515,6 +515,67 @@ def test_a_tap_that_hears_only_zeros_while_the_app_plays_says_not_allowed() -> N
         cap.stop()
 
 
+def test_a_tap_macos_holds_while_the_app_plays_says_not_allowed() -> None:
+    """polyglotic-hq 419: with the permission never asked, the tap's start
+    waited on macOS (its prompt, unanswered) and the capture said nothing at
+    all. The watch goes on through that wait; once it opens with sound the
+    capture is allowed and running."""
+    found = _found()[:2]  # Chrome's helper plays
+    answered = threading.Event()
+    streams: list[FakeStream] = []
+
+    def open_tap(target: TapTarget) -> Stream:
+        answered.wait(5)
+        streams.append(FakeStream())
+        return streams[-1]
+
+    cap = AppCapture(
+        100,
+        "com.google.Chrome",
+        processes=lambda: found,
+        open_tap=open_tap,
+        alive=ALIVE,
+    )
+    heard = Heard()
+    cap.start(heard)
+    try:
+        wait_for(lambda: cap.error == NOT_ALLOWED)
+        assert cap.capturing is None and not streams
+        answered.set()
+        wait_for(lambda: heard.seconds() > 0.05)
+        wait_for(lambda: cap.error is None)
+        assert cap.capturing == "com.google.Chrome"
+    finally:
+        answered.set()
+        cap.stop()
+
+
+def test_a_tap_that_opens_after_its_capture_stopped_is_closed() -> None:
+    found = _found()[:2]
+    answered = threading.Event()
+    streams: list[FakeStream] = []
+
+    def open_tap(target: TapTarget) -> Stream:
+        answered.wait(5)
+        streams.append(FakeStream())
+        return streams[-1]
+
+    cap = AppCapture(
+        100,
+        "com.google.Chrome",
+        processes=lambda: found,
+        open_tap=open_tap,
+        alive=ALIVE,
+    )
+    cap.start(Heard())
+    time.sleep(0.05)
+    began = time.monotonic()
+    cap.stop()
+    assert time.monotonic() - began < 1.0  # stopping doesn't wait on macOS
+    answered.set()
+    wait_for(lambda: len(streams) == 1 and streams[0].closed)
+
+
 def test_a_tap_of_a_quiet_app_is_just_quiet() -> None:
     found = [proc(1, 100, "com.google.Chrome", CHROME + "/Contents/MacOS/x")]
     cap = AppCapture(

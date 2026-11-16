@@ -582,6 +582,33 @@ def check_install(folder: Path, layout: Layout = WINDOWS) -> dict[str, object]:
     return found
 
 
+FIRST_LAUNCH = ("exit_code", "launch_seconds", "window_seconds", "wall_seconds")
+"""What is kept of a Mac's first launch (`settled_check_install`)."""
+
+
+def settled_check_install(folder: Path, layout: Layout = WINDOWS) -> dict[str, object]:
+    """`check_install`, judged on a start a learner has every day. On a Mac
+    the first launch of a newly signed app carries macOS' own first look
+    at it (Gatekeeper and its code-signature checks, once per build on each
+    Mac: polyglotic-hq 419's run 1, 1.775 s), so that launch settles the app
+    and is kept as `first_launch`, and the second is judged. On Windows,
+    one launch, as before."""
+    if layout is not MACOS:
+        return check_install(folder, layout)
+    first = check_install(folder, layout)
+    check = check_install(folder, layout)
+    check["first_launch"] = {k: first.get(k) for k in FIRST_LAUNCH}
+    return check
+
+
+def first_launch_failed(check: dict[str, object]) -> list[str]:
+    """A Mac's settling launch must work too: only its time isn't judged."""
+    first = check.get("first_launch")
+    if isinstance(first, dict) and first.get("exit_code") != 0:
+        return [f"the first launch failed: {first}"]
+    return []
+
+
 def over_start_budget(check: dict[str, object]) -> list[str]:
     """The packed app's main window later than its budget (or not timed).
 
@@ -758,9 +785,10 @@ def build(
     found = problems(folder, layout)
     if signature is not None and not signature["verified"]:
         found.append(f"the app bundle's signature doesn't verify: {signature['said']}")
-    check = check_install(folder, layout)
+    check = settled_check_install(folder, layout)
     if check.get("exit_code") != 0 or check.get("version") != version:
         found.append(f"--check-install failed: {check}")
+    found += first_launch_failed(check)
     found += over_start_budget(check)
     found += packs_as_decided(check)
     files = [p for p in folder.rglob("*") if p.is_file()]

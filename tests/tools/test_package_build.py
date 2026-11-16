@@ -188,6 +188,36 @@ def test_the_packed_apps_check_has_a_data_folder_of_its_own(
     assert not left.exists()
 
 
+def test_a_mac_judges_the_start_after_macos_first_look_at_the_app(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """polyglotic-hq 419: a newly signed app's first launch on a Mac carries
+    Gatekeeper's first look (1.775 s on GitHub's Mac), once per build; that
+    launch settles the app and is kept, the second is judged. Windows
+    launches once, as before."""
+    launches = iter([1.775, 0.82, 0.9])
+
+    def check(folder: Path, layout: object = None) -> dict[str, object]:
+        return {"exit_code": 0, "launch_seconds": next(launches), "version": "0.0.1"}
+
+    monkeypatch.setattr(build, "check_install", check)
+    judged = build.settled_check_install(Path("dist/Polyglotic.app"), build.MACOS)
+    assert judged["launch_seconds"] == 0.82
+    assert judged["first_launch"] == {
+        "exit_code": 0,
+        "launch_seconds": 1.775,
+        "window_seconds": None,
+        "wall_seconds": None,
+    }
+    assert build.over_start_budget(judged) == []
+    assert build.first_launch_failed(judged) == []
+    windows = build.settled_check_install(Path("dist/Polyglotic"), build.WINDOWS)
+    assert windows["launch_seconds"] == 0.9 and "first_launch" not in windows
+    assert build.first_launch_failed({"first_launch": {"exit_code": 1}}) == [
+        "the first launch failed: {'exit_code': 1}"
+    ]
+
+
 def test_a_packed_window_over_its_budget_is_a_problem() -> None:
     """The packed app's main window within START_PACKED (DECISIONS.md #53;
     polyglotic-hq project 132), timed by its own install check."""

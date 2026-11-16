@@ -30,8 +30,11 @@ continuous (`Timeline`).
 get zeros. `SilenceWatch` tells that from a quiet source - only zeros for
 NOT_ALLOWED_AFTER_SEC while Core Audio says something plays (the mic: is
 never perfectly silent) - and the capture says `NOT_ALLOWED` as its
-`error`. Sound once heard proves the permission for the app's run (a
-permission given takes effect when the app restarts).
+`error`. A permission never yet asked can instead hold the tap's start
+while macOS waits for the learner's answer: the watch goes on through
+that wait too (`_Capture._opened`). Sound once heard proves the
+permission for the app's run (a permission given takes effect when the
+app restarts).
 """
 
 import contextlib
@@ -261,6 +264,48 @@ class Stream:
         """Stops it; nothing more is put."""
 
 
+class _Opening:
+    """`open_(target)` on a thread of its own, so the capture's thread can
+    watch while it waits: `done` once it returned (or raised), `result` what
+    it gave. A stream it gives after being abandoned is closed."""
+
+    def __init__(
+        self,
+        open_: Callable[[Any], tuple[Stream, str]],
+        target: Any,
+        name: str,
+    ) -> None:
+        self.done = threading.Event()
+        self.result: tuple[Stream, str] | BaseException | None = None
+        self._lock = threading.Lock()
+        self._abandoned = False
+        threading.Thread(
+            target=self._run, args=(open_, target), name=name, daemon=True
+        ).start()
+
+    def _run(self, open_: Callable[[Any], tuple[Stream, str]], target: Any) -> None:
+        result: tuple[Stream, str] | BaseException
+        try:
+            result = open_(target)
+        except Exception as e:  # noqa: BLE001 - handed to the capture's thread
+            result = e
+        with self._lock:
+            self.result = result
+            abandoned = self._abandoned
+        self.done.set()
+        if abandoned and isinstance(result, tuple):
+            result[0].close()
+
+    def abandon(self) -> None:
+        """Nobody wants the stream any more: closed now if it has opened,
+        else as soon as it does."""
+        with self._lock:
+            self._abandoned = True
+            result = self.result
+        if isinstance(result, tuple):
+            result[0].close()
+
+
 class _Capture:
     """The thread that runs one capture: opens its stream, delivers its
     audio converted and continuous, watches for silence it isn't allowed
@@ -335,10 +380,13 @@ class _Capture:
                 self._stop.wait(DEVICE_POLL_SEC)
                 continue
             try:
-                stream, name = self._open(target)
+                opened = self._opened(target, watch)
             except OSError as e:
                 failed, self._capturing, self._error = target, None, str(e)
                 continue
+            if opened is None:  # stopped while macOS still held the open
+                return
+            stream, name = opened
             failed, self._capturing = None, name
             self._error = NOT_ALLOWED if watch.not_allowed else None
             try:
@@ -353,6 +401,29 @@ class _Capture:
                     on_audio(*piece)
                 self._error = "The app has closed."
                 return
+
+    def _opened(self, target: Any, watch: SilenceWatch) -> tuple[Stream, str] | None:
+        """`_open(target)`, with the silence watch going on meanwhile: macOS
+        can hold a tap's or the mic's start until the learner answers its
+        permission prompt (polyglotic-hq 419: with the permission never
+        asked, a tap of a playing app never opened on GitHub's Mac), and
+        that wait says NOT_ALLOWED just as a tap's zeros do. None if the
+        capture is stopped first; the stream, if it opens after, is closed."""
+        opening = _Opening(self._open, target, f"{type(self).__name__} opening")
+        next_check = time.perf_counter() + DEVICE_POLL_SEC
+        while not opening.done.wait(WAKE_SEC):
+            if self._stop.is_set():
+                opening.abandon()
+                return None
+            now = time.perf_counter()
+            if now >= next_check:
+                next_check = now + DEVICE_POLL_SEC
+                if watch.checked(DEVICE_POLL_SEC, self._playing()):
+                    self._error = NOT_ALLOWED
+        result = opening.result
+        if isinstance(result, BaseException):
+            raise result
+        return result
 
     def _pump(
         self,

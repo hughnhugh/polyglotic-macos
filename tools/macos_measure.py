@@ -49,12 +49,13 @@ GRANTED = (
 """The grants already there: the image's, for the microphone."""  # (client, 1 for a path, 0 for a bundle ID)
 
 
-def grant(client: str, client_type: int, now: int) -> str:
-    """An `access` row allowing `SERVICE`, in the image's own form (17
-    columns: service, client, client type, allowed (2), reason, version,
-    no code requirement, ..., the time)."""
+def grant(client: str, client_type: int, now: int, allowed: bool = True) -> str:
+    """An `access` row allowing `SERVICE` - or denying it, `allowed` False -
+    in the image's own form (17 columns: service, client, client type,
+    allowed (2) or denied (0), reason, version, no code requirement, ...,
+    the time)."""
     values = (
-        f"'{SERVICE}','{client}',{client_type},2,4,1,NULL,NULL,NULL,'UNUSED',"
+        f"'{SERVICE}','{client}',{client_type},{2 if allowed else 0},4,1,NULL,NULL,NULL,'UNUSED',"
         f"NULL,0,{now},NULL,NULL,'UNUSED',{now}"
     )
     return f"INSERT OR REPLACE INTO access VALUES({values});"

@@ -16,7 +16,7 @@ remember an answer, so the denied one comes last):
   shows it playing (2); `AppCapture` of it hears it - non-zero 16kHz
   audio whose loudness follows the clip's - with no error (4).
 - everything_else: two players, `afplay` with a 1kHz tone and a renamed
-  copy of it with a 3kHz tone; `EverythingElseCapture` of the first hears
+  copy of it (its bytes: `second_player`) with a 3kHz tone; `EverythingElseCapture` of the first hears
   only the second's tone (6). If Core Audio reports both as one app (one
   bundle ID), the app's own rule leaves both out, and it must hear neither.
 - system_taps: `SystemCapture(None)` (a global tap) and
@@ -28,9 +28,12 @@ remember an answer, so the denied one comes last):
   app's clock, in ms a minute (9).
 - packed: with `--app`, the packed app's `--check-capture` while the clip
   plays: catap's and PortAudio's libraries load inside the bundle.
-- not_allowed: the system-audio permission's rows removed; a new process's
-  `AppCapture` of afplay must say `NOT_ALLOWED` within about 11 s (5);
-  the rows are written back after.
+- not_allowed: the system-audio permission's rows written denied; a new
+  process's `AppCapture` of afplay must say `NOT_ALLOWED` within about
+  11 s (5).
+- not_asked: the rows removed (never asked: macOS may hold the tap's start
+  for an answer, 419's run 1); the same within about 11 s; the rows are
+  written back allowed after.
 
 Never the user's PC: this runs only on GitHub's macOS machine, which has
 no microphone or speakers of its own - only BlackHole, a virtual device -
@@ -49,7 +52,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+import traceback
 from collections.abc import Callable, Iterator
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -66,6 +71,8 @@ FRAME_SEC = 0.05
 """An envelope's frame: loudness every 50 ms."""
 LIKE = 0.5
 """How closely a capture's loudness must follow what played (Pearson's r)."""
+OVERLAP = 0.5
+"""How much of the shorter envelope a lag must overlap to be judged."""
 TONES = (1000.0, 3000.0)
 """The two players' tones: both under the resampler's 7.2kHz cut-off."""
 TONE_HEARD = 0.02
@@ -103,22 +110,25 @@ def envelope(audio: np.ndarray, rate: float) -> np.ndarray:
 
 
 def likeness(heard: np.ndarray, played: np.ndarray) -> float:
-    """How closely one envelope follows the other: the best Pearson's r of
-    the shorter against every same-length stretch of the longer (when it
-    started is unknown). 0 when either is flat."""
+    """How closely one envelope follows the other: the best Pearson's r over
+    every lag at which they overlap by at least OVERLAP of the shorter (when
+    the capture started is unknown, and it may run on past the end of what
+    played: polyglotic-hq 419's app tap, which started 1.5 s into a clip
+    played once and listened 2 s past its end). 0 when either is flat."""
     short, long_ = (heard, played) if len(heard) <= len(played) else (played, heard)
     n = len(short)
+    need = max(10, int(np.ceil(n * OVERLAP)))
     if n < 10 or np.std(short) == 0:
         return 0.0
-    windows = np.lib.stride_tricks.sliding_window_view(long_, n)
-    a = (short - short.mean()) / short.std()
-    means = windows.mean(axis=1, keepdims=True)
-    spreads = windows.std(axis=1)
-    usable = spreads > 0
-    if not usable.any():
-        return 0.0
-    r = ((windows[usable] - means[usable]) @ a) / (n * spreads[usable])
-    return round(float(r.max()), 3)
+    best: float | None = None
+    for lag in range(need - n, len(long_) - need + 1):
+        a = short[max(0, -lag) : min(n, len(long_) - lag)]
+        b = long_[max(0, lag) : max(0, lag) + len(a)]
+        if a.std() == 0 or b.std() == 0:
+            continue
+        r = float(np.mean((a - a.mean()) * (b - b.mean())) / (a.std() * b.std()))
+        best = r if best is None else max(best, r)
+    return 0.0 if best is None else round(best, 3)
 
 
 def tone_level(audio: np.ndarray, rate: float, hz: float) -> float:
@@ -245,8 +255,12 @@ def plan(app: Path | None, drift_minutes: float) -> list[str]:
         steps.append(f"packed: {app}/Contents/MacOS/Polyglotic --check-capture")
     steps += [
         (
-            f"not_allowed: DELETE {macos_measure.SERVICE} rows; a new process's"
-            " AppCapture of afplay; the rows written back"
+            f"not_allowed: {macos_measure.SERVICE} rows written denied; a new"
+            " process's AppCapture of afplay"
+        ),
+        (
+            f"not_asked: DELETE {macos_measure.SERVICE} rows; a new process's"
+            " AppCapture of afplay; the rows written back allowed"
         ),
     ]
     return steps
@@ -268,6 +282,7 @@ class Listened:
         self.capturing: set[str] = set()
         self.error: str | None = None
         self.not_allowed_after: float | None = None
+        self.stacks: dict[str, list[str]] = {}
 
     def __call__(self, start: float, samples: bytes) -> None:
         self.pieces.append(samples)
@@ -291,7 +306,7 @@ class Listened:
             "error": self.error,
             "capturing": sorted(self.capturing),
             "not_allowed_after": self.not_allowed_after,
-        }
+        } | ({"stacks": self.stacks} if self.stacks else {})
 
 
 def listen(capture: Any, seconds: float) -> Listened:
@@ -309,8 +324,24 @@ def listen(capture: Any, seconds: float) -> Listened:
             if capture.error == "not allowed" and got.not_allowed_after is None:
                 got.not_allowed_after = round(elapsed, 2)
     finally:
+        if capture.capturing is None:  # never opened, or stopped: where it is
+            got.stacks = stacks(type(capture).__name__)
         capture.stop()
     return got
+
+
+def stacks(prefix: str) -> dict[str, list[str]]:
+    """Where each thread whose name starts `prefix` is now, innermost last:
+    file names and functions only (what holds a capture that never opened)."""
+    frames = sys._current_frames()
+    return {
+        t.name: [
+            f"{Path(f.filename).name}:{f.name}:{f.lineno}"
+            for f in traceback.extract_stack(frames[t.ident])[-6:]
+        ]
+        for t in threading.enumerate()
+        if t.name.startswith(prefix) and t.ident in frames
+    }
 
 
 @contextlib.contextmanager
@@ -324,6 +355,18 @@ def playing(program: str, wav: Path) -> Iterator[subprocess.Popen[bytes]]:
             player.terminate()
             with contextlib.suppress(subprocess.TimeoutExpired):
                 player.wait(5)
+
+
+def second_player(afplay: str, folder: Path) -> Path:
+    """A renamed copy of `afplay`, a second app to Core Audio (a command
+    line tool is known by its executable's name): its bytes only. Copying
+    its file flags as well (`shutil.copy2`) is refused - System Integrity
+    Protection marks /usr/bin's files restricted, and only the system may
+    set that flag (polyglotic-hq 419: run 1's PermissionError)."""
+    copy = folder / "afplay-second"
+    shutil.copyfile(afplay, copy)
+    copy.chmod(0o755)
+    return copy
 
 
 def write_wav(path: Path, audio: np.ndarray, rate: int) -> Path:
@@ -416,7 +459,9 @@ class Run:
             mics=[s.name for s in listed.mics],
         )
 
-    def grant(self) -> None:
+    def grant(self, allowed: bool = True) -> None:
+        """The permission's rows written, allowing it - or, `allowed` False,
+        denying it (as a learner's "Don't Allow" leaves it)."""
         now = int(time.time())
         written = {}
         for client, kind in macos_measure.CLIENTS:
@@ -424,9 +469,10 @@ class Run:
                 (macos_measure.SYSTEM_TCC, ["sudo"]),
                 (macos_measure.USER_TCC, []),
             ):
-                row = macos_measure.grant(client, kind, now)
+                row = macos_measure.grant(client, kind, now, allowed)
                 written[f"{client} {db}"] = sh([*sudo, "sqlite3", db, row], 30)["ok"]
-        self.facts.setdefault("grants_written", []).append(written)
+        key = "grants_written" if allowed else "denials_written"
+        self.facts.setdefault(key, []).append(written)
 
     def revoke(self) -> dict[str, bool]:
         delete = f"DELETE FROM access WHERE service = '{macos_measure.SERVICE}';"
@@ -489,8 +535,7 @@ class Run:
     def everything_else(self) -> None:
         from polyglotic_desktop.platform.macos import apps, capture
 
-        copy = self.work / "afplay-second"
-        shutil.copy2(shutil.which("afplay") or "/usr/bin/afplay", copy)
+        copy = second_player(shutil.which("afplay") or "/usr/bin/afplay", self.work)
         with (
             playing("afplay", self.tone_wavs[0]) as first,
             playing(str(copy), self.tone_wavs[1]) as second,
@@ -504,6 +549,7 @@ class Run:
                 for pid in (first.pid, second.pid)
             ]
             got = listen(capture.EverythingElseCapture(first.pid), 8)
+            exits = [first.poll(), second.poll()]  # None: still playing
         audio = got.audio[RATE:]  # past the tap's start
         levels = [tone_level(audio, RATE, hz) for hz in TONES]
         if None in keys:
@@ -513,7 +559,14 @@ class Run:
             verdict = everything_else_verdict(
                 keys[0] == keys[1], low, high, capture.TAPS.given
             )
-        self.add("everything_else", verdict, keys=keys, levels=levels, **got.facts())
+        self.add(
+            "everything_else",
+            verdict,
+            keys=keys,
+            levels=levels,
+            exits=exits,
+            **got.facts(),
+        )
 
     # -- 7, 8, 9, packed: the clip looped
     def while_looped(self) -> None:
@@ -608,10 +661,24 @@ class Run:
             verdict = (UNKNOWN, f"started, but heard {heard}: the app's permission")
         self.add("packed", verdict, report=found, exit=done.get("code"))
 
-    # -- 5, last
+    # -- 5, last: denied, then never asked
     def not_allowed(self) -> None:
+        """The permission denied (its rows say so): the tap opens and hears
+        zeros."""
+        self.grant(allowed=False)
+        self.denied_check("not_allowed")
+
+    def not_asked(self) -> None:
+        """The permission never asked (its rows removed): run 1 found the
+        tap's start held while macOS waits for an answer nobody gives."""
         self.facts["revoked"] = self.revoke()
-        child = self.out.parent / "not-allowed.json"
+        try:
+            self.denied_check("not_asked")
+        finally:
+            self.grant()
+
+    def denied_check(self, check: str) -> None:
+        child = self.out.parent / f"{check.replace('_', '-')}.json"
         sh(
             [
                 sys.executable,
@@ -623,12 +690,11 @@ class Run:
             90,
         )
         found = json.loads(child.read_text(encoding="utf-8")) if child.is_file() else {}
-        self.grant()
         if not found:
-            self.add("not_allowed", (UNKNOWN, "the child process wrote nothing"))
+            self.add(check, (UNKNOWN, "the child process wrote nothing"))
             return
         self.add(
-            "not_allowed",
+            check,
             not_allowed_verdict(
                 found["peak"],
                 found["not_allowed_after"],
@@ -698,6 +764,7 @@ def main(argv: list[str] | None = None) -> int:
         run.everything_else,
         run.while_looped,
         run.not_allowed,
+        run.not_asked,
     ]
     for step in steps:
         if step != run.blackhole and run.blackhole_uid is None:
