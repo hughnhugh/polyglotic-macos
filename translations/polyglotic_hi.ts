@@ -2972,13 +2972,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">लॉग इन करने पर Polyglotic खोलें?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows के साथ शुरू करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">लॉग इन पर खोलें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">यह ट्रे में इंतज़ार करता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। Windows के स्टार्टअप ऐप में इसे बंद किया जा सकता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">यह आपके लॉग इन करते ही खुल जाता है, ताकि कुछ चलाते या देखते समय कैप्शन बस एक क्लिक दूर हों। सिस्टम सेटिंग्ज़ के लॉगिन आइटम में इसे बंद किया जा सकता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4676,6 +4691,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">इस Mac पर अभी {language} की कोई आवाज़ नहीं है। macOS इसे मुफ़्त में जोड़ता है: सिस्टम सेटिंग्ज़ &gt; ऐक्सेसिबिलिटी &gt; बोली गई सामग्री &gt; सिस्टम वॉइस &gt; वॉइस प्रबंधित करें, फिर {language}।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">स्पीच सेटिंग खोलें</translation>
     </message>
@@ -4771,6 +4791,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">इस Mac पर {language} की कोई आवाज़ नहीं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">रोकें (R)</translation>
     </message>
@@ -4833,6 +4858,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">Windows की सेटिंग खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">सिस्टम सेटिंग्ज़ खोलता है, जहाँ आवाज़ें जोड़ी जाती हैं</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4922,44 +4952,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">तय रखरखाव के लिए कैप्शन {start} से {end} तक रुकेंगे</translation>
-    </message>
-</context>
-<context>
-    <name>MoveToApplications</name>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move Polyglotic to Applications?</source>
-        <translation type="unfinished">Polyglotic को ऐप्लिकेशन में ले जाएँ?</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
-        <translation type="unfinished">Polyglotic आपके ऐप्लिकेशन फ़ोल्डर के बाहर से खोला गया, शायद डाउनलोड से, इसलिए आपका Mac इसे एक अस्थायी कॉपी से चला रहा है। वहाँ से यह अपने आप अपडेट नहीं हो सकता।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
-        <translation type="unfinished">ख़ुद करने के लिए: Polyglotic बंद करें, Finder में इसे ऐप्लिकेशन में खींचें, और वहीं से खोलें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move to Applications</source>
-        <translation type="unfinished">ऐप्लिकेशन में ले जाएँ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Not now</source>
-        <translation type="unfinished">अभी नहीं</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
-        <translation type="unfinished">Polyglotic ख़ुद को ऐप्लिकेशन में नहीं ले जा सका।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move it, and Polyglotic opens again from Applications.</source>
-        <translation type="unfinished">ले जाने के बाद Polyglotic ऐप्लिकेशन से फिर खुलेगा।</translation>
     </message>
 </context>
 <context>

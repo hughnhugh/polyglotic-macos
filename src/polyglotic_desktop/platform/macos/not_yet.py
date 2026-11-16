@@ -2,43 +2,23 @@
 piece says so through its port, the way the app already handles an OS
 that refuses it, so the interface hides it or explains it.
 
-- `Hotkeys` - every key reported as not working here, so the menus stop
-  showing Ctrl+Alt+L, P and H (`ui.app.hotkeys_taken`); later Carbon's
-  `RegisterEventHotKey`.
 - `HoldKey` - never taken (dictation's key; Settings says so); later with
   the Accessibility permission, as typing into other apps (`type_text`).
 - `OnTop` and `ForegroundWatch` - Qt's always-on-top flag only: the caption
   windows stay above ordinary windows, not over full-screen Spaces; later
   a non-activating panel at a higher level (polyglotic-hq 171).
 - `SoundOut` - Home's sample isn't played aloud.
-- Voices and starting at sign-in have no adapter yet: `OsAdapters.speaker`
-  and `start_at_sign_in` are None, so the word card offers no voice and
-  Home never offers to start the app at sign-in; later
-  AVSpeechSynthesizer and `SMAppService`.
 
 The rest of Windows' pieces have no Mac counterpart at all: the store's
 package, the taskbar's ID, fonts read and windows made ahead (`main`
 reads False as "not done ahead" and goes on as before).
 """
 
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polyglotic_desktop.platform.speech_detection import Audio
-
-
-class NoHotkeys:
-    """`Hotkeys`: none on a Mac yet - each reported as not working here."""
-
-    def __init__(self, keys: Mapping[str, Callable[[], None]]) -> None:
-        self._keys = list(keys)
-
-    def start(self) -> list[str]:
-        return list(self._keys)
-
-    def stop(self) -> None:
-        pass
 
 
 class NoHoldKey:

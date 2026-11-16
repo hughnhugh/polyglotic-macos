@@ -37,9 +37,10 @@ windows (`ui_next`, wired by `main`'s `Hub`) follow it:
 - `set_activity(provider)` - what each source being captured has done
   (sound and speech heard), for that check (`caption_facts`);
 - `hotkeys` - the commands with a system-wide hotkey (Ctrl+Alt+ the
-  letter, as in the proof of concept), shown in the tray menu;
+  letter, as in the proof of concept; ⌃⌘ the letter on a Mac), shown in
+  the tray menu;
   `hotkey_pressed.emit(letter)` from any thread runs one on the Qt thread
-  (`main` registers them with Windows); `hotkeys_not_working` stops showing
+  (`main` registers them with the OS); `hotkeys_not_working` stops showing
   the ones that don't work here - another app already has them, or they
   weren't registered (a preview build has none: polyglotic-hq 398) - so
   nothing names a hotkey that does nothing;
@@ -76,7 +77,7 @@ from PySide6.QtCore import (
     Signal,
     Slot,
 )
-from PySide6.QtGui import QAction, QCursor, QGuiApplication, QKeySequence
+from PySide6.QtGui import QAction, QCursor, QGuiApplication, QIcon, QKeySequence
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from polyglotic_desktop.core.listening.captions import CaptionUpdate
@@ -105,9 +106,9 @@ from polyglotic_desktop.ports.settings import SettingsStore
 from polyglotic_desktop.ui import theme
 from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
 from polyglotic_desktop.ui.captions import CaptionFeed
-from polyglotic_desktop.ui.icons import TrayState, tray_icon
+from polyglotic_desktop.ui.icons import TrayState, menu_bar_icon, tray_icon
 from polyglotic_desktop.ui.learning import LearningTools
-from polyglotic_desktop.ui.os_words import pc_or_mac
+from polyglotic_desktop.ui.os_words import on_a_mac, pc_or_mac
 from polyglotic_desktop.ui.settings import (
     SOURCE_KEY_EVERYTHING_ELSE,
     SOURCE_KEY_MIC,
@@ -389,12 +390,20 @@ class DesktopApp(QObject):
         self.lock_windows.toggled.connect(lambda on: self.settings.update(locked=on))
         self.show_delay.toggled.connect(lambda on: self.settings.update(show_delay=on))
         self.settings.changed.connect(self._settings_changed)
+        # Ctrl+Alt+ the letter; on a Mac Control+Command (polyglotic-hq 428,
+        # DECISIONS #193), which Qt writes Meta+Ctrl there: "⌃⌘L"
+        hotkey = "Meta+Ctrl+{key}" if on_a_mac() else "Ctrl+Alt+{key}"
         for key, action in self.hotkeys.items():
-            # shown in menus; Windows' hotkey does the work, from anywhere
-            action.setShortcut(QKeySequence(f"Ctrl+Alt+{key}"))
+            # shown in menus; the OS's hotkey does the work, from anywhere
+            action.setShortcut(QKeySequence(hotkey.format(key=key)))
             action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
         self.hotkey_pressed.connect(self._hotkey, Qt.ConnectionType.QueuedConnection)
         self.tray: QSystemTrayIcon | None = None
+        self.tray_icons: Callable[[TrayState, bool], QIcon] = (
+            menu_bar_icon if on_a_mac() else tray_icon
+        )
+        """The tray's icon for a state and a light taskbar: on a Mac the menu
+        bar's template, which macOS draws light or dark itself (428)."""
         self.tray_menu = self._tray_menu()
         self.tray_menu.aboutToShow.connect(self._style_tray_menu)
         self.state_title = ""
@@ -692,7 +701,7 @@ class DesktopApp(QObject):
     def _show_tray_state(self) -> None:
         if self.tray is not None:
             light = self._light_taskbar()
-            self.tray.setIcon(tray_icon(self.tray_state, light))
+            self.tray.setIcon(self.tray_icons(self.tray_state, light))
             self._style_tray_menu(light)
 
     def _style_tray_menu(self, light: bool | None = None) -> None:

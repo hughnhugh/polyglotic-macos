@@ -35,6 +35,8 @@ from polyglotic_desktop.ui_next import help_page
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
 from polyglotic_desktop.ui_next.learning_page import LearningPage
+from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.learning import LanguageCard
@@ -440,7 +442,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     339) - and the notice and the tester agreement a click away."""
     [kept] = [text for title, text in help_page.questions() if title == "What we keep"]
     for words in (
-        "Only speech leaves this PC",
+        pc_or_mac("Only speech leaves this PC", "Only speech leaves this Mac"),
         "never stores the audio",
         "last 2 minutes",
         "sends it again only when you ask",
@@ -451,7 +453,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     assert "crash reports" not in kept  # the notice v2: none are sent yet
     # a transcript lasts only this session: not "stays ... unless" (228)
     assert "it's gone when you quit Polyglotic unless you save it" in kept
-    assert "transcript stays on this PC" not in kept
+    assert "transcript stays on this" not in kept
     names = ("help.privacy_notice", "help.tester_agreement")
     page = HelpPage(lambda: facts_with(True))
     assert opened_by(page, names, monkeypatch) == [PRIVACY_NOTICE, TESTER_AGREEMENT]
@@ -697,22 +699,22 @@ def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         topics = " ".join(t.text.text() for t in page.findChildren(Topic))
         return topics + " " + " ".join(f.text() for f in page.fixes.values())
 
-    assert "Ctrl+Alt+L" in said() and "Ctrl+Alt+P" in said()
+    assert keys("Ctrl+Alt+L") in said() and keys("Ctrl+Alt+P") in said()
     page.show_hotkeys([])  # none works
-    assert "Ctrl+Alt" not in said(), said()
+    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
     assert "Lock all, on Home or in the tray menu, lets clicks pass" in said()
     assert "Choose Resume on Home or in the tray menu." in said()
     facts[0] = hidden
     page.check_again.click()
-    assert "Ctrl+Alt" not in said(), said()
+    assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
     assert "Use Hide all on Home or the tray menu." in said()
 
     page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
-    assert "Ctrl+Alt+P" not in said()
-    assert "Lock all (Ctrl+Alt+L) so clicks go" in said()  # Over a game
-    assert "Press Ctrl+Alt+H" in said()
+    assert keys("Ctrl+Alt+P") not in said()
+    assert keys("Lock all (Ctrl+Alt+L) so clicks go") in said()  # Over a game
+    assert keys("Press Ctrl+Alt+H") in said()
     every = {t for p in Problem for t in help_page.problem(p, "Video Player", ())}
     every |= {t for pair in help_page.set_up(()) for t in pair}
-    assert not any("Ctrl+Alt" in text for text in every)
+    assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in every)
     page.close()
     page.deleteLater()

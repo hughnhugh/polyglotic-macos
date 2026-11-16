@@ -94,10 +94,6 @@ the app's What's new, the website's What's new and the Discord post.
   Dictation uses the microphone chosen too.
 - A locked caption window can be unlocked from the window itself: rest
   the mouse on the lock in its corner for a moment, then click Unlock.
-- On a Mac, Polyglotic opened from Downloads (or anywhere but
-  Applications) offers once to move itself to Applications and opens
-  again from there: macOS runs it from a temporary copy elsewhere, and
-  from that copy it can't update itself.
 
 ### Better
 

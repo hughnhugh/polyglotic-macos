@@ -21,6 +21,7 @@ from polyglotic_desktop.ui.settings import (
     TRANSLATION_COLOR,
     AppSettings,
 )
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 
 APP_1, APP_2 = SourceId("app-1"), SourceId("app-2")
 PALETTE = ("#111111", "#222222", "#333333")
@@ -85,7 +86,8 @@ def test_each_source_is_labelled_with_its_name_in_its_colour(
     assert labels[MIC] == SourceLabel("You", blue)  # as before: "You", in blue
     assert labels[APP_1] == SourceLabel("Chat", cyan)  # in the order picked
     assert labels[APP_2] == SourceLabel("Player", green)
-    assert labels[SourceId("system")] == SourceLabel("This PC", orange)  # not on
+    this = pc_or_mac("This PC", "This Mac")
+    assert labels[SourceId("system")] == SourceLabel(this, orange)  # not on
     app.settings.update(
         source_names={"Chat.exe": "Team call"}, source_colors={"Chat.exe": "#ff6e9c"}
     )

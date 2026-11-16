@@ -2966,13 +2966,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open Polyglotic when you log in?</source>
+        <translation type="unfinished">เปิด Polyglotic เมื่อเข้าสู่ระบบไหม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">เริ่มพร้อม Windows</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open at login</source>
+        <translation type="unfinished">เปิดเมื่อเข้าสู่ระบบ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>It waits in the tray, so captions are a click away when you play or watch. Windows&apos; Startup apps can turn it off.</source>
         <translation type="unfinished">รออยู่ในถาดระบบ คำบรรยายจึงห่างแค่คลิกเดียวเมื่อเล่นหรือดู ปิดได้ใน แอปเริ่มต้น ของ Windows</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It opens when you log in, so captions are a click away when you play or watch. Login Items in System Settings can turn it off.</source>
+        <translation type="unfinished">เปิดขึ้นเมื่อคุณเข้าสู่ระบบ คำบรรยายจึงห่างแค่คลิกเดียวเมื่อเล่นหรือดู ปิดได้ใน รายการเข้าสู่ระบบ ของการตั้งค่าระบบ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4662,6 +4677,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Mac เครื่องนี้ยังไม่มีเสียง{language} macOS เพิ่มได้ฟรี: การตั้งค่าระบบ &gt; การช่วยการเข้าถึง &gt; เนื้อหาที่พูด &gt; เสียงของระบบ &gt; จัดการเสียง แล้วเลือก{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">เปิดการตั้งค่าเสียงพูด</translation>
     </message>
@@ -4757,6 +4777,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac</source>
+        <translation type="unfinished">Mac เครื่องนี้ไม่มีเสียง{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">หยุด (R)</translation>
     </message>
@@ -4819,6 +4844,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Opens Windows&apos; Settings, where voices are added</source>
         <translation type="unfinished">เปิดการตั้งค่า Windows ที่ใช้เพิ่มเสียง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Opens System Settings, where voices are added</source>
+        <translation type="unfinished">เปิดการตั้งค่าระบบ ที่ใช้เพิ่มเสียง</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -4908,44 +4938,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Captions pause at {start} for planned maintenance, until {end}</source>
         <translation type="unfinished">คำบรรยายจะหยุดชั่วคราวเวลา {start} เพื่อปิดปรับปรุงตามกำหนด ถึง {end}</translation>
-    </message>
-</context>
-<context>
-    <name>MoveToApplications</name>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move Polyglotic to Applications?</source>
-        <translation type="unfinished">ย้าย Polyglotic ไปที่แอปพลิเคชันไหม</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic was opened outside your Applications folder, from Downloads perhaps, so your Mac runs it from a temporary copy. From there it can&apos;t update itself.</source>
-        <translation type="unfinished">Polyglotic ถูกเปิดจากนอกโฟลเดอร์แอปพลิเคชัน อาจเป็นจากดาวน์โหลด Mac จึงเรียกใช้จากสำเนาชั่วคราว ซึ่งจากตรงนั้นจะอัปเดตตัวเองไม่ได้</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>To do it yourself: quit Polyglotic, drag it into Applications in Finder, and open it there.</source>
-        <translation type="unfinished">หากต้องการทำเอง: ปิด Polyglotic ลากไปไว้ในแอปพลิเคชันใน Finder แล้วเปิดจากที่นั่น</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move to Applications</source>
-        <translation type="unfinished">ย้ายไปที่แอปพลิเคชัน</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Not now</source>
-        <translation type="unfinished">ไว้ทีหลัง</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Polyglotic couldn&apos;t move itself to Applications.</source>
-        <translation type="unfinished">Polyglotic ย้ายตัวเองไปที่แอปพลิเคชันไม่ได้</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui/move_to_applications.py"/>
-        <source>Move it, and Polyglotic opens again from Applications.</source>
-        <translation type="unfinished">เมื่อย้ายแล้ว Polyglotic จะเปิดอีกครั้งจากแอปพลิเคชัน</translation>
     </message>
 </context>
 <context>

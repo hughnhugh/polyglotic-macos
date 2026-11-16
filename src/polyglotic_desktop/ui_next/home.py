@@ -108,7 +108,7 @@ from polyglotic_desktop.ui_next.languages import (
     target_languages,
 )
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import megabytes
 from polyglotic_desktop.ui_next.plan import get_plus_text
 from polyglotic_desktop.ui_next.sound_card import SoundCard
@@ -668,7 +668,7 @@ def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
     if detail is Detail.RESUME:
         if not pause_key:
             return _tr("resume here or from the tray")
-        return _tr("resume with Ctrl+Alt+P, or from the tray")
+        return hotkeys_here(_tr("resume with Ctrl+Alt+P, or from the tray"))
     if detail is Detail.WINDOWS_PAUSED:  # after "Paused": why, and what to do
         return _trn(
             "every caption window hidden over %n minute(s) - show them to carry on",
@@ -988,7 +988,7 @@ class AppRowWidget(QFrame):
         if not hidden:
             self.captions.setToolTip(_tr("Show its caption window"))
         elif hide_key:
-            self.captions.setToolTip(_tr("Hidden - Ctrl+Alt+H"))
+            self.captions.setToolTip(hotkeys_here(_tr("Hidden - Ctrl+Alt+H")))
         else:
             self.captions.setToolTip(_tr("Hidden - turn off Hide all to show it"))
         stop = _tr("Stop captioning {app}").format(app=row.label)
@@ -1580,8 +1580,8 @@ class HomePage(Page):
         window's tip name a hotkey only while it works (polyglotic-hq 400:
         398's preview build registers none, and they said "Ctrl+Alt+L")."""
         pause, lock, hide = (hotkey_works(action) for action in self._hotkeys)
-        self.lock.setToolTip(_tr("Ctrl+Alt+L") if lock else "")
-        self.hide_all.setToolTip(_tr("Ctrl+Alt+H") if hide else "")
+        self.lock.setToolTip(hotkeys_here(_tr("Ctrl+Alt+L")) if lock else "")
+        self.hide_all.setToolTip(hotkeys_here(_tr("Ctrl+Alt+H")) if hide else "")
         self.state.show_pause_key(pause)
         self.picker_card.show_hide_key(hide)
 
@@ -1729,14 +1729,22 @@ class HomePage(Page):
     def offer_start_with_windows(self) -> None:
         """After a good session, once: a quiet card under the state asking
         whether to start with Windows - off unless they say yes
-        (polyglotic-hq 176)."""
+        (polyglotic-hq 176). On a Mac, whether to open at login (428)."""
         card = Card()
         card.setObjectName("Card")
         row = QHBoxLayout()
         row.addWidget(
-            label(_tr("Start Polyglotic with Windows?"), "RowTitle", wrap=True), 1
+            label(
+                pc_or_mac(
+                    _tr("Start Polyglotic with Windows?"),
+                    _tr("Open Polyglotic when you log in?"),
+                ),
+                "RowTitle",
+                wrap=True,
+            ),
+            1,
         )
-        yes = _button(_tr("Start with Windows"))
+        yes = _button(pc_or_mac(_tr("Start with Windows"), _tr("Open at login")))
         yes.setObjectName("home.startup.yes")
         no = _button(_tr("Not now"), "ghost")
         no.setObjectName("home.startup.no")
@@ -1745,9 +1753,17 @@ class HomePage(Page):
         card.add(row)
         card.add(
             label(
-                _tr(
-                    "It waits in the tray, so captions are a click away when you "
-                    "play or watch. Windows' Startup apps can turn it off."
+                pc_or_mac(
+                    _tr(
+                        "It waits in the tray, so captions are a click away when "
+                        "you play or watch. Windows' Startup apps can turn it off."
+                    ),
+                    # a Mac opens a login item with its window: not "waits" (428)
+                    _tr(
+                        "It opens when you log in, so captions are a click away "
+                        "when you play or watch. Login Items in System Settings "
+                        "can turn it off."
+                    ),
                 ),
                 "Faint",
                 wrap=True,

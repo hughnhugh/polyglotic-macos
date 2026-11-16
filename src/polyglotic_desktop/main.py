@@ -326,18 +326,11 @@ from polyglotic_desktop.ports.system import (
     OsVersion,
     StorePackage,
     TaskbarIdentity,
-    Translocation,
     TypeText,
 )
 from polyglotic_desktop.ports.updates import Update
 from polyglotic_desktop.ports.word_split import WordSplit
-from polyglotic_desktop.ui import (
-    icons,
-    interface_language,
-    move_to_applications,
-    one_copy,
-    theme,
-)
+from polyglotic_desktop.ui import icons, interface_language, one_copy, theme
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
 from polyglotic_desktop.ui.consent import ConsentDialog, agreement_needed
@@ -483,27 +476,6 @@ CAPTION_LOG_BYTES, CAPTION_LOG_FILES = 2_000_000, 4
 busy listening (ids, sizes and times; never caption text)."""
 
 CRASH_NOTE = "crashed.json"  # an error nothing caught, for the next start
-
-
-def moved_to_applications(
-    place: Translocation | None,
-    settings: Settings,
-    offer: Callable[[Translocation], Path | None] = move_to_applications.offer,
-) -> bool:
-    """On a Mac run from macOS's temporary copy (App Translocation), where
-    Velopack can't update it: "Move Polyglotic to Applications?", asked once
-    whatever the answer (decision 0205). True when it moved and opens again
-    from there once this copy ends - `main` ends it."""
-    if place is None or settings.value.applications_offered or not place.translocated():
-        return False
-    log.info("run from macOS's temporary copy: offering to move to Applications")
-    settings.update(applications_offered=True)
-    moved = offer(place)
-    if moved is None:
-        return False
-    place.reopen(moved)
-    log.info("moved to Applications: opening it there")
-    return True
 
 
 def installed() -> bool:
@@ -655,7 +627,7 @@ def updater(feed: str) -> VelopackUpdater:
     """The installer's updates from `feed`, checked against `FEED_KEYS` when
     it's the built-in feed and they're set. Checked packages are kept beside
     `current` in the install folder (Velopack's place for files that may go
-    with an uninstall) - on a Mac, outside the app (`verified_feed_folder`)."""
+    with an uninstall)."""
     release = this_release()
     signed = feed == UPDATES and bool(FEED_KEYS)
     return VelopackUpdater(
@@ -663,32 +635,9 @@ def updater(feed: str) -> VelopackUpdater:
         FEED_KEYS if signed else (),
         release.channel,
         release.version,
-        verified_feed_folder(),
+        Path(sys.executable).parent.parent / "verified-feed",
         open_url=_open_url,
     )
-
-
-def verified_feed_folder(
-    executable: str | Path | None = None, home: Path | None = None
-) -> Path:
-    """Where the signed feed and its checked package wait for Velopack
-    (decision 0019): beside `current` in Velopack's install folder on
-    Windows (`%LOCALAPPDATA%/Polyglotic/verified-feed`); on a Mac, in
-    `~/Library/Caches/Polyglotic/verified-feed` - never inside the app
-    bundle, whose signature seals everything in it, so a file written there
-    would break the signature macOS keeps the learner's permissions under
-    (polyglotic-hq 430, decision 0196). `executable`: the packed app's
-    (`sys.executable` unless given)."""
-    path = Path(executable if executable is not None else sys.executable)
-    if path.parent.name == "MacOS" and path.parent.parent.name == "Contents":
-        return (
-            (home or Path.home())
-            / "Library"
-            / "Caches"
-            / "Polyglotic"
-            / "verified-feed"
-        )
-    return path.parent.parent / "verified-feed"
 
 
 def pack_storage(
@@ -759,10 +708,10 @@ class OsAdapters:
     speaker: Callable[[], SpeakerThread] | None
     """Says a looked-up word aloud in one of the OS's own voices (polyglotic-hq
     286, decision 0077): the `Speaker` port on a thread of its own. None
-    where the OS has none yet (macOS, 409): the word card offers no voice."""
+    where the OS has none: the word card offers no voice."""
     start_at_sign_in: Callable[[str], StartWithWindows] | None
     """The app, at this executable, starting when the learner signs in (176).
-    None where the OS has none yet (macOS, 409): Home never offers it."""
+    None where the OS has none: Home never offers it."""
     copy_lock: Callable[[str], CopyLock]
     """The lock the one copy for this name holds (polyglotic-hq 310)."""
     let_to_front: LetToFront
@@ -802,10 +751,6 @@ class OsAdapters:
     """Whether the OS calls the connection metered: a dictionary pack's
     download asks first on one (decision 0122), and an update found waits
     for the learner (polyglotic-hq 345)."""
-    translocation: Callable[[], Translocation] | None = None
-    """Whether macOS runs the app from a temporary copy it can't update
-    itself in, and the move to Applications (polyglotic-hq 433). None where
-    an OS has no such thing (Windows)."""
 
 
 def os_adapters(system: str = sys.platform) -> OsAdapters:
@@ -901,21 +846,31 @@ def os_adapters(system: str = sys.platform) -> OsAdapters:
 
 
 def macos_adapters() -> OsAdapters:
-    """The Mac's (polyglotic-hq 409, 411): its own system, Keychain and one
-    copy; its capture - Core Audio taps and the mic - with the apps playing,
-    the sound devices and the known apps; and what the first Mac build
-    doesn't have yet saying so through its port (`platform/macos/not_yet`)."""
+    """The Mac's (polyglotic-hq 409, 411, 428): its own system, Keychain and
+    one copy; its capture - Core Audio taps and the mic - with the apps
+    playing, the sound devices and the known apps; its hotkeys (Carbon),
+    voices (AVFoundation) and login item (ServiceManagement); and what the
+    Mac build doesn't have yet saying so through its port
+    (`platform/macos/not_yet`)."""
     from polyglotic_desktop.platform.macos import (
         apps,
         capture,
         categories,
         devices,
+        hotkeys,
         keychain,
         not_yet,
         one_copy,
-        translocation,
+        startup,
     )
     from polyglotic_desktop.platform.macos import system as mac
+
+    def speaker() -> SpeakerThread:
+        """macOS's voices, imported only now: never on the start's path."""
+        from polyglotic_desktop.platform.macos import voices
+        from polyglotic_desktop.platform.speaking import SpeakerThread
+
+        return SpeakerThread(voices.MacVoices(), voices.AudioPlayer)
 
     def credentials(service: str | None) -> CredentialStore:
         return keychain.KeychainStore(service) if service else keychain.KeychainStore()
@@ -931,10 +886,10 @@ def macos_adapters() -> OsAdapters:
         mic_capture=capture.MicCapture,
         outputs_playing=devices.outputs_playing,
         credentials=credentials,
-        hotkeys=not_yet.NoHotkeys,
+        hotkeys=hotkeys.MacHotkeys,
         sound_out=not_yet.NoSound,
-        speaker=None,
-        start_at_sign_in=None,
+        speaker=speaker,
+        start_at_sign_in=startup.LoginItem,
         copy_lock=one_copy.FileLock,
         let_to_front=one_copy.let_to_front,
         keys=not_yet.held,
@@ -956,7 +911,6 @@ def macos_adapters() -> OsAdapters:
         metered=not_yet.not_metered,
         common_apps=categories.COMMON_APPS,
         sound_devices=devices.sound_devices,
-        translocation=translocation.MacTranslocation,
     )
 
 
@@ -1572,7 +1526,7 @@ def not_working(
 
 def shortcut_text(action: QAction) -> str:
     """`action`'s hotkey as the OS writes it ("Ctrl+Alt+L"; on a Mac, where
-    Qt's Ctrl is Command, "⌥⌘L"); "" for none."""
+    Qt's Ctrl is Command and its Meta Control, "⌃⌘L"); "" for none."""
     return action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
 
 
@@ -5640,6 +5594,58 @@ def check_capture(
     return 0 if heard_all else 1
 
 
+def check_parity(report: Path, system: OsAdapters, os_name: str) -> int:
+    """The Mac's hotkeys, voices and login item from inside the packed app,
+    on GitHub's Mac (polyglotic-hq 428): Carbon, AVFoundation and
+    ServiceManagement load in the bundle; ⌃⌘L, P and H are taken and given
+    back; the voices are listed; and macOS takes the app as a login item
+    and lets it go again - each state macOS gives as it goes. Writes what
+    was found (never a word said) to `report` as JSON; 0 if nothing raised
+    and the login item was added and taken off. Refused off a Mac: on
+    Windows it would change the PC's own Run key and hotkeys."""
+    found: dict[str, object] = {"os": os_name}
+    ok = False
+    if not os_name.startswith("macos"):
+        found["error"] = "refused off a Mac: it would change this PC's sign-in"
+    else:
+        from polyglotic_desktop.platform.macos import startup, voices
+
+        ok = True
+
+        def hotkeys_taken() -> object:
+            keys = system.hotkeys({key: lambda: None for key in "LPH"})
+            taken = keys.start()
+            keys.stop()
+            return taken
+
+        service = startup.MainAppService()
+        steps: dict[str, Callable[[], object]] = {
+            "hotkeys_taken": hotkeys_taken,
+            "voices": lambda: len(voices.MacVoices().found()),
+            "status_before": service.status,
+            "register": service.register,
+            "status_registered": service.status,
+            "unregister": service.unregister,
+            "status_after": service.status,
+        }
+        for name, step in steps.items():
+            try:
+                found[name] = step()
+            except Exception as e:  # noqa: BLE001 - reported by type: it's the point
+                found[name] = f"{type(e).__name__}: {e}"
+                ok = False
+        ok = (
+            ok
+            and found.get("register") == 0
+            and found.get("unregister") == 0
+            and found.get("status_after") == startup.NOT_REGISTERED
+        )
+    found["ok"] = ok
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps(found, indent=2), encoding="utf-8")
+    return 0 if ok else 1
+
+
 PACK_CHECKED = {
     "unpacked": True,
     "opened": True,
@@ -5816,6 +5822,8 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     )
     # GitHub's Mac only (polyglotic-hq 412): refused on Windows
     parser.add_argument("--check-capture", type=Path, help=argparse.SUPPRESS)
+    # GitHub's Mac only (polyglotic-hq 428): refused off a Mac
+    parser.add_argument("--check-parity", type=Path, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -5857,7 +5865,7 @@ def this_copy(argv: list[str] | None = None) -> FirstCopy | None:
     if any(a.startswith(VELOPACK_HOOK) for a in [*given, *sys.argv[1:]]):
         return None
     args = arguments(argv)
-    if args.check_install or args.check_capture:
+    if args.check_install or args.check_capture or args.check_parity:
         return None
     try:
         system = os_adapters()
@@ -5919,6 +5927,8 @@ def main(argv: list[str] | None = None) -> None:
             "mic": lambda: system.mic_capture(None),
         }
         sys.exit(check_capture(args.check_capture, system.os_name(), to_capture))
+    if args.check_parity:
+        sys.exit(check_parity(args.check_parity, system, system.os_name()))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
@@ -5978,13 +5988,6 @@ def main(argv: list[str] | None = None) -> None:
     # the app's own text size (Settings > App), on Windows': every window from
     # the first run's on is built at it (polyglotic-hq 292, decision 0084)
     style.use_app_text_size(Settings(store).value.app_text_size)
-    # on a Mac run from macOS's temporary copy, where it can't update itself:
-    # asked once to move to Applications, and opened again from there (433)
-    place = system.translocation() if system.translocation else None
-    if moved_to_applications(place, Settings(store)):
-        store.close()
-        watchdog.stop()
-        return
     # the dictionary packs (decision 0122): opened after the first paint, into
     # the lookups' own dict every learner's tools read - so a pack downloaded
     # later is looked up at once

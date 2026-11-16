@@ -34,12 +34,8 @@ On macOS (decision 0186; the macOS job, .github/workflows/macos.yml) the
 same steps make `dist/Polyglotic.app`, an app bundle for Apple silicon: its
 icon an .icns and its Info.plist from `info_plist` (the permission prompts'
 wording); the build's files (3.) in `Contents/Resources` (`Layout`); signed
-ad hoc once they're in (`sign`), or with the certificate
-POLYGLOTIC_CODESIGN_IDENTITY names (the release's self-signed one: decision
-0196); zipped by `ditto` for its size (`MACOS_ZIP`). Velopack packs it
-afterwards, as on Windows (`pack.sh`; polyglotic-hq 430, decision 0202):
-the zip a tester downloads is Velopack's portable one, which can update
-itself.
+ad hoc once they're in (`sign`); zipped by `ditto` as a tester would get it
+(`MACOS_ZIP`). There are no updates on macOS yet: Velopack doesn't pack it.
 """
 
 from __future__ import annotations
@@ -330,19 +326,12 @@ def sign(app: Path) -> dict[str, object]:
     POLYGLOTIC_CODESIGN_IDENTITY names a certificate in the keychain. Then
     verified, with its designated requirement - what macOS keeps a
     permission under: an ad-hoc build's is its hash, so each new build asks
-    again (polyglotic-hq 408, 410). With a certificate the requirement is
-    its identifier and the certificate, the same for every build signed
-    with it, so a learner's permissions carry over (decision 0196); its
-    `authority` is the certificate's name, which an ad-hoc build hasn't."""
+    again (polyglotic-hq 408, 410)."""
     identity = os.environ.get("POLYGLOTIC_CODESIGN_IDENTITY") or "-"
-    command = ["codesign", "--force", "--deep", "--sign", identity]
-    if identity != "-":
-        # Apple's timestamp service is for its own certificates; a
-        # self-signed one asks it in vain and the signing fails.
-        command.append("--timestamp=none")
     signed = subprocess.run(
-        [*command, str(app)], capture_output=True, text=True, check=False
-    )
+        ["codesign", "--force", "--deep", "--sign", identity, str(app)],
+        capture_output=True, text=True, check=False,
+    )  # fmt: skip
     verified = subprocess.run(
         ["codesign", "--verify", "--deep", "--strict", str(app)],
         capture_output=True, text=True, check=False,
@@ -351,39 +340,13 @@ def sign(app: Path) -> dict[str, object]:
         ["codesign", "--display", "--requirements", "-", str(app)],
         capture_output=True, text=True, check=False,
     )  # fmt: skip
-    shown = subprocess.run(
-        ["codesign", "--display", "--verbose=2", str(app)],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
     return {
         "ad_hoc": identity == "-",
         "signed": signed.returncode == 0,
         "verified": verified.returncode == 0,
         "said": (signed.stderr + verified.stderr).strip()[-2000:],
         "designated_requirement": requirement.stdout.strip()[-500:],
-        "authority": [
-            line.partition("=")[2]
-            for line in shown.stderr.splitlines()
-            if line.startswith("Authority=")
-        ],
     }
-
-
-def signature_problems(signature: Mapping[str, object]) -> list[str]:
-    """What's wrong with `sign`'s result. A failed signing is one even when
-    the bundle still verifies: PyInstaller's ad-hoc signature is there
-    underneath, so a certificate that didn't take would ship ad hoc unseen
-    (polyglotic-hq 422)."""
-    found = []
-    if not signature["signed"]:
-        found.append(f"codesign couldn't sign the app bundle: {signature['said']}")
-    if not signature["verified"]:
-        found.append(f"the app bundle's signature doesn't verify: {signature['said']}")
-    if not signature["ad_hoc"] and not signature.get("authority"):
-        found.append(
-            "signed ad hoc although POLYGLOTIC_CODESIGN_IDENTITY names a certificate"
-        )
-    return found
 
 
 def _ico_bitmap(image: QImage) -> bytes:
@@ -841,8 +804,8 @@ def build(
     signature = sign(folder) if macos else None
 
     found = problems(folder, layout)
-    if signature is not None:
-        found += signature_problems(signature)
+    if signature is not None and not signature["verified"]:
+        found.append(f"the app bundle's signature doesn't verify: {signature['said']}")
     check = settled_check_install(folder, layout)
     if check.get("exit_code") != 0 or check.get("version") != version:
         found.append(f"--check-install failed: {check}")
@@ -851,15 +814,13 @@ def build(
     found += over_start_budget(check, start_limit)
     found += packs_as_decided(check)
     files = [p for p in folder.rglob("*") if p.is_file()]
-    if macos:
-        zipped = ditto_zip(folder)
     summary = {
         "version": version,
         "channel": channel,
         "build_seconds": build_seconds,
         "files": len(files),
         "size_mb": mb(sum(p.stat().st_size for p in files)),
-        "zipped_mb": mb(zipped if macos else zipped_size(folder)),
+        "zipped_mb": mb(ditto_zip(folder) if macos else zipped_size(folder)),
         "check_install": check,
         "start_judged_against_ms": start_limit,
         "signature": signature,
