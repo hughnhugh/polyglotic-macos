@@ -120,6 +120,9 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Better
 
+- On a Mac, the app uses a Mac's words: Settings > Dictation names the
+  keys as ⌘, ⌥ and ⌃ (Right ⌘, ⌃⌘E), and Help, Home and the caption
+  windows say the menu bar, not the tray, and ⌘ to zoom and copy.
 - A word card in the downloaded dictionaries shows the word's everyday
   meaning first: Spanish's "de" is "of", not the letter's name; Arabic's
   بعد is "after"; old and rare meanings come last. A word you marked by

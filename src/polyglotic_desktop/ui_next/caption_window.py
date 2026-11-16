@@ -736,7 +736,10 @@ def notice_text(notice: Notice, retry_in: int | None) -> str:
         Notice.SERVER_BUSY: _tr("The server is busy"),
         Notice.NOT_SIGNED_IN: _tr("Not signed in - sign in on Home"),
         Notice.UPDATE_NEEDED: _tr("Update needed - captions paused; see Home"),
-        Notice.STOPPED: _tr("Stopped - quit from the tray and start again"),
+        Notice.STOPPED: pc_or_mac(
+            _tr("Stopped - quit from the tray and start again"),
+            _tr("Stopped - quit from the menu bar and start again"),
+        ),
         Notice.PLUS_ENDED: _tr("Plus has ended - captions stopped; see Home"),
         Notice.MINUTES_USED: _tr("Today's free minutes are used - more at midnight"),
         Notice.FAILING: _tr("Captions failing on the server - still trying"),
@@ -791,7 +794,10 @@ def locked_text(keys: str) -> str:
     feedback F10, 249; polyglotic-hq 398)."""
     if keys:
         return _tr("Locked - {keys} to unlock").format(keys=keys)
-    return _tr("Locked - unlock on Home or from the tray")
+    return pc_or_mac(
+        _tr("Locked - unlock on Home or from the tray"),
+        _tr("Locked - unlock on Home or from the menu bar"),
+    )
 
 
 def lock_tip(keys: str) -> str:
@@ -802,9 +808,15 @@ def lock_tip(keys: str) -> str:
         return hotkeys_here(
             _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
         )
-    return _tr(
-        "Lock - clicks pass through to what's underneath. To unlock, rest the"
-        " mouse on the lock in the corner, or use Home or the tray"
+    return pc_or_mac(
+        _tr(
+            "Lock - clicks pass through to what's underneath. To unlock, rest the"
+            " mouse on the lock in the corner, or use Home or the tray"
+        ),
+        _tr(
+            "Lock - clicks pass through to what's underneath. To unlock, rest the mouse"
+            " on the lock in the corner, or use Home or the menu bar"
+        ),
     )
 
 
@@ -3026,11 +3038,14 @@ class CaptionWindow(QWidget):
         self._action(
             "smaller",
             "A-",
-            _tr("Smaller text (Ctrl+wheel)"),
+            hotkeys_here(_tr("Smaller text (Ctrl+wheel)")),
             lambda: self.step_text(-1),
         )
         self._action(
-            "bigger", "A+", _tr("Bigger text (Ctrl+wheel)"), lambda: self.step_text(1)
+            "bigger",
+            "A+",
+            hotkeys_here(_tr("Bigger text (Ctrl+wheel)")),
+            lambda: self.step_text(1),
         )
         self._action(
             "translation_smaller",
@@ -3313,7 +3328,7 @@ class CaptionWindow(QWidget):
         self.controls["bigger"].setToolTip(
             _tr("Drag the top edge for more lines")
             if few
-            else _tr("Bigger text (Ctrl+wheel)")
+            else hotkeys_here(_tr("Bigger text (Ctrl+wheel)"))
         )
 
     def showEvent(self, event: QShowEvent) -> None:

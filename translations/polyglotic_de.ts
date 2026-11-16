@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">Gestoppt – in der Menüleiste beenden und neu starten</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus ist beendet – Untertitel gestoppt; siehe Start</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">Gesperrt – entsperren auf Start oder in der Menüleiste</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Sperren – Klicks gehen durch zu dem, was darunter liegt, Strg+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Sperren – Klicks gehen durch zu dem, was darunter liegt. Zum Entsperren die Maus kurz auf dem Schloss in der Ecke ruhen lassen, oder auf Start oder im Infobereich</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">Sperren – Klicks gehen durch zu dem, was darunter liegt. Zum Entsperren die Maus kurz auf dem Schloss in der Ecke ruhen lassen, oder auf Start oder in der Menüleiste</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1054,6 +1069,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">Untertitel stoppen und Polyglotic schließen – beim Schließen des Fensters bleibt es in der Menüleiste</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Fortsetzen</translation>
     </message>
@@ -1107,6 +1127,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">Es ist in der Menüleiste. Setze dort fort oder beende.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic läuft weiter</translation>
     </message>
@@ -1114,6 +1139,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Es ist im Infobereich. Beende es dort.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">Es ist in der Menüleiste. Beende es dort.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1820,6 +1850,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">Es lädt das Update herunter und startet von selbst neu. Falls nicht, beende es in der Menüleiste und starte es neu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Der Server ist ausgelastet</translation>
     </message>
@@ -1837,6 +1872,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Beende Polyglotic im Infobereich und starte es neu. Passiert es weiter, melde ein Problem.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">Beende Polyglotic in der Menüleiste und starte es neu. Passiert es weiter, melde ein Problem.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1957,8 +1997,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">Wähle Fortsetzen auf Start oder im Menü der Menüleiste, oder drück Strg+Alt+P.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Wähle Fortsetzen auf Start oder im Menü des Infobereichs.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">Wähle Fortsetzen auf Start oder im Menü der Menüleiste.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1972,8 +2022,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Drück Strg+Alt+H oder nutze Alle ausblenden auf Start oder im Menü der Menüleiste. Die Mitschrift einer App zeigt, ob Untertitel ankommen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Nutze Alle ausblenden auf Start oder im Menü des Infobereichs. Die Mitschrift einer App zeigt, ob Untertitel ankommen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Nutze Alle ausblenden auf Start oder im Menü der Menüleiste. Die Mitschrift einer App zeigt, ob Untertitel ankommen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2067,6 +2127,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">Schalte Meine Stimme hier zeigen in den Einstellungen eines Untertitelfensters ein, oder Meine eigene Stimme untertiteln im Menü der Menüleiste für alle Fenster. Es ist aus, bis du das tust, und das Audio deines Mikrofons geht nur an den Server, solange ein Fenster es zeigt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Untertitelfenster verschieben, sperren und Größe ändern</translation>
     </message>
@@ -2079,6 +2144,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Zieh ein Untertitelfenster, um es zu verschieben, oder seine Ränder, um die Größe zu ändern. Alle sperren, auf Start oder im Menü des Infobereichs, lässt Klicks durch. Eins verloren? Positionen zurücksetzen auf Start holt jedes Fenster zurück.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Zieh ein Untertitelfenster, um es zu verschieben, oder seine Ränder, um die Größe zu ändern. Alle sperren, auf Start oder im Menü der Menüleiste, lässt Klicks durch. Eins verloren? Positionen zurücksetzen auf Start holt jedes Fenster zurück.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2097,6 +2167,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Ein Untertitelfenster nimmt dem Spiel nie Tastatur oder Maus weg: Es ist nie das aktive Fenster. Platziere es, wo es nichts Wichtiges verdeckt, dann Alle sperren auf Start oder im Menü der Menüleiste, damit Klicks beim Spiel ankommen. Ein Spiel im exklusiven Vollbild verdeckt alle anderen Fenster: Wähle stattdessen randloses oder Fenster-Vollbild.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">In jedes Programm diktieren (Vorschau)</translation>
     </message>
@@ -2104,6 +2179,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Schalte Diktat unter Einstellungen &gt; Diktat oder im Menü des Infobereichs ein. Halte {key} und sprich; lass los, und deine Worte werden dort getippt, wo der Cursor ist. Esc bricht ab, bevor getippt wird. Für eine andere Taste oder Kombination klick unter Einstellungen &gt; Diktat auf die Taste und drück die gewünschte.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">Schalte Diktat unter Einstellungen &gt; Diktat oder im Menü der Menüleiste ein. Halte {key} und sprich; lass los, und deine Worte werden dort getippt, wo der Cursor ist. Esc bricht ab, bevor getippt wird. Für eine andere Taste oder Kombination klick unter Einstellungen &gt; Diktat auf die Taste und drück die gewünschte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2359,8 +2439,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">fortsetzen hier oder in der Menüleiste</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">fortsetzen mit Strg+Alt+P oder im Infobereich</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">fortsetzen mit Strg+Alt+P oder in der Menüleiste</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2384,6 +2474,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">beende im Infobereich und starte Polyglotic neu – stoppt es weiter, kann die Hilfe prüfen, was nicht stimmt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">beende in der Menüleiste und starte Polyglotic neu – stoppt es weiter, kann die Hilfe prüfen, was nicht stimmt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2419,6 +2514,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">das Update ist geladen – beende im Infobereich und starte Polyglotic neu, um es zu installieren</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">das Update ist geladen – beende in der Menüleiste und starte Polyglotic neu, um es zu installieren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5061,6 +5161,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic ist schon geöffnet, reagiert aber nicht. Warte einen Moment und öffne es dann noch einmal. Erscheint es dann immer noch nicht, beende Polyglotic im Task-Manager und öffne es danach wieder.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic ist schon geöffnet, reagiert aber nicht. Warte einen Moment und öffne es dann noch einmal. Erscheint es dann immer noch nicht, beende Polyglotic sofort (⌥⌘Esc) und öffne es danach wieder.</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5730,6 +5835,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">Aus: Es bleibt ausgeblendet, und das Symbol in der Menüleiste zeigt, dass es weiter untertitelt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Zurücksetzen</translation>
     </message>
@@ -6168,6 +6278,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">Klick, dann drück die Taste oder Kombination, die du halten willst: ⌘ rechts, F9, ⌃⌘E… Eine Taste allein, oder mit ⌃, ⌥ oder ⌘, gehört Polyglotic, solange das Diktat an ist; ⌘ rechts allein funktioniert in anderen Programmen weiter.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Sprache des Diktats</translation>
     </message>
@@ -6175,6 +6290,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">„Automatisch erkennen“ tippt jede Sprache, die du sprichst, bei jedem Halten der Taste. Leg eine fest – Englisch, Mandarin… – und sie wird immer als diese gehört: Ein kurzer Satz wird nie für eine andere gehalten. Das Menü im Infobereich wechselt sie auch.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">„Automatisch erkennen“ tippt jede Sprache, die du sprichst, bei jedem Halten der Taste. Leg eine fest – Englisch, Mandarin… – und sie wird immer als diese gehört: Ein kurzer Satz wird nie für eine andere gehalten. Das Menü in der Menüleiste wechselt sie auch.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

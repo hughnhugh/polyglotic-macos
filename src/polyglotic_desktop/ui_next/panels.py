@@ -1204,7 +1204,15 @@ class BehaviourPanel(_LookGroup):
             self.show_on_speech = self._switch(
                 "show_on_speech",
                 _tr("Show a hidden caption window when speech starts"),
-                _tr("Off: it stays hidden, and the tray says it's still captioning."),
+                pc_or_mac(
+                    _tr(
+                        "Off: it stays hidden, and the tray says it's still captioning."
+                    ),
+                    _tr(
+                        "Off: it stays hidden, and the menu bar's icon says it's still "
+                        "captioning."
+                    ),
+                ),
                 view.set_show_on_speech,
             )
         self.bind(view)

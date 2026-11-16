@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">Zastaveno – ukončete z řádku nabídek a spusťte znovu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus skončilo – titulky zastaveny; viz Domů</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">Zamčeno – odemkněte na stránce Domů nebo v řádku nabídek</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi, Ctrl+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi. Odemknete podržením myši na zámku v rohu, nebo na stránce Domů či v oznamovací oblasti</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi. Odemknete podržením myši na zámku v rohu, nebo na stránce Domů či v řádku nabídek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1057,6 +1072,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">Zastavit titulkování a zavřít Polyglotic – zavřením okna zůstane v řádku nabídek</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Pokračovat</translation>
     </message>
@@ -1111,6 +1131,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">Je v řádku nabídek. Odtud ho můžete obnovit nebo ukončit.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic stále běží</translation>
     </message>
@@ -1118,6 +1143,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Je v oznamovací oblasti. Odtud ho můžete ukončit.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">Je v řádku nabídek. Odtud ho můžete ukončit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1824,6 +1854,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">Stáhne aktualizaci a sám se restartuje. Pokud ne, ukončete ho z řádku nabídek a spusťte znovu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Server je zaneprázdněný</translation>
     </message>
@@ -1841,6 +1876,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Ukončete Polyglotic z oznamovací oblasti a spusťte ho znovu. Pokud se to opakuje, nahlaste problém.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">Ukončete Polyglotic z řádku nabídek a spusťte ho znovu. Pokud se to opakuje, nahlaste problém.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1961,8 +2001,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">Zvolte Pokračovat na stránce Domů nebo v nabídce v řádku nabídek, nebo stiskněte Ctrl+Alt+P.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Zvolte Pokračovat na stránce Domů nebo v nabídce oznamovací oblasti.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">Zvolte Pokračovat na stránce Domů nebo v nabídce v řádku nabídek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1976,8 +2026,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Stiskněte Ctrl+Alt+H, nebo použijte Skrýt vše na stránce Domů či v nabídce v řádku nabídek. Přepis aplikace ukáže, jestli titulky přicházejí.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Použijte Skrýt vše na stránce Domů či v nabídce oznamovací oblasti. Přepis aplikace ukáže, jestli titulky přicházejí.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Použijte Skrýt vše na stránce Domů či v nabídce v řádku nabídek. Přepis aplikace ukáže, jestli titulky přicházejí.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2071,6 +2131,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">Zapněte Zobrazit zde moji řeč v nastavení okna titulků, nebo Titulkovat moji vlastní řeč v nabídce v řádku nabídek pro všechna okna. Dokud to neuděláte, je to vypnuté, a zvuk vašeho mikrofonu jde na server, jen když ho některé okno zobrazuje.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Přesouvání, zamykání a změna velikosti oken titulků</translation>
     </message>
@@ -2083,6 +2148,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Okno titulků přesunete tažením, velikost změníte tažením za okraje. Zamknout vše, na stránce Domů nebo v nabídce oznamovací oblasti, nechá kliknutí projít. Ztratilo se vám nějaké? Obnovit umístění na stránce Domů vrátí všechna okna zpět.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Okno titulků přesunete tažením, velikost změníte tažením za okraje. Zamknout vše, na stránce Domů nebo v nabídce v řádku nabídek, nechá kliknutí projít. Ztratilo se vám nějaké? Obnovit umístění na stránce Domů vrátí všechna okna zpět.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2101,6 +2171,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Okno titulků nikdy nebere hře klávesnici ani myš: nikdy není aktivním oknem. Umístěte ho tam, kde nezakrývá, co potřebujete vidět, a pak Zamknout vše na stránce Domů nebo v nabídce v řádku nabídek, aby kliknutí šla do hry. Hra ve výhradním režimu celé obrazovky zakryje všechna ostatní okna: zvolte místo toho celou obrazovku bez okrajů nebo okno.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">Diktujte do libovolného programu (náhled)</translation>
     </message>
@@ -2108,6 +2183,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Zapněte Diktování v Nastavení &gt; Diktování nebo v nabídce oznamovací oblasti. Držte {key} a mluvte; pusťte a vaše slova se napíší tam, kde je kurzor. Esc zruší diktování, než se slova napíší. Pro jinou klávesu nebo kombinaci klikněte na klávesu v Nastavení &gt; Diktování a stiskněte tu, kterou chcete.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">Zapněte Diktování v Nastavení &gt; Diktování nebo v nabídce v řádku nabídek. Držte {key} a mluvte; pusťte a vaše slova se napíší tam, kde je kurzor. Esc zruší diktování, než se slova napíší. Pro jinou klávesu nebo kombinaci klikněte na klávesu v Nastavení &gt; Diktování a stiskněte tu, kterou chcete.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2363,8 +2443,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">pokračujte zde nebo z řádku nabídek</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">pokračujte klávesami Ctrl+Alt+P nebo z oznamovací oblasti</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">pokračujte klávesami Ctrl+Alt+P nebo z řádku nabídek</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2389,6 +2479,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">ukončete Polyglotic z oznamovací oblasti a spusťte ho znovu – pokud se zastavuje dál, Nápověda zkontroluje, co je špatně</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">ukončete Polyglotic z řádku nabídek a spusťte ho znovu – pokud se zastavuje dál, Nápověda zkontroluje, co je špatně</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2424,6 +2519,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">aktualizace je stažená – pro instalaci ukončete Polyglotic z oznamovací oblasti a spusťte ho znovu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">aktualizace je stažená – pro instalaci ukončete Polyglotic z řádku nabídek a spusťte ho znovu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5075,6 +5175,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic je už otevřený, ale nereaguje. Chvíli počkejte a pak ho otevřete znovu. Pokud se ani pak neobjeví, ukončete Polyglotic ve Správci úloh a pak ho otevřete znovu.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic je už otevřený, ale nereaguje. Chvíli počkejte a pak ho otevřete znovu. Pokud se ani pak neobjeví, vynuťte ukončení Polyglotic (⌥⌘Esc) a pak ho otevřete znovu.</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5744,6 +5849,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">Vypnuto: zůstane skryté a ikona v řádku nabídek ukáže, že stále titulkuje.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Obnovit</translation>
     </message>
@@ -6183,6 +6293,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">Klikněte a pak stiskněte klávesu nebo kombinaci, kterou chcete držet: pravý ⌘, F9, ⌃⌘E… Samotná klávesa, nebo s ⌃, ⌥ či ⌘, patří při zapnutém diktování Polyglotic; samotný pravý ⌘ v jiných programech dál funguje.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Jazyk diktování</translation>
     </message>
@@ -6190,6 +6305,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">Rozpoznat napíše jakýkoli jazyk, kterým mluvíte, pokaždé, když klávesu podržíte. Nastavte jeden – angličtinu, mandarínštinu… – a slyší se vždy jako on: krátká fráze se nikdy nespletne s jiným. Přepnout to jde i v nabídce oznamovací oblasti.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">Rozpoznat napíše jakýkoli jazyk, kterým mluvíte, pokaždé, když klávesu podržíte. Nastavte jeden – angličtinu, mandarínštinu… – a slyší se vždy jako on: krátká fráze se nikdy nespletne s jiným. Přepnout to jde i v nabídce v řádku nabídek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

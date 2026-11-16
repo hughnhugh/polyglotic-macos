@@ -3,6 +3,7 @@ structure, section 7; build step 6): today's pages' commands and states,
 in the new interface's words - caption windows, Home, Words. Made-up
 names only; offscreen."""
 
+import re
 import time
 from collections.abc import Iterator
 from dataclasses import replace
@@ -29,6 +30,7 @@ from polyglotic_desktop.core.listening.check import (
     Step,
     Ticked,
 )
+from polyglotic_desktop.core.listening.dictation_keys import DictationKey, refusal
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
 from polyglotic_desktop.ui_next import help_page, os_words
@@ -841,3 +843,28 @@ def test_dictation_key_on_a_mac(
     up(Qt.Key.Key_Control, 0x37)
     up(Qt.Key.Key_Alt, 0x3A)
     page.close()
+
+
+def test_settings_dictation_says_a_macs_keys_and_menu_bar(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 451: on a Mac, Settings > Dictation's notes name a
+    Mac's keys (Right ⌘, ⌃⌘E, ⌃ ⌥ ⌘) and its menu bar, not Right Ctrl, Win
+    or the tray; the example combination is one the app takes; Windows'
+    text is unchanged."""
+    windows, _keys = settings_page()
+    said = " ".join(texts(windows))
+    assert "Right Ctrl, F9, Ctrl + Alt + D… A key on its own" in said
+    assert "The tray's menu switches it too." in said
+    monkeypatch.setattr(os_words, "on_a_mac", lambda: True)
+    page, _keys = settings_page()
+    said = " ".join(texts(page))
+    assert (
+        "Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic's"
+        " while dictation is on; Right ⌘ alone still works in other apps."
+    ) in said
+    assert "The menu bar's menu switches it too." in said
+    assert not re.search(r"Right Ctrl|\bWin\b|\btray\b|Ctrl \+", said)
+    example = DictationKey.parse("ctrl+win+e")
+    assert example is not None and key_words(example) == "⌃⌘E"
+    assert refusal(example) is None

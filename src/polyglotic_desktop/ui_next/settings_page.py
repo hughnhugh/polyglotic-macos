@@ -515,11 +515,22 @@ class SettingsPage(Page):
         card.add(
             Row(
                 _tr("Key"),
-                _tr(
-                    "Click, then press the key or combination you want to hold:"
-                    " Right Ctrl, F9, Ctrl + Alt + D… A key on its own, or with"
-                    " Ctrl, Alt or Win, is Polyglotic's while dictation is on;"
-                    " Right Ctrl alone still works in other programs."
+                pc_or_mac(
+                    _tr(
+                        "Click, then press the key or combination you want to hold:"
+                        " Right Ctrl, F9, Ctrl + Alt + D… A key on its own, or with"
+                        " Ctrl, Alt or Win, is Polyglotic's while dictation is on;"
+                        " Right Ctrl alone still works in other programs."
+                    ),
+                    # a Mac's keys as its menus write them (key_words); the
+                    # example is one macOS leaves free: ⌃⌥D is refused (⌥
+                    # without ⌘), ⌥⌘D hides the Dock, ⌃⌘D looks a word up (451)
+                    _tr(
+                        "Click, then press the key or combination you want to hold:"
+                        " Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘,"
+                        " is Polyglotic's while dictation is on; Right ⌘ alone"
+                        " still works in other apps."
+                    ),
                 ),
                 key_box,
             )
@@ -544,11 +555,20 @@ class SettingsPage(Page):
         card.add(
             Row(
                 _tr("Language"),
-                _tr(
-                    "Detect types whatever language you speak, each time you hold"
-                    " the key. Set one - English, Mandarin… - and it's always"
-                    " heard as that: a short phrase is never taken for another."
-                    " The tray's menu switches it too."
+                pc_or_mac(
+                    _tr(
+                        "Detect types whatever language you speak, each time you"
+                        " hold the key. Set one - English, Mandarin… - and it's"
+                        " always heard as that: a short phrase is never taken for"
+                        " another. The tray's menu switches it too."
+                    ),
+                    # a Mac's icon sits in the menu bar, not a tray (451)
+                    _tr(
+                        "Detect types whatever language you speak, each time you"
+                        " hold the key. Set one - English, Mandarin… - and it's"
+                        " always heard as that: a short phrase is never taken for"
+                        " another. The menu bar's menu switches it too."
+                    ),
                 ),
                 self.dictation_language,
             )

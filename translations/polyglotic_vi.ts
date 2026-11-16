@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">Đã dừng - thoát từ thanh menu rồi mở lại</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus đã hết - phụ đề đã dừng; xem Trang chủ</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">Đã khóa - mở khóa ở Trang chủ hoặc thanh menu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới, Ctrl+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới. Để mở khóa, hãy để chuột yên trên ổ khóa ở góc, hoặc dùng Trang chủ hay khay hệ thống</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới. Để mở khóa, hãy để chuột yên trên ổ khóa ở góc, hoặc dùng Trang chủ hay thanh menu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1051,6 +1066,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">Dừng phụ đề và đóng Polyglotic - đóng cửa sổ thì ứng dụng vẫn trên thanh menu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">Tiếp tục</translation>
     </message>
@@ -1103,6 +1123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">Nó trên thanh menu. Tiếp tục hoặc thoát từ đó.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic vẫn đang chạy</translation>
     </message>
@@ -1110,6 +1135,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">Nó ở khay hệ thống. Thoát từ đó.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">Nó trên thanh menu. Thoát từ đó.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1816,6 +1846,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">Ứng dụng tải bản cập nhật và tự khởi động lại. Nếu không, thoát từ thanh menu và mở lại.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">Máy chủ đang bận</translation>
     </message>
@@ -1833,6 +1868,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">Thoát từ khay hệ thống và mở lại Polyglotic. Nếu vẫn lặp lại, hãy báo lỗi.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">Thoát từ thanh menu và mở lại Polyglotic. Nếu vẫn lặp lại, hãy báo lỗi.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1953,8 +1993,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">Chọn Tiếp tục ở Trang chủ hoặc trong menu trên thanh menu, hoặc nhấn Ctrl+Alt+P.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">Chọn Tiếp tục ở Trang chủ hoặc trong menu khay hệ thống.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">Chọn Tiếp tục ở Trang chủ hoặc trong menu trên thanh menu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1968,8 +2018,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Nhấn Ctrl+Alt+H, hoặc dùng Ẩn tất cả ở Trang chủ hoặc menu trên thanh menu. Bản ghi của ứng dụng cho biết phụ đề có đang đến không.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">Dùng Ẩn tất cả ở Trang chủ hoặc menu khay hệ thống. Bản ghi của ứng dụng cho biết phụ đề có đang đến không.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Dùng Ẩn tất cả ở Trang chủ hoặc menu trên thanh menu. Bản ghi của ứng dụng cho biết phụ đề có đang đến không.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2063,6 +2123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">Bật Hiện giọng nói của tôi ở đây trong cài đặt của một cửa sổ phụ đề, hoặc Tạo phụ đề cho giọng nói của tôi trong menu trên thanh menu cho mọi cửa sổ. Nó tắt cho đến khi bạn bật, và âm thanh micrô chỉ gửi tới máy chủ khi một cửa sổ đang hiện nó.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">Di chuyển, khóa và đổi kích thước cửa sổ phụ đề</translation>
     </message>
@@ -2075,6 +2140,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">Kéo cửa sổ phụ đề để di chuyển, hoặc kéo các cạnh để đổi kích thước. Khóa tất cả, ở Trang chủ hoặc trong menu khay hệ thống, cho nhấp chuột đi xuyên qua. Lạc mất một cửa sổ? Đặt lại vị trí ở Trang chủ đưa mọi cửa sổ về chỗ cũ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Kéo cửa sổ phụ đề để di chuyển, hoặc kéo các cạnh để đổi kích thước. Khóa tất cả, ở Trang chủ hoặc trong menu trên thanh menu, cho nhấp chuột đi xuyên qua. Lạc mất một cửa sổ? Đặt lại vị trí ở Trang chủ đưa mọi cửa sổ về chỗ cũ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2093,6 +2163,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Cửa sổ phụ đề không bao giờ lấy bàn phím hay chuột của game: nó không bao giờ là cửa sổ đang hoạt động. Đặt nó ở chỗ không che thứ bạn cần nhìn, rồi Khóa tất cả ở Trang chủ hoặc trong menu trên thanh menu để nhấp chuột đi tới game. Game ở chế độ toàn màn hình độc quyền sẽ che mọi cửa sổ khác: hãy chọn chế độ không viền hoặc toàn màn hình dạng cửa sổ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">Nhập bằng giọng nói vào mọi chương trình (thử nghiệm)</translation>
     </message>
@@ -2100,6 +2175,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">Bật Nhập bằng giọng nói trong Cài đặt &gt; Nhập bằng giọng nói, hoặc trong menu khay hệ thống. Giữ {key} và nói; thả ra, lời của bạn được gõ tại vị trí con trỏ. Esc hủy trước khi gõ. Để dùng phím hoặc tổ hợp khác, nhấp vào phím trong Cài đặt &gt; Nhập bằng giọng nói rồi nhấn phím bạn muốn.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">Bật Nhập bằng giọng nói trong Cài đặt &gt; Nhập bằng giọng nói, hoặc trong menu trên thanh menu. Giữ {key} và nói; thả ra, lời của bạn được gõ tại vị trí con trỏ. Esc hủy trước khi gõ. Để dùng phím hoặc tổ hợp khác, nhấp vào phím trong Cài đặt &gt; Nhập bằng giọng nói rồi nhấn phím bạn muốn.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2355,8 +2435,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">tiếp tục ở đây hoặc từ thanh menu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">tiếp tục bằng Ctrl+Alt+P, hoặc từ khay hệ thống</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">tiếp tục bằng Ctrl+Alt+P, hoặc từ thanh menu</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2379,6 +2469,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">thoát từ khay hệ thống và mở lại Polyglotic - nếu vẫn dừng, Trợ giúp có thể kiểm tra lỗi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">thoát từ thanh menu và mở lại Polyglotic - nếu vẫn dừng, Trợ giúp có thể kiểm tra lỗi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2414,6 +2509,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">đã tải xong bản cập nhật - thoát từ khay hệ thống và mở lại Polyglotic để cài</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">đã tải xong bản cập nhật - thoát từ thanh menu và mở lại Polyglotic để cài</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5047,6 +5147,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic đã mở nhưng không phản hồi. Hãy đợi một lát rồi mở lại. Nếu vẫn không hiện lên, hãy kết thúc Polyglotic trong Trình quản lý Tác vụ rồi mở lại.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic đã mở nhưng không phản hồi. Hãy đợi một lát rồi mở lại. Nếu vẫn không hiện lên, hãy buộc thoát Polyglotic (⌥⌘Esc) rồi mở lại.</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5716,6 +5821,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">Tắt: cửa sổ vẫn ẩn, và biểu tượng trên thanh menu báo là vẫn đang tạo phụ đề.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">Đặt lại</translation>
     </message>
@@ -6153,6 +6263,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">Nhấp, rồi nhấn phím hoặc tổ hợp bạn muốn giữ: ⌘ phải, F9, ⌃⌘E… Một phím riêng, hoặc cùng ⌃, ⌥ hay ⌘, thuộc về Polyglotic khi bật nhập bằng giọng nói; riêng ⌘ phải vẫn dùng được trong chương trình khác.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">Ngôn ngữ nhập bằng giọng nói</translation>
     </message>
@@ -6160,6 +6275,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">Tự nhận gõ bất kỳ ngôn ngữ nào bạn nói, mỗi lần giữ phím. Đặt một ngôn ngữ - tiếng Anh, tiếng Phổ thông… - thì luôn nghe theo ngôn ngữ đó: câu ngắn không bao giờ bị nhầm sang ngôn ngữ khác. Menu khay hệ thống cũng đổi được.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">Tự nhận gõ bất kỳ ngôn ngữ nào bạn nói, mỗi lần giữ phím. Đặt một ngôn ngữ - tiếng Anh, tiếng Phổ thông… - thì luôn nghe theo ngôn ngữ đó: câu ngắn không bao giờ bị nhầm sang ngôn ngữ khác. Menu trên thanh menu cũng đổi được.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
