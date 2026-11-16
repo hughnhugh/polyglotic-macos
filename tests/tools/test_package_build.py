@@ -240,6 +240,30 @@ def test_a_packed_window_over_its_budget_is_a_problem() -> None:
     ]
 
 
+def test_githubs_mac_holds_the_start_to_a_ceiling_of_its_own() -> None:
+    """Decision 0193 (polyglotic-hq 420): GitHub's Mac VM settled the same
+    code at 1.051 s and 1.627 s (419's runs 2 and 3). On that runner only,
+    the start is held to 2.5 s - a doubling still fails - and the 1000 ms
+    budget stays for a person's Mac and for Windows."""
+    github = {"RUNNER_ENVIRONMENT": "github-hosted"}
+    assert build.start_limit_ms(build.MACOS, github) == 2500
+    assert build.start_limit_ms(build.MACOS, {}) == 1000
+    assert (
+        build.start_limit_ms(build.MACOS, {"RUNNER_ENVIRONMENT": "self-hosted"}) == 1000
+    )
+    assert build.start_limit_ms(build.WINDOWS, github) == 1000
+    run3: dict[str, object] = {"launch_seconds": 1.627, "window_seconds": 0.816}
+    assert (
+        build.over_start_budget(run3, build.start_limit_ms(build.MACOS, github)) == []
+    )
+    assert build.over_start_budget(run3, build.start_limit_ms(build.MACOS, {})) == [
+        "the main window took 1.627 s from launch, over 1000 ms"
+    ]
+    assert build.over_start_budget({"launch_seconds": 3.3}, 2500) == [
+        "the main window took 3.3 s from launch, over 2500 ms"
+    ]
+
+
 def test_the_installer_gives_the_app_and_its_shortcuts_one_taskbar_id() -> None:
     """Decision 0057 (polyglotic-hq 245's option A): Velopack names the
     installed app's process and its Start-menu and desktop shortcuts by the

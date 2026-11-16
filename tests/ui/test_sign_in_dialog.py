@@ -4,6 +4,7 @@ dialog stays open to try again; success closes it."""
 
 import os
 import re
+import sys
 import threading
 import time
 
@@ -224,7 +225,10 @@ def test_the_sign_out_question_is_in_the_interfaces_language(
             qapp.removeTranslator(translator)
         QLocale.setDefault(formats(ENGLISH, QLocale.system()))
     title, question, why, button = shown
-    assert (title, button) == ("退出登录", "退出登录")
+    # Qt drops a message box's title on a Mac, as macOS' own alerts have none
+    # (polyglotic-hq 420: the first Mac run of the suite)
+    assert title == ("" if sys.platform == "darwin" else "退出登录")
+    assert button == "退出登录"
     assert question == "要在这台电脑上退出 Polyglotic 的登录吗？"
     assert "邀请码" in why and "丢弃" in why
     assert not re.search(r"[A-Za-z]{3,}", why)

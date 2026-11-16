@@ -159,6 +159,9 @@ class FakeKeychain:
         return self.items.get(service)
 
     def write(self, service: str, account: str, secret: bytes) -> None:
+        kept = self.items.get(service)
+        if kept is not None and not secret:  # as macOS' login keychain does
+            secret = kept[1]  # (polyglotic-hq 420): an empty one isn't a change
         self.items[service] = (account, secret)
 
     def delete(self, service: str) -> None:
@@ -182,6 +185,7 @@ def test_signing_out_keeps_the_install_id() -> None:
     store.forget()
     assert store.load() is None
     assert store.install_id() == "id-1"
+    assert fake.items == {"Polyglotic/test": ("id-1", b"")}  # the token's gone
     store.delete()
     assert store.install_id() is None and fake.items == {}
 

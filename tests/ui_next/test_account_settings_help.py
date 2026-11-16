@@ -17,6 +17,7 @@ from PySide6.QtGui import (
     QKeySequence,
 )
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from tests.ui_next.test_lock_says_how_to_unlock import LOCK_KEYS
 
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.learning.languages import LearningLanguages, Tier
@@ -240,7 +241,7 @@ def test_settings_show_the_hotkeys_the_version_and_the_notices(
     page.show_section("app")
     page.show()
     settle()
-    assert page.hotkey_values["L"].text() == "Ctrl+Alt+L"
+    assert page.hotkey_values["L"].text() == LOCK_KEYS
     assert page.hotkey_values["P"].text() == "another program has it"
     assert not page.version.isVisible() and not page.notices.isVisible()
     page.set_version("0.4.0", "win-x64-alpha")

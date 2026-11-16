@@ -51,7 +51,7 @@ import subprocess
 import sys
 import time
 import zipfile
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
@@ -609,8 +609,30 @@ def first_launch_failed(check: dict[str, object]) -> list[str]:
     return []
 
 
-def over_start_budget(check: dict[str, object]) -> list[str]:
-    """The packed app's main window later than its budget (or not timed).
+GITHUB_MAC_CEILING_MS = 2500.0
+"""The packed start's limit on GitHub's own Mac runner only (decision 0193,
+polyglotic-hq 420): there the settled launch took 1.051 s and 1.627 s on
+the same code (419's runs 2 and 3), the VM's noise more than half the 1000
+ms budget. The ceiling still catches a doubling; the budget itself
+(`START_PACKED`, DECISIONS.md #53) is a person's Mac's to measure."""
+
+
+def start_limit_ms(layout: Layout, environ: Mapping[str, str] = os.environ) -> float:
+    """What the packed app's start is judged against: `START_PACKED`, or on
+    GitHub's own Mac runner `GITHUB_MAC_CEILING_MS`. GitHub names its own
+    runners `RUNNER_ENVIRONMENT=github-hosted`."""
+    from polyglotic_desktop.perf.budgets import START_PACKED
+
+    if layout is MACOS and environ.get("RUNNER_ENVIRONMENT") == "github-hosted":
+        return GITHUB_MAC_CEILING_MS
+    return START_PACKED.ms
+
+
+def over_start_budget(
+    check: dict[str, object], limit_ms: float | None = None
+) -> list[str]:
+    """The packed app's main window later than its budget (or not timed);
+    `limit_ms` in its place on GitHub's Mac (`start_limit_ms`).
 
     Judged on `launch_seconds` - from the process's launch, Python's start
     and the imports included, which is the wait a person has (polyglotic-hq
@@ -618,6 +640,7 @@ def over_start_budget(check: dict[str, object]) -> list[str]:
     check's start) when a build couldn't read its process time."""
     from polyglotic_desktop.perf.budgets import START_PACKED
 
+    limit = START_PACKED.ms if limit_ms is None else limit_ms
     seconds = check.get("launch_seconds")
     measured = "from launch"
     if not isinstance(seconds, int | float):
@@ -625,10 +648,8 @@ def over_start_budget(check: dict[str, object]) -> list[str]:
         measured = "from the check's start (launch time unread)"
     if not isinstance(seconds, int | float):
         return ["--check-install didn't time the main window"]
-    if seconds > START_PACKED.ms / 1000:
-        return [
-            f"the main window took {seconds} s {measured}, over {START_PACKED.ms:.0f} ms"
-        ]
+    if seconds > limit / 1000:
+        return [f"the main window took {seconds} s {measured}, over {limit:.0f} ms"]
     return []
 
 
@@ -789,7 +810,8 @@ def build(
     if check.get("exit_code") != 0 or check.get("version") != version:
         found.append(f"--check-install failed: {check}")
     found += first_launch_failed(check)
-    found += over_start_budget(check)
+    start_limit = start_limit_ms(layout)
+    found += over_start_budget(check, start_limit)
     found += packs_as_decided(check)
     files = [p for p in folder.rglob("*") if p.is_file()]
     summary = {
@@ -800,6 +822,7 @@ def build(
         "size_mb": mb(sum(p.stat().st_size for p in files)),
         "zipped_mb": mb(ditto_zip(folder) if macos else zipped_size(folder)),
         "check_install": check,
+        "start_judged_against_ms": start_limit,
         "signature": signature,
         "biggest_mb": biggest(folder),
         "licences": licences,

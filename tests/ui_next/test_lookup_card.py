@@ -247,9 +247,13 @@ def test_a_click_on_a_word_pins_it_with_the_actions_above_its_row(
     assert request is not None and request.word == "电脑"
     assert request.context.translation  # the row's translation, for the line
     assert shared.above and shared.geometry().bottom() < request.row.y
-    centre = shared.geometry().center().x()
+    # its centre, as a width's half: QRect.center() rounds down half a pixel
+    # more, which with a word half a pixel off a whole one (a Mac's font) was
+    # 1.5 px off (polyglotic-hq 420: the first Mac run of the suite)
+    placed = shared.geometry()
+    centre = placed.left() + placed.width() / 2
     word_centre = request.rect.x + request.rect.width / 2
-    assert abs(centre - word_centre) <= 1 or shared.geometry().left() == 8
+    assert abs(centre - word_centre) <= 1 or placed.left() == 8
     assert shown._drag is None  # a press on a word doesn't move the window
 
 

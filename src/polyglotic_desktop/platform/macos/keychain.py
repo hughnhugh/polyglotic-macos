@@ -43,7 +43,8 @@ class Keychain(Protocol):
         ...
 
     def write(self, service: str, account: str, secret: bytes) -> None:
-        """Makes the item, or changes the one there."""
+        """Makes the item, or changes the one there. A change to no bytes
+        may leave the old password: macOS' login keychain does (`forget`)."""
         ...
 
     def delete(self, service: str) -> None:
@@ -84,12 +85,13 @@ class KeychainStore:
 
     def forget(self) -> None:
         """The token goes; the item stays with the install id and an empty
-        password."""
+        password. Made again, not changed: macOS' login keychain takes an
+        update to an empty password as no change to it, and the token
+        stayed (polyglotic-hq 419's run 2 on GitHub's Mac, 420)."""
         install_id = self.install_id()
-        if install_id is None:  # nothing kept, or nothing worth keeping
-            self.delete()
-            return
-        self._keychain.write(self._service, install_id, b"")
+        self.delete()
+        if install_id is not None:  # else nothing kept, or nothing worth keeping
+            self._keychain.write(self._service, install_id, b"")
 
     def delete(self) -> None:
         """The whole item, install id and all: for tests and trials under a

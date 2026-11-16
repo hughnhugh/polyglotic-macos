@@ -3,6 +3,7 @@ now - for a few seconds on locking, then faintly in its corner (the user's
 rehearsal feedback F10, polyglotic-hq 249, 2026-11-08: "if you press the
 lock button there should be directive to know how to unlock")."""
 
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -18,6 +19,10 @@ from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next.caption_window import LOCKED_SEC, locked_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.views.placement import Rect
+
+LOCK_KEYS = "⌥⌘L" if sys.platform == "darwin" else "Ctrl+Alt+L"
+"""Qt's Ctrl+Alt+L as the OS writes it: on a Mac Qt's Ctrl is Command,
+written ⌥⌘L there (polyglotic-hq 420: the first Mac run of the suite)."""
 
 
 def test_on_locking_it_says_the_hotkey_then_stops(
@@ -78,15 +83,15 @@ def test_the_windows_say_the_app_s_hotkey_and_none_once_taken(
 ) -> None:
     desktop, windows = wired
     (window,) = windows.windows.values()
-    assert window.unlock_keys == "Ctrl+Alt+L"
+    assert window.unlock_keys == LOCK_KEYS
     desktop.hotkeys_taken(["L"])  # another app has it
     assert window.unlock_keys == ""
     desktop.lock_windows.setChecked(True)
     assert window.notice.text() == "Locked - unlock on Home or from the tray"
 
 
-def test_a_shortcut_as_windows_writes_it(qapp: QApplication) -> None:
+def test_a_shortcut_as_the_os_writes_it(qapp: QApplication) -> None:
     action = QAction()
     assert shortcut_text(action) == ""
     action.setShortcut(QKeySequence("Ctrl+Alt+L"))
-    assert shortcut_text(action) == "Ctrl+Alt+L"
+    assert shortcut_text(action) == LOCK_KEYS

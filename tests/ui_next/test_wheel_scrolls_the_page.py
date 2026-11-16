@@ -6,6 +6,7 @@ clicked into, and the keyboard works as it did (the user, 2026-11-13:
 "scrolling settings will inadvertently change many settings as you
 navigate the page"; polyglotic-hq 304, decision 0092)."""
 
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -37,6 +38,15 @@ from polyglotic_desktop.ui_next.home import Page
 from polyglotic_desktop.ui_next.settings_page import SECTIONS, SettingsPage
 from polyglotic_desktop.ui_next.transcripts import Transcripts
 from polyglotic_desktop.ui_next.views.placement import Rect
+
+A_LISTS_KEYS = (
+    Qt.FocusPolicy.TabFocus if sys.platform == "darwin" else Qt.FocusPolicy.StrongFocus
+)
+"""How a list takes the keyboard once the rule has held it: by Tab and a
+click; on a Mac by Tab alone (with macOS' keyboard navigation on), as its
+own pop-up buttons do - Qt's own choice there, never the wheel's
+(polyglotic-hq 420: in the first Mac run of the suite the arrow keys still
+changed a list given the keyboard)."""
 
 
 @pytest.fixture
@@ -306,7 +316,7 @@ def test_a_list_added_after_the_page_shows_is_held_too(
     turn(box, -1)
     assert box.currentIndex() == 1
     assert bar.value() > top
-    assert box.focusPolicy() == Qt.FocusPolicy.StrongFocus
+    assert box.focusPolicy() == A_LISTS_KEYS
 
 
 def test_the_keyboard_still_changes_a_list(built: Built, qapp: QApplication) -> None:
@@ -317,8 +327,8 @@ def test_the_keyboard_still_changes_a_list(built: Built, qapp: QApplication) -> 
     box.setCurrentIndex(0)
     QTest.keyClick(box, Qt.Key.Key_Down)
     assert box.currentIndex() == 1
-    # Tab and a click give it the keyboard; only the wheel doesn't
-    assert box.focusPolicy() == Qt.FocusPolicy.StrongFocus
+    # Tab and a click (a Mac: Tab) give it the keyboard; never the wheel
+    assert box.focusPolicy() == A_LISTS_KEYS
 
 
 def test_without_the_rule_the_wheel_would_change_a_list(qapp: QApplication) -> None:

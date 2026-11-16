@@ -4,6 +4,8 @@ right words when captions fill the width (polyglotic-hq 309 with 324 and
 character - is drawn where the pour put those characters, on whichever
 line. Offscreen, a made-up line, painted into an image and read back."""
 
+from collections import Counter
+
 import pytest
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QColor, QImage, QPainter
@@ -69,6 +71,21 @@ def count(image: QImage, rects: list[QRectF], top: float, colour: QColor) -> int
     return found
 
 
+def seen(image: QImage, rects: list[QRectF], top: float) -> str:
+    """The commonest colours in `rects` but the background's, for a failure
+    to say what was drawn instead (polyglotic-hq 420: on GitHub's Mac a
+    word had none of its stage's colour)."""
+    found: Counter[str] = Counter()
+    for rect in rects:
+        box = rect.translated(AT.x(), AT.y() + top).toAlignedRect()
+        for y in range(box.top(), box.bottom() + 1):
+            for x in range(box.left(), box.right() + 1):
+                if image.rect().contains(x, y):
+                    found[image.pixelColor(x, y).name()] += 1
+    found.pop("#101014", None)
+    return ", ".join(f"{name} x{n}" for name, n in found.most_common(4)) or "none"
+
+
 @pytest.mark.parametrize("fill", [Fill.STACKED, Fill.PAIRED])
 def test_a_stages_colour_is_on_its_word_wherever_the_pour_put_it(
     qapp: QApplication, fill: Fill
@@ -88,7 +105,13 @@ def test_a_stages_colour_is_on_its_word_wherever_the_pour_put_it(
     for word, colour in wanted.items():
         rects = span_rects(row.layout, *SPANS[word])
         tops.update(round(rect.top()) for rect in rects)
-        assert count(image, rects, row.top, colour) > 8, word  # in its colour
+        assert count(image, rects, row.top, colour) > 8, (  # in its colour
+            word,
+            colour.name(),
+            rects,
+            seen(image, rects, row.top),
+            [(start, end) for start, end, _ in marks(shown(), 0)],
+        )
         for other_word, other in wanted.items():
             if other_word != word:  # and no other stage's colour on it
                 assert count(image, rects, row.top, other) == 0, (word, other_word)

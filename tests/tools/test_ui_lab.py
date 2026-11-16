@@ -258,12 +258,31 @@ def test_each_state_begins_at_the_runs_app_text_size() -> None:
         style.use_app_text_size("normal")
 
 
+class LabClock:
+    """The lab's clock in a gate's test (`time` in `tools.ui_lab.lab`): its
+    `sleep` moves it on and sleeps nothing, so a click takes what the test
+    says, whatever the PC. GitHub's Mac slept 50 and 60 ms as 125 and 151,
+    and a click as slow as main's read as twice as slow (polyglotic-hq 420:
+    the first Mac run of the suite)."""
+
+    def __init__(self) -> None:
+        self.seconds = 0.0
+        self.monotonic = time.monotonic  # the lab's waits: the PC's own
+
+    def perf_counter(self) -> float:
+        return self.seconds
+
+    def sleep(self, seconds: float) -> None:
+        self.seconds += seconds
+
+
 def clicks_taking(ms: float) -> lab.State:
-    """A gated state whose six clicks each take `ms` (the click's budget: 30)."""
+    """A gated state whose six clicks each take `ms` (the click's budget: 30),
+    on the lab's clock: a `LabClock` in a gate's test."""
 
     def state(lab_: lab.Lab) -> QWidget:
         lab_.time(
-            "click", lambda: time.sleep(ms / 1000), repeat=6, budget=budgets.CLICK
+            "click", lambda: lab.time.sleep(ms / 1000), repeat=6, budget=budgets.CLICK
         )
         return QLabel("clicks")
 
@@ -282,6 +301,7 @@ def gate(
     monkeypatch.setattr(new_parts, "STATES", [state])
     monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
     monkeypatch.setattr(cli.goldens, "GOLDENS", None)  # the budgets alone
+    monkeypatch.setattr(lab, "time", LabClock())
     monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     monkeypatch.setenv("POLYGLOTIC_TIMING_RECORD", str(tmp_path / "records"))

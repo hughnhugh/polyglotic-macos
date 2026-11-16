@@ -24,6 +24,18 @@ report as `first_launch` (its time reported, not judged; it must still
 exit cleanly), and the second launch is judged against `START_PACKED`.
 Windows launches once, as before.
 
+**On GitHub's own Mac runner** (added 2026-11-16, polyglotic-hq 420; the
+choice Claude made from 419's option B): the settled launch is reported and
+held to a ceiling of 2.5 s (`GITHUB_MAC_CEILING_MS`, picked by
+`start_limit_ms` when `RUNNER_ENVIRONMENT` is `github-hosted`), not to
+`START_PACKED`. On the same code that VM's settled launch took 1.051 s
+(419's run 2) and 1.627 s (run 3): its noise is more than half the budget,
+so it can't tell a slow app from a slow VM. The ceiling still catches a
+doubling, such as a heavy import on the start path. The 1000 ms budget is
+unchanged for people's Macs and is measured on one (a person's Mac, not
+the runner). The build's summary says which limit it judged against
+(`start_judged_against_ms`).
+
 ## Why
 
 The budget is about the wait a learner has when they start the app, and
@@ -44,3 +56,5 @@ launch), the first launch would need a budget of its own.
 `settled_check_install` returns `check_install`'s result for both
 layouts, or judges `first_launch` against a budget of its own: a few lines
 in `tools/package/build.py` and its test.
+
+The ceiling: `start_limit_ms` returns `START_PACKED` on every runner.

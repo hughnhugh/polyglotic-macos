@@ -1496,7 +1496,8 @@ def languages_settings(languages: SessionLanguages) -> dict[str, object]:
 
 
 def shortcut_text(action: QAction) -> str:
-    """`action`'s hotkey as Windows writes it ("Ctrl+Alt+L"); "" for none."""
+    """`action`'s hotkey as the OS writes it ("Ctrl+Alt+L"; on a Mac, where
+    Qt's Ctrl is Command, "⌥⌘L"); "" for none."""
     return action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
 
 

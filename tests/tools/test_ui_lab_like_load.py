@@ -5,32 +5,19 @@ its budget as main is", and a change that doubles an action fails on a
 calm or a busy PC alike. The PC's speed is set here (the reference step's
 time), never read."""
 
-import time
 from pathlib import Path
 
 import pytest
 from PySide6.QtWidgets import QLabel, QWidget
+from tests.tools.test_ui_lab import LabClock, clicks_taking
 from tools.ui_lab import __main__ as cli
 from tools.ui_lab import lab, new_parts, reference
 
-from polyglotic_desktop.perf import budgets
 from tools import busy_pc, timing_record
 
 MAIN = timing_record.kind(100, "normal", "en")
 CLICK = "ui_next.clicks: click"
 STEP = f"ui_next.clicks: {reference.NAME}"
-
-
-def clicks_taking(ms: float) -> lab.State:
-    """A gated state whose six clicks each take `ms` (the click's budget: 30)."""
-
-    def state(lab_: lab.Lab) -> QWidget:
-        lab_.time(
-            "click", lambda: time.sleep(ms / 1000), repeat=6, budget=budgets.CLICK
-        )
-        return QLabel("clicks")
-
-    return lab.State("ui_next.clicks", state, gated=True)
 
 
 def gate(
@@ -48,6 +35,7 @@ def gate(
     monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
     monkeypatch.setattr(cli.goldens, "GOLDENS", None)  # the budgets alone
     monkeypatch.setattr(reference, "time_step", lambda app: step_ms)
+    monkeypatch.setattr(lab, "time", LabClock())
     monkeypatch.setattr(busy_pc, "busy_share", lambda seconds=0.2: 0.4)
     monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)

@@ -208,7 +208,11 @@ def not_allowed_verdict(
     if peak > 0:
         return (
             UNKNOWN,
-            "heard sound with the rows removed: the permission wasn't taken away",
+            (
+                "heard sound with the rows changed: macOS didn't take the"
+                " permission away (GitHub's Mac doesn't honour a written"
+                " denial: polyglotic-hq 419)"
+            ),
         )
     if said_after is None:
         return FAIL, f"only zeros, but never NOT_ALLOWED (error: {error})"
