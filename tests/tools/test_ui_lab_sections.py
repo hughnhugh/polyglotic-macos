@@ -13,6 +13,7 @@ from tools.ui_lab import lab, pages
 
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui_next.settings_page import SECTIONS, SettingsPage
+from tools import busy_pc
 
 
 @pytest.mark.parametrize(
@@ -47,6 +48,9 @@ def test_a_sections_first_show_is_timed_apart_from_its_warm_switches(
 
     monkeypatch.setattr(SettingsPage, "show_section", recorded_show)
     monkeypatch.setattr(lab.Lab, "time", recorded_time)
+    # one try: a slow PC's first try over budget runs the state again, its
+    # sections shown already (polyglotic-hq 420: GitHub's Mac, run 43827502097)
+    monkeypatch.setattr(busy_pc, "MOST_TRIES", 1)
     state = next(s for s in pages.STATES if s.name == state_name)
     (result,) = lab.run([state], tmp_path)
 
