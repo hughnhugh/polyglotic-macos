@@ -35,6 +35,7 @@ from polyglotic_desktop.ui_next import help_page
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
 from polyglotic_desktop.ui_next.learning_page import LearningPage
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.learning import LanguageCard
@@ -440,7 +441,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     339) - and the notice and the tester agreement a click away."""
     [kept] = [text for title, text in help_page.questions() if title == "What we keep"]
     for words in (
-        "Only speech leaves this PC",
+        pc_or_mac("Only speech leaves this PC", "Only speech leaves this Mac"),
         "never stores the audio",
         "last 2 minutes",
         "sends it again only when you ask",
@@ -451,7 +452,7 @@ def test_help_says_what_the_privacy_notice_v2_says_and_links_it(
     assert "crash reports" not in kept  # the notice v2: none are sent yet
     # a transcript lasts only this session: not "stays ... unless" (228)
     assert "it's gone when you quit Polyglotic unless you save it" in kept
-    assert "transcript stays on this PC" not in kept
+    assert "transcript stays on this" not in kept
     names = ("help.privacy_notice", "help.tester_agreement")
     page = HelpPage(lambda: facts_with(True))
     assert opened_by(page, names, monkeypatch) == [PRIVACY_NOTICE, TESTER_AGREEMENT]
@@ -530,6 +531,40 @@ def press(box: QWidget, key: Qt.Key, scan: int = 0, vk: int = 0) -> None:
 
 def key_event(kind: QEvent.Type, key: Qt.Key, scan: int = 0, vk: int = 0) -> QKeyEvent:
     return QKeyEvent(kind, key, Qt.KeyboardModifier.NoModifier, scan, vk, 0)
+
+
+def test_settings_say_when_the_os_doesnt_let_dictation_type(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 438: a Mac without the Accessibility permission -
+    Settings > Dictation says why nothing is typed and where to allow it,
+    with a way to System Settings; asked again each time it shows, so it
+    goes once the learner has given it. Windows asks nothing: never shown."""
+    page, _keys = settings_page()
+    page.show_section("dictation")
+    page.show()
+    settle()
+    assert not page.typing_not_allowed.isVisible()  # no permission asked here
+    allowed = [False]
+    page.typing_allowed = lambda: allowed[0]
+    page.hide()
+    page.show()
+    settle()
+    assert page.typing_not_allowed.isVisible()
+    words = " ".join(texts(page.typing_not_allowed))
+    assert "Privacy & Security" in words and "Accessibility" in words
+    opened: list[bool] = []
+    page.typing_settings_wanted.connect(lambda: opened.append(True))
+    page.typing_settings.click()
+    assert opened == [True]
+    allowed[0] = True  # given in System Settings meanwhile
+    page.hide()
+    page.show()
+    settle()
+    assert not page.typing_not_allowed.isVisible()
+    allowed[0] = False  # taken away: dictation's sign says so, then Settings
+    page.show_typing_permission()
+    assert page.typing_not_allowed.isVisible()
 
 
 def test_settings_dictation_key_is_pressed_in_a_box(qapp: QApplication) -> None:

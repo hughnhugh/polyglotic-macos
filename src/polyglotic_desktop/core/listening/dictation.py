@@ -103,6 +103,7 @@ class Said(StrEnum):
     NO_SERVER = "no_server"  # the session can't be answered now (299)
     WINDOW_CHANGED = "window_changed"
     NOT_TYPED = "not_typed"  # the OS took none of it
+    NOT_ALLOWED = "not_allowed"  # the OS hasn't given the app leave to type (438)
     SIGN_IN = "sign_in"
 
 

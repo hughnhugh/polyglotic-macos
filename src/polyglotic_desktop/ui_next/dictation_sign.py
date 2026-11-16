@@ -3,7 +3,9 @@
 "Listening", with the mic's level, while the key is held; "Working..."
 from letting go to the text; then, if nothing was typed, why - for two
 seconds ("Didn't catch that", "Cancelled", "No answer from the server -
-nothing typed"...). Typed text needs no word: the sign just goes. Turned
+nothing typed"...); five for "Not allowed to type", a Mac without the
+Accessibility permission, which Settings > Dictation explains with a way
+to System Settings (polyglotic-hq 438). Typed text needs no word: the sign just goes. Turned
 on, it says which key to hold for four seconds ("Hold Right Ctrl and
 speak"; polyglotic-hq 289).
 
@@ -22,6 +24,10 @@ from polyglotic_desktop.ui_next.style import px, ui_font
 
 SAID_MS = 2000
 """How long the sign says why nothing was typed."""
+LONGER_SAID_MS = 5000
+"""How long it says what the learner has to do something about: the
+OS not letting the app type (polyglotic-hq 438)."""
+LONGER = frozenset({"not_allowed"})
 HINT_MS = 4000
 """How long it says which key to hold, once dictation is turned on."""
 _ABOVE_TASKBAR = 28
@@ -53,6 +59,8 @@ def said_text(said: str, key: str = "") -> str:
         "no_server": _tr("Not connected to the server - nothing typed"),
         "window_changed": _tr("Another window has the keyboard - nothing typed"),
         "not_typed": _tr("Couldn't type it here"),
+        # a Mac without the Accessibility permission (polyglotic-hq 438)
+        "not_allowed": _tr("Not allowed to type - see Settings > Dictation"),
         "sign_in": _tr("Sign in to dictate"),
     }
     return texts.get(said, "")
@@ -75,6 +83,9 @@ class DictationSign(QWidget):
         self.setAccessibleName(_tr("Dictation"))
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        # on a Mac a tool window hides while the app isn't active - and the
+        # app is never active while the learner is in another (polyglotic-hq 429)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setFont(ui_font())
         self.text = ""
         self.listening = False
@@ -99,7 +110,7 @@ class DictationSign(QWidget):
             if not text:
                 self.hide()
                 return
-            self._hide_later.start(SAID_MS)
+            self._hide_later.start(LONGER_SAID_MS if state in LONGER else SAID_MS)
         self._show_text(text)
 
     def show_hint(self) -> None:

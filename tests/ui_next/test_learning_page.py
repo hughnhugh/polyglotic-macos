@@ -19,6 +19,7 @@ from polyglotic_desktop.ui_next.learning_page import (
     introductions_line,
     learnable,
 )
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.learning import LanguageCard, cards, offered
 
 HSK4 = KnownLine("hsk-2025", 4)
@@ -157,7 +158,8 @@ def test_with_no_list_held_a_basic_card_promises_no_download(
     for card, name in ((russian, "Russian"), (japanese, "Japanese")):
         assert card.gives.text() == (
             "A basic dictionary from open data (meanings not checked by a person), "
-            f"if one is ready: lookups in {name} captions once it's on this PC. "
+            f"if one is ready: lookups in {name} captions once it's on this"
+            f" {pc_or_mac('PC', 'Mac')}. "
             "Captions and translation work either way."
         )
     assert russian.pack is not None and japanese.pack is not None
