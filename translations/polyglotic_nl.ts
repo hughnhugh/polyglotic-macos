@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Deze Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -62,6 +67,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
         <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op onze server bewaard als woordenboekwoorden en tijden: opgeslagen woorden en statussen gaan mee naar een andere pc, en opzoekingen laten ons zien hoe mensen leren. Je kunt ze daar verwijderen, in elke taal die je leert – en ook op deze pc als je wilt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
+        <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op onze server bewaard als woordenboekwoorden en tijden: opgeslagen woorden en statussen gaan mee naar een andere computer, en opzoekingen laten ons zien hoe mensen leren. Je kunt ze daar verwijderen, in elke taal die je leert – en ook op deze Mac als je wilt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -97,6 +107,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
         <translation type="unfinished">Aangemeld op deze pc.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
+        <translation type="unfinished">Aangemeld op deze Mac.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -279,8 +294,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Controleer datum en tijd van de Mac – zie Start</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
         <translation type="unfinished">Open op te veel van je pc&apos;s – zie Start</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
+        <translation type="unfinished">Open op te veel van je computers – zie Start</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">Vergrendeld – ontgrendel op Start of via het systeemvak</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt, Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt. Ontgrendel door de muis even op het slot in de hoek te laten rusten, of via Start of het systeemvak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Alle vensters vergrendelen</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -753,6 +783,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">Dagelijkse tellingen van hoe vaak je elk woordenboekwoord hoorde – geen zinnen, geen tijdstippen, niets van je microfoon. Ze helpen ons niveaus en woordsuggesties te verbeteren. Je tellingen blijven sowieso op deze Mac.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">Je test de alfaversie: gebruiksstatistieken en crashrapporten staan aan tijdens het testen, zodat we problemen kunnen vinden en oplossen.</translation>
     </message>
@@ -796,6 +831,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">Om te ondertitelen wat je hoort, stuurt Polyglotic de spraak die het detecteert naar onze server. Audio en ondertitels worden alleen gebruikt om het voor jou te ondertitelen – nooit opgeslagen. Voor de dienst bewaren we je account, de minuten die je luistert, verbindingsgegevens (appversie, het land waaruit je verbindt, het soort app waar je naar luistert – nooit de naam) en je leergegevens: de woordenboekwoorden die je opzoekt, opslaat of markeert, en wanneer – nooit de zin eromheen. Je opgeslagen woorden en woordstatussen gaan mee naar een andere pc; je opzoekingen laten ons zien hoe mensen leren en wat woordenboeken missen. Je kunt je leergegevens altijd verwijderen. Ze zijn niet optioneel: zonder deze gegevens is er geen dienst.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">Om te ondertitelen wat je hoort, stuurt Polyglotic de spraak die het detecteert naar onze server. Audio en ondertitels worden alleen gebruikt om het voor jou te ondertitelen – nooit opgeslagen. Voor de dienst bewaren we je account, de minuten die je luistert, verbindingsgegevens (appversie, het land waaruit je verbindt, het soort app waar je naar luistert – nooit de naam) en je leergegevens: de woordenboekwoorden die je opzoekt, opslaat of markeert, en wanneer – nooit de zin eromheen. Je opgeslagen woorden en woordstatussen gaan mee naar een andere computer; je opzoekingen laten ons zien hoe mensen leren en wat woordenboeken missen. Je kunt je leergegevens altijd verwijderen. Ze zijn niet optioneel: zonder deze gegevens is er geen dienst.</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -834,8 +874,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">We verwijderen de woorden die je opzocht, opsloeg en markeerde, en de gedeelde tellingen, in elke taal die je leert. Je andere computers houden hun eigen kopieën tot je ze daar ook verwijdert.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">Ook van deze pc verwijderen, voor elke taal die je leert – je woordstatussen, opgeslagen woorden en hoe vaak je elk woord hoorde</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">Ook van deze Mac verwijderen, voor elke taal die je leert – je woordstatussen, opgeslagen woorden en hoe vaak je elk woord hoorde</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
@@ -843,6 +893,14 @@
         <translation type="unfinished">
             <numerusform>Dit verwijdert ook %Ln kopie van je leergegevens die op deze pc apart is gezet omdat die beschadigd was.</numerusform>
             <numerusform>Dit verwijdert ook de %Ln kopieën van je leergegevens die op deze pc apart zijn gezet omdat ze beschadigd waren.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>Dit verwijdert ook %Ln kopie van je leergegevens die op deze Mac apart is gezet omdat die beschadigd was.</numerusform>
+            <numerusform>Dit verwijdert ook de %Ln kopieën van je leergegevens die op deze Mac apart zijn gezet omdat ze beschadigd waren.</numerusform>
         </translation>
     </message>
     <message>
@@ -857,6 +915,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>This PC</source>
         <translation type="unfinished">Deze pc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Deze Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
@@ -875,6 +938,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">Een deel van je leergegevens voor {language} kon niet van deze Mac worden verwijderd. Start Polyglotic opnieuw en verwijder ze dan nog eens bij Account.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Your settings couldn&apos;t be read, so they&apos;ve been reset. The old file is kept beside them as {name}.</source>
         <translation type="unfinished">Je instellingen konden niet worden gelezen en zijn teruggezet. Het oude bestand staat ernaast als {name}.</translation>
     </message>
@@ -888,6 +956,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">Windows op deze pc kon niet één app apart ondertitelen, dus ondertitelt Polyglotic alles wat de pc afspeelt. Je kunt apps opnieuw proberen op Start.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">Deze Mac kon niet één app apart ondertitelen, dus ondertitelt Polyglotic alles wat de Mac afspeelt. Je kunt apps opnieuw proberen op Start.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1414,6 +1487,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">Er is nog geen logboek op deze Mac.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">Ook verstuurd: {versions}, en de ID van de luistersessie.</translation>
     </message>
@@ -1580,6 +1658,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Wijzigingen worden niet op deze Mac bewaard tot je Polyglotic herstart; je opgeslagen woorden komen dan terug uit je account. Het oude bestand is bewaard als {path}, voor het geval we erom vragen in een melding.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">Je opgeslagen woorden komen terug uit je account. Het oude bestand is bewaard als {path}, voor het geval we erom vragen in een melding.</translation>
     </message>
@@ -1587,6 +1670,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
         <translation type="unfinished">Je leergegevens op deze pc waren beschadigd en zijn apart gezet</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
+        <translation type="unfinished">Je leergegevens op deze Mac waren beschadigd en zijn apart gezet</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1655,6 +1743,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">Meld je aan bij Account met je uitnodigingscode – die deze Mac eerder gebruikte werkt weer – of de code in je Plus-e-mail.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus is afgelopen</translation>
     </message>
@@ -1705,6 +1798,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Voeg op Start een app toe (tot 3), of kies Alles wat de Mac afspeelt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} is niet open</translation>
     </message>
@@ -1725,13 +1823,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">Speelt het geluid af? Gaat de uitvoer naar de luidsprekers of headset van deze Mac, en staat die niet gedempt?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">De pc is stil: niets wat hij afspeelt maakte 30 seconden geluid</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">De Mac is stil: niets wat hij afspeelt maakte 30 seconden geluid</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">Speel iets af. Hoor je het op een headset die niet het standaardapparaat van de pc is, maak die dan de standaard, of voeg de app toe.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">Speel iets af. Hoor je het op een headset die niet het standaardapparaat van de Mac is, maak die dan de standaard, of voeg de app toe.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1742,6 +1855,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
         <translation type="unfinished">Is hij gedempt, of is er een andere microfoon gekozen in de geluidsinstellingen van de pc?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
+        <translation type="unfinished">Is hij gedempt, of is er een andere microfoon gekozen in de geluidsinstellingen van de Mac?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1787,6 +1905,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">Kies Hervatten op Start of in het systeemvakmenu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">De ondertitelvensters zijn verborgen</translation>
     </message>
@@ -1797,6 +1920,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Gebruik Alles verbergen op Start of in het systeemvakmenu. Het transcript van een app laat zien of er ondertitels binnenkomen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">Ondertitels mislukken op de server</translation>
     </message>
@@ -1804,6 +1932,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">Hij blijft het vanzelf proberen – op deze pc hoeft niets te veranderen. Duurt het langer dan een paar minuten, meld dan een probleem.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">Hij blijft het vanzelf proberen – op deze Mac hoeft niets te veranderen. Duurt het langer dan een paar minuten, meld dan een probleem.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1822,8 +1955,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">Apps ondertitelen die je toevoegt (macOS 14.2 of nieuwer)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">Voeg op Start tot 3 apps met geluid open toe; elke app krijgt een eigen ondertitelvenster met zijn naam. Een toegevoegde app die niet open is, wordt ondertiteld zodra hij opent. Windows 10 kan apps niet uit elkaar houden, dus daar wordt alles wat de pc afspeelt ondertiteld.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">Voeg op Start tot 3 apps met geluid open toe; elke app krijgt een eigen ondertitelvenster met zijn naam. Een toegevoegde app die niet open is, wordt ondertiteld zodra hij opent. Vóór macOS 14.2 kan een Mac apps niet uit elkaar houden, dus daar wordt alles wat de Mac afspeelt ondertiteld.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1837,13 +1980,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">Met één app toegevoegd op Start zet je Ook al het andere ondertitelen wat de Mac afspeelt aan: alles behalve die app krijgt een eigen ondertitelvenster, Al het andere genoemd – een gesprek in het ene venster, de game of video in het andere, niets dubbel. Het werkt met één app tegelijk.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">Alles ondertitelen wat de pc afspeelt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Alles ondertitelen wat de Mac afspeelt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">Kies op Start Alles wat de pc afspeelt: alles via de standaardluidsprekers of -headset, genoemd Deze pc. Is je headset niet het standaardapparaat, maak hem dan de standaard.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">Kies op Start Alles wat de Mac afspeelt: alles via de standaardluidsprekers of -headset, genoemd Deze Mac. Is je headset niet het standaardapparaat, maak hem dan de standaard.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1867,6 +2025,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Sleep een ondertitelvenster om het te verplaatsen, of de randen om het formaat te wijzigen. Alles vergrendelen, op Start of in het systeemvakmenu, laat klikken door. Een kwijt? Posities herstellen op Start zet elk venster terug.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">Over een game</translation>
     </message>
@@ -1874,6 +2037,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">Een ondertitelvenster pakt nooit het toetsenbord of de muis van de game: het is nooit het actieve venster. Zet het waar het niets belangrijks bedekt en kies dan Alles vergrendelen (Ctrl+Alt+L), zodat klikken naar de game gaan; Alles verbergen (Ctrl+Alt+H) in een gevecht. De sneltoetsen werken terwijl de game focus heeft en zijn nog niet aan te passen. Een game in exclusief volledig scherm bedekt alle andere vensters: kies randloos of venster-volledig scherm.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Een ondertitelvenster pakt nooit het toetsenbord of de muis van de game: het is nooit het actieve venster. Zet het waar het niets belangrijks bedekt en kies dan Alles vergrendelen op Start of in het systeemvakmenu, zodat klikken naar de game gaan. Een game in exclusief volledig scherm bedekt alle andere vensters: kies randloos of venster-volledig scherm.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1894,6 +2062,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">Alleen spraak verlaat deze pc: onze server maakt er ondertitels en vertalingen van en bewaart nooit de audio, de ondertitels of de vertalingen. Deze pc houdt de laatste 2 minuten afgeronde spraak van elke app in het geheugen en stuurt die alleen opnieuw als jij dat vraagt. Je transcript verlaat deze pc nooit en is weg als je Polyglotic afsluit, tenzij je het opslaat. We bewaren je account, je minuten, een verslag van elke sessie (nooit wat er gezegd werd of de naam van de app) en de woordenboekwoorden die je opzoekt, opslaat of markeert – nooit de zin eromheen. Gebruiksstatistieken en woordtellingen worden alleen gedeeld als je ze aanzet (Account &gt; Kiezen wat je deelt), en je kunt je leergegevens verwijderen bij Account. De privacyverklaring hieronder zegt alles.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">Alleen spraak verlaat deze Mac: onze server maakt er ondertitels en vertalingen van en bewaart nooit de audio, de ondertitels of de vertalingen. Deze Mac houdt de laatste 2 minuten afgeronde spraak van elke app in het geheugen en stuurt die alleen opnieuw als jij dat vraagt. Je transcript verlaat deze Mac nooit en is weg als je Polyglotic afsluit, tenzij je het opslaat. We bewaren je account, je minuten, een verslag van elke sessie (nooit wat er gezegd werd of de naam van de app) en de woordenboekwoorden die je opzoekt, opslaat of markeert – nooit de zin eromheen. Gebruiksstatistieken en woordtellingen worden alleen gedeeld als je ze aanzet (Account &gt; Kiezen wat je deelt), en je kunt je leergegevens verwijderen bij Account. De privacyverklaring hieronder zegt alles.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1937,6 +2110,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">Woorden die je opzoekt en opslaat staan bij Woorden. Ze worden op deze Mac bewaard en, met je account, op onze server, dus ze gaan mee naar een andere computer.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">Je woorden in Anki zetten</translation>
     </message>
@@ -1955,8 +2133,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">Je leergegevens op deze Mac waren beschadigd en zijn apart gezet als {name}. Je opgeslagen woorden komen terug uit je account.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">Je leergegevens op deze pc waren beschadigd, dus wijzigingen worden hier niet bewaard tot je Polyglotic herstart. Je opgeslagen woorden komen dan terug uit je account.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">Je leergegevens op deze Mac waren beschadigd, dus wijzigingen worden hier niet bewaard tot je Polyglotic herstart. Je opgeslagen woorden komen dan terug uit je account.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2071,8 +2259,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">Controleer de datum en tijd van deze Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
         <translation type="unfinished">Polyglotic is open op te veel van je pc&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
+        <translation type="unfinished">Polyglotic is open op te veel van je computers</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2093,8 +2291,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">De datum of tijd van deze Mac lijkt niet te kloppen: hij zegt {date}, {time}. De ondertitels werken; om het goed te zetten, zet je Stel datum en tijd automatisch in aan bij Systeeminstellingen, Algemeen, Datum en tijd.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">je hebt een code van ons nodig: een uitnodiging, of die in je Plus-e-mail</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">hervat hier of via het systeemvak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2182,6 +2391,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">deze Mac lijkt offline. Controleer de internetverbinding; als die werkt, ligt het probleem bij ons</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">controleer je internet; als dat werkt, liggen wij waarschijnlijk plat</translation>
     </message>
@@ -2213,6 +2427,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">deze Mac zegt dat het {date} is, en dat kan niet kloppen. Zet Stel datum en tijd automatisch in aan bij Systeeminstellingen, Algemeen, Datum en tijd</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">iets op dit netwerk zit in de weg met een verlopen certificaat – meestal de HTTPS-scan van een antivirusprogramma, of een vpn. Zet het uit voor Polyglotic of probeer een ander netwerk</translation>
@@ -2226,6 +2446,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
         <translation type="unfinished">er kwamen te veel mislukte aanmeldingen van dit netwerk, dus de server wacht voordat hij deze pc toelaat</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
+        <translation type="unfinished">er kwamen te veel mislukte aanmeldingen van dit netwerk, dus de server wacht voordat hij deze Mac toelaat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2249,8 +2474,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">alles wat de Mac afspeelt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
         <translation type="unfinished">al het andere wat de pc afspeelt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
+        <translation type="unfinished">al het andere wat de Mac afspeelt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2312,13 +2547,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">Het ondertitelvenster tonen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">Verborgen – Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">Het ondertitelvenster tonen</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">Verborgen – zet Alles verbergen uit om het te tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2377,8 +2617,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Er wordt niets ondertiteld tot je een app toevoegt, of Alles wat de Mac afspeelt kiest.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
         <translation type="unfinished">Ook al het andere ondertitelen wat de pc afspeelt (in een eigen venster)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
+        <translation type="unfinished">Ook al het andere ondertitelen wat de Mac afspeelt (in een eigen venster)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2437,6 +2687,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Alles wat de Mac afspeelt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">Apps opnieuw proberen</translation>
     </message>
@@ -2449,6 +2704,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
         <translation type="unfinished">Deze pc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Deze Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2482,8 +2742,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">in plaats van apps: deze Mac kon niet één app apart ondertitelen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">in plaats van apps (de enige keuze op deze Windows-versie)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">in plaats van apps (de enige keuze op deze macOS-versie)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2494,6 +2764,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
         <translation type="unfinished">Alles wat de pc afspeelt behalve {app}, in een eigen venster</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
+        <translation type="unfinished">Alles wat de Mac afspeelt behalve {app}, in een eigen venster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2577,18 +2852,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">Alles verbergen</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2599,6 +2864,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">Posities herstellen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2722,11 +2997,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Alle vensters vergrendelen</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Vergrendelen – klikken gaan door naar wat eronder ligt, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3457,6 +3727,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">Een basiswoordenboek uit open data (betekenissen niet door een mens gecontroleerd), als er een klaarstaat: woorden opzoeken in ondertitels in het {language} zodra het op deze Mac staat. Ondertitels en vertaling werken hoe dan ook.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">Een basiswoordenboek uit open data (betekenissen niet door een mens gecontroleerd), als er een klaarstaat: de kaart ervan biedt het aan zodra je het {language} toevoegt. Ondertitels en vertaling werken hoe dan ook.</translation>
     </message>
@@ -3768,6 +4043,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">Woordenboeken op deze Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">Gedownload voor de talen die je leert. Verwijderen maakt ruimte vrij; opzoeken in die taal stopt tot het opnieuw is gedownload.</translation>
     </message>
@@ -3785,6 +4065,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op deze pc bewaard, en op onze server als woordenboekwoorden en tijden. Je kunt ze verwijderen, in elke taal die je leert – net als bij Account.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op deze Mac bewaard, en op onze server als woordenboekwoorden en tijden. Je kunt ze verwijderen, in elke taal die je leert – net als bij Account.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -3853,6 +4138,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
         <translation type="unfinished">Niet genoeg ruimte op deze pc: er is {size} vrije ruimte nodig.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
+        <translation type="unfinished">Niet genoeg ruimte op deze Mac: er is {size} vrije ruimte nodig.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -3936,6 +4226,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">Op deze Mac: versie {version}, {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Een nieuwere versie ({size}) wacht op een verbinding zonder datalimiet.</translation>
     </message>
@@ -3973,6 +4268,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">Dat maakt {size} vrij op deze pc. Het wordt opnieuw gedownload als je later {language} leert.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">Dat maakt {size} vrij op deze Mac. Het wordt opnieuw gedownload als je later {language} leert.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4154,6 +4454,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">Alleen wat je pc afspeelt telt, in voltooide ondertitels - niet wat je zelf zegt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">Alleen wat je Mac afspeelt telt, in voltooide ondertitels - niet wat je zelf zegt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -4975,6 +5280,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">Elk lettertype op deze Mac. Chinees en Japans vallen terug op een lettertype dat ze heeft als dat van jou ze mist.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">Origineel boven de vertaling tonen</translation>
     </message>
@@ -5245,6 +5555,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">Inschuiven: een nieuwe ondertitel komt van onderen op zijn plek – niet als de animatie-effecten van de Mac uit staan. Verschijnen: niets beweegt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">Vervagen na stilte</translation>
     </message>
@@ -5428,6 +5743,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">Over deze Mac: de app, het systeem en de audioapparaten</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">Ondertitels van de laatste paar minuten, zoals getoond</translation>
     </message>
@@ -5514,6 +5834,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
         <translation type="unfinished">Zoals deze pc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
+        <translation type="unfinished">Zoals deze Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6014,6 +6339,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">Deze Mac was al eens aangemeld: de uitnodigingscode van toen werkt hier weer.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">Aanmelden…</translation>
     </message>
@@ -6034,6 +6364,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">Deze code werkt niet: misschien verkeerd getypt, gebruikt op een andere computer of niet meer geldig. Controleer hem, of schrijf ons en we lossen het op.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">Het abonnement van deze code is opgezegd voordat de code werd gebruikt, dus hij geeft geen Plus. Neem voor Plus opnieuw een abonnement op onze site – of schrijf ons als je niet hebt opgezegd.</translation>
     </message>
@@ -6046,6 +6381,11 @@
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">De aanmelding van deze pc is verlopen. Meld je af bij Account en meld je daarna aan met deze code.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">De aanmelding van deze Mac is verlopen. Meld je af bij Account en meld je daarna aan met deze code.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6065,6 +6405,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">Deze pc zegt dat het {date} is, en dat kan niet kloppen – een beveiligde verbinding heeft de juiste datum nodig. Zet Tijd automatisch instellen aan bij Windows-instellingen, Tijd en taal, Datum en tijd, en kies dan Nu synchroniseren.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Deze Mac zegt dat het {date} is, en dat kan niet kloppen – een beveiligde verbinding heeft de juiste datum nodig. Zet Stel datum en tijd automatisch in aan bij Systeeminstellingen, Algemeen, Datum en tijd.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6103,13 +6449,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">Afmelden bij Polyglotic op deze Mac?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">Ondertitels stoppen tot je je opnieuw aanmeldt – met dezelfde uitnodigingscode: die werkt weer op deze pc. Je opgeslagen woorden en leergegevens blijven, op deze pc en op onze server.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">Ondertitels stoppen tot je je opnieuw aanmeldt – met dezelfde uitnodigingscode: die werkt weer op deze Mac. Je opgeslagen woorden en leergegevens blijven, op deze Mac en op onze server.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">Wijzigingen die deze pc nog niet naar onze server stuurde, worden weggegooid, zodat niets daarvan bij de volgende persoon komt die zich aanmeldt.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">Wijzigingen die deze Mac nog niet naar onze server stuurde, worden weggegooid, zodat niets daarvan bij de volgende persoon komt die zich aanmeldt.</translation>
     </message>
 </context>
 <context>
@@ -6121,8 +6482,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">Standaard van deze Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
         <translation type="unfinished">Standaard van deze pc ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
+        <translation type="unfinished">Standaard van deze Mac ({device})</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6148,6 +6519,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">Voor Alles wat de pc afspeelt. Apps die je toevoegt worden op elke luidspreker gehoord.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">Voor Alles wat de Mac afspeelt. Apps die je toevoegt worden op elke luidspreker gehoord.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6183,6 +6559,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
         <translation type="unfinished">Niet aangesloten - de standaard van deze pc wordt gebruikt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
+        <translation type="unfinished">Niet aangesloten - de standaard van deze Mac wordt gebruikt</translation>
     </message>
 </context>
 <context>
@@ -6440,6 +6821,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">Ontgrendelen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">Alle ondertitelvensters ontgrendelen</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6518,6 +6912,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">Tijd dat ondertitels aan stonden, geteld op deze pc.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">Tijd dat ondertitels aan stonden, geteld op deze Mac.</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6550,6 +6949,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
         <translation type="unfinished">Geteld op deze pc uit definitieve ondertitels, en hier bewaard.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
+        <translation type="unfinished">Geteld op deze Mac uit definitieve ondertitels, en hier bewaard.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>

@@ -4,7 +4,7 @@ sections 5, 7 and 10.5)."""
 from dataclasses import replace
 
 from PySide6.QtCore import QPoint, QRect, Qt
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QWidgetAction
 
@@ -53,6 +53,8 @@ def home(picker: Picker) -> tuple[HomePage, Commands]:
     actions = [QAction(name) for name in ("Pause captions", "Lock", "Hide")]
     for action in actions[1:]:
         action.setCheckable(True)
+    for action, key in zip(actions, "PLH", strict=True):  # as `DesktopApp`'s
+        action.setShortcut(QKeySequence(f"Ctrl+Alt+{key}"))
     pause, lock, hide = actions
     page = HomePage(
         view,
@@ -679,3 +681,35 @@ def test_failing_never_turns_a_worse_state_better() -> None:
     assert reconnecting.tone is Tone.WAIT
     signed_out = state_line(HomeState(ListeningState.SIGN_IN_NEEDED, failing=True))
     assert signed_out.tone is Tone.BAD
+
+
+def test_home_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
+    """polyglotic-hq 400 (found by 398): a hotkey another app has, or that was
+    never registered - 398's preview build registers none - is cleared from
+    its action (`DesktopApp.hotkeys_not_working`), and Home still said
+    "Ctrl+Alt+L" on Lock all, "Ctrl+Alt+H" on Hide all and a hidden window,
+    and "resume with Ctrl+Alt+P" - keys that did nothing."""
+    page, _ = home(Picker(captioned=(_row("discord"),), hidden=True))
+    page.show_state(HomeState(ListeningState.LISTENING, chosen=True, paused=True))
+    row = page.picker_card.rows["discord"]
+    assert page.lock.toolTip() == "Ctrl+Alt+L"
+    assert page.hide_all.toolTip() == "Ctrl+Alt+H"
+    assert row.captions.toolTip() == "Hidden - Ctrl+Alt+H"
+
+    pause, lock, hide = page._actions  # type: ignore[attr-defined]
+    for action in (pause, lock, hide):
+        action.setShortcut(QKeySequence())  # as `hotkeys_not_working` does
+    shown = [
+        page.lock.toolTip(),
+        page.hide_all.toolTip(),
+        row.captions.toolTip(),
+        page.state.detail.text(),
+    ]
+    assert not any("Ctrl+Alt" in text for text in shown), shown
+    assert page.state.detail.text() == "resume here or from the tray"
+    assert row.captions.toolTip() == "Hidden - turn off Hide all to show it"
+
+    lock.setShortcut(QKeySequence("Ctrl+Alt+L"))  # one that works is named
+    assert page.lock.toolTip() == "Ctrl+Alt+L" and not page.hide_all.toolTip()
+    page.close()
+    page.deleteLater()

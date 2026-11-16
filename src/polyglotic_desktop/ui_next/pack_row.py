@@ -35,6 +35,7 @@ from polyglotic_desktop.core.lexicon.pack_download import (
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.copying import Text
 from polyglotic_desktop.ui_next.languages import learned_name
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.learning import PackLine
 
 
@@ -100,9 +101,10 @@ def progress_text(code: str, progress: PackProgress) -> str:
             "Paused: Windows says this connection is metered. {size} left to download."
         ).format(size=size_text(max(0, progress.total - progress.done)))
     if problem is Problem.NO_ROOM:
-        return _tr("Not enough room on this PC: it needs {size} free.").format(
-            size=size_text(progress.needed)
-        )
+        return pc_or_mac(
+            _tr("Not enough room on this PC: it needs {size} free."),
+            _tr("Not enough room on this Mac: it needs {size} free."),
+        ).format(size=size_text(progress.needed))
     if problem is Problem.LIST_REFUSED:
         return _tr(
             "Refused: the list of dictionaries failed our signature check, so "
@@ -164,9 +166,10 @@ def shown(code: str, line: PackLine) -> tuple[str, tuple[str, ...], float | None
         newer = PackProgress(code, Step.LIST, problem=Problem.NEEDS_NEWER_APP)
         return progress_text(code, newer), (), None
     if line.installed:
-        said = _tr("On this PC: version {version}, {size}.").format(
-            version=line.installed_version, size=size_text(line.installed_size)
-        )
+        said = pc_or_mac(
+            _tr("On this PC: version {version}, {size}."),
+            _tr("On this Mac: version {version}, {size}."),
+        ).format(version=line.installed_version, size=size_text(line.installed_size))
         if line.update_size:
             said += " " + _tr(
                 "A newer version ({size}) waits for a connection that isn't metered."
@@ -298,9 +301,15 @@ def remove_question(code: str, size: int) -> tuple[str, str, str, str]:
     name = learned_name(code)
     return (
         _tr("Remove the {language} dictionary too?").format(language=name),
-        _tr(
-            "It frees {size} on this PC. It downloads again if you learn "
-            "{language} later."
+        pc_or_mac(
+            _tr(
+                "It frees {size} on this PC. It downloads again if you learn "
+                "{language} later."
+            ),
+            _tr(
+                "It frees {size} on this Mac. It downloads again if you learn "
+                "{language} later."
+            ),
         ).format(size=size_text(size), language=name),
         _tr("Remove it"),
         _tr("Keep it"),

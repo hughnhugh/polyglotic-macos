@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">这台电脑</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -61,6 +66,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
+        <translation type="unfinished">你查过、收藏和标记的词会以词典词语和时间的形式保存在我们的服务器上：收藏的词和词语状态会跟随你到另一台电脑，查词记录让我们了解大家如何学习。你可以在服务器上删除这些数据，所学的每种语言都包括在内；如果你愿意，也可以同时从这台电脑上删除。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
         <translation type="unfinished">你查过、收藏和标记的词会以词典词语和时间的形式保存在我们的服务器上：收藏的词和词语状态会跟随你到另一台电脑，查词记录让我们了解大家如何学习。你可以在服务器上删除这些数据，所学的每种语言都包括在内；如果你愿意，也可以同时从这台电脑上删除。</translation>
     </message>
     <message>
@@ -96,6 +106,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
+        <translation type="unfinished">已在这台电脑上登录。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
         <translation type="unfinished">已在这台电脑上登录。</translation>
     </message>
     <message>
@@ -279,7 +294,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">请检查这台电脑的日期和时间；请看主页</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
+        <translation type="unfinished">在你太多台电脑上打开了；请看主页</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
         <translation type="unfinished">在你太多台电脑上打开了；请看主页</translation>
     </message>
     <message>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">已锁定：请在主页或托盘中解锁</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上，Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上。要解锁，请把鼠标停在角落的锁上，或在主页或托盘中解锁</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">锁定所有窗口</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上，Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -752,6 +782,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">每天你听到每个词典词语的次数：不含句子，不含一天中的具体时间，也不含你自己麦克风里的内容。这能帮助我们改进水平划分和推荐的词。无论是否分享，你的次数都保存在这台电脑上。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">你正在测试 Alpha 版：测试期间，使用统计和崩溃报告保持开启，以便我们发现并修复问题。</translation>
     </message>
@@ -795,6 +830,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">为了给你听到的内容加字幕，Polyglotic 会把检测到的语音发送到我们的服务器。音频和字幕只用于为你生成字幕，从不保存。为了运行这项服务，我们会保存你的账户、你收听的分钟数、连接信息（应用版本、你连接时所在的国家、你收听的应用类型，但绝不包括应用名称），以及你的学习数据：你查过、收藏或标记过的词典词语和时间，但绝不包括它们所在的句子。你收藏的词和词语状态会跟随你到另一台电脑；你的查词记录让我们了解大家如何学习、词典缺了什么。你随时可以删除你的学习数据。这些不是可选项：没有它们就无法提供服务。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">为了给你听到的内容加字幕，Polyglotic 会把检测到的语音发送到我们的服务器。音频和字幕只用于为你生成字幕，从不保存。为了运行这项服务，我们会保存你的账户、你收听的分钟数、连接信息（应用版本、你连接时所在的国家、你收听的应用类型，但绝不包括应用名称），以及你的学习数据：你查过、收藏或标记过的词典词语和时间，但绝不包括它们所在的句子。你收藏的词和词语状态会跟随你到另一台电脑；你的查词记录让我们了解大家如何学习、词典缺了什么。你随时可以删除你的学习数据。这些不是可选项：没有它们就无法提供服务。</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -833,12 +873,29 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">我们会删除你在所学的每种语言中查过、收藏和标记过的词，以及你分享过的听到次数。你的其他电脑会保留各自的副本，直到你在那里也删除。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">同时从这台电脑上删除你所学每种语言的数据：词语状态、收藏的词，以及每个词听到的次数</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">同时从这台电脑上删除你所学每种语言的数据：词语状态、收藏的词，以及每个词听到的次数</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>同时删除你的学习数据损坏时在这台电脑上另存的 %Ln 个副本。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>同时删除你的学习数据损坏时在这台电脑上另存的 %Ln 个副本。</numerusform>
         </translation>
@@ -858,6 +915,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">这台电脑</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Everything else</source>
         <translation type="unfinished">其他所有声音</translation>
     </message>
@@ -869,6 +931,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">你的{language}学习数据有一部分没能从这台电脑上删除。请重启 Polyglotic，然后在“账户”里再删除一次。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
         <translation type="unfinished">你的{language}学习数据有一部分没能从这台电脑上删除。请重启 Polyglotic，然后在“账户”里再删除一次。</translation>
     </message>
     <message>
@@ -886,6 +953,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">这台电脑上的 Windows 无法单独为一个应用加字幕，所以 Polyglotic 改为给电脑播放的所有声音加字幕。你可以在主页上重试按应用加字幕。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">这台 Mac 无法单独为一个应用加字幕，所以 Polyglotic 改为给电脑播放的所有声音加字幕。你可以在主页上重试按应用加字幕。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1411,6 +1483,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">这台电脑上还没有日志。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">同时发送：{versions}，以及本次收听的 ID。</translation>
     </message>
@@ -1577,12 +1654,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">在你重新启动 Polyglotic 之前，更改不会保存在这台电脑上；重新启动后，你收藏的词会从你的账户恢复。旧文件保存在 {path}，处理你的问题报告时我们可能会需要它。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">你收藏的词正在从你的账户恢复。旧文件保存在 {path}，处理你的问题报告时我们可能会需要它。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
+        <translation type="unfinished">这台电脑上的学习数据已损坏，已单独保存</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
         <translation type="unfinished">这台电脑上的学习数据已损坏，已单独保存</translation>
     </message>
     <message>
@@ -1652,6 +1739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">在账户页用你的邀请码登录（这台电脑之前用过的邀请码可以再用），或用 Plus 邮件里的代码登录。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus 已结束</translation>
     </message>
@@ -1702,6 +1794,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">请在主页添加一个应用（最多 3 个），或选择“电脑播放的所有声音”。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} 没有打开</translation>
     </message>
@@ -1722,12 +1819,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">它在播放声音吗？它的声音是否输出到这台电脑的扬声器或耳机，并且没有静音？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">电脑没有声音：最近 30 秒内播放的内容都没有声音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">电脑没有声音：最近 30 秒内播放的内容都没有声音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">请播放点什么。如果你是用耳机听的，而它不是电脑的默认设备，请把它设为默认设备，或者改为添加该应用。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">请播放点什么。如果你是用耳机听的，而它不是电脑的默认设备，请把它设为默认设备，或者改为添加该应用。</translation>
     </message>
     <message>
@@ -1738,6 +1850,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
+        <translation type="unfinished">是不是静音了，或者在电脑的声音设置里选了另一个麦克风？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
         <translation type="unfinished">是不是静音了，或者在电脑的声音设置里选了另一个麦克风？</translation>
     </message>
     <message>
@@ -1784,6 +1901,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">在主页或托盘菜单中选择“继续”。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">字幕窗口已隐藏</translation>
     </message>
@@ -1794,12 +1916,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">使用主页或托盘菜单中的“全部隐藏”。在应用的字幕记录里可以看到字幕是否在送达。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">服务器上的字幕处理失败</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">它会自己不断重试，这台电脑上不需要改什么。如果持续超过几分钟，请报告问题。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">它会自己不断重试，这台电脑上不需要改什么。如果持续超过几分钟，请报告问题。</translation>
     </message>
     <message>
@@ -1819,8 +1951,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">为你添加的应用加字幕（macOS 14.2 或更高版本）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">在主页添加最多 3 个正在发声的应用；每个应用都有自己的字幕窗口，标着它的名称。已添加但没打开的应用，会在打开时开始加字幕。Windows 10 无法区分各个应用，所以在 Windows 10 上会为电脑播放的所有声音加字幕。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">在主页添加最多 3 个正在发声的应用；每个应用都有自己的字幕窗口，标着它的名称。已添加但没打开的应用，会在打开时开始加字幕。macOS 14.2 之前的 Mac 无法区分各个应用，所以在那里会为电脑播放的所有声音加字幕。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1834,12 +1976,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">在主页只添加一个应用时，打开“同时为电脑播放的其他声音加字幕”：除这个应用以外的所有声音都有自己的字幕窗口，标为“其他所有声音”。比如通话在一个窗口，游戏或视频在另一个窗口，两边不会重复。一次只能配合一个应用使用。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">为电脑播放的所有声音加字幕</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">为电脑播放的所有声音加字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">在主页选择“电脑播放的所有声音”：电脑通过默认扬声器或耳机播放的一切声音，标为“这台电脑”。如果你的耳机不是默认设备，请把它设为默认设备。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">在主页选择“电脑播放的所有声音”：电脑通过默认扬声器或耳机播放的一切声音，标为“这台电脑”。如果你的耳机不是默认设备，请把它设为默认设备。</translation>
     </message>
     <message>
@@ -1864,6 +2021,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">拖动字幕窗口可以移动它，拖动边缘可以调整大小。主页或托盘菜单中的“全部锁定”让点击穿过窗口。窗口找不到了？主页上的“重置位置”会把所有窗口放回原处。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">在游戏上方使用</translation>
     </message>
@@ -1871,6 +2033,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">字幕窗口绝不会抢占游戏的键盘或鼠标：它永远不会成为活动窗口。把它放在不挡住你要看的内容的地方，然后“全部锁定”（Ctrl+Alt+L），让点击直接落到游戏里；战斗时可以“全部隐藏”（Ctrl+Alt+H）。游戏在前台时快捷键照样有效，暂时还不能更改。独占全屏的游戏会盖住所有其他窗口：请改用它的无边框全屏或窗口化全屏。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕窗口绝不会抢占游戏的键盘或鼠标：它永远不会成为活动窗口。把它放在不挡住你要看的内容的地方，然后在主页或托盘菜单中“全部锁定”，让点击直接落到游戏里。独占全屏的游戏会盖住所有其他窗口：请改用它的无边框全屏或窗口化全屏。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1890,6 +2057,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">只有语音会离开这台电脑：我们的服务器把它转成字幕和翻译，从不保存音频、字幕或翻译。这台电脑会在内存中保留每个应用最近 2 分钟的已完成语音，只在你要求时才会再次发送。你的字幕记录从不离开这台电脑；退出 Polyglotic 后它就会消失，除非你保存它。我们保存你的账户、你的收听分钟数、每次收听的记录（从不包括说了什么或应用的名称），以及你查询、保存或标记的词典词条——从不包括它们所在的句子。使用统计和听词次数只有在你开启后才会分享（账户 &gt; 选择分享内容），你也可以在账户页删除你的学习数据。下面的隐私声明有完整说明。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">只有语音会离开这台电脑：我们的服务器把它转成字幕和翻译，从不保存音频、字幕或翻译。这台电脑会在内存中保留每个应用最近 2 分钟的已完成语音，只在你要求时才会再次发送。你的字幕记录从不离开这台电脑；退出 Polyglotic 后它就会消失，除非你保存它。我们保存你的账户、你的收听分钟数、每次收听的记录（从不包括说了什么或应用的名称），以及你查询、保存或标记的词典词条——从不包括它们所在的句子。使用统计和听词次数只有在你开启后才会分享（账户 &gt; 选择分享内容），你也可以在账户页删除你的学习数据。下面的隐私声明有完整说明。</translation>
     </message>
     <message>
@@ -1934,6 +2106,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">你查过和收藏的词在“词汇”页。它们保存在这台电脑上；登录账户后也保存在我们的服务器上，所以会跟随你到另一台电脑。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">把你的词导入 Anki</translation>
     </message>
@@ -1952,7 +2129,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">这台电脑上的学习数据已损坏，已另存为 {name}。你收藏的词正在从你的账户恢复。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">这台电脑上的学习数据已损坏，在你重新启动 Polyglotic 之前，更改不会保存在这台电脑上。重新启动后，你收藏的词会从你的账户恢复。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">这台电脑上的学习数据已损坏，在你重新启动 Polyglotic 之前，更改不会保存在这台电脑上。重新启动后，你收藏的词会从你的账户恢复。</translation>
     </message>
     <message>
@@ -2068,7 +2255,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">请检查这台电脑的日期和时间</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
+        <translation type="unfinished">Polyglotic 在你太多台电脑上打开了</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
         <translation type="unfinished">Polyglotic 在你太多台电脑上打开了</translation>
     </message>
     <message>
@@ -2090,8 +2287,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">这台电脑的日期或时间似乎不对：它显示 {date} {time}。字幕可以正常使用；要改正，请在“系统设置”&gt;“通用”&gt;“日期与时间”中打开“自动设置日期与时间”。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">你需要我们给的代码：邀请码，或 Plus 邮件里的代码</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">在这里或从托盘继续</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2178,6 +2386,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">这台电脑似乎没有联网。请检查网络连接；如果网络正常，就是我们的问题</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">请检查你的网络；如果网络正常，可能是我们的服务器宕机了</translation>
     </message>
@@ -2209,6 +2422,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">这台电脑显示今天是 {date}，这不可能是对的。请在“系统设置”&gt;“通用”&gt;“日期与时间”中打开“自动设置日期与时间”</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">此网络上有东西用一个过期的证书挡住了连接，最常见的是杀毒软件的 HTTPS 扫描，或者 VPN。请为 Polyglotic 关掉它，或换一个网络</translation>
@@ -2221,6 +2440,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
+        <translation type="unfinished">这个网络上失败的登录太多了，所以服务器要等一会儿才让这台电脑登录</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
         <translation type="unfinished">这个网络上失败的登录太多了，所以服务器要等一会儿才让这台电脑登录</translation>
     </message>
     <message>
@@ -2245,7 +2469,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">电脑播放的所有声音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
+        <translation type="unfinished">电脑播放的其他声音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
         <translation type="unfinished">电脑播放的其他声音</translation>
     </message>
     <message>
@@ -2307,13 +2541,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">显示它的字幕窗口</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">已隐藏：Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">显示它的字幕窗口</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">已隐藏：关闭“全部隐藏”即可显示</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2372,7 +2611,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">在你添加应用或选择“电脑播放的所有声音”之前，不会给任何内容加字幕。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
+        <translation type="unfinished">同时为电脑播放的其他声音加字幕（在单独的窗口中）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
         <translation type="unfinished">同时为电脑播放的其他声音加字幕（在单独的窗口中）</translation>
     </message>
     <message>
@@ -2432,6 +2681,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">电脑播放的所有声音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">重试应用</translation>
     </message>
@@ -2443,6 +2697,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
+        <translation type="unfinished">这台电脑</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
         <translation type="unfinished">这台电脑</translation>
     </message>
     <message>
@@ -2477,8 +2736,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">代替单独的应用：这台 Mac 无法单独为一个应用加字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">代替单独的应用（这个版本的 Windows 上只能这样选）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">代替单独的应用（这个版本的 macOS 上只能这样选）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2488,6 +2757,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
+        <translation type="unfinished">电脑播放的除 {app} 以外的所有声音，在单独的窗口中</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
         <translation type="unfinished">电脑播放的除 {app} 以外的所有声音，在单独的窗口中</translation>
     </message>
     <message>
@@ -2572,18 +2846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">全部隐藏</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2594,6 +2858,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">重置位置</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2717,11 +2991,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">锁定所有窗口</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上，Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3449,6 +3718,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">基础词典，来自开放数据，释义未经人工核对（如已有可用的）：放到这台电脑上后即可在{language}字幕中查词。无论哪种情况，字幕和翻译都照常工作。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">基础词典，来自开放数据，释义未经人工核对（如已有可用的）：添加{language}后，会在它的卡片上提供。无论哪种情况，字幕和翻译都照常工作。</translation>
     </message>
@@ -3758,6 +4032,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">本机上的词典</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">随你学习的语言下载。移除后可腾出空间；在重新下载之前，该语言无法查词。</translation>
     </message>
@@ -3774,6 +4053,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">你查过、收藏和标记的词保存在这台电脑上，也以词典词条和时间的形式保存在我们的服务器上。你可以删除它们，包括你学习的所有语言——和“账户”中的一样。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">你查过、收藏和标记的词保存在这台电脑上，也以词典词条和时间的形式保存在我们的服务器上。你可以删除它们，包括你学习的所有语言——和“账户”中的一样。</translation>
     </message>
     <message>
@@ -3841,6 +4125,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
+        <translation type="unfinished">本机空间不足：需要 {size} 可用空间。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
         <translation type="unfinished">本机空间不足：需要 {size} 可用空间。</translation>
     </message>
     <message>
@@ -3925,6 +4214,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">本机上：版本 {version}，{size}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">有新版本（{size}），等待不按流量计费的连接。</translation>
     </message>
@@ -3961,6 +4255,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">这将在本机腾出 {size}。如果以后再学习{language}，会重新下载。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">这将在本机腾出 {size}。如果以后再学习{language}，会重新下载。</translation>
     </message>
     <message>
@@ -4142,6 +4441,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">只有电脑播放的内容才算，并且只算定稿字幕，不算你自己说的话。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">只有电脑播放的内容才算，并且只算定稿字幕，不算你自己说的话。</translation>
     </message>
     <message>
@@ -4962,6 +5266,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">这台电脑上的任何字体。如果你选的字体没有中文或日文，会自动换用有这些字的字体。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">在译文上方显示原文</translation>
     </message>
@@ -5232,6 +5541,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">滑入：新字幕从下方升到位——电脑的动画效果关闭时除外。直接出现：不会移动。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">安静后淡出</translation>
     </message>
@@ -5415,6 +5729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">这台电脑：应用、系统和音频设备</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">最近几分钟显示的字幕</translation>
     </message>
@@ -5499,6 +5818,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
+        <translation type="unfinished">跟随系统</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
         <translation type="unfinished">跟随系统</translation>
     </message>
     <message>
@@ -6000,6 +6324,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">这台电脑之前登录过：当时用的邀请码在这里可以再用。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">正在登录…</translation>
     </message>
@@ -6020,6 +6349,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">这个代码无法使用：可能输错了、已在另一台电脑上用过，或已失效。请检查一下，或写信给我们，我们会帮你解决。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">这个代码对应的订阅在使用前已被取消，因此无法获得 Plus。如需 Plus，请在我们的网站上重新订阅；如果你没有取消过，请写信给我们。</translation>
     </message>
@@ -6031,6 +6365,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">这台电脑的登录已失效。请在账户页退出登录，再用这个代码登录。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">这台电脑的登录已失效。请在账户页退出登录，再用这个代码登录。</translation>
     </message>
     <message>
@@ -6050,6 +6389,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">这台电脑显示今天是 {date}，这不可能是对的，而安全连接需要正确的日期。请在 Windows 的“设置”&gt;“时间和语言”&gt;“日期和时间”中打开“自动设置时间”，然后选择“立即同步”。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">这台电脑显示今天是 {date}，这不可能是对的，而安全连接需要正确的日期。请在“系统设置”&gt;“通用”&gt;“日期与时间”中打开“自动设置日期与时间”。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6088,12 +6433,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">要在这台电脑上退出 Polyglotic 的登录吗？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">字幕会停止，直到你重新登录；重新登录用同一个邀请码就行，它在这台电脑上可以再用。你收藏的词和学习数据都会保留，在这台电脑上和我们的服务器上都是。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">字幕会停止，直到你重新登录；重新登录用同一个邀请码就行，它在这台电脑上可以再用。你收藏的词和学习数据都会保留，在这台电脑上和我们的服务器上都是。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">这台电脑还没发送到我们服务器的更改会被丢弃，所以下一个登录的人不会收到其中任何内容。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">这台电脑还没发送到我们服务器的更改会被丢弃，所以下一个登录的人不会收到其中任何内容。</translation>
     </message>
 </context>
@@ -6106,7 +6466,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">系统默认</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
+        <translation type="unfinished">系统默认（{device}）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
         <translation type="unfinished">系统默认（{device}）</translation>
     </message>
     <message>
@@ -6132,6 +6502,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">用于“电脑播放的所有声音”。你添加的应用在任何扬声器上都能听到。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">用于“电脑播放的所有声音”。你添加的应用在任何扬声器上都能听到。</translation>
     </message>
     <message>
@@ -6167,6 +6542,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
+        <translation type="unfinished">未连接，正在使用系统默认设备</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
         <translation type="unfinished">未连接，正在使用系统默认设备</translation>
     </message>
 </context>
@@ -6421,6 +6801,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">解锁</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">解锁所有字幕窗口</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6497,6 +6890,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">开着字幕的时间，在这台电脑上统计。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">开着字幕的时间，在这台电脑上统计。</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6527,6 +6925,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
+        <translation type="unfinished">根据定稿字幕在这台电脑上统计，只保存在这里。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
         <translation type="unfinished">根据定稿字幕在这台电脑上统计，只保存在这里。</translation>
     </message>
     <message>

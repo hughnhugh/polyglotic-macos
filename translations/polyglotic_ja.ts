@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">このMac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -62,6 +67,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
         <translation type="unfinished">調べた・保存した・マークした単語は、辞書の単語と日時として当社のサーバーに保存されます。保存した単語と状態は別のPCでも使え、調べた単語から人がどう学ぶかがわかります。学習中のすべての言語について、そこで削除できます。希望すればこのPCからも削除できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
+        <translation type="unfinished">調べた・保存した・マークした単語は、辞書の単語と日時として当社のサーバーに保存されます。保存した単語と状態は別のコンピューターでも使え、調べた単語から人がどう学ぶかがわかります。学習中のすべての言語について、そこで削除できます。希望すればこのMacからも削除できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -97,6 +107,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
         <translation type="unfinished">このPCでサインイン中です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
+        <translation type="unfinished">このMacでサインイン中です。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -279,8 +294,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Macの日付と時刻を確認：ホームを参照</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
         <translation type="unfinished">開いているPCが多すぎます：ホームを参照</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
+        <translation type="unfinished">開いているコンピューターが多すぎます：ホームを参照</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">ロック中：ホームか通知領域で解除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">ロック：クリックが下にあるものに届きます。Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">ロック：クリックが下にあるものに届きます。解除するには、隅の鍵にマウスをしばらく置くか、ホームか通知領域を使います</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">すべてのウィンドウをロック</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">ロック：クリックが下にあるものに届きます。Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -752,6 +782,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">辞書の各単語を1日に何回聞いたかの集計です。文、時刻、マイクの内容は含みません。レベルや単語の提案の改善に役立ちます。集計はどちらにしてもこのMacに残ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">アルファ版のテスト中は、問題を見つけて直すために利用統計とクラッシュレポートがオンになります。</translation>
     </message>
@@ -795,6 +830,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">聞こえる音声を字幕にするため、Polyglotic は検出した音声を当社のサーバーに送ります。音声と字幕はあなたのための字幕作成にのみ使われ、保存されることはありません。サービスの提供のため、アカウント、聞いた時間（分）、接続情報（アプリのバージョン、接続元の国、聞いているアプリの種類。アプリ名は含みません）と学習データ（調べた・保存した・マークした辞書の単語とその日時。前後の文は含みません）を保存します。保存した単語と単語の状態は別のPCでも使えます。調べた単語から、人がどう学ぶか、辞書に何が足りないかがわかります。学習データはいつでも削除できます。これらは任意ではありません。なければサービスを提供できません。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">聞こえる音声を字幕にするため、Polyglotic は検出した音声を当社のサーバーに送ります。音声と字幕はあなたのための字幕作成にのみ使われ、保存されることはありません。サービスの提供のため、アカウント、聞いた時間（分）、接続情報（アプリのバージョン、接続元の国、聞いているアプリの種類。アプリ名は含みません）と学習データ（調べた・保存した・マークした辞書の単語とその日時。前後の文は含みません）を保存します。保存した単語と単語の状態は別のコンピューターでも使えます。調べた単語から、人がどう学ぶか、辞書に何が足りないかがわかります。学習データはいつでも削除できます。これらは任意ではありません。なければサービスを提供できません。</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -833,14 +873,31 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">学習中のすべての言語について、調べた・保存した・マークした単語と、共有した聞いた回数を削除します。他のコンピューターのコピーは、そちらでも削除するまで残ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">学習中のすべての言語について、このPCからも削除する（単語の状態、保存した単語、各単語を聞いた回数）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">学習中のすべての言語について、このMacからも削除する（単語の状態、保存した単語、各単語を聞いた回数）</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>破損が見つかったときにこのPCに退避した学習データのコピー %Ln 件も削除します。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>破損が見つかったときにこのMacに退避した学習データのコピー %Ln 件も削除します。</numerusform>
         </translation>
     </message>
     <message>
@@ -855,6 +912,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>This PC</source>
         <translation type="unfinished">このPC</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">このMac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
@@ -873,6 +935,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">{language} の学習データの一部をこのMacから削除できませんでした。Polyglotic を再起動してから、「アカウント」でもう一度削除してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Your settings couldn&apos;t be read, so they&apos;ve been reset. The old file is kept beside them as {name}.</source>
         <translation type="unfinished">設定を読み込めなかったため、リセットしました。古いファイルは {name} として隣に保存されています。</translation>
     </message>
@@ -886,6 +953,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">このPCのWindowsでは1つのアプリだけを字幕にできなかったため、PCで再生されるすべての音声を字幕にしています。ホームでアプリをもう一度試せます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">この Mac では1つのアプリだけを字幕にできなかったため、Mac で再生されるすべての音声を字幕にしています。ホームでアプリをもう一度試せます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1411,6 +1483,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">このMacにはまだログがありません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">あわせて送信：{versions}、リスニングセッションのID。</translation>
     </message>
@@ -1577,6 +1654,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Polyglotic を再起動するまで、変更はこのMacに保存されません。再起動すると保存した単語がアカウントから戻ります。古いファイルは {path} として保存されているので、報告でお願いすることがあります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">保存した単語をアカウントから復元しています。古いファイルは {path} として保存されているので、報告でお願いすることがあります。</translation>
     </message>
@@ -1584,6 +1666,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
         <translation type="unfinished">このPCの学習データが破損していたため、退避しました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
+        <translation type="unfinished">このMacの学習データが破損していたため、退避しました</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1652,6 +1739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">アカウントで招待コード（このMacで以前使ったものも使えます）か、Plus のメールに記載のコードでサインインしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus が終了しました</translation>
     </message>
@@ -1702,6 +1794,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">ホームでアプリを追加する（3つまで）か、「Macで再生されるすべて」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} が開いていません</translation>
     </message>
@@ -1722,13 +1819,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">音を再生していますか？出力先がこのMacのスピーカーかヘッドセットで、ミュートになっていませんか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">PCが無音です：30秒間、何の音も再生されていません</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">Macが無音です：30秒間、何の音も再生されていません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">何か再生してください。PCの既定のデバイスではないヘッドセットで聞いている場合は、そちらを既定にするか、アプリを追加してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">何か再生してください。Macの既定のデバイスではないヘッドセットで聞いている場合は、そちらを既定にするか、アプリを追加してください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1739,6 +1851,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
         <translation type="unfinished">ミュートになっているか、PCのサウンド設定で別のマイクが選ばれていませんか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
+        <translation type="unfinished">ミュートになっているか、Macのサウンド設定で別のマイクが選ばれていませんか？</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1784,6 +1901,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">ホームまたは通知領域のメニューで「再開」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">字幕ウィンドウが非表示です</translation>
     </message>
@@ -1794,6 +1916,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">ホームまたは通知領域のメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">サーバーで字幕に失敗しています</translation>
     </message>
@@ -1801,6 +1928,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">自動で再試行を続けています。このPCで変更は不要です。数分以上続く場合は問題を報告してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">自動で再試行を続けています。このMacで変更は不要です。数分以上続く場合は問題を報告してください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1819,8 +1951,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">追加したアプリを字幕にする（macOS 14.2以降）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">ホームで、音を出しているアプリを3つまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。Windows 10 ではアプリを区別できないため、PCで再生されるすべてが字幕になります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">ホームで、音を出しているアプリを3つまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。macOS 14.2 より前の Mac ではアプリを区別できないため、Mac で再生されるすべてが字幕になります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1834,13 +1976,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">ホームでアプリを1つ追加し、「Macで再生されるその他すべても字幕にする」をオンにします。そのアプリ以外のすべてが「その他すべて」という別の字幕ウィンドウになります。通話は一方に、ゲームや動画はもう一方に、重複はありません。一度に1つのアプリで使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">PCで再生されるすべてを字幕にする</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Macで再生されるすべてを字幕にする</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">ホームで「PCで再生されるすべて」を選びます。既定のスピーカーまたはヘッドセットで再生されるすべてが「このPC」として字幕になります。ヘッドセットが既定のデバイスでない場合は、既定にしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">ホームで「Macで再生されるすべて」を選びます。既定のスピーカーまたはヘッドセットで再生されるすべてが「このMac」として字幕になります。ヘッドセットが既定のデバイスでない場合は、既定にしてください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1864,6 +2021,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">字幕ウィンドウはドラッグで移動、端をドラッグでサイズ変更できます。ホームまたは通知領域のメニューの「すべてロック」でクリックが下に届きます。見失ったら、ホームの「位置をリセット」で全ウィンドウが戻ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">ゲームの上で</translation>
     </message>
@@ -1871,6 +2033,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、すべてロック（Ctrl+Alt+L）でクリックをゲームに通します。戦闘中はすべて非表示（Ctrl+Alt+H）。ショートカットキーはゲーム中も使えますが、まだ変更できません。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、ホームまたは通知領域のメニューの「すべてロック」でクリックをゲームに通します。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1891,6 +2058,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">このPCから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このPCは各アプリの直近2分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのPCから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">このMacから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このMacは各アプリの直近2分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのMacから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1934,6 +2106,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">調べて保存した単語は「単語」にあります。このMacと、アカウントがあれば当社のサーバーに保存され、別のコンピューターでも使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">単語を Anki に入れる</translation>
     </message>
@@ -1952,8 +2129,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">このMacの学習データが破損していたため、{name} として退避しました。保存した単語をアカウントから復元しています。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">このPCの学習データが破損していたため、Polyglotic を再起動するまで変更はここに保存されません。再起動すると保存した単語がアカウントから戻ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">このMacの学習データが破損していたため、Polyglotic を再起動するまで変更はここに保存されません。再起動すると保存した単語がアカウントから戻ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2068,8 +2255,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">このMacの日付と時刻を確認してください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
         <translation type="unfinished">Polyglotic を開いているPCが多すぎます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
+        <translation type="unfinished">Polyglotic を開いているコンピューターが多すぎます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2090,8 +2287,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">この Mac の日付または時刻が正しくないようです（{date} {time} になっています）。字幕は使えます。直すには、システム設定の「一般」&gt;「日付と時刻」で「日付と時刻を自動的に設定」をオンにしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">当社のコード（招待コードか Plus のメールのコード）が必要です</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">ここか通知領域から再開できます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2178,6 +2386,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">このMacはオフラインのようです。インターネット接続を確認してください。正常なら当社側の問題です</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">インターネットを確認してください。正常なら当社側の障害の可能性があります</translation>
     </message>
@@ -2209,6 +2422,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">この Mac の日付は{date}になっていますが、正しくありません。システム設定の「一般」&gt;「日付と時刻」で「日付と時刻を自動的に設定」をオンにしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">このネットワークの何かが、期限切れの証明書で妨げています（多くはウイルス対策ソフトの HTTPS スキャン、または VPN）。Polyglotic に対してそれをオフにするか、別のネットワークをお試しください</translation>
@@ -2222,6 +2441,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
         <translation type="unfinished">このネットワークからのサインイン失敗が多すぎたため、サーバーはこのPCを受け入れる前に待機しています</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
+        <translation type="unfinished">このネットワークからのサインイン失敗が多すぎたため、サーバーはこのMacを受け入れる前に待機しています</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2245,8 +2469,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">Macで再生されるすべて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
         <translation type="unfinished">PCで再生されるその他すべて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
+        <translation type="unfinished">Macで再生されるその他すべて</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2307,13 +2541,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">字幕ウィンドウを表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">非表示：Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">字幕ウィンドウを表示</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">非表示：「すべて非表示」をオフにすると表示されます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2372,8 +2611,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">アプリを追加するか「Macで再生されるすべて」を選ぶまで、何も字幕になりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
         <translation type="unfinished">PCで再生されるその他すべても字幕にする（別ウィンドウ）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
+        <translation type="unfinished">Macで再生されるその他すべても字幕にする（別ウィンドウ）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2432,6 +2681,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Macで再生されるすべて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">アプリをもう一度試す</translation>
     </message>
@@ -2444,6 +2698,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
         <translation type="unfinished">このPC</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">このMac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2477,8 +2736,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">アプリの代わりに：この Mac では1つのアプリだけを字幕にできませんでした</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">アプリの代わりに（このバージョンの Windows ではこれのみ）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">アプリの代わりに（このバージョンの macOS ではこれのみ）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2489,6 +2758,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
         <translation type="unfinished">{app} 以外の、PCで再生されるすべて（専用ウィンドウ）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
+        <translation type="unfinished">{app} 以外の、Macで再生されるすべて（専用ウィンドウ）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2572,18 +2846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">すべて非表示</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2594,6 +2858,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">位置をリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2717,11 +2991,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">すべてのウィンドウをロック</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">ロック：クリックが下にあるものに届きます。Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3449,6 +3718,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">オープンデータによる簡易辞書（意味は人による確認を受けていません）。用意できていれば、この Mac に入ると {language} の字幕で単語を調べられます。どちらの場合も字幕と翻訳は使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">オープンデータによる簡易辞書（意味は人による確認を受けていません）。用意できていれば、{language} を追加するとそのカードに表示されます。どちらの場合も字幕と翻訳は使えます。</translation>
     </message>
@@ -3758,6 +4032,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">この Mac の辞書</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">学習している言語のためにダウンロードしたものです。削除すると空き容量が増えます。再びダウンロードするまで、その言語では単語を調べられません。</translation>
     </message>
@@ -3775,6 +4054,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">調べた・保存した・マークした単語は、このPCと、辞書の単語と日時として当社のサーバーに保存されます。アカウントと同じく、学習中のすべての言語について削除できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">調べた・保存した・マークした単語は、このMacと、辞書の単語と日時として当社のサーバーに保存されます。アカウントと同じく、学習中のすべての言語について削除できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -3842,6 +4126,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
         <translation type="unfinished">この PC の空き容量が足りません：{size} の空きが必要です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
+        <translation type="unfinished">この Mac の空き容量が足りません：{size} の空きが必要です。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -3925,6 +4214,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">この Mac：バージョン {version}、{size}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">新しいバージョン（{size}）が従量制でない接続を待っています。</translation>
     </message>
@@ -3962,6 +4256,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">この PC の {size} が空きます。あとで {language} を学習すると、再びダウンロードされます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">この Mac の {size} が空きます。あとで {language} を学習すると、再びダウンロードされます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4143,6 +4442,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">数えるのは PC が再生した音声の完成した字幕だけです。あなたが話したことは数えません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">数えるのは Mac が再生した音声の完成した字幕だけです。あなたが話したことは数えません。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -4962,6 +5266,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">このMacのどのフォントでも使えます。中国語や日本語の文字がないフォントの場合は、それを含むフォントで表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">翻訳の上に原文を表示</translation>
     </message>
@@ -5232,6 +5541,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">スライド：新しい字幕が下から上がってきます（Macのアニメーション効果がオフのときを除く）。表示：何も動きません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">無音で薄く消す</translation>
     </message>
@@ -5415,6 +5729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">このMacについて：アプリ、システム、オーディオデバイス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">直近数分の字幕（表示されたとおり）</translation>
     </message>
@@ -5500,6 +5819,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
         <translation type="unfinished">PCに合わせる</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
+        <translation type="unfinished">Macに合わせる</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6000,6 +6324,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">このMacは以前にサインインしています。そのときの招待コードがここでもう一度使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">サインイン中…</translation>
     </message>
@@ -6020,6 +6349,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">このコードは使えません。入力ミス、他のコンピューターで使用済み、または無効になった可能性があります。確認するか、ご連絡いただければ対応します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">このコードのサブスクリプションは使用前に解約されたため、Plus は付きません。Plus を使うにはサイトで再度登録してください。解約していない場合はご連絡ください。</translation>
     </message>
@@ -6032,6 +6366,11 @@
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">このPCのサインインの有効期限が切れました。アカウントでサインアウトしてから、このコードでサインインしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">このMacのサインインの有効期限が切れました。アカウントでサインアウトしてから、このコードでサインインしてください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6050,6 +6389,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">このPCの日付は{date}になっていますが、正しくありません。安全な接続には正しい日付が必要です。Windows の設定の「時刻と言語」&gt;「日付と時刻」で「時刻を自動的に設定する」をオンにし、「今すぐ同期」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">この Mac の日付は{date}になっていますが、正しくありません。安全な接続には正しい日付が必要です。システム設定の「一般」&gt;「日付と時刻」で「日付と時刻を自動的に設定」をオンにしてください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6088,13 +6433,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">このMacで Polyglotic からサインアウトしますか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">もう一度サインインするまで字幕は止まります。同じ招待コードがこのPCでもう一度使えます。保存した単語と学習データは、このPCと当社のサーバーに残ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">もう一度サインインするまで字幕は止まります。同じ招待コードがこのMacでもう一度使えます。保存した単語と学習データは、このMacと当社のサーバーに残ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">このPCがまだサーバーに送っていない変更は破棄され、次にサインインする人には届きません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">このMacがまだサーバーに送っていない変更は破棄され、次にサインインする人には届きません。</translation>
     </message>
 </context>
 <context>
@@ -6106,8 +6466,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">このMacの既定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
         <translation type="unfinished">このPCの既定（{device}）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
+        <translation type="unfinished">このMacの既定（{device}）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6133,6 +6503,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">「PCで再生されるすべて」用。追加したアプリはどのスピーカーでも聞き取ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">「Macで再生されるすべて」用。追加したアプリはどのスピーカーでも聞き取ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6168,6 +6543,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
         <translation type="unfinished">接続されていません - このPCの既定を使用中</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
+        <translation type="unfinished">接続されていません - このMacの既定を使用中</translation>
     </message>
 </context>
 <context>
@@ -6421,6 +6801,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">ロック解除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">すべての字幕ウィンドウのロックを解除</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6497,6 +6890,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">字幕をオンにしていた時間（このPCで集計）。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">字幕をオンにしていた時間（このMacで集計）。</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6528,6 +6926,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
         <translation type="unfinished">確定した字幕からこのPCで集計し、ここに保存しています。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
+        <translation type="unfinished">確定した字幕からこのMacで集計し、ここに保存しています。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>

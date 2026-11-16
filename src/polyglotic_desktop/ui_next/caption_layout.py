@@ -1115,6 +1115,30 @@ def span_rects(layout: QTextLayout, start: int, end: int) -> list[QRectF]:
     return rects
 
 
+def dot_place(font: QFont) -> tuple[float, float]:
+    """Where a dotted mark's dots go in `font`: how far below a line's
+    baseline they start, and their size (`_dots`)."""
+    scale = max(0.5, font.pixelSize() / 21.0)
+    metrics = QFontMetricsF(font)
+    drop = metrics.underlinePos() + metrics.lineWidth() + DOT_DROP_PX * scale
+    return drop, DOT_PX * scale
+
+
+def dots_below(layout: QTextLayout) -> float:
+    """How far the dots under a line of `layout` reach below the line's own
+    box - a new word's dots hang under its descenders (polyglotic-hq 402)."""
+    if layout.lineCount() == 0:
+        return 0.0
+    drop, size = dot_place(layout.font())
+    return max(
+        0.0,
+        max(
+            line.ascent() + drop + size - line.height()
+            for line in (layout.lineAt(n) for n in range(layout.lineCount()))
+        ),
+    )
+
+
 def _dots(
     painter: QPainter,
     layout: QTextLayout,
@@ -1126,9 +1150,7 @@ def _dots(
     (drawn at `at`), below where an underline goes."""
     font = layout.font()
     scale = max(0.5, font.pixelSize() / 21.0)
-    metrics = QFontMetricsF(font)
-    drop = metrics.underlinePos() + metrics.lineWidth() + DOT_DROP_PX * scale
-    size = DOT_PX * scale
+    drop, size = dot_place(font)
     painter.save()
     painter.setPen(Qt.PenStyle.NoPen)
     for start, end, color, dashed in spans:

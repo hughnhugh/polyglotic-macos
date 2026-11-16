@@ -234,12 +234,12 @@ def test_traditional_chinese_says_help_and_kind_in_taiwans_words() -> None:
     file = ts.read(i18n.ts_path("zh_TW"))
     said = {source: t.forms for (_c, source, _d), t in file.translations.items()}
     assert not [forms for forms in said.values() if any("型別" in f for f in forms)]
-    helps = [  # "what would help", "They help us"
+    helps = [  # "what would help", "They help us" (this PC's and this Mac's: 409)
         forms[0]
         for source, forms in said.items()
         if source.startswith(("Tell us what went wrong or what", "Daily counts of how"))
     ]
-    assert len(helps) == 2
+    assert len(helps) == 3
     assert all("幫助" in each and "說明" not in each for each in helps)
 
 

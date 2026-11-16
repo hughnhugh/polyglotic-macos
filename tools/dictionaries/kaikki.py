@@ -29,6 +29,9 @@ from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from tools.dictionaries.russian import is_letter
+from tools.dictionaries.treebanks import IN_NAME, POSSESSIVE
+
 # Tags on a form-of sense or a form that say it is no word of its own
 _FORM_OF_TAGS = frozenset({"form-of", "alt-of"})
 # a short way of writing a word, not a form of it: wordfreq can't tell "D"
@@ -38,9 +41,12 @@ _SHORT_FOR = frozenset({"abbreviation", "initialism", "acronym", "symbol"})
 # + o), "au" (à + le), "l'" are words
 _SHORTENED = frozenset({"contraction", "apocopic", "clipping", "elided"})
 # Tags on a lemma's `forms` that aren't inflections: table headings, the
-# template's name, spellings in another script, the lemma itself
+# template's name, spellings in another script, the lemma itself, the verb
+# a table conjugates (Spanish's "se" names saber: "saber" had become se's
+# form, and its card opened on the pronoun se; polyglotic-hq 407)
 _NOT_A_FORM = frozenset(
     {
+        "base-form",
         "table-tags",
         "inflection-template",
         "class",
@@ -77,6 +83,41 @@ says what it is a form of (Spanish's "va", "sé"). A broken template
 listed "ii" and "i" as forms of Romanian's vârtejire (whirlwind), its 47th
 word; some nouns list bare endings ("ei", "le"); German's Rallye lists
 "n" (polyglotic-hq 387, 390)."""
+SMALL_WORDS = frozenset({"pron", "det", "article", "particle"})
+"""Parts of speech whose tables' short forms count all the same: a
+pronoun's table is where Romanian's clitics le, îl, ne, vă and te are
+forms (their pages say "them", "him", but name no lemma), and Ukrainian's
+їм (to them) and же (ж's other spelling) - words in their languages' top
+200 that `SHORT` had cut (polyglotic-hq 394, 396). Where the short form's
+own page, in the same part of speech, names its lemmas, only those count:
+Ukrainian's personal pronouns share one table, so їм is listed under я
+and ти too, but its page says "dative of вони́". A mark is no small
+word: Persian's ezafe hamza ٔ lists ی, so ی (the ending written apart)
+had made the bare mark its 193rd word."""
+_STRESS = str.maketrans("", "", "\u0301\u0300")
+"""Stress marks over Cyrillic letters, which no precomposed letter holds:
+Ukrainian's form-of targets carry them ("вони́"), its headwords don't -
+31,755 of its 34,449 targets, so nearly every page's form link was dead
+and Ukrainian found its forms through tables alone (polyglotic-hq 396,
+399; `unmarked`). Macedonian's carry them on 676."""
+PERSON = frozenset(
+    {
+        "first-person",
+        "second-person",
+        "third-person",
+        "singular",
+        "plural",
+        "masculine",
+        "feminine",
+        "neuter",
+        "formal",
+        "informal",
+        "reflexive",
+        "possessive",
+    }
+)
+"""The tags that say which pronoun a row of a personal pronouns' table is
+(`pronoun_rows`)."""
 MAX_MEANINGS = 8  # per entry: the card shows three; the rest is size
 
 RARE = frozenset(
@@ -127,13 +168,13 @@ UD_POS = {
     "prep": ("ADP",),
     "postp": ("ADP",),
     "conj": ("CCONJ", "SCONJ"),
-    "pron": ("PRON",),
+    "pron": ("PRON", POSSESSIVE),
     "det": ("DET",),
     "article": ("DET",),
     "num": ("NUM",),
     "particle": ("PART", "INTJ"),
     "intj": ("INTJ",),
-    "name": ("PROPN",),
+    "name": ("PROPN", IN_NAME),
 }
 """Wiktionary's parts of speech as Universal Dependencies tags them. A
 classifier has no tag of its own (Thai's treebanks call it a noun), so it
@@ -200,6 +241,22 @@ class Language:
     """(form, lemma) pairs where the form is a verb's inflection ("era" of
     ser) - not a noun's or adjective's form or another spelling ("pibe"
     is listed under piba, "güey" is a spelling of buey)."""
+    came_through: dict[tuple[str, str], set[str]] = field(
+        default_factory=lambda: defaultdict(set)
+    )
+    """(form, lemma) -> the parts of speech of the pages and tables that
+    link them: Romanian's vă is in the pronoun voi's table, so its card
+    opens on voi "you", not the verb voi "to want" (`packs.assemble`;
+    polyglotic-hq 396, 399)."""
+    link_kinds: dict[tuple[str, str], set[str]] = field(
+        default_factory=lambda: defaultdict(set)
+    )
+    """(form, lemma) -> what the link says the form is, where a treebank's
+    counts can't tell it from the lemma's other uses (`link_kind`): a
+    degree of comparison ("comparative": Swedish's "mindre" of lite), an
+    adposition with a pronoun attached ("pronoun": Arabic's لَكُنَّ, ل
+    "to" with "you"), or an oblique case ("case": Turkish's "içinde", iç's
+    locative) (`packs.lemma_used`; polyglotic-hq 416)."""
     combined: list[Combined] = field(default_factory=list)
     lemma_first: dict[str, frozenset[str]] = field(default_factory=dict)
     """Form -> the lemmas its page starts with it as a form of (its first
@@ -236,8 +293,9 @@ def lines(path: Path, lang_code: str) -> Iterator[dict[str, object]]:
 
 
 def lines_of(text: Iterable[str], lang_code: str) -> Iterator[dict[str, object]]:
-    """The objects for one language in lines of JSON. Lines that aren't
-    JSON objects are skipped (the extracts carry a few)."""
+    """The objects for one language in lines of JSON, each under the word
+    its page is about (`page_word`). Lines that aren't JSON objects are
+    skipped (the extracts carry a few)."""
     needle = f'"lang_code": "{lang_code}"'
     for line in text:
         if needle not in line:  # cheap filter before parsing
@@ -247,7 +305,27 @@ def lines_of(text: Iterable[str], lang_code: str) -> Iterator[dict[str, object]]
         except json.JSONDecodeError:
             continue
         if isinstance(obj, dict) and obj.get("lang_code") == lang_code:
+            word = obj.get("word")
+            if isinstance(word, str) and _SUBPAGE.search(word):
+                obj["word"] = page_word(word)
+                if is_letter(obj):
+                    continue  # a split page's letter: see `page_word`
             yield obj
+
+
+_SUBPAGE = re.compile(r"/languages [A-Z] to [A-Z]$")
+
+
+def page_word(title: str) -> str:
+    """The word a page is about. English Wiktionary splits its longest
+    pages by language, and kaikki keeps the part's title: Polish's "i"
+    ("and", 2.7 % of its running words), Czech's, Swedish's and Italian's
+    are under "i/languages A to L" or "i/languages M to Z", so they had no
+    entry and the packs wrote them by hand (polyglotic-hq 390, 396, 399).
+    Such a page's letter is left out, as a letter is no word of a caption
+    (`russian.is_letter`): the readers that keep letters (Spanish's,
+    Vietnamese's) had made "i" their 419th and 191st word."""
+    return _SUBPAGE.sub("", title)
 
 
 def _strs(value: object) -> list[str]:
@@ -277,6 +355,40 @@ def lemmas_of(form_of: str, two: bool = True) -> list[str]:
     if pieces != [lemma] and all(" " not in p for p in pieces):
         return pieces
     return [lemma] if lemma else []
+
+
+_ELIDED_OF = re.compile(
+    r"^(?:(?:elided|prevocalic|apocopic|clitic) form|elision) of (\w+)", re.IGNORECASE
+)
+
+
+def elided_of(sense: Mapping[str, object]) -> list[str]:
+    """The word an elided word's sense says it is written short for, where
+    Wiktionary gives it in words only, with no form-of link: French's n'
+    ("Prevocalic form of ne."), m' and t' ("elided form of te"), s'
+    ("Elision of se before a word beginning with a vowel."). They had been
+    read as words whose meaning is that sentence, with no frequency of their
+    own, and cut: "n'" opened nothing (polyglotic-hq 413)."""
+    glosses = _strs(sense.get("glosses"))
+    found = _ELIDED_OF.match(" ".join(glosses[-1].split())) if glosses else None
+    return [found.group(1)] if found else []
+
+
+def said_for_several(sense: Mapping[str, object]) -> bool:
+    """A form-of sense that names several words and says what it means
+    after them (kaikki's `extra`): Romanian's își, "unstressed reflexive
+    dative of el, ea, ei and ele: (to) himself/herself/themselves". Like a
+    small word's "X and Y" (`TWO_LEMMAS`), it is what it means, not a form
+    of any one of them: își had no entry, so și-a ("contraction of își +
+    a") found nothing (polyglotic-hq 399, 407). A form of one word ("dich:
+    accusative of du; you") stays that word's form."""
+    targets = _dicts(sense.get("form_of"))
+    return (
+        "form-of" in _strs(sense.get("tags"))
+        and len({str(t.get("word") or "") for t in targets}) > 1
+        and any(t.get("extra") for t in targets)
+        and bool(_SAYS_WHAT.search(" ".join(_strs(sense.get("glosses")))))
+    )
 
 
 TWO_LEMMAS = frozenset({"verb", "noun", "adj"})
@@ -320,6 +432,7 @@ def read_language(
     uses: Uses | None = None,
     derived: frozenset[str] = frozenset(),
     short_forms: bool = False,
+    chain: bool = False,
 ) -> Language:
     """Entries and form relations from one language's objects (`lines`),
     each entry's reading by `reading` (its first IPA unless said).
@@ -333,7 +446,21 @@ def read_language(
     `short_forms`: a table form of `SHORT` letters or fewer counts - in
     Thai's script two letters are a word (ไท, an older spelling of ไทย),
     and its pack cuts lone letters itself (`thai.caption_word`;
-    polyglotic-hq 389, 394).
+    polyglotic-hq 389, 394). Without it, such a form counts only in a
+    small word's table (`SMALL_WORDS`).
+    `chain`: a form of a word whose page gives no entry counts for that
+    word's own lemmas (`chained`): Czech's není (is not) is a form of
+    nebýt, whose page is only "negative form of být" (polyglotic-hq 396).
+    The generic reader's (`packs.read_wiktionary`); not Russian's, whose
+    participles find their verbs by a rule of their own.
+
+    Whatever the language: a link to a stress-marked word with no page is a
+    link to its page without the marks (`_unmarked`); a row of a personal
+    pronouns' table is its own pronoun's form (`pronoun_rows`); a small
+    word's sense tagged a form of nothing is a meaning (Romanian's îi, "to
+    him"), and so is one naming several words that says what it means
+    (`said_for_several`: Romanian's își); and each link keeps the parts of
+    speech it came through (`Language.came_through`).
 
     A card shows a word's entries and meanings in the order given here, so
     the commonest comes first (polyglotic-hq 393): an entry's rare senses
@@ -346,12 +473,19 @@ def read_language(
     # ...and it starts with a form-of: (its lemmas, its part of speech, tags)
     form_pos: dict[str, set[str]] = defaultdict(set)  # parts of speech of forms
     moods: dict[tuple[str, str], set[bool]] = defaultdict(set)  # imperative?
+    page_names: dict[tuple[str, str], set[str]] = defaultdict(set)
+    # (word, part of speech) -> the lemmas its own page names, unstressed
+    small: list[tuple[str, str, str]] = []  # short small words' table forms
+    form_of: dict[str, set[str]] = defaultdict(set)  # its page's form-of lemmas
+    tabled: dict[str, set[str]] = defaultdict(set)  # lemmas whose table has it
+    pages: set[str] = set()  # every word with a page
     for obj in objects:
         word = obj.get("word")
         if not isinstance(word, str) or not word.strip():
             continue
         if " " in word.strip() and not spaced_words:
             continue  # phrases aren't looked up from a caption's words
+        pages.add(word)
         pos = str(obj.get("pos") or "")
         own: list[str] = []
         reflexive: list[str] = []
@@ -369,6 +503,8 @@ def read_language(
                 for lemma in lemmas_of(str(t.get("word") or ""), pos in TWO_LEMMAS)
             ]
             tags = set(_strs(sense.get("tags")))
+            if not targets and word[-1:] in "'’":
+                targets = elided_of(sense)  # French's n': "Prevocalic form of ne."
             if targets and not spaced_words and all(" " in t for t in targets):
                 targets = []  # "della": "contraction of di la" - a meaning
                 tags -= _FORM_OF_TAGS
@@ -377,6 +513,9 @@ def read_language(
             ):
                 targets = []  # "causative of azalmak: to decrease" - a meaning
                 tags -= _FORM_OF_TAGS
+            if pos in SMALL_WORDS and said_for_several(sense):
+                targets = []  # "... dative of el, ea, ei and ele: (to) himself"
+                tags -= _FORM_OF_TAGS
             if (
                 "alt-of" in tags
                 and tags & _SHORT_FOR
@@ -384,6 +523,9 @@ def read_language(
                 and len(word) <= SHORT
             ):
                 continue  # "D", abbreviation of dame: neither a form nor a meaning
+            page_names[(word, pos)].update(t.translate(_STRESS) for t in targets)
+            if "alt-of" not in tags:
+                form_of[word].update(targets)
             if first_object and n == 0 and targets:
                 said = " ".join(_strs(sense.get("glosses")))
                 equivalent = {"equivalent"} if _EQUIVALENT.match(said) else set()
@@ -394,7 +536,10 @@ def read_language(
                 )
             if targets:
                 form_pos[word].add(pos)
-            if targets or _FORM_OF_TAGS & tags:
+            said_alone = not targets and pos in SMALL_WORDS and "alt-of" not in tags
+            # Romanian's îi, îți, vă: "to him", "to you", "you", tagged a form
+            # of no word - their meanings (polyglotic-hq 399)
+            if targets or (_FORM_OF_TAGS & tags and not said_alone):
                 # "... of levantar combined with te": in the target, or the gloss
                 said = " ".join(_strs(sense.get("glosses")))
                 for target in _dicts(sense.get("form_of")):
@@ -413,6 +558,9 @@ def read_language(
                 for lemma in targets:
                     if lemma and lemma != word:
                         out.forms[word].add(lemma)
+                        out.came_through[(word, lemma)].add(pos)
+                        if kind := link_kind(pos, tags):
+                            out.link_kinds[(word, lemma)] |= kind
                         if pos == "verb" and "alt-of" not in tags:
                             out.verb_forms.add((word, lemma))
                         if tags - _FORM_OF_TAGS:  # not a heading over its senses
@@ -431,23 +579,36 @@ def read_language(
                     if tags & _REFLEXIVE_TAGS:
                         reflexive.append(gloss)
         table: set[str] = set()
-        for form in _dicts(obj.get("forms")):
+        small_word = pos in SMALL_WORDS and any(ch.isalpha() for ch in word)
+        rows = _dicts(obj.get("forms"))
+        whose = pronoun_rows(word, rows)
+        for n, form in enumerate(rows):
             text = form.get("form")
             tags = set(_strs(form.get("tags")))
+            owner = whose.get(n, word)
             if (
                 isinstance(text, str)
                 and text
                 and text != word
+                and owner is not None
+                and text.translate(_STRESS) != owner
                 and (spaced_words or " " not in text)
                 and not tags & _NOT_A_FORM
                 and not text.startswith("-")  # a bare ending ("-lor")
-                and (short_forms or len(text) > SHORT)
+                and (short_forms or len(text) > SHORT or small_word)
             ):
-                out.forms[text].add(word)
-                table.add(text)
-                moods[(text, word)].add("imperative" in tags)
+                if not short_forms and len(text) <= SHORT:
+                    small.append((text, owner, pos))
+                out.forms[text].add(owner)
+                out.came_through[(text, owner)].add(pos)
+                if kind := link_kind(pos, tags):
+                    out.link_kinds[(text, owner)] |= kind
+                tabled[text].add(owner)
+                if owner == word:
+                    table.add(text)
+                moods[(text, owner)].add("imperative" in tags)
                 if pos == "verb":
-                    out.verb_forms.add((text, word))
+                    out.verb_forms.add((text, owner))
         if not own:
             continue
         rare -= common
@@ -478,10 +639,168 @@ def read_language(
         )
         if reflexive:
             out.reflexive[key] = reflexive
+    for text, word, pos in small:  # its own page says whose form it is
+        says = page_names.get((text, pos))
+        if says and word.translate(_STRESS) not in says:
+            out.forms[text].discard(word)
+            moods.pop((text, word), None)
+            out.came_through.pop((text, word), None)
+            out.link_kinds.pop((text, word), None)
+    _unmarked(out, pages, moods, form_of, starts_as_form)
+    if chain:
+        chained(out, form_of, tabled)
+    out.forms = defaultdict(set, {f: ls for f, ls in out.forms.items() if ls})
     out.imperative = {pair for pair, kinds in moods.items() if kinds == {True}}
     out.entries = in_order(out.entries, uses)
     out.lemma_first = lemma_first(out.entries, starts_as_form, form_pos, uses)
     return out
+
+
+DEGREES = frozenset({"comparative", "superlative"})
+"""Tags of a link that is a degree of comparison."""
+PERSONS = frozenset({"first-person", "second-person", "third-person"})
+"""Tags of a link with a person: on an adposition's form, a pronoun attached."""
+OBLIQUE = frozenset(
+    {"locative", "dative", "ablative", "instrumental", "genitive", "essive"}
+)
+"""Tags of a link in an oblique case: a noun so may be used as an adposition."""
+ADPOSITIONS = frozenset({"prep", "postp"})
+"""Wiktionary's parts of speech for adpositions."""
+
+
+def link_kind(pos: str, tags: set[str]) -> set[str]:
+    """What a link (a form-of sense's or a table row's `tags`, through `pos`)
+    says its form is, for `Language.link_kinds`: "comparative" or
+    "superlative"; "pronoun" where an adposition's form has a person
+    (Arabic's لَكُنَّ, "to you", second-person feminine plural of ل); "case"
+    where it is in an oblique case (Turkish's "içinde", iç's locative)."""
+    kind = set(tags & DEGREES)
+    if pos in ADPOSITIONS and tags & PERSONS:
+        kind.add("pronoun")
+    if tags & OBLIQUE:
+        kind.add("case")
+    return kind
+
+
+def pronoun_rows(word: str, rows: list[dict[str, object]]) -> dict[int, str | None]:
+    """Whose form each row of a personal pronouns' table is, by its place
+    in `rows` (a page's `forms`): Ukrainian's and Swedish's personal
+    pronouns share one table, on each one's page, so нам ("to us") was
+    я's form as well as ми's, and its card opened on я, "I" (polyglotic-hq
+    396, 399). A row is its pronoun's by its person, number, gender and
+    the like (`PERSON`): the pronoun is the one nominative among such rows,
+    else the page's own word if it is one of them (Ukrainian's себе, whose
+    nominative is "-"), else nobody's (None: its own page says). A row
+    that isn't a personal pronoun's is left out: the page's word's."""
+    nominatives: dict[frozenset[str], set[str]] = defaultdict(set)
+    written: dict[frozenset[str], set[str]] = defaultdict(set)
+    person: dict[int, frozenset[str]] = {}
+    for n, row in enumerate(rows):
+        tags = set(_strs(row.get("tags")))
+        text = row.get("form")
+        if not {"personal", "pronoun"} <= tags or not isinstance(text, str):
+            continue
+        person[n] = frozenset(tags & PERSON)
+        plain = text.translate(_STRESS)
+        written[person[n]].add(plain)
+        if "nominative" in tags and plain.strip("-"):
+            nominatives[person[n]].add(plain)
+    out: dict[int, str | None] = {}
+    for n, key in person.items():
+        nominative = nominatives.get(key, set())
+        out[n] = (
+            next(iter(nominative))
+            if len(nominative) == 1
+            else word
+            if word in written[key]
+            else None
+        )
+    return out
+
+
+def _unmarked(
+    language: Language,
+    pages: set[str],
+    moods: dict[tuple[str, str], set[bool]],
+    form_of: dict[str, set[str]],
+    starts: dict[str, tuple[frozenset[str], str, frozenset[str]]],
+) -> None:
+    """Each link to a stress-marked word that has no page made a link to
+    the word without its marks, where that has one (`_STRESS`): Ukrainian's
+    "вони́" is the page вони."""
+
+    def found(lemma: str) -> str:
+        if lemma in pages:
+            return lemma
+        plain = lemma.translate(_STRESS)
+        return plain if plain in pages else lemma
+
+    for form, lemmas in language.forms.items():
+        if any(found(lemma) != lemma for lemma in lemmas):
+            plain = {found(lemma) for lemma in lemmas} - {form}
+            lemmas.clear()
+            lemmas.update(plain)
+    for lemmas in form_of.values():
+        if any(found(lemma) != lemma for lemma in lemmas):
+            plain = {found(lemma) for lemma in lemmas}
+            lemmas.clear()
+            lemmas.update(plain)
+    language.verb_forms = {
+        (form, found(lemma))
+        for form, lemma in language.verb_forms
+        if found(lemma) != form
+    }
+    _repointed(moods, found)
+    _repointed(language.came_through, found)
+    _repointed(language.link_kinds, found)
+    for word, (named, pos, tags) in list(starts.items()):
+        starts[word] = (frozenset(found(lemma) for lemma in named), pos, tags)
+
+
+def _repointed[T](
+    pairs: dict[tuple[str, str], set[T]], found: Callable[[str], str]
+) -> None:
+    """`pairs`, (form, lemma) -> what is known of the link, with each lemma
+    as `found` says, in place."""
+    for form, lemma in [p for p in pairs if found(p[1]) != p[1]]:
+        kinds = pairs.pop((form, lemma))
+        if found(lemma) != form:
+            pairs.setdefault((form, found(lemma)), set()).update(kinds)
+
+
+def chained(
+    language: Language,
+    form_of: Mapping[str, set[str]],
+    tabled: Mapping[str, set[str]],
+) -> None:
+    """Each form of a word whose page gives no entry counts for the lemmas
+    that page says it is a form of (`form_of`: a page's form-of senses'
+    lemmas, not its other spellings'), one step: Czech's není (is not, its
+    66th word) is nebýt's, and nebýt's page is only "negative form of
+    být", so není had found nothing (polyglotic-hq 394, 396).
+    - Only a form none of whose lemmas has an entry: one that found an
+      entry is left as it was.
+    - Not from or through another spelling (an alt-of sense): Italian's
+      "r" (the letter's frequency) is a spelling of er, a form of el, which
+      it had made the 385th word; Swiss German's
+      "massnahmen" would have become maßnehmen's (to take measure), its
+      frequency Maßnahmen's; French's T-N-L, through the initialism TNL,
+      had made Terre-Neuve-et-Labrador its 716th word.
+    - A form's own table counts as its page; a lemma's table doesn't:
+      Ukrainian's shared pronoun table lists вони́
+      (stress-marked, no page) as я's."""
+    words = {e.word for e in language.entries}
+    before = {form: frozenset(lemmas) for form, lemmas in language.forms.items()}
+    for form, lemmas in language.forms.items():
+        if before[form] & words:
+            continue
+        for lemma in before[form] - words:
+            if lemma not in form_of.get(form, ()) and lemma not in tabled.get(form, ()):
+                continue  # another spelling: Italian's "r" is er's, er el's
+            further = frozenset(form_of.get(lemma, ())) - {form, lemma}
+            lemmas |= further
+            if (form, lemma) in language.verb_forms:
+                language.verb_forms.update((form, f) for f in further)
 
 
 DERIVED = frozenset(
@@ -546,10 +865,30 @@ def cased(word: str) -> bool:
     return any(c.lower() != c.upper() for c in word)
 
 
-def shares(word: str, uses: Uses | None) -> dict[str, float]:
+def resolved(counts: Mapping[str, int], parts: set[str]) -> Mapping[str, int]:
+    """A word's treebank `counts` with its uses as a possessive
+    (`treebanks.POSSESSIVE`, a pronoun attached as a determiner) as a
+    determiner's where Wiktionary has the word as one (`parts`: its own
+    entries'); otherwise they stay its pronoun's (`UD_POS`). Italian's
+    "mio" is a determiner ("my") and a pronoun ("mine"): "il mio libro"
+    is the determiner (polyglotic-hq 416)."""
+    n = counts.get(POSSESSIVE, 0)
+    if not n or not parts & {"det", "article"}:
+        return counts
+    out = {tag: c for tag, c in counts.items() if tag != POSSESSIVE}
+    out["DET"] = out.get("DET", 0) + n
+    return out
+
+
+def shares(
+    word: str, uses: Uses | None, parts: set[str] | None = None
+) -> dict[str, float]:
     """Each of Wiktionary's parts of speech -> its share of `word`'s uses in
-    the treebanks; empty if they use it fewer than `MIN_USES` times."""
+    the treebanks; empty if they use it fewer than `MIN_USES` times.
+    `parts`: the word's own entries' (`resolved`)."""
     counts = uses.get(word.lower()) if uses else None
+    if counts and parts:
+        counts = resolved(counts, parts)
     total = sum(counts.values()) if counts else 0
     if not counts or total < MIN_USES:
         return {}
@@ -579,7 +918,7 @@ def in_order(entries: list[WiktEntry], uses: Uses | None = None) -> list[WiktEnt
         if len(at) < 2:
             continue
         ordered = sorted((entries[i] for i in at), key=lambda e: e.standing)
-        share = shares(word, uses)
+        share = shares(word, uses, {e.pos for e in ordered})
         # a name may come first too, where the treebanks say it is the word
         # (Arabic's مصر, Egypt; محمد): only a letter, an affix or a rare
         # entry can't

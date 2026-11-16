@@ -336,6 +336,17 @@ def rgba(hex_color: str, alpha: float) -> str:
     return f"rgba({c.red()}, {c.green()}, {c.blue()}, {alpha:.3f})"
 
 
+QUIET_ROLES = ("PageSubtitle", "Dim", "Faint", "Warning")
+"""A label's roles (`controls.label`) the stylesheet also finds by the
+label's `role` property: a note keeps its colour and size when it's given
+an object name of its own."""
+
+
+def _role(role: str) -> str:
+    assert role in QUIET_ROLES
+    return f'QLabel[role="{role}"]'
+
+
 def stylesheet(t: Theme) -> str:
     """A window's stylesheet in theme `t`'s colours, its text at the text
     size now (`px`): today's, and the new parts'."""
@@ -351,9 +362,9 @@ QMainWindow, QDialog, QTabWidget, #Page, #Content {{ background: {BG}; }}
 QToolTip {{ background: {SURFACE_2}; color: {TEXT}; border: 1px solid {BORDER}; padding: 4px 6px; }}
 #Card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px; }}
 #PageTitle {{ font-size: {px(24)}px; font-weight: 600; font-family: '{t.heading_family}', {_UI_FAMILY_CSS}; }}
-#PageSubtitle, #Dim {{ color: {TEXT_DIM}; }}
-#Faint, #machine_made {{ color: {TEXT_FAINT}; font-size: {px(12)}px; }}
-#Warning {{ color: {WARNING}; }}
+#PageSubtitle, #Dim, {_role("PageSubtitle")}, {_role("Dim")} {{ color: {TEXT_DIM}; }}
+#Faint, #machine_made, {_role("Faint")} {{ color: {TEXT_FAINT}; font-size: {px(12)}px; }}
+#Warning, {_role("Warning")} {{ color: {WARNING}; }}
 #Banner {{
     background: {rgba(WARNING, 0.14)}; border: 1px solid {rgba(WARNING, 0.5)};
     border-radius: 8px; padding: 6px 10px;
@@ -401,6 +412,8 @@ QLineEdit, QComboBox, QPlainTextEdit {{
 QLineEdit {{ placeholder-text-color: {TEXT_DIM}; }}
 QLabel {{ selection-background-color: {MARKER}; selection-color: {TEXT}; }}
 QComboBox[kind="chip"] {{ padding: 2px 8px; border-radius: 10px; }}
+QComboBox[drop="own"]::drop-down {{ border: none; background: transparent; width: {px(22)}px; }}
+QComboBox[drop="own"]::down-arrow {{ image: none; width: 0px; height: 0px; }}
 QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {{ border: 1px solid {FOCUS}; }}
 QComboBox QAbstractItemView {{ background: {SURFACE_2}; border: 1px solid {BORDER}; }}
 QTextBrowser {{

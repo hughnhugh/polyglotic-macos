@@ -844,6 +844,23 @@ class TranscriptList(QWidget):
         if found is not None and self.card is not None:
             self.card.pin(found, self)  # a click keeps the lookup up, as today
 
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        """A double-click on a word selects it whole, as in a caption window
+        (395); its first click already looked it up. Qt's own handler sends
+        the press again, and its release pinned the word a second time - two
+        lookups, and the second one turns a word assumed known new
+        (polyglotic-hq 397, 400). Anywhere else: a press, as before."""
+        word = None
+        if event.button() == Qt.MouseButton.LeftButton:
+            word = self._marked_at(event.position())
+        if word is None:
+            self.mousePressEvent(event)
+            return
+        self._press, self._dragging = None, False
+        self.anchor = (word.key, word.row, word.start)
+        self.head = (word.key, word.row, word.end)
+        self.update()
+
     def _drag_to(self, pos: QPointF) -> None:
         """The selection's end follows the mouse; above or below the list,
         it scrolls a step."""

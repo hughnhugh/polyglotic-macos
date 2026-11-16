@@ -8,7 +8,7 @@ from collections.abc import Iterator
 import pytest
 from PySide6.QtCore import QEvent, QPointF, Qt
 from PySide6.QtGui import QMouseEvent
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 from tests.ui.fakes import chinese_tools
 from tests.ui_next.made_up import finished_updates
 from tests.ui_next.test_lookup_card import click
@@ -179,3 +179,68 @@ def test_a_pinned_card_closes_with_the_window_it_came_from(
     assert shared.pinned and shared.origin is caption_window
     caption_window.close()
     assert not shared.isVisible()
+
+
+def pinned_lookups(shared: LookupCard, monkeypatch: pytest.MonkeyPatch) -> list[bool]:
+    """Each lookup the learner's vocabulary is told of, from now: True for
+    a pinned one (a click), which is what counts towards a word turning new
+    (polyglotic-hq 397)."""
+    vocabulary = shared.model.learner.of(None).vocabulary
+    told: list[bool] = []
+    real = vocabulary.looked_up
+
+    def counted(facts: object, pinned: bool) -> None:
+        told.append(pinned)
+        real(facts, pinned)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(vocabulary, "looked_up", counted)
+    return told
+
+
+def double_click(widget: QWidget, pos: QPointF) -> None:
+    """A double-click as Qt delivers it: press, release, double-click,
+    release - through the widget's event handling, so a widget without a
+    double-click handler of its own gets Qt's (which presses again)."""
+    for kind in (
+        QEvent.Type.MouseButtonPress,
+        QEvent.Type.MouseButtonRelease,
+        QEvent.Type.MouseButtonDblClick,
+        QEvent.Type.MouseButtonRelease,
+    ):
+        down = kind != QEvent.Type.MouseButtonRelease
+        QApplication.sendEvent(
+            widget,
+            QMouseEvent(
+                kind, pos, widget.mapToGlobal(pos), Qt.MouseButton.LeftButton,
+                Qt.MouseButton.LeftButton if down else Qt.MouseButton.NoButton,
+                Qt.KeyboardModifier.NoModifier,
+            ),
+        )  # fmt: skip
+
+
+def test_a_double_click_is_one_lookup_and_selects_the_word(
+    both: tuple[CaptionWindows, Transcripts], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 400: Qt's own double-click handler sent the press
+    again, so its release pinned the word a second time - two lookups, and
+    since 397 the second turns a word assumed known new."""
+    windows, transcripts = both
+    shown, shared = listed(transcripts), card(windows)
+    told = pinned_lookups(shared, monkeypatch)
+    _, point = find(shown, "游戏")
+    double_click(shown, point)
+    assert told == [True]  # one pinned lookup
+    assert shared.pinned and shared.model.card().word == "游戏"
+    assert shown.selectedText() == "游戏"  # the word, selected whole
+
+
+def test_two_clicks_apart_are_still_two_lookups(
+    both: tuple[CaptionWindows, Transcripts], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    windows, transcripts = both
+    shown, shared = listed(transcripts), card(windows)
+    told = pinned_lookups(shared, monkeypatch)
+    _, point = find(shown, "游戏")
+    click_list(shown, point)
+    click_list(shown, point)
+    assert told == [True, True]

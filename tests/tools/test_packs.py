@@ -76,6 +76,8 @@ SPANISH = [
     # an abbreviation in capitals written like a common word: "NO" is
     # noroeste's, "no" is no (polyglotic-hq 325)
     line("no", "adv", sense("no, not")),
+    # a letter, on a page split by language (polyglotic-hq 399)
+    line("i/languages A to L", "character", sense("The ninth letter")),
     line("noroeste", "noun", sense("northwest")),
     line("NO", "noun", sense("abbreviation of noroeste", "noroeste")),
     "not json {",
@@ -429,7 +431,7 @@ BATCH = {
 }
 """The first batch paired with English: lines for the rules each needs;
 Portuguese, Indonesian and Polish read as French does."""
-uk, fa, tl = in_("uk"), in_("fa"), in_("tl")
+uk, fa, tl, ro = in_("uk"), in_("fa"), in_("tl"), in_("ro")
 ZWNJ = "\u200c"
 SECOND = {
     "uk": [
@@ -439,6 +441,9 @@ SECOND = {
             sense("which, what"),
             forms=forms(("яки́й", "canonical"), ("яка́", "feminine nominative")),
         ),
+        # ти's own card shows той ("that") after "you"; тобі's mustn't (407)
+        uk("ти", "pron", sense("you"), forms=forms(("тобі", "dative"))),
+        uk("той", "det", sense("that"), forms=forms(("ти", "plural"))),
     ],
     "fa": [
         fa(
@@ -461,6 +466,39 @@ SECOND = {
         fa("و", "character", sense("The thirtieth letter of the Persian alphabet")),
         fa("و", "conj", sense("and")),
     ],
+    "ro": [
+        ro("îi", "pron", sense("to him", tags=["dative", "form-of"])),
+        ro("îi", "verb", sense("is", "fi")),
+        ro("fi", "verb", sense("to be")),
+        # Romanian's "i" is on a page split by language (polyglotic-hq 399)
+        ro("i/languages M to Z", "conj", sense("and", tags=["obsolete"])),
+        ro("vedea", "verb", sense("to see"), forms=forms(("vezi", "imperative"))),
+        ro("voi", "verb", sense("to want")),
+        ro("voi", "pron", sense("you (plural)"), forms=forms(("vă", "accusative"))),
+        ro("el", "pron", sense("he")),
+        ro("ea", "pron", sense("she")),
+        ro(
+            "își",
+            "pron",
+            {
+                "glosses": ["unstressed reflexive dative of el, ea: (to) himself"],
+                "tags": ["dative", "form-of", "reflexive", "unstressed"],
+                "form_of": [
+                    {"word": "el", "extra": "(to) himself"},
+                    {"word": "ea", "extra": "(to) himself"},
+                ],
+            },
+        ),
+        ro(
+            "și-a",
+            "contraction",
+            {
+                "glosses": ["contraction of își + a"],
+                "tags": ["abbreviation", "alt-of", "contraction"],
+                "alt_of": [{"word": "își", "extra": "+ a"}],
+            },
+        ),
+    ],
     "tl": [
         tl("isa", "num", sense("one")),
         tl("Isang", "name", sense("a diminutive of the female given name Isabel")),
@@ -479,7 +517,7 @@ FREQ: dict[str, dict[int, list[str]]] = {
     "es": {
         150: ["no"],
         200: ["casa", "saber", "decir"],
-        300: ["casar", "supe", "casas", "hacer"],
+        300: ["casar", "supe", "casas", "hacer", "i"],
         420: ["noroeste"],
     },
     "fr": {200: ["homme", "l'", "avoir"], 300: ["hommes", "ai", "aujourd'hui"]},
@@ -490,8 +528,13 @@ FREQ: dict[str, dict[int, list[str]]] = {
     "tr": {200: ["araştırmak", "ev", "ingiltere"], 300: ["araşmak", "aratmak"]},
     "ms": {200: ["kereta", "rumah", "penting", "tv", "jakarta"]},
     **{language: {300: []} for language in ("pt", "id", "pl")},
-    **{language: {300: []} for language in ("nl", "sv", "cs", "ro", "el", "mk")},
-    "uk": {150: ["яка"], 200: ["який"]},
+    **{language: {300: []} for language in ("nl", "sv", "cs", "el", "mk")},
+    "ro": {
+        150: ["i", "îi", "voi", "el"],
+        200: ["fi", "vedea", "vă", "ea", "își"],
+        250: ["vezi"],
+    },
+    "uk": {150: ["яка", "ти"], 200: ["який", "тобі"], 300: ["той"]},
     "fa": {150: ["و"], 200: ["کتاب", "کردن"]},
     "fil": {150: ["isang"], 200: ["isa", "noon", "noong", "kung"]},
     "ja": {200: ["する"], 300: ["食べる"], 400: ["剃る"]},
@@ -610,6 +653,7 @@ def test_the_spanish_pack_finds_lemmas_and_its_own_entries(built: Path) -> None:
     assert first("sé") == "(verb) to know"
     assert spanish.lookup("rarísimo") == []  # no frequency rank: cut
     assert spanish.lookup("a la vez") == []
+    assert spanish.lookup("i") == []  # a letter is no word of a caption
     assert all(e.entry_id.startswith("wiktes:") for e in spanish.lookup("hacer"))
     assert spanish.lookup("hacer")[0].meanings == ("(verb) to do", "(verb) to make")
 
@@ -1374,23 +1418,6 @@ def test_a_name_like_a_lower_case_word_keeps_its_own_forms_frequency() -> None:
     assert total["polski|adj|"] == pytest.approx(9e-4)
 
 
-def test_a_page_the_extracts_havent_got_is_supplied_until_they_have() -> None:
-    """kaikki's extracts have no page "i": Polish's "and", 2.7 % of its
-    running words, had no entry (polyglotic-hq 380, 390). It takes kaikki's
-    key, so the ID is the same once the source has it - and then the
-    source's entry is the one kept."""
-    empty = packs.Draft([], {})
-    found = packs.supplied(empty, "pl")
-    assert [(e.key, e.headword, e.meanings[0]) for e in found.entries] == [
-        ("i|conj|", "i", "(conj) and")
-    ]
-    assert found.forms == {"i": ["i|conj|"]}
-    own = packs.DraftEntry("i|conj|", "i", "", ("(conj) and, plus",), ("i",))
-    has_it = packs.supplied(packs.Draft([own], {"i": ["i|conj|"]}), "pl")
-    assert has_it.entries == [own]
-    assert packs.supplied(packs.Draft([], {}), "es").entries == []
-
-
 def test_arabic_is_found_written_without_hamza_or_with_alif_maqsura() -> None:
     """Five of Arabic's 200 commonest words in wordfreq's list are written
     so (انت for أنت, فى for في) and found nothing (polyglotic-hq 390)."""
@@ -1460,6 +1487,452 @@ def test_a_short_form_in_a_table_never_counts_its_page_does() -> None:
         "vamos": {"ir"},
     }
     assert ("va", "ir") in found.verb_forms
+
+
+def table(word: str, pos: str, *forms: str, gloss: str = "x") -> str:
+    """A kaikki line of `word` with `forms` in its table."""
+    return json.dumps(
+        {
+            "word": word,
+            "pos": pos,
+            "lang_code": "xx",
+            "senses": [sense(gloss)],
+            "forms": [{"form": f, "tags": ["dative"]} for f in forms],
+        },
+        ensure_ascii=False,
+    )
+
+
+def test_a_short_form_in_a_small_words_table_counts() -> None:
+    """Romanian's clitics le, îl, ne are forms only in pronoun tables:
+    their pages say "them", "him", "us" with no lemma, so the short-form
+    cut lost them, words in Romanian's top 40; Ukrainian's же is listed
+    only as ж's other spelling (polyglotic-hq 394, 396). A noun's and a
+    verb's tables keep the cut."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                table("ei", "pron", "le", "lor"),
+                table("el", "pron", "îl", "lui"),
+                table("ж", "particle", "же"),
+                table("entomostraceu", "noun", "le", "entomostracee"),
+                table("va", "verb", "vă"),
+                table("ٔ", "particle", "ی"),  # Persian's ezafe hamza: a mark
+                line("le", "pron", sense("them", tags=["form-of"]), lang_code="xx"),
+            ],
+            "xx",
+        )
+    )
+    assert found.forms["le"] == {"ei"}
+    assert found.forms["îl"] == {"el"}
+    assert found.forms["же"] == {"ж"}
+    assert found.forms["lor"] == {"ei"}
+    assert "vă" not in found.forms
+    assert "ی" not in found.forms
+
+
+def test_a_short_forms_own_page_says_whose_form_it_is() -> None:
+    """Ukrainian's personal pronouns share one table, so їм (to them) is in
+    я's and ти's too; its page says "dative of вони́", stress-marked, and
+    only вони counts. A page in another part of speech (їм, "I eat")
+    doesn't decide for the pronoun's table."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                table("я", "pron", "їм", "мене"),
+                table("ти", "pron", "їм"),
+                table("вони", "pron", "їм"),
+                table("я", "pron", "вони́"),  # the shared table; вони́ has no page
+                line("їм", "pron", sense("dative of вони́", "вони́"), lang_code="xx"),
+                line("їм", "verb", sense("I eat", "ї́сти"), lang_code="xx"),
+                table("ea", "pron", "îi"),
+                line("îi", "verb", sense("is", "fi"), lang_code="xx"),
+            ],
+            "xx",
+        )
+    )
+    assert found.forms["їм"] == {"вони", "ї́сти"}  # вони́ is the page вони
+    assert found.forms["îi"] == {"ea", "fi"}
+    assert found.forms["мене"] == {"я"}
+
+
+def test_a_form_of_a_word_without_an_entry_counts_for_that_words_lemma() -> None:
+    """Czech's není (is not) is nebýt's form, and nebýt's page is only
+    "negative form of být": není had found nothing (polyglotic-hq 394,
+    396). One step; a link that finds an entry stays as it was."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                line("být", "verb", sense("to be"), lang_code="xx"),
+                line(
+                    "nebýt",
+                    "verb",
+                    sense("negative form of být", "být"),
+                    lang_code="xx",
+                ),
+                line("není", "verb", sense("is not", "nebýt"), lang_code="xx"),
+                line("maßnehmen", "verb", sense("to take measure"), lang_code="xx"),
+                line(
+                    "massnehmen",
+                    "verb",
+                    {
+                        "glosses": ["Swiss spelling of maßnehmen"],
+                        "alt_of": [{"word": "maßnehmen"}],
+                        "tags": ["alt-of"],
+                    },
+                    lang_code="xx",
+                ),
+                line("massnahmen", "verb", sense("past", "massnehmen"), lang_code="xx"),
+                line("el", "article", sense("the"), lang_code="xx"),
+                line(
+                    "er", "article", sense("dialectal form of el", "el"), lang_code="xx"
+                ),
+                line(
+                    "r",
+                    "article",
+                    {
+                        "glosses": ["alternative spelling of er"],
+                        "alt_of": [{"word": "er"}],
+                        "tags": ["alt-of"],
+                    },
+                    lang_code="xx",
+                ),
+                line("je", "verb", sense("is", "být"), lang_code="xx"),
+                line("mít", "verb", sense("to have"), lang_code="xx"),
+                line(
+                    "nemít",
+                    "verb",
+                    sense("negative form of mít", "mít"),
+                    lang_code="xx",
+                ),
+                line(
+                    "je2",
+                    "verb",
+                    sense("is", "být"),
+                    sense("x", "nemít"),
+                    lang_code="xx",
+                ),
+            ],
+            "xx",
+        ),
+        chain=True,
+    )
+    assert found.forms["není"] == {"nebýt", "být"}
+    assert found.forms["je"] == {"být"}
+    assert found.forms["je2"] == {"být", "nemít"}  # it found být: left as it was
+    # not through another spelling: Swiss "massnahmen" stays Maßnahmen's
+    assert found.forms["massnahmen"] == {"massnehmen"}
+    assert found.forms["r"] == {"er"}  # a spelling of er, a form of el
+    assert ("není", "být") in found.verb_forms
+
+
+def test_a_stress_marked_target_is_the_page_without_its_marks() -> None:
+    """Ukrainian's form-of targets are stress-marked ("вони́") and its pages
+    aren't: 31,755 of its 34,449 targets were dead links, so it found its
+    forms through tables alone (polyglotic-hq 396, 399). A marked target
+    with no page without its marks stays as it is."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                uk("вони", "pron", sense("they")),
+                uk("їх", "pron", sense("genitive of вони́", "вони́")),
+                uk("ходити", "verb", sense("to walk")),
+                uk("ходжу", "verb", sense("first-person of ходи́ти", "ходи́ти")),
+                uk("рука", "noun", sense("hand")),
+                uk("ручка", "noun", sense("diminutive of рука́", "рука́")),
+                uk("кота", "noun", sense("genitive of ко́тик", "ко́тик")),
+            ],
+            "uk",
+        )
+    )
+    assert found.forms["їх"] == {"вони"}
+    assert found.forms["ходжу"] == {"ходити"}
+    assert ("ходжу", "ходити") in found.verb_forms
+    assert found.came_through[("їх", "вони")] == {"pron"}
+    assert found.forms["ручка"] == {"рука"}
+    assert found.forms["кота"] == {"ко́тик"}  # no page котик: left as it was
+
+
+def pronouns(*rows: tuple[str, str]) -> list[dict[str, object]]:
+    """A personal pronouns' table as Ukrainian's pages carry it: (form, tags)."""
+    return [{"form": f, "tags": ["personal", "pronoun", *t.split()]} for f, t in rows]
+
+
+UKRAINIAN_PRONOUNS = pronouns(
+    ("я", "first-person nominative singular"),
+    ("мені́", "dative first-person singular"),
+    ("ми", "first-person nominative plural"),
+    ("нам", "dative first-person plural"),
+    ("вона́", "feminine nominative singular third-person"),
+    ("їй", "dative feminine singular third-person"),
+    ("-", "nominative reflexive"),
+    ("себе́", "genitive reflexive"),
+    ("собі́", "dative reflexive"),
+)
+
+
+def test_a_personal_pronouns_table_row_is_its_own_pronouns() -> None:
+    """Ukrainian's personal pronouns share one table, on each one's page, so
+    нам ("to us") was я's form too, and its card opened on я, "I"
+    (polyglotic-hq 396, 399). A row is its own pronoun's - the nominative
+    with its person and number - or, with no nominative (себе's "-"), the
+    page's own word's if it is one of them, else nobody's."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                uk("я", "pron", sense("I"), forms=UKRAINIAN_PRONOUNS),
+                uk("ми", "pron", sense("we"), forms=UKRAINIAN_PRONOUNS),
+                uk("вона", "pron", sense("she"), forms=UKRAINIAN_PRONOUNS),
+                uk("себе", "pron", sense("oneself"), forms=UKRAINIAN_PRONOUNS),
+            ],
+            "uk",
+        )
+    )
+    assert found.forms["нам"] == {"ми"}
+    assert found.forms["мені́"] == {"я"}
+    assert found.forms["їй"] == {"вона"}
+    assert found.forms["собі́"] == {"себе"}
+    assert "ми" not in found.forms and "вона́" not in found.forms
+
+
+def test_a_page_split_by_language_is_its_word() -> None:
+    """English Wiktionary splits its longest pages by language, and kaikki
+    keeps the part's title: Polish's "i" ("and", 2.7 % of its running words)
+    is "i/languages M to Z", so the packs had written it by hand
+    (polyglotic-hq 390, 399). Its key is the word's, as any page's."""
+    pl = in_("pl")
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [pl("i/languages M to Z", "conj", sense("and"), etymology_number=2)], "pl"
+        )
+    )
+    assert [(e.key, e.word, e.meanings) for e in found.entries] == [
+        ("i|conj|2", "i", ("and",))
+    ]
+    assert kaikki.page_word("i/languages A to L") == "i"
+    assert kaikki.page_word("AC/DC") == "AC/DC"
+
+
+def test_a_small_words_meaning_tagged_a_form_of_nothing_is_a_meaning() -> None:
+    """Romanian's îi, îți and vă say "to him", "to you", "you", tagged a form
+    of no word: they had no entry, so îi found only fi's "is" (polyglotic-hq
+    399). A noun's such sense stays a heading."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                ro("îi", "pron", sense("to him", tags=["dative", "form-of"])),
+                ro("case", "noun", sense("plural", tags=["form-of", "plural"])),
+            ],
+            "ro",
+        )
+    )
+    assert [(e.word, e.meanings) for e in found.entries] == [("îi", ("to him",))]
+
+
+def test_romanians_clitics_written_short_are_the_whole_words(built: Path) -> None:
+    """Romanian writes its clitics short onto a verb with a hyphen (i-am
+    spus, vezi-i): wordfreq cuts at hyphens, so its "i" is îi's, and a
+    hyphenated word the pack hasn't got whole is looked up by its pieces -
+    "i" had found nothing, or Wiktionary's old "and" (polyglotic-hq 396,
+    399)."""
+    file = SqliteDictionary(built / "wiktro.sqlite")
+    dictionary = BasicDictionary(file, SpacedSplit("ro", simplemma=False), "ro")
+    assert dictionary.lookup("i")[0].headword == "îi"
+    assert dictionary.lookup("i")[0].meanings[0] == "(pron) to him"
+    assert [(p.form, p.found) for p in dictionary.parts("vezi-i")] == [
+        ("vezi", True),
+        ("i", True),
+    ]
+    assert [e.headword for e in dictionary.lookup("vezi")] == ["vedea"]
+    ranked = {r.headword: r.frequency_rank for r in every_record(file)}
+    assert ranked["îi"] == 1  # "i"'s frequency is îi's
+    assert "i" not in ranked  # the old "and": no frequency of its own
+    assert packs.PACKS["ro"].read.keywords["spelling"] is packs.ROMANIAN  # type: ignore[attr-defined]
+
+
+def test_a_forms_card_opens_on_the_part_of_speech_it_came_through(
+    built: Path,
+) -> None:
+    """Romanian's vă is in the pronoun voi's table, and its card opened on
+    the verb voi, "to want", the first of voi's entries (polyglotic-hq 396,
+    399). voi's own card keeps its order."""
+    file = SqliteDictionary(built / "wiktro.sqlite")
+    dictionary = BasicDictionary(file, SpacedSplit("ro", simplemma=False), "ro")
+    assert [e.meanings[0] for e in dictionary.lookup("vă")] == [
+        "(pron) you (plural)",
+        "(verb) to want",
+    ]
+    assert [e.meanings[0] for e in dictionary.lookup("voi")] == [
+        "(verb) to want",
+        "(pron) you (plural)",
+    ]
+
+
+def test_a_verb_or_a_pronoun_of_its_own_comes_before_a_verb_it_is_a_form_of() -> None:
+    """German's sein ("to be") is in werden's table, Dutch's zij ("she") is
+    zijn's subjunctive: once a shared pronoun table no longer made ich and
+    het their commonest lemma, their cards opened on werden and zijn
+    (polyglotic-hq 399). A form with a meaning of its own in another part
+    of speech ("era", an age) still opens on the verb, and so does a verb
+    of its own that is the rarer (Portuguese's "assobiaram", whose page
+    gives a meaning only "third-person plural... of assobiar")."""
+    words = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                line("werden", "verb", sense("will"), forms=forms(("sein", "perfect"))),
+                line("sein", "verb", sense("to be")),
+                line(
+                    "zijn", "verb", sense("to be"), forms=forms(("zij", "subjunctive"))
+                ),
+                line("zij", "pron", sense("she")),
+                line("ze", "pron", sense("she"), forms=forms(("zij", "emphatic"))),
+                line("ser", "verb", sense("to be"), forms=forms(("era", "imperfect"))),
+                line("era", "noun", sense("age")),
+                line(
+                    "assobiar",
+                    "verb",
+                    sense("to whistle"),
+                    forms=forms(("assobiaram", "plural")),
+                ),
+                line("assobiaram", "verb", sense("third-person plural of")),
+            ],
+            "es",
+        )
+    )
+    uses = {"zij": {"PRON": 40, "AUX": 2}, "era": {"AUX": 50, "NOUN": 3}}
+    draft = packs.draft_of(words)
+    draft.own_first, draft.own_verbs = packs.own_first(words, uses)
+    assert draft.own_first == {"zij"}
+    assert draft.own_verbs == {"sein", "assobiaram"}
+    every = {e.key for e in draft.entries}
+    total = dict.fromkeys(every, 1.0) | {"ser|verb|": 9.0, "werden|verb|": 9.0}
+    total |= {"zijn|verb|": 9.0, "sein|verb|": 20.0, "assobiar|verb|": 9.0}
+    lemmas, after = packs.lemma_table(draft, every, total, {})
+    assert lemmas == {"era": "ser", "assobiaram": "assobiar"}
+    assert after == {"sein": "werden", "zij": "zijn"}
+
+
+def test_a_form_opens_on_its_own_lemmas_entries_not_those_its_row_shows_after() -> None:
+    """Polish's momencikom is momencik's (a moment, wait a moment) through
+    its noun table; momencik's row shows the interjection, then moment's
+    noun after it. The card opens on momencik's own noun, not on moment
+    (polyglotic-hq 399)."""
+    draft = packs.Draft([], {}, came_through={("momencikom", "momencik"): {"noun"}})
+    forms = {"momencik": ["intj", "noun", "moment"]}
+    pos_of = {
+        "intj": ("momencik", "intj"),
+        "noun": ("momencik", "noun"),
+        "moment": ("moment", "noun"),
+    }
+    opened = packs.opened_through(draft, forms, {"momencikom": "momencik"}, pos_of)
+    assert opened == {"momencikom": ["noun", "intj", "moment"]}
+    pos_of["noun"] = ("momencik", "intj")  # no noun of its own: as it was
+    assert packs.opened_through(draft, forms, {"momencikom": "momencik"}, pos_of) == {}
+
+
+def test_a_form_that_is_its_lemma_said_twice_keeps_its_lemmas_order() -> None:
+    """Indonesian's indah-indah is in the noun indah's table (infant feces)
+    as its plural, but is the adjective indah (beautiful) said twice: its
+    card opened on the noun (polyglotic-hq 407). A form made otherwise
+    still opens on the part of speech it came through."""
+    came = {("indah-indah", "indah"): {"noun"}, ("keindahan", "indah"): {"noun"}}
+    draft = packs.Draft([], {}, came_through=came)
+    forms = {"indah": ["adj", "noun"]}
+    pos_of = {"adj": ("indah", "adj"), "noun": ("indah", "noun")}
+    lemmas = {"indah-indah": "indah", "keindahan": "indah"}
+    opened = packs.opened_through(draft, forms, lemmas, pos_of)
+    assert opened == {"keindahan": ["noun", "adj"]}
+
+
+def test_a_word_reached_as_a_lemma_shows_only_its_own_entries(built: Path) -> None:
+    """ти's own card shows "you", then той ("that"), whose plural ти is
+    too; a form reached through ти showed both, so тобі ("to you") read
+    "you", then "that" (polyglotic-hq 399, 407). ти's own card keeps them."""
+    file = SqliteDictionary(built / "wiktuk.sqlite")
+    ukrainian = BasicDictionary(file, SpacedSplit("uk", simplemma=False), "uk")
+    assert [e.headword for e in ukrainian.lookup("ти")] == ["ти", "той"]
+    assert [e.headword for e in ukrainian.lookup("тобі")] == ["ти"]
+
+
+def test_the_word_shown_after_stays_where_it_may_be_the_forms_word() -> None:
+    """ "casita" came to casa as a noun, and casar, shown after casa, is
+    only a verb: casita shows the house and its own entry, not "to marry".
+    "iles" is ile's plural and ile a spelling of île (island), a noun too:
+    île stays, it says what iles means. So do a form of the word shown
+    after too ("casas"), a form that others are looked up through, and a
+    reader that doesn't say how forms came (polyglotic-hq 407)."""
+    inflections = {"casas": {"casa", "casar"}, "casita": {"casa"}}
+    came = {
+        ("casas", "casa"): {"noun"},
+        ("casita", "casa"): {"noun"},
+        ("iles", "ile"): {"noun"},
+    }
+    draft = packs.Draft([], {}, inflections=inflections, came_through=came)
+    own = {"casa": ["house"], "casar": ["marry"], "casita": ["hut"]}
+    own |= {"ile": ["spelling"], "île": ["island"]}
+    pos_of = {"house": ("casa", "noun"), "marry": ("casar", "verb")}
+    pos_of |= {"hut": ("casita", "noun"), "island": ("île", "noun")}
+    lemmas = {"casas": "casa", "casita": "casa", "iles": "ile"}
+    after = {"casa": "casar", "ile": "île"}
+    found = {"casita": ["house", "hut"]}
+    assert packs.own_entries_only(draft, own, lemmas, after, pos_of) == found
+    lemmas["casitas"] = "casita"  # casitas shows casita's row: it stays
+    assert packs.own_entries_only(draft, own, lemmas, after, pos_of) == {}
+    draft.came_through = {}
+    assert packs.own_entries_only(draft, own, {"casita": "casa"}, after, pos_of) == {}
+
+
+def test_a_small_word_naming_several_words_that_says_what_it_means_is_a_meaning(
+    built: Path,
+) -> None:
+    """Romanian's își is "unstressed reflexive dative of el, ea, ei and ele:
+    (to) himself/herself/themselves": it had no entry, as a form of el, ea
+    and ei, so și-a ("contraction of își + a") found nothing and was read
+    as și (and) + a (polyglotic-hq 399, 407). A form of one word stays that
+    word's form ("dich: accusative of du; you")."""
+    file = SqliteDictionary(built / "wiktro.sqlite")
+    romanian = BasicDictionary(file, SpacedSplit("ro", simplemma=False), "ro")
+    assert [e.meanings[0] for e in romanian.lookup("își")] == [
+        "(pron) unstressed reflexive dative of el, ea: (to) himself"
+    ]
+    assert [e.headword for e in romanian.lookup("și-a")] == ["își"]
+    one = {
+        "glosses": ["accusative of du; you"],
+        "tags": ["accusative", "form-of"],
+        "form_of": [{"word": "du", "extra": "you"}],
+    }
+    assert not kaikki.said_for_several(one)
+
+
+def test_the_verb_a_table_conjugates_is_not_its_form() -> None:
+    """Spanish's "se" (a spelling of sé) has a table naming saber as its
+    base form: "saber" became se's form, and its card opened on the pronoun
+    se before "to know" (polyglotic-hq 407)."""
+    found = kaikki.read_language(
+        kaikki.lines_of(
+            [
+                line("saber", "verb", sense("to know")),
+                line(
+                    "se",
+                    "verb",
+                    sense("alternative form of sé", "sé"),
+                    forms=[{"form": "saber", "tags": ["base-form"]}],
+                ),
+            ],
+            "es",
+        )
+    )
+    assert "saber" not in found.forms
+
+
+def test_macedonian_forms_typed_with_a_latin_j_are_found_in_cyrillic() -> None:
+    """Wiktionary's tables for свој, мој and твој write "своjот" with a
+    Latin j, so својот and својата (its 150th and 188th words) had no
+    entry (polyglotic-hq 394, 396)."""
+    assert packs.cyrillic_j("своjот") == "својот"
+    assert packs.cyrillic_j("Jас") == "Јас"
+    assert packs.cyrillic_j("jazz") == "jazz"
+    assert packs.PACKS["mk"].read.keywords["spelling"] is packs.MACEDONIAN  # type: ignore[attr-defined]
 
 
 def test_only_a_name_keeps_its_own_forms_frequency() -> None:

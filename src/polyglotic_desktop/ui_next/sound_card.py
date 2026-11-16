@@ -27,7 +27,8 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.ports.capture import SoundDevice
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.controls import Card, Row, SwitchRow, label
+from polyglotic_desktop.ui_next.controls import Card, Combo, Row, SwitchRow, label
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.sound import Sound, SoundView
 
 LEVEL_MS = 100
@@ -43,8 +44,10 @@ def _tr(text: str) -> str:
 def default_name(device: SoundDevice | None) -> str:
     """Windows' default, as a list shows it: with the device it is now."""
     if device is None:
-        return _tr("This PC's default")
-    return _tr("This PC's default ({device})").format(device=device.name)
+        return pc_or_mac(_tr("This PC's default"), _tr("This Mac's default"))
+    return pc_or_mac(
+        _tr("This PC's default ({device})"), _tr("This Mac's default ({device})")
+    ).format(device=device.name)
 
 
 class LevelMeter(QWidget):
@@ -91,7 +94,7 @@ class SoundCard(Card):
         self._shown: Sound | None = None
 
         self.add(label(_tr("What you hear"), "RowTitle"))
-        self.speakers = QComboBox()
+        self.speakers = Combo()
         self.speakers.setObjectName("sound.speakers")
         self.speakers.setAccessibleName(_tr("Speakers"))
         self.speakers.setSizeAdjustPolicy(
@@ -105,7 +108,16 @@ class SoundCard(Card):
         )
         self.speakers_row = Row(
             _tr("Speakers"),
-            _tr("For Everything the PC plays. Apps you add are heard on any speakers."),
+            pc_or_mac(
+                _tr(
+                    "For Everything the PC plays. Apps you add are heard on any "
+                    "speakers."
+                ),
+                _tr(
+                    "For Everything the Mac plays. Apps you add are heard on any "
+                    "speakers."
+                ),
+            ),
             self.speakers,
         )
         self.add(self.speakers_row)
@@ -121,7 +133,7 @@ class SoundCard(Card):
         )
         self.my_speech.switch.clicked.connect(lambda on: view.set_my_speech(bool(on)))
         self.add(self.my_speech)
-        self.mics = QComboBox()
+        self.mics = Combo()
         self.mics.setObjectName("sound.mics")
         self.mics.setAccessibleName(_tr("Microphone"))
         self.mics.setSizeAdjustPolicy(
@@ -161,10 +173,21 @@ class SoundCard(Card):
     def showEvent(self, event: QShowEvent) -> None:
         super().showEvent(event)
         # the devices, the first time (Windows takes 4-10 ms to list them:
-        # measured 2026-11-16); after that, as a list is opened
-        if not self.view.value.devices.speakers and not self.view.value.devices.mics:
-            self.view.look_again()
+        # measured 2026-11-16); after that, as a list is opened. Once the
+        # window's shown, not while it's being shown: Home is the first page,
+        # and listing them and filling both lists in its show held the
+        # start's first paint back (polyglotic-hq 400)
+        if not self._listed():
+            QTimer.singleShot(0, self, self._first_look)
         self._read_levels()
+
+    def _listed(self) -> bool:
+        devices = self.view.value.devices
+        return bool(devices.speakers or devices.mics)
+
+    def _first_look(self) -> None:
+        if self.isVisible() and not self._listed():
+            self.view.look_again()
 
     def hideEvent(self, event: QHideEvent) -> None:
         super().hideEvent(event)
@@ -211,7 +234,13 @@ def _fill(
     box.blockSignals(True)
     box.clear()
     if missing:
-        box.addItem(_tr("Not plugged in - this PC's default is used"), chosen)
+        box.addItem(
+            pc_or_mac(
+                _tr("Not plugged in - this PC's default is used"),
+                _tr("Not plugged in - this Mac's default is used"),
+            ),
+            chosen,
+        )
     for device_id, device in choices:
         if device_id is None or device is None:
             box.addItem(default_name(device), None)

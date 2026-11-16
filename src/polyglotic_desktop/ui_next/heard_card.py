@@ -39,6 +39,7 @@ from polyglotic_desktop.core.learning.coverage import (
 from polyglotic_desktop.core.lexicon.entries import SCHEMES
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import Card, label
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.words import WordsLearner
 from polyglotic_desktop.ui_next.word_bands import WordBands
 
@@ -118,7 +119,10 @@ def listening_lines(seconds: float, recent: float) -> tuple[str, str, str]:
     return (
         duration(seconds),
         _tr("{time} in the last 7 days").format(time=duration(recent)),
-        _tr("Time captions were on, counted on this PC."),
+        pc_or_mac(
+            _tr("Time captions were on, counted on this PC."),
+            _tr("Time captions were on, counted on this Mac."),
+        ),
     )
 
 
@@ -208,7 +212,10 @@ class HeardCard(Card):
     def __init__(self) -> None:
         super().__init__(
             _tr("What you've heard"),
-            _tr("Counted on this PC from finished captions, and kept here."),
+            pc_or_mac(
+                _tr("Counted on this PC from finished captions, and kept here."),
+                _tr("Counted on this Mac from finished captions, and kept here."),
+            ),
         )
         self.met = Tile("words.met", _tr("Words met"))
         self.coverage = Tile("words.coverage", _tr("Coverage, last 7 days"))

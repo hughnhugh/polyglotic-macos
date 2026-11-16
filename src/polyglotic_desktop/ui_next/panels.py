@@ -76,6 +76,7 @@ from polyglotic_desktop.ui_next.colour_controls import ExactColour, PresetTiles
 from polyglotic_desktop.ui_next.controls import (
     INSET,
     Card,
+    Combo,
     Row,
     Segmented,
     SwitchButton,
@@ -88,6 +89,7 @@ from polyglotic_desktop.ui_next.languages import (
     not_offered_note,
     target_languages,
 )
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.spoken_list import SpokenPicker
 from polyglotic_desktop.ui_next.views.arrivals import Arrival
 from polyglotic_desktop.ui_next.views.caption_window import ORIGINAL_ONLY
@@ -301,7 +303,7 @@ class LanguagesPanel(Panel):
     def _this_window(self, window: WindowLanguageView) -> None:
         self.window_title = label("", "SectionLabel")
         self.add(self.window_title)
-        box = QComboBox()
+        box = Combo()
         box.setObjectName("languages.translate_into")
         box.setAccessibleName(_tr("Translate into"))
         box.addItem(_tr("Original only (no translation)"), ORIGINAL_ONLY)
@@ -373,7 +375,7 @@ class LanguagesPanel(Panel):
                 )
             )
         for target in in_use:
-            box = QComboBox()
+            box = Combo()
             box.setObjectName(f"languages.second.{target}")
             box.setAccessibleName(
                 _tr("Lines already in {language} are translated into").format(
@@ -407,9 +409,9 @@ class LanguagesPanel(Panel):
         # made after the panel: Tab reaches them where they are, under
         # Spoken language and Show Mandarin in, not after Names and slang
         before: QWidget = self.mandarin_script.buttons[-1]
-        for box in self.second.values():
-            QWidget.setTabOrder(before, box)
-            before = box
+        for second in self.second.values():
+            QWidget.setTabOrder(before, second)
+            before = second
 
 
 # -- Timing ----------------------------------------------------------------------------
@@ -467,7 +469,7 @@ class TimingPanel(Panel):
             self.preview_at,
         )
         self.add(self.preview)
-        self.interval = QComboBox()
+        self.interval = Combo()
         self.interval.setObjectName("timing.live_interval")
         self.interval.setAccessibleName(_tr("Live updates every"))
         self.interval.setMinimumWidth(style.px(120))
@@ -508,7 +510,7 @@ class TimingPanel(Panel):
             self.translate_live = self.translate_row.switch
             self.translate_live.toggled.connect(languages.set_translate_live)
             self.add(self.translate_row)
-        self.wait = QComboBox()
+        self.wait = Combo()
         self.wait.setObjectName("timing.max_wait")
         self.wait.setAccessibleName(_tr("Longest wait for text"))
         self.wait.setMinimumWidth(style.px(120))
@@ -524,7 +526,7 @@ class TimingPanel(Panel):
             _left(self.wait),
         )
         self.add(self.wait_row)
-        self.settle = QComboBox()
+        self.settle = Combo()
         self.settle.setObjectName("timing.settle_after")
         self.settle.setAccessibleName(_tr("Text can still change for"))
         self.settle.setMinimumWidth(style.px(120))
@@ -636,7 +638,7 @@ class TimingPanel(Panel):
 # -- Look ------------------------------------------------------------------------------
 
 
-class FontBox(QComboBox):
+class FontBox(Combo):
     """The fonts on this PC - listed only when first opened (there can be
     hundreds), so the panel opens at once."""
 
@@ -716,14 +718,16 @@ class LookPanel(_LookGroup):
         notes: bool = False,
         parent: QWidget | None = None,
         preview: bool = False,
+        languages: LanguagesView | None = None,
     ) -> None:
-        """`preview`: the live preview at its top (Settings > Captions)."""
+        """`preview`: the live preview at its top (Settings > Captions), in
+        the characters `languages` shows Mandarin in (polyglotic-hq 400)."""
         super().__init__(_tr("Look"), view, notes, _tr("Every caption window."), parent)
         value = view.value
 
         self.preview: CaptionPreview | None = None
         if preview:
-            self.preview = CaptionPreview(view)
+            self.preview = CaptionPreview(view, languages=languages)
             self.add(self.preview)
         self.presets = PresetTiles()
         self.presets.setObjectName("look.presets")
@@ -799,9 +803,15 @@ class LookPanel(_LookGroup):
         )
         self._row(
             _tr("Font"),
-            _tr(
-                "Any font on this PC. Chinese and Japanese fall back to a font "
-                "that has them if yours doesn't."
+            pc_or_mac(
+                _tr(
+                    "Any font on this PC. Chinese and Japanese fall back to a font "
+                    "that has them if yours doesn't."
+                ),
+                _tr(
+                    "Any font on this Mac. Chinese and Japanese fall back to a font "
+                    "that has them if yours doesn't."
+                ),
             ),
             _left(self.font_box),
         )
@@ -1056,7 +1066,8 @@ class ReadingLinesPanel(_LookGroup):
         self._row(
             _tr("Pinyin size"),
             _tr(
-                "Beside the characters' own size. Medium reads better in a small window."
+                "Beside the characters' own size. Medium reads better in a small "
+                "window."
             ),
             self.reading_size,
         )
@@ -1140,9 +1151,15 @@ class BehaviourPanel(_LookGroup):
         self.arrival.changed.connect(view.set_arrival)
         self._row(
             _tr("New captions"),
-            _tr(
-                "Slide in: a new caption rises into place from below - not while "
-                "the PC's animation effects are off. Appear: nothing moves."
+            pc_or_mac(
+                _tr(
+                    "Slide in: a new caption rises into place from below - not while "
+                    "the PC's animation effects are off. Appear: nothing moves."
+                ),
+                _tr(
+                    "Slide in: a new caption rises into place from below - not while "
+                    "the Mac's animation effects are off. Appear: nothing moves."
+                ),
             ),
             self.arrival,
         )

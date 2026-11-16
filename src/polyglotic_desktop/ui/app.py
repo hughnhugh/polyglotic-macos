@@ -39,8 +39,10 @@ windows (`ui_next`, wired by `main`'s `Hub`) follow it:
 - `hotkeys` - the commands with a system-wide hotkey (Ctrl+Alt+ the
   letter, as in the proof of concept), shown in the tray menu;
   `hotkey_pressed.emit(letter)` from any thread runs one on the Qt thread
-  (`main` registers them with Windows); `hotkeys_taken` stops showing the
-  ones another app already has;
+  (`main` registers them with Windows); `hotkeys_not_working` stops showing
+  the ones that don't work here - another app already has them, or they
+  weren't registered (a preview build has none: polyglotic-hq 398) - so
+  nothing names a hotkey that does nothing;
 - the window theme (`theme`), applied at start, when the learner changes
   it and when Windows turns light or dark (`themed`);
 - the tray icon, its state following the app's: listening (captioning),
@@ -60,7 +62,7 @@ choices is `main`'s.
 
 import logging
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from enum import StrEnum
 
 from PySide6.QtCore import (
@@ -105,6 +107,7 @@ from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
 from polyglotic_desktop.ui.captions import CaptionFeed
 from polyglotic_desktop.ui.icons import TrayState, tray_icon
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui.os_words import pc_or_mac
 from polyglotic_desktop.ui.settings import (
     SOURCE_KEY_EVERYTHING_ELSE,
     SOURCE_KEY_MIC,
@@ -427,7 +430,7 @@ class DesktopApp(QObject):
         value = self.settings.value
         names = {
             SOURCE_KEY_MIC: self.tr("You"),
-            SOURCE_KEY_SYSTEM: self.tr("This PC"),
+            SOURCE_KEY_SYSTEM: pc_or_mac(self.tr("This PC"), self.tr("This Mac")),
         }
         ids = {SOURCE_KEY_MIC: MIC, SOURCE_KEY_SYSTEM: WHOLE_SYSTEM}
         for source_id, (name, title) in self._apps.items():
@@ -580,10 +583,21 @@ class DesktopApp(QObject):
             ).format(key=key)
         )
 
-    def hotkeys_taken(self, keys: list[str]) -> None:
-        """Another app already has these hotkeys: stop showing them."""
+    def hotkeys_not_working(self, keys: Collection[str]) -> None:
+        """These hotkeys don't work here - another app already has them, or
+        they weren't registered: stop showing them, so a locked caption
+        window says where else to unlock it (polyglotic-hq 398), and say so
+        in the log."""
+        named = [
+            self.hotkeys[key].shortcut().toString()
+            for key in keys
+            if key in self.hotkeys
+        ]
+        if named:
+            log.warning("hotkey(s) not working, not shown: %s", ", ".join(named))
         for key in keys:
-            self.hotkeys[key].setShortcut(QKeySequence())
+            if key in self.hotkeys:
+                self.hotkeys[key].setShortcut(QKeySequence())
 
     @Slot(str)
     def _hotkey(self, key: str) -> None:

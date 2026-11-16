@@ -14,7 +14,7 @@ A build check, `top_words`, asks that each of wordfreq's 200 commonest
 words in the language's script is found as the installed app finds it
 (without simplemma, decision 0123), unless `EXEMPT` says why not: Polish's
 "i" ("and", 2.7 % of its running words) had had no entry, since kaikki's
-extracts have no page for "i" (polyglotic-hq 390).
+extracts file it under a split page's title (polyglotic-hq 390, 399).
 
 A second measure, `running_words`, counts every word as often as it is
 used: the share of wordfreq's list for the language, each word weighed by
@@ -60,6 +60,13 @@ another are left out of `running_words`."""
 
 TOP_WORDS = 200
 """How many of wordfreq's commonest words a pack must find (`top_words`)."""
+TOP_FROM_COUNTED = {"th": "commonvoice-th"}
+"""Languages wordfreq has no list for, and the list their pack's reader
+counts (`Draft.counted`) whose commonest words `top_words` checks instead:
+Thai's Common Voice sentences, cut by the app's word split (polyglotic-hq
+394, 396). Its words are the pack's own, so the check asks that each is
+found as the installed app looks it up - kept, not cut, not a letter left
+without an entry - not that the pack has every common word."""
 EXEMPT: dict[str, dict[str, str]] = {
     "pt": {
         "the": "English, in Portuguese web text",
@@ -80,9 +87,8 @@ EXEMPT: dict[str, dict[str, str]] = {
         "the": "English, in Polish web text",
         "r": "a letter: r. is short for rok (year) after a date",
     },
-    # The packs of 387 and 388 met #744's check on the train (394). A
-    # "gap (394)" is a word a learner meets and the installed app doesn't
-    # find: its fix is proposed in 394's report, and the line goes then.
+    # The packs of 387 and 388 met #744's check on the train (394); the
+    # words it found missing that a learner meets were filled in 396.
     "nl": {
         "t": "'t, het elided ('t is), cut off by wordfreq",
         "the": "English, in Dutch web text",
@@ -93,34 +99,20 @@ EXEMPT: dict[str, dict[str, str]] = {
         "и": "Russian's и (and), likewise: Ukrainian writes і",
         "р": "a letter: р. is short for рік (year) after a date",
         "м": "a letter: м. is short for місто (city) and метр",
-        "же": "gap (394): a particle Wiktionary has only as a two-letter "
-        "alternative form of ж, which the short-form cut drops (kaikki.SHORT)",
-        "їм": "gap (394): the dative of вони, a two-letter form in pronoun "
-        "tables, which the short-form cut drops (kaikki.SHORT)",
     },
     "fa": {
         "ی": "a letter: the ending ی (ezafe, 'a') written apart",
-        "اینکه": "gap (394): 'that', written joined; Wiktionary has no page",
+        "اینکه": "این که (that) written closed up: English Wiktionary has no "
+        "page for it under any spelling (اینکه, این‌که, این که; 2026-11-16), "
+        "and a pack makes up no meanings; این and که are found",
         "نداره": "colloquial ندارد (hasn't), as web text writes speech",
         "ام": "the ending -am (I am; my) written apart: Wiktionary's suffix ـم",
     },
-    "cs": {
-        "není": "gap (394): 'is not', in Wiktionary only as a form of "
-        "nebýt, which has no entry of its own",
-    },
     "ro": {
-        "s": "s-, se elided (s-a), cut off by wordfreq",
-        "l": "l-, îl elided (l-am), likewise",
-        "n": "n-, nu or în elided (n-a), likewise",
-        "într": "într-, în elided before a vowel (într-o), likewise",
-        "m": "m-, mă elided (m-am), likewise",
+        # its clitics written short (i, ți, s, l, n, m, într) are found as
+        # the whole words since 399 (`packs.ROMANIAN`)
         "d": "a letter",
         "nr": "nr., short for număr (number)",
-        **dict.fromkeys(
-            ("i", "ne", "le", "te", "vă", "îl", "ți"),
-            "gap (394): a clitic pronoun, a two-letter form in pronoun tables, "
-            "which the short-form cut drops (kaikki.SHORT)",
-        ),
     },
     "el": {
         **dict.fromkeys(("σ", "κ", "μ", "ν", "β", "γ"), "a letter, in abbreviations"),
@@ -135,8 +127,6 @@ EXEMPT: dict[str, dict[str, str]] = {
         ),
     },
     "mk": {
-        "својата": "gap (394): a definite form of свој (own); Wiktionary has none",
-        "својот": "gap (394): likewise",
         "твитер": "Twitter, a name",
     },
     "tr": {
@@ -324,14 +314,21 @@ def probe_top_words(pack_file: Path, language: str, wordfreq: Path) -> TopWords:
     installed app looks up (no simplemma)."""
     from tools.dictionaries import wordfreq_ranks
 
+    return probe_top_words_of(
+        pack_file, language, wordfreq_ranks.frequencies(wordfreq, language)
+    )
+
+
+def probe_top_words_of(
+    pack_file: Path, language: str, frequencies: Mapping[str, float]
+) -> TopWords:
+    """`top_words` over `frequencies` (any order: commonest first is
+    taken here), looked up as the installed app looks up."""
+    ranked = dict(sorted(frequencies.items(), key=lambda item: -item[1]))
     file = SqliteDictionary(pack_file)
     try:
         split = split_for(language, file, simplemma=False)
-        return top_words(
-            BasicDictionary(file, split, language),
-            wordfreq_ranks.frequencies(wordfreq, language),
-            language,
-        )
+        return top_words(BasicDictionary(file, split, language), ranked, language)
     finally:
         file.close()
 

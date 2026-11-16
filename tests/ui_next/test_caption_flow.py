@@ -41,6 +41,8 @@ from polyglotic_desktop.ui.recorded_captions import (
 )
 from polyglotic_desktop.ui_next.caption_layout import (
     CJK_FAMILIES,
+    DOT_DROP_PX,
+    DOT_PX,
     LINK_MARK,
     CaptionLayout,
     CaptionStyle,
@@ -561,6 +563,45 @@ def test_a_line_cut_off_at_the_top_takes_its_link_bars_with_it(
                         assert at + line.height() + under <= top + 0.01, height
     assert cut
     assert flow_window(qapp, CaptionLab()).canvas._under() == 0.0
+
+
+def test_a_line_cut_off_at_the_top_takes_its_new_words_dots_with_it(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 402 (QA batch 11, on real captions at 700 px): with word
+    links off there are no bars, but a new word's dots still hang under its
+    line, below the line's descent. The line above the cut wasn't drawn;
+    its dots were - a row of dots alone over the first line showing. The
+    window now starts below where any cut line's dots could be."""
+    a_chinese_face()
+    look = CaptionLook(
+        lab=LABS["run on"], arrival=Arrival.STEP, word_links=WordLinks.OFF
+    )
+    window = window_of(qapp, captions=20, look=look)
+    MADE.append(window)
+    assert not window.canvas.engine.style.link_room  # no bars to make room for
+    cut = 0
+    for height in range(150, 330, 7):  # lines land at every offset
+        window.resize(900, height)
+        window.canvas.grab()
+        top = window.canvas.clear_top
+        for _, laid, rect in window.canvas.placed:
+            for row in laid.rows:
+                font = row.layout.font()  # where `_dots` puts them
+                scale = max(0.5, font.pixelSize() / 21.0)
+                metrics = QFontMetricsF(font)
+                drop = (
+                    metrics.underlinePos() + metrics.lineWidth() + DOT_DROP_PX * scale
+                )
+                size = DOT_PX * scale
+                for n in range(row.layout.lineCount()):
+                    line = row.layout.lineAt(n)
+                    at = rect.top() + row.top + line.y()
+                    if at + line.height() <= top + 0.01:  # above it: nor its dots
+                        cut += 1
+                        dots_end = at + line.ascent() + drop + size
+                        assert dots_end <= top + 0.01, (height, dots_end, top)
+    assert cut
 
 
 @pytest.mark.parametrize("lab", ["line by line", "lined up", "run on"])

@@ -174,3 +174,35 @@ def test_after_a_failed_step_too(
 
     assert code == 1
     assert list(temporary.iterdir()) == []
+
+
+def test_one_learner_is_opened_before_the_window_as_a_start_opens(
+    qapp: QApplication, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The check times the start a learner waits for (polyglotic-hq 400): a
+    start opens its learner's dictionary and data before the window, and any
+    other language's after the first paint. The check opened the English
+    learner's too, before the window - 60-80 ms each, timed into
+    `launch_seconds` though no start waits for it. It's checked after."""
+    temporary = tmp_path / "temp"
+    temporary.mkdir()
+    monkeypatch.setattr(tempfile, "tempdir", str(temporary))
+    opened: list[bool] = []
+    real = main.learner_tools
+
+    def recorded(dictionaries: Path, english: bool, *args: Any, **kwargs: Any) -> Any:
+        opened.append(english)
+        return real(dictionaries, english, *args, **kwargs)
+
+    def window_built(*args: object, **kwargs: object) -> None:
+        raise RuntimeError(f"the window: {opened} opened before it")
+
+    monkeypatch.setattr(main, "learner_tools", recorded)
+    monkeypatch.setattr(main, "new_interface", window_built)
+
+    code = check_install(
+        tmp_path / "report.json", sample_dictionaries(tmp_path / "dictionaries")
+    )
+
+    assert code == 1  # stopped at the window, here
+    assert opened == [False]  # the Chinese learner's alone

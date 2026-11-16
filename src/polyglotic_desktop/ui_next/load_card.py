@@ -52,7 +52,8 @@ from polyglotic_desktop.core.learning.load import (
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS, STAGE_COLOURS_LIGHT
-from polyglotic_desktop.ui_next.controls import Card, Row, Segmented, label
+from polyglotic_desktop.ui_next.controls import Card, Combo, Row, Segmented, label
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.load import (
     LIMITS,
     ROWS,
@@ -421,9 +422,15 @@ class LoadCard(Card):
         self.add(
             Row(
                 _tr("What counts as hearing a word"),
-                _tr(
-                    "Only what your PC plays counts, in finished captions - not "
-                    "what you say."
+                pc_or_mac(
+                    _tr(
+                        "Only what your PC plays counts, in finished captions - not "
+                        "what you say."
+                    ),
+                    _tr(
+                        "Only what your Mac plays counts, in finished captions - not "
+                        "what you say."
+                    ),
                 ),
                 self.counting,
                 beside=True,
@@ -630,7 +637,7 @@ def _button(text: str, name: str, kind: str = "") -> QPushButton:
 
 
 def _combo(name: str, said: str) -> QComboBox:
-    combo = QComboBox()
+    combo = Combo()
     combo.setObjectName(name)
     combo.setAccessibleName(said)
     return combo

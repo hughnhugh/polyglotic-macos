@@ -154,6 +154,8 @@ class CaptionWindows(QObject):
     mic_wanted = Signal(bool)
     """Whether any window shows my speech: the mic is captured only then."""
     lock_wanted = Signal()
+    unlock_wanted = Signal()
+    """A locked window's Unlock, where the mouse rested on its lock (398)."""
     hide_wanted = Signal()
     stop_wanted = Signal(str)
     report_wanted = Signal()
@@ -355,6 +357,7 @@ class CaptionWindows(QObject):
         window.second_wanted.connect(self.second_language_wanted)
         window.mic_changed.connect(self._mic_changed)
         window.lock_wanted.connect(self.lock_wanted)
+        window.unlock_wanted.connect(self.unlock_wanted)
         window.hide_wanted.connect(self.hide_wanted)
         window.all_settings_wanted.connect(self.all_settings_wanted)
         window.links_wanted.connect(self.links_wanted)
@@ -466,6 +469,7 @@ class CaptionWindows(QObject):
         choices = self.stored.joined
         joined = JoinedWindow(choices, self._areas, self.keys)
         joined.set_locked(self.locked)
+        joined.set_unlock_keys(self.unlock_keys)
         joined.place_at(choices.geometry or self._joined_place(ordered[0], ordered))
         joined.changed.connect(lambda: self._joined_moved(joined))
         joined.separate_wanted.connect(self.separate)
@@ -948,11 +952,14 @@ class CaptionWindows(QObject):
             self.joined_window.set_locked(locked)
 
     def set_unlock_keys(self, keys: str) -> None:
-        """The lock's hotkey as it is now ("" if another app has it): what a
-        locked window says unlocks it (F10, 249)."""
+        """The lock's hotkey as it is now ("" if it doesn't work here): what a
+        locked window says unlocks it (F10, 249), and the lock button's tip
+        (398)."""
         self.unlock_keys = keys
         for window in self.windows.values():
             window.set_unlock_keys(keys)
+        if self.joined_window is not None:
+            self.joined_window.set_unlock_keys(keys)
 
     def carry(self, old: str, new: str) -> None:
         """App `new` is about to be captioned in the window of `old`: it

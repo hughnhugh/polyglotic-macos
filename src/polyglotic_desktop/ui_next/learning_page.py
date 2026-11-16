@@ -89,6 +89,7 @@ from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILI
 from polyglotic_desktop.ui_next.caption_marks import IN_DECK, UNFAMILIAR
 from polyglotic_desktop.ui_next.controls import (
     Card,
+    Combo,
     Flow,
     Segmented,
     label,
@@ -98,6 +99,7 @@ from polyglotic_desktop.ui_next.controls import (
 from polyglotic_desktop.ui_next.home import OneClick, Page
 from polyglotic_desktop.ui_next.languages import learned_name, target_languages
 from polyglotic_desktop.ui_next.load_card import LoadCard
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import PackRow, size_text
 from polyglotic_desktop.ui_next.views.learning import (
     WINDOW_CHOICES,
@@ -185,10 +187,17 @@ def what_it_gives(
             "line's translation."
         ).format(language=name)
     if tier is Tier.BASIC and known is not PackKnown.OFFERED and on_card:
-        return _tr(
-            "A basic dictionary from open data (meanings not checked by a "
-            "person), if one is ready: lookups in {language} captions once it's "
-            "on this PC. Captions and translation work either way."
+        return pc_or_mac(
+            _tr(
+                "A basic dictionary from open data (meanings not checked by a "
+                "person), if one is ready: lookups in {language} captions once it's "
+                "on this PC. Captions and translation work either way."
+            ),
+            _tr(
+                "A basic dictionary from open data (meanings not checked by a person), "
+                "if one is ready: lookups in {language} captions once it's on this "
+                "Mac. Captions and translation work either way."
+            ),
         ).format(language=name)
     if tier is Tier.BASIC and known is not PackKnown.OFFERED:
         return _tr(
@@ -470,12 +479,13 @@ class LanguageCardView(Card):
         )
         if card.key_words_only:
             said = _tr(
-                "No dictionary ranks {language} words yet, so only key words are linked."
+                "No dictionary ranks {language} words yet, so only key words are "
+                "linked."
             ).format(language=name)
         self._row(_tr("Word links"), said, self.links)
         self.links_from: QComboBox | None = None
         if card.offers_links_from:
-            self.links_from = QComboBox()
+            self.links_from = Combo()
             self.links_from.setObjectName(f"learning.{card.code}.links_from")
             self.links_from.setAccessibleName(_tr("Start links at"))
             if card.links_from_line:
@@ -522,7 +532,7 @@ class LanguageCardView(Card):
         it are offered; Undo right after, and Reset back to before the
         first (polyglotic-hq 342)."""
         code = self.code
-        first = QComboBox()
+        first = Combo()
         first.setObjectName(f"learning.{code}.first_known")
         first.setAccessibleName(_tr("How many of the most common words"))
         for n in quick.choices:
@@ -805,7 +815,7 @@ class LearningPage(Page):
 
         another = Card(_tr("Learn another language"))
         row = Flow()  # the button under the list where it's narrow (354)
-        self.choices = QComboBox()
+        self.choices = Combo()
         self.choices.setObjectName("learning.another")
         self.choices.setAccessibleName(_tr("Learn another language"))
         # none chosen until the learner picks: the list is by name, and its
@@ -896,13 +906,15 @@ class LearningPage(Page):
 
         # the packs on this PC (decision 0122): each one's version and size
         self.installed = Card(
-            _tr("Dictionaries on this PC"),
+            pc_or_mac(_tr("Dictionaries on this PC"), _tr("Dictionaries on this Mac")),
             _tr(
                 "Downloaded for the languages you learn. Removing one frees its "
                 "space; lookups in its language stop until it's downloaded again."
             ),
         )
-        self.installed.setAccessibleName(_tr("Dictionaries on this PC"))
+        self.installed.setAccessibleName(
+            pc_or_mac(_tr("Dictionaries on this PC"), _tr("Dictionaries on this Mac"))
+        )
         self.installed_rows = QVBoxLayout()
         self.installed_rows.setSpacing(8)
         self.installed.add(self.installed_rows)
@@ -917,10 +929,17 @@ class LearningPage(Page):
 
         data = Card(
             _tr("Your learning data"),
-            _tr(
-                "The words you look up, save and mark are kept on this PC, and on "
-                "our server as dictionary words and times. You can delete them, "
-                "in every language you learn - the same as on Account."
+            pc_or_mac(
+                _tr(
+                    "The words you look up, save and mark are kept on this PC, and on "
+                    "our server as dictionary words and times. You can delete them, "
+                    "in every language you learn - the same as on Account."
+                ),
+                _tr(
+                    "The words you look up, save and mark are kept on this Mac, and on "
+                    "our server as dictionary words and times. You can delete them, in "
+                    "every language you learn - the same as on Account."
+                ),
             ),
         )
         if delete_learning is not None:

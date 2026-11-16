@@ -93,6 +93,7 @@ from polyglotic_desktop.core.listening.dictation_keys import (
 )
 from polyglotic_desktop.ui_next.controls import (
     Card,
+    Combo,
     Flow,
     Row,
     Segmented,
@@ -104,6 +105,7 @@ from polyglotic_desktop.ui_next.dictation_key import KeyBox, key_words, refusal_
 from polyglotic_desktop.ui_next.home import Page
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
 from polyglotic_desktop.ui_next.languages import detect_name, dictation_choices
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
     LanguagesPanel,
@@ -268,7 +270,7 @@ class SettingsPage(Page):
         appearance.add(Row(_tr("Theme"), _tr("Its colours and headings."), self.theme))
         self.window_theme = Segmented(
             [
-                ("system", _tr("Like this PC")),
+                ("system", pc_or_mac(_tr("Like this PC"), _tr("Like this Mac"))),
                 ("light", _tr("Light")),
                 ("dark", _tr("Dark")),
             ]
@@ -288,10 +290,13 @@ class SettingsPage(Page):
 
         language = Card(_tr("Language"))
         # a list, not buttons: every main language (polyglotic-hq 294)
-        self.interface_language = QComboBox()
+        self.interface_language = Combo()
         self.interface_language.setObjectName("settings.interface_language")
         self.interface_language.setAccessibleName(_tr("The app's language"))
-        for code, name in [("", _tr("Like this PC")), *languages]:
+        for code, name in [
+            ("", pc_or_mac(_tr("Like this PC"), _tr("Like this Mac"))),
+            *languages,
+        ]:
             self.interface_language.addItem(name, code)
         # as wide as its longest name, not the card
         self.interface_language.setSizePolicy(
@@ -507,7 +512,7 @@ class SettingsPage(Page):
         self.dictation_key_note.setObjectName("settings.dictation_key_note")
         card.add(self.dictation_key_note)
         self.dictation_key_note.hide()  # after its parent: never a window of its own
-        self.dictation_language = QComboBox()
+        self.dictation_language = Combo()
         self.dictation_language.setObjectName("settings.dictation_language")
         self.dictation_language.setAccessibleName(_tr("Dictation's language"))
         # Detect, said as every spoken-language list says it (317)
@@ -641,7 +646,7 @@ class SettingsPage(Page):
         name, so it's found whatever language the app is in now."""
         line = Flow()
         line.addWidget(label(_tr("App language"), "Dim"))
-        self.language_picker = QComboBox()
+        self.language_picker = Combo()
         self.language_picker.setObjectName("settings.language_picker")
         self.language_picker.setAccessibleName(_tr("The app's language"))
         self.language_picker.setToolTip(
@@ -650,7 +655,10 @@ class SettingsPage(Page):
                 "next time Polyglotic starts."
             )
         )
-        for code, name in [("", _tr("Like this PC")), *languages]:
+        for code, name in [
+            ("", pc_or_mac(_tr("Like this PC"), _tr("Like this Mac"))),
+            *languages,
+        ]:
             self.language_picker.addItem(name, code)
         # connected once filled: adding the first item would pick it
         self.language_picker.currentIndexChanged.connect(self._language_picked)
@@ -703,7 +711,7 @@ class SettingsPage(Page):
     ) -> None:
         """Every caption window's settings, in 248's order (section 2.2),
         each group in the section a learner comes to it for (304)."""
-        self.look = LookPanel(look, notes=True, preview=True)
+        self.look = LookPanel(look, notes=True, preview=True, languages=speech)
         self.word_links = WordLinksPanel(look, notes=True, learning=True)
         self.word_links.learning_wanted.connect(self.learning_wanted)
         self.reading = ReadingLinesPanel(look, notes=True)
@@ -715,7 +723,8 @@ class SettingsPage(Page):
         self.speech = LanguagesPanel(speech, speech=True)
         self.sound = SoundCard(self._sound) if self._sound is not None else None
         self.reset = ResetCard(look)  # the look's: Look's last
-        self.lab = LabPanel(look)  # experimental: a section of its own, last (284)
+        # experimental: a section of its own, last (284)
+        self.lab = LabPanel(look, languages=speech)
         placed: dict[str, tuple[QWidget, ...]] = {
             "look": (self.look, self.word_links, self.reading, self.reset),
             "timing": (self.timing, self.behaviour),
@@ -819,7 +828,8 @@ class SettingsPage(Page):
         then there's nothing for Check now to look for."""
         text = (
             _tr(
-                "Version {version}, from the Microsoft Store, which keeps it up to date."
+                "Version {version}, from the Microsoft Store, which keeps it up to "
+                "date."
             )
             if store
             else _tr("Version {version} ({channel}).")

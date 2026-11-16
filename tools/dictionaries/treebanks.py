@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import unicodedata
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 from tools.dictionaries.sources import Source
@@ -402,7 +402,9 @@ def of(language: str) -> tuple[Source, ...]:
 
 
 def uses(
-    files: Iterable[Path], written: Callable[[str], str] | None = None
+    files: Iterable[Path],
+    written: Callable[[str], str] | None = None,
+    forms_only: bool = False,
 ) -> dict[str, Counter[str]]:
     """Each word (lower case; as captions write it, by `written`) -> how
     often the treebanks use it as each part of speech ("ADP": 140): a word
@@ -411,30 +413,125 @@ def uses(
     noun: Spanish's poder showed "power" before "to be able to". Multiword
     tokens' lines ("1-2", Spanish's "del") and empty nodes ("8.1") are
     skipped: their words have lines of their own. A treebank without
-    lemmas (Thai's: "_") counts forms."""
+    lemmas (Thai's: "_") counts forms. `forms_only`: each word as written
+    alone, not under its lemma - how a written form is used: Turkish's
+    treebanks give a verb's stem as its lemma, so by lemma "de" ("too") was
+    demek's (to say) 1,000 times over (polyglotic-hq 413)."""
+    found: dict[str, Counter[str]] = defaultdict(Counter)
+    for path in files:
+        for sentence in sentences(path):
+            names = {c[6] for c in sentence if joins_a_name(c)}
+            for cols in sentence:
+                said = {
+                    unicodedata.normalize("NFC", col).lower()
+                    for col in cols[1 : 2 if forms_only else 3]
+                    if col != "_"
+                }
+                tag = tag_of(cols, cols[0] in names)
+                for word in {written(w) for w in said} if written else said:
+                    found[word][tag] += 1
+    return dict(found)
+
+
+def joins_a_name(cols: Sequence[str]) -> bool:
+    """A word that makes its head a name of several words with it: joined
+    by a flat relation ("Uniti" in "Stati Uniti"), or a capitalised
+    adjective ("Romano" in "Impero Romano": Italian's "Impero" had opened on
+    a river of that name, not "empire")."""
+    relation = cols[7] if len(cols) > 7 else ""
+    return relation.startswith("flat") or (relation == "amod" and cols[1][:1].isupper())
+
+
+def sentences(path: Path) -> Iterator[list[list[str]]]:
+    """A treebank file's sentences, each its words' lines split into
+    columns; multiword tokens' lines ("1-2") and empty nodes ("8.1") left
+    out."""
+    sentence: list[list[str]] = []
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                if sentence:
+                    yield sentence
+                sentence = []
+                continue
+            cols = line.rstrip("\n").split("\t")
+            if len(cols) >= 4 and cols[0].isdigit():
+                sentence.append(cols)
+    if sentence:
+        yield sentence
+
+
+AS_DETERMINER = frozenset({"det", "det:poss", "nmod:poss"})
+"""The relations by which a word is attached to a noun as its determiner."""
+IN_NAME = "PROPN:flat"
+"""The tag `tag_of` gives a name's word in a name of several words."""
+POSSESSIVE = "PRON:det"
+"""The tag `tag_of` gives a pronoun attached as a determiner: Wiktionary's
+determiner where the word has one, else its pronoun (`kaikki.resolved`)."""
+
+
+def tag_of(cols: Sequence[str], heads_a_name: bool = False) -> str:
+    """A treebank line's part of speech, its own tag but `IN_NAME` for a
+    name's word in a name of several (joined by a flat relation, or
+    `heads_a_name` of them: "Stati" in "Stati Uniti"), and `POSSESSIVE` for
+    a pronoun attached to a noun as its determiner (`AS_DETERMINER`).
+    Italian's "stati" is a name only in "Stati Uniti", never the surname
+    Stati (`packs.name_frequency`).
+    Treebanks tag possessives as pronouns - Italian's "mio" in "il mio
+    libro" (det:poss), Swedish's "din" in "din bil" (nmod:poss) - which
+    Wiktionary has as determiners ("my", "your") or as pronouns (Swedish's
+    "min", "my"): Italian's "mio" had opened on "mine (used
+    predicatively)", Swedish's "din" on ditt's "you (vocative ...)"
+    (polyglotic-hq 416)."""
+    relation = cols[7] if len(cols) > 7 else ""
+    if cols[3] == "PROPN" and (heads_a_name or relation.startswith("flat")):
+        return IN_NAME
+    if cols[3] == "PRON" and relation in AS_DETERMINER:
+        return POSSESSIVE
+    return cols[3]
+
+
+def lemmas(
+    files: Iterable[Path], written: Callable[[str], str] | None = None
+) -> dict[str, Counter[str]]:
+    """Each word as written (lower case; as captions write it, by
+    `written`) -> how often the treebanks name each lemma for it, written
+    the same way: whether they take Arabic's "علي" for على ("on", 26
+    times) or "لكن" for itself ("but") (`packs.lemma_used`)."""
     found: dict[str, Counter[str]] = defaultdict(Counter)
     for path in files:
         with path.open(encoding="utf-8") as f:
             for line in f:
                 cols = line.rstrip("\n").split("\t")
-                if len(cols) < 4 or not cols[0].isdigit():
+                if len(cols) < 4 or not cols[0].isdigit() or cols[2] == "_":
                     continue
-                said = {
-                    unicodedata.normalize("NFC", col).lower()
-                    for col in cols[1:3]
-                    if col != "_"
-                }
-                for word in {written(w) for w in said} if written else said:
-                    found[word][cols[3]] += 1
+                form, lemma = (
+                    unicodedata.normalize("NFC", col).lower() for col in cols[1:3]
+                )
+                if written:
+                    form, lemma = written(form), written(lemma)
+                found[form][lemma] += 1
     return dict(found)
+
+
+def lemmas_for(
+    language: str,
+    paths: Mapping[str, Path],
+    written: Callable[[str], str] | None = None,
+) -> dict[str, Counter[str]] | None:
+    """`lemmas` from `language`'s treebanks in `paths`, or None if it has
+    none there."""
+    files = [paths[s.name] for s in of(language) if s.name in paths]
+    return lemmas(files, written) if files else None
 
 
 def uses_for(
     language: str,
     paths: Mapping[str, Path],
     written: Callable[[str], str] | None = None,
+    forms_only: bool = False,
 ) -> dict[str, Counter[str]] | None:
     """`uses` from `language`'s treebanks in `paths`, or None if it has
     none there (a test's sources, a language without a treebank)."""
     files = [paths[s.name] for s in of(language) if s.name in paths]
-    return uses(files, written) if files else None
+    return uses(files, written, forms_only) if files else None

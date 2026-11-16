@@ -257,6 +257,34 @@ def card_of(view: SoundView, qapp: QApplication) -> SoundCard:
     return card
 
 
+def test_the_devices_are_listed_once_the_card_is_shown_not_while(
+    qapp: QApplication,
+) -> None:
+    """Home is the first page: listing Windows' devices (4-10 ms) and filling
+    both lists in the card's show held the start's first paint back
+    (polyglotic-hq 400). They're listed straight after, once."""
+    commands = Commands()
+    listed: list[SoundDevices] = []
+
+    def counted() -> SoundDevices:
+        listed.append(commands.devices)
+        return commands.devices
+
+    commands.sound_devices = counted  # type: ignore[method-assign]
+    view = view_with(Sound(), commands)
+    card = SoundCard(view)
+    MADE.append(card)
+    card.resize(560, 400)
+    card.show()
+    assert listed == [] and card.speakers.count() == 1  # Windows' default only
+    qapp.processEvents()
+    assert len(listed) == 1 and card.speakers.count() == 3
+    card.hide()
+    card.show()
+    qapp.processEvents()
+    assert len(listed) == 1  # after that, as a list is opened
+
+
 def test_the_card_lists_the_devices_and_chooses_one(qapp: QApplication) -> None:
     commands = Commands()
     view = view_with(Sound(), commands)

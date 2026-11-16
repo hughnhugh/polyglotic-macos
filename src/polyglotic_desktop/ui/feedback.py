@@ -37,6 +37,7 @@ from PySide6.QtWidgets import (
 )
 
 from polyglotic_desktop.ports.feedback import ReportKind
+from polyglotic_desktop.ui.os_words import pc_or_mac
 
 MAX_TEXT = 5000  # protocol.md's limit
 MAX_REPLY = 254  # an email address's limit, and the protocol's
@@ -133,7 +134,10 @@ class FeedbackDialog(QDialog):
                 "never captions, audio or your settings."
             )
             if self._log is not None
-            else self.tr("There's no log on this PC yet.")
+            else pc_or_mac(
+                self.tr("There's no log on this PC yet."),
+                self.tr("There's no log on this Mac yet."),
+            )
         )
         self.log_note.setObjectName("Faint")
         self.log_note.setWordWrap(True)

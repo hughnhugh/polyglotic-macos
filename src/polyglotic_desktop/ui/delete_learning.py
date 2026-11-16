@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.ui.os_words import pc_or_mac
+
 BOX_INDENT = 24
 """The set-aside line's indent: under the box's words, not its square."""
 
@@ -45,20 +47,34 @@ class DeleteLearningDialog(QDialog):
         title.setWordWrap(True)
         layout.addWidget(title)
         text = QLabel(
-            self.tr(
-                "We'll delete the words you looked up, saved and marked, and any "
-                "exposure counts you shared, in every language you learn. Your "
-                "other PCs keep their own copies until you delete them there too."
+            pc_or_mac(
+                self.tr(
+                    "We'll delete the words you looked up, saved and marked, and any "
+                    "exposure counts you shared, in every language you learn. Your "
+                    "other PCs keep their own copies until you delete them there too."
+                ),
+                self.tr(
+                    "We'll delete the words you looked up, saved and marked, and any "
+                    "exposure counts you shared, in every language you learn. Your "
+                    "other computers keep their own copies until you delete them there "
+                    "too."
+                ),
             )
         )
         text.setObjectName("Dim")
         text.setWordWrap(True)
         layout.addWidget(text)
         self.on_this_pc = QCheckBox(
-            self.tr(
-                "Also delete it from this PC, in every language you're learning "
-                "- your word statuses, saved words and how often you heard each "
-                "word"
+            pc_or_mac(
+                self.tr(
+                    "Also delete it from this PC, in every language you're learning "
+                    "- your word statuses, saved words and how often you heard each "
+                    "word"
+                ),
+                self.tr(
+                    "Also delete it from this Mac, in every language you're learning - "
+                    "your word statuses, saved words and how often you heard each word"
+                ),
             )
         )
         self.on_this_pc.setObjectName("delete.on_this_pc")
@@ -69,11 +85,19 @@ class DeleteLearningDialog(QDialog):
             # said under the box, and only while it's ticked: unticked, nothing
             # on this PC is deleted, the copies included (polyglotic-hq 223)
             self.set_aside = QLabel(
-                self.tr(
-                    "This also deletes the %Ln copy(s) of your learning data set "
-                    "aside on this PC when it was found damaged.",
-                    "",
-                    set_aside,
+                pc_or_mac(
+                    self.tr(
+                        "This also deletes the %Ln copy(s) of your learning data set "
+                        "aside on this PC when it was found damaged.",
+                        "",
+                        set_aside,
+                    ),
+                    self.tr(
+                        "This also deletes the %Ln copy(s) of your learning data set "
+                        "aside on this Mac when it was found damaged.",
+                        "",
+                        set_aside,
+                    ),
                 )
             )
             self.set_aside.setObjectName("Dim")

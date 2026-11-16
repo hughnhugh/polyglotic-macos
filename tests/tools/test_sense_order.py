@@ -243,6 +243,42 @@ def test_thais_reader_orders_entries_by_its_treebanks(tmp_path: Path) -> None:
     assert ordered.forms["กับ"] == ["กับ|prep|2", "กับ|noun|1"]
 
 
+def test_malays_indonesian_cards_are_ordered_by_indonesians_treebanks(
+    tmp_path: Path,
+) -> None:
+    """Malay's pack takes the words its Wiktionary hasn't got from
+    Indonesian's, whose treebanks it hadn't listed, so those cards kept
+    Wiktionary's order (polyglotic-hq 394, 396)."""
+    assert set(treebanks.of("id")) <= set(packs.PACKS["ms"].sources)
+
+    def gz(name: str, code: str, *objects: dict[str, object]) -> Path:
+        path = tmp_path / name
+        path.write_bytes(
+            gzip.compress(
+                "\n".join(
+                    json.dumps({"lang_code": code, **o}) for o in objects
+                ).encode()
+            )
+        )
+        return path
+
+    paths = {
+        "kaikki-ms": gz("ms.jsonl.gz", "ms", obj("saya", "pron", sense("I"))),
+        "kaikki-id": gz(
+            "id.jsonl.gz",
+            "id",
+            obj("pada", "noun", sense("a kind of tree"), number=1),
+            obj("pada", "prep", sense("at, on"), number=2),
+        ),
+    }
+    ud = treebanks.of("id")[0]
+    (tmp_path / ud.filename).write_text("1\tpada\tpada\tADP\n" * 9, encoding="utf-8")
+    plain = packs.read_malay(paths)
+    ordered = packs.read_malay({**paths, ud.name: tmp_path / ud.filename})
+    assert plain.forms["pada"] == ["pada|noun|1", "pada|prep|2"]
+    assert ordered.forms["pada"] == ["pada|prep|2", "pada|noun|1"]
+
+
 def test_every_treebank_may_be_used_commercially_and_is_credited() -> None:
     """359's rule: no non-commercial treebank (Ukrainian's IU is NC)."""
     allowed = {"CC BY-SA 4.0", *packs.OTHER_CC}

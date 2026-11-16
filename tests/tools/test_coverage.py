@@ -107,6 +107,25 @@ def test_the_commonest_words_are_each_found_or_said_why_not(
     assert str(result) == "missing xyz (4); exempt the (2)"
 
 
+def test_thais_build_checks_its_commonest_words_by_common_voice(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """wordfreq has no Thai list, so the check had skipped Thai; its pack
+    is ranked by Common Voice's sentences, and their commonest words are
+    checked instead, commonest first (polyglotic-hq 394, 396)."""
+    monkeypatch.setattr(packs, "REGISTRY", tmp_path / "registry")
+    (tmp_path / "registry").mkdir()
+    out = tmp_path / "out"
+    out.mkdir()
+    stats = packs.build(PACKS["th"], sources(tmp_path / "upstream"), out)
+    assert stats["finds its commonest words"] is True
+    assert str(stats["top words"]).startswith("missing none")
+    top = coverage.probe_top_words_of(
+        out / "wiktth.sqlite", "th", {"กิน": 1e-1, "ฟฟฟ": 5e-1, "หมา": 1e-2}
+    )
+    assert top.missing == [(1, "ฟฟฟ")]
+
+
 def test_an_elided_word_is_looked_up_as_captions_write_it() -> None:
     """wordfreq cuts "l'homme" into "l" and "homme"; the split gives "l'",
     looked up as le or la (polyglotic-hq 390). French's "l" and "j" had

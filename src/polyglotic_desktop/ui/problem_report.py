@@ -42,6 +42,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.ui.os_words import pc_or_mac
+
 MAX_TEXT = 5000  # protocol.md's limit
 
 
@@ -396,7 +398,10 @@ def part_labels() -> dict[str, str]:
     return {
         "log": _tr("The app's log"),
         "settings": _tr("Your settings"),
-        "facts": _tr("About this PC: the app, the system and the audio devices"),
+        "facts": pc_or_mac(
+            _tr("About this PC: the app, the system and the audio devices"),
+            _tr("About this Mac: the app, the system and the audio devices"),
+        ),
         "captions": _tr("Captions from the last few minutes, as shown"),
         "check": _tr('Help\'s "no captions?" check'),
     }

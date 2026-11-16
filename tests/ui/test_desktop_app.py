@@ -237,7 +237,7 @@ def test_hotkeys_lock_pause_and_hide_from_any_thread(qapp: QApplication) -> None
     app.hotkey_pressed.emit("P")
     qapp.processEvents()
     assert not app.pause.isChecked()
-    app.hotkeys_taken(["H"])  # another app has Ctrl+Alt+H: not shown
+    app.hotkeys_not_working(["H"])  # another app has Ctrl+Alt+H: not shown
     assert app.hide_windows.shortcut().isEmpty()
     app.close()
 

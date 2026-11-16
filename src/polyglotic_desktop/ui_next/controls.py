@@ -22,6 +22,7 @@ from PySide6.QtGui import (
     QIcon,
     QPainter,
     QPaintEvent,
+    QPalette,
     QPixmap,
     QResizeEvent,
     QTextLayout,
@@ -31,6 +32,7 @@ from PySide6.QtWidgets import (
     QAbstractButton,
     QApplication,
     QCheckBox,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLayout,
@@ -47,7 +49,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next import glyphs, style
 from polyglotic_desktop.ui_next.copying import Measured, Text
 
 
@@ -488,7 +490,11 @@ def label(
     text: str = "", role: str | None = None, wrap: bool = False, copyable: bool = True
 ) -> Measured:
     """A label; `role` is its object name for the stylesheet (`Dim`,
-    `Faint`, `CardTitle`, ...). Its words can be selected and copied
+    `Faint`, `CardTitle`, ...) - and its `role` property, which the
+    stylesheet reads too for the quieter roles (`style.QUIET_ROLES`), so a
+    note given a name of its own afterwards (`setObjectName`, for a test or
+    the lab) stays the note it was: eleven such notes drew at the full
+    text colour and size (polyglotic-hq 403). Its words can be selected and copied
     (`copying.Text`) - `copyable=False` only for a label inside
     something a click anywhere on works, such as Home's rows of apps to
     add, where a selectable label would take the click; and not for a
@@ -500,6 +506,7 @@ def label(
         found.ink_links()  # a link in the text: readable on the theme (377)
     if role:
         found.setObjectName(role)
+        found.setProperty("role", role)
     found.setWordWrap(wrap)
     return found
 
@@ -632,6 +639,14 @@ TICK = 16
 text size: it grows with the tick, `style.px`)."""
 SWITCH = (28, 16)
 """The on / off switch's size: on, it's filled with the accent."""
+DROP = "▾"
+"""What marks a control that opens a list: a chip's ("EN ▾") and a
+`Combo`'s alike."""
+DROP_ROOM = 22
+"""The room a `Combo` keeps at its right for `DROP` (at 100 % text size)."""
+DROP_INSET = 10
+"""...and how far in from the box's right edge the mark ends: a field's
+own padding, so it sits where a chip's does."""
 
 
 def _ink(given: tuple[str, ...] | None, tokens: tuple[str, ...]) -> list[QColor]:
@@ -665,6 +680,84 @@ class TickButton(QPushButton):
             Qt.AlignmentFlag.AlignVCenter,
             "✓",
         )
+        painter.end()
+
+
+class Combo(QComboBox):
+    """A box that opens a list of choices, marked as the chips are - `DROP`
+    at its right, in its text's colour - where Qt's own style draws a
+    bevelled arrow box that pokes past the field's rounded border
+    (polyglotic-hq 376, 403). The stylesheet leaves the arrow's room empty
+    (`QComboBox[drop="own"]`); this draws the mark in it."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setProperty("drop", "own")
+
+    def drop_rect(self) -> QRectF:
+        """Where the mark is drawn: the arrow's room, its right edge the
+        field's padding in from the box's."""
+        room = style.px(DROP_ROOM)
+        return QRectF(self.width() - room, 0, room - DROP_INSET, self.height())
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        group = (
+            QPalette.ColorGroup.Normal
+            if self.isEnabled()
+            else QPalette.ColorGroup.Disabled
+        )
+        painter = QPainter(self)
+        painter.setPen(self.palette().color(group, QPalette.ColorRole.Text))
+        painter.drawText(
+            self.drop_rect(),
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight,
+            DROP,
+        )
+        painter.end()
+
+
+class GlyphButton(QToolButton):
+    """A small button whose face is one of the interface's own drawn icons
+    (`glyphs`), in the theme's colours at paint time: dim, the accent while
+    checked, faint while off to clicks. Home's "show my speech in this
+    window" was the 🎤 emoji as the button's text - Windows' colour emoji
+    font in one place, a drawn mic on the caption window in another
+    (polyglotic-hq 403). `ink`: (dim, accent, faint) - the theme's if not
+    given."""
+
+    GLYPH = 14
+    """The icon's square (at 100 % text size)."""
+
+    def __init__(
+        self,
+        glyph: glyphs.Glyph,
+        parent: QWidget | None = None,
+        ink: tuple[str, str, str] | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.glyph, self.ink = glyph, ink
+
+    def sizeHint(self) -> QSize:
+        """As wide as the icon font's glyph made a button (`glyphs.text_width`)
+        with the stylesheet's padding either side; as tall as a chip beside
+        it."""
+        side = style.px(self.GLYPH)
+        height = max(self.fontMetrics().height(), side) + 2 * 3 + 2
+        return QSize(glyphs.text_width(side) + 2 * 6 + 2, height)
+
+    def minimumSizeHint(self) -> QSize:
+        return self.sizeHint()
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)  # the frame; there is no text
+        dim, accent, faint = _ink(self.ink, ("TEXT_DIM", "ACCENT", "TEXT_FAINT"))
+        color = faint if not self.isEnabled() else accent if self.isChecked() else dim
+        side = style.px(self.GLYPH)
+        box = QRectF(0, 0, side, side)
+        box.moveCenter(QRectF(self.rect()).center())
+        painter = QPainter(self)
+        glyphs.paint(painter, self.glyph, box, color)
         painter.end()
 
 

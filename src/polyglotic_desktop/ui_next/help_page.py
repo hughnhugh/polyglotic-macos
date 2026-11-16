@@ -24,12 +24,13 @@ Languages or Captions; Words, not Vocabulary.
   or anything heard (`report_wanted`).
 """
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
 
 from PySide6.QtCore import QPoint, Qt, QTimer, Signal
 from PySide6.QtGui import QHideEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -51,6 +52,7 @@ from polyglotic_desktop.core.listening.unreachable import Unreachable
 from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ports.learning import SetAsideLearningData
+from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Flow,
@@ -61,6 +63,7 @@ from polyglotic_desktop.ui_next.controls import (
 from polyglotic_desktop.ui_next.dictation_key import key_words
 from polyglotic_desktop.ui_next.home import Page, unreachable_words
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 
 CHECK_EVERY_MS = 2000
 KEEP_WHATS_NEW_MS = 500
@@ -68,8 +71,15 @@ KEEP_WHATS_NEW_MS = 500
 the page settles (361)."""
 MARKS = {Status.OK: "✓", Status.BROKEN: "✗", Status.WAITING: "–"}
 MARK_INDENT = 18
-"""A fix, and a topic's text, start under the words after the mark."""
+"""The column a line's mark sits in (at 100 % text size: it grows with the
+mark, `style.px`); the line's words, its fix and a topic's text all start
+after it. The mark was the first characters of the line's own text, and
+✓ ✗ and – are each a different width, so the words started 2 to 4 px
+apart from row to row (polyglotic-hq 376, 403)."""
 CLOSED, OPEN = "▸", "▾"
+HOTKEYS = frozenset("LHP")
+"""Ctrl+Alt+ these: Lock all, Hide all, Pause captions (`DesktopApp.hotkeys`)
+- those that work are named (`HelpPage.show_hotkeys`)."""
 
 
 def _tr(text: str) -> str:
@@ -142,40 +152,31 @@ class HelpPage(Page):
                 "at the first thing that's wrong."
             ),
         )
+        self._mark_columns: list[tuple[QGridLayout, QLabel]] = []
+        self.marks: dict[Step, QLabel] = {}
         self.rows: dict[Step, QLabel] = {}
         self.fixes: dict[Step, QLabel] = {}
         for step in Step:
-            row = QVBoxLayout()
-            row.setSpacing(1)
-            line = label("", wrap=True)
-            line.setObjectName(f"help.{step.value}")
-            fix = label("", "Faint", wrap=True)  # its name is its look
-            fix.setContentsMargins(MARK_INDENT, 0, 0, 0)
-            row.addWidget(line)
-            row.addWidget(fix)
+            row, mark, line, fix = self._checked(f"help.{step.value}")
             check.add(row)
-            self.rows[step] = line
-            self.fixes[step] = fix
-        dictionary = QVBoxLayout()
-        dictionary.setSpacing(1)
-        self.dictionary = label("", wrap=True)
-        self.dictionary.setObjectName("help.dictionary")
-        self.dictionary_fix = label("", "Faint", wrap=True)
-        self.dictionary_fix.setContentsMargins(MARK_INDENT, 0, 0, 0)
-        for each in (self.dictionary, self.dictionary_fix):
+            self.marks[step], self.rows[step], self.fixes[step] = mark, line, fix
+        row, self.dictionary_mark, self.dictionary, self.dictionary_fix = self._checked(
+            "help.dictionary"
+        )
+        check.add(row)
+        row, self.learning_mark, self.learning, self.learning_then = self._checked(
+            "help.learning_data"
+        )
+        check.add(row)
+        for each in (
+            self.dictionary_mark,
+            self.dictionary,
+            self.dictionary_fix,
+            self.learning_mark,
+            self.learning,
+            self.learning_then,
+        ):
             each.hide()
-            dictionary.addWidget(each)
-        check.add(dictionary)
-        learning = QVBoxLayout()
-        learning.setSpacing(1)
-        self.learning = label("", wrap=True)
-        self.learning.setObjectName("help.learning_data")
-        self.learning_then = label("", "Faint", wrap=True)
-        self.learning_then.setContentsMargins(MARK_INDENT, 0, 0, 0)
-        for each in (self.learning, self.learning_then):
-            each.hide()
-            learning.addWidget(each)
-        check.add(learning)
         buttons = QHBoxLayout()
         self.check_again = QPushButton(_tr("Check again"))
         self.check_again.setObjectName("help.check_again")
@@ -185,7 +186,10 @@ class HelpPage(Page):
         check.add(buttons)
         self.content.addWidget(check)
 
-        setting_up = self._topics(_tr("Set up"), set_up())
+        self._hotkeys: frozenset[str] = HOTKEYS
+        """Those that work here (`show_hotkeys`)."""
+        self._set_up: list[Topic] = []
+        setting_up = self._topics(_tr("Set up"), set_up(), self._set_up)
         self.dictation = Topic(*dictation_topic(key_words(DEFAULT_KEY)))
         setting_up.add(self.dictation)
         self.content.addWidget(setting_up)
@@ -241,11 +245,48 @@ class HelpPage(Page):
         self._timer = QTimer(self, interval=CHECK_EVERY_MS)
         self._timer.timeout.connect(self.refresh)  # started when shown
 
-    def _topics(self, title: str, topics: list[tuple[str, str]]) -> Card:
+    def _checked(self, name: str) -> tuple[QGridLayout, QLabel, QLabel, QLabel]:
+        """One line of the check: its mark in a column of its own
+        (`MARK_INDENT`), its words (named `name`), and under the words
+        what to do about it."""
+        row = QGridLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setHorizontalSpacing(0)
+        row.setVerticalSpacing(1)
+        row.setColumnStretch(1, 1)
+        mark = label("")
+        self._mark_columns.append((row, mark))
+        mark.setObjectName(f"{name}.mark")
+        line = label("", wrap=True)
+        line.setObjectName(name)
+        fix = label("", "Faint", wrap=True)  # its name is its look
+        row.addWidget(mark, 0, 0, Qt.AlignmentFlag.AlignTop)
+        row.addWidget(line, 0, 1)
+        row.addWidget(fix, 1, 1)
+        return row, mark, line, fix
+
+    @staticmethod
+    def _say(mark: QLabel, line: QLabel, status: Status, words: str) -> None:
+        """A line's mark and words; read out as they were written, the mark
+        first."""
+        mark.setText(MARKS[status])
+        line.setText(words)
+        line.setAccessibleName(f"{MARKS[status]}  {words}")
+
+    def _topics(
+        self,
+        title: str,
+        topics: list[tuple[str, str]],
+        made: list[Topic] | None = None,
+    ) -> Card:
+        """A card of `topics`, each one also put in `made` if given."""
         card = Card(title)
         card.column.setSpacing(2)
         for name, text in topics:
-            card.add(Topic(name, text))
+            topic = Topic(name, text)
+            card.add(topic)
+            if made is not None:
+                made.append(topic)
         return card
 
     def show_whats_new(
@@ -317,6 +358,16 @@ class HelpPage(Page):
             layout.activate()  # the scroll bar's range takes the open version
         self.verticalScrollBar().setValue(self.whats_new.mapTo(inner, QPoint(0, 0)).y())
 
+    def show_hotkeys(self, working: Collection[str]) -> None:
+        """Only `working` hotkeys are named - the others another app has, or
+        weren't registered (`DesktopApp.hotkeys_not_working`; polyglotic-hq
+        398's preview build has none, and Help said "Ctrl+Alt+L": 400)."""
+        self._hotkeys = frozenset(working)
+        for topic, (_, text) in zip(self._set_up, set_up(self._hotkeys), strict=True):
+            topic.text.setText(text)
+        if self.isVisible():
+            self.refresh()
+
     def show_dictation_key(self, key: str) -> None:
         """Dictation's key, in words ("Right Ctrl"), as its topic names it."""
         self.dictation.text.setText(dictation_topic(key)[1])
@@ -334,28 +385,33 @@ class HelpPage(Page):
     def refresh(self) -> None:
         """Runs the check on the facts as they are now."""
         self.links = run_check(self._facts())
+        for row, mark in self._mark_columns:  # at the text size now
+            widest = max(
+                mark.fontMetrics().horizontalAdvance(each) for each in MARKS.values()
+            )
+            row.setColumnMinimumWidth(0, max(style.px(MARK_INDENT), widest + 6))
         broken_before = False
         for link in self.links:
-            title, fix = words(link, broken_before)
-            self.rows[link.step].setText(f"{MARKS[link.status]}  {title}")
+            title, fix = words(link, broken_before, self._hotkeys)
+            self._say(self.marks[link.step], self.rows[link.step], link.status, title)
             self.fixes[link.step].setText(fix)
             self.fixes[link.step].setHidden(not fix)
             broken_before = broken_before or link.status is not Status.OK
         self.problem = self._dictionary_problem()
         if self.problem is not None:
             what, fix = dictionary_out(self.problem, self._chinese)
-            self.dictionary.setText(f"{MARKS[Status.BROKEN]}  {what}")
+            self._say(self.dictionary_mark, self.dictionary, Status.BROKEN, what)
             self.dictionary_fix.setText(fix)
-        self.dictionary.setVisible(self.problem is not None)
-        self.dictionary_fix.setVisible(self.problem is not None)
+        for each in (self.dictionary_mark, self.dictionary, self.dictionary_fix):
+            each.setVisible(self.problem is not None)
         self.set_aside = self._learning_set_aside()
         self.unsaved = self._learning_unsaved()
         if self.set_aside is not None:
             what, then = learning_set_aside(self.set_aside, self.unsaved)
-            self.learning.setText(f"{MARKS[Status.BROKEN]}  {what}")
+            self._say(self.learning_mark, self.learning, Status.BROKEN, what)
             self.learning_then.setText(then)
-        self.learning.setVisible(self.set_aside is not None)
-        self.learning_then.setVisible(self.set_aside is not None)
+        for each in (self.learning_mark, self.learning, self.learning_then):
+            each.setVisible(self.set_aside is not None)
 
     def _report(self) -> None:
         self.refresh()
@@ -377,10 +433,17 @@ def learning_set_aside(
     since the start (`unsaved`) - and where the old file is (polyglotic-hq
     206)."""
     if unsaved:
-        then = _tr(
-            "Changes aren't kept on this PC until you restart Polyglotic; your"
-            " saved words then come back from your account. The old file is kept"
-            " as {path}, in case we ask for it in a report."
+        then = pc_or_mac(
+            _tr(
+                "Changes aren't kept on this PC until you restart Polyglotic; your"
+                " saved words then come back from your account. The old file is kept"
+                " as {path}, in case we ask for it in a report."
+            ),
+            _tr(
+                "Changes aren't kept on this Mac until you restart Polyglotic; your "
+                "saved words then come back from your account. The old file is kept as "
+                "{path}, in case we ask for it in a report."
+            ),
         )
     else:
         then = _tr(
@@ -388,7 +451,10 @@ def learning_set_aside(
             " is kept as {path}, in case we ask for it in a report."
         )
     return (
-        _tr("Your learning data on this PC was damaged and has been set aside"),
+        pc_or_mac(
+            _tr("Your learning data on this PC was damaged and has been set aside"),
+            _tr("Your learning data on this Mac was damaged and has been set aside"),
+        ),
         then.format(path=aside.path),
     )
 
@@ -396,14 +462,17 @@ def learning_set_aside(
 # -- the words ------------------------------------------------------------------------
 
 
-def words(link: Link, after_trouble: bool) -> tuple[str, str]:
+def words(
+    link: Link, after_trouble: bool, hotkeys: Collection[str] = HOTKEYS
+) -> tuple[str, str]:
     """A link's line and, under it, its fix (if broken) or what it's
-    waiting for (if it's the one being waited on)."""
+    waiting for (if it's the one being waited on). `hotkeys`: those that
+    work here, the only ones named."""
     name = link.source or ""
     if link.status is Status.BROKEN and link.cause is not None:
         return unreachable_words(link.cause)  # Home's words (251)
     if link.status is Status.BROKEN and link.problem is not None:
-        return problem(link.problem, name)
+        return problem(link.problem, name, hotkeys)
     if link.status is Status.OK:
         return {
             Step.CONNECTED: _tr("Signed in, and connected to the server"),
@@ -430,17 +499,26 @@ def words(link: Link, after_trouble: bool) -> tuple[str, str]:
     return titles[link.step], "" if after_trouble else waits.get(link.step, "")
 
 
-def problem(found: Problem, name: str) -> tuple[str, str]:
+def problem(
+    found: Problem, name: str, hotkeys: Collection[str] = HOTKEYS
+) -> tuple[str, str]:
     """A broken link's line and its likely fix. The server unreachable is
-    said by its cause (`words`); without one, as nothing answering."""
+    said by its cause (`words`); without one, as nothing answering.
+    `hotkeys`: those that work here, the only ones named."""
     if found is Problem.SERVER_UNREACHABLE:
         return unreachable_words(Unreachable.NO_ANSWER)
     return {
         Problem.SIGN_IN_NEEDED: (
             _tr("Not signed in"),
-            _tr(
-                "Sign in on Account with your invite code - the one this PC used "
-                "before works again - or the code in your Plus email."
+            pc_or_mac(
+                _tr(
+                    "Sign in on Account with your invite code - the one this PC used "
+                    "before works again - or the code in your Plus email."
+                ),
+                _tr(
+                    "Sign in on Account with your invite code - the one this Mac used "
+                    "before works again - or the code in your Plus email."
+                ),
             ),
         ),
         Problem.PLUS_ENDED: (
@@ -474,7 +552,14 @@ def problem(found: Problem, name: str) -> tuple[str, str]:
         ),
         Problem.NOTHING_TICKED: (
             _tr("Nothing is added to caption"),
-            _tr("On Home, add an app (up to 3), or choose Everything the PC plays."),
+            pc_or_mac(
+                _tr(
+                    "On Home, add an app (up to 3), or choose Everything the PC plays."
+                ),
+                _tr(
+                    "On Home, add an app (up to 3), or choose Everything the Mac plays."
+                ),
+            ),
         ),
         Problem.APP_NOT_OPEN: (
             _tr("{name} isn't open").format(name=name),
@@ -484,24 +569,45 @@ def problem(found: Problem, name: str) -> tuple[str, str]:
             _tr("{name} is quiet: no sound from it in the last 30 seconds").format(
                 name=name
             ),
-            _tr(
-                "Is it playing sound? Is its output going to this PC's "
-                "speakers or headset, and not muted?"
+            pc_or_mac(
+                _tr(
+                    "Is it playing sound? Is its output going to this PC's "
+                    "speakers or headset, and not muted?"
+                ),
+                _tr(
+                    "Is it playing sound? Is its output going to this Mac's speakers "
+                    "or headset, and not muted?"
+                ),
             ),
         ),
         Problem.SYSTEM_QUIET: (
-            _tr("The PC is quiet: nothing it plays has made sound in 30 seconds"),
-            _tr(
-                "Play something. If you hear it on a headset that isn't "
-                "the PC's default device, make that the default, or add the "
-                "app instead."
+            pc_or_mac(
+                _tr("The PC is quiet: nothing it plays has made sound in 30 seconds"),
+                _tr("The Mac is quiet: nothing it plays has made sound in 30 seconds"),
+            ),
+            pc_or_mac(
+                _tr(
+                    "Play something. If you hear it on a headset that isn't "
+                    "the PC's default device, make that the default, or add the "
+                    "app instead."
+                ),
+                _tr(
+                    "Play something. If you hear it on a headset that isn't the Mac's "
+                    "default device, make that the default, or add the app instead."
+                ),
             ),
         ),
         Problem.MIC_QUIET: (
             _tr("Your microphone is quiet: no sound from it in 30 seconds"),
-            _tr(
-                "Is it muted, or is another microphone chosen in the PC's "
-                "sound settings?"
+            pc_or_mac(
+                _tr(
+                    "Is it muted, or is another microphone chosen in the PC's "
+                    "sound settings?"
+                ),
+                _tr(
+                    "Is it muted, or is another microphone chosen in the Mac's sound "
+                    "settings?"
+                ),
             ),
         ),
         Problem.SOUND_NOT_ALLOWED: (
@@ -531,20 +637,33 @@ def problem(found: Problem, name: str) -> tuple[str, str]:
         ),
         Problem.PAUSED: (
             _tr("Captions are paused"),
-            _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P."),
+            _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P.")
+            if "P" in hotkeys
+            else _tr("Choose Resume on Home or in the tray menu."),
         ),
         Problem.OVERLAYS_HIDDEN: (
             _tr("The caption windows are hidden"),
             _tr(
                 "Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An "
                 "app's transcript shows whether captions are arriving."
+            )
+            if "H" in hotkeys
+            else _tr(
+                "Use Hide all on Home or the tray menu. An app's transcript "
+                "shows whether captions are arriving."
             ),
         ),
         Problem.SERVER_FAILING: (
             _tr("Captions are failing on the server"),
-            _tr(
-                "It keeps trying by itself - nothing on this PC needs changing. "
-                "If it goes on for more than a few minutes, report a problem."
+            pc_or_mac(
+                _tr(
+                    "It keeps trying by itself - nothing on this PC needs changing. "
+                    "If it goes on for more than a few minutes, report a problem."
+                ),
+                _tr(
+                    "It keeps trying by itself - nothing on this Mac needs changing. "
+                    "If it goes on for more than a few minutes, report a problem."
+                ),
             ),
         ),
         Problem.NO_CAPTIONS: (
@@ -557,33 +676,69 @@ def problem(found: Problem, name: str) -> tuple[str, str]:
     }[found]
 
 
-def set_up() -> list[tuple[str, str]]:
+def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
+    """`hotkeys`: those that work here. A topic names its hotkeys only
+    while they all work; else it says where else the commands are
+    (polyglotic-hq 400)."""
     return [
         (
-            _tr("Caption apps you add (Windows 11)"),
-            _tr(
-                "On Home, add up to 3 apps with sound open; each gets a caption "
-                "window of its own, labelled with its name. An app you added "
-                "that isn't open is captioned when it opens. Windows 10 can't "
-                "tell apps apart, so there everything the PC plays is captioned."
+            pc_or_mac(
+                _tr("Caption apps you add (Windows 11)"),
+                _tr("Caption apps you add (macOS 14.2 or later)"),
+            ),
+            pc_or_mac(
+                _tr(
+                    "On Home, add up to 3 apps with sound open; each gets a caption "
+                    "window of its own, labelled with its name. An app you added "
+                    "that isn't open is captioned when it opens. Windows 10 can't "
+                    "tell apps apart, so there everything the PC plays is captioned."
+                ),
+                _tr(
+                    "On Home, add up to 3 apps with sound open; each gets a caption "
+                    "window of its own, labelled with its name. An app you added that "
+                    "isn't open is captioned when it opens. Before macOS 14.2 a Mac "
+                    "can't tell apps apart, so there everything the Mac plays is "
+                    "captioned."
+                ),
             ),
         ),
         (
             _tr("Caption one app, and everything else apart"),
-            _tr(
-                "With one app added on Home, turn on Also caption everything else "
-                "the PC plays: everything except that app gets a caption window of "
-                "its own, labelled Everything else - a call in one window, the game "
-                "or video in the other, nothing in both. Windows can leave out only "
-                "one app, so it's there with one app at a time (Windows 11)."
+            pc_or_mac(
+                _tr(
+                    "With one app added on Home, turn on Also caption everything else "
+                    "the PC plays: everything except that app gets a caption window of "
+                    "its own, labelled Everything else - a call in one window, the "
+                    "game "
+                    "or video in the other, nothing in both. Windows can leave out "
+                    "only "
+                    "one app, so it's there with one app at a time (Windows 11)."
+                ),
+                _tr(
+                    "With one app added on Home, turn on Also caption everything else "
+                    "the Mac plays: everything except that app gets a caption window "
+                    "of its own, labelled Everything else - a call in one window, the "
+                    "game or video in the other, nothing in both. It's there with one "
+                    "app at a time."
+                ),
             ),
         ),
         (
-            _tr("Caption everything the PC plays"),
-            _tr(
-                "On Home, choose Everything the PC plays: all it plays through "
-                "its default speakers or headset, labelled This PC. If "
-                "your headset isn't the default device, make it the default."
+            pc_or_mac(
+                _tr("Caption everything the PC plays"),
+                _tr("Caption everything the Mac plays"),
+            ),
+            pc_or_mac(
+                _tr(
+                    "On Home, choose Everything the PC plays: all it plays through "
+                    "its default speakers or headset, labelled This PC. If "
+                    "your headset isn't the default device, make it the default."
+                ),
+                _tr(
+                    "On Home, choose Everything the Mac plays: all it plays through "
+                    "its default speakers or headset, labelled This Mac. If your "
+                    "headset isn't the default device, make it the default."
+                ),
             ),
         ),
         (
@@ -602,6 +757,13 @@ def set_up() -> list[tuple[str, str]]:
                 "it. Lock all (Ctrl+Alt+L) lets clicks pass through; Hide all is "
                 "Ctrl+Alt+H; Pause captions is Ctrl+Alt+P. Lost one? Reset "
                 "positions on Home puts every window back."
+            )
+            if {"L", "H", "P"} <= set(hotkeys)
+            else _tr(
+                "Drag a caption window to move it, or drag its edges to resize "
+                "it. Lock all, on Home or in the tray menu, lets clicks pass "
+                "through. Lost one? Reset positions on Home puts every window "
+                "back."
             ),
         ),
         (
@@ -614,6 +776,15 @@ def set_up() -> list[tuple[str, str]]:
                 "hotkeys work while the game has focus and can't be changed "
                 "yet. A game in exclusive full screen covers every other "
                 "window: choose its borderless or windowed full screen instead."
+            )
+            if {"L", "H"} <= set(hotkeys)
+            else _tr(
+                "A caption window never takes the game's keyboard or mouse: "
+                "it is never the active window. Put it where it doesn't cover "
+                "what you need to see, then Lock all on Home or in the tray "
+                "menu so clicks go through to the game. A game in exclusive "
+                "full screen covers every other window: choose its borderless "
+                "or windowed full screen instead."
             ),
         ),
     ]
@@ -638,20 +809,36 @@ def questions() -> list[tuple[str, str]]:
     return [
         (
             _tr("What we keep"),
-            _tr(
-                "Only speech leaves this PC: our server turns it into captions "
-                "and translations, and never stores the audio, the captions or "
-                "the translations. This PC holds the last 2 minutes of each "
-                "app's finished speech in memory, and sends it again only when "
-                "you ask. Your "
-                "transcript never leaves this PC, and it's gone when you quit "
-                "Polyglotic unless you save it. We keep your "
-                "account, your minutes, a record of each session (never what was "
-                "said or the app's name) and the dictionary words you look up, "
-                "save or mark - never the sentence around them. Usage statistics "
-                "and word counts are shared only if you turn them on (Account > "
-                "Choose what to share), and you can delete your learning data on "
-                "Account. The privacy notice, below, says it all."
+            pc_or_mac(
+                _tr(
+                    "Only speech leaves this PC: our server turns it into captions "
+                    "and translations, and never stores the audio, the captions or "
+                    "the translations. This PC holds the last 2 minutes of each "
+                    "app's finished speech in memory, and sends it again only when "
+                    "you ask. Your "
+                    "transcript never leaves this PC, and it's gone when you quit "
+                    "Polyglotic unless you save it. We keep your "
+                    "account, your minutes, a record of each session (never what was "
+                    "said or the app's name) and the dictionary words you look up, "
+                    "save or mark - never the sentence around them. Usage statistics "
+                    "and word counts are shared only if you turn them on (Account > "
+                    "Choose what to share), and you can delete your learning data on "
+                    "Account. The privacy notice, below, says it all."
+                ),
+                _tr(
+                    "Only speech leaves this Mac: our server turns it into captions "
+                    "and translations, and never stores the audio, the captions or the "
+                    "translations. This Mac holds the last 2 minutes of each app's "
+                    "finished speech in memory, and sends it again only when you ask. "
+                    "Your transcript never leaves this Mac, and it's gone when you "
+                    "quit Polyglotic unless you save it. We keep your account, your "
+                    "minutes, a record of each session (never what was said or the "
+                    "app's name) and the dictionary words you look up, save or mark - "
+                    "never the sentence around them. Usage statistics and word counts "
+                    "are shared only if you turn them on (Account > Choose what to "
+                    "share), and you can delete your learning data on Account. The "
+                    "privacy notice, below, says it all."
+                ),
             ),
         ),
         (
@@ -695,10 +882,17 @@ def questions() -> list[tuple[str, str]]:
         ),
         (
             _tr("Where are my words?"),
-            _tr(
-                "Words you look up and save are on Words. They are kept on this "
-                "PC and, with your account, on our server, so they follow you to "
-                "another PC."
+            pc_or_mac(
+                _tr(
+                    "Words you look up and save are on Words. They are kept on this "
+                    "PC and, with your account, on our server, so they follow you to "
+                    "another PC."
+                ),
+                _tr(
+                    "Words you look up and save are on Words. They are kept on this "
+                    "Mac and, with your account, on our server, so they follow you to "
+                    "another computer."
+                ),
             ),
         ),
         (
@@ -712,7 +906,8 @@ def questions() -> list[tuple[str, str]]:
                 "back), whatever Anki's language. For a note type of your own, "
                 "pick it in Anki's import dialog and match its fields to the "
                 "columns by number: 1 word, 4 reading, 5 meaning, 6 sentence, "
-                "7 translation. Keep to one of the two: a word stays the kind of note it "
+                "7 translation. Keep to one of the two: a word stays the kind of note "
+                "it "
                 "first came as. Exporting again updates the same cards rather "
                 "than doubling them, and leaves your own notes and tags on words "
                 "that haven't changed here; tick Only words not exported yet to "

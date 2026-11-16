@@ -49,6 +49,7 @@ from polyglotic_desktop.core.shared.papers import (
 )
 from polyglotic_desktop.ports.consent import Agreement, ConsentChoice
 from polyglotic_desktop.ui.first_run import add_back
+from polyglotic_desktop.ui.os_words import pc_or_mac
 from polyglotic_desktop.ui.widgets import TextDialog, page_button
 
 WINDOW_FRAME = 40
@@ -145,11 +146,19 @@ class ConsentDialog(TextDialog):
         self.exposures = self._choice(
             "exposures",
             self.tr("Share how often you hear words"),
-            self.tr(
-                "Daily counts of how often you heard each dictionary word - no "
-                "sentences, no times of day, nothing from your own mic. They help "
-                "us improve levels and word suggestions. Your counts stay on this "
-                "PC either way."
+            pc_or_mac(
+                self.tr(
+                    "Daily counts of how often you heard each dictionary word - no "
+                    "sentences, no times of day, nothing from your own mic. They help "
+                    "us improve levels and word suggestions. Your counts stay on this "
+                    "PC either way."
+                ),
+                self.tr(
+                    "Daily counts of how often you heard each dictionary word - no "
+                    "sentences, no times of day, nothing from your own mic. They help "
+                    "us improve levels and word suggestions. Your counts stay on this "
+                    "Mac either way."
+                ),
             ),
             layout,
         )
@@ -344,18 +353,33 @@ class ConsentDialog(TextDialog):
         return self._agreed
 
     def _needed(self) -> str:
-        return self.tr(
-            "To caption what you hear, Polyglotic sends the speech it detects to "
-            "our server. Audio and captions are used only to caption it for you - "
-            "never stored. To run the service we keep your account, the minutes "
-            "you listen, connection details (app version, the country you "
-            "connect from, the kind of app you listen to - never its name) and "
-            "your learning data: the dictionary words you look up, save or mark, "
-            "and when - never the sentence around them. Your saved words and "
-            "word statuses follow you to another PC; your lookups show us how "
-            "people learn and what the dictionaries miss. You can delete your "
-            "learning data any time. These aren't optional: without them "
-            "there's no service."
+        return pc_or_mac(
+            self.tr(
+                "To caption what you hear, Polyglotic sends the speech it detects to "
+                "our server. Audio and captions are used only to caption it for you - "
+                "never stored. To run the service we keep your account, the minutes "
+                "you listen, connection details (app version, the country you "
+                "connect from, the kind of app you listen to - never its name) and "
+                "your learning data: the dictionary words you look up, save or mark, "
+                "and when - never the sentence around them. Your saved words and "
+                "word statuses follow you to another PC; your lookups show us how "
+                "people learn and what the dictionaries miss. You can delete your "
+                "learning data any time. These aren't optional: without them "
+                "there's no service."
+            ),
+            self.tr(
+                "To caption what you hear, Polyglotic sends the speech it detects to "
+                "our server. Audio and captions are used only to caption it for you - "
+                "never stored. To run the service we keep your account, the minutes "
+                "you listen, connection details (app version, the country you connect "
+                "from, the kind of app you listen to - never its name) and your "
+                "learning data: the dictionary words you look up, save or mark, and "
+                "when - never the sentence around them. Your saved words and word "
+                "statuses follow you to another computer; your lookups show us how "
+                "people learn and what the dictionaries miss. You can delete your "
+                "learning data any time. These aren't optional: without them there's "
+                "no service."
+            ),
         )
 
     def _text(self, text: str, name: str) -> QLabel:

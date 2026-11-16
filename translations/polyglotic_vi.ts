@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -61,6 +66,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
+        <translation type="unfinished">Các từ bạn tra, lưu và đánh dấu được giữ trên máy chủ dưới dạng từ trong từ điển và thời điểm: từ đã lưu và trạng thái theo bạn sang máy khác, việc tra từ cho chúng tôi biết mọi người học thế nào. Bạn có thể xóa chúng ở đó, trong mọi ngôn ngữ bạn học - và cả trên máy này nếu muốn.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
         <translation type="unfinished">Các từ bạn tra, lưu và đánh dấu được giữ trên máy chủ dưới dạng từ trong từ điển và thời điểm: từ đã lưu và trạng thái theo bạn sang máy khác, việc tra từ cho chúng tôi biết mọi người học thế nào. Bạn có thể xóa chúng ở đó, trong mọi ngôn ngữ bạn học - và cả trên máy này nếu muốn.</translation>
     </message>
     <message>
@@ -96,6 +106,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
+        <translation type="unfinished">Đã đăng nhập trên máy này.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
         <translation type="unfinished">Đã đăng nhập trên máy này.</translation>
     </message>
     <message>
@@ -279,7 +294,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Kiểm tra ngày giờ của máy - xem Trang chủ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
+        <translation type="unfinished">Mở trên quá nhiều máy của bạn - xem Trang chủ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
         <translation type="unfinished">Mở trên quá nhiều máy của bạn - xem Trang chủ</translation>
     </message>
     <message>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">Đã khóa - mở khóa ở Trang chủ hoặc khay hệ thống</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới, Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới. Để mở khóa, hãy để chuột yên trên ổ khóa ở góc, hoặc dùng Trang chủ hay khay hệ thống</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Khóa tất cả cửa sổ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -752,6 +782,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">Số lần bạn nghe mỗi từ trong từ điển theo từng ngày - không có câu, không có giờ, không có gì từ micrô của bạn. Chúng giúp chúng tôi cải thiện trình độ và gợi ý từ. Dù sao số liệu vẫn ở lại máy này.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">Bạn đang thử bản alpha: thống kê sử dụng và báo cáo sự cố được bật trong lúc thử, để chúng tôi tìm và sửa lỗi.</translation>
     </message>
@@ -795,6 +830,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">Để tạo phụ đề cho những gì bạn nghe, Polyglotic gửi giọng nói nó phát hiện tới máy chủ của chúng tôi. Âm thanh và phụ đề chỉ dùng để tạo phụ đề cho bạn - không bao giờ được lưu. Để vận hành dịch vụ, chúng tôi giữ tài khoản, số phút bạn nghe, thông tin kết nối (phiên bản ứng dụng, quốc gia bạn kết nối, loại ứng dụng bạn nghe - không bao giờ có tên) và dữ liệu học: các từ trong từ điển bạn tra, lưu hoặc đánh dấu, và thời điểm - không bao giờ có câu xung quanh. Từ đã lưu và trạng thái từ theo bạn sang máy khác; việc tra từ cho chúng tôi biết mọi người học thế nào và từ điển còn thiếu gì. Bạn có thể xóa dữ liệu học bất cứ lúc nào. Những dữ liệu này không tùy chọn: thiếu chúng thì không có dịch vụ.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">Để tạo phụ đề cho những gì bạn nghe, Polyglotic gửi giọng nói nó phát hiện tới máy chủ của chúng tôi. Âm thanh và phụ đề chỉ dùng để tạo phụ đề cho bạn - không bao giờ được lưu. Để vận hành dịch vụ, chúng tôi giữ tài khoản, số phút bạn nghe, thông tin kết nối (phiên bản ứng dụng, quốc gia bạn kết nối, loại ứng dụng bạn nghe - không bao giờ có tên) và dữ liệu học: các từ trong từ điển bạn tra, lưu hoặc đánh dấu, và thời điểm - không bao giờ có câu xung quanh. Từ đã lưu và trạng thái từ theo bạn sang máy khác; việc tra từ cho chúng tôi biết mọi người học thế nào và từ điển còn thiếu gì. Bạn có thể xóa dữ liệu học bất cứ lúc nào. Những dữ liệu này không tùy chọn: thiếu chúng thì không có dịch vụ.</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -833,12 +873,29 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">Chúng tôi sẽ xóa các từ bạn đã tra, lưu và đánh dấu, cùng số lần nghe bạn đã chia sẻ, trong mọi ngôn ngữ bạn học. Các máy khác của bạn giữ bản sao riêng cho đến khi bạn xóa ở đó.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">Xóa cả trên máy này, cho mọi ngôn ngữ bạn đang học - trạng thái từ, từ đã lưu và số lần bạn nghe mỗi từ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">Xóa cả trên máy này, cho mọi ngôn ngữ bạn đang học - trạng thái từ, từ đã lưu và số lần bạn nghe mỗi từ</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>Việc này cũng xóa %Ln bản sao dữ liệu học được để riêng trên máy này khi phát hiện bị hỏng.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>Việc này cũng xóa %Ln bản sao dữ liệu học được để riêng trên máy này khi phát hiện bị hỏng.</numerusform>
         </translation>
@@ -858,6 +915,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Everything else</source>
         <translation type="unfinished">Mọi thứ khác</translation>
     </message>
@@ -869,6 +931,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">Không xóa được một phần dữ liệu học {language} khỏi máy này. Hãy khởi động lại Polyglotic rồi xóa lại trong Tài khoản.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
         <translation type="unfinished">Không xóa được một phần dữ liệu học {language} khỏi máy này. Hãy khởi động lại Polyglotic rồi xóa lại trong Tài khoản.</translation>
     </message>
     <message>
@@ -886,6 +953,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">Windows trên máy này không thể tạo phụ đề cho riêng một ứng dụng, nên Polyglotic tạo phụ đề cho mọi âm thanh máy phát. Bạn có thể thử lại ứng dụng ở Trang chủ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">Máy Mac này không thể tạo phụ đề cho riêng một ứng dụng, nên Polyglotic tạo phụ đề cho mọi âm thanh máy phát. Bạn có thể thử lại ứng dụng ở Trang chủ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1411,6 +1483,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">Máy này chưa có nhật ký.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">Gửi kèm: {versions}, và ID phiên nghe.</translation>
     </message>
@@ -1577,12 +1654,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Thay đổi chưa được lưu trên máy này cho đến khi bạn khởi động lại Polyglotic; khi đó từ đã lưu sẽ trở về từ tài khoản. Tệp cũ được giữ tại {path}, phòng khi chúng tôi cần trong báo cáo.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">Từ đã lưu đang trở về từ tài khoản. Tệp cũ được giữ tại {path}, phòng khi chúng tôi cần trong báo cáo.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
+        <translation type="unfinished">Dữ liệu học trên máy này bị hỏng và đã được để riêng</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
         <translation type="unfinished">Dữ liệu học trên máy này bị hỏng và đã được để riêng</translation>
     </message>
     <message>
@@ -1652,6 +1739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">Đăng nhập ở Tài khoản bằng mã mời - mã máy này đã dùng trước đây vẫn dùng lại được - hoặc mã trong email Plus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus đã hết</translation>
     </message>
@@ -1702,6 +1794,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Ở Trang chủ, thêm một ứng dụng (tối đa 3), hoặc chọn Mọi âm thanh máy phát.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} chưa mở</translation>
     </message>
@@ -1722,12 +1819,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">Nó có đang phát âm thanh không? Đầu ra có đi tới loa hoặc tai nghe của máy này và không bị tắt tiếng?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">Máy đang im lặng: không có âm thanh nào trong 30 giây</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">Máy đang im lặng: không có âm thanh nào trong 30 giây</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">Hãy phát gì đó. Nếu bạn nghe bằng tai nghe không phải thiết bị mặc định của máy, hãy đặt nó làm mặc định, hoặc thêm ứng dụng.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">Hãy phát gì đó. Nếu bạn nghe bằng tai nghe không phải thiết bị mặc định của máy, hãy đặt nó làm mặc định, hoặc thêm ứng dụng.</translation>
     </message>
     <message>
@@ -1738,6 +1850,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
+        <translation type="unfinished">Micrô có bị tắt tiếng, hay một micrô khác đang được chọn trong cài đặt âm thanh của máy?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
         <translation type="unfinished">Micrô có bị tắt tiếng, hay một micrô khác đang được chọn trong cài đặt âm thanh của máy?</translation>
     </message>
     <message>
@@ -1784,6 +1901,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">Chọn Tiếp tục ở Trang chủ hoặc trong menu khay hệ thống.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">Cửa sổ phụ đề đang ẩn</translation>
     </message>
@@ -1794,12 +1916,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Dùng Ẩn tất cả ở Trang chủ hoặc menu khay hệ thống. Bản ghi của ứng dụng cho biết phụ đề có đang đến không.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">Máy chủ tạo phụ đề bị lỗi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">Máy chủ tự tiếp tục thử - không cần đổi gì trên máy này. Nếu kéo dài quá vài phút, hãy báo lỗi.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">Máy chủ tự tiếp tục thử - không cần đổi gì trên máy này. Nếu kéo dài quá vài phút, hãy báo lỗi.</translation>
     </message>
     <message>
@@ -1819,8 +1951,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">Tạo phụ đề cho ứng dụng bạn thêm (macOS 14.2 trở lên)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">Ở Trang chủ, thêm tối đa 3 ứng dụng đang mở âm thanh; mỗi ứng dụng có cửa sổ phụ đề riêng mang tên nó. Ứng dụng đã thêm nhưng chưa mở sẽ có phụ đề khi mở. Windows 10 không phân biệt được ứng dụng, nên ở đó mọi âm thanh máy phát đều có phụ đề.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">Ở Trang chủ, thêm tối đa 3 ứng dụng đang mở âm thanh; mỗi ứng dụng có cửa sổ phụ đề riêng mang tên nó. Ứng dụng đã thêm nhưng chưa mở sẽ có phụ đề khi mở. Trước macOS 14.2, máy Mac không phân biệt được ứng dụng, nên ở đó mọi âm thanh máy phát đều có phụ đề.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1834,12 +1976,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">Khi đã thêm một ứng dụng ở Trang chủ, bật Tạo phụ đề cho cả mọi âm thanh khác máy phát: mọi thứ trừ ứng dụng đó có cửa sổ phụ đề riêng, tên là Mọi thứ khác - cuộc gọi ở một cửa sổ, game hoặc video ở cửa sổ kia, không trùng lặp. Chỉ dùng được với một ứng dụng mỗi lúc.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">Tạo phụ đề cho mọi âm thanh máy phát</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Tạo phụ đề cho mọi âm thanh máy phát</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">Ở Trang chủ, chọn Mọi âm thanh máy phát: mọi thứ phát qua loa hoặc tai nghe mặc định, mang tên Máy này. Nếu tai nghe không phải thiết bị mặc định, hãy đặt nó làm mặc định.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">Ở Trang chủ, chọn Mọi âm thanh máy phát: mọi thứ phát qua loa hoặc tai nghe mặc định, mang tên Máy này. Nếu tai nghe không phải thiết bị mặc định, hãy đặt nó làm mặc định.</translation>
     </message>
     <message>
@@ -1864,6 +2021,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Kéo cửa sổ phụ đề để di chuyển, hoặc kéo các cạnh để đổi kích thước. Khóa tất cả, ở Trang chủ hoặc trong menu khay hệ thống, cho nhấp chuột đi xuyên qua. Lạc mất một cửa sổ? Đặt lại vị trí ở Trang chủ đưa mọi cửa sổ về chỗ cũ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">Trên một game</translation>
     </message>
@@ -1871,6 +2033,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">Cửa sổ phụ đề không bao giờ lấy bàn phím hay chuột của game: nó không bao giờ là cửa sổ đang hoạt động. Đặt nó ở chỗ không che thứ bạn cần nhìn, rồi Khóa tất cả (Ctrl+Alt+L) để nhấp chuột đi tới game; Ẩn tất cả (Ctrl+Alt+H) khi đánh nhau. Phím tắt vẫn chạy khi game đang được chọn và chưa thể đổi. Game ở chế độ toàn màn hình độc quyền sẽ che mọi cửa sổ khác: hãy chọn chế độ không viền hoặc toàn màn hình dạng cửa sổ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Cửa sổ phụ đề không bao giờ lấy bàn phím hay chuột của game: nó không bao giờ là cửa sổ đang hoạt động. Đặt nó ở chỗ không che thứ bạn cần nhìn, rồi Khóa tất cả ở Trang chủ hoặc trong menu khay hệ thống để nhấp chuột đi tới game. Game ở chế độ toàn màn hình độc quyền sẽ che mọi cửa sổ khác: hãy chọn chế độ không viền hoặc toàn màn hình dạng cửa sổ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1890,6 +2057,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">Chỉ giọng nói rời khỏi máy này: máy chủ chuyển nó thành phụ đề và bản dịch, và không bao giờ lưu âm thanh, phụ đề hay bản dịch. Máy này giữ trong bộ nhớ 2 phút lời nói đã xong gần nhất của mỗi ứng dụng, và chỉ gửi lại khi bạn yêu cầu. Bản ghi không bao giờ rời máy này, và mất khi bạn thoát Polyglotic trừ khi bạn lưu. Chúng tôi giữ tài khoản, số phút, bản ghi mỗi phiên (không bao giờ có nội dung nói hay tên ứng dụng) và các từ trong từ điển bạn tra, lưu hoặc đánh dấu - không bao giờ có câu xung quanh. Thống kê sử dụng và số lần nghe từ chỉ được chia sẻ nếu bạn bật (Tài khoản &gt; Chọn nội dung chia sẻ), và bạn có thể xóa dữ liệu học ở Tài khoản. Thông báo quyền riêng tư bên dưới nói đầy đủ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">Chỉ giọng nói rời khỏi máy này: máy chủ chuyển nó thành phụ đề và bản dịch, và không bao giờ lưu âm thanh, phụ đề hay bản dịch. Máy này giữ trong bộ nhớ 2 phút lời nói đã xong gần nhất của mỗi ứng dụng, và chỉ gửi lại khi bạn yêu cầu. Bản ghi không bao giờ rời máy này, và mất khi bạn thoát Polyglotic trừ khi bạn lưu. Chúng tôi giữ tài khoản, số phút, bản ghi mỗi phiên (không bao giờ có nội dung nói hay tên ứng dụng) và các từ trong từ điển bạn tra, lưu hoặc đánh dấu - không bao giờ có câu xung quanh. Thống kê sử dụng và số lần nghe từ chỉ được chia sẻ nếu bạn bật (Tài khoản &gt; Chọn nội dung chia sẻ), và bạn có thể xóa dữ liệu học ở Tài khoản. Thông báo quyền riêng tư bên dưới nói đầy đủ.</translation>
     </message>
     <message>
@@ -1934,6 +2106,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">Các từ bạn tra và lưu nằm ở Từ vựng. Chúng được giữ trên máy này và, với tài khoản, trên máy chủ, nên theo bạn sang máy khác.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">Đưa từ vào Anki</translation>
     </message>
@@ -1952,7 +2129,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">Dữ liệu học trên máy này bị hỏng nên đã được để riêng với tên {name}. Từ đã lưu đang trở về từ tài khoản.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">Dữ liệu học trên máy này bị hỏng nên thay đổi chưa được lưu ở đây cho đến khi bạn khởi động lại Polyglotic. Khi đó từ đã lưu sẽ trở về từ tài khoản.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">Dữ liệu học trên máy này bị hỏng nên thay đổi chưa được lưu ở đây cho đến khi bạn khởi động lại Polyglotic. Khi đó từ đã lưu sẽ trở về từ tài khoản.</translation>
     </message>
     <message>
@@ -2068,7 +2255,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">Kiểm tra ngày giờ của máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
+        <translation type="unfinished">Polyglotic đang mở trên quá nhiều máy của bạn</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
         <translation type="unfinished">Polyglotic đang mở trên quá nhiều máy của bạn</translation>
     </message>
     <message>
@@ -2090,8 +2287,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Ngày hoặc giờ của máy này có vẻ sai: máy đang báo {date}, {time}. Phụ đề vẫn hoạt động; để chỉnh lại, bật Đặt ngày và giờ tự động trong Cài đặt hệ thống, Cài đặt chung, Ngày &amp; Giờ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">bạn cần mã của chúng tôi: mã mời, hoặc mã trong email Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">tiếp tục ở đây hoặc từ khay hệ thống</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2178,6 +2386,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">máy này có vẻ đang ngoại tuyến. Kiểm tra kết nối Internet; nếu mạng vẫn ổn, lỗi là ở phía chúng tôi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">kiểm tra mạng; nếu vẫn ổn, có lẽ phía chúng tôi đang gặp sự cố</translation>
     </message>
@@ -2209,6 +2422,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">máy này đang báo ngày {date}, không thể đúng được. Bật Đặt ngày và giờ tự động trong Cài đặt hệ thống, Cài đặt chung, Ngày &amp; Giờ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">có gì đó trên mạng này đang cản trở bằng một chứng chỉ đã hết hạn - thường là tính năng quét HTTPS của phần mềm diệt virus, hoặc VPN. Tắt nó cho Polyglotic, hoặc thử mạng khác</translation>
@@ -2221,6 +2440,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
+        <translation type="unfinished">có quá nhiều lần đăng nhập thất bại từ mạng này, nên máy chủ chờ trước khi cho máy này vào</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
         <translation type="unfinished">có quá nhiều lần đăng nhập thất bại từ mạng này, nên máy chủ chờ trước khi cho máy này vào</translation>
     </message>
     <message>
@@ -2245,7 +2469,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">mọi âm thanh máy phát</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
+        <translation type="unfinished">mọi âm thanh khác máy phát</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
         <translation type="unfinished">mọi âm thanh khác máy phát</translation>
     </message>
     <message>
@@ -2307,13 +2541,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">Hiện cửa sổ phụ đề của nó</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">Đã ẩn - Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">Hiện cửa sổ phụ đề của nó</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">Đã ẩn - tắt Ẩn tất cả để hiện lại</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2372,7 +2611,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Chưa có phụ đề nào cho đến khi bạn thêm ứng dụng, hoặc chọn Mọi âm thanh máy phát.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
+        <translation type="unfinished">Tạo phụ đề cho cả mọi âm thanh khác máy phát (trong cửa sổ riêng)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
         <translation type="unfinished">Tạo phụ đề cho cả mọi âm thanh khác máy phát (trong cửa sổ riêng)</translation>
     </message>
     <message>
@@ -2432,6 +2681,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Mọi âm thanh máy phát</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">Thử lại ứng dụng</translation>
     </message>
@@ -2443,6 +2697,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
+        <translation type="unfinished">Máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
         <translation type="unfinished">Máy này</translation>
     </message>
     <message>
@@ -2477,8 +2736,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">thay cho ứng dụng: máy Mac này không tạo được phụ đề cho riêng một ứng dụng</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">thay cho ứng dụng (lựa chọn duy nhất trên phiên bản Windows này)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">thay cho ứng dụng (lựa chọn duy nhất trên phiên bản macOS này)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2488,6 +2757,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
+        <translation type="unfinished">Mọi âm thanh máy phát trừ {app}, trong cửa sổ riêng</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
         <translation type="unfinished">Mọi âm thanh máy phát trừ {app}, trong cửa sổ riêng</translation>
     </message>
     <message>
@@ -2572,18 +2846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">Ẩn tất cả</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2594,6 +2858,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">Đặt lại vị trí</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2717,11 +2991,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Khóa tất cả cửa sổ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Khóa - nhấp chuột đi xuyên xuống bên dưới, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3449,6 +3718,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">Từ điển cơ bản từ dữ liệu mở (nghĩa chưa được người kiểm tra), nếu đã có sẵn: tra từ trong phụ đề {language} khi nó có trên máy này. Phụ đề và bản dịch vẫn hoạt động trong mọi trường hợp.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">Từ điển cơ bản từ dữ liệu mở (nghĩa chưa được người kiểm tra), nếu đã có sẵn: thẻ của nó sẽ đề xuất sau khi bạn thêm {language}. Phụ đề và bản dịch vẫn hoạt động trong mọi trường hợp.</translation>
     </message>
@@ -3758,6 +4032,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">Từ điển trên máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">Được tải về cho các ngôn ngữ bạn học. Gỡ một từ điển sẽ giải phóng dung lượng; tra từ trong ngôn ngữ đó sẽ dừng cho đến khi tải lại.</translation>
     </message>
@@ -3774,6 +4053,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">Các từ bạn tra, lưu và đánh dấu được giữ trên máy này, và trên máy chủ dưới dạng từ trong từ điển và thời điểm. Bạn có thể xóa chúng, trong mọi ngôn ngữ bạn học - như ở Tài khoản.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">Các từ bạn tra, lưu và đánh dấu được giữ trên máy này, và trên máy chủ dưới dạng từ trong từ điển và thời điểm. Bạn có thể xóa chúng, trong mọi ngôn ngữ bạn học - như ở Tài khoản.</translation>
     </message>
     <message>
@@ -3841,6 +4125,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
+        <translation type="unfinished">Máy này không đủ chỗ: cần trống {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
         <translation type="unfinished">Máy này không đủ chỗ: cần trống {size}.</translation>
     </message>
     <message>
@@ -3925,6 +4214,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">Trên máy này: phiên bản {version}, {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Có phiên bản mới hơn ({size}) đang chờ kết nối không tính phí theo dung lượng.</translation>
     </message>
@@ -3961,6 +4255,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">Việc này giải phóng {size} trên máy. Từ điển sẽ được tải lại nếu sau này bạn học {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">Việc này giải phóng {size} trên máy. Từ điển sẽ được tải lại nếu sau này bạn học {language}.</translation>
     </message>
     <message>
@@ -4142,6 +4441,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">Chỉ tính những gì máy tính của bạn phát, trong phụ đề đã xong - không tính những gì bạn nói.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">Chỉ tính những gì máy tính của bạn phát, trong phụ đề đã xong - không tính những gì bạn nói.</translation>
     </message>
     <message>
@@ -4962,6 +5266,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">Bất kỳ phông chữ nào trên máy này. Chữ Trung và Nhật chuyển sang phông có chúng nếu phông của bạn không có.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">Hiện bản gốc phía trên bản dịch</translation>
     </message>
@@ -5232,6 +5541,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">Trượt vào: phụ đề mới trượt từ dưới lên - trừ khi hiệu ứng động của máy bị tắt. Hiện ra: không có gì di chuyển.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">Mờ đi khi im lặng</translation>
     </message>
@@ -5415,6 +5729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">Về máy này: ứng dụng, hệ thống và thiết bị âm thanh</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">Phụ đề trong vài phút gần nhất, như đã hiện</translation>
     </message>
@@ -5499,6 +5818,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
+        <translation type="unfinished">Như máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
         <translation type="unfinished">Như máy này</translation>
     </message>
     <message>
@@ -6000,6 +6324,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">Máy này đã từng đăng nhập: mã mời dùng lúc đó lại dùng được ở đây.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">Đang đăng nhập…</translation>
     </message>
@@ -6020,6 +6349,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">Mã này không dùng được: có thể gõ sai, đã dùng trên máy khác hoặc không còn hiệu lực. Hãy kiểm tra lại, hoặc viết cho chúng tôi để được giải quyết.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">Gói đăng ký của mã này đã bị hủy trước khi mã được dùng, nên mã không cho Plus. Để có Plus, hãy đăng ký lại trên trang web - hoặc viết cho chúng tôi nếu bạn không hủy.</translation>
     </message>
@@ -6031,6 +6365,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">Phiên đăng nhập của máy này đã hết hạn. Đăng xuất ở Tài khoản, rồi đăng nhập bằng mã này.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">Phiên đăng nhập của máy này đã hết hạn. Đăng xuất ở Tài khoản, rồi đăng nhập bằng mã này.</translation>
     </message>
     <message>
@@ -6050,6 +6389,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">Máy này đang báo ngày {date}, không thể đúng được, mà kết nối an toàn cần ngày chính xác. Bật Đặt giờ tự động trong Cài đặt của Windows, Thời gian và ngôn ngữ, Ngày và giờ, rồi chọn Đồng bộ ngay.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Máy này đang báo ngày {date}, không thể đúng được, mà kết nối an toàn cần ngày chính xác. Bật Đặt ngày và giờ tự động trong Cài đặt hệ thống, Cài đặt chung, Ngày &amp; Giờ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6088,12 +6433,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">Đăng xuất Polyglotic trên máy này?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">Phụ đề dừng cho đến khi bạn đăng nhập lại - bằng cùng mã mời: nó lại dùng được trên máy này. Từ đã lưu và dữ liệu học vẫn còn, trên máy này và trên máy chủ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">Phụ đề dừng cho đến khi bạn đăng nhập lại - bằng cùng mã mời: nó lại dùng được trên máy này. Từ đã lưu và dữ liệu học vẫn còn, trên máy này và trên máy chủ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">Những thay đổi máy này chưa gửi lên máy chủ sẽ bị bỏ, để không thay đổi nào đến tay người đăng nhập sau.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">Những thay đổi máy này chưa gửi lên máy chủ sẽ bị bỏ, để không thay đổi nào đến tay người đăng nhập sau.</translation>
     </message>
 </context>
@@ -6106,7 +6466,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">Mặc định của máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
+        <translation type="unfinished">Mặc định của máy này ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
         <translation type="unfinished">Mặc định của máy này ({device})</translation>
     </message>
     <message>
@@ -6132,6 +6502,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">Cho Mọi âm thanh máy phát. Các ứng dụng bạn thêm được nghe trên loa bất kỳ.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">Cho Mọi âm thanh máy phát. Các ứng dụng bạn thêm được nghe trên loa bất kỳ.</translation>
     </message>
     <message>
@@ -6167,6 +6542,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
+        <translation type="unfinished">Chưa cắm - đang dùng mặc định của máy này</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
         <translation type="unfinished">Chưa cắm - đang dùng mặc định của máy này</translation>
     </message>
 </context>
@@ -6421,6 +6801,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">Mở khóa</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">Mở khóa tất cả cửa sổ phụ đề</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6497,6 +6890,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">Thời gian bật phụ đề, đếm trên máy này.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">Thời gian bật phụ đề, đếm trên máy này.</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6527,6 +6925,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
+        <translation type="unfinished">Đếm trên máy này từ phụ đề hoàn chỉnh, và lưu tại đây.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
         <translation type="unfinished">Đếm trên máy này từ phụ đề hoàn chỉnh, và lưu tại đây.</translation>
     </message>
     <message>

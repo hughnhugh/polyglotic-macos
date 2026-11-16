@@ -36,6 +36,7 @@ from polyglotic_desktop.core.shared.papers import (
 )
 from polyglotic_desktop.ui_next.controls import Card, label, page_button, right_row
 from polyglotic_desktop.ui_next.home import Page, sign_in_needed
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.plan import get_plus_text, plan_text
 from polyglotic_desktop.ui_next.views.plan import PlanLine
 
@@ -78,7 +79,7 @@ class AccountPage(Page):
             "account.delete_learning", _tr("Delete learning data…")
         )
 
-        this_pc = Card(_tr("This PC"))
+        this_pc = Card(pc_or_mac(_tr("This PC"), _tr("This Mac")))
         row = QHBoxLayout()
         row.setSpacing(8)
         self.state = label("", wrap=True)
@@ -119,12 +120,21 @@ class AccountPage(Page):
 
         learning = Card(
             _tr("Your learning data"),
-            _tr(
-                "The words you look up, save and mark are kept on our server as "
-                "dictionary words and times: saved words and statuses follow you "
-                "to another PC, and lookups show us how people learn. You can "
-                "delete them there, in every language you learn - and on this PC "
-                "too, if you choose."
+            pc_or_mac(
+                _tr(
+                    "The words you look up, save and mark are kept on our server as "
+                    "dictionary words and times: saved words and statuses follow you "
+                    "to another PC, and lookups show us how people learn. You can "
+                    "delete them there, in every language you learn - and on this PC "
+                    "too, if you choose."
+                ),
+                _tr(
+                    "The words you look up, save and mark are kept on our server as "
+                    "dictionary words and times: saved words and statuses follow you "
+                    "to another computer, and lookups show us how people learn. You "
+                    "can delete them there, in every language you learn - and on this "
+                    "Mac too, if you choose."
+                ),
             ),
         )
         learning.add(right_row(_button(self.delete_learning)))
@@ -177,7 +187,7 @@ class AccountPage(Page):
 
     def set_signed_in(self, signed_in: bool) -> None:
         self.state.setText(
-            _tr("Signed in on this PC.")
+            pc_or_mac(_tr("Signed in on this PC."), _tr("Signed in on this Mac."))
             if signed_in
             else _tr("Not signed in - {needed}.").format(needed=sign_in_needed())
         )

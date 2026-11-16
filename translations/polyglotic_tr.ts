@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Bu bilgisayar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -61,6 +66,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
+        <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur: kayıtlı kelimeler ve durumlar başka bilgisayarda da seninle gelir, baktıkların insanların nasıl öğrendiğini gösterir. Bunları orada, öğrendiğin tüm dillerde silebilirsin - istersen bu bilgisayarda da.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
         <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur: kayıtlı kelimeler ve durumlar başka bilgisayarda da seninle gelir, baktıkların insanların nasıl öğrendiğini gösterir. Bunları orada, öğrendiğin tüm dillerde silebilirsin - istersen bu bilgisayarda da.</translation>
     </message>
     <message>
@@ -96,6 +106,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
+        <translation type="unfinished">Bu bilgisayarda oturum açık.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
         <translation type="unfinished">Bu bilgisayarda oturum açık.</translation>
     </message>
     <message>
@@ -279,7 +294,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Bilgisayarın tarih ve saatini kontrol et - Ana sayfaya bak</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
+        <translation type="unfinished">Çok fazla bilgisayarında açık - Ana sayfaya bak</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
         <translation type="unfinished">Çok fazla bilgisayarında açık - Ana sayfaya bak</translation>
     </message>
     <message>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">Kilitli - Ana sayfada ya da sistem tepsisinden aç</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">Kilitle - tıklamalar alttakine geçer, Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">Kilitle - tıklamalar alttakine geçer. Kilidi açmak için fareyi köşedeki kilidin üzerinde biraz tutun ya da Ana sayfayı veya sistem tepsisini kullanın</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Tüm pencereleri kilitle</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Kilitle - tıklamalar alttakine geçer, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -752,6 +782,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">Her sözlük kelimesini günde kaç kez duyduğunun sayıları - cümle yok, saat yok, mikrofonundan hiçbir şey yok. Seviyeleri ve kelime önerilerini geliştirmemize yardım eder. Sayıların her durumda bu bilgisayarda kalır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">Alfa sürümünü test ediyorsun: sorunları bulup düzeltebilmemiz için test süresince kullanım istatistikleri ve çökme raporları açık.</translation>
     </message>
@@ -795,6 +830,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">Duyduklarına altyazı eklemek için Polyglotic algıladığı konuşmayı sunucumuza gönderir. Ses ve altyazılar yalnızca sana altyazı hazırlamak için kullanılır - asla saklanmaz. Hizmeti yürütmek için hesabını, dinlediğin dakikaları, bağlantı bilgilerini (uygulama sürümü, bağlandığın ülke, dinlediğin uygulamanın türü - asla adı değil) ve öğrenme verilerini saklarız: sözlükte baktığın, kaydettiğin veya işaretlediğin kelimeler ve ne zaman - asla etrafındaki cümle değil. Kaydettiğin kelimeler ve durumları başka bilgisayarda da seninle gelir; baktığın kelimeler insanların nasıl öğrendiğini ve sözlüklerde neyin eksik olduğunu gösterir. Öğrenme verilerini istediğin zaman silebilirsin. Bunlar isteğe bağlı değildir: onlar olmadan hizmet olmaz.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">Duyduklarına altyazı eklemek için Polyglotic algıladığı konuşmayı sunucumuza gönderir. Ses ve altyazılar yalnızca sana altyazı hazırlamak için kullanılır - asla saklanmaz. Hizmeti yürütmek için hesabını, dinlediğin dakikaları, bağlantı bilgilerini (uygulama sürümü, bağlandığın ülke, dinlediğin uygulamanın türü - asla adı değil) ve öğrenme verilerini saklarız: sözlükte baktığın, kaydettiğin veya işaretlediğin kelimeler ve ne zaman - asla etrafındaki cümle değil. Kaydettiğin kelimeler ve durumları başka bilgisayarda da seninle gelir; baktığın kelimeler insanların nasıl öğrendiğini ve sözlüklerde neyin eksik olduğunu gösterir. Öğrenme verilerini istediğin zaman silebilirsin. Bunlar isteğe bağlı değildir: onlar olmadan hizmet olmaz.</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -833,12 +873,29 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">Öğrendiğin tüm dillerde baktığın, kaydettiğin ve işaretlediğin kelimeleri ve paylaştığın duyma sayılarını sileceğiz. Diğer bilgisayarların, sen oradan da silene kadar kendi kopyalarını tutar.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">Öğrendiğin her dil için bu bilgisayardan da sil - kelime durumların, kayıtlı kelimelerin ve her kelimeyi kaç kez duyduğun</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">Öğrendiğin her dil için bu bilgisayardan da sil - kelime durumların, kayıtlı kelimelerin ve her kelimeyi kaç kez duyduğun</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>Bu ayrıca bu bilgisayarda hasarlı bulunduğunda kenara ayrılan %Ln öğrenme verisi kopyasını da siler.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>Bu ayrıca bu bilgisayarda hasarlı bulunduğunda kenara ayrılan %Ln öğrenme verisi kopyasını da siler.</numerusform>
         </translation>
@@ -858,6 +915,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Bu bilgisayar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Everything else</source>
         <translation type="unfinished">Diğer her şey</translation>
     </message>
@@ -869,6 +931,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">{language} öğrenme verilerinin bir kısmı bu bilgisayardan silinemedi. Polyglotic&apos;i yeniden başlat, sonra Hesap&apos;tan tekrar sil.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
         <translation type="unfinished">{language} öğrenme verilerinin bir kısmı bu bilgisayardan silinemedi. Polyglotic&apos;i yeniden başlat, sonra Hesap&apos;tan tekrar sil.</translation>
     </message>
     <message>
@@ -886,6 +953,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">Bu bilgisayardaki Windows tek bir uygulamaya altyazı ekleyemedi, bu yüzden Polyglotic bilgisayarın çaldığı her şeye altyazı ekliyor. Ana sayfada uygulamaları yeniden deneyebilirsin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">Bu Mac tek bir uygulamaya altyazı ekleyemedi, bu yüzden Polyglotic Mac&apos;in çaldığı her şeye altyazı ekliyor. Ana sayfada uygulamaları yeniden deneyebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1411,6 +1483,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">Bu bilgisayarda henüz günlük yok.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">Ayrıca gönderilir: {versions} ve dinleme oturumunun kimliği.</translation>
     </message>
@@ -1577,12 +1654,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Polyglotic&apos;i yeniden başlatana kadar değişiklikler bu bilgisayarda saklanmaz; kayıtlı kelimelerin o zaman hesabından geri gelir. Eski dosya, raporda istememiz ihtimaline karşı {path} olarak tutuluyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">Kayıtlı kelimelerin hesabından geri geliyor. Eski dosya, raporda istememiz ihtimaline karşı {path} olarak tutuluyor.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
+        <translation type="unfinished">Bu bilgisayardaki öğrenme verilerin hasar görmüştü ve kenara ayrıldı</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
         <translation type="unfinished">Bu bilgisayardaki öğrenme verilerin hasar görmüştü ve kenara ayrıldı</translation>
     </message>
     <message>
@@ -1652,6 +1739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">Hesap&apos;ta davet kodunla oturum aç - bu bilgisayarın daha önce kullandığı kod yeniden çalışır - ya da Plus e-postandaki kodla.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus sona erdi</translation>
     </message>
@@ -1702,6 +1794,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Ana sayfada bir uygulama ekle (en fazla 3) ya da Bilgisayarın çaldığı her şey&apos;i seç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} açık değil</translation>
     </message>
@@ -1722,12 +1819,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">Ses çalıyor mu? Çıkışı bu bilgisayarın hoparlörlerine ya da kulaklığına gidiyor ve sessizde değil mi?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">Bilgisayar sessiz: 30 saniyedir çaldığı hiçbir şey ses çıkarmadı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">Bilgisayar sessiz: 30 saniyedir çaldığı hiçbir şey ses çıkarmadı</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">Bir şey çal. Bilgisayarın varsayılan aygıtı olmayan bir kulaklıkta duyuyorsan onu varsayılan yap ya da uygulamayı ekle.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">Bir şey çal. Bilgisayarın varsayılan aygıtı olmayan bir kulaklıkta duyuyorsan onu varsayılan yap ya da uygulamayı ekle.</translation>
     </message>
     <message>
@@ -1738,6 +1850,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
+        <translation type="unfinished">Sessize mi alınmış, yoksa bilgisayarın ses ayarlarında başka bir mikrofon mu seçili?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
         <translation type="unfinished">Sessize mi alınmış, yoksa bilgisayarın ses ayarlarında başka bir mikrofon mu seçili?</translation>
     </message>
     <message>
@@ -1784,6 +1901,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">Ana sayfada ya da tepsi menüsünde Sürdür&apos;ü seç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">Altyazı pencereleri gizli</translation>
     </message>
@@ -1794,12 +1916,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Ana sayfada veya tepsi menüsünde Tümünü gizle&apos;yi kullan. Bir uygulamanın dökümü altyazıların gelip gelmediğini gösterir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">Altyazılar sunucuda başarısız oluyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">Kendiliğinden denemeye devam ediyor - bu bilgisayarda değiştirilecek bir şey yok. Birkaç dakikadan uzun sürerse sorun bildir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">Kendiliğinden denemeye devam ediyor - bu bilgisayarda değiştirilecek bir şey yok. Birkaç dakikadan uzun sürerse sorun bildir.</translation>
     </message>
     <message>
@@ -1819,8 +1951,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">Eklediğin uygulamalara altyazı ekle (macOS 14.2 veya üstü)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">Ana sayfada sesi açık en fazla 3 uygulama ekle; her biri kendi adıyla etiketlenmiş ayrı bir altyazı penceresi alır. Eklenmiş ama açık olmayan bir uygulamaya açıldığında altyazı eklenir. Windows 10 uygulamaları ayırt edemez, bu yüzden orada bilgisayarın çaldığı her şeye altyazı eklenir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">Ana sayfada sesi açık en fazla 3 uygulama ekle; her biri kendi adıyla etiketlenmiş ayrı bir altyazı penceresi alır. Eklenmiş ama açık olmayan bir uygulamaya açıldığında altyazı eklenir. macOS 14.2&apos;den önce Mac uygulamaları ayırt edemez, bu yüzden orada Mac&apos;in çaldığı her şeye altyazı eklenir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1834,12 +1976,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">Ana sayfada bir uygulama ekliyken Bilgisayarın çaldığı diğer her şeye de altyazı ekle&apos;yi aç: o uygulama dışındaki her şey Diğer her şey etiketli ayrı bir altyazı penceresi alır - bir pencerede arama, diğerinde oyun ya da video, ikisinde birden hiçbir şey. Aynı anda tek uygulamayla çalışır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">Bilgisayarın çaldığı her şeye altyazı ekle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Bilgisayarın çaldığı her şeye altyazı ekle</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">Ana sayfada Bilgisayarın çaldığı her şey&apos;i seç: varsayılan hoparlör veya kulaklıktan çalan her şey, Bu bilgisayar etiketiyle. Kulaklığın varsayılan aygıt değilse onu varsayılan yap.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">Ana sayfada Bilgisayarın çaldığı her şey&apos;i seç: varsayılan hoparlör veya kulaklıktan çalan her şey, Bu bilgisayar etiketiyle. Kulaklığın varsayılan aygıt değilse onu varsayılan yap.</translation>
     </message>
     <message>
@@ -1864,6 +2021,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Bir altyazı penceresini taşımak için sürükle, boyutlandırmak için kenarlarını sürükle. Ana sayfadaki ya da tepsi menüsündeki Tümünü kilitle tıklamaları geçirir. Birini mi kaybettin? Ana sayfadaki Konumları sıfırla her pencereyi geri getirir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">Bir oyunun üzerinde</translation>
     </message>
@@ -1871,6 +2033,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">Altyazı penceresi oyunun klavyesini ya da faresini asla almaz: asla etkin pencere olmaz. Görmen gerekeni kapatmayacağı bir yere koy, sonra tıklamalar oyuna gitsin diye Tümünü kilitle (Ctrl+Alt+L); kavgada Tümünü gizle (Ctrl+Alt+H). Kısayol tuşları oyun odaktayken çalışır ve henüz değiştirilemez. Özel tam ekrandaki bir oyun diğer tüm pencereleri kapatır: onun yerine kenarlıksız ya da pencereli tam ekranı seç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Altyazı penceresi oyunun klavyesini ya da faresini asla almaz: asla etkin pencere olmaz. Görmen gerekeni kapatmayacağı bir yere koy, sonra tıklamalar oyuna gitsin diye Ana sayfada ya da tepsi menüsünde Tümünü kilitle&apos;yi seç. Özel tam ekrandaki bir oyun diğer tüm pencereleri kapatır: onun yerine kenarlıksız ya da pencereli tam ekranı seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1890,6 +2057,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">Bu bilgisayardan yalnızca konuşma çıkar: sunucumuz onu altyazıya ve çeviriye dönüştürür ve sesi, altyazıları ya da çevirileri asla saklamaz. Bu bilgisayar her uygulamanın bitmiş konuşmasının son 2 dakikasını bellekte tutar ve yalnızca sen istediğinde yeniden gönderir. Dökümün bu bilgisayardan asla çıkmaz ve kaydetmezsen Polyglotic&apos;ten çıkınca kaybolur. Hesabını, dakikalarını, her oturumun bir kaydını (asla söylenenler ya da uygulamanın adı değil) ve sözlükte baktığın, kaydettiğin ya da işaretlediğin kelimeleri saklarız - asla etrafındaki cümleyi değil. Kullanım istatistikleri ve kelime sayıları yalnızca sen açarsan paylaşılır (Hesap &gt; Neyin paylaşılacağını seç) ve öğrenme verilerini Hesap&apos;ta silebilirsin. Aşağıdaki gizlilik bildirimi her şeyi anlatır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">Bu bilgisayardan yalnızca konuşma çıkar: sunucumuz onu altyazıya ve çeviriye dönüştürür ve sesi, altyazıları ya da çevirileri asla saklamaz. Bu bilgisayar her uygulamanın bitmiş konuşmasının son 2 dakikasını bellekte tutar ve yalnızca sen istediğinde yeniden gönderir. Dökümün bu bilgisayardan asla çıkmaz ve kaydetmezsen Polyglotic&apos;ten çıkınca kaybolur. Hesabını, dakikalarını, her oturumun bir kaydını (asla söylenenler ya da uygulamanın adı değil) ve sözlükte baktığın, kaydettiğin ya da işaretlediğin kelimeleri saklarız - asla etrafındaki cümleyi değil. Kullanım istatistikleri ve kelime sayıları yalnızca sen açarsan paylaşılır (Hesap &gt; Neyin paylaşılacağını seç) ve öğrenme verilerini Hesap&apos;ta silebilirsin. Aşağıdaki gizlilik bildirimi her şeyi anlatır.</translation>
     </message>
     <message>
@@ -1934,6 +2106,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">Baktığın ve kaydettiğin kelimeler Kelimeler&apos;de. Bu bilgisayarda ve hesabınla sunucumuzda tutulur, böylece başka bilgisayarda da seninle gelir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">Kelimelerini Anki&apos;ye aktar</translation>
     </message>
@@ -1952,7 +2129,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">Bu bilgisayardaki öğrenme verilerin hasar görmüştü, bu yüzden {name} olarak kenara ayrıldı. Kayıtlı kelimelerin hesabından geri geliyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">Bu bilgisayardaki öğrenme verilerin hasar görmüştü, bu yüzden Polyglotic&apos;i yeniden başlatana kadar değişiklikler burada saklanmaz. Kayıtlı kelimelerin o zaman hesabından geri gelir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">Bu bilgisayardaki öğrenme verilerin hasar görmüştü, bu yüzden Polyglotic&apos;i yeniden başlatana kadar değişiklikler burada saklanmaz. Kayıtlı kelimelerin o zaman hesabından geri gelir.</translation>
     </message>
     <message>
@@ -2068,7 +2255,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">Bu bilgisayarın tarih ve saatini kontrol et</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
+        <translation type="unfinished">Polyglotic çok fazla bilgisayarında açık</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
         <translation type="unfinished">Polyglotic çok fazla bilgisayarında açık</translation>
     </message>
     <message>
@@ -2090,8 +2287,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Bu Mac&apos;in tarihi ya da saati yanlış görünüyor: {date}, {time} gösteriyor. Altyazılar çalışıyor; düzeltmek için Sistem Ayarları&apos;nda Genel, Tarih ve Saat bölümünde Tarihi ve saati otomatik olarak ayarla&apos;yı aç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">bizden bir koda ihtiyacın var: bir davet ya da Plus e-postandaki kod</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">burada ya da tepsiden sürdür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2178,6 +2386,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">bu bilgisayar çevrimdışı görünüyor. İnternet bağlantısını kontrol et; çalışıyorsa sorun bizde</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">internetini kontrol et; çalışıyorsa sorun büyük olasılıkla bizde</translation>
     </message>
@@ -2209,6 +2422,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">bu Mac bugünün {date} olduğunu söylüyor; bu doğru olamaz. Sistem Ayarları&apos;nda Genel, Tarih ve Saat bölümünde Tarihi ve saati otomatik olarak ayarla&apos;yı aç</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">bu ağda bir şey süresi dolmuş bir sertifikayla engel oluyor - çoğunlukla bir antivirüsün HTTPS taraması ya da bir VPN. Polyglotic için bunu kapat ya da başka bir ağ dene</translation>
@@ -2221,6 +2440,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
+        <translation type="unfinished">bu ağdan çok fazla başarısız oturum açma geldi, bu yüzden sunucu bu bilgisayarı içeri almadan önce bekliyor</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
         <translation type="unfinished">bu ağdan çok fazla başarısız oturum açma geldi, bu yüzden sunucu bu bilgisayarı içeri almadan önce bekliyor</translation>
     </message>
     <message>
@@ -2245,7 +2469,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">bilgisayarın çaldığı her şey</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
+        <translation type="unfinished">bilgisayarın çaldığı diğer her şey</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
         <translation type="unfinished">bilgisayarın çaldığı diğer her şey</translation>
     </message>
     <message>
@@ -2307,13 +2541,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">Altyazı penceresini göster</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">Gizli - Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">Altyazı penceresini göster</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">Gizli - göstermek için Tümünü gizle&apos;yi kapat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2372,7 +2611,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Bir uygulama ekleyene ya da Bilgisayarın çaldığı her şey&apos;i seçene kadar hiçbir şeye altyazı eklenmez.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
+        <translation type="unfinished">Bilgisayarın çaldığı diğer her şeye de altyazı ekle (kendi penceresinde)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
         <translation type="unfinished">Bilgisayarın çaldığı diğer her şeye de altyazı ekle (kendi penceresinde)</translation>
     </message>
     <message>
@@ -2432,6 +2681,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Bilgisayarın çaldığı her şey</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">Uygulamaları yeniden dene</translation>
     </message>
@@ -2443,6 +2697,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
+        <translation type="unfinished">Bu bilgisayar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
         <translation type="unfinished">Bu bilgisayar</translation>
     </message>
     <message>
@@ -2477,8 +2736,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">uygulamalar yerine: bu Mac tek bir uygulamaya altyazı ekleyemedi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">uygulamalar yerine (bu Windows sürümündeki tek seçenek)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">uygulamalar yerine (bu macOS sürümündeki tek seçenek)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2488,6 +2757,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
+        <translation type="unfinished">{app} dışında bilgisayarın çaldığı her şey, kendi penceresinde</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
         <translation type="unfinished">{app} dışında bilgisayarın çaldığı her şey, kendi penceresinde</translation>
     </message>
     <message>
@@ -2572,18 +2846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">Tümünü gizle</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2594,6 +2858,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">Konumları sıfırla</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2717,11 +2991,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Tüm pencereleri kilitle</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Kilitle - tıklamalar alttakine geçer, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3449,6 +3718,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">Açık verilerden temel bir sözlük (anlamlar bir kişi tarafından kontrol edilmedi), hazır olan varsa: bu bilgisayara geldiğinde {language} altyazılarında kelime arama. Altyazı ve çeviri her durumda çalışır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">Açık verilerden temel bir sözlük (anlamlar bir kişi tarafından kontrol edilmedi), hazır olan varsa: {language} eklendiğinde kartı onu sunar. Altyazı ve çeviri her durumda çalışır.</translation>
     </message>
@@ -3758,6 +4032,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">Bu bilgisayardaki sözlükler</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">Öğrendiğin diller için indirildi. Birini kaldırmak yer açar; yeniden indirilene kadar o dilde kelime arama durur.</translation>
     </message>
@@ -3774,6 +4053,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler bu bilgisayarda ve sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur. Bunları öğrendiğin tüm dillerde silebilirsin - Hesap&apos;taki gibi.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler bu bilgisayarda ve sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur. Bunları öğrendiğin tüm dillerde silebilirsin - Hesap&apos;taki gibi.</translation>
     </message>
     <message>
@@ -3841,6 +4125,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
+        <translation type="unfinished">Bu bilgisayarda yeterli yer yok: {size} boş alan gerekiyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
         <translation type="unfinished">Bu bilgisayarda yeterli yer yok: {size} boş alan gerekiyor.</translation>
     </message>
     <message>
@@ -3925,6 +4214,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">Bu bilgisayarda: sürüm {version}, {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Daha yeni bir sürüm ({size}) ölçülü olmayan bir bağlantı bekliyor.</translation>
     </message>
@@ -3961,6 +4255,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">Bu, bilgisayarda {size} yer açar. İleride {language} öğrenirsen yeniden indirilir.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">Bu, bilgisayarda {size} yer açar. İleride {language} öğrenirsen yeniden indirilir.</translation>
     </message>
     <message>
@@ -4142,6 +4441,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">Yalnızca bilgisayarınızın çaldığı ses, bitmiş altyazılarda sayılır; sizin söyledikleriniz sayılmaz.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">Yalnızca bilgisayarınızın çaldığı ses, bitmiş altyazılarda sayılır; sizin söyledikleriniz sayılmaz.</translation>
     </message>
     <message>
@@ -4962,6 +5266,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">Bu bilgisayardaki herhangi bir yazı tipi. Seninkinde yoksa Çince ve Japonca onları içeren bir yazı tipine geçer.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">Orijinali çevirinin üstünde göster</translation>
     </message>
@@ -5232,6 +5541,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">Kayarak gelsin: yeni altyazı aşağıdan yerine yükselir - bilgisayarın animasyon efektleri kapalıyken değil. Belirsin: hiçbir şey hareket etmez.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">Sessizlikten sonra sol</translation>
     </message>
@@ -5415,6 +5729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">Bu bilgisayar hakkında: uygulama, sistem ve ses aygıtları</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">Son birkaç dakikanın altyazıları, gösterildiği gibi</translation>
     </message>
@@ -5499,6 +5818,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
+        <translation type="unfinished">Bu bilgisayar gibi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
         <translation type="unfinished">Bu bilgisayar gibi</translation>
     </message>
     <message>
@@ -6000,6 +6324,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">Bu bilgisayar daha önce oturum açmış: o zaman kullandığın davet kodu burada yeniden çalışır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">Oturum açılıyor…</translation>
     </message>
@@ -6020,6 +6349,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">Bu kod çalışmıyor: yanlış yazılmış, başka bir bilgisayarda kullanılmış ya da artık geçersiz olabilir. Kontrol et ya da bize yaz, çözelim.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">Bu kodun aboneliği kod kullanılmadan önce iptal edilmiş, bu yüzden Plus vermiyor. Plus için sitemizden yeniden abone ol - iptal etmediysen bize yaz.</translation>
     </message>
@@ -6031,6 +6365,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">Bu bilgisayarın oturumunun süresi doldu. Hesap&apos;ta oturumu kapat, sonra bu kodla oturum aç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">Bu bilgisayarın oturumunun süresi doldu. Hesap&apos;ta oturumu kapat, sonra bu kodla oturum aç.</translation>
     </message>
     <message>
@@ -6050,6 +6389,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">Bu bilgisayar bugünün {date} olduğunu söylüyor; bu doğru olamaz ve güvenli bir bağlantı doğru tarihi gerektirir. Windows Ayarları&apos;nda Saat ve dil, Tarih ve saat bölümünde Saati otomatik olarak ayarla&apos;yı aç, ardından Şimdi eşitle&apos;yi seç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Bu Mac bugünün {date} olduğunu söylüyor; bu doğru olamaz ve güvenli bir bağlantı doğru tarihi gerektirir. Sistem Ayarları&apos;nda Genel, Tarih ve Saat bölümünde Tarihi ve saati otomatik olarak ayarla&apos;yı aç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6088,12 +6433,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">Bu bilgisayarda Polyglotic oturumu kapatılsın mı?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">Yeniden oturum açana kadar altyazılar durur - aynı davet koduyla: bu bilgisayarda yeniden çalışır. Kayıtlı kelimelerin ve öğrenme verilerin hem bu bilgisayarda hem sunucumuzda kalır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">Yeniden oturum açana kadar altyazılar durur - aynı davet koduyla: bu bilgisayarda yeniden çalışır. Kayıtlı kelimelerin ve öğrenme verilerin hem bu bilgisayarda hem sunucumuzda kalır.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">Bu bilgisayarın henüz sunucumuza göndermediği değişiklikler atılır, böylece hiçbiri sonra oturum açan kişiye ulaşmaz.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">Bu bilgisayarın henüz sunucumuza göndermediği değişiklikler atılır, böylece hiçbiri sonra oturum açan kişiye ulaşmaz.</translation>
     </message>
 </context>
@@ -6106,7 +6466,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">Bu bilgisayarın varsayılanı</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
+        <translation type="unfinished">Bu bilgisayarın varsayılanı ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
         <translation type="unfinished">Bu bilgisayarın varsayılanı ({device})</translation>
     </message>
     <message>
@@ -6132,6 +6502,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">Bilgisayarın çaldığı her şey için. Eklediğin uygulamalar her hoparlörde duyulur.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">Bilgisayarın çaldığı her şey için. Eklediğin uygulamalar her hoparlörde duyulur.</translation>
     </message>
     <message>
@@ -6167,6 +6542,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
+        <translation type="unfinished">Takılı değil - bu bilgisayarın varsayılanı kullanılıyor</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
         <translation type="unfinished">Takılı değil - bu bilgisayarın varsayılanı kullanılıyor</translation>
     </message>
 </context>
@@ -6421,6 +6801,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">Kilidi aç</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">Tüm altyazı pencerelerinin kilidini aç</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6497,6 +6890,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">Altyazıların açık olduğu süre, bu bilgisayarda sayıldı.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">Altyazıların açık olduğu süre, bu bilgisayarda sayıldı.</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6527,6 +6925,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
+        <translation type="unfinished">Bu bilgisayarda kesin altyazılardan sayıldı ve burada tutuluyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
         <translation type="unfinished">Bu bilgisayarda kesin altyazılardan sayıldı ve burada tutuluyor.</translation>
     </message>
     <message>

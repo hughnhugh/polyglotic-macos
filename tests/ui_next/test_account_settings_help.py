@@ -5,10 +5,11 @@ names only; offscreen."""
 
 import time
 from collections.abc import Iterator
+from dataclasses import replace
 
 import pytest
 import shiboken6
-from PySide6.QtCore import QEvent, Qt
+from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtGui import (
     QAction,
     QDesktopServices,
@@ -369,7 +370,7 @@ def test_help_runs_the_check_and_says_the_fix(qapp: QApplication) -> None:
     assert page.fixes[Step.SOUND].isVisible()
     quiet = False
     page.check_again.click()
-    assert page.rows[Step.SOUND].text().startswith("✓")
+    assert page.marks[Step.SOUND].text() == "✓"
     assert not page.fixes[Step.SOUND].isVisible()
     reports: list[str] = []
     page.report_wanted.connect(reports.append)
@@ -654,3 +655,64 @@ def test_the_dictation_key_box_takes_tab_and_stops_when_left(
     page.show_section("look")  # its section hidden: it stops listening
     assert not box.listening and listening == [True, False]
     page.close()
+
+
+def test_the_check_lines_words_start_in_one_column(qapp: QApplication) -> None:
+    """✓ ✗ and – are each a different width: as the first characters of a
+    line's own text they started its words 2 to 4 px apart from row to row
+    (polyglotic-hq 376, 403). The mark has a column of its own."""
+    page = HelpPage(lambda: facts_with(True))
+    page.resize(760, 600)
+    page.show()
+    settle()
+    marks = {page.marks[step].text() for step in Step}
+    assert len(marks) >= 2  # more than one mark on show
+    starts = {page.rows[step].mapTo(page, QPoint(0, 0)).x() for step in Step}
+    assert len(starts) == 1
+    (start,) = starts
+    for step in Step:
+        assert page.marks[step].geometry().right() < page.rows[step].geometry().left()
+        if not page.fixes[step].isHidden():  # under the words, not the mark
+            assert page.fixes[step].mapTo(page, QPoint(0, 0)).x() == start
+        assert page.rows[step].accessibleName().startswith(page.marks[step].text())
+    # (the autouse fixture deletes the page)
+
+
+def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
+    """polyglotic-hq 400 (found by 398): Help's Set up and its check said
+    "Lock all (Ctrl+Alt+L)", "press Ctrl+Alt+P" and "Press Ctrl+Alt+H" in a
+    build whose hotkeys did nothing (398's preview build registers none);
+    now only the hotkeys that work are named - all or none in a passage."""
+    now = time.monotonic()
+    speech = {APP: SourceActivity(now - 300, now - 200, now - 1, now - 20)}
+    no_captions = replace(facts_with(False), activity=speech, last_caption=None)
+    paused = replace(no_captions, paused=True)
+    hidden = replace(no_captions, overlays_hidden=True)
+    facts = [paused]
+    page = HelpPage(lambda: facts[0])
+    page.show()
+    settle()
+
+    def said() -> str:
+        topics = " ".join(t.text.text() for t in page.findChildren(Topic))
+        return topics + " " + " ".join(f.text() for f in page.fixes.values())
+
+    assert "Ctrl+Alt+L" in said() and "Ctrl+Alt+P" in said()
+    page.show_hotkeys([])  # none works
+    assert "Ctrl+Alt" not in said(), said()
+    assert "Lock all, on Home or in the tray menu, lets clicks pass" in said()
+    assert "Choose Resume on Home or in the tray menu." in said()
+    facts[0] = hidden
+    page.check_again.click()
+    assert "Ctrl+Alt" not in said(), said()
+    assert "Use Hide all on Home or the tray menu." in said()
+
+    page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
+    assert "Ctrl+Alt+P" not in said()
+    assert "Lock all (Ctrl+Alt+L) so clicks go" in said()  # Over a game
+    assert "Press Ctrl+Alt+H" in said()
+    every = {t for p in Problem for t in help_page.problem(p, "Video Player", ())}
+    every |= {t for pair in help_page.set_up(()) for t in pair}
+    assert not any("Ctrl+Alt" in text for text in every)
+    page.close()
+    page.deleteLater()

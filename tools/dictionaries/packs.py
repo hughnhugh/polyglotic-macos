@@ -29,14 +29,17 @@ from __future__ import annotations
 
 import argparse
 import csv
+import heapq
 import sys
 import time
+import unicodedata
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import partial
 from pathlib import Path
 
+from polyglotic_desktop.adapters.spaced_split import ELIDED
 from polyglotic_desktop.adapters.sqlite_dictionary import (
     FORMAT,
     RANKS,
@@ -165,6 +168,36 @@ class Draft:
     """Entry keys of nouns whose capital is their spelling (German's), with
     their own declension's forms: such a noun takes its lower-case
     frequency where its forms show it is the word in use (`DECLINED`)."""
+    came_through: dict[tuple[str, str], set[str]] = field(default_factory=dict)
+    """(form, lemma) -> the parts of speech that link them
+    (`kaikki.Language.came_through`): a form with no entry of its own opens
+    on its lemma's entries in those first (`opened_through`)."""
+    own_first: frozenset[str] = frozenset()
+    """Forms with entries of their own that come before a verb they are a
+    form of, whatever that verb's frequency (`own_first`)."""
+    own_verbs: frozenset[str] = frozenset()
+    """Forms that are a verb of their own: they come before a verb they are
+    a form of where they are the commoner (`own_first`)."""
+    elided: frozenset[str] = frozenset()
+    """Forms that are only another word written short (`Spelling.elided`):
+    their frequency is that word's, not their own entries'."""
+    lemma_used: dict[str, frozenset[str]] = field(default_factory=dict)
+    """Form with entries of its own -> the lemmas it is used as far more
+    than as its own entries, by the treebanks (`lemma_used`): those come
+    first (`lemma_table`)."""
+    elisions: frozenset[str] = frozenset()
+    """The words the app's split cuts off as elided, without the apostrophe
+    (`spaced_split.ELIDED`: French's "l", Italian's "dell"): such a word
+    takes wordfreq's frequency without it (`elided_frequency`)."""
+    uses: kaikki.Uses | None = None
+    """The treebanks' counts of each word's parts of speech, where the
+    language has them: they decide which a capitalised word opens on
+    (`capitals_first`)."""
+    written: kaikki.Uses | None = None
+    """...and of each word as written alone (`treebanks.uses`' `forms_only`):
+    which of a form's lemmas it opens on (`used_as_lemma`). Turkish's
+    treebanks give a verb's stem as its lemma, so by lemma "geliş" (arrival,
+    gelmek's) was gelişmek's (to develop) 18 times (polyglotic-hq 416)."""
 
 
 @dataclass(frozen=True)
@@ -206,9 +239,8 @@ def chinese_for(
 
 
 def read_spanish(paths: Mapping[str, Path]) -> Draft:
-    words = kaikki.read_language(
-        kaikki.lines(paths["kaikki-es"], "es"), uses=treebanks.uses_for("es", paths)
-    )
+    uses = treebanks.uses_for("es", paths)
+    words = kaikki.read_language(kaikki.lines(paths["kaikki-es"], "es"), uses=uses)
     # pronominal verbs: levantarse, and the forms with te/se/nos it gets
     found = spanish.pronominal(words)
     words.entries += found.entries
@@ -221,7 +253,28 @@ def read_spanish(paths: Mapping[str, Path]) -> Draft:
     zh_by_word: dict[str, dict[str, list[str]]] = defaultdict(dict)
     for key, glosses in zh.items():
         zh_by_word[key.split("|")[0]][key] = glosses
-    return draft_of(words, zh_by_word)
+    written = treebanks.uses_for("es", paths, forms_only=True)
+    return with_treebanks(draft_of(words, zh_by_word), words, uses, written)
+
+
+def with_treebanks(
+    draft: Draft,
+    words: kaikki.Language,
+    uses: kaikki.Uses | None,
+    written: kaikki.Uses | None,
+) -> Draft:
+    """`draft` with what the treebanks say of its forms, for a reader of its
+    own (Spanish's, Russian's) as the generic one has it: which forms keep
+    their own entries before a verb's (`own_first`), which open on their
+    lemma (`lemma_used`), and the counts for capitalised words
+    (`capitals_first`). Spanish's "nueva" had opened on "news", not nuevo's
+    "new"; Russian's "хотя" ("although") on хотеть, "to want"
+    (polyglotic-hq 413). `written`: each form's own uses (`lemma_used`)."""
+    draft.own_first, draft.own_verbs = own_first(words, uses)
+    draft.lemma_used = lemma_used(words, written)
+    draft.uses = uses
+    draft.written = written
+    return draft
 
 
 def draft_of(
@@ -289,6 +342,9 @@ class Spelling:
     """A word takes a linker on its end (Filipino's -ng after a vowel, -g
     after n: isa, isang; noon, noong): each such spelling is a form of its
     word (`linked_forms`)."""
+    elided: Mapping[str, str] = field(default_factory=dict)
+    """Words written short onto the next or the last with a hyphen, as
+    written short -> the word (`with_elided`)."""
 
 
 AS_WRITTEN = Spelling()
@@ -357,6 +413,47 @@ PERSIAN = Spelling(written=arabic.plain, reading=iranian_romanization)
 as Arabic's; read by Iran's romanization."""
 
 
+_LATIN_J = str.maketrans({"j": "ј", "J": "Ј"})
+
+
+def cyrillic_j(form: str) -> str:
+    """A Cyrillic form with the Latin j its table was typed with put back
+    as Cyrillic ј: Wiktionary's tables for Macedonian's свој (own), мој
+    and твој write "своjот", "своjата", so the pack had no својот or
+    својата, words in Macedonian's top 200 (polyglotic-hq 394, 396). A
+    Latin word is left as it is."""
+    letters = [ch for ch in form if ch.isalpha()]
+    if not any("CYRILLIC" in unicodedata.name(ch, "") for ch in letters):
+        return form
+    return form.translate(_LATIN_J)
+
+
+MACEDONIAN = Spelling(written=cyrillic_j)
+"""Macedonian: forms in Cyrillic throughout (`cyrillic_j`)."""
+ROMANIAN = Spelling(
+    elided={
+        "i": "îi",
+        "ți": "îți",
+        "mi": "îmi",
+        "l": "îl",
+        "m": "mă",
+        "s": "se",
+        "v": "vă",
+        "n": "nu",
+        "într": "în",
+        "dintr": "din",
+        "printr": "prin",
+    }
+)
+"""Romanian: its clitics written short onto a verb with a hyphen (i-am
+spus: îi am; ți-am, l-am, m-am, s-a, v-am, n-am; într-o). wordfreq cuts
+words at hyphens, so its "i", "ți", "s", "l" are these, in Romanian's top
+200, and had no entry or a letter's; in the app a hyphenated word the
+pack hasn't got whole is looked up by its pieces (`core.lexicon.
+compounds`), so "dă-i" (give him) is dă + îi (polyglotic-hq 396, 399).
+Not "și" (and), a word far commoner than își written short (și-a)."""
+
+
 def read_wiktionary(
     language: str,
     paths: Mapping[str, Path],
@@ -379,7 +476,7 @@ def read_wiktionary(
     )
     uses = treebanks.uses_for(language, paths, spelling.written)
     words = kaikki.read_language(
-        objects, spelling.reading, uses=uses, derived=spelling.derived
+        objects, spelling.reading, uses=uses, derived=spelling.derived, chain=True
     )
     if spelling.written:
         words = rewritten(words, spelling.written)
@@ -388,6 +485,16 @@ def read_wiktionary(
     if spelling.linked:
         words.forms.update(linked_forms(words))
     draft = draft_of(words)
+    draft.came_through = dict(words.came_through)
+    draft.elisions = ELIDED.get(language, frozenset())
+    draft.own_first, draft.own_verbs = own_first(words, uses)
+    written = treebanks.uses_for(language, paths, spelling.written, forms_only=True)
+    named = treebanks.lemmas_for(language, paths, spelling.written)
+    draft.lemma_used = lemma_used(words, written, named)
+    draft.uses = uses
+    draft.written = written
+    if spelling.elided:
+        draft = with_elided(draft, spelling.elided)
     draft.split_shared_forms = True
     if spelling.nouns_capitalised:
         draft.capitalised = capitalised_nouns(words)
@@ -463,7 +570,139 @@ def rewritten(words: kaikki.Language, written: Callable[[str], str]) -> kaikki.L
     words.forms = {f: ls for f, ls in forms.items() if ls}
     words.imperative = {(written(f), lemma) for f, lemma in words.imperative}
     words.verb_forms = {(written(f), lemma) for f, lemma in words.verb_forms}
+    came: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for (form, lemma), parts in words.came_through.items():
+        came[(written(form), lemma)] |= parts
+    words.came_through = came
+    kinds: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for (form, lemma), kind in words.link_kinds.items():
+        kinds[(written(form), lemma)] |= kind
+    words.link_kinds = kinds
     return words
+
+
+def own_first(
+    words: kaikki.Language, uses: kaikki.Uses | None
+) -> tuple[frozenset[str], frozenset[str]]:
+    """The forms of a verb whose own entries may come first (`lemma_table`):
+    those the treebanks use more as their own entries' other parts of speech
+    than as a verb (Dutch's zij, "she", zijn's subjunctive), and those that
+    are a verb of their own (German's sein, "to be", which werden's table
+    lists), which come first where they are the commoner verb. A shared
+    pronoun table had hidden both: its pronoun had been their commonest
+    lemma, so the verb never came first (polyglotic-hq 399)."""
+    own: dict[str, set[str]] = defaultdict(set)
+    for e in words.entries:
+        if e.standing == 0:
+            own[e.word].add(e.pos)
+    linked: dict[str, set[str]] = defaultdict(set)
+    for (form, _), parts in words.came_through.items():
+        if form in own:
+            linked[form] |= parts
+    used, verbs = set(), set()
+    for form, parts in linked.items():
+        if "verb" not in parts:
+            continue
+        counts = uses.get(form.lower(), {}) if uses else {}
+        if sum(counts.values()) >= kaikki.MIN_USES and kaikki.used_as(
+            counts, own[form] - {"verb"}
+        ) > kaikki.used_as(counts, {"verb"}):
+            used.add(form)
+        if "verb" in own[form]:
+            verbs.add(form)
+    return frozenset(used), frozenset(verbs)
+
+
+def lemma_used(
+    words: kaikki.Language,
+    uses: kaikki.Uses | None,
+    named: kaikki.Uses | None = None,
+) -> dict[str, frozenset[str]]:
+    """Forms with entries of their own that the treebanks use (`uses`: each
+    form as written, `treebanks.uses`' `forms_only`) as another
+    word's form far more (`kaikki.LEAD` times) than as those entries' parts
+    of speech, each with the lemmas they are used as: those lemmas come
+    first (`lemma_table`). The mirror of `own_first`. A common word's form
+    that is also a rare word of its own had opened on that word: French's
+    "est" (être's "is") on "east", "la" and "les" on the pronoun "her";
+    Portuguese's "é" (ser's "is") on an interjection, "boa" (bom's "good")
+    on "an interesting story", "toda" (todo's "all") on the Toda people of
+    India (polyglotic-hq 402, 413). The lemma's side counts only the parts
+    of speech the form has no entry in; the form's, all of its own:
+    Portuguese's "a" is o's article and pronoun and its own pronoun and
+    preposition - the article 3,646 times, its own 1,090. Italian's "il" is
+    lo's article and pronoun, and its own article: used as the pronoun
+    alone, it stays il. The lemma's side counts only parts of speech the
+    lemma has a word's entry in, at least `kaikki.MIN_USES` times, and the
+    form's every entry, a name's too: Indonesian's "Indonesia", in baja's
+    noun table by a slip, is a name 79 times and a noun twice; Italian's
+    treebank calls "tutti" an adjective 8 times, and tutto has no adjective.
+
+    Where the counts can't tell the form from the lemma (polyglotic-hq 416):
+    - the lemma's side must be at least `kaikki.MIN_SHARE` of the form's
+      uses: Hindi's पहले ("before") is पहला's (first) as an adjective 10
+      times in 45, and mostly a postposition, which neither has an entry
+      for; it had opened on "first";
+    - a form's own adposition counts its uses as a noun too where the form
+      is the noun's oblique case: treebanks tag a noun's case form used as
+      a postposition a noun, so Turkish's "içinde" (inside, iç's locative),
+      "hakkında" (about) and "üzerinde" (on) had opened on iç (inner), hak
+      (justice) and üzeri. Not a plural: Spanish's "veces" (vez's "times")
+      stays vez's, not its own "times (multiplication)";
+    - a degree of comparison stays its own (`kaikki.Language.link_kinds`)
+      where its own entry is in a part of speech it came through: Swedish's
+      "mindre" (adjective) says "smaller; less", and had opened on lite's
+      "a little"; Czech's "starší" (older) is a noun of its own, "a church
+      elder", and opens on starý, "old";
+    - a form that is an adposition's with a pronoun attached counts for it
+      only where the treebanks name the adposition as its lemma (`named`:
+      `treebanks.lemmas`): they split such a word in two, so a word they
+      keep whole is usually another - Arabic's "لكن" is "but" (lemma لكن,
+      though tagged ADP), and had opened on ل, "to", whose "لَكُنَّ" ("to
+      you") is written the same; "علي" (lemma على) is على, "on";
+    - a possessive counts as the form's determiner where it has one
+      (`kaikki.resolved`): Swedish's "din" ("your") had opened on ditt's
+      "you (vocative ...)"."""
+    if not uses:
+        return {}
+    own: dict[str, set[str]] = defaultdict(set)  # every entry: a name's too
+    words_of: dict[str, set[str]] = defaultdict(set)  # its word's entries
+    for e in words.entries:
+        own[e.word].add(e.pos)
+        if e.standing == 0:
+            words_of[e.word].add(e.pos)
+    out: dict[str, set[str]] = defaultdict(set)
+    for (form, lemma), parts in words.came_through.items():
+        kinds = words.link_kinds.get((form, lemma), set())
+        if form not in own or (kinds & kaikki.DEGREES and own[form] & parts):
+            continue
+        if "pronoun" in kinds and not (named or {}).get(form.lower(), {}).get(lemma):
+            continue
+        counts = kaikki.resolved(uses.get(form.lower(), {}), own[form])
+        postposition = own[form] & kaikki.ADPOSITIONS and "case" in kinds
+        mine_as = own[form] | ({"noun"} if postposition else set())
+        theirs = kaikki.used_as(counts, (parts & words_of[lemma]) - mine_as)
+        mine = kaikki.used_as(counts, mine_as)
+        if (
+            theirs >= kaikki.MIN_USES
+            and theirs >= kaikki.LEAD * mine
+            and theirs >= kaikki.MIN_SHARE * sum(counts.values())
+        ):
+            out[form].add(lemma)
+    return {form: frozenset(lemmas) for form, lemmas in out.items()}
+
+
+def with_elided(draft: Draft, elided: Mapping[str, str]) -> Draft:
+    """`draft` with each word written short (`Spelling.elided`) a form of
+    the word, the one it opens on, and its frequency that word's alone - not
+    its own entries' (a letter's, Romanian's "i" an old word for "and") -
+    where the pack has the word."""
+    for short, word in elided.items():
+        if word in draft.forms:
+            draft.inflections[short] = {word}
+            draft.lemma_first[short] = frozenset({word})
+    draft.elided = frozenset(s for s, w in elided.items() if w in draft.forms)
+    return draft
 
 
 def wiktionary_pack(
@@ -526,7 +765,9 @@ def read_malay(paths: Mapping[str, Path]) -> Draft:
     carriage, Malay's a car), and that is said, not hidden. Names aren't
     taken, nor a word written with a capital (Indonesian's initialisms:
     "TV" is tanda vital there, "AL" its navy). Inflected
-    forms come from Malay's tables first."""
+    forms come from Malay's tables first. Indonesian's entries are ordered
+    by Indonesian's treebanks, as in its own pack (polyglotic-hq 394, 396);
+    Malay has none."""
     malay = read_wiktionary("ms", paths)
     indonesian = read_wiktionary("id", paths)
     have = {e.headword.lower() for e in malay.entries} | {
@@ -567,9 +808,8 @@ def read_russian(paths: Mapping[str, Path]) -> Draft:
             participles.extend(russian.participles(obj))
             yield obj
 
-    words = kaikki.read_language(
-        objects(), reading=russian.stressed, uses=treebanks.uses_for("ru", paths)
-    )
+    uses = treebanks.uses_for("ru", paths)
+    words = kaikki.read_language(objects(), reading=russian.stressed, uses=uses)
     # a participle's declined forms count for its verb, unless the
     # participle is an adjective of its own (следующий: next) or the form
     # is already another word's
@@ -613,7 +853,7 @@ def read_russian(paths: Mapping[str, Path]) -> Draft:
             )
         )
         forms[e.word].append(e.key)
-    return Draft(
+    draft = Draft(
         entries,
         dict(forms),
         {f: set(ls) for f, ls in words.forms.items()},
@@ -622,6 +862,8 @@ def read_russian(paths: Mapping[str, Path]) -> Draft:
         dict(form_readings),
         lemma_first=words.lemma_first,
     )
+    written = treebanks.uses_for("ru", paths, forms_only=True)
+    return with_treebanks(draft, words, uses, written)
 
 
 # -- Vietnamese: Wiktionary ------------------------------------------------------
@@ -850,7 +1092,7 @@ PACKS = {
         language="ms",
         name="wiktms",
         title="Malay",
-        sources=(KAIKKI_MS, KAIKKI_ID, WORDFREQ),
+        sources=(KAIKKI_MS, KAIKKI_ID, WORDFREQ, *treebanks.of("id")),
         read=read_malay,
         level_schemes="ms-frequency",
         about=(
@@ -870,10 +1112,10 @@ PACKS = {
     ),
     "sv": wiktionary_pack("sv", "Swedish", KAIKKI_SV),
     "cs": wiktionary_pack("cs", "Czech", KAIKKI_CS),
-    "ro": wiktionary_pack("ro", "Romanian", KAIKKI_RO),
+    "ro": wiktionary_pack("ro", "Romanian", KAIKKI_RO, ROMANIAN),
     "el": wiktionary_pack("el", "Greek", KAIKKI_EL),
     "tl": wiktionary_pack("tl", "Filipino", KAIKKI_TL, FILIPINO),
-    "mk": wiktionary_pack("mk", "Macedonian", KAIKKI_MK),
+    "mk": wiktionary_pack("mk", "Macedonian", KAIKKI_MK, MACEDONIAN),
     "th": Pack(
         language="th",
         name="wiktth",
@@ -948,61 +1190,6 @@ PACKS = {
 }
 
 
-# -- pages the source hasn't got --------------------------------------------------
-
-
-@dataclass(frozen=True)
-class Supplied:
-    """An entry written here for a word whose Wiktionary page kaikki's
-    extracts haven't got: its meanings as the page gives them, in short."""
-
-    word: str
-    pos: str
-    meanings: tuple[str, ...]
-    ipa: str
-
-
-MISSING_PAGES: dict[str, tuple[Supplied, ...]] = {
-    "pl": (Supplied("i", "conj", ("and", "also, too; even"), "/i/"),),
-    "it": (
-        Supplied(
-            "i", "article", ("the (masculine plural, before most consonants)",), "/i/"
-        ),
-    ),
-    "cs": (Supplied("i", "conj", ("and; as well as", "even; also"), "/ɪ/"),),
-    "hr": (Supplied("i", "conj", ("and", "also, too; even"), "/i/"),),
-    "ca": (Supplied("i", "conj", ("and",), "/i/"),),
-    "da": (Supplied("i", "prep", ("in", "into; at; for (a time)"), "/i/"),),
-    "sv": (Supplied("i", "prep", ("in", "into; at; for (a time)"), "/iː/"),),
-    "nb": (Supplied("i", "prep", ("in", "into; at; for (a time)"), "/iː/"),),
-}
-"""Per language, words English Wiktionary has whose pages are missing from
-kaikki's extracts of 2026-10-30: the page "i" is in none of them (kaikki's
-own site has no "i" for Polish, Czech, Danish or Spanish), so Polish's "i"
-("and", 2.7 % of its running words) had no entry (polyglotic-hq 380, 390).
-An entry takes kaikki's key (`word|pos|`), and steps aside once the
-source has the word: its ID is then the source's own."""
-
-
-def supplied(draft: Draft, language: str) -> Draft:
-    """`draft` with its language's `MISSING_PAGES` entries it hasn't got."""
-    for s in MISSING_PAGES.get(language, ()):
-        if s.word in draft.forms:
-            continue
-        key = f"{s.word}|{s.pos}|"
-        draft.entries.append(
-            DraftEntry(
-                key=key,
-                headword=s.word,
-                reading=s.ipa,
-                meanings=tuple(f"({s.pos}) {m}" for m in s.meanings),
-                ranked_by=(s.word,),
-            )
-        )
-        draft.forms[s.word] = [key]
-    return draft
-
-
 # -- shared ---------------------------------------------------------------------
 
 
@@ -1057,6 +1244,25 @@ def listed(word: str, freq: Mapping[str, float]) -> float:
     )
 
 
+ELISION = "'’"
+"""The apostrophes an elided word ends in."""
+
+
+def elided_frequency(
+    word: str, freq: Mapping[str, float], elided: frozenset[str]
+) -> float:
+    """An elided word's frequency ("dell'", "n'"): wordfreq's tokens drop the
+    apostrophe, so it is listed as "dell". Italian's dell', nell' and sull'
+    had no frequency and were cut from the pack: "dell'anno" opened nothing
+    (polyglotic-hq 402, 413). Only the words the app's split cuts off as
+    elided (`Draft.elisions`): German's genitive "Paris'" is no elision, and
+    "champ'" (champagne) isn't "champ". 0 for any other word."""
+    short = word[:-1]
+    if word[-1:] not in ELISION or short.lower() not in elided:
+        return 0.0
+    return frequency_of(short, freq)
+
+
 def frequency_of(word: str, freq: Mapping[str, float]) -> float:
     """`word`'s frequency in a frequency list, in lower case.
 
@@ -1104,7 +1310,9 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
     in lower case is another entry's or an inflected form ("Или", the
     river Ili: или, "or"; "Земля", Earth: земля, earth) doesn't take that
     word's frequency, nor its own forms' that are lower-case words too
-    ("Земли" is земли). A name's other forms count: Polska (Poland), whose
+    ("Земли" is земли) - but a name takes the share the treebanks use the
+    word as a name (`name_frequency`: Paris, also pari's plural "paris",
+    polyglotic-hq 416). A name's other forms count: Polska (Poland), whose
     "polska" is polski's, is found by "Polsce" ("in Poland"), Polish's
     167th word - it had been cut from the pack (polyglotic-hq 390).
     Nor does a form in capitals give its word that frequency: "NO", an
@@ -1132,7 +1340,7 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
         e.headword for e in draft.entries if e.headword == e.headword.lower()
     } | {f for f in draft.inflections if f == f.lower()}
     look_alike = set()
-    gives_way = set()
+    gives_way: set[str] = set()
     total: dict[str, float] = {}
     for e in draft.entries:
         by_headword[e.headword].append(e.key)
@@ -1145,6 +1353,12 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
             look_alike.add(e.key)
         own_words = () if e.key in look_alike else set(e.ranked_by)
         total[e.key] = sum(frequency_of(w, freq) for w in own_words)
+        if e.key in look_alike and word in names:
+            total[e.key] = name_frequency(word, freq, draft.uses)
+        if not total[e.key] and part_of_speech(e.meanings) not in kaikki.NO_WORD_POS:
+            total[e.key] = sum(
+                elided_frequency(w, freq, draft.elisions) for w in own_words
+            )
     alone = {
         word: max(total[k] for k in keys) for word, keys in by_headword.items()
     }  # each word's own frequency, before its forms'
@@ -1154,8 +1368,15 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
             and form.lower() in lower_case
             and form not in declined_forms  # Menschen; not "So" (Sonntag's)
         )
-        own = form in by_headword and form not in names
-        f = 0.0 if own or look_alike_form else frequency_of(form, freq)
+        own = form in by_headword and form not in names and form not in draft.elided
+        f = (
+            0.0
+            if own or look_alike_form
+            else frequency_of(form, freq)
+            or elided_frequency(form, freq, draft.elisions)
+        )
+        if form in draft.elided:
+            gives_way.update(by_headword.get(form, ()))  # Romanian's "i": îi's
         if form in names and any(lemma not in names for lemma in lemmas):
             gives_way.update(by_headword[form])  # the name gives way
         if f:
@@ -1168,6 +1389,27 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
         if no_word(e.headword):  # "4x4" had taken quatre-quatre's (380)
             total[e.key] = 0.0
     return total
+
+
+def name_frequency(
+    name: str, freq: Mapping[str, float], uses: kaikki.Uses | None
+) -> float:
+    """A name's frequency where its lower case is another word too: its
+    share of the word's, as the treebanks use the word as a name, if they
+    use it at least `kaikki.MIN_USES` times and as a name in at least
+    `kaikki.MIN_SHARE` of them; else 0, as before. French's Paris is also
+    "paris", pari's plural "bets": wordfreq can't tell them apart, so the
+    city had no frequency, was cut from the pack, and opened on "bet"; the
+    treebanks use "paris" as a name 34 times in 35 (polyglotic-hq 416).
+    Only a name used alone counts, not a word of a name of several
+    (`treebanks.IN_NAME`): Italian's "stati" is a name only in "Stati
+    Uniti", not the surname Stati, whose card had opened for "Stati"."""
+    counts = uses.get(name.lower(), {}) if uses else {}
+    every = sum(counts.values())
+    named = counts.get("PROPN", 0)
+    if every < kaikki.MIN_USES or named < kaikki.MIN_SHARE * every:
+        return 0.0
+    return frequency_of(name, freq) * named / every
 
 
 DECLINED = 0.1
@@ -1272,6 +1514,7 @@ def lemma_table(
         if e.key in kept:
             family[e.headword] = max(family.get(e.headword, 0.0), total[e.key])
     out, after = {}, {}
+    moved: set[str] = set()  # forms that count for a lemma by `lemma_used`
     for form, lemmas in draft.inflections.items():
 
         def weight(lemma: str, form: str = form) -> float:
@@ -1284,16 +1527,326 @@ def lemma_table(
         best = max(found, key=weight)
         own = form in draft.forms and any(k in kept for k in draft.forms[form])
         named = [lemma for lemma in found if lemma in draft.lemma_first.get(form, ())]
+        used = [lemma for lemma in found if lemma in draft.lemma_used.get(form, ())]
         if not own or (
             (form, best) in draft.verb_forms
             and weight(best) >= freq.get(form.lower(), 0.0)
+            and form not in draft.own_first
+            and not (form in draft.own_verbs and family.get(form, 0.0) >= weight(best))
         ):
-            out[form] = best
+            out[form] = (
+                used_as_lemma(form, found, draft.came_through, draft.written) or best
+            )
         elif named:  # "una" starts as uno's: uno, not the commoner un
             out[form] = max(named, key=weight)
+        elif used:  # "est" is être's far more than "east" (413)
+            out[form] = max(used, key=weight)
+            moved.add(form)
         else:
             after[form] = best
-    return out, after
+    return chained_lemmas(out, draft.came_through, moved), after
+
+
+def used_as_lemma(
+    form: str,
+    lemmas: Sequence[str],
+    came_through: Mapping[tuple[str, str], set[str]],
+    uses: kaikki.Uses | None,
+) -> str | None:
+    """Of a form's `lemmas`, the one whose parts of speech it came through
+    the treebanks use it as, at least `kaikki.MIN_USES` times and
+    `kaikki.LEAD` times as often as each other's; None where they don't
+    say. Portuguese's "melhor" is bom's comparative (better) and bem's
+    (better, as an adverb): written as an adjective 25 times and an
+    adverb 8, it had opened on the commoner bem, "well"; Italian's "c'" is
+    ci's (us, there) and che's (that), used as a pronoun 10 times, and had
+    opened on che (polyglotic-hq 416)."""
+    counts = uses.get(form.lower(), {}) if uses else {}
+    used = sorted(
+        (
+            (kaikki.used_as(counts, came_through.get((form, lemma), set())), lemma)
+            for lemma in lemmas
+        ),
+        reverse=True,
+    )
+    if len(used) < 2 or used[0][0] < kaikki.MIN_USES:
+        return None
+    (most, lemma), (next_most, _) = used[0], used[1]
+    return lemma if most >= kaikki.LEAD * next_most else None
+
+
+def chained_lemmas(
+    lemmas: dict[str, str],
+    came_through: Mapping[tuple[str, str], set[str]],
+    moved: set[str],
+) -> dict[str, str]:
+    """`lemmas` (form -> the lemma it counts for) with a form whose lemma
+    counts for another word, and that is that word's form too in a part of
+    speech it is its lemma's in, counting for that word: the lookup shows
+    only the lemma's own entries, not its lemma's. French's "l'" and "les"
+    are la's and le's, as article and pronoun; la counts for le (the
+    article), and they had opened on la's pronoun, "her" (polyglotic-hq 402,
+    413). Not a form of the lemma alone (Portuguese's "la" is a's, the
+    pronoun "her", not o's, which a counts for), nor one that is the other
+    word's in another part of speech: French's "traces" is trace's plural
+    (a noun) and tracer's "you draw" - trace counts for tracer, and traces
+    had opened on "to draw". Only through a lemma `lemma_used` moved
+    (`moved`): Portuguese's pesado counts for pesar, the verb whose
+    participle it is too, but "pesada" stays pesado's, "heavy". Only where
+    the reader says how forms came (`Draft.came_through`)."""
+    out = {}
+    for form, lemma in lemmas.items():
+        further = lemmas.get(lemma) if lemma in moved else None
+        shared = (
+            came_through.get((form, lemma), set())
+            & came_through.get((form, further), set())
+            if further and further != form
+            else set()
+        )
+        out[form] = further if shared and further else lemma
+    return out
+
+
+def opened_through(
+    draft: Draft,
+    forms: Mapping[str, list[str]],
+    lemmas: Mapping[str, str],
+    pos_of: Mapping[str, tuple[str, str]],
+) -> dict[str, list[str]]:
+    """The forms whose card opens on their lemma's entries in the parts of
+    speech the form came through (`Draft.came_through`), and those entry
+    IDs, in that order: form -> its lemma's IDs, those first. Only a form
+    with no entry of its own, whose lemma's first entry is in another part
+    of speech: Romanian's vă is in the pronoun voi's table, and its card
+    opened on the verb voi, "to want" (polyglotic-hq 396, 399). The form
+    gets a row of its own with them, in place of its lemma's (`lemma_table`,
+    whose entries the lookup would show first); `pos_of`: entry ID -> its
+    word and part of speech. `forms`: each word's own row, without another
+    word's shown after it (`own_entries_only`); only the lemma's own entries
+    come first (Polish's momencikom is momencik's, not moment's).
+
+    Not a form that is its lemma said twice (Indonesian's and Malay's
+    indah-indah): Wiktionary lists it in a noun's table as the plural, but
+    an adjective's or a verb's said twice is that word made strong or
+    repeated, so it keeps its lemma's commonest entry first. In a sample
+    of 30 changed cards per pack, 11 of the 26 such read worse by their
+    table, 7 better (indah-indah, "really beautiful", had opened on
+    "infant feces"; polyglotic-hq 407)."""
+    out = {}
+    for form, lemma in lemmas.items():
+        through = draft.came_through.get((form, lemma))
+        shown = forms.get(lemma, [])
+        if not through or form in forms or not shown or pos_of[shown[0]][1] in through:
+            continue
+        if form == f"{lemma}-{lemma}":  # said twice: not by its table (407)
+            continue
+        first = [i for i in shown if pos_of[i][0] == lemma and pos_of[i][1] in through]
+        if first:
+            out[form] = first + [i for i in shown if i not in first]
+    return out
+
+
+def opened_as_used(
+    draft: Draft,
+    forms: Mapping[str, list[str]],
+    lemmas: Mapping[str, str],
+    pos_of: Mapping[str, tuple[str, str]],
+) -> dict[str, list[str]]:
+    """The forms that count for a lemma by `lemma_used`, each with a row of
+    its own: the lemma's entries in the parts of speech the form came
+    through and has none of its own in first (those the treebanks use it
+    as), then the lemma's others, then the form's own. Italian's "tutti" is
+    tutto's determiner, "all", but tutto's row starts with the noun,
+    "whole"; German's "seiner" is sein's determiner, "his", but sein's row
+    starts with the verb "to be".
+
+    The forms looked up through such a form, which would show them that row,
+    get a row of their own with what they showed before: its own entries,
+    then theirs. Portuguese's "la" is a's pronoun, "her"; a, used as o's
+    article, opens on "the". `forms`: each word's own row; `pos_of`: entry
+    ID -> its word and part of speech."""
+    out = {}
+    for form, lemma in lemmas.items():
+        if lemma not in draft.lemma_used.get(form, ()):
+            continue
+        mine = forms.get(form, [])
+        used = draft.came_through.get((form, lemma), set()) - {
+            pos_of[i][1] for i in mine
+        }
+        shown = forms.get(lemma, [])
+        first = [i for i in shown if pos_of[i][0] == lemma and pos_of[i][1] in used]
+        row = first + [i for i in shown if i not in first]
+        out[form] = row + [i for i in mine if i not in row]
+    for form, lemma in lemmas.items():
+        if lemma in out and form not in out:
+            mine = forms.get(lemma, [])
+            out[form] = mine + [i for i in forms.get(form, []) if i not in mine]
+    return out
+
+
+def own_entries_only(
+    draft: Draft,
+    own: Mapping[str, list[str]],
+    lemmas: Mapping[str, str],
+    after: Mapping[str, str],
+    pos_of: Mapping[str, tuple[str, str]],
+) -> dict[str, list[str]]:
+    """The forms reached through a lemma whose row shows another word's
+    entries after its own (`lemma_table`'s `after`: "casa", a house, then
+    casar), and the rows that show only the lemma's: form -> its lemma's
+    own entry IDs, then the form's own (`own`: each word's row before
+    `after`'s). The lookup showed the lemma's whole row, so Ukrainian's нам
+    (ми's) showed мі, the note mi, after "we", and тобі (ти's) той, "that"
+    (polyglotic-hq 399, 407). The form gets a row of its own in place of
+    its lemma's, as in `opened_through`.
+
+    Only where the word shown after has no entry in a part of speech the
+    form came through (`Draft.came_through`; `pos_of`: entry ID -> its
+    word and part of speech): нам is in ми's pronoun table, and мі is only
+    a noun. Where it has one, it may be the form's word too: French's
+    "iles" is ile's plural, and ile only a spelling of île (island), a
+    noun; "traitée" is traité's, the participle of traiter (to treat). The
+    generic reader's only: where a reader says nothing of how forms came
+    (Russian's, Spanish's), such forms keep their lemma. These do too:
+    - a form of the word shown after too ("casas" is casar's as well as
+      casa's: house, then to marry);
+    - a form other forms are looked up through, which would show them its
+      lemma's entries."""
+    through = set(lemmas.values())
+    out = {}
+    for form, lemma in lemmas.items():
+        if lemma not in after or form in through:
+            continue
+        if after[lemma] in draft.inflections.get(form, ()):
+            continue
+        way = draft.came_through.get((form, lemma), set())
+        if not way or {pos_of[i][1] for i in own.get(after[lemma], ())} & way:
+            continue
+        first = own[lemma]
+        out[form] = first + [i for i in own.get(form, ()) if i not in first]
+    return out
+
+
+def part_of_speech(meanings: Sequence[str]) -> str:
+    """The part of speech a record's first meaning starts with ("(verb) to
+    be": "verb"), or ""."""
+    first = meanings[0] if meanings else ""
+    return first[1 : first.index(")")] if first.startswith("(") and ")" in first else ""
+
+
+COMMON = 1000
+"""The rank a lower-case word needs, where no treebank says, to come before
+a capitalised spelling's own entries (`capitals_first`): a sentence's first
+word is seldom a rare one, and a name often looks like one - Portuguese's
+Khartoum had opened on cartune, "cartoon", and Russian's Максиме (Maxim's
+dative) on максима, "maxim", the 3,725th word (polyglotic-hq 413)."""
+
+
+COMMONEST = 100
+"""How many of the frequency list's commonest words come before even a
+name's own headword where no treebank says (`capitals_first`): a
+sentence's first word that is one of a language's hundred commonest is
+that word far more often than a name. Ukrainian's "Того" (того, "of
+that") had opened on Togo; Tournai (tourner's "I turned") stays the
+city. The word itself, not its lemma: Ukrainian's "Кім" stays the
+surname Kim, though кім is a form of хто ("who"). Not where the name's
+lower case is the same word (Україна; Filipino's "Isa", Jesus, though
+isa is "one") (polyglotic-hq 416)."""
+
+
+def capitals_first(
+    forms: Mapping[str, list[str]],
+    lemmas: Mapping[str, str],
+    rank: Mapping[str, int],
+    said: Mapping[str, tuple[str, str]],
+    uses: kaikki.Uses | None,
+    spelled: bool = False,
+    commonest: frozenset[str] = frozenset(),
+) -> dict[str, list[str]]:
+    """The capitalised spellings (a sentence's first word: "May", "A") whose
+    card opens on what the word in lower case opens on, then on their own:
+    capitalised -> its row. The lookup tries a word as written before its
+    lower case and stops at the first it finds, so a capitalised spelling
+    Wiktionary gives a name or a letter opened on that: Filipino's "May"
+    (there is, has) on Mayo, the month; Portuguese's "A" on á, "wing", an
+    old name of the letter; Ukrainian's "Мене" (me) on Maine; French's
+    "Cette" (this) on the town Sète (polyglotic-hq 402, 413).
+
+    Which comes first: where the treebanks use the word (in lower case) at
+    least `kaikki.MIN_USES` times and the two first entries are in different
+    parts of speech, the one they use it as more (a name is PROPN: Brazil
+    stays Brasil; German's Zeit stays "time", but Gut, "property", gives
+    way to gut, "good"); otherwise the better ranked where the lower case
+    is a common word (`COMMON`) and the capitalised spelling isn't a name's
+    own headword: Mayo's "May" gives way to may, but Ève stays Eve, not
+    éwé (the Ewe language), Komodo the island, and Liège and Tournai
+    (whose lower case is tourner's "I turned") the cities; nor a form of a
+    name whose lower case is the same word's: Ukrainian's "Україні" (in
+    Ukraine) had opened on україна, "a land", a noun Wiktionary keeps, ranked
+    as Ukraine is, since wordfreq is in lower case - unless the lower case
+    is itself one of the commonest words (`commonest`, `COMMONEST`):
+    Ukrainian's "Того" opens on той ("that"), not Togo. `said`: entry
+    ID -> its headword and its first meaning's part of speech. `spelled`:
+    the language writes its nouns with a capital (German, `Draft.capitalised`),
+    so only the treebanks decide - by rank, Eingriff (intervention) had
+    opened on eingreifen, Güter (goods) on gut.
+    Only a word with a capital and lower case after it, whose lower case
+    finds something else first."""
+
+    def row(word: str) -> list[str]:
+        through = forms.get(lemmas[word], []) if word in lemmas else []
+        return list(dict.fromkeys([*through, *forms.get(word, [])]))
+
+    out = {}
+    for word in {*forms, *lemmas}:
+        lower = word.lower()
+        if word == lower or not word[:1].isupper() or word[1:] != word[1:].lower():
+            continue
+        mine, theirs = row(word), row(lower)
+        if not mine or not theirs or mine[0] == theirs[0]:
+            continue
+        counts = uses.get(lower, {}) if uses else {}
+        pos_mine, pos_theirs = said[mine[0]][1], said[theirs[0]][1]
+        if sum(counts.values()) >= kaikki.MIN_USES and pos_mine != pos_theirs:
+            lower_first = kaikki.used_as(counts, {pos_theirs}) > kaikki.used_as(
+                counts, {pos_mine}
+            )
+        elif spelled:
+            lower_first = False
+        else:
+            best = min(rank[i] for i in theirs)
+            name = said[mine[0]][1] == "name"
+            named = name and (
+                # Liège, Tournai: their own headword, unless the lower case is
+                # one of the commonest words (Того: того, "of that")
+                (said[mine[0]][0] == word and lower not in commonest)
+                or said[mine[0]][0].lower() == said[theirs[0]][0].lower()
+            )  # Україні: Україна's, whose lower case україна ("land") is a rare noun
+            lower_first = (
+                not named and best <= COMMON and best < min(rank[i] for i in mine)
+            )
+        if lower_first:
+            out[word] = list(dict.fromkeys([*theirs, *mine]))
+    return out
+
+
+def through_capitals(
+    forms: Mapping[str, list[str]],
+    lemmas: Mapping[str, str],
+    capitals: Mapping[str, list[str]],
+) -> dict[str, list[str]]:
+    """The words in lower case looked up through a capitalised word whose
+    row `capitals_first` changes, each with a row of its own: what it
+    showed before (that word's row, then its own). Ukrainian's "Того" opens
+    on той ("that"), but "тоголезький" (Togolese) is still Togo's
+    (polyglotic-hq 416). Not a capitalised form, which goes as its word
+    goes: Czech's "Hlavou" opens on hlava (head), as "Hlava" does, not the
+    surname."""
+    return {
+        form: list(dict.fromkeys([*forms.get(lemma, []), *forms.get(form, [])]))
+        for form, lemma in lemmas.items()
+        if lemma in capitals and form not in capitals and form == form.lower()
+    }
 
 
 @dataclass(frozen=True)
@@ -1361,15 +1914,40 @@ def assemble(
         if found:
             # the commonest entry first; the source's order breaks ties
             forms[form] = sorted(found, key=lambda i: record_rank[i])
+    # each word's own row: the word shown after a word shows only its own
+    # entries, not those of the word shown after it in turn (407)
+    own = {form: list(shown) for form, shown in forms.items()}
     lemmas, after = lemma_table(draft, kept, total, freq)
     for form, lemma in after.items():
-        then = [i for i in forms.get(lemma, ()) if i not in forms[form]]
-        forms[form] = forms[form] + then
+        forms[form] = own[form] + [i for i in own.get(lemma, ()) if i not in own[form]]
+    reached = set(lemmas)  # forms looked up through a lemma
+    if draft.came_through:  # Wiktionary's: a key is word|pos|etymology
+        pos_of = {ids[e.key]: (e.headword, e.key.split("|")[1]) for e in kept_entries}
+        for form, shown in opened_as_used(draft, own, lemmas, pos_of).items():
+            forms[form] = shown
+            del lemmas[form]
+        for form, shown in opened_through(draft, own, lemmas, pos_of).items():
+            forms[form] = shown
+            del lemmas[form]
+        for form, shown in own_entries_only(draft, own, lemmas, after, pos_of).items():
+            forms[form] = shown
+            del lemmas[form]
+    said = {r.entry_id: (r.headword, part_of_speech(r.meanings)) for r in records}
+    commonest = frozenset(heapq.nlargest(COMMONEST, freq, key=freq.__getitem__))
+    capitals = capitals_first(
+        forms, lemmas, record_rank, said, draft.uses, bool(draft.capitalised), commonest
+    )
+    for form, shown in through_capitals(forms, lemmas, capitals).items():
+        forms[form] = shown
+        del lemmas[form]
+    for form, shown in capitals.items():
+        forms[form] = shown
+        lemmas.pop(form, None)
     headwords = {r.headword for r in records}
     form_readings = {
         form: ", ".join(said)
         for form, said in sorted(draft.form_readings.items())
-        if (form in lemmas or (form in forms and form not in headwords))
+        if (form in reached or (form in forms and form not in headwords))
         and frequency_of(form, freq) > 0
     }
     with_zh = sum(1 for e in kept_entries if e.zh_meanings)
@@ -1456,15 +2034,6 @@ def credits(pack: Pack) -> str:
         ),
         "",
     ]
-    if MISSING_PAGES.get(pack.language):
-        words = ", ".join(f'"{s.word}"' for s in MISSING_PAGES[pack.language])
-        lines += [
-            (
-                f"Written here from Wiktionary's own pages, which kaikki's "
-                f"extracts lack: the entries for {words}."
-            ),
-            "",
-        ]
     for source in pack.sources:
         lines += [
             f"## {source.title}",
@@ -1516,7 +2085,7 @@ def build(pack: Pack, paths: Mapping[str, Path], out: Path) -> dict[str, object]
     registry_path = REGISTRY / f"{pack.name}.tsv"
     registry = Registry.load(registry_path, pack.name)
     before = (dict(registry.ids), dict(registry.merged))
-    draft = supplied(pack.read(paths), pack.language)
+    draft = pack.read(paths)
     built = assemble(pack, draft, registry, paths)
     files = write_pack(pack, built, out)
     (out / f"{pack.name}.CREDITS.md").write_text(
@@ -1538,8 +2107,13 @@ def build(pack: Pack, paths: Mapping[str, Path], out: Path) -> dict[str, object]
         add_info(path, added)
     stats["coverage"] = str(probed)
     stats["passes the basic floor"] = probed.share >= coverage.FLOORS["basic"]
-    if pack.language in coverage.SCRIPTS:
-        top = coverage.probe_top_words(files["en"], pack.language, paths["wordfreq"])
+    counted = draft.counted.get(coverage.TOP_FROM_COUNTED.get(pack.language, ""))
+    if pack.language in coverage.SCRIPTS or counted is not None:
+        top = (
+            coverage.probe_top_words_of(files["en"], pack.language, counted)
+            if counted is not None
+            else coverage.probe_top_words(files["en"], pack.language, paths["wordfreq"])
+        )
         stats["top words"] = str(top)
         stats["finds its commonest words"] = not top.missing
     junk = rank_check.problems(built.records, pack.language)

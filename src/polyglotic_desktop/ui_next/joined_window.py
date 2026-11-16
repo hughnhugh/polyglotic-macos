@@ -74,6 +74,7 @@ from polyglotic_desktop.ui_next.caption_window import (
     bar_ink,
     fit_glyph,
     least_size,
+    lock_tip,
     notice_style,
     preset_name,
     restore_minimised,
@@ -250,7 +251,7 @@ class JoinedWindow(QWidget):
             "lock",
             _tr("Lock all windows"),
             self.lock_wanted.emit,
-            _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L"),
+            lock_tip("Ctrl+Alt+L"),
         )
         self._action(
             "settings",
@@ -507,6 +508,11 @@ class JoinedWindow(QWidget):
 
     def _saved(self) -> None:
         self.choices = replace(self.choices, geometry=self._place())
+
+    def set_unlock_keys(self, keys: str) -> None:
+        """The hotkey that unlocks now ("" if it doesn't work here): the
+        lock button's tip says it, or how else to unlock (398)."""
+        self.controls["lock"].setToolTip(lock_tip(keys))
 
     def set_locked(self, locked: bool) -> None:
         """Locked: clicks pass through the whole window; no band."""

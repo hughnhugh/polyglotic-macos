@@ -62,7 +62,6 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QColor, QPalette, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
-    QComboBox,
     QFileDialog,
     QHBoxLayout,
     QLineEdit,
@@ -89,6 +88,7 @@ from polyglotic_desktop.ui_next.caption_window import to_rect, work_areas
 from polyglotic_desktop.ui_next.colour_controls import pick_colour
 from polyglotic_desktop.ui_next.controls import (
     Card,
+    Combo,
     Flow,
     WrapCheckBox,
     label,
@@ -389,7 +389,7 @@ class LanguageWords(QWidget):
             _tr("Your words"), _tr("Every word you've met. Correct any status by hand.")
         )
         filters = Flow()
-        self.status = QComboBox()
+        self.status = Combo()
         self.status.setObjectName("words.filter")
         self.status.setAccessibleName(_tr("Show words with this status"))
         self.status.addItem(_tr("All statuses"), None)

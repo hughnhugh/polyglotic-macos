@@ -298,7 +298,8 @@ def test_helps_check_says_why_in_homes_words(
     assert facts.unreachable is Unreachable.NO_ANSWER
     page = HelpPage(desktop.caption_facts)
     page.refresh()
-    assert page.rows[Step.CONNECTED].text() == "✗  Can't reach Polyglotic's server"
+    assert page.marks[Step.CONNECTED].text() == "✗"
+    assert page.rows[Step.CONNECTED].text() == "Can't reach Polyglotic's server"
     assert page.fixes[Step.CONNECTED].text() == (
         "Check your internet; if it's working, we're probably down."
     )

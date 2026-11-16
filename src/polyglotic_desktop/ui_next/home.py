@@ -93,12 +93,14 @@ from polyglotic_desktop.ui_next.caption_window import notice_text
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Flow,
+    GlyphButton,
     Segmented,
     StatusDot,
     SwitchRow,
     label,
     swatch,
 )
+from polyglotic_desktop.ui_next.glyphs import Glyph
 from polyglotic_desktop.ui_next.languages import (
     language_name,
     name_list,
@@ -106,6 +108,7 @@ from polyglotic_desktop.ui_next.languages import (
     target_languages,
 )
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import megabytes
 from polyglotic_desktop.ui_next.plan import get_plus_text
 from polyglotic_desktop.ui_next.sound_card import SoundCard
@@ -163,9 +166,15 @@ def learning_set_aside_notice(aside: SetAsideLearningData) -> str:
     """Home's words for learning data set aside at the start
     (polyglotic-hq 206): what happened, the file's name - for a report -
     and that the words come back."""
-    return _tr(
-        "Your learning data on this PC was damaged, so it's been set aside as"
-        " {name}. Your saved words are coming back from your account."
+    return pc_or_mac(
+        _tr(
+            "Your learning data on this PC was damaged, so it's been set aside as"
+            " {name}. Your saved words are coming back from your account."
+        ),
+        _tr(
+            "Your learning data on this Mac was damaged, so it's been set aside as "
+            "{name}. Your saved words are coming back from your account."
+        ),
     ).format(name=aside.path.name)
 
 
@@ -173,10 +182,17 @@ def learning_unsaved_notice() -> str:
     """Home's words for learning data found damaged since the start
     (polyglotic-hq 206): nothing more is kept until a restart, which brings
     the words back."""
-    return _tr(
-        "Your learning data on this PC was damaged, so changes aren't kept on"
-        " this PC until you restart Polyglotic. Your saved words then come back"
-        " from your account."
+    return pc_or_mac(
+        _tr(
+            "Your learning data on this PC was damaged, so changes aren't kept on"
+            " this PC until you restart Polyglotic. Your saved words then come back"
+            " from your account."
+        ),
+        _tr(
+            "Your learning data on this Mac was damaged, so changes aren't kept on "
+            "this Mac until you restart Polyglotic. Your saved words then come back "
+            "from your account."
+        ),
     )
 
 
@@ -307,9 +323,17 @@ def _button(text: str, kind: str | None = None, tip: str = "") -> QPushButton:
     return button
 
 
-def _bound(text: str, action: QAction, tip: str) -> QPushButton:
+def hotkey_works(action: QAction) -> bool:
+    """`action`'s hotkey (Ctrl+Alt+ a letter) works on this PC: one another
+    app has, or that was never registered, is cleared from it
+    (`DesktopApp.hotkeys_not_working`, polyglotic-hq 398) - and then
+    nothing on Home or Help names it (400)."""
+    return not action.shortcut().isEmpty()
+
+
+def _bound(text: str, action: QAction) -> QPushButton:
     """A checkable button showing a checkable action - either changes it."""
-    button = _button(text, tip=tip)
+    button = _button(text)
     button.setCheckable(True)
     button.setChecked(action.isChecked())
     button.toggled.connect(action.setChecked)
@@ -352,6 +376,8 @@ class StateCard(Card):
         self._unstable = False
         self._clock_off: str | None = None
         """This PC's clock looks wrong (313): on the banner, captions working."""
+        self._pause_key = True
+        """Ctrl+Alt+P works here (`show_pause_key`)."""
         self._dictionary: str | None = None
         self._learning: str | None = None
         self._maintenance: Maintenance | None = None
@@ -407,6 +433,13 @@ class StateCard(Card):
         if state.unreachable != said:  # the unstable connection's notice
             self._show_banner()
 
+    def show_pause_key(self, works: bool) -> None:
+        """Ctrl+Alt+P works here: the paused line names it; else it says
+        to resume here or from the tray (polyglotic-hq 400)."""
+        if works != self._pause_key:
+            self._pause_key = works
+            self.tick()
+
     def tick(self) -> None:
         """The line as it is now - the countdown a second on."""
         line = state_line(replace(self._state, failing=self._failing), self._clock())
@@ -417,7 +450,9 @@ class StateCard(Card):
         else:
             title = _TITLES[line.title]()
         self.title_label.setText(title)
-        self.detail.setText(" · ".join(_detail(d, arg) for d, arg in line.details))
+        self.detail.setText(
+            " · ".join(_detail(d, arg, self._pause_key) for d, arg in line.details)
+        )
         signing_in = line.action is Action.SIGN_IN
         getting_plus = line.action is Action.GET_PLUS
         self.sign_in.setVisible(signing_in)
@@ -569,8 +604,13 @@ _TITLES: dict[Title, Callable[[], str]] = {
     Title.SERVER_PROBLEM: lambda: _tr("Polyglotic's server has a problem"),
     Title.BLOCKED: lambda: _tr("This network is blocking Polyglotic"),
     Title.NOT_SECURE: lambda: _tr("Can't connect securely"),
-    Title.CLOCK: lambda: _tr("Check this PC's date and time"),
-    Title.TOO_MANY_SESSIONS: lambda: _tr("Polyglotic is open on too many of your PCs"),
+    Title.CLOCK: lambda: pc_or_mac(
+        _tr("Check this PC's date and time"), _tr("Check this Mac's date and time")
+    ),
+    Title.TOO_MANY_SESSIONS: lambda: pc_or_mac(
+        _tr("Polyglotic is open on too many of your PCs"),
+        _tr("Polyglotic is open on too many of your computers"),
+    ),
     Title.TOO_MANY_TRIES: lambda: _tr("Too many sign-in tries"),
     # with the window held, "until 15:30" (`ui_next.maintenance.state_title`)
     Title.MAINTENANCE: lambda: maintenance.state_title(None, datetime.now(UTC)),
@@ -598,11 +638,19 @@ def clock_looks_wrong_notice() -> str:
     polyglotic-hq 313): captions work; what the clock says, and where to
     set it."""
     now = QDateTime.currentDateTime()
-    #: {date}, {time}: what this PC's clock says, in its regional format
-    return _tr(
-        "This PC's date or time looks wrong: it says {date}, {time}. Captions "
-        "work; to set it, turn on Set time automatically in Windows' Settings, "
-        "Time & language, Date & time, then choose Sync now."
+    return pc_or_mac(
+        #: {date}, {time}: what this PC's clock says, in its regional format
+        _tr(
+            "This PC's date or time looks wrong: it says {date}, {time}. Captions "
+            "work; to set it, turn on Set time automatically in Windows' Settings, "
+            "Time & language, Date & time, then choose Sync now."
+        ),
+        #: {date}, {time}: what this Mac's clock says, in its regional format
+        _tr(
+            "This Mac's date or time looks wrong: it says {date}, {time}. Captions "
+            "work; to set it, turn on Set time and date automatically in System "
+            "Settings, General, Date & Time."
+        ),
     ).format(
         date=QLocale().toString(now.date(), QLocale.FormatType.LongFormat),
         time=QLocale().toString(now.time(), QLocale.FormatType.ShortFormat),
@@ -615,8 +663,11 @@ def sign_in_needed() -> str:
     return _tr("you need a code from us: an invite, or the one in your Plus email")
 
 
-def _detail(detail: Detail, arg: object) -> str:
+def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
+    """`pause_key`: Ctrl+Alt+P works here, so the paused line names it."""
     if detail is Detail.RESUME:
+        if not pause_key:
+            return _tr("resume here or from the tray")
         return _tr("resume with Ctrl+Alt+P, or from the tray")
     if detail is Detail.WINDOWS_PAUSED:  # after "Paused": why, and what to do
         return _trn(
@@ -680,9 +731,15 @@ _UPDATE_DETAILS: dict[Detail, Callable[[], str]] = {
 
 
 _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
-    Detail.CHECK_INTERNET: lambda: _tr(
-        "this PC seems to be offline. Check its internet connection; if it's "
-        "working, the problem is ours"
+    Detail.CHECK_INTERNET: lambda: pc_or_mac(
+        _tr(
+            "this PC seems to be offline. Check its internet connection; if it's "
+            "working, the problem is ours"
+        ),
+        _tr(
+            "this Mac seems to be offline. Check its internet connection; if it's "
+            "working, the problem is ours"
+        ),
     ),
     Detail.INTERNET_OR_US: lambda: _tr(
         "check your internet; if it's working, we're probably down"
@@ -703,11 +760,18 @@ _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
     ),
     # only when the clock is certainly wrong - before this copy of the app
     # was built (connection.tls, decision 0104; polyglotic-hq 313)
-    #: {date}: the date this PC's clock says, in its regional format
-    Detail.SET_THE_CLOCK: lambda: _tr(
-        "this PC says it's {date}, which can't be right. Turn on Set time "
-        "automatically in Windows' Settings, Time & language, Date & time, "
-        "then choose Sync now"
+    Detail.SET_THE_CLOCK: lambda: pc_or_mac(
+        #: {date}: the date this PC's clock says, in its regional format
+        _tr(
+            "this PC says it's {date}, which can't be right. Turn on Set time "
+            "automatically in Windows' Settings, Time & language, Date & time, "
+            "then choose Sync now"
+        ),
+        #: {date}: the date this Mac's clock says, in its regional format
+        _tr(
+            "this Mac says it's {date}, which can't be right. Turn on Set time and "
+            "date automatically in System Settings, General, Date & Time"
+        ),
     ).format(date=this_pcs_date()),
     #: a certificate out of date, and this PC's clock looks right (313)
     Detail.CERT_IN_THE_WAY: lambda: _tr(
@@ -719,9 +783,15 @@ _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
         "your account has as many open as it can. Quit it on one of them, and "
         "captions start here by themselves"
     ),
-    Detail.TRIES_SOON: lambda: _tr(
-        "too many failed sign-ins came from this network, so the server waits "
-        "before it lets this PC in"
+    Detail.TRIES_SOON: lambda: pc_or_mac(
+        _tr(
+            "too many failed sign-ins came from this network, so the server waits "
+            "before it lets this PC in"
+        ),
+        _tr(
+            "too many failed sign-ins came from this network, so the server waits "
+            "before it lets this Mac in"
+        ),
     ),
     Detail.MAINTENANCE: maintenance.state_detail,
 }
@@ -736,8 +806,12 @@ def _status(status: AppStatus) -> str:
         AppStatus.PLAYING: _tr("playing"),
         AppStatus.QUIET: _tr("quiet"),
         AppStatus.NOT_OPEN: _tr("not open - captioned when it opens"),
-        AppStatus.EVERYTHING: _tr("everything the PC plays"),
-        AppStatus.EVERYTHING_ELSE: _tr("everything else the PC plays"),
+        AppStatus.EVERYTHING: pc_or_mac(
+            _tr("everything the PC plays"), _tr("everything the Mac plays")
+        ),
+        AppStatus.EVERYTHING_ELSE: pc_or_mac(
+            _tr("everything else the PC plays"), _tr("everything else the Mac plays")
+        ),
     }[status]
 
 
@@ -868,9 +942,8 @@ class AppRowWidget(QFrame):
         self.chip.setMenu(languages)
         line.addWidget(self.chip)
 
-        self.mic = QToolButton()
+        self.mic = GlyphButton(Glyph.MIC)
         self.mic.setObjectName(f"picker.mic.{index}")
-        self.mic.setText("🎤")
         self.mic.setProperty("mark", True)
         self.mic.setCheckable(True)
         self.mic.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -892,8 +965,10 @@ class AppRowWidget(QFrame):
         self.stop.clicked.connect(lambda: once(lambda: view.remove(self.key)))
         line.addWidget(self.stop)
 
-    def show_row(self, row: AppRow, hidden: bool) -> None:
-        """This row shows `row`'s app (a row is reused for another app)."""
+    def show_row(self, row: AppRow, hidden: bool, hide_key: bool = True) -> None:
+        """This row shows `row`'s app (a row is reused for another app);
+        `hide_key`: Ctrl+Alt+H works here, so a hidden window's tip names
+        it (polyglotic-hq 400)."""
         if row.key != self.key:
             self.key = row.key
             self.edit.hide()
@@ -910,9 +985,12 @@ class AppRowWidget(QFrame):
             if row.show_mic
             else _tr("Show my speech in this window")
         )
-        self.captions.setToolTip(
-            _tr("Hidden - Ctrl+Alt+H") if hidden else _tr("Show its caption window")
-        )
+        if not hidden:
+            self.captions.setToolTip(_tr("Show its caption window"))
+        elif hide_key:
+            self.captions.setToolTip(_tr("Hidden - Ctrl+Alt+H"))
+        else:
+            self.captions.setToolTip(_tr("Hidden - turn off Hide all to show it"))
         stop = _tr("Stop captioning {app}").format(app=row.label)
         self.stop.setToolTip(stop)
         self.stop.setAccessibleName(stop)
@@ -1003,6 +1081,8 @@ class PickerCard(Card):
         self.setObjectName("Card")
         self.view = view
         self.colours = tuple(colours)
+        self._hide_key = True
+        """Ctrl+Alt+H works here (`show_hide_key`)."""
         self.add_once = OneClick()
         """The + buttons' (a double-click captions one app)."""
         self.stop_once = OneClick()
@@ -1015,9 +1095,15 @@ class PickerCard(Card):
         head.addWidget(self.count)
         self.add(head)
         self.nothing = label(
-            _tr(
-                "Nothing is captioned until you add an app, or choose Everything "
-                "the PC plays."
+            pc_or_mac(
+                _tr(
+                    "Nothing is captioned until you add an app, or choose Everything "
+                    "the PC plays."
+                ),
+                _tr(
+                    "Nothing is captioned until you add an app, or choose Everything "
+                    "the Mac plays."
+                ),
             ),
             "Dim",  # plain: a first step, not a warning (151's W5)
             wrap=True,
@@ -1036,7 +1122,10 @@ class PickerCard(Card):
         self.rows: dict[str, AppRowWidget] = {}
         """The rows showing now, by their app's key."""
         self.everything_else = SwitchRow(
-            _tr("Also caption everything else the PC plays (in its own window)"),
+            pc_or_mac(
+                _tr("Also caption everything else the PC plays (in its own window)"),
+                _tr("Also caption everything else the Mac plays (in its own window)"),
+            ),
             _tr("With one app only"),  # `refresh` says what applies
             "picker.everything_else",
         )
@@ -1086,7 +1175,8 @@ class PickerCard(Card):
         sample.addWidget(self.sample_button)
         self.sample_note = label(
             _tr(
-                "a short recording, played and captioned like any app (FLEURS, CC BY 4.0)"
+                "a short recording, played and captioned like any app (FLEURS, CC BY "
+                "4.0)"
             ),
             "Faint",
             wrap=True,
@@ -1103,7 +1193,15 @@ class PickerCard(Card):
         self._available: tuple[AddableApp, ...] | None = None
 
         self.everything = Segmented(
-            [(False, _tr("Apps")), (True, _tr("Everything the PC plays"))],
+            [
+                (False, _tr("Apps")),
+                (
+                    True,
+                    pc_or_mac(
+                        _tr("Everything the PC plays"), _tr("Everything the Mac plays")
+                    ),
+                ),
+            ],
             view.value.whole_system,
         )
         self.everything.setObjectName("picker.everything")
@@ -1154,7 +1252,7 @@ class PickerCard(Card):
         self.everything.buttons[0].setEnabled(value.per_app)
         self._note(value)
         if value.whole_system:
-            self.count.setText(_tr("This PC"))
+            self.count.setText(pc_or_mac(_tr("This PC"), _tr("This Mac")))
         elif value.everything_else:
             self.count.setText(_tr("1 app + everything else"))
         else:
@@ -1198,17 +1296,30 @@ class PickerCard(Card):
         Apps is off - an older Windows 10, or trying apps failed here, with
         "Try apps again" (decision 0076)."""
         if value.fell_back:
-            note = _tr(
-                "instead of apps: Windows on this PC couldn't caption one app alone"
+            note = pc_or_mac(
+                _tr(
+                    "instead of apps: Windows on this PC couldn't caption one app alone"
+                ),
+                _tr("instead of apps: this Mac couldn't caption one app alone"),
             )
         elif not value.per_app:
-            note = _tr("instead of apps (the only choice on this version of Windows)")
+            note = pc_or_mac(
+                _tr("instead of apps (the only choice on this version of Windows)"),
+                _tr("instead of apps (the only choice on this version of macOS)"),
+            )
         else:
             note = _tr("instead of apps")
         self.everything.setToolTip(note)
         self.everything_note.setText(note)
         self.everything_note.setVisible(not value.per_app)
         self.apps_again.setVisible(value.fell_back)
+
+    def show_hide_key(self, works: bool) -> None:
+        """Ctrl+Alt+H works here: a hidden window's tip names it
+        (polyglotic-hq 400)."""
+        if works != self._hide_key:
+            self._hide_key = works
+            self._rows(self.view.value)
 
     def _rows(self, value: Picker) -> None:
         """A row per captioned app. The rows (at most LIMIT) are made once
@@ -1217,7 +1328,7 @@ class PickerCard(Card):
         shown = value.captioned[: len(self.pool)]
         self.rows = {}
         for widget, row in zip(self.pool, shown, strict=False):
-            widget.show_row(row, value.hidden)
+            widget.show_row(row, value.hidden, self._hide_key)
             self.rows[row.key] = widget
         for index, widget in enumerate(self.pool):
             widget.setVisible(index < len(shown))
@@ -1232,11 +1343,15 @@ class PickerCard(Card):
         row.switch.setEnabled(value.everything_else or value.everything_else_allowed)
         if value.everything_else or value.everything_else_allowed:
             app = value.apps[0].label if value.apps else ""
-            detail = _tr(
-                "Everything the PC plays except {app}, in a window of its own"
+            detail = pc_or_mac(
+                _tr("Everything the PC plays except {app}, in a window of its own"),
+                _tr("Everything the Mac plays except {app}, in a window of its own"),
             ).format(app=app)
         else:
-            detail = _tr("With one app only - Windows can leave just one app out")
+            detail = pc_or_mac(
+                _tr("With one app only - Windows can leave just one app out"),
+                _tr("With one app only"),
+            )
         row.detail.setText(detail)
         row.switch.setAccessibleDescription(detail)
 
@@ -1432,10 +1547,14 @@ class HomePage(Page):
         windows = Card(_tr("Caption windows"))
         windows.setObjectName("Card")
         buttons = Flow()  # onto two lines where the room runs out (354)
-        self.lock = _bound(_tr("Lock all"), lock, _tr("Ctrl+Alt+L"))
+        self.lock = _bound(_tr("Lock all"), lock)
         self.lock.setObjectName("home.lock_all")
-        self.hide_all = _bound(_tr("Hide all"), hide, _tr("Ctrl+Alt+H"))
+        self.hide_all = _bound(_tr("Hide all"), hide)
         self.hide_all.setObjectName("home.hide_all")
+        self._hotkeys = (pause, lock, hide)
+        for action in self._hotkeys:  # one that doesn't work goes unnamed (400)
+            action.changed.connect(self._show_hotkeys)
+        self._show_hotkeys()
         self.join = _button(_tr("Join windows"))
         self.join.setObjectName("home.join")
         self.join.clicked.connect(self.join_wanted)
@@ -1455,6 +1574,16 @@ class HomePage(Page):
         self._looking = QTimer(self, interval=REFRESH_MS)
         self._looking.timeout.connect(picker.refresh)
         self.show_state(self._state)
+
+    def _show_hotkeys(self) -> None:
+        """Lock all's and Hide all's tips, the paused line and a hidden
+        window's tip name a hotkey only while it works (polyglotic-hq 400:
+        398's preview build registers none, and they said "Ctrl+Alt+L")."""
+        pause, lock, hide = (hotkey_works(action) for action in self._hotkeys)
+        self.lock.setToolTip(_tr("Ctrl+Alt+L") if lock else "")
+        self.hide_all.setToolTip(_tr("Ctrl+Alt+H") if hide else "")
+        self.state.show_pause_key(pause)
+        self.picker_card.show_hide_key(hide)
 
     def show_joined(self, joined: bool, windows: int) -> None:
         """Join windows - with 2 caption windows or more - or, while

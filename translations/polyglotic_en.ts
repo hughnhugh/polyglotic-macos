@@ -22,6 +22,14 @@
             <numerusform>This also deletes the %Ln copies of your learning data set aside on this PC when it was found damaged.</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
+        <translation>
+            <numerusform>This also deletes the %Ln copy of your learning data set aside on this Mac when it was found damaged.</numerusform>
+            <numerusform>This also deletes the %Ln copies of your learning data set aside on this Mac when it was found damaged.</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>DesktopApp</name>

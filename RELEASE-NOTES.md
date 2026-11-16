@@ -92,6 +92,8 @@ the app's What's new, the website's What's new and the Discord post.
   plugged in), turn Caption what I say on or off, and see your
   microphone's level while it's on. Settings > Speech has the same card.
   Dictation uses the microphone chosen too.
+- A locked caption window can be unlocked from the window itself: rest
+  the mouse on the lock in its corner for a moment, then click Unlock.
 
 ### Better
 
@@ -120,6 +122,20 @@ the app's What's new, the website's What's new and the Discord post.
 - Explanations in Settings, Learning, Account, Help and Home keep to a
   readable line length instead of running the full width of the window,
   and Settings' rows line up from one section to the next.
+- Boxes that open a list of choices (the app's language, speakers, a
+  wait in Timing) have a small arrow like the other choosers, in place
+  of a dark arrow box that poked past the box's rounded corner.
+- Home's notes under the apps ("My speech: ...", "0 of 3") and Words'
+  summary line are quiet again, as notes are everywhere else; "3 of 3 -
+  stop one to add another" is in the warning colour.
+- Home's "show my speech in this window" button is a drawn microphone,
+  the same one a caption window shows, in place of an emoji.
+- Help's check list lines up: its ticks, crosses and dashes sit in a
+  column of their own, so every line's words start at the same place.
+- A caption window's notice line ("Click any word to look it up",
+  "Reconnecting", "Paused") no longer drops over the top caption when
+  the mouse is on the window: it stays where it is, in the strip's gap,
+  and captions start below it.
 
 ### Fixed
 
@@ -132,6 +148,9 @@ the app's What's new, the website's What's new and the Discord post.
   "that" were being dotted as new and linked after one click. Clicking a
   less common word twice still does, and words one click had marked go
   back to what your level says.
+- Double-clicking a word in a transcript selects it and looks it up
+  once, as in a caption window: it counted as two clicks, enough to mark
+  a common word as one you don't know.
 - Deleting your learning data with "Also delete it from this PC" also
   empties the words of a language you've stopped learning, or whose
   dictionary you removed. Before, only the languages open at the time
@@ -180,6 +199,19 @@ the app's What's new, the website's What's new and the Discord post.
 - In the Lab's new layout with Captions run on, a caption no longer draws
   over the last line of the one before when that one's translation ran
   past what was said: it starts on the line below.
+- In the Lab's new layout with word links off, a line scrolled off the top
+  no longer leaves its new words' dots behind, alone over the first line.
+- A caption window's very corners resize it. Before, the outer tip of
+  each corner let the click through to the app underneath, so a corner
+  sometimes wouldn't take hold.
+- When Ctrl+Alt+L doesn't work on your PC, a locked caption window no
+  longer tells you to press it: it says to unlock on Home or from the
+  tray, and so does the lock button's tip before you lock.
+- Home and Help name Ctrl+Alt+L, Ctrl+Alt+H and Ctrl+Alt+P only when they
+  work on your PC - when another app has one, they say where else to find
+  Lock all, Hide all and Resume.
+- With Mandarin shown in Traditional characters, the caption preview in
+  Settings (Look, and the Lab's) shows them too: it stayed Simplified.
 
 ## 0.1.6 - 2026-11-15
 

@@ -10,11 +10,19 @@ import shiboken6
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QApplication, QWidget
 
+from polyglotic_desktop.adapters.traditional_table import read_table
+from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
 from polyglotic_desktop.core.listening.display import RowKind, WordLinks
+from polyglotic_desktop.ui_next import caption_preview
 from polyglotic_desktop.ui_next.caption_preview import CaptionPreview
+from polyglotic_desktop.ui_next.lab_panel import LabPanel
 from polyglotic_desktop.ui_next.panels import LookPanel
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
-from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.panels import (
+    LanguagesView,
+    LookView,
+    SessionLanguages,
+)
 
 MADE: list[QWidget] = []
 """What a test made, deleted at its end (`deleted`)."""
@@ -96,3 +104,87 @@ def test_a_preview_that_goes_is_no_longer_told(qapp: QApplication) -> None:
 
     QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     view.set_preset("paper")  # nothing left to tell: no error
+
+
+def said(preview: CaptionPreview) -> list[str]:
+    """What each made-up caption says, as laid out."""
+    return [
+        row.text
+        for line in preview.lines.lines
+        for row in line.rows
+        if row.kind is RowKind.ORIGINAL
+    ]
+
+
+def test_its_captions_are_in_the_characters_mandarin_is_shown_in(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 400 (found by 375): with "Show Mandarin in: Traditional"
+    the caption windows showed Traditional, and the preview of them still
+    Simplified - what a learner looks at right after choosing it."""
+    view = LookView(CaptionLook(show_original=True))
+    languages = LanguagesView(SessionLanguages(mandarin_script="traditional"))
+    preview = CaptionPreview(view, languages=languages, unfinished=True)
+    MADE.append(preview)
+    assert said(preview) == [
+        "這個季度的數字看起來不錯。",
+        "我們畢竟要完成這個項目。",
+        "那我們下週再",
+    ]
+    clauses = caption_preview.sample_clauses(traditional=True)
+    linked = [
+        clause.original[a:b]
+        for clause in clauses
+        for link in clause.links[caption_preview.EN]
+        for a, b in (link.original,)
+    ]  # the words linked, found in Traditional too
+    assert linked == ["季度", "數字", "不錯", "畢竟", "完成", "項目"]
+    readings = caption_preview.sample_readings(said(preview)[0], "zh")
+    assert [r.text for r in readings][:4] == ["zhè", "ge", "jì", "dù"]
+
+    languages.set_traditional(False)  # Simplified again
+    assert said(preview)[0] == "这个季度的数字看起来不错。"
+    assert len(preview.lines.lines) == 3  # the same captions, not more
+
+
+def test_this_pcs_script_when_none_is_chosen(qapp: QApplication) -> None:
+    """None chosen: as this PC reads Chinese (`traditional_here`; 375)."""
+    view = LookView(CaptionLook(show_original=True))
+    here = LanguagesView(SessionLanguages(traditional_here=True))
+    preview = CaptionPreview(view, languages=here)
+    MADE.append(preview)
+    assert said(preview)[0] == "這個季度的數字看起來不錯。"
+
+
+def test_settings_look_and_the_lab_follow_speech_s_choice(qapp: QApplication) -> None:
+    view = LookView(CaptionLook(show_original=True))
+    languages = LanguagesView(SessionLanguages())
+    look = LookPanel(view, notes=True, preview=True, languages=languages)
+    lab = LabPanel(view, languages=languages)
+    MADE.extend((look, lab))
+    assert look.preview is not None
+    languages.set_traditional(True)
+    assert said(look.preview)[0] == "這個季度的數字看起來不錯。"
+    assert said(lab.preview)[-1] == "那我們下週再"
+
+
+def test_its_traditional_is_the_app_s_own_converter_s() -> None:
+    """The preview writes its few characters itself, rather than read the
+    converter's 1 MB table for a picture: here the two agree, sentence by
+    sentence and word by word."""
+    converter = TraditionalChinese(read_table())
+    texts = [
+        said for said, _, _ in (*caption_preview._SAMPLES, caption_preview._UNFINISHED)
+    ]
+    words = [
+        w
+        for _, _, pairs in (*caption_preview._SAMPLES, caption_preview._UNFINISHED)
+        for w, _ in pairs
+    ]
+    words += [
+        word.split()[0]
+        for line in caption_preview._PINYIN.values()
+        for word in line.split("|")
+    ]
+    for text in texts + words:
+        assert caption_preview._written(text, True) == converter.convert(text), text

@@ -17,6 +17,7 @@ from tests.ui_next import test_lookup_card as cards
 from tests.ui_next.made_up import finished_updates
 from tests.ui_next.test_caption_flow import a_chinese_face
 from tests.ui_next.test_lookup_card import Keys, card, click, find, mouse, window
+from tests.ui_next.test_transcript_lookup import double_click, pinned_lookups
 
 from polyglotic_desktop.core.listening.display import RowKind
 from polyglotic_desktop.core.listening.selection import Place, Selection
@@ -446,3 +447,19 @@ def test_a_double_click_selects_the_word(windows: CaptionWindows) -> None:
     mouse(shown_, "release", at)
     assert held_text(shown_) == "游戏"
     assert shown_.held.watching
+
+
+def test_a_double_click_is_one_lookup(
+    windows: CaptionWindows, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 400 (found by 397): with no double-click handler, Qt's
+    own sent the press again and its release pinned the word twice - two
+    lookups, the second turning a word assumed known new (#752), and two in
+    DECISIONS #176 (d)'s count. Through Qt's own event handling."""
+    shown_, shared = window(windows), card(windows)
+    told = pinned_lookups(shared, monkeypatch)
+    at = on(shown_, "游戏的")
+    double_click(shown_, at)
+    assert told == [True]
+    assert shared.pinned and shared.model.word == "游戏"
+    assert held_text(shown_) == "游戏"

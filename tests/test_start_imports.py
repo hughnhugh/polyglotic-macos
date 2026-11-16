@@ -15,6 +15,11 @@ NOT_BEFORE_THE_WINDOW = (
     "urllib.request",
     "polyglotic_desktop.connection.protocol",
     "polyglotic_desktop.platform.speech_pipeline",
+    # Mandarin in Traditional (375): read when a caption first needs it;
+    # Thai's split: when a Thai pack opens (400)
+    "polyglotic_desktop.adapters.traditional_table",
+    "polyglotic_desktop.core.lexicon.traditional",
+    "polyglotic_desktop.core.lexicon.thai",
 )
 """Imported after the window's first paint (or never, from source)."""
 

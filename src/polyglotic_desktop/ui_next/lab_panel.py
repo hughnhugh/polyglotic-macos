@@ -48,7 +48,7 @@ from polyglotic_desktop.ui_next.views.lab import (
     OwnLabel,
     Unfinished,
 )
-from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.panels import LanguagesView, LookView
 
 DEFAULT = CaptionLab()
 """The Lab untouched: each slider's own value, a notch on its scale."""
@@ -140,7 +140,14 @@ class LabPanel(Panel):
     """ "Open it on Learning", under Learning load: Learning's page, at the
     load's card for the language in use (polyglotic-hq 342)."""
 
-    def __init__(self, view: LookView, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        view: LookView,
+        parent: QWidget | None = None,
+        languages: LanguagesView | None = None,
+    ) -> None:
+        """`languages`: the session's - its preview shows Mandarin in their
+        characters (polyglotic-hq 400)."""
         super().__init__(
             _tr("Lab - experimental"),
             _tr(
@@ -151,7 +158,7 @@ class LabPanel(Panel):
         )
         self.setObjectName("Card")
         self.view = view
-        self.preview = CaptionPreview(view, unfinished=True)
+        self.preview = CaptionPreview(view, unfinished=True, languages=languages)
         self.preview.setObjectName("lab.preview")
         self.add(self.preview)
 

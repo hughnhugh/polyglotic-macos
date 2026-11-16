@@ -106,7 +106,7 @@ jobs:
     name: Build the packs and probe their coverage (Windows)
     # On the user's PC, as the runner's own account (decision 0025)
     runs-on: [self-hosted, windows]
-    timeout-minutes: 30
+    timeout-minutes: 45  # 17-26 min on 2026-11-16 as the pack rules grew; 30 cut two runs under load
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

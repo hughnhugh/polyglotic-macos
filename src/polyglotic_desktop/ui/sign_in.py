@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.core.listening.unreachable import Side, Unreachable, side
 from polyglotic_desktop.ui.first_run import add_back
+from polyglotic_desktop.ui.os_words import pc_or_mac
 from polyglotic_desktop.ui.widgets import TextDialog
 
 
@@ -105,9 +106,15 @@ class SignInDialog(TextDialog):
         intro.setWordWrap(True)
         layout.addWidget(intro)
         self.again = QLabel(
-            self.tr(
-                "This PC has signed in before: the invite code you used then "
-                "works again here."
+            pc_or_mac(
+                self.tr(
+                    "This PC has signed in before: the invite code you used then "
+                    "works again here."
+                ),
+                self.tr(
+                    "This Mac has signed in before: the invite code you used then "
+                    "works again here."
+                ),
             )
         )
         self.again.setObjectName("sign_in.again")
@@ -173,10 +180,17 @@ class SignInDialog(TextDialog):
                 "like 7KQM-X2PD-9VHT-C4RA."
             )
         if failed.problem is SignInProblem.NOT_VALID:
-            return self.tr(
-                "This code doesn't work: it may be mistyped, used on another PC "
-                "or no longer valid. Check it, or write to us and we'll sort it "
-                "out."
+            return pc_or_mac(
+                self.tr(
+                    "This code doesn't work: it may be mistyped, used on another PC "
+                    "or no longer valid. Check it, or write to us and we'll sort it "
+                    "out."
+                ),
+                self.tr(
+                    "This code doesn't work: it may be mistyped, used on another "
+                    "computer or no longer valid. Check it, or write to us and we'll "
+                    "sort it out."
+                ),
             )
         if failed.problem is SignInProblem.SUBSCRIPTION_ENDED:
             # protocol.md's words for it (server #252, polyglotic-hq 256, 258)
@@ -191,9 +205,15 @@ class SignInDialog(TextDialog):
                 "wasn't used. Keep it for later, or give it to someone."
             )
         if failed.problem is SignInProblem.SIGN_IN_AGAIN:
-            return self.tr(
-                "This PC's sign-in has run out. Sign out on Account, then sign "
-                "in with this code."
+            return pc_or_mac(
+                self.tr(
+                    "This PC's sign-in has run out. Sign out on Account, then sign "
+                    "in with this code."
+                ),
+                self.tr(
+                    "This Mac's sign-in has run out. Sign out on Account, then sign in "
+                    "with this code."
+                ),
             )
         if failed.problem is SignInProblem.SIGN_OUT_FIRST:
             return self.tr(
@@ -217,12 +237,20 @@ class SignInDialog(TextDialog):
             today = QLocale().toString(
                 QDate.currentDate(), QLocale.FormatType.LongFormat
             )
-            #: {date}: the date this PC's clock says, in its regional format
-            return self.tr(
-                "This PC says it's {date}, which can't be right, and a secure "
-                "connection needs the right date. Turn on Set time automatically "
-                "in Windows' Settings, Time & language, Date & time, then choose "
-                "Sync now."
+            return pc_or_mac(
+                #: {date}: the date this PC's clock says, in its regional format
+                self.tr(
+                    "This PC says it's {date}, which can't be right, and a secure "
+                    "connection needs the right date. Turn on Set time automatically "
+                    "in Windows' Settings, Time & language, Date & time, then choose "
+                    "Sync now."
+                ),
+                #: {date}: the date this Mac's clock says, in its regional format
+                self.tr(
+                    "This Mac says it's {date}, which can't be right, and a secure "
+                    "connection needs the right date. Turn on Set time and date "
+                    "automatically in System Settings, General, Date & Time."
+                ),
             ).format(date=today)
         if why is Unreachable.OUT_OF_DATE:  # an out-of-date certificate (313)
             return self.tr(
@@ -266,16 +294,34 @@ def sign_out_question(
     box.setObjectName("SignOutQuestion")
     box.setIcon(QMessageBox.Icon.Question)
     box.setWindowTitle(_tr("Sign out"))
-    box.setText(_tr("Sign out of Polyglotic on this PC?"))
-    text = _tr(
-        "Captions stop until you sign in again - with the same invite code: "
-        "it works again on this PC. Your saved words and learning data stay, "
-        "on this PC and on our server."
+    box.setText(
+        pc_or_mac(
+            _tr("Sign out of Polyglotic on this PC?"),
+            _tr("Sign out of Polyglotic on this Mac?"),
+        )
+    )
+    text = pc_or_mac(
+        _tr(
+            "Captions stop until you sign in again - with the same invite code: "
+            "it works again on this PC. Your saved words and learning data stay, "
+            "on this PC and on our server."
+        ),
+        _tr(
+            "Captions stop until you sign in again - with the same invite code: it "
+            "works again on this Mac. Your saved words and learning data stay, on this "
+            "Mac and on our server."
+        ),
     )
     if unsent:
-        text += " " + _tr(
-            "Changes this PC hasn't sent to our server yet are dropped, so"
-            " none of them reach whoever signs in next."
+        text += " " + pc_or_mac(
+            _tr(
+                "Changes this PC hasn't sent to our server yet are dropped, so"
+                " none of them reach whoever signs in next."
+            ),
+            _tr(
+                "Changes this Mac hasn't sent to our server yet are dropped, so none "
+                "of them reach whoever signs in next."
+            ),
         )
     box.setInformativeText(text)
     box.setStandardButtons(

@@ -156,9 +156,6 @@ from polyglotic_desktop.adapters.sqlite_learning import (
     unreadable_in,
 )
 from polyglotic_desktop.adapters.sqlite_outbox import open_outbox
-from polyglotic_desktop.adapters.traditional_table import (
-    read_table as read_traditional_table,
-)
 from polyglotic_desktop.adapters.velopack_updates import (
     VelopackUpdater,
     run_installer_hooks,
@@ -210,8 +207,6 @@ from polyglotic_desktop.core.lexicon.packs import (
     needs_newer_app,
     update_for,
 )
-from polyglotic_desktop.core.lexicon.thai import ThaiSplit
-from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
 from polyglotic_desktop.core.lexicon.vietnamese import VietnameseSplit
 from polyglotic_desktop.core.listening.captions import (
     CaptionKind,
@@ -388,7 +383,7 @@ from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.first_window import made_ahead
 from polyglotic_desktop.ui_next.fonts_ahead import FontsAhead
 from polyglotic_desktop.ui_next.help_page import HelpPage as NextHelpPage
-from polyglotic_desktop.ui_next.home import WHATS_NEW_ON_HOME, HomePage
+from polyglotic_desktop.ui_next.home import WHATS_NEW_ON_HOME, HomePage, hotkey_works
 from polyglotic_desktop.ui_next.languages import (
     learned_name,
     own_targets,
@@ -396,6 +391,7 @@ from polyglotic_desktop.ui_next.languages import (
 )
 from polyglotic_desktop.ui_next.learning_page import LearningPage, reset_question
 from polyglotic_desktop.ui_next.main_window import MainWindow as NextMainWindow
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import (
     failed_notice,
     ready_notice,
@@ -460,6 +456,7 @@ if TYPE_CHECKING:  # imported where first used, after the window's first paint
     from polyglotic_desktop.connection.protocol import Os
     from polyglotic_desktop.connection.session import Status
     from polyglotic_desktop.connection.sign_in import RedeemResult
+    from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
     from polyglotic_desktop.platform.audio_buffer import AudioBuffer
     from polyglotic_desktop.platform.speaking import SpeakerThread
     from polyglotic_desktop.platform.speech_detection import Audio
@@ -1277,11 +1274,12 @@ def wire_caption_windows(
         )
     )
     windows.lock_wanted.connect(lambda: desktop.lock_windows.setChecked(True))
+    windows.unlock_wanted.connect(lambda: desktop.lock_windows.setChecked(False))
     windows.hide_wanted.connect(lambda: desktop.hide_windows.setChecked(True))
     # speech started in a hidden window, and the learner asked for it (335)
     windows.show_wanted.connect(lambda: desktop.hide_windows.setChecked(False))
     # what a locked window says unlocks it: the hotkey as it is now - none if
-    # another app took it (`hotkeys_taken`) - set before the windows lock
+    # it doesn't work here (`hotkeys_not_working`) - set before the windows lock
     lock = desktop.lock_windows
     windows.set_unlock_keys(shortcut_text(lock))
     lock.changed.connect(lambda: windows.set_unlock_keys(shortcut_text(lock)))
@@ -1456,7 +1454,15 @@ class MandarinScript:
         if converter is None:
             with self._loading:
                 if self._converter is None:
-                    self._converter = TraditionalChinese(read_traditional_table())
+                    # imported here: never before the first paint (400)
+                    from polyglotic_desktop.adapters.traditional_table import (
+                        read_table,
+                    )
+                    from polyglotic_desktop.core.lexicon.traditional import (
+                        TraditionalChinese,
+                    )
+
+                    self._converter = TraditionalChinese(read_table())
                 converter = self._converter
         dictionary = self._chinese()
         if dictionary is not None and dictionary is not self._told:
@@ -1493,6 +1499,18 @@ def languages_settings(languages: SessionLanguages) -> dict[str, object]:
         "spelling_hints": languages.spelling_hints,
         "mandarin_script": languages.mandarin_script,
     }
+
+
+def not_working(
+    hotkeys: Iterable[str], bound: Iterable[str], taken: Iterable[str]
+) -> list[str]:
+    """The app's hotkeys that do nothing here: those another app has
+    (`taken`), and those never handed to Windows (not `bound` - a preview
+    build registers none, so the installed copy keeps them: polyglotic-hq
+    398). Nothing then names them - a locked window says where else to
+    unlock it."""
+    working = set(bound) - set(taken)
+    return [key for key in hotkeys if key not in working]
 
 
 def shortcut_text(action: QAction) -> str:
@@ -1665,7 +1683,10 @@ def picker_of(
     rows = []
     for key, _ in captioned_apps(value, per_app, lambda name: SourceId(name)):
         if key == SOURCE_KEY_SYSTEM:
-            status, own = AppStatus.EVERYTHING, _tr_app("This PC")
+            status, own = (
+                AppStatus.EVERYTHING,
+                pc_or_mac(_tr_app("This PC"), _tr_app("This Mac")),
+            )
         elif key == SOURCE_KEY_EVERYTHING_ELSE:
             status, own = AppStatus.EVERYTHING_ELSE, _tr_app("Everything else")
         else:
@@ -2624,7 +2645,7 @@ class Hub:
         own = next(
             (a.title for a in self.apps.playing_apps() if a.name == key),
             {
-                SOURCE_KEY_SYSTEM: _tr_app("This PC"),
+                SOURCE_KEY_SYSTEM: pc_or_mac(_tr_app("This PC"), _tr_app("This Mac")),
                 SOURCE_KEY_EVERYTHING_ELSE: _tr_app("Everything else"),
                 SOURCE_KEY_MIC: _tr_app("You"),
             }.get(key, key),
@@ -2782,6 +2803,9 @@ def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDiction
     """A pack file as its language's basic dictionary, with its word split -
     and its file, for closing."""
     file = SqliteDictionary(path)
+    # imported here: a pack opens after the first paint (400)
+    from polyglotic_desktop.core.lexicon.thai import ThaiSplit
+
     split: WordSplit = (
         JapaneseSplit()
         if language == "ja"
@@ -3672,9 +3696,15 @@ class QtListener(QObject):
 def not_deleted_notice(code: str) -> str:
     """Home's line when deleting the learning data on this PC left some of
     language `code`'s there (polyglotic-hq 306)."""
-    return _tr_app(
-        "Some of your {language} learning data couldn't be deleted from this "
-        "PC. Restart Polyglotic, then delete it again on Account."
+    return pc_or_mac(
+        _tr_app(
+            "Some of your {language} learning data couldn't be deleted from this "
+            "PC. Restart Polyglotic, then delete it again on Account."
+        ),
+        _tr_app(
+            "Some of your {language} learning data couldn't be deleted from this Mac. "
+            "Restart Polyglotic, then delete it again on Account."
+        ),
     ).format(language=learned_name(code))
 
 
@@ -4450,9 +4480,15 @@ class AppsOneByOne(QObject):
 def fell_back_text() -> str:
     """What the learner is told, once, when capturing apps one by one
     failed on this PC (decision 0076)."""
-    return _tr_app(
-        "Windows on this PC couldn't caption one app alone, so Polyglotic"
-        " captions everything the PC plays. You can try apps again on Home."
+    return pc_or_mac(
+        _tr_app(
+            "Windows on this PC couldn't caption one app alone, so Polyglotic"
+            " captions everything the PC plays. You can try apps again on Home."
+        ),
+        _tr_app(
+            "This Mac couldn't caption one app alone, so Polyglotic captions "
+            "everything the Mac plays. You can try apps again on Home."
+        ),
     )
 
 
@@ -5333,7 +5369,9 @@ def check_install(
     the packed app to prove the bundle is whole, and to time a start:
     `window_seconds`, from the check's start (after Python's imports) to
     the main window's first paint, and `launch_seconds`, the same from the
-    process's launch (the interpreter and the imports included) - the
+    process's launch (the interpreter and the imports included); before
+    the paint, one learner's dictionary and data, as a start opens (the
+    English learner's are checked after it: polyglotic-hq 400) - the
     budget is `perf.budgets`' START_FROM_SOURCE from source and
     START_PACKED packed. A dictionary that's missing or can't be read is
     named in `dictionaries_out` with why, and fails the check - after
@@ -5374,18 +5412,21 @@ def check_install(
             contextlib.ExitStack() as closing,
         ):
             data = Path(folder)
-            english_tools, english = learner_tools(dictionaries, True, data / "english")
-            closing.callback(english.close)
+            # one learner before the window, as a start opens one (`main`:
+            # another language learned opens after the first paint); the
+            # English learner's dictionary is checked after the timing, not
+            # in it - it was timed as part of a wait no one has (400)
             tools, chinese = learner_tools(dictionaries, False, data / "chinese")
             closing.callback(chinese.close)
+            # what's missing is named before the window, so a step that fails
+            # without its dictionaries still says why (the English learner's
+            # is added after the timing, below)
             found["dictionaries"] = [
                 file.name for file in sorted(dictionaries.glob("*.sqlite"))
             ]
-            out = {
-                f"{learner_dictionary(english_learner)}.sqlite": problem.value
-                for english_learner, each in ((False, tools), (True, english_tools))
-                if (problem := each.dictionary_problem) is not None
-            }
+            out: dict[str, str] = {}
+            if (problem := tools.dictionary_problem) is not None:
+                out[f"{learner_dictionary(False)}.sqlite"] = problem.value
             found["dictionaries_out"] = out
             store = JsonSettingsStore(data / "settings.json")
             desktop = DesktopApp(store, tools, NoApps())
@@ -5394,8 +5435,18 @@ def check_install(
             closing.callback(interface.close)
             interface.hub.window.show()  # offscreen: a first paint, seen by no one
             app.processEvents()
-            found["window_seconds"] = round(time.perf_counter() - started, 3)
-            found["launch_seconds"] = round(os_adapters().seconds_since_launch(), 3)
+            painted = time.perf_counter()
+            found["window_seconds"] = round(painted - started, 3)
+            english_tools, english = learner_tools(dictionaries, True, data / "english")
+            closing.callback(english.close)
+            if (problem := english_tools.dictionary_problem) is not None:
+                out[f"{learner_dictionary(True)}.sqlite"] = problem.value
+            # from the launch to the paint: the clock read now, less the time
+            # since the paint (the English learner's opening isn't in it)
+            since_paint = time.perf_counter() - painted
+            found["launch_seconds"] = round(
+                os_adapters().seconds_since_launch() - since_paint, 3
+            )
             # the Microsoft Store's package it runs from, if any (decision 0056)
             found["store_package"] = os_adapters().store_package()
             learner_data = learners or os_adapters().data_folder()
@@ -6825,10 +6876,14 @@ def main(argv: list[str] | None = None) -> None:
     resending.timeout.connect(problem_sender.send_waiting)
     resending.start()
 
-    hotkeys = system.hotkeys(
-        {key: partial(desktop.hotkey_pressed.emit, key) for key in desktop.hotkeys}
+    bound = {key: partial(desktop.hotkey_pressed.emit, key) for key in desktop.hotkeys}
+    hotkeys = system.hotkeys(bound)
+    # another app may have some; a build may register none (398)
+    desktop.hotkeys_not_working(not_working(desktop.hotkeys, bound, hotkeys.start()))
+    # Home reads its actions; Help names only those that work (400)
+    hub.help.show_hotkeys(
+        [key for key, action in desktop.hotkeys.items() if hotkey_works(action)]
     )
-    desktop.hotkeys_taken(hotkeys.start())  # another app may have some
     # a game that is itself always on top comes to the front: the caption
     # windows go back above it (on the interface's thread)
     in_front = system.foreground_watch(windows.front_changed.emit)

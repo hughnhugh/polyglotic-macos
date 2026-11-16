@@ -39,3 +39,15 @@ def test_every_stylesheet_size_is_in_design_md() -> None:
         for s in re.findall(r"font-size: (\d+)px", SHEET)
     }
     assert at_100 <= sizes
+
+
+def test_the_caption_windows_corners_are_on_the_scale() -> None:
+    """A caption window has no window stylesheet - its strip's buttons and
+    a hovered word's box set their own corners - so nothing held them to
+    the scale: both were 5 px (polyglotic-hq 376, 403)."""
+    from polyglotic_desktop.ui_next import caption_window
+
+    scale = {_px(r) for r in FRONT["rounded"].values()}
+    assert _px(FRONT["rounded"]["small"]) == caption_window.MARK_RADIUS
+    for look in (caption_window.band_style(), caption_window.notice_style()):
+        assert {int(r) for r in re.findall(r"border-radius: (\d+)px", look)} <= scale

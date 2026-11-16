@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Tento počítač</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -61,6 +66,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
+        <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají na našem serveru jako slova ze slovníku a časy: uložená slova a stavy vás provázejí na jiný počítač a vyhledávání nám ukazují, jak se lidé učí. Smazat je můžete tam, ve všech jazycích, které se učíte – a pokud chcete, i v tomto počítači.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
         <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají na našem serveru jako slova ze slovníku a časy: uložená slova a stavy vás provázejí na jiný počítač a vyhledávání nám ukazují, jak se lidé učí. Smazat je můžete tam, ve všech jazycích, které se učíte – a pokud chcete, i v tomto počítači.</translation>
     </message>
     <message>
@@ -96,6 +106,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
+        <translation type="unfinished">Přihlášeno na tomto počítači.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
         <translation type="unfinished">Přihlášeno na tomto počítači.</translation>
     </message>
     <message>
@@ -279,7 +294,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Zkontrolujte datum a čas počítače – viz Domů</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
+        <translation type="unfinished">Otevřeno na příliš mnoha vašich počítačích – viz Domů</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
         <translation type="unfinished">Otevřeno na příliš mnoha vašich počítačích – viz Domů</translation>
     </message>
     <message>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">Zamčeno – odemkněte na stránce Domů nebo v oznamovací oblasti</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi, Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi. Odemknete podržením myši na zámku v rohu, nebo na stránce Domů či v oznamovací oblasti</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Zamknout všechna okna</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -754,6 +784,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">Denní počty, kolikrát jste slyšeli každé slovo ze slovníku – žádné věty, žádné denní časy, nic z vašeho mikrofonu. Pomáhají nám vylepšovat úrovně a návrhy slov. Vaše počty zůstávají v tomto počítači tak jako tak.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">Testujete alfa verzi: statistiky používání a hlášení o pádech jsou během testování zapnuté, abychom mohli najít a opravit problémy.</translation>
     </message>
@@ -797,6 +832,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">Aby mohl titulkovat, co slyšíte, odesílá Polyglotic rozpoznanou řeč na náš server. Zvuk a titulky slouží jen k titulkování pro vás – nikdy se neukládají. Kvůli provozu služby uchováváme váš účet, minuty poslechu, údaje o připojení (verzi aplikace, zemi, ze které se připojujete, druh aplikace, kterou posloucháte – nikdy její název) a vaše data učení: slova ze slovníku, která vyhledáte, uložíte nebo označíte, a kdy – nikdy větu kolem nich. Uložená slova a stavy slov vás provázejí i na jiný počítač; vaše vyhledávání nám ukazují, jak se lidé učí a co slovníkům chybí. Data učení můžete kdykoli smazat. Tyto údaje nejsou volitelné: bez nich služba nefunguje.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">Aby mohl titulkovat, co slyšíte, odesílá Polyglotic rozpoznanou řeč na náš server. Zvuk a titulky slouží jen k titulkování pro vás – nikdy se neukládají. Kvůli provozu služby uchováváme váš účet, minuty poslechu, údaje o připojení (verzi aplikace, zemi, ze které se připojujete, druh aplikace, kterou posloucháte – nikdy její název) a vaše data učení: slova ze slovníku, která vyhledáte, uložíte nebo označíte, a kdy – nikdy větu kolem nich. Uložená slova a stavy slov vás provázejí i na jiný počítač; vaše vyhledávání nám ukazují, jak se lidé učí a co slovníkům chybí. Data učení můžete kdykoli smazat. Tyto údaje nejsou volitelné: bez nich služba nefunguje.</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -835,12 +875,31 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">Smažeme slova, která jste vyhledali, uložili a označili, i počty poslechů, které jste sdíleli, ve všech jazycích, které se učíte. Vaše další počítače si ponechají vlastní kopie, dokud je nesmažete i tam.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">Smazat je i z tohoto počítače pro všechny jazyky, které se učíte – stavy slov, uložená slova a to, jak často jste které slovo slyšeli</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">Smazat je i z tohoto počítače pro všechny jazyky, které se učíte – stavy slov, uložená slova a to, jak často jste které slovo slyšeli</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>Tím se smaže i %Ln kopie vašich dat učení, odložená v tomto počítači, když byla nalezena poškozená.</numerusform>
+            <numerusform>Tím se smažou i %Ln kopie vašich dat učení, odložené v tomto počítači, když byly nalezeny poškozené.</numerusform>
+            <numerusform>Tím se smaže i %Ln kopií vašich dat učení, odložených v tomto počítači, když byly nalezeny poškozené.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>Tím se smaže i %Ln kopie vašich dat učení, odložená v tomto počítači, když byla nalezena poškozená.</numerusform>
             <numerusform>Tím se smažou i %Ln kopie vašich dat učení, odložené v tomto počítači, když byly nalezeny poškozené.</numerusform>
@@ -862,6 +921,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">Tento počítač</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Everything else</source>
         <translation type="unfinished">Vše ostatní</translation>
     </message>
@@ -873,6 +937,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">Část vašich dat z učení (jazyk {language}) se z tohoto počítače nepodařilo smazat. Restartujte Polyglotic a pak je smažte znovu v sekci Účet.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
         <translation type="unfinished">Část vašich dat z učení (jazyk {language}) se z tohoto počítače nepodařilo smazat. Restartujte Polyglotic a pak je smažte znovu v sekci Účet.</translation>
     </message>
     <message>
@@ -890,6 +959,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">Windows na tomto počítači nedokázaly titulkovat jednu aplikaci zvlášť, a proto Polyglotic titulkuje vše, co počítač přehrává. Aplikace můžete zkusit znovu na stránce Domů.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">Tento Mac nedokázal titulkovat jednu aplikaci zvlášť, a proto Polyglotic titulkuje vše, co Mac přehrává. Aplikace můžete zkusit znovu na stránce Domů.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1417,6 +1491,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">V tomto počítači zatím žádný protokol není.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">Také se odešle: {versions} a ID relace poslechu.</translation>
     </message>
@@ -1583,12 +1662,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Změny se v tomto počítači neuchovávají, dokud Polyglotic nerestartujete; uložená slova se pak vrátí z vašeho účtu. Starý soubor je uložen jako {path} pro případ, že bychom si ho vyžádali v hlášení.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">Uložená slova se vracejí z vašeho účtu. Starý soubor je uložen jako {path} pro případ, že bychom si ho vyžádali v hlášení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
+        <translation type="unfinished">Data učení v tomto počítači byla poškozená a byla odložena stranou</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
         <translation type="unfinished">Data učení v tomto počítači byla poškozená a byla odložena stranou</translation>
     </message>
     <message>
@@ -1658,6 +1747,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">Přihlaste se na stránce Účet kódem pozvánky – ten, který tento počítač použil dřív, funguje znovu – nebo kódem z e-mailu k Plus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus skončilo</translation>
     </message>
@@ -1708,6 +1802,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Na stránce Domů přidejte aplikaci (až 3) nebo zvolte Vše, co počítač přehrává.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name} není otevřené</translation>
     </message>
@@ -1728,12 +1827,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">Přehrává zvuk? Jde jeho výstup do reproduktorů nebo sluchátek tohoto počítače a není ztlumený?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">V počítači je ticho: nic z toho, co přehrává, za 30 sekund nevydalo zvuk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">V počítači je ticho: nic z toho, co přehrává, za 30 sekund nevydalo zvuk</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">Pusťte něco. Pokud to slyšíte ve sluchátkách, která nejsou výchozím zařízením počítače, nastavte je jako výchozí, nebo místo toho přidejte aplikaci.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">Pusťte něco. Pokud to slyšíte ve sluchátkách, která nejsou výchozím zařízením počítače, nastavte je jako výchozí, nebo místo toho přidejte aplikaci.</translation>
     </message>
     <message>
@@ -1744,6 +1858,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
+        <translation type="unfinished">Není ztlumený, nebo není v nastavení zvuku počítače vybraný jiný mikrofon?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
         <translation type="unfinished">Není ztlumený, nebo není v nastavení zvuku počítače vybraný jiný mikrofon?</translation>
     </message>
     <message>
@@ -1790,6 +1909,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">Zvolte Pokračovat na stránce Domů nebo v nabídce oznamovací oblasti.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">Okna titulků jsou skrytá</translation>
     </message>
@@ -1800,12 +1924,22 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Použijte Skrýt vše na stránce Domů či v nabídce oznamovací oblasti. Přepis aplikace ukáže, jestli titulky přicházejí.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">Titulkování na serveru selhává</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">Zkouší to sám dál – v tomto počítači není potřeba nic měnit. Pokud to trvá déle než pár minut, nahlaste problém.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">Zkouší to sám dál – v tomto počítači není potřeba nic měnit. Pokud to trvá déle než pár minut, nahlaste problém.</translation>
     </message>
     <message>
@@ -1825,8 +1959,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">Titulkujte aplikace, které přidáte (macOS 14.2 nebo novější)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">Na stránce Domů přidejte až 3 aplikace s otevřeným zvukem; každá dostane vlastní okno titulků označené jejím názvem. Přidaná aplikace, která není otevřená, se začne titulkovat, jakmile se otevře. Windows 10 aplikace nerozliší, takže tam se titulkuje vše, co počítač přehrává.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">Na stránce Domů přidejte až 3 aplikace s otevřeným zvukem; každá dostane vlastní okno titulků označené jejím názvem. Přidaná aplikace, která není otevřená, se začne titulkovat, jakmile se otevře. Před macOS 14.2 Mac aplikace nerozliší, takže tam se titulkuje vše, co Mac přehrává.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1840,12 +1984,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">S jednou aplikací přidanou na stránce Domů zapněte Titulkovat i vše ostatní, co počítač přehrává: vše kromě té aplikace dostane vlastní okno titulků označené Vše ostatní – hovor v jednom okně, hra nebo video v druhém, nic v obou. Jde to vždy jen s jednou aplikací.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">Titulkujte vše, co počítač přehrává</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Titulkujte vše, co počítač přehrává</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">Na stránce Domů zvolte Vše, co počítač přehrává: vše, co hraje přes výchozí reproduktory nebo sluchátka, označené Tento počítač. Pokud vaše sluchátka nejsou výchozím zařízením, nastavte je jako výchozí.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">Na stránce Domů zvolte Vše, co počítač přehrává: vše, co hraje přes výchozí reproduktory nebo sluchátka, označené Tento počítač. Pokud vaše sluchátka nejsou výchozím zařízením, nastavte je jako výchozí.</translation>
     </message>
     <message>
@@ -1870,6 +2029,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">Okno titulků přesunete tažením, velikost změníte tažením za okraje. Zamknout vše, na stránce Domů nebo v nabídce oznamovací oblasti, nechá kliknutí projít. Ztratilo se vám nějaké? Obnovit umístění na stránce Domů vrátí všechna okna zpět.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">Přes hru</translation>
     </message>
@@ -1877,6 +2041,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">Okno titulků nikdy nebere hře klávesnici ani myš: nikdy není aktivním oknem. Umístěte ho tam, kde nezakrývá, co potřebujete vidět, a pak Zamknout vše (Ctrl+Alt+L), aby kliknutí šla do hry; Skrýt vše (Ctrl+Alt+H) v boji. Klávesové zkratky fungují, i když má hra fokus, a zatím je nelze změnit. Hra ve výhradním režimu celé obrazovky zakryje všechna ostatní okna: zvolte místo toho celou obrazovku bez okrajů nebo okno.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">Okno titulků nikdy nebere hře klávesnici ani myš: nikdy není aktivním oknem. Umístěte ho tam, kde nezakrývá, co potřebujete vidět, a pak Zamknout vše na stránce Domů nebo v nabídce oznamovací oblasti, aby kliknutí šla do hry. Hra ve výhradním režimu celé obrazovky zakryje všechna ostatní okna: zvolte místo toho celou obrazovku bez okrajů nebo okno.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1896,6 +2065,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">Tento počítač opouští jen řeč: náš server z ní dělá titulky a překlady a nikdy neukládá zvuk, titulky ani překlady. Tento počítač drží v paměti poslední 2 minuty hotové řeči každé aplikace a znovu ji odešle, jen když o to požádáte. Váš přepis nikdy neopustí tento počítač a po ukončení Polyglotic zmizí, pokud ho neuložíte. Uchováváme váš účet, vaše minuty, záznam každé relace (nikdy to, co zaznělo, ani název aplikace) a slova ze slovníku, která vyhledáte, uložíte nebo označíte – nikdy větu kolem nich. Statistiky používání a počty slov se sdílejí, jen pokud je zapnete (Účet &gt; Zvolit, co sdílet), a data učení můžete smazat na stránce Účet. Zásady ochrany soukromí níže říkají vše.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">Tento počítač opouští jen řeč: náš server z ní dělá titulky a překlady a nikdy neukládá zvuk, titulky ani překlady. Tento počítač drží v paměti poslední 2 minuty hotové řeči každé aplikace a znovu ji odešle, jen když o to požádáte. Váš přepis nikdy neopustí tento počítač a po ukončení Polyglotic zmizí, pokud ho neuložíte. Uchováváme váš účet, vaše minuty, záznam každé relace (nikdy to, co zaznělo, ani název aplikace) a slova ze slovníku, která vyhledáte, uložíte nebo označíte – nikdy větu kolem nich. Statistiky používání a počty slov se sdílejí, jen pokud je zapnete (Účet &gt; Zvolit, co sdílet), a data učení můžete smazat na stránce Účet. Zásady ochrany soukromí níže říkají vše.</translation>
     </message>
     <message>
@@ -1940,6 +2114,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">Slova, která vyhledáte a uložíte, najdete na stránce Slova. Uchovávají se v tomto počítači a s vaším účtem na našem serveru, takže vás provázejí i na jiný počítač.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">Dostaňte svá slova do Anki</translation>
     </message>
@@ -1958,7 +2137,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">Data učení v tomto počítači byla poškozená, proto byla odložena jako {name}. Uložená slova se vracejí z vašeho účtu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">Data učení v tomto počítači byla poškozená, takže se změny v tomto počítači neuchovávají, dokud Polyglotic nerestartujete. Uložená slova se pak vrátí z vašeho účtu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">Data učení v tomto počítači byla poškozená, takže se změny v tomto počítači neuchovávají, dokud Polyglotic nerestartujete. Uložená slova se pak vrátí z vašeho účtu.</translation>
     </message>
     <message>
@@ -2074,7 +2263,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">Zkontrolujte datum a čas tohoto počítače</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
+        <translation type="unfinished">Polyglotic je otevřený na příliš mnoha vašich počítačích</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
         <translation type="unfinished">Polyglotic je otevřený na příliš mnoha vašich počítačích</translation>
     </message>
     <message>
@@ -2096,8 +2295,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Datum nebo čas tohoto Macu vypadá špatně: ukazuje {date}, {time}. Titulky fungují; pro opravu zapněte Nastavit datum a čas automaticky v Nastavení systému, Obecné, Datum a čas.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">potřebujete od nás kód: pozvánku, nebo kód z e-mailu k Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">pokračujte zde nebo z oznamovací oblasti</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2186,6 +2396,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">tento počítač je zřejmě offline. Zkontrolujte jeho připojení k internetu; pokud funguje, problém je u nás</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">zkontrolujte internet; pokud funguje, nejspíš máme výpadek</translation>
     </message>
@@ -2217,6 +2432,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">tento Mac tvrdí, že je {date}, a to nemůže být pravda. Zapněte Nastavit datum a čas automaticky v Nastavení systému, Obecné, Datum a čas</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">něco v této síti překáží s propadlým certifikátem – nejčastěji kontrola HTTPS v antiviru, nebo VPN. Vypněte to pro Polyglotic, nebo zkuste jinou síť</translation>
@@ -2229,6 +2450,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
+        <translation type="unfinished">z této sítě přišlo příliš mnoho neúspěšných přihlášení, takže server chvíli počká, než tento počítač pustí</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
         <translation type="unfinished">z této sítě přišlo příliš mnoho neúspěšných přihlášení, takže server chvíli počká, než tento počítač pustí</translation>
     </message>
     <message>
@@ -2253,7 +2479,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">vše, co počítač přehrává</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
+        <translation type="unfinished">vše ostatní, co počítač přehrává</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
         <translation type="unfinished">vše ostatní, co počítač přehrává</translation>
     </message>
     <message>
@@ -2317,13 +2553,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">Zobrazit jeho okno titulků</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">Skryto – Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">Zobrazit jeho okno titulků</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">Skryto – vypněte Skrýt vše a zobrazí se</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2382,7 +2623,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">Nic se netitulkuje, dokud nepřidáte aplikaci nebo nezvolíte Vše, co počítač přehrává.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
+        <translation type="unfinished">Titulkovat i vše ostatní, co počítač přehrává (ve vlastním okně)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
         <translation type="unfinished">Titulkovat i vše ostatní, co počítač přehrává (ve vlastním okně)</translation>
     </message>
     <message>
@@ -2442,6 +2693,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Vše, co počítač přehrává</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">Zkusit aplikace znovu</translation>
     </message>
@@ -2453,6 +2709,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
+        <translation type="unfinished">Tento počítač</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
         <translation type="unfinished">Tento počítač</translation>
     </message>
     <message>
@@ -2487,8 +2748,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">místo aplikací: tento Mac nedokázal titulkovat jednu aplikaci zvlášť</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">místo aplikací (jediná možnost v této verzi Windows)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">místo aplikací (jediná možnost v této verzi macOS)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2498,6 +2769,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
+        <translation type="unfinished">Vše, co počítač přehrává, kromě {app}, ve vlastním okně</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
         <translation type="unfinished">Vše, co počítač přehrává, kromě {app}, ve vlastním okně</translation>
     </message>
     <message>
@@ -2582,18 +2858,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">Skrýt vše</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2604,6 +2870,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">Obnovit umístění</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2727,11 +3003,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">Zamknout všechna okna</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">Zamknout – kliknutí projdou k tomu, co je pod nimi, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3465,6 +3736,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">Základní slovník z otevřených dat (významy nezkontroloval člověk), pokud je připravený: vyhledávání slov v titulcích ({language}), až bude v tomto počítači. Titulky a překlad fungují v obou případech.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">Základní slovník z otevřených dat (významy nezkontroloval člověk), pokud je připravený: jeho karta ho nabídne, až jazyk přidáte ({language}). Titulky a překlad fungují v obou případech.</translation>
     </message>
@@ -3778,6 +4054,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">Slovníky v tomto počítači</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">Stažené pro jazyky, které se učíte. Odebráním jednoho uvolníte místo; vyhledávání v jeho jazyce přestane fungovat, dokud se znovu nestáhne.</translation>
     </message>
@@ -3794,6 +4075,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají v tomto počítači a na našem serveru jako slova ze slovníku a časy. Smazat je můžete ve všech jazycích, které se učíte – stejně jako na stránce Účet.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají v tomto počítači a na našem serveru jako slova ze slovníku a časy. Smazat je můžete ve všech jazycích, které se učíte – stejně jako na stránce Účet.</translation>
     </message>
     <message>
@@ -3863,6 +4149,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
+        <translation type="unfinished">V tomto počítači není dost místa: je potřeba {size} volného místa.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
         <translation type="unfinished">V tomto počítači není dost místa: je potřeba {size} volného místa.</translation>
     </message>
     <message>
@@ -3947,6 +4238,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">V tomto počítači: verze {version}, {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">Novější verze ({size}) čeká na připojení, které není měřené.</translation>
     </message>
@@ -3983,6 +4279,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">Uvolní to {size} v tomto počítači. Slovník se znovu stáhne, pokud se později začnete učit: {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">Uvolní to {size} v tomto počítači. Slovník se znovu stáhne, pokud se později začnete učit: {language}.</translation>
     </message>
     <message>
@@ -4164,6 +4465,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">Počítá se jen to, co přehrává váš počítač, v dokončených titulcích - ne to, co říkáte vy.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">Počítá se jen to, co přehrává váš počítač, v dokončených titulcích - ne to, co říkáte vy.</translation>
     </message>
     <message>
@@ -4988,6 +5294,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">Jakékoli písmo v tomto počítači. Pro čínštinu a japonštinu se použije písmo, které je obsahuje, pokud je to vaše nemá.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">Zobrazit originál nad překladem</translation>
     </message>
@@ -5258,6 +5569,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">Vysunout: nový titulek vyjede zdola na své místo – ne když má počítač vypnuté animace. Objevit: nic se nehýbe.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">Zmizet po tichu</translation>
     </message>
@@ -5441,6 +5757,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">O tomto počítači: aplikace, systém a zvuková zařízení</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">Titulky z posledních několika minut, jak byly zobrazeny</translation>
     </message>
@@ -5527,6 +5848,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
+        <translation type="unfinished">Podle počítače</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
         <translation type="unfinished">Podle počítače</translation>
     </message>
     <message>
@@ -6028,6 +6354,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">Tento počítač už byl přihlášený: kód pozvánky, který jste tehdy použili, tu funguje znovu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">Přihlašování…</translation>
     </message>
@@ -6048,6 +6379,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">Tento kód nefunguje: možná je překlep, byl použit na jiném počítači nebo už neplatí. Zkontrolujte ho, nebo nám napište a vyřešíme to.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">Předplatné tohoto kódu bylo zrušeno dřív, než byl kód použit, takže Plus nedává. Pro Plus si předplatné znovu objednejte na našem webu – nebo nám napište, pokud jste ho nerušili.</translation>
     </message>
@@ -6059,6 +6395,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">Přihlášení tohoto počítače vypršelo. Odhlaste se na stránce Účet a pak se přihlaste tímto kódem.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">Přihlášení tohoto počítače vypršelo. Odhlaste se na stránce Účet a pak se přihlaste tímto kódem.</translation>
     </message>
     <message>
@@ -6080,6 +6421,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">Tento počítač tvrdí, že je {date}, a to nemůže být pravda – zabezpečené připojení potřebuje správné datum. Zapněte Nastavit čas automaticky v Nastavení Windows, Čas a jazyk, Datum a čas, a pak zvolte Synchronizovat hned.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">Tento Mac tvrdí, že je {date}, a to nemůže být pravda – zabezpečené připojení potřebuje správné datum. Zapněte Nastavit datum a čas automaticky v Nastavení systému, Obecné, Datum a čas.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6118,12 +6465,27 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">Odhlásit se z Polyglotic na tomto počítači?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">Titulky se zastaví, dokud se znovu nepřihlásíte – stejným kódem pozvánky: na tomto počítači bude fungovat znovu. Uložená slova a data učení zůstanou v tomto počítači i na našem serveru.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">Titulky se zastaví, dokud se znovu nepřihlásíte – stejným kódem pozvánky: na tomto počítači bude fungovat znovu. Uložená slova a data učení zůstanou v tomto počítači i na našem serveru.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">Změny, které tento počítač ještě neodeslal na náš server, se zahodí, aby se žádná z nich nedostala k tomu, kdo se přihlásí příště.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">Změny, které tento počítač ještě neodeslal na náš server, se zahodí, aby se žádná z nich nedostala k tomu, kdo se přihlásí příště.</translation>
     </message>
 </context>
@@ -6136,7 +6498,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">Výchozí v počítači</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
+        <translation type="unfinished">Výchozí v počítači ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
         <translation type="unfinished">Výchozí v počítači ({device})</translation>
     </message>
     <message>
@@ -6162,6 +6534,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">Pro Vše, co počítač přehrává. Přidané aplikace se poslouchají na jakýchkoli reproduktorech.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">Pro Vše, co počítač přehrává. Přidané aplikace se poslouchají na jakýchkoli reproduktorech.</translation>
     </message>
     <message>
@@ -6197,6 +6574,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
+        <translation type="unfinished">Není připojeno - používá se výchozí v počítači</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
         <translation type="unfinished">Není připojeno - používá se výchozí v počítači</translation>
     </message>
 </context>
@@ -6459,6 +6841,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">Odemknout</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">Odemknout všechna okna titulků</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6539,6 +6934,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">Doba, kdy byly titulky zapnuté, počítaná v tomto počítači.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">Doba, kdy byly titulky zapnuté, počítaná v tomto počítači.</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6571,6 +6971,11 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
+        <translation type="unfinished">Počítáno v tomto počítači z hotových titulků a uloženo zde.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
         <translation type="unfinished">Počítáno v tomto počítači z hotových titulků a uloženo zde.</translation>
     </message>
     <message>

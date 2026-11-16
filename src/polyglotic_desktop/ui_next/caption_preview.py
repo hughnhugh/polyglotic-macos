@@ -6,7 +6,9 @@ as a caption window will. A change anywhere in the look redraws it.
 
 The still is the app's own picture, painted here (a warm room, a bright
 window, a blue shadow): never a capture of the screen. The captions are
-made-up text, never the learner's.
+made-up text, never the learner's - in the characters Mandarin's captions
+are shown in, Simplified or Traditional (polyglotic-hq 375's "Show Mandarin
+in", 400).
 """
 
 from dataclasses import replace
@@ -51,7 +53,7 @@ from polyglotic_desktop.ui_next.views.arrivals import older_alphas
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.captions import CaptionLines, Labels, Line
 from polyglotic_desktop.ui_next.views.lab import older_translation
-from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.panels import LanguagesView, LookView
 
 HEIGHT = 230
 """The preview's height at 100 % text size."""
@@ -80,30 +82,69 @@ def _clause(
     return Clause(original, {EN: translation}, {EN: tuple(links)})
 
 
-SAMPLE_CLAUSES = (
-    _clause(
+TRADITIONAL = str.maketrans("这个数错们毕项周来", "這個數錯們畢項週來")
+"""The made-up captions in Traditional, as the app's converter writes them
+(`core.lexicon.traditional`, Taiwan's forms: 下周 is 下週) - a test holds
+the two to the same text. Their few characters, not the converter's 1 MB
+table read for a picture (polyglotic-hq 400)."""
+
+_Pairs = tuple[tuple[str, str], ...]
+_SAMPLES: tuple[tuple[str, str, _Pairs], ...] = (
+    (
         "这个季度的数字看起来不错。",
         "The figures for this quarter look good.",
         (("季度", "quarter"), ("数字", "figures"), ("不错", "good")),
     ),
-    _clause(
+    (
         "我们毕竟要完成这个项目。",
         "After all, we have to finish this project.",
         (("毕竟", "After all"), ("完成", "finish"), ("项目", "project")),
     ),
 )
-"""Two made-up captions, Chinese with English, their words linked."""
-SAMPLE_UNFINISHED = _clause(
-    "那我们下周再", "Then next week we'll", (("下周", "next week"),)
+_UNFINISHED: tuple[str, str, _Pairs] = (
+    "那我们下周再",
+    "Then next week we'll",
+    (("下周", "next week"),),
 )
+
+
+def _written(text: str, traditional: bool) -> str:
+    return text.translate(TRADITIONAL) if traditional else text
+
+
+def _sample(said: str, meant: str, pairs: _Pairs, traditional: bool) -> Clause:
+    return _clause(
+        _written(said, traditional),
+        meant,
+        tuple((_written(word, traditional), its) for word, its in pairs),
+    )
+
+
+def sample_clauses(traditional: bool = False) -> tuple[Clause, ...]:
+    """Two made-up captions, Chinese with English, their words linked - in
+    Traditional characters if `traditional`."""
+    return tuple(_sample(*sample, traditional) for sample in _SAMPLES)
+
+
+def sample_unfinished(traditional: bool = False) -> Clause:
+    """A made-up caption still being spoken, for the Lab's preview (284)."""
+    return _sample(*_UNFINISHED, traditional)
+
+
+SAMPLE_CLAUSES = sample_clauses()
+"""Two made-up captions, Chinese with English, their words linked."""
+SAMPLE_UNFINISHED = sample_unfinished()
 """A made-up caption still being spoken, for the Lab's preview (284)."""
-SAMPLE_PINYIN = {
+_PINYIN = {
     "这个季度的数字看起来不错。": "这个 zhè ge|季度 jì dù|的 de|数字 shù zì|看起来 kàn qǐ lái|不错 bù cuò",
     "我们毕竟要完成这个项目。": "我们 wǒ men|毕竟 bì jìng|要 yào|完成 wán chéng|这个 zhè ge|项目 xiàng mù",
     "那我们下周再": "那 nà|我们 wǒ men|下周 xià zhōu|再 zài",
 }  # fmt: skip
-"""The made-up captions' pinyin, word by word: the preview shows a
-reading line without a dictionary (369)."""
+SAMPLE_PINYIN = _PINYIN | {
+    _written(text, True): _written(words, True) for text, words in _PINYIN.items()
+}
+"""The made-up captions' pinyin, word by word, in either script: the
+preview shows a reading line without a dictionary (369)."""
 
 
 def sample_readings(text: str, language: str | None) -> list[Reading]:
@@ -143,10 +184,16 @@ class CaptionPreview(QWidget):
     """Two captions over a still, in `view`'s look, redrawn as it changes."""
 
     def __init__(
-        self, view: LookView, parent: QWidget | None = None, unfinished: bool = False
+        self,
+        view: LookView,
+        parent: QWidget | None = None,
+        unfinished: bool = False,
+        languages: LanguagesView | None = None,
     ) -> None:
         """`unfinished`: a third caption, still being spoken, after the two
-        (the Lab's preview: how such text looks, 284)."""
+        (the Lab's preview: how such text looks, 284); `languages`: the
+        session's, whose "Show Mandarin in" the made-up captions follow
+        (polyglotic-hq 400) - without it, Simplified."""
         super().__init__(parent)
         self.setObjectName("look.preview")
         self.setAccessibleName(_tr("Preview of the caption windows"))
@@ -155,7 +202,27 @@ class CaptionPreview(QWidget):
         self.lines = CaptionLines(
             [SAMPLE], EN, keep=len(SAMPLE_CLAUSES) + 1, clock=lambda: WHEN
         )
-        for n, clause in enumerate(SAMPLE_CLAUSES):
+        self.languages = languages
+        self.traditional = False
+        """The made-up captions are in Traditional characters."""
+        self._write(traditional=False)
+        self.marks = CaptionMarks(None)
+        self.surface = PreviewSurface(self.lines, parent=self, marks=self.marks)
+        self.surface.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._look: CaptionLook | None = None
+        stop = view.subscribe(self.follow)
+        self.destroyed.connect(lambda *_: stop())
+        if languages is not None:
+            stop_script = languages.subscribe(self.follow_script)
+            self.destroyed.connect(lambda *_: stop_script())
+            self.follow_script()
+        self.follow()
+
+    def _write(self, traditional: bool) -> None:
+        """The made-up captions, in Traditional characters or Simplified -
+        the same captions again, so they replace those shown."""
+        self.traditional = traditional
+        for n, clause in enumerate(sample_clauses(traditional)):
             self.lines.apply(
                 CaptionUpdate(
                     CaptionId(f"preview-{n}"),
@@ -166,24 +233,26 @@ class CaptionPreview(QWidget):
                     (ZH,),
                 )
             )
-        if unfinished:
+        if self.unfinished:
             self.lines.apply(
                 CaptionUpdate(
                     CaptionId("preview-unfinished"),
                     SAMPLE,
                     CaptionKind.LIVE,
-                    (SAMPLE_UNFINISHED,),
+                    (sample_unfinished(traditional),),
                     ZH,
                     (ZH,),
                 )
             )
-        self.marks = CaptionMarks(None)
-        self.surface = PreviewSurface(self.lines, parent=self, marks=self.marks)
-        self.surface.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self._look: CaptionLook | None = None
-        stop = view.subscribe(self.follow)
-        self.destroyed.connect(lambda *_: stop())
-        self.follow()
+
+    def follow_script(self) -> None:
+        """ "Show Mandarin in" changed: the captions in its characters."""
+        assert self.languages is not None
+        traditional = self.languages.value.traditional
+        if traditional != self.traditional:
+            self._write(traditional)
+            self._place()
+            self.update()
 
     def _tall(self) -> int:
         return style.px(UNFINISHED_HEIGHT if self.unfinished else HEIGHT)

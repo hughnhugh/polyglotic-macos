@@ -40,6 +40,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">이 Mac</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
     </message>
@@ -62,6 +67,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another PC, and lookups show us how people learn. You can delete them there, in every language you learn - and on this PC too, if you choose.</source>
         <translation type="unfinished">찾아보고 저장하고 표시한 단어는 사전 단어와 시각으로 저희 서버에 보관됩니다. 저장한 단어와 상태는 다른 PC에서도 이어지고, 찾아본 단어로 사람들이 어떻게 배우는지 알 수 있습니다. 배우는 모든 언어에서 거기서 삭제할 수 있고, 원하면 이 PC에서도 삭제할 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>The words you look up, save and mark are kept on our server as dictionary words and times: saved words and statuses follow you to another computer, and lookups show us how people learn. You can delete them there, in every language you learn - and on this Mac too, if you choose.</source>
+        <translation type="unfinished">찾아보고 저장하고 표시한 단어는 사전 단어와 시각으로 저희 서버에 보관됩니다. 저장한 단어와 상태는 다른 컴퓨터에서도 이어지고, 찾아본 단어로 사람들이 어떻게 배우는지 알 수 있습니다. 배우는 모든 언어에서 거기서 삭제할 수 있고, 원하면 이 Mac에서도 삭제할 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -97,6 +107,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in on this PC.</source>
         <translation type="unfinished">이 PC에서 로그인됨.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in on this Mac.</source>
+        <translation type="unfinished">이 Mac에서 로그인됨.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -279,8 +294,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Check this Mac&apos;s date and time - see Home</source>
+        <translation type="unfinished">Mac 날짜와 시간 확인 - 홈 참고</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Open on too many of your PCs - see Home</source>
         <translation type="unfinished">너무 많은 PC에서 열려 있음 - 홈 참고</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Open on too many of your computers - see Home</source>
+        <translation type="unfinished">너무 많은 컴퓨터에서 열려 있음 - 홈 참고</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,6 +351,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Locked - unlock on Home or from the tray</source>
         <translation type="unfinished">잠김 - 홈이나 알림 영역에서 잠금 해제</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
+        <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨, Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
+        <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨. 잠금을 풀려면 모서리의 자물쇠 위에 마우스를 잠시 올려 두거나, 홈이나 알림 영역을 사용하세요</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -441,11 +476,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">모든 창 잠그기</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -752,6 +782,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>Daily counts of how often you heard each dictionary word - no sentences, no times of day, nothing from your own mic. They help us improve levels and word suggestions. Your counts stay on this Mac either way.</source>
+        <translation type="unfinished">사전의 각 단어를 하루에 몇 번 들었는지 집계한 것입니다. 문장, 시간대, 마이크 내용은 포함하지 않습니다. 수준과 단어 추천을 개선하는 데 도움이 됩니다. 집계는 어떤 경우에도 이 Mac에 남습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
         <source>You&apos;re testing the alpha: usage statistics and crash reports are on while you test, so we can find and fix problems.</source>
         <translation type="unfinished">알파 테스트 중입니다. 문제를 찾아 고칠 수 있도록 테스트 중에는 사용 통계와 오류 보고서가 켜져 있습니다.</translation>
     </message>
@@ -795,6 +830,11 @@
         <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another PC; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
         <translation type="unfinished">들리는 소리를 자막으로 만들기 위해 Polyglotic은 감지한 음성을 저희 서버로 보냅니다. 오디오와 자막은 나를 위한 자막을 만드는 데에만 쓰이며 절대 저장되지 않습니다. 서비스를 운영하기 위해 계정, 들은 시간(분), 연결 정보(앱 버전, 접속한 국가, 듣는 앱의 종류 - 이름은 제외)와 학습 데이터(찾아보거나 저장하거나 표시한 사전 단어와 그 시각 - 주변 문장은 제외)를 보관합니다. 저장한 단어와 단어 상태는 다른 PC에서도 이어집니다. 찾아본 단어로 사람들이 어떻게 배우는지, 사전에 무엇이 빠졌는지 알 수 있습니다. 학습 데이터는 언제든지 삭제할 수 있습니다. 이 항목들은 선택 사항이 아닙니다. 없으면 서비스를 제공할 수 없습니다.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/consent.py"/>
+        <source>To caption what you hear, Polyglotic sends the speech it detects to our server. Audio and captions are used only to caption it for you - never stored. To run the service we keep your account, the minutes you listen, connection details (app version, the country you connect from, the kind of app you listen to - never its name) and your learning data: the dictionary words you look up, save or mark, and when - never the sentence around them. Your saved words and word statuses follow you to another computer; your lookups show us how people learn and what the dictionaries miss. You can delete your learning data any time. These aren&apos;t optional: without them there&apos;s no service.</source>
+        <translation type="unfinished">들리는 소리를 자막으로 만들기 위해 Polyglotic은 감지한 음성을 저희 서버로 보냅니다. 오디오와 자막은 나를 위한 자막을 만드는 데에만 쓰이며 절대 저장되지 않습니다. 서비스를 운영하기 위해 계정, 들은 시간(분), 연결 정보(앱 버전, 접속한 국가, 듣는 앱의 종류 - 이름은 제외)와 학습 데이터(찾아보거나 저장하거나 표시한 사전 단어와 그 시각 - 주변 문장은 제외)를 보관합니다. 저장한 단어와 단어 상태는 다른 컴퓨터에서도 이어집니다. 찾아본 단어로 사람들이 어떻게 배우는지, 사전에 무엇이 빠졌는지 알 수 있습니다. 학습 데이터는 언제든지 삭제할 수 있습니다. 이 항목들은 선택 사항이 아닙니다. 없으면 서비스를 제공할 수 없습니다.</translation>
+    </message>
 </context>
 <context>
     <name>Copying</name>
@@ -833,14 +873,31 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>We&apos;ll delete the words you looked up, saved and marked, and any exposure counts you shared, in every language you learn. Your other computers keep their own copies until you delete them there too.</source>
+        <translation type="unfinished">배우는 모든 언어에서 찾아보고 저장하고 표시한 단어와 공유한 노출 횟수를 삭제합니다. 다른 컴퓨터의 사본은 거기서도 삭제할 때까지 남아 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>Also delete it from this PC, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
         <translation type="unfinished">배우는 모든 언어에 대해 이 PC에서도 삭제 - 단어 상태, 저장한 단어, 각 단어를 들은 횟수</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>Also delete it from this Mac, in every language you&apos;re learning - your word statuses, saved words and how often you heard each word</source>
+        <translation type="unfinished">배우는 모든 언어에 대해 이 Mac에서도 삭제 - 단어 상태, 저장한 단어, 각 단어를 들은 횟수</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
         <source>This also deletes the %Ln copy(s) of your learning data set aside on this PC when it was found damaged.</source>
         <translation type="unfinished">
             <numerusform>손상이 발견되어 이 PC에 따로 보관해 둔 학습 데이터 사본 %Ln개도 삭제합니다.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/delete_learning.py"/>
+        <source>This also deletes the %Ln copy(s) of your learning data set aside on this Mac when it was found damaged.</source>
+        <translation type="unfinished">
+            <numerusform>손상이 발견되어 이 Mac에 따로 보관해 둔 학습 데이터 사본 %Ln개도 삭제합니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -855,6 +912,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>This PC</source>
         <translation type="unfinished">이 PC</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">이 Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
@@ -873,6 +935,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Some of your {language} learning data couldn&apos;t be deleted from this Mac. Restart Polyglotic, then delete it again on Account.</source>
+        <translation type="unfinished">{language} 학습 데이터 일부를 이 Mac에서 삭제하지 못했습니다. Polyglotic을 다시 시작한 뒤 계정에서 다시 삭제하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Your settings couldn&apos;t be read, so they&apos;ve been reset. The old file is kept beside them as {name}.</source>
         <translation type="unfinished">설정을 읽을 수 없어 초기화했습니다. 이전 파일은 {name}(으)로 옆에 보관되어 있습니다.</translation>
     </message>
@@ -886,6 +953,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Windows on this PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
         <translation type="unfinished">이 PC의 Windows에서 앱 하나만 자막으로 만들 수 없어서, Polyglotic이 PC에서 재생되는 모든 소리를 자막으로 만듭니다. 홈에서 앱을 다시 시도할 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
+        <translation type="unfinished">이 Mac에서 앱 하나만 자막으로 만들 수 없어서, Polyglotic이 Mac에서 재생되는 모든 소리를 자막으로 만듭니다. 홈에서 앱을 다시 시도할 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1411,6 +1483,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
+        <source>There&apos;s no log on this Mac yet.</source>
+        <translation type="unfinished">이 Mac에는 아직 로그가 없습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
         <translation type="unfinished">함께 전송: {versions}, 듣기 세션 ID.</translation>
     </message>
@@ -1577,6 +1654,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Changes aren&apos;t kept on this Mac until you restart Polyglotic; your saved words then come back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
+        <translation type="unfinished">Polyglotic을 다시 시작할 때까지 변경 사항이 이 Mac에 저장되지 않습니다. 다시 시작하면 저장한 단어가 계정에서 돌아옵니다. 이전 파일은 {path}(으)로 보관되어 있어 신고 때 요청할 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your saved words are coming back from your account. The old file is kept as {path}, in case we ask for it in a report.</source>
         <translation type="unfinished">저장한 단어를 계정에서 되살리는 중입니다. 이전 파일은 {path}(으)로 보관되어 있어 신고 때 요청할 수 있습니다.</translation>
     </message>
@@ -1584,6 +1666,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your learning data on this PC was damaged and has been set aside</source>
         <translation type="unfinished">이 PC의 학습 데이터가 손상되어 따로 보관했습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your learning data on this Mac was damaged and has been set aside</source>
+        <translation type="unfinished">이 Mac의 학습 데이터가 손상되어 따로 보관했습니다</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1652,6 +1739,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
+        <translation type="unfinished">계정에서 초대 코드(이 Mac이 전에 쓴 코드도 다시 됩니다)나 Plus 이메일의 코드로 로그인하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus가 끝났습니다</translation>
     </message>
@@ -1702,6 +1794,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">홈에서 앱을 추가하거나(최대 3개) &apos;Mac에서 재생되는 모든 소리&apos;를 고르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>{name} isn&apos;t open</source>
         <translation type="unfinished">{name}이(가) 열려 있지 않음</translation>
     </message>
@@ -1722,13 +1819,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
+        <translation type="unfinished">소리를 재생하고 있나요? 출력이 이 Mac의 스피커나 헤드셋으로 가고, 음소거되어 있지 않나요?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
         <translation type="unfinished">PC가 조용함: 30초 동안 재생되는 소리 없음</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
+        <translation type="unfinished">Mac이 조용함: 30초 동안 재생되는 소리 없음</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something. If you hear it on a headset that isn&apos;t the PC&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">무언가를 재생하세요. PC의 기본 장치가 아닌 헤드셋으로 듣고 있다면 그 헤드셋을 기본으로 하거나 앱을 추가하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
+        <translation type="unfinished">무언가를 재생하세요. Mac의 기본 장치가 아닌 헤드셋으로 듣고 있다면 그 헤드셋을 기본으로 하거나 앱을 추가하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1739,6 +1851,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the PC&apos;s sound settings?</source>
         <translation type="unfinished">음소거되어 있거나, PC의 소리 설정에서 다른 마이크가 선택되어 있지 않나요?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
+        <translation type="unfinished">음소거되어 있거나, Mac의 소리 설정에서 다른 마이크가 선택되어 있지 않나요?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1784,6 +1901,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the tray menu.</source>
+        <translation type="unfinished">홈이나 알림 영역 메뉴에서 &apos;다시 시작&apos;을 고르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The caption windows are hidden</source>
         <translation type="unfinished">자막 창이 숨겨져 있음</translation>
     </message>
@@ -1794,6 +1916,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">홈이나 알림 영역 메뉴에서 &apos;모두 숨기기&apos;를 쓰세요. 앱의 자막 기록에서 자막이 오는지 볼 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captions are failing on the server</source>
         <translation type="unfinished">서버에서 자막을 만들지 못하고 있음</translation>
     </message>
@@ -1801,6 +1928,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>It keeps trying by itself - nothing on this PC needs changing. If it goes on for more than a few minutes, report a problem.</source>
         <translation type="unfinished">저절로 계속 다시 시도합니다. 이 PC에서 바꿀 것은 없습니다. 몇 분 넘게 계속되면 문제를 신고하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It keeps trying by itself - nothing on this Mac needs changing. If it goes on for more than a few minutes, report a problem.</source>
+        <translation type="unfinished">저절로 계속 다시 시도합니다. 이 Mac에서 바꿀 것은 없습니다. 몇 분 넘게 계속되면 문제를 신고하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1819,8 +1951,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption apps you add (macOS 14.2 or later)</source>
+        <translation type="unfinished">추가한 앱 자막 만들기 (macOS 14.2 이상)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
         <translation type="unfinished">홈에서 소리가 나는 앱을 최대 3개까지 추가하세요. 각 앱마다 이름이 붙은 자막 창이 생깁니다. 추가한 앱이 열려 있지 않으면 열릴 때 자막이 만들어집니다. Windows 10은 앱을 구분할 수 없어서 PC에서 재생되는 모든 소리가 자막이 됩니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">홈에서 소리가 나는 앱을 최대 3개까지 추가하세요. 각 앱마다 이름이 붙은 자막 창이 생깁니다. 추가한 앱이 열려 있지 않으면 열릴 때 자막이 만들어집니다. macOS 14.2 이전의 Mac은 앱을 구분할 수 없어서 Mac에서 재생되는 모든 소리가 자막이 됩니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1834,13 +1976,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">홈에 앱을 하나 추가하고 &apos;Mac에서 재생되는 나머지 소리도 자막 만들기&apos;를 켜세요. 그 앱을 뺀 모든 소리가 &apos;그 밖의 모든 것&apos;이라는 별도 자막 창에 나옵니다. 통화는 한 창에, 게임이나 동영상은 다른 창에, 겹치는 것은 없습니다. 한 번에 앱 하나로만 됩니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
         <translation type="unfinished">PC에서 재생되는 모든 소리 자막 만들기</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Mac에서 재생되는 모든 소리 자막 만들기</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>On Home, choose Everything the PC plays: all it plays through its default speakers or headset, labelled This PC. If your headset isn&apos;t the default device, make it the default.</source>
         <translation type="unfinished">홈에서 &apos;PC에서 재생되는 모든 소리&apos;를 고르세요. 기본 스피커나 헤드셋으로 재생되는 모든 소리가 &apos;이 PC&apos;로 자막이 됩니다. 헤드셋이 기본 장치가 아니라면 기본으로 설정하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, choose Everything the Mac plays: all it plays through its default speakers or headset, labelled This Mac. If your headset isn&apos;t the default device, make it the default.</source>
+        <translation type="unfinished">홈에서 &apos;Mac에서 재생되는 모든 소리&apos;를 고르세요. 기본 스피커나 헤드셋으로 재생되는 모든 소리가 &apos;이 Mac&apos;로 자막이 됩니다. 헤드셋이 기본 장치가 아니라면 기본으로 설정하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1864,6 +2021,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">자막 창을 끌어서 옮기고, 가장자리를 끌어서 크기를 바꾸세요. 홈이나 알림 영역 메뉴의 모두 잠금은 클릭을 통과시킵니다. 창을 잃어버렸나요? 홈의 &apos;위치 초기화&apos;로 모든 창을 되돌릴 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">게임 위에서</translation>
     </message>
@@ -1871,6 +2033,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
         <translation type="unfinished">자막 창은 게임의 키보드나 마우스를 가져가지 않습니다. 활성 창이 되지 않기 때문입니다. 봐야 할 곳을 가리지 않는 곳에 두고, 모두 잠금(Ctrl+Alt+L)으로 클릭이 게임으로 가게 하세요. 전투 중에는 모두 숨기기(Ctrl+Alt+H). 단축키는 게임 중에도 작동하며 아직 바꿀 수 없습니다. 전용 전체 화면 게임은 다른 모든 창을 덮으니, 테두리 없는 창 모드나 창 모드 전체 화면을 고르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the tray menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">자막 창은 게임의 키보드나 마우스를 가져가지 않습니다. 활성 창이 되지 않기 때문입니다. 봐야 할 곳을 가리지 않는 곳에 두고, 홈이나 알림 영역 메뉴의 모두 잠금으로 클릭이 게임으로 가게 하세요. 전용 전체 화면 게임은 다른 모든 창을 덮으니, 테두리 없는 창 모드나 창 모드 전체 화면을 고르세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1891,6 +2058,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
         <translation type="unfinished">이 PC에서 나가는 것은 음성뿐입니다. 저희 서버는 음성을 자막과 번역으로 바꾸고, 오디오, 자막, 번역을 절대 저장하지 않습니다. 이 PC는 앱마다 마지막 2분 동안의 끝난 음성을 메모리에 두며, 요청할 때만 다시 보냅니다. 자막 기록은 이 PC를 떠나지 않고, 저장하지 않으면 Polyglotic을 종료할 때 사라집니다. 저희는 계정, 사용 시간(분), 세션 기록(말한 내용이나 앱 이름은 제외), 찾아보거나 저장하거나 표시한 사전 단어(주변 문장은 제외)를 보관합니다. 사용 통계와 단어 집계는 켰을 때만 공유되며(계정 &gt; 공유할 항목 선택), 학습 데이터는 계정에서 삭제할 수 있습니다. 아래 개인정보 처리방침에 모두 나와 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">이 Mac에서 나가는 것은 음성뿐입니다. 저희 서버는 음성을 자막과 번역으로 바꾸고, 오디오, 자막, 번역을 절대 저장하지 않습니다. 이 Mac은 앱마다 마지막 2분 동안의 끝난 음성을 메모리에 두며, 요청할 때만 다시 보냅니다. 자막 기록은 이 Mac을 떠나지 않고, 저장하지 않으면 Polyglotic을 종료할 때 사라집니다. 저희는 계정, 사용 시간(분), 세션 기록(말한 내용이나 앱 이름은 제외), 찾아보거나 저장하거나 표시한 사전 단어(주변 문장은 제외)를 보관합니다. 사용 통계와 단어 집계는 켰을 때만 공유되며(계정 &gt; 공유할 항목 선택), 학습 데이터는 계정에서 삭제할 수 있습니다. 아래 개인정보 처리방침에 모두 나와 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1934,6 +2106,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Words you look up and save are on Words. They are kept on this Mac and, with your account, on our server, so they follow you to another computer.</source>
+        <translation type="unfinished">찾아보고 저장한 단어는 &apos;단어&apos;에 있습니다. 이 Mac과, 계정이 있으면 저희 서버에 보관되어 다른 컴퓨터에서도 이어집니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Put your words into Anki</source>
         <translation type="unfinished">단어를 Anki로 옮기기</translation>
     </message>
@@ -1952,8 +2129,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
+        <translation type="unfinished">이 Mac의 학습 데이터가 손상되어 {name}(으)로 따로 보관했습니다. 저장한 단어를 계정에서 되살리는 중입니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so changes aren&apos;t kept on this PC until you restart Polyglotic. Your saved words then come back from your account.</source>
         <translation type="unfinished">이 PC의 학습 데이터가 손상되어, Polyglotic을 다시 시작할 때까지 변경 사항이 여기 저장되지 않습니다. 다시 시작하면 저장한 단어가 계정에서 돌아옵니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Your learning data on this Mac was damaged, so changes aren&apos;t kept on this Mac until you restart Polyglotic. Your saved words then come back from your account.</source>
+        <translation type="unfinished">이 Mac의 학습 데이터가 손상되어, Polyglotic을 다시 시작할 때까지 변경 사항이 여기 저장되지 않습니다. 다시 시작하면 저장한 단어가 계정에서 돌아옵니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2068,8 +2255,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Check this Mac&apos;s date and time</source>
+        <translation type="unfinished">이 Mac의 날짜와 시간을 확인하세요</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is open on too many of your PCs</source>
         <translation type="unfinished">너무 많은 PC에서 Polyglotic이 열려 있음</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic is open on too many of your computers</source>
+        <translation type="unfinished">너무 많은 컴퓨터에서 Polyglotic이 열려 있음</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2090,8 +2287,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">이 Mac의 날짜나 시간이 잘못된 것 같습니다: {date} {time}(으)로 되어 있습니다. 자막은 작동합니다. 바로잡으려면 시스템 설정의 &apos;일반&apos; &gt; &apos;날짜 및 시간&apos;에서 &apos;자동으로 날짜 및 시간 설정&apos;을 켜세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">저희 코드가 필요합니다: 초대 코드나 Plus 이메일의 코드</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the tray</source>
+        <translation type="unfinished">여기나 알림 영역에서 다시 시작</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2178,6 +2386,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac seems to be offline. Check its internet connection; if it&apos;s working, the problem is ours</source>
+        <translation type="unfinished">이 Mac이 오프라인인 것 같습니다. 인터넷 연결을 확인하세요. 정상이라면 저희 쪽 문제입니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet; if it&apos;s working, we&apos;re probably down</source>
         <translation type="unfinished">인터넷을 확인하세요. 정상이라면 저희 쪽 장애일 가능성이 큽니다</translation>
     </message>
@@ -2209,6 +2422,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">이 Mac의 날짜가 {date}(으)로 되어 있는데, 올바른 날짜가 아닙니다. 시스템 설정의 &apos;일반&apos; &gt; &apos;날짜 및 시간&apos;에서 &apos;자동으로 날짜 및 시간 설정&apos;을 켜세요</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network</source>
         <extracomment>a certificate out of date, and this PC&apos;s clock looks right (313)</extracomment>
         <translation type="unfinished">이 네트워크의 무언가가 만료된 인증서로 막고 있습니다 - 대개 백신 프로그램의 HTTPS 검사나 VPN입니다. Polyglotic에 대해 이를 끄거나 다른 네트워크를 사용해 보세요</translation>
@@ -2222,6 +2441,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>too many failed sign-ins came from this network, so the server waits before it lets this PC in</source>
         <translation type="unfinished">이 네트워크에서 로그인 실패가 너무 많아, 서버가 이 PC를 들이기 전에 기다리고 있습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>too many failed sign-ins came from this network, so the server waits before it lets this Mac in</source>
+        <translation type="unfinished">이 네트워크에서 로그인 실패가 너무 많아, 서버가 이 Mac을 들이기 전에 기다리고 있습니다</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2245,8 +2469,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything the Mac plays</source>
+        <translation type="unfinished">Mac에서 재생되는 모든 소리</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>everything else the PC plays</source>
         <translation type="unfinished">PC에서 재생되는 나머지 소리</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>everything else the Mac plays</source>
+        <translation type="unfinished">Mac에서 재생되는 나머지 소리</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2307,13 +2541,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Show its caption window</source>
+        <translation type="unfinished">자막 창 표시</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hidden - Ctrl+Alt+H</source>
         <translation type="unfinished">숨김 - Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Show its caption window</source>
-        <translation type="unfinished">자막 창 표시</translation>
+        <source>Hidden - turn off Hide all to show it</source>
+        <translation type="unfinished">숨김 - 보려면 &apos;모두 숨기기&apos;를 끄세요</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2372,8 +2611,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
+        <translation type="unfinished">앱을 추가하거나 &apos;Mac에서 재생되는 모든 소리&apos;를 고를 때까지 아무것도 자막이 되지 않습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else the PC plays (in its own window)</source>
         <translation type="unfinished">PC에서 재생되는 나머지 소리도 자막 만들기 (별도 창)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Also caption everything else the Mac plays (in its own window)</source>
+        <translation type="unfinished">Mac에서 재생되는 나머지 소리도 자막 만들기 (별도 창)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2432,6 +2681,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Mac에서 재생되는 모든 소리</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps again</source>
         <translation type="unfinished">앱 다시 시도</translation>
     </message>
@@ -2444,6 +2698,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>This PC</source>
         <translation type="unfinished">이 PC</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This Mac</source>
+        <translation type="unfinished">이 Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2477,8 +2736,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">앱 대신: 이 Mac에서 앱 하나만 자막으로 만들 수 없었습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps (the only choice on this version of Windows)</source>
         <translation type="unfinished">앱 대신 (이 Windows 버전에서 유일한 선택)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on this version of macOS)</source>
+        <translation type="unfinished">앱 대신 (이 macOS 버전에서 유일한 선택)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2489,6 +2758,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the PC plays except {app}, in a window of its own</source>
         <translation type="unfinished">{app}을(를) 뺀 PC에서 재생되는 모든 소리, 별도 창에</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays except {app}, in a window of its own</source>
+        <translation type="unfinished">{app}을(를) 뺀 Mac에서 재생되는 모든 소리, 별도 창에</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2572,18 +2846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+L</source>
-        <translation type="unfinished">Ctrl+Alt+L</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Hide all</source>
         <translation type="unfinished">모두 숨기기</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Ctrl+Alt+H</source>
-        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2594,6 +2858,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Reset positions</source>
         <translation type="unfinished">위치 초기화</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+L</source>
+        <translation type="unfinished">Ctrl+Alt+L</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Ctrl+Alt+H</source>
+        <translation type="unfinished">Ctrl+Alt+H</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2717,11 +2991,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Lock all windows</source>
         <translation type="unfinished">모든 창 잠그기</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
-        <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
-        <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨, Ctrl+Alt+L</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -3449,6 +3718,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: lookups in {language} captions once it&apos;s on this Mac. Captions and translation work either way.</source>
+        <translation type="unfinished">오픈 데이터로 만든 기본 사전(뜻은 사람이 확인하지 않음)으로, 준비된 사전이 있으면 이 Mac에 받은 뒤 {language} 자막에서 단어를 찾아볼 수 있습니다. 어느 경우든 자막과 번역은 됩니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A basic dictionary from open data (meanings not checked by a person), if one is ready: its card offers it once you add {language}. Captions and translation work either way.</source>
         <translation type="unfinished">오픈 데이터로 만든 기본 사전(뜻은 사람이 확인하지 않음)으로, 준비된 사전이 있으면 {language} 추가 후 그 카드에서 제공됩니다. 어느 경우든 자막과 번역은 됩니다.</translation>
     </message>
@@ -3758,6 +4032,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>Dictionaries on this Mac</source>
+        <translation type="unfinished">이 Mac의 사전</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Downloaded for the languages you learn. Removing one frees its space; lookups in its language stop until it&apos;s downloaded again.</source>
         <translation type="unfinished">학습 중인 언어를 위해 다운로드한 사전입니다. 제거하면 공간이 확보되고, 다시 다운로드할 때까지 그 언어에서 단어를 찾아볼 수 없습니다.</translation>
     </message>
@@ -3775,6 +4054,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>The words you look up, save and mark are kept on this PC, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
         <translation type="unfinished">찾아보고 저장하고 표시한 단어는 이 PC와, 사전 단어와 시각으로 저희 서버에 보관됩니다. 계정에서처럼, 배우는 모든 언어에서 삭제할 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
+        <source>The words you look up, save and mark are kept on this Mac, and on our server as dictionary words and times. You can delete them, in every language you learn - the same as on Account.</source>
+        <translation type="unfinished">찾아보고 저장하고 표시한 단어는 이 Mac과, 사전 단어와 시각으로 저희 서버에 보관됩니다. 계정에서처럼, 배우는 모든 언어에서 삭제할 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -3842,6 +4126,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Not enough room on this PC: it needs {size} free.</source>
         <translation type="unfinished">이 PC에 공간이 부족합니다: {size}의 여유 공간이 필요합니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Not enough room on this Mac: it needs {size} free.</source>
+        <translation type="unfinished">이 Mac에 공간이 부족합니다: {size}의 여유 공간이 필요합니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -3925,6 +4214,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>On this Mac: version {version}, {size}.</source>
+        <translation type="unfinished">이 Mac: 버전 {version}, {size}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>A newer version ({size}) waits for a connection that isn&apos;t metered.</source>
         <translation type="unfinished">새 버전({size})이 데이터 통신 연결이 아닌 연결을 기다리고 있습니다.</translation>
     </message>
@@ -3962,6 +4256,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>It frees {size} on this PC. It downloads again if you learn {language} later.</source>
         <translation type="unfinished">이 PC에서 {size}가 확보됩니다. 나중에 {language}를 학습하면 다시 다운로드됩니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>It frees {size} on this Mac. It downloads again if you learn {language} later.</source>
+        <translation type="unfinished">이 Mac에서 {size}가 확보됩니다. 나중에 {language}를 학습하면 다시 다운로드됩니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -4143,6 +4442,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Only what your PC plays counts, in finished captions - not what you say.</source>
         <translation type="unfinished">PC에서 재생된 소리의 완성된 자막만 셉니다. 내가 말한 것은 세지 않습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
+        <source>Only what your Mac plays counts, in finished captions - not what you say.</source>
+        <translation type="unfinished">Mac에서 재생된 소리의 완성된 자막만 셉니다. 내가 말한 것은 세지 않습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -4962,6 +5266,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
+        <translation type="unfinished">이 Mac의 어떤 글꼴이든 됩니다. 중국어와 일본어 글자가 없는 글꼴이면 그 글자가 있는 글꼴로 표시됩니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Show the original above the translation</source>
         <translation type="unfinished">번역 위에 원문 표시</translation>
     </message>
@@ -5232,6 +5541,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Slide in: a new caption rises into place from below - not while the Mac&apos;s animation effects are off. Appear: nothing moves.</source>
+        <translation type="unfinished">밀어 올리기: 새 자막이 아래에서 올라옵니다(Mac의 애니메이션 효과가 꺼져 있으면 제외). 나타나기: 움직이지 않습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after quiet</source>
         <translation type="unfinished">조용하면 사라지기</translation>
     </message>
@@ -5415,6 +5729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
+        <source>About this Mac: the app, the system and the audio devices</source>
+        <translation type="unfinished">이 Mac 정보: 앱, 시스템, 오디오 장치</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Captions from the last few minutes, as shown</source>
         <translation type="unfinished">최근 몇 분 동안의 자막(표시된 그대로)</translation>
     </message>
@@ -5500,6 +5819,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Like this PC</source>
         <translation type="unfinished">이 PC와 같게</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Like this Mac</source>
+        <translation type="unfinished">이 Mac과 같게</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6000,6 +6324,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac has signed in before: the invite code you used then works again here.</source>
+        <translation type="unfinished">이 Mac은 전에 로그인한 적이 있습니다. 그때 쓴 초대 코드를 여기서 다시 쓸 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Signing in…</source>
         <translation type="unfinished">로그인하는 중…</translation>
     </message>
@@ -6020,6 +6349,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This code doesn&apos;t work: it may be mistyped, used on another computer or no longer valid. Check it, or write to us and we&apos;ll sort it out.</source>
+        <translation type="unfinished">이 코드는 사용할 수 없습니다. 잘못 입력했거나, 다른 컴퓨터에서 사용했거나, 더 이상 유효하지 않을 수 있습니다. 확인해 보시거나, 연락 주시면 해결해 드립니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This code&apos;s subscription was cancelled before the code was used, so it gives no Plus. To get Plus, subscribe again on our site - or write to us if you didn&apos;t cancel it.</source>
         <translation type="unfinished">이 코드의 구독이 사용 전에 취소되어 Plus가 제공되지 않습니다. Plus를 쓰려면 웹사이트에서 다시 구독하세요. 취소하지 않았다면 연락해 주세요.</translation>
     </message>
@@ -6032,6 +6366,11 @@
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>This PC&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
         <translation type="unfinished">이 PC의 로그인이 만료되었습니다. 계정에서 로그아웃한 뒤 이 코드로 로그인하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac&apos;s sign-in has run out. Sign out on Account, then sign in with this code.</source>
+        <translation type="unfinished">이 Mac의 로그인이 만료되었습니다. 계정에서 로그아웃한 뒤 이 코드로 로그인하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6050,6 +6389,12 @@
         <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time automatically in Windows&apos; Settings, Time &amp; language, Date &amp; time, then choose Sync now.</source>
         <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">이 PC의 날짜가 {date}(으)로 되어 있는데, 올바른 날짜가 아닙니다. 보안 연결에는 정확한 날짜가 필요합니다. Windows 설정의 &apos;시간 및 언어&apos; &gt; &apos;날짜 및 시간&apos;에서 &apos;자동으로 시간 설정&apos;을 켠 다음 &apos;지금 동기화&apos;를 선택하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This Mac says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on Set time and date automatically in System Settings, General, Date &amp; Time.</source>
+        <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">이 Mac의 날짜가 {date}(으)로 되어 있는데, 올바른 날짜가 아닙니다. 보안 연결에는 정확한 날짜가 필요합니다. 시스템 설정의 &apos;일반&apos; &gt; &apos;날짜 및 시간&apos;에서 &apos;자동으로 날짜 및 시간 설정&apos;을 켜세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -6088,13 +6433,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Sign out of Polyglotic on this Mac?</source>
+        <translation type="unfinished">이 Mac에서 Polyglotic 로그아웃할까요?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
         <translation type="unfinished">다시 로그인할 때까지 자막이 멈춥니다. 같은 초대 코드를 이 PC에서 다시 쓸 수 있습니다. 저장한 단어와 학습 데이터는 이 PC와 저희 서버에 남습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">다시 로그인할 때까지 자막이 멈춥니다. 같은 초대 코드를 이 Mac에서 다시 쓸 수 있습니다. 저장한 단어와 학습 데이터는 이 Mac과 저희 서버에 남습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Changes this PC hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
         <translation type="unfinished">이 PC가 아직 서버에 보내지 않은 변경 사항은 버려지므로, 다음에 로그인하는 사람에게 전달되지 않습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>Changes this Mac hasn&apos;t sent to our server yet are dropped, so none of them reach whoever signs in next.</source>
+        <translation type="unfinished">이 Mac이 아직 서버에 보내지 않은 변경 사항은 버려지므로, 다음에 로그인하는 사람에게 전달되지 않습니다.</translation>
     </message>
 </context>
 <context>
@@ -6106,8 +6466,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default</source>
+        <translation type="unfinished">이 Mac의 기본값</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>This PC&apos;s default ({device})</source>
         <translation type="unfinished">이 PC의 기본값 ({device})</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>This Mac&apos;s default ({device})</source>
+        <translation type="unfinished">이 Mac의 기본값 ({device})</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6133,6 +6503,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>For Everything the PC plays. Apps you add are heard on any speakers.</source>
         <translation type="unfinished">&apos;PC에서 재생되는 모든 소리&apos;용. 추가한 앱은 어느 스피커에서든 들립니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>For Everything the Mac plays. Apps you add are heard on any speakers.</source>
+        <translation type="unfinished">&apos;Mac에서 재생되는 모든 소리&apos;용. 추가한 앱은 어느 스피커에서든 들립니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -6168,6 +6543,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Not plugged in - this PC&apos;s default is used</source>
         <translation type="unfinished">연결되지 않음 - 이 PC의 기본값 사용 중</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
+        <source>Not plugged in - this Mac&apos;s default is used</source>
+        <translation type="unfinished">연결되지 않음 - 이 Mac의 기본값 사용 중</translation>
     </message>
 </context>
 <context>
@@ -6421,6 +6801,19 @@
     </message>
 </context>
 <context>
+    <name>UnlockSpot</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock</source>
+        <translation type="unfinished">잠금 해제</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/unlock_spot.py"/>
+        <source>Unlock every caption window</source>
+        <translation type="unfinished">모든 자막 창 잠금 해제</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -6497,6 +6890,11 @@
         <source>Time captions were on, counted on this PC.</source>
         <translation type="unfinished">자막을 켜 둔 시간(이 PC에서 집계).</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Time captions were on, counted on this Mac.</source>
+        <translation type="unfinished">자막을 켜 둔 시간(이 Mac에서 집계).</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>+%Ln new in the last 7 days</source>
@@ -6528,6 +6926,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Counted on this PC from finished captions, and kept here.</source>
         <translation type="unfinished">확정 자막에서 이 PC가 세고, 여기에 보관합니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>Counted on this Mac from finished captions, and kept here.</source>
+        <translation type="unfinished">확정 자막에서 이 Mac이 세고, 여기에 보관합니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
