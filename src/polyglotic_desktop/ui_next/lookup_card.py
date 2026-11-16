@@ -118,7 +118,6 @@ from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS
 from polyglotic_desktop.ui_next.copying import Painted, TextSelection, copy_quietly
 from polyglotic_desktop.ui_next.languages import learned_name
 from polyglotic_desktop.ui_next.load_card import add_text, check_texts, stage_text
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import KeyState
 from polyglotic_desktop.ui_next.views.lookup import (
     Card,
@@ -928,22 +927,14 @@ class LookupCard(QWidget):
 
     def _no_voice(self, painted: _Painted, language: str) -> None:
         """No voice for the word's language on this PC: how Windows adds
-        one (Microsoft's steps, polyglotic-hq 286), and a button to it - on
-        a Mac, how macOS adds one (Apple's steps, 428)."""
+        one (Microsoft's steps, polyglotic-hq 286), and a button to it."""
         name = learned_name("zh" if language == "zh-hant" else language)
         painted.space(4)
         painted.text(
-            pc_or_mac(
-                _tr(
-                    "No {language} voice on this PC yet. Windows adds one for free: "
-                    "Settings > Time & language > Speech > Add voices, then "
-                    "{language}."
-                ),
-                _tr(
-                    "No {language} voice on this Mac yet. macOS adds one for free: "
-                    "System Settings > Accessibility > Spoken Content > System "
-                    "voice > Manage Voices, then {language}."
-                ),
+            _tr(
+                "No {language} voice on this PC yet. Windows adds one for free: "
+                "Settings > Time & language > Speech > Add voices, then "
+                "{language}."
             ).format(language=name),
             _ui(12),
             DIM,
@@ -1328,10 +1319,7 @@ class LookupCard(QWidget):
         language, state = saying
         if state is Say.NO_VOICE:
             name = learned_name("zh" if language == "zh-hant" else language)
-            return pc_or_mac(
-                _tr("No {language} voice on this PC"),
-                _tr("No {language} voice on this Mac"),
-            ).format(language=name)
+            return _tr("No {language} voice on this PC").format(language=name)
         if state is Say.SPEAKING:
             return _tr("Stop (R)")
         if self.speech.times_said(card.word, language) % 2:
@@ -1365,10 +1353,7 @@ class LookupCard(QWidget):
             "not_now": _tr("Don't ask about this language again"),
             "back": _tr("Back (Backspace)"),
             "close": _tr("Close (Esc)"),
-            "add_voice": pc_or_mac(
-                _tr("Opens Windows' Settings, where voices are added"),
-                _tr("Opens System Settings, where voices are added"),
-            ),
+            "add_voice": _tr("Opens Windows' Settings, where voices are added"),
             "copy": _tr("Copy the word, its reading and meaning (Ctrl+C)"),
         }.get(what, "")
 

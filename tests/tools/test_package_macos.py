@@ -195,3 +195,89 @@ def test_portaudios_licence_goes_with_the_app_that_bundles_it(
     (windows / "_internal").mkdir(parents=True)
     build.copy_licences(windows, build.WINDOWS)
     assert not (windows / "licenses" / "PortAudio").exists()
+
+
+# Signing with the release's certificate, and the release's zip
+# (polyglotic-hq 422, decision 0196).
+
+
+def _codesign(said: dict[str, str], failing: tuple[str, ...] = ()) -> object:
+    """A stand-in for subprocess.run on codesign: records each command,
+    fails the ones whose flag is in `failing`, and says `said[flag]` on
+    stderr."""
+    commands: list[list[str]] = []
+
+    class Done:
+        def __init__(self, args: list[str]) -> None:
+            flag = args[1]
+            self.returncode = 1 if flag in failing else 0
+            self.stdout = (
+                "designated => identifier x" if "--requirements" in args else ""
+            )
+            self.stderr = said.get(flag, "")
+
+    def run(args: list[str], **kwargs: object) -> Done:
+        commands.append(list(args))
+        return Done(args)
+
+    run.commands = commands  # type: ignore[attr-defined]
+    return run
+
+
+def test_with_a_certificate_the_bundle_is_signed_with_it_and_its_authority_kept(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run = _codesign(
+        {
+            "--display": "Identifier=io.polyglotic.desktop\nAuthority=Polyglotic Mac Signing\n"
+        }
+    )
+    monkeypatch.setattr(build.subprocess, "run", run)
+    monkeypatch.setenv("POLYGLOTIC_CODESIGN_IDENTITY", "ABCDEF0123")
+    signature = build.sign(tmp_path / "Polyglotic.app")
+    first = run.commands[0]  # type: ignore[attr-defined]
+    assert first[:5] == ["codesign", "--force", "--deep", "--sign", "ABCDEF0123"]
+    assert "--timestamp=none" in first
+    assert signature["authority"] == ["Polyglotic Mac Signing"]
+    assert signature["ad_hoc"] is False
+    assert build.signature_problems(signature) == []
+
+
+def test_ad_hoc_without_a_certificate_as_before(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run = _codesign(
+        {"--display": "Identifier=io.polyglotic.desktop\nSignature=adhoc\n"}
+    )
+    monkeypatch.setattr(build.subprocess, "run", run)
+    monkeypatch.delenv("POLYGLOTIC_CODESIGN_IDENTITY", raising=False)
+    signature = build.sign(tmp_path / "Polyglotic.app")
+    first = run.commands[0]  # type: ignore[attr-defined]
+    assert first == [
+        "codesign",
+        "--force",
+        "--deep",
+        "--sign",
+        "-",
+        str(tmp_path / "Polyglotic.app"),
+    ]
+    assert signature["ad_hoc"] is True and signature["authority"] == []
+    assert build.signature_problems(signature) == []
+
+
+def test_a_certificate_that_didnt_take_is_a_problem_though_the_bundle_verifies(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PyInstaller's ad-hoc signature is underneath, so the bundle still
+    verifies when signing with the certificate fails: that has to fail the
+    build, or a release ships ad hoc and every learner is asked again."""
+    run = _codesign({"--force": "errSecInternalComponent"}, failing=("--force",))
+    monkeypatch.setattr(build.subprocess, "run", run)
+    monkeypatch.setenv("POLYGLOTIC_CODESIGN_IDENTITY", "ABCDEF0123")
+    signature = build.sign(tmp_path / "Polyglotic.app")
+    assert signature["verified"] is True
+    found = build.signature_problems(signature)
+    assert any(
+        "couldn't sign" in f and "errSecInternalComponent" in f for f in found
+    ), found
+    assert any("signed ad hoc although" in f for f in found), found

@@ -125,7 +125,6 @@ def test_a_missing_master_says_so(qapp: QApplication) -> None:
 def _tray_app(light: bool) -> DesktopApp:
     app = DesktopApp(MemorySettingsStore(), None, None, light_taskbar=lambda: light)
     app.tray = QSystemTrayIcon(app)  # offscreen has no tray: as show_tray makes it
-    app.tray_icons = icons.tray_icon  # Windows' (the Mac's template: below)
     return app
 
 
@@ -169,7 +168,6 @@ def test_without_a_taskbar_reader_the_tray_follows_windows_apps(
 ) -> None:
     app = make_app()  # no light_taskbar: Qt's colour scheme stands in
     app.tray = QSystemTrayIcon(app)
-    app.tray_icons = icons.tray_icon  # Windows
     app.set_connection(ConnectionState.NOT_CONNECTED)
     from polyglotic_desktop.ui import theme
 
@@ -214,55 +212,3 @@ def test_the_tray_menu_follows_the_taskbar_not_the_apps(qapp: QApplication) -> N
     light.set_connection(ConnectionState.NOT_CONNECTED)
     assert light.tray_menu.styleSheet() == ""  # Windows' light menu, as Qt draws it
     light.close()
-
-
-# --- the Mac's menu bar (polyglotic-hq 428) ---------------------------------------
-
-
-@pytest.mark.parametrize("state", list(TrayState))
-@pytest.mark.parametrize("size", icons.MENU_BAR_SIZES)
-def test_the_menu_bar_icon_is_a_template(
-    qapp: QApplication, state: TrayState, size: int
-) -> None:
-    """Black and its opacity only, so macOS draws it light or dark."""
-    icon = icons.menu_bar_icon(state)
-    assert icon.isMask()
-    image = icon.pixmap(size).toImage()
-    alphas = set()
-    for y in range(image.height()):
-        for x in range(image.width()):
-            color = image.pixelColor(x, y)
-            if color.alpha():
-                assert (color.red(), color.green(), color.blue()) == (0, 0, 0)
-                alphas.add(color.alpha())
-    assert 255 in alphas
-
-
-def test_the_menu_bar_states_read_apart_at_16_px(qapp: QApplication) -> None:
-    """Listening has the dots cut out; idle the bar alone; paused a pause
-    mark - a template has no pink to tell them apart."""
-
-    def at(state: TrayState, x: int, y: int) -> int:
-        return icons.render(f"tray-template-{state}", 16).pixelColor(x, y).alpha()
-
-    for x in (3, 7, 11):  # the dots: holes when listening only
-        assert at(TrayState.LISTENING, x, 10) == 0
-        assert at(TrayState.IDLE, x, 10) == 255
-    assert at(TrayState.LISTENING, 8, 5) == at(TrayState.IDLE, 8, 5) == 0  # the bar
-    assert at(TrayState.PAUSED, 5, 8) == 0 and at(TrayState.PAUSED, 8, 8) == 255
-    assert at(TrayState.LISTENING, 8, 0) == 0 and at(TrayState.LISTENING, 8, 1) == 255
-
-
-def test_on_a_mac_the_tray_is_the_menu_bars_template(
-    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    from polyglotic_desktop.ui import app as app_module
-
-    monkeypatch.setattr(app_module, "on_a_mac", lambda: True)
-    app = DesktopApp(MemorySettingsStore(), None, None, light_taskbar=lambda: False)
-    app.tray = QSystemTrayIcon(app)
-    app.set_connection(ConnectionState.NOT_CONNECTED)
-    assert app.tray.icon().cacheKey() == icons.menu_bar_icon(TrayState.IDLE).cacheKey()
-    # the menus' keys: Control+Command, which Qt writes Meta+Ctrl on a Mac
-    assert app.lock_windows.shortcut().toString() == "Meta+Ctrl+L"
-    app.close()

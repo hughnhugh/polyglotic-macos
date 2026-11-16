@@ -17,9 +17,7 @@ from PySide6.QtCore import QObject, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 
 from polyglotic_desktop.ports.speaker import Sounding, Speaker, Voice
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.speech import (
-    MAC_SPEECH_SETTINGS,
     SPEECH_SETTINGS,
     Say,
     pace,
@@ -124,9 +122,8 @@ class WordSpeech(QObject):
         self._said = ("", 0)
 
     def add_voice(self) -> None:
-        """Windows' speech settings, where Add voices is; a Mac's Spoken
-        Content, where Manage Voices is."""
-        self._open_url(pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS))
+        """Windows' speech settings, where Add voices is."""
+        self._open_url(SPEECH_SETTINGS)
 
     def _sounding(self, start: float, seconds: float) -> None:
         if self.hush is not None:

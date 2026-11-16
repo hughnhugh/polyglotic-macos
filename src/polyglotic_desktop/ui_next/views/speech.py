@@ -32,11 +32,6 @@ SPEECH_SETTINGS = "ms-settings:speech"
 """Windows' Settings > Time & language > Speech, where Manage voices > Add
 voices adds a language's voices (Microsoft's ms-settings list, read
 2026-11-11)."""
-MAC_SPEECH_SETTINGS = (
-    "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent"
-)
-"""A Mac's System Settings > Accessibility > Spoken Content, where System
-voice > Manage Voices adds a language's voices (polyglotic-hq 428)."""
 
 REGIONS: dict[str, tuple[str, ...]] = {
     "zh": ("zh-CN", "zh-SG", "zh-TW"),
