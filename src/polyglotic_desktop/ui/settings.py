@@ -154,10 +154,10 @@ class AppSettings:
     # the reading line's colour: its line's, its word link's or one picked
     # (`reading_custom_color`); and linked words in their link's colour (395)
     reading_system: str = ReadingSystem.PINYIN.value  # or zhuyin (395)
-    reading_colour: str = ReadingColour.SAME.value
+    reading_colour: str = ReadingColour.LINK.value  # its word link's (446)
     reading_custom_color: str = "#9ad0ff"
-    said_in_link_colours: bool = False  # what was said's linked words (431)
-    translation_in_link_colours: bool = False  # the translation's (431)
+    said_in_link_colours: bool = True  # what was said's linked words (431, 446)
+    translation_in_link_colours: bool = True  # the translation's (431, 446)
     # Settings > Captions > Lab's experimental values (the new interface's
     # `views.lab.CaptionLab`, which reads each one leniently): only those
     # moved from their defaults; {} untouched (polyglotic-hq 284)
@@ -516,9 +516,11 @@ def _migrated(stored: Mapping[str, object]) -> Mapping[str, object]:
         found["overlay_position"] = "custom"
     if "caption_mode_chosen" not in found:
         found["caption_mode_chosen"] = _caption_mode_chosen_from(found)
-    if found.get(OLD_LINK_WORDS) is True:  # 0.1.7's previews: one for both (431)
-        found.setdefault("said_in_link_colours", True)
-        found.setdefault("translation_in_link_colours", True)
+    old_link_words = found.get(OLD_LINK_WORDS)
+    if isinstance(old_link_words, bool):  # 0.1.7's previews: one for both (431)
+        # off stays off, now that both are on by default (446)
+        found.setdefault("said_in_link_colours", old_link_words)
+        found.setdefault("translation_in_link_colours", old_link_words)
     return found
 
 

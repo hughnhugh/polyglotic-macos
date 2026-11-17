@@ -26,6 +26,47 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
+### Better
+
+### Fixed
+
+## 0.1.7 - 2026-11-17
+
+### New
+
+- Every language with a dictionary now keeps your words, as Chinese and
+  English do. Learn Russian, Spanish, Japanese or any other language
+  whose dictionary is downloaded, and a word's card has Save to, Add to
+  deck and Known; Words has a section for the language, with its own
+  categories and what you've heard; and captions count and mark its
+  words against your level, a number of words. Each language's words are
+  kept in their own file on this PC.
+- The whole learning view in one click, from a caption window's Word
+  links button. It turns on word links with the lines that join them,
+  each linked word in its link's colour in what was said and in the
+  translation, and pinyin over a Chinese window's words in the same
+  colour - so a word, its pinyin and its translation match. Click it
+  again to go back to how they were.
+- Mandarin's captions can be shown in Traditional characters, and
+  translations into Chinese with them. Choose it in Settings > Speech >
+  Show Mandarin in (or a transcript's Languages), with Detect too; on a
+  Taiwan or Hong Kong Windows it starts at Traditional. Lookups, the
+  transcript, Copy, Save, Anki and the caption preview in Settings
+  follow, and so does a translation into Chinese as a second language.
+  A saved or copied transcript names its lines
+  Chinese (Traditional), and the language pickers call the language
+  Chinese.
+- Polyglotic on a Mac, as an early preview: download it from the alpha
+  page, for a Mac with Apple silicon and macOS 14.2 or later. Captions
+  stay over full-screen videos and apps, and on every desktop (Space).
+  It lives in the menu bar, not the Dock, and can start at login.
+  ⌃⌘L, ⌃⌘P and ⌃⌘H lock, pause and hide the caption windows whatever
+  app is in front, and you hold Right ⌘ to dictate into the app you're
+  using (macOS asks once for the Accessibility permission it needs). A
+  word's card speaks in the Mac's own voices, and Settings, Help, Home
+  and the caption windows name a Mac's keys (⌘, ⌥, ⌃) and its menu bar.
+  Opened from Downloads, it offers to move itself to Applications, and
+  from there it updates itself.
 - Spanish, Italian and Portuguese words are recorded: the speaker on a
   word's card says the language's 10,000 commonest words even on a PC
   with no Windows voice for it. The recordings come after the language's
@@ -36,18 +77,6 @@ the app's What's new, the website's What's new and the Discord post.
   anyone learning Chinese (30 MB, never on a metered connection), and
   Chinese's card on Learning says when they're there. They play for a
   word written in Traditional characters too.
-- On a Mac, captions stay over full-screen videos and apps, and on
-  every desktop (Space). Polyglotic lives in the menu bar there, not the
-  Dock: its icon at the top of the screen opens Home and Settings.
-- On a Mac, dictation types into the app you're using: hold Right ⌘ and
-  speak. macOS asks once for the Accessibility permission it needs.
-- Every language with a dictionary keeps your words, as Chinese and
-  English do: learn Russian, Spanish, Japanese or any other language
-  whose dictionary is downloaded, and a word's card has Save to, Add to
-  deck and Known; Words has a section for the language, with its own
-  categories and what you've heard; and captions count and mark its
-  words against your level, a number of words. Each language's words are
-  kept in their own file on this PC.
 - An Anki deck for every language with a dictionary: Words' Export
   writes a language's words to its own deck (Polyglotic::Russian) with
   its own note type, the word marked in its sentence, and Anki reads it
@@ -82,20 +111,13 @@ the app's What's new, the website's What's new and the Discord post.
   Greek, Filipino and Macedonian, with English meanings: download the
   language's dictionary on Learning. Persian's داستان‌ها and می‌کنم are
   found as their words, and Filipino's isang as isa.
-- Word lookups in Thai, with English meanings and Paiboon romanization:
-  download Thai's dictionary on Learning. Thai captions, written without
-  spaces, are read as their words.
-- Mandarin's captions can be shown in Traditional characters: Settings >
-  Speech > Show Mandarin in (and a transcript's Languages), with Detect
-  too. Lookups, the transcript, copy and Anki follow. On a Taiwan or
-  Hong Kong Windows it starts at Traditional.
 - Pinyin above Chinese (Settings - Look - Pinyin): a small syllable
   over each Chinese character, in what was said and in translations into
-  Chinese, on caption windows and transcripts, Small or Medium. It isn't part of the text: copying, looking
-  up words and Anki cards work as before. Off unless you turn it on.
-  Pinyin over Past what you know puts it only over the words past your
-  known line, the ones word links point out, so there's less to read as
-  you learn.
+  Chinese, on caption windows and transcripts, Small or Medium. It isn't
+  part of the text: copying, looking up words and Anki cards work as
+  before. Off unless you turn it on. Pinyin over Past what you know puts
+  it only over the words past your known line, the ones word links point
+  out, so there's less to read as you learn.
 - Fill the width in one click: a new button on a caption window's strip
   (beside Word links) turns on New layout, Line by line and Captions run
   on together, in every window, so captions use the window's whole width.
@@ -113,13 +135,20 @@ the app's What's new, the website's What's new and the Discord post.
   Dictation uses the microphone chosen too.
 - A locked caption window can be unlocked from the window itself: rest
   the mouse on the lock in its corner for a moment, then click Unlock.
-- On a Mac, Polyglotic opened from Downloads (or anywhere but
-  Applications) offers once to move itself to Applications and opens
-  again from there: macOS runs it from a temporary copy elsewhere, and
-  from that copy it can't update itself.
+- The privacy notice is now version 3.2 (polyglotic.io/privacy). What
+  changed: how many times you've looked up each dictionary word, and
+  when you last did, is kept on your PC with the rest of your learning
+  data, and deleted with it.
 
 ### Better
 
+- On a Mac, the app uses a Mac's words: Settings > Dictation names the
+  keys as ⌘, ⌥ and ⌃ (Right ⌘, ⌃⌘E), and Help, Home and the caption
+  windows say the menu bar, not the tray, and ⌘ to zoom and copy.
+- Word links' colours are easier to tell apart: the brown that looked
+  like the orange is now an olive, the lime a green, and the magenta a
+  little pinker, so no two links' colours are close, on any colour
+  preset, as lines or as coloured words.
 - A word card in the downloaded dictionaries shows the word's everyday
   meaning first: Spanish's "de" is "of", not the letter's name; Arabic's
   بعد is "after"; old and rare meanings come last. A word you marked by
@@ -141,7 +170,6 @@ the app's What's new, the website's What's new and the Discord post.
   with your learning data.
 - Japanese captions' word links are cut at Japanese words, as the word
   card splits them.
-
 - Explanations in Settings, Learning, Account, Help and Home keep to a
   readable line length instead of running the full width of the window,
   and Settings' rows line up from one section to the next.
@@ -159,6 +187,10 @@ the app's What's new, the website's What's new and the Discord post.
   "Reconnecting", "Paused") no longer drops over the top caption when
   the mouse is on the window: it stays where it is, in the strip's gap,
   and captions start below it.
+- Word links in English captions leave out English's small words (the,
+  of, to ...) the way other languages' links leave out theirs.
+- Cantonese captions are written in the characters Hong Kong uses, and
+  keep the Traditional characters the speech model wrote.
 
 ### Fixed
 
@@ -245,19 +277,23 @@ the app's What's new, the website's What's new and the Discord post.
 - Home and Help name Ctrl+Alt+L, Ctrl+Alt+H and Ctrl+Alt+P only when they
   work on your PC - when another app has one, they say where else to find
   Lock all, Hide all and Resume.
-- With Mandarin shown in Traditional characters, the caption preview in
-  Settings (Look, and the Lab's) shows them too: it stayed Simplified.
-- With Mandarin shown in Traditional characters, translations into Chinese
-  are in Traditional too - straight into Chinese or as a second language -
-  in the caption windows, the transcript, Copy and Save: they stayed
-  Simplified.
 - A saved or copied transcript puts a second-language line under its own
   language: with Chinese as English's second language, an English
   caption's Chinese line was saved in the English column, and the Chinese
   one was empty.
-- With Mandarin shown in Traditional characters, a saved or copied
-  transcript names its Chinese lines Chinese (Traditional), not Chinese
-  (Simplified); and the language pickers name the language Chinese.
+- A word's card plays its recording as soon as the language's recorded
+  words have downloaded: the first card opened just after could say there
+  was no voice for the language, or use Windows' own voice instead.
+- A translation that comes back in the wrong writing system (Chinese
+  characters in an English line) is asked for again instead of shown;
+  if it's wrong again, the part is shown untranslated.
+- Word links leave out small words written with a curly apostrophe
+  (I’m, you’re, didn’t) as they do the same words written with a
+  straight one; and they no longer pass over a name that is also a
+  small word, such as "May" the month in "On May 15th".
+- A translation never shows the translator's own label ("[Pending
+  translation text]") as if it were the translation: the label is taken
+  off, and a part that is only the label is shown untranslated.
 
 ## 0.1.6 - 2026-11-15
 

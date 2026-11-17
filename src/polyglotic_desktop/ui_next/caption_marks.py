@@ -89,16 +89,20 @@ LINK_COLORS = (
     "#b388ff",
     "#4dd0e1",
     "#ff6e9c",
-    "#a5d66f",
+    "#36bf13",
     "#5c9dff",
     "#ff5252",
     "#3ddc97",
-    "#e040fb",
-    "#c8925a",
+    "#e617d1",
+    "#acbf60",
 )
 """A colour per link, not a text colour (white, yellow and saved words'
-colours already mean something) - today's, ordered so neighbours are far
-apart in hue."""
+colours already mean something), ordered so neighbours are far apart in
+hue. Every two at least 13 apart in CIEDE2000 as drawn, on every preset's
+panel, as lines and as words (`tests/ui_next/test_link_colours_told_apart`;
+polyglotic-hq 446: the user found orange and the brown that was last, 11
+apart, "not that distinguishable"). 446 changed three: the brown to an
+olive, the lime to a green and the magenta a little pinker."""
 UNFAMILIAR = "#ffd27a"
 """Dots under a word new to the learner."""
 IN_DECK = "#7ee0a8"

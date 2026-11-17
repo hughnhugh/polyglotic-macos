@@ -118,7 +118,7 @@ from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS
 from polyglotic_desktop.ui_next.copying import Painted, TextSelection, copy_quietly
 from polyglotic_desktop.ui_next.languages import learned_name
 from polyglotic_desktop.ui_next.load_card import add_text, check_texts, stage_text
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import KeyState
 from polyglotic_desktop.ui_next.views.lookup import (
     Card,
@@ -1372,7 +1372,9 @@ class LookupCard(QWidget):
                 _tr("Opens Windows' Settings, where voices are added"),
                 _tr("Opens System Settings, where voices are added"),
             ),
-            "copy": _tr("Copy the word, its reading and meaning (Ctrl+C)"),
+            "copy": hotkeys_here(
+                _tr("Copy the word, its reading and meaning (Ctrl+C)")
+            ),
         }.get(what, "")
 
     def mousePressEvent(self, event: QMouseEvent) -> None:

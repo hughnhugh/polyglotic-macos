@@ -163,8 +163,9 @@ class CaptionWindows(QObject):
     """An app's key: stop captioning it (its window's close)."""
     transcript_wanted = Signal(str)
     all_settings_wanted = Signal()
-    links_wanted = Signal(bool)
-    """A window's word links button: on or off, for every window (249, F9)."""
+    links_wanted = Signal(bool, tuple)
+    """A window's word links button: on or off, for every window (249, F9),
+    with that window's reading lines (446)."""
     fill_wanted = Signal(bool)
     """A window's filled lines button: on or off, for every window (372)."""
     aligned_wanted = Signal(bool)

@@ -301,9 +301,54 @@ def look_defaults(now: CaptionLook) -> CaptionLook:
     )
 
 
-LINKS_WHEN_ON = WordLinks.COLOURS
+LINKS_WHEN_ON = WordLinks.ARROWS
 """What a caption window's word links button turns on when no other way
-of showing them was chosen (249, F9)."""
+of showing them was chosen (249, F9): the links with their lines (the
+user, 2026-11-17, polyglotic-hq 446: "default switch on with arrows")."""
+
+
+def learning_view(
+    look: CaptionLook,
+    on: bool,
+    links: WordLinks,
+    readings: tuple[str, ...] = (),
+    before: CaptionLook | None = None,
+) -> CaptionLook:
+    """The look with the whole learning view on, in one click - a caption
+    window's word links button (polyglotic-hq 446; the user, 2026-11-17:
+    "essentially this should be the one click default"): word links shown
+    as `links`, linked words in their link's colour in what was said and
+    in the translation, pinyin in its word link's colour (a colour the
+    learner picked stays theirs), and the reading lines of the window's
+    languages (`readings`: "zh" for a Chinese window) - so a word, its
+    pinyin and its translation all match.
+
+    Off again: word links off, and the rest back to what it was in
+    `before` (the look when the one click turned them on), as the
+    filled lines button does (372); not known (turned on in Settings, or
+    before a restart), only word links go off."""
+    if on:
+        colour = look.reading_colour
+        return replace(
+            look,
+            word_links=links,
+            said_in_link_colours=True,
+            translation_in_link_colours=True,
+            reading_colour=colour
+            if colour is ReadingColour.CUSTOM
+            else ReadingColour.LINK,
+            reading_lines=tuple(sorted({*look.reading_lines, *readings})),
+        )
+    if before is None:
+        return replace(look, word_links=WordLinks.OFF)
+    return replace(
+        look,
+        word_links=WordLinks.OFF,
+        said_in_link_colours=before.said_in_link_colours,
+        translation_in_link_colours=before.translation_in_link_colours,
+        reading_colour=before.reading_colour,
+        reading_lines=before.reading_lines,
+    )
 
 
 class LookView(Shared[CaptionLook]):
@@ -323,14 +368,21 @@ class LookView(Shared[CaptionLook]):
         turned them on (372), while the app runs: off puts it back."""
         self.unlined: CaptionLab | None = None
         """...and when its parts lined up button turned them on."""
+        self.unlinked: CaptionLook | None = None
+        """The look as it was when a caption window's word links button
+        turned the learning view on (446), while the app runs: off puts it
+        back (`learning_view`)."""
         self.started_from: str | None = None
         """The colour preset the look's colours last were (`presets`), while
         the app runs: custom colours are "Custom, from" it."""
-        self._remember()
+        self._remember(saved=True)
 
-    def _remember(self) -> None:
-        if self.value.word_links is not WordLinks.OFF:
-            self.links_when_on = self.value.word_links
+    def _remember(self, saved: bool = False) -> None:
+        links = self.value.word_links
+        # a saved Underline is what the button itself turned on before 446,
+        # not a way chosen: the button's next click shows the lines (446)
+        if links is not WordLinks.OFF and not (saved and links is WordLinks.COLOURS):
+            self.links_when_on = links
         preset = preset_of(self.value)
         if preset is not None:
             self.started_from = preset.key
@@ -383,10 +435,21 @@ class LookView(Shared[CaptionLook]):
     def set_word_links(self, links: WordLinks) -> None:
         self.change(replace(self.value, word_links=links))
 
-    def set_links_shown(self, on: bool) -> None:
-        """A caption window's word links button (249, F9): off, or on the
-        way they were last shown - Colours if they never were."""
-        self.set_word_links(self.links_when_on if on else WordLinks.OFF)
+    def set_links_shown(self, on: bool, readings: tuple[str, ...] = ()) -> None:
+        """A caption window's word links button (249, F9): the whole
+        learning view in one click (`learning_view`, 446) - word links the
+        way they were last shown, with their lines if they never were, and
+        `readings`, the reading lines of the window clicked - or off,
+        back to how it was before."""
+        if on == (self.value.word_links is not WordLinks.OFF):
+            return
+        if on:
+            self.unlinked = self.value
+        self.change(
+            learning_view(self.value, on, self.links_when_on, readings, self.unlinked)
+        )
+        if not on:
+            self.unlinked = None
 
     def set_link_detail(self, detail: LinkDetail) -> None:
         self.change(replace(self.value, link_detail=detail))

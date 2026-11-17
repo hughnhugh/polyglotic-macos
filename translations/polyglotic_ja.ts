@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">停止：メニューバーから終了して再起動</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus が終了：字幕は停止。ホームを参照</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">ロック中：ホームかメニューバーで解除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">ロック：クリックが下にあるものに届きます。Ctrl+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">ロック：クリックが下にあるものに届きます。解除するには、隅の鍵にマウスをしばらく置くか、ホームか通知領域を使います</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">ロック：クリックが下にあるものに届きます。解除するには、隅の鍵にマウスをしばらく置くか、ホームかメニューバーを使います</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1051,6 +1066,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">字幕を止めて Polyglotic を閉じます。ウィンドウを閉じるだけならメニューバーに残ります</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">再開</translation>
     </message>
@@ -1103,6 +1123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">メニューバーにあります。そこから再開または終了できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic は動作中です</translation>
     </message>
@@ -1110,6 +1135,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">通知領域にあります。そこから終了できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">メニューバーにあります。そこから終了できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1816,6 +1846,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">更新をダウンロードして自動で再起動します。再起動しない場合は、メニューバーから終了してもう一度起動してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">サーバーが混雑しています</translation>
     </message>
@@ -1833,6 +1868,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">通知領域から終了して Polyglotic をもう一度起動してください。繰り返す場合は問題を報告してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">メニューバーから終了して Polyglotic をもう一度起動してください。繰り返す場合は問題を報告してください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1953,8 +1993,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">ホームまたはメニューバーのメニューで「再開」を選ぶか、Ctrl+Alt+P を押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">ホームまたは通知領域のメニューで「再開」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">ホームまたはメニューバーのメニューで「再開」を選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1968,8 +2018,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Ctrl+Alt+H を押すか、ホームまたはメニューバーのメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">ホームまたは通知領域のメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">ホームまたはメニューバーのメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2063,6 +2123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">字幕ウィンドウの設定で「ここに自分の声を表示」を、またはすべてのウィンドウならメニューバーのメニューで「自分の声を字幕にする」をオンにします。オンにするまではオフで、マイクの音声はウィンドウに表示している間だけサーバーに送られます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">字幕ウィンドウの移動、ロック、サイズ変更</translation>
     </message>
@@ -2075,6 +2140,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">字幕ウィンドウはドラッグで移動、端をドラッグでサイズ変更できます。ホームまたは通知領域のメニューの「すべてロック」でクリックが下に届きます。見失ったら、ホームの「位置をリセット」で全ウィンドウが戻ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">字幕ウィンドウはドラッグで移動、端をドラッグでサイズ変更できます。ホームまたはメニューバーのメニューの「すべてロック」でクリックが下に届きます。見失ったら、ホームの「位置をリセット」で全ウィンドウが戻ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2093,6 +2163,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、ホームまたはメニューバーのメニューの「すべてロック」でクリックをゲームに通します。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">どのプログラムでも音声入力（プレビュー）</translation>
     </message>
@@ -2100,6 +2175,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">設定 &gt; 音声入力、または通知領域のメニューで音声入力をオンにします。{key} を押しながら話し、離すとカーソルの位置に入力されます。入力前なら Esc でキャンセルできます。別のキーや組み合わせを使うには、設定 &gt; 音声入力でキーをクリックし、使いたいキーを押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">設定 &gt; 音声入力、またはメニューバーのメニューで音声入力をオンにします。{key} を押しながら話し、離すとカーソルの位置に入力されます。入力前なら Esc でキャンセルできます。別のキーや組み合わせを使うには、設定 &gt; 音声入力でキーをクリックし、使いたいキーを押してください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2355,8 +2435,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">ここかメニューバーから再開できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">Ctrl+Alt+P か通知領域から再開できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">Ctrl+Alt+P かメニューバーから再開できます</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2379,6 +2469,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">通知領域から終了して Polyglotic を再起動してください。止まり続ける場合はヘルプで原因を確認できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">メニューバーから終了して Polyglotic を再起動してください。止まり続ける場合はヘルプで原因を確認できます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2414,6 +2509,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">更新のダウンロードが完了しました。通知領域から終了して Polyglotic を再起動するとインストールされます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">更新のダウンロードが完了しました。メニューバーから終了して Polyglotic を再起動するとインストールされます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5047,6 +5147,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic はすでに開いていますが、応答していません。しばらく待ってから、もう一度開いてください。それでも表示されない場合は、タスク マネージャーで Polyglotic を終了してから、もう一度開いてください。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic はすでに開いていますが、応答していません。しばらく待ってから、もう一度開いてください。それでも表示されない場合は、Polyglotic を強制終了（⌥⌘Esc）してから、もう一度開いてください。</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5716,6 +5821,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">オフ：非表示のままで、メニューバーのアイコンに字幕を作成中と表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">リセット</translation>
     </message>
@@ -6153,6 +6263,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">クリックして、押し続けたいキーか組み合わせを押してください（右 ⌘、F9、⌃⌘E など）。単独のキーや ⌃、⌥、⌘ との組み合わせは、音声入力がオンの間 Polyglotic が使います。右 ⌘ 単独なら他のプログラムでも引き続き使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">音声入力の言語</translation>
     </message>
@@ -6160,6 +6275,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">自動検出では、キーを押すたびに話した言語で入力します。言語を1つ決めると（英語、標準中国語など）、常にその言語として聞き取り、短い言葉が別の言語と誤認されることはありません。通知領域のメニューでも切り替えられます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">自動検出では、キーを押すたびに話した言語で入力します。言語を1つ決めると（英語、標準中国語など）、常にその言語として聞き取り、短い言葉が別の言語と誤認されることはありません。メニューバーのメニューでも切り替えられます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

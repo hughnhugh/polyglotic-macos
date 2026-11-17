@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">중지됨 - 메뉴 막대에서 종료 후 다시 시작</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus 종료 - 자막 중지됨, 홈 참고</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">잠김 - 홈이나 메뉴 막대에서 잠금 해제</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨, Ctrl+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨. 잠금을 풀려면 모서리의 자물쇠 위에 마우스를 잠시 올려 두거나, 홈이나 알림 영역을 사용하세요</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">잠그기 - 클릭이 아래로 전달됨. 잠금을 풀려면 모서리의 자물쇠 위에 마우스를 잠시 올려 두거나, 홈이나 메뉴 막대을 사용하세요</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1051,6 +1066,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">자막을 멈추고 Polyglotic 닫기 - 창만 닫으면 메뉴 막대에 남습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">다시 시작</translation>
     </message>
@@ -1103,6 +1123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">메뉴 막대에 있습니다. 거기서 다시 시작하거나 종료하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic이 실행 중입니다</translation>
     </message>
@@ -1110,6 +1135,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">알림 영역에 있습니다. 거기서 종료하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">메뉴 막대에 있습니다. 거기서 종료하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1816,6 +1846,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">업데이트를 내려받고 저절로 다시 시작합니다. 그렇지 않으면 메뉴 막대에서 종료하고 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">서버가 바쁩니다</translation>
     </message>
@@ -1833,6 +1868,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">알림 영역에서 종료하고 Polyglotic을 다시 시작하세요. 계속되면 문제를 신고하세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">메뉴 막대에서 종료하고 Polyglotic을 다시 시작하세요. 계속되면 문제를 신고하세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1953,8 +1993,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">홈이나 메뉴 막대 메뉴에서 &apos;다시 시작&apos;을 고르거나 Ctrl+Alt+P를 누르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">홈이나 알림 영역 메뉴에서 &apos;다시 시작&apos;을 고르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">홈이나 메뉴 막대 메뉴에서 &apos;다시 시작&apos;을 고르세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1968,8 +2018,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Ctrl+Alt+H를 누르거나 홈이나 메뉴 막대 메뉴에서 &apos;모두 숨기기&apos;를 쓰세요. 앱의 자막 기록에서 자막이 오는지 볼 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">홈이나 알림 영역 메뉴에서 &apos;모두 숨기기&apos;를 쓰세요. 앱의 자막 기록에서 자막이 오는지 볼 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">홈이나 메뉴 막대 메뉴에서 &apos;모두 숨기기&apos;를 쓰세요. 앱의 자막 기록에서 자막이 오는지 볼 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2063,6 +2123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">자막 창 설정에서 &apos;여기에 내 목소리 표시&apos;를 켜거나, 모든 창에 대해 메뉴 막대 메뉴에서 &apos;내 목소리 자막 만들기&apos;를 켜세요. 켜기 전까지는 꺼져 있고, 마이크 소리는 창에 표시되는 동안에만 서버로 갑니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">자막 창 이동, 잠금, 크기 조절</translation>
     </message>
@@ -2075,6 +2140,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">자막 창을 끌어서 옮기고, 가장자리를 끌어서 크기를 바꾸세요. 홈이나 알림 영역 메뉴의 모두 잠금은 클릭을 통과시킵니다. 창을 잃어버렸나요? 홈의 &apos;위치 초기화&apos;로 모든 창을 되돌릴 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">자막 창을 끌어서 옮기고, 가장자리를 끌어서 크기를 바꾸세요. 홈이나 메뉴 막대 메뉴의 모두 잠금은 클릭을 통과시킵니다. 창을 잃어버렸나요? 홈의 &apos;위치 초기화&apos;로 모든 창을 되돌릴 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2093,6 +2163,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">자막 창은 게임의 키보드나 마우스를 가져가지 않습니다. 활성 창이 되지 않기 때문입니다. 봐야 할 곳을 가리지 않는 곳에 두고, 홈이나 메뉴 막대 메뉴의 모두 잠금으로 클릭이 게임으로 가게 하세요. 전용 전체 화면 게임은 다른 모든 창을 덮으니, 테두리 없는 창 모드나 창 모드 전체 화면을 고르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">어떤 프로그램에서든 음성 입력 (미리 보기)</translation>
     </message>
@@ -2100,6 +2175,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">설정 &gt; 음성 입력이나 알림 영역 메뉴에서 음성 입력을 켜세요. {key}를 누른 채 말하고 떼면 커서 위치에 입력됩니다. 입력되기 전에 Esc로 취소할 수 있습니다. 다른 키나 조합을 쓰려면 설정 &gt; 음성 입력에서 키를 클릭하고 원하는 키를 누르세요.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">설정 &gt; 음성 입력이나 메뉴 막대 메뉴에서 음성 입력을 켜세요. {key}를 누른 채 말하고 떼면 커서 위치에 입력됩니다. 입력되기 전에 Esc로 취소할 수 있습니다. 다른 키나 조합을 쓰려면 설정 &gt; 음성 입력에서 키를 클릭하고 원하는 키를 누르세요.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2355,8 +2435,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">여기나 메뉴 막대에서 다시 시작</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">Ctrl+Alt+P나 알림 영역에서 다시 시작</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">Ctrl+Alt+P나 메뉴 막대에서 다시 시작</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2379,6 +2469,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">알림 영역에서 종료하고 Polyglotic을 다시 시작하세요. 계속 멈추면 도움말에서 무엇이 잘못됐는지 확인할 수 있습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">메뉴 막대에서 종료하고 Polyglotic을 다시 시작하세요. 계속 멈추면 도움말에서 무엇이 잘못됐는지 확인할 수 있습니다</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2414,6 +2509,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">업데이트를 내려받았습니다 - 알림 영역에서 종료하고 Polyglotic을 다시 시작하면 설치됩니다</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">업데이트를 내려받았습니다 - 메뉴 막대에서 종료하고 Polyglotic을 다시 시작하면 설치됩니다</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5047,6 +5147,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic이 이미 열려 있지만 응답하지 않습니다. 잠시 기다린 다음 다시 여세요. 그래도 나타나지 않으면 작업 관리자에서 Polyglotic을 끝낸 다음 다시 여세요.</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic이 이미 열려 있지만 응답하지 않습니다. 잠시 기다린 다음 다시 여세요. 그래도 나타나지 않으면 Polyglotic을 강제 종료(⌥⌘Esc)한 다음 다시 여세요.</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5716,6 +5821,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">끔: 계속 숨겨 두고, 메뉴 막대 아이콘에 아직 자막을 만드는 중이라고 표시합니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">초기화</translation>
     </message>
@@ -6153,6 +6263,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">클릭한 뒤 누르고 있을 키나 조합을 누르세요: 오른쪽 ⌘, F9, ⌃⌘E… 키 하나만, 또는 ⌃, ⌥, ⌘과의 조합은 음성 입력이 켜져 있는 동안 Polyglotic이 씁니다. 오른쪽 ⌘만 쓰면 다른 프로그램에서도 계속 작동합니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">음성 입력 언어</translation>
     </message>
@@ -6160,6 +6275,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">자동 감지는 키를 누를 때마다 말한 언어로 입력합니다. 언어를 하나 정하면(영어, 표준 중국어…) 항상 그 언어로 듣기 때문에 짧은 말이 다른 언어로 잘못 인식되지 않습니다. 알림 영역 메뉴에서도 바꿀 수 있습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">자동 감지는 키를 누를 때마다 말한 언어로 입력합니다. 언어를 하나 정하면(영어, 표준 중국어…) 항상 그 언어로 듣기 때문에 짧은 말이 다른 언어로 잘못 인식되지 않습니다. 메뉴 막대 메뉴에서도 바꿀 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

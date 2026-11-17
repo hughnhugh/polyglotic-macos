@@ -736,7 +736,10 @@ def notice_text(notice: Notice, retry_in: int | None) -> str:
         Notice.SERVER_BUSY: _tr("The server is busy"),
         Notice.NOT_SIGNED_IN: _tr("Not signed in - sign in on Home"),
         Notice.UPDATE_NEEDED: _tr("Update needed - captions paused; see Home"),
-        Notice.STOPPED: _tr("Stopped - quit from the tray and start again"),
+        Notice.STOPPED: pc_or_mac(
+            _tr("Stopped - quit from the tray and start again"),
+            _tr("Stopped - quit from the menu bar and start again"),
+        ),
         Notice.PLUS_ENDED: _tr("Plus has ended - captions stopped; see Home"),
         Notice.MINUTES_USED: _tr("Today's free minutes are used - more at midnight"),
         Notice.FAILING: _tr("Captions failing on the server - still trying"),
@@ -791,7 +794,10 @@ def locked_text(keys: str) -> str:
     feedback F10, 249; polyglotic-hq 398)."""
     if keys:
         return _tr("Locked - {keys} to unlock").format(keys=keys)
-    return _tr("Locked - unlock on Home or from the tray")
+    return pc_or_mac(
+        _tr("Locked - unlock on Home or from the tray"),
+        _tr("Locked - unlock on Home or from the menu bar"),
+    )
 
 
 def lock_tip(keys: str) -> str:
@@ -802,9 +808,15 @@ def lock_tip(keys: str) -> str:
         return hotkeys_here(
             _tr("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
         )
-    return _tr(
-        "Lock - clicks pass through to what's underneath. To unlock, rest the"
-        " mouse on the lock in the corner, or use Home or the tray"
+    return pc_or_mac(
+        _tr(
+            "Lock - clicks pass through to what's underneath. To unlock, rest the"
+            " mouse on the lock in the corner, or use Home or the tray"
+        ),
+        _tr(
+            "Lock - clicks pass through to what's underneath. To unlock, rest the mouse"
+            " on the lock in the corner, or use Home or the menu bar"
+        ),
     )
 
 
@@ -1937,8 +1949,10 @@ class CaptionWindow(QWidget):
     transcript_wanted = Signal()
     all_settings_wanted = Signal()
     """All caption settings...: Settings > Captions in the main window."""
-    links_wanted = Signal(bool)
-    """The strip's word links button: on or off, for every window (F9)."""
+    links_wanted = Signal(bool, tuple)
+    """The strip's word links button: on or off, for every window (F9) -
+    the whole learning view, with the reading lines of this window's
+    languages (`readings`; 446)."""
     fill_wanted = Signal(bool)
     """The strip's filled lines button: on or off, for every window (372)."""
     aligned_wanted = Signal(bool)
@@ -2203,6 +2217,17 @@ class CaptionWindow(QWidget):
         if self.choices.show_mic and self.mic is not None:
             return (self.source, self.mic)
         return (self.source,)
+
+    def readings(self) -> tuple[str, ...]:
+        """The reading lines its languages can have - "zh" for a Chinese
+        window: its spoken language chosen, heard in what it shows, its
+        translation's or its second language's (446: the one click puts
+        pinyin over a Chinese window's words)."""
+        choices = self.choices
+        named = (choices.spoken_language, choices.target, self._second())
+        heard = (each for line in self.canvas.lines_in_view() for each in line.heard)
+        found = {reading_lines.language_of(each) for each in (*named, *heard)}
+        return tuple(sorted(each for each in found if each is not None))
 
     def _second(self) -> Language | None:
         target = self.choices.target
@@ -2990,7 +3015,9 @@ class CaptionWindow(QWidget):
             _tr("Word links on or off: words that mean the same share a colour"),
             glyph=Glyph.LINKS,
             checkable=True,
-        ).triggered.connect(lambda on: self.links_wanted.emit(bool(on)))
+        ).triggered.connect(
+            lambda on: self.links_wanted.emit(bool(on), self.readings())
+        )
         self._action(
             "fill",
             _tr("Fill the width"),
@@ -3026,11 +3053,14 @@ class CaptionWindow(QWidget):
         self._action(
             "smaller",
             "A-",
-            _tr("Smaller text (Ctrl+wheel)"),
+            hotkeys_here(_tr("Smaller text (Ctrl+wheel)")),
             lambda: self.step_text(-1),
         )
         self._action(
-            "bigger", "A+", _tr("Bigger text (Ctrl+wheel)"), lambda: self.step_text(1)
+            "bigger",
+            "A+",
+            hotkeys_here(_tr("Bigger text (Ctrl+wheel)")),
+            lambda: self.step_text(1),
         )
         self._action(
             "translation_smaller",
@@ -3313,7 +3343,7 @@ class CaptionWindow(QWidget):
         self.controls["bigger"].setToolTip(
             _tr("Drag the top edge for more lines")
             if few
-            else _tr("Bigger text (Ctrl+wheel)")
+            else hotkeys_here(_tr("Bigger text (Ctrl+wheel)"))
         )
 
     def showEvent(self, event: QShowEvent) -> None:

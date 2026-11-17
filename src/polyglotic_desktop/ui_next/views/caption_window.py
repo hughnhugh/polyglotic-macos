@@ -434,19 +434,22 @@ class CaptionLook:
     words word links "past what I know" would link, decision 0130)."""
     reading_system: ReadingSystem = ReadingSystem.PINYIN
     """Chinese's reading line in pinyin or zhuyin (395)."""
-    reading_colour: ReadingColour = ReadingColour.SAME
-    """What colour a reading is drawn in (polyglotic-hq 395)."""
+    reading_colour: ReadingColour = ReadingColour.LINK
+    """What colour a reading is drawn in (polyglotic-hq 395): its word link's
+    by default, so word links on show a word and its pinyin alike (446)."""
     reading_custom: str = "#9ad0ff"
     """The colour picked for readings, with `reading_colour` CUSTOM (kept
     while another is chosen, so Custom brings it back)."""
-    said_in_link_colours: bool = False
+    said_in_link_colours: bool = True
     """Linked words in what was said take their link's colour, as their
     underline has (395)."""
-    translation_in_link_colours: bool = False
+    translation_in_link_colours: bool = True
     """Linked words in the translation take their link's colour - each on
     its own (431: the user, 2026-11-17, "toggleable separately"). With
     both, and pinyin in its word link's colour, a word, its pinyin and its
-    translation all match."""
+    translation all match. Both on by default (the user, 2026-11-17, 446:
+    "default this setting to be on"): with word links off they change
+    nothing."""
 
 
 INTRO_SEC = 8.0

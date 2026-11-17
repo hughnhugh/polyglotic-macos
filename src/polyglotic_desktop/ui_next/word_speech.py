@@ -48,14 +48,20 @@ class WordSpeech(QObject):
         open_url: Callable[[str], None] = _open,
         parent: QObject | None = None,
         recorded: Callable[[Voice, str], bool] = lambda _voice, _word: False,
+        recorded_voices: Callable[[], tuple[Voice, ...]] | None = None,
     ) -> None:
         """`hush`: told when the app's own sound plays (the speech
         pipeline's), from the speaker's thread; `open_url`: opens Windows'
         speech settings; `recorded`: whether a recorded voice has this word
-        (`platform.recorded_voices.Recordings.has`)."""
+        (`platform.recorded_voices.Recordings.has`); `recorded_voices`: the
+        recorded voices now (`Recordings.voices`) - asked each time, so a
+        pack's recordings that arrive while the app runs are said from the
+        next card, not once the speaker's list of voices (kept a few seconds)
+        is looked at again (polyglotic-hq 453). None: the speaker's list."""
         super().__init__(parent)
         self.speaker = speaker
         self._recorded = recorded
+        self._recorded_voices = recorded_voices
         self.hush = hush
         self._open_url = open_url
         self._ended.connect(self._on_ended)
@@ -91,7 +97,10 @@ class WordSpeech(QObject):
         else `text` as written."""
         voices = self.speaker.voices()
         self._seen = voices
-        ours = tuple(v for v in voices if v.id.startswith(RECORDED))
+        if self._recorded_voices is not None:
+            ours = self._recorded_voices()
+        else:
+            ours = tuple(v for v in voices if v.id.startswith(RECORDED))
         recorded = voice_for(ours, language) if text else None
         if recorded is not None:
             said = next(

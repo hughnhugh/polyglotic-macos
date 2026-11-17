@@ -234,6 +234,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit from the menu bar and start again</source>
+        <translation type="unfinished">已停止：从菜单栏退出并重新打开</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus 已结束，字幕已停止；请看主页</translation>
     </message>
@@ -354,6 +359,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home or from the menu bar</source>
+        <translation type="unfinished">已锁定：请在主页或菜单栏中解锁</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上，Ctrl+Alt+L</translation>
     </message>
@@ -361,6 +371,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the tray</source>
         <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上。要解锁，请把鼠标停在角落的锁上，或在主页或托盘中解锁</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
+        <translation type="unfinished">锁定：点击会穿过窗口，落到下面的内容上。要解锁，请把鼠标停在角落的锁上，或在主页或菜单栏中解锁</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -1051,6 +1066,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it in the menu bar</source>
+        <translation type="unfinished">停止字幕并关闭 Polyglotic（关闭窗口只会把它留在菜单栏里）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">继续</translation>
     </message>
@@ -1103,6 +1123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Resume or quit from there.</source>
+        <translation type="unfinished">它在菜单栏里。可以从那里继续或退出。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic 仍在运行</translation>
     </message>
@@ -1110,6 +1135,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the tray. Quit from there.</source>
         <translation type="unfinished">它在托盘里。可以从那里退出。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>It&apos;s in the menu bar. Quit from there.</source>
+        <translation type="unfinished">它在菜单栏里。可以从那里退出。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1816,6 +1846,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit from the menu bar and start it again.</source>
+        <translation type="unfinished">它会自动下载更新并重新启动。如果没有，请从菜单栏退出，然后重新打开。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">服务器繁忙</translation>
     </message>
@@ -1833,6 +1868,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Quit from the tray and start Polyglotic again. If it keeps happening, report a problem.</source>
         <translation type="unfinished">请从托盘退出，然后重新打开 Polyglotic。如果反复出现，请报告问题。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit from the menu bar and start Polyglotic again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">请从菜单栏退出，然后重新打开 Polyglotic。如果反复出现，请报告问题。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1953,8 +1993,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">在主页或菜单栏的菜单中选择“继续”，或按 Ctrl+Alt+P。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">在主页或托盘菜单中选择“继续”。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
+        <translation type="unfinished">在主页或菜单栏的菜单中选择“继续”。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -1968,8 +2018,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">按 Ctrl+Alt+H，或使用主页或菜单栏的菜单中的“全部隐藏”。在应用的字幕记录里可以看到字幕是否在送达。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">使用主页或托盘菜单中的“全部隐藏”。在应用的字幕记录里可以看到字幕是否在送达。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">使用主页或菜单栏的菜单中的“全部隐藏”。在应用的字幕记录里可以看到字幕是否在送达。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2063,6 +2123,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
+        <translation type="unfinished">在字幕窗口的设置里打开“在此显示我说的话”，或在菜单栏的菜单里打开“为我说的话加字幕”，对所有窗口生效。在你打开之前它是关闭的；只有当某个窗口显示你说的话时，麦克风的音频才会发送到服务器。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">移动、锁定字幕窗口和调整大小</translation>
     </message>
@@ -2075,6 +2140,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the tray menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
         <translation type="unfinished">拖动字幕窗口可以移动它，拖动边缘可以调整大小。主页或托盘菜单中的“全部锁定”让点击穿过窗口。窗口找不到了？主页上的“重置位置”会把所有窗口放回原处。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home or in the menu bar&apos;s menu, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">拖动字幕窗口可以移动它，拖动边缘可以调整大小。主页或菜单栏的菜单中的“全部锁定”让点击穿过窗口。窗口找不到了？主页上的“重置位置”会把所有窗口放回原处。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2093,6 +2163,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home or in the menu bar&apos;s menu so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕窗口绝不会抢占游戏的键盘或鼠标：它永远不会成为活动窗口。把它放在不挡住你要看的内容的地方，然后在主页或菜单栏的菜单中“全部锁定”，让点击直接落到游戏里。独占全屏的游戏会盖住所有其他窗口：请改用它的无边框全屏或窗口化全屏。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any program (preview)</source>
         <translation type="unfinished">在任何程序中听写（预览版）</translation>
     </message>
@@ -2100,6 +2175,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Turn on Dictation in Settings &gt; Dictation, or in the tray menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
         <translation type="unfinished">在“设置 &gt; 听写”或托盘菜单中打开“听写”。按住 {key} 说话；松开后，你的话会输入到光标所在的位置。在输入之前按 Esc 可以取消。要换一个键或组合键，请在“设置 &gt; 听写”中点击按键，然后按下你想用的键。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Dictation in Settings &gt; Dictation, or in the menu bar&apos;s menu. Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">在“设置 &gt; 听写”或菜单栏的菜单中打开“听写”。按住 {key} 说话；松开后，你的话会输入到光标所在的位置。在输入之前按 Esc 可以取消。要换一个键或组合键，请在“设置 &gt; 听写”中点击按键，然后按下你想用的键。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2355,8 +2435,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here or from the menu bar</source>
+        <translation type="unfinished">在这里或从菜单栏继续</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">按 Ctrl+Alt+P 或从托盘继续</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or from the menu bar</source>
+        <translation type="unfinished">按 Ctrl+Alt+P 或从菜单栏继续</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2379,6 +2469,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the tray and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">从托盘退出并重新打开 Polyglotic——如果反复停止，“帮助”可以检查出了什么问题</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">从菜单栏退出并重新打开 Polyglotic——如果反复停止，“帮助”可以检查出了什么问题</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2414,6 +2509,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the tray and start Polyglotic again to install it</source>
         <translation type="unfinished">更新已下载：从托盘退出并重新打开 Polyglotic 即可安装</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
+        <translation type="unfinished">更新已下载：从菜单栏退出并重新打开 Polyglotic 即可安装</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -5047,6 +5147,11 @@
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in Task Manager, then open it again.</source>
         <translation type="unfinished">Polyglotic 已经打开，但没有响应。请稍等片刻，然后再打开。如果仍然没有出现，请在任务管理器中结束 Polyglotic，然后再打开。</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
+        <translation type="unfinished">Polyglotic 已经打开，但没有响应。请稍等片刻，然后再打开。如果仍然没有出现，请强制退出 Polyglotic（⌥⌘Esc），然后再打开。</translation>
+    </message>
 </context>
 <context>
     <name>Pages</name>
@@ -5716,6 +5821,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
+        <translation type="unfinished">关闭：窗口保持隐藏，菜单栏图标会提示它仍在生成字幕。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Reset</source>
         <translation type="unfinished">重置</translation>
     </message>
@@ -6153,6 +6263,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic&apos;s while dictation is on; Right ⌘ alone still works in other apps.</source>
+        <translation type="unfinished">点击后，按下你想按住的键或组合键：右 ⌘、F9、⌃⌘E… 听写开启时，单独的键或与 ⌃、⌥、⌘ 组合的键归 Polyglotic 使用；单独的右 ⌘ 在其他程序中仍然可用。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Dictation&apos;s language</source>
         <translation type="unfinished">听写语言</translation>
     </message>
@@ -6160,6 +6275,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">自动识别：每次按住按键时，你说哪种语言就输入哪种语言。指定一种语言（英语、普通话……）后，总是按这种语言来听：短句不会被听成别的语言。托盘菜单也可以切换。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">自动识别：每次按住按键时，你说哪种语言就输入哪种语言。指定一种语言（英语、普通话……）后，总是按这种语言来听：短句不会被听成别的语言。菜单栏的菜单也可以切换。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>

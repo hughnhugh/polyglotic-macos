@@ -174,3 +174,35 @@ def test_the_card_takes_the_recording_for_a_word_it_has_else_the_pcs_voice(
     for speech in (no_french, french):
         speech.deleteLater()
     file.close()
+
+
+def test_recordings_that_arrive_while_running_are_said_from_the_next_card(
+    tmp_path: Path, qapp: object
+) -> None:
+    """A pack's recordings that arrive while the app runs (`PackDelivery.record`)
+    are said from the next card: the speaker's list of voices is kept a few
+    seconds and was read before they came, so the card asks the recordings
+    themselves (polyglotic-hq 453: the first card after Spanish's arrived said
+    "no voice", or would have used Windows' voice). A removed pack's voice
+    goes at once too."""
+    recordings = Recordings()
+    ours = Voice(f"{RECORDED}fr", "Kokoro", "fr-FR")
+    # the speaker's lists, read before the recordings came (or, last, after they went)
+    live = {"recorded": recordings.has, "recorded_voices": recordings.voices}
+    french = WordSpeech(Speaker(HORTENSE), **live)  # type: ignore[arg-type]
+    no_french = WordSpeech(Speaker(ZIRA), **live)  # type: ignore[arg-type]
+    gone = WordSpeech(Speaker(ours, HORTENSE), **live)  # type: ignore[arg-type]
+    assert (
+        french.voice("fr", "homme") == HORTENSE
+        and no_french.voice("fr", "homme") is None
+    )
+    file = SqliteAudio(built(tmp_path))
+    recordings.use("fr", "fr-FR", "Kokoro", file)  # they arrive
+    assert french.voice("fr", "homme") == ours  # the recording, not Windows' voice
+    assert french.voice("fr", "femme") == HORTENSE  # not recorded: the PC's
+    assert no_french.voice("fr", "homme") == ours  # not "no voice"
+    recordings.use("fr", "", "", None)  # the pack removed
+    assert gone.voice("fr", "homme") == HORTENSE
+    for speech in (french, no_french, gone):
+        speech.deleteLater()
+    file.close()

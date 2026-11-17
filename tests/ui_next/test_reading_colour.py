@@ -412,6 +412,7 @@ def test_a_caption_windows_ink_follows_the_look(qapp: QApplication) -> None:
         reading_lines=("zh",),
         reading_colour=ReadingColour.LINK,
         said_in_link_colours=True,
+        translation_in_link_colours=False,
     )
     window = CaptionWindow(
         "Discord.exe", APP, WindowChoices(), SourceLabel("Discord", "#4dd0e1"),
@@ -466,16 +467,18 @@ def test_the_previews_one_switch_comes_back_as_both() -> None:
     assert chosen.said_in_link_colours and not chosen.translation_in_link_colours
 
 
-def test_off_and_its_lines_colour_until_chosen_and_wrong_values_are_the_default() -> (
-    None
-):
-    assert caption_look(AppSettings()).reading_colour is ReadingColour.SAME
-    assert not caption_look(AppSettings()).said_in_link_colours
-    assert not caption_look(AppSettings()).translation_in_link_colours
+def test_on_and_its_link_colour_until_chosen_and_wrong_values_are_the_default() -> None:
+    """A new install's: linked words and pinyin in their link's colour, so
+    word links turned on show a word, its pinyin and its translation alike
+    (the user, 2026-11-17, polyglotic-hq 446: "default this setting to be
+    on"); with word links off they change nothing."""
+    assert caption_look(AppSettings()).reading_colour is ReadingColour.LINK
+    assert caption_look(AppSettings()).said_in_link_colours
+    assert caption_look(AppSettings()).translation_in_link_colours
     found = AppSettings.from_stored(
         {"reading_colour": "rainbow", "reading_custom_color": "blue"}
     )
-    assert found.reading_colour == "same" and found.reading_custom_color == "#9ad0ff"
+    assert found.reading_colour == "link" and found.reading_custom_color == "#9ad0ff"
 
 
 def test_the_pinyin_group_offers_the_three_and_custom_shows_its_colour(
@@ -497,8 +500,13 @@ def test_the_pinyin_group_offers_the_three_and_custom_shows_its_colour(
     assert not panel.reading_colour.isEnabled()  # pinyin off: nothing to colour
 
 
+UNCOLOURED = CaptionLook(said_in_link_colours=False, translation_in_link_colours=False)
+"""Linked words in their line's colour, both sides (each on by default
+since 446)."""
+
+
 def test_the_word_links_group_colours_the_linked_words(qapp: QApplication) -> None:
-    view = LookView(CaptionLook(word_links=WordLinks.COLOURS))
+    view = LookView(replace(UNCOLOURED, word_links=WordLinks.COLOURS))
     panel = WordLinksPanel(view, notes=True)
     MADE.append(panel)
     said, translation = panel.said_in_link_colours, panel.translation_in_link_colours
@@ -525,7 +533,7 @@ def test_a_windows_popover_switches_each_side_for_every_window(
         mic=MIC, areas=areas, learner=chinese_tools(),
     )  # fmt: skip
     MADE.append(window)
-    window.set_look(CaptionLook(word_links=WordLinks.COLOURS))
+    window.set_look(replace(UNCOLOURED, word_links=WordLinks.COLOURS))
     asked: list[tuple[str, bool]] = []
     window.said_colours_wanted.connect(lambda on: asked.append(("said", on)))
     window.translation_colours_wanted.connect(
@@ -540,7 +548,9 @@ def test_a_windows_popover_switches_each_side_for_every_window(
     translation.click()
     assert asked == [("translation", True)]
     window.set_look(
-        CaptionLook(word_links=WordLinks.COLOURS, translation_in_link_colours=True)
+        replace(
+            UNCOLOURED, word_links=WordLinks.COLOURS, translation_in_link_colours=True
+        )
     )
     assert translation.isChecked() and not said.isChecked()
     window.set_look(CaptionLook(word_links=WordLinks.OFF))
