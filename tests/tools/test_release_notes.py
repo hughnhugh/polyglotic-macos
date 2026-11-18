@@ -136,8 +136,14 @@ def test_unreleased_names_only_settings_sections_the_app_has() -> None:
         for items in section.groups.values()
         for line in items
     )
-    named = re.findall(r"Settings\s*(?:-|>)\s*([A-Z][a-z]+)", text)
-    assert named, "no line names a section: the pattern no longer matches"
+    pattern = r"Settings\s*(?:-|>)\s*([A-Z][a-z]+)"
+    # the pattern still reads a section's name; a release with no line that
+    # names one (0.1.8, a one-line hotfix) has nothing more to check
+    assert re.findall(pattern, "in Settings > Look and Settings - Lab") == [
+        "Look",
+        "Lab",
+    ]
+    named = re.findall(pattern, text)
     assert [n for n in named if n.lower() not in SECTIONS] == []
 
 
