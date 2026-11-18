@@ -35,6 +35,10 @@ and owner, front to back (`platform.macos.window_list`): never a picture.
   stays in front and full-screen.
 - typed: dictation's `type_text` types "héllo 你好 😀" into TextEdit, read
   back through Accessibility; `keyboard_window` is TextEdit's window.
+- hover_in_background: TextEdit in front, the real mouse (cliclick) moved
+  over the caption window with the app's `PointerWatch` on: the window
+  hears it and shows its strip (polyglotic-hq 515: Qt drops the mouse of an
+  app that isn't active, so the strip never showed).
 - key_combination: dictation's key Control+Command+D registered through
   Carbon; System Events presses it: down, then up, and TextEdit gets no
   "d"; whether the same combination is refused a second time (a fact).
@@ -765,6 +769,53 @@ class Run:
             textedit_window=expected,
         )
 
+    def hover_in_background(self) -> None:
+        from polyglotic_desktop.platform.macos import objc
+        from polyglotic_desktop.ui_next.pointer_watch import PointerWatch
+
+        clicker = _cliclick()
+        if clicker is None:
+            self.add("hover_in_background", UNKNOWN, "no cliclick on this machine")
+            return
+        self.full_screen(False)
+        self.to_front()
+        window = self.window
+        window.set_locked(False)
+        window.setGeometry(200, 200, 600, 160)
+        window.show()
+        self.on_top.put_on_top([int(window.winId())])
+        watch = PointerWatch(lambda: [window], window)
+        watch.start()
+        self.wait(0.6)
+        g = window.frameGeometry()
+        self.run_quietly(
+            [clicker, "-w", "60", f"m:{g.x() + 20},{g.y() - 80}",
+             f"m:{g.center().x()},{g.center().y()}"]
+        )  # fmt: skip
+        self.until(lambda: bool(window.hovered), 2)
+        app = objc.send(objc.cls("NSApplication"), "sharedApplication")
+        active = bool(objc.send(app, "isActive", restype=ctypes.c_bool))
+        facts = {
+            "hovered": bool(window.hovered),
+            "watching": watch.timer.isActive(),
+            "app_active": active,
+        }
+        watch.timer.stop()
+        watch.deleteLater()
+        self.run_quietly([clicker, f"m:{g.x() + 20},{g.y() - 80}"])
+        self.wait(0.6)
+        if active:
+            self.add("hover_in_background", UNKNOWN, "the app was active", **facts)
+        else:
+            self.add(
+                "hover_in_background",
+                PASS if facts["hovered"] else FAIL,
+                "the window heard the mouse with TextEdit in front"
+                if facts["hovered"]
+                else "nothing heard with TextEdit in front",
+                **facts,
+            )
+
     def key_combination(self) -> None:
         from polyglotic_desktop.platform.macos.hold_key import MacHoldKey
 
@@ -1066,6 +1117,7 @@ class Run:
         self.guarded("popover_in_front", self.popover_in_front)
         self.guarded("click", self.click)
         self.guarded("typed", self.typed)
+        self.guarded("hover_in_background", self.hover_in_background)
         self.guarded("key_combination", self.key_combination)
         self.guarded("key_alone", self.key_alone)
         self.guarded("escape_cancels", self.escape_cancels)

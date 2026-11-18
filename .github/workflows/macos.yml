@@ -118,7 +118,7 @@ on:
       qa515:
         description: 515's probe of the caption windows (resizing, what's in front)
         type: boolean
-        default: true
+        default: false
       sweep515:
         description: 515's sweep of every setting (about 10 minutes)
         type: boolean
