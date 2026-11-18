@@ -73,7 +73,12 @@ REPO = Path(__file__).resolve().parents[2]
 SPEC = Path(__file__).with_name("polyglotic.spec")
 WORK = REPO / "build" / "package"
 NAME = "Polyglotic"
-DICTIONARY_FILES = ("cedict.sqlite", "ecdict.sqlite", "CREDITS.md")
+DICTIONARY_FILES = (
+    "cedict.sqlite",
+    "ecdict.sqlite",
+    "ecdict-en.sqlite",  # English in English (decision 0211)
+    "CREDITS.md",
+)
 ASSETS = REPO / "src" / "polyglotic_desktop" / "ui" / "assets"
 
 
@@ -296,9 +301,13 @@ MACOS_MINIMUM = "14.2"
 """Core Audio's process taps, which capture one app or everything else,
 came in macOS 14.2 (polyglotic-hq 408)."""
 MIC_USE = (
-    "Polyglotic listens to your microphone only when you choose to caption"
-    " it, to show captions and translations of what you say."
+    "Polyglotic listens to your microphone while a caption window shows your"
+    " speech - your first one does until you turn it off - or while you hold"
+    " the dictation key, to caption, translate or type what you say."
 )
+"""macOS's question's line saying why (polyglotic-hq 478: the first caption
+window shows the learner's speech, and dictation is on, for a new
+learner)."""
 AUDIO_USE = (
     "Polyglotic listens to the apps you choose to caption, to show live"
     " captions and translations of what you hear."

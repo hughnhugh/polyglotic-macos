@@ -43,7 +43,6 @@ import functools
 import logging
 import re
 import ssl
-import sys
 import urllib.error
 import urllib.request
 import weakref
@@ -52,7 +51,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
 from http.client import HTTPResponse
-from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -91,52 +89,10 @@ def built_no_earlier() -> datetime:
     return max(built, WRITTEN) if built is not None else WRITTEN
 
 
-MAC_ROOTS: Path | None = Path("/etc/ssl/cert.pem") if sys.platform == "darwin" else None
-"""The roots a Mac trusts, as macOS ships them (decision 0236): the list
-its own LibreSSL reads. The packed Mac app's OpenSSL looks for roots only
-where python.org's Python keeps them
-(/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl), which a
-learner's Mac hasn't: no roots, so every secure connection failed, said
-as something on the network in the way (polyglotic-hq 512). None off a
-Mac: Windows' stores are read as before (decision 0104)."""
-
-
 def trusted() -> ssl.SSLContext:
-    """Python's default client context, the host name checked: Windows'
-    stores - and on a Mac, macOS's own roots (`MAC_ROOTS`). Tests put
-    their own roots here instead."""
-    made = ssl.create_default_context()
-    if MAC_ROOTS is not None:
-        try:
-            made.load_verify_locations(cafile=MAC_ROOTS)
-        except (OSError, ssl.SSLError) as error:
-            _say_once(("mac_roots", type(error).__name__), "macOS's roots", error)
-    return made
-
-
-def _say_once(key: tuple[object, ...], what: str, error: BaseException) -> None:
-    """A warning about this copy's own roots, once per kind."""
-    if key in _said or len(_said) >= _SAID_MAX:
-        return
-    _said.add(key)
-    log.warning("%s couldn't be read (%s): %s", what, type(error).__name__, error)
-
-
-def roots() -> dict[str, object]:
-    """Where this copy's secure connections find the roots they trust, and
-    how many they have - OpenSSL's default places and `trusted()`'s store
-    counts (`--check-tls`, polyglotic-hq 512). Names and counts only."""
-    paths = ssl.get_default_verify_paths()
-    return {
-        "openssl": ssl.OPENSSL_VERSION,
-        "default_paths": {
-            "cafile": paths.cafile,
-            "capath": paths.capath,
-            "openssl_cafile": paths.openssl_cafile,
-            "openssl_capath": paths.openssl_capath,
-        },
-        "store": trusted().cert_store_stats(),
-    }
+    """Python's default client context: Windows' stores, the host name
+    checked. Tests put their own roots here instead."""
+    return ssl.create_default_context()
 
 
 class Let(StrEnum):

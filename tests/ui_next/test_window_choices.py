@@ -72,6 +72,8 @@ def test_todays_interface_keeps_its_own_values() -> None:
         "recent_spoken",
         "declined_spoken",
         "reading_hinted",
+        "set_up",  # the first window's set-up answered (465)
+        "start_like_this",
     }
 
 

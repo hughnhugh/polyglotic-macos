@@ -21,7 +21,14 @@ window, 2026-11-07), and shown without activating. Its parts:
   (every window's: New layout, Line by line and captions run on together,
   polyglotic-hq 372), parts lined up on / off (every window's, in any
   way of filling: 372), lock (all windows),
-  settings and close (stop captioning the app);
+  settings and close (stop captioning the app) - and, after the label,
+  **the language chip** ("Detect → English ▾", polyglotic-hq 465): what
+  its app speaks and what it's translated into, opening those choices
+  (`settings_popover.LANGUAGE_ROWS`); where the strip is too narrow for
+  it and a readable label, it goes (the settings popover has them too);
+- **the first window's set-up** (`caption_set_up`, 465): the first
+  caption window on a PC asks its three language choices in it, once,
+  never blocking - its first caption closes it;
 - **the settings popover** (`settings_popover`) beside the settings
   button: Translate into (or Original only), Show my speech here, the
   timing, Text size (A- / A+), All caption settings...,
@@ -138,6 +145,7 @@ from PySide6.QtWidgets import (
 )
 
 from polyglotic_desktop.core.learning.lookups import LookupContext, lookup_context
+from polyglotic_desktop.core.learning.saved_words import CategoryId
 from polyglotic_desktop.core.listening.caption_model import Words
 from polyglotic_desktop.core.listening.captions import (
     CaptionKind,
@@ -151,7 +159,11 @@ from polyglotic_desktop.core.listening.display import (
     clause_versions,
 )
 from polyglotic_desktop.core.listening.selection import Place, Selection
-from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
+from polyglotic_desktop.core.listening.sources import (
+    WHOLE_SYSTEM,
+    SourceId,
+    SourceLabel,
+)
 from polyglotic_desktop.core.listening.timing import MAX_WAIT_FOR_TEXT_SEC, CaptionMode
 from polyglotic_desktop.core.listening.transcript import as_text
 from polyglotic_desktop.core.shared import EntryId
@@ -173,19 +185,28 @@ from polyglotic_desktop.ui_next.caption_layout import (
 from polyglotic_desktop.ui_next.caption_marks import LINK_COLORS, CaptionMarks, Panel
 from polyglotic_desktop.ui_next.caption_selection import (
     HeldSelection,
+    held_pieces,
     held_rects,
     held_words,
     place_at,
     shown,
     word_rects,
 )
+from polyglotic_desktop.ui_next.caption_set_up import CaptionSetUp
 from polyglotic_desktop.ui_next.caption_surface import PAD, CaptionSurface
 from polyglotic_desktop.ui_next.glyphs import Glyph, icon, paint, text_width
-from polyglotic_desktop.ui_next.languages import shown_name, spoken_names
+from polyglotic_desktop.ui_next.languages import (
+    language_name,
+    shown_name,
+    spoken_name,
+    spoken_names,
+)
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
 from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.sentence_card import SentenceCard
 from polyglotic_desktop.ui_next.settings_popover import (
     COLUMN_ROWS,
+    LANGUAGE_ROWS,
     ROWS,
     KeyState,
     SettingsPopover,
@@ -241,6 +262,7 @@ from polyglotic_desktop.ui_next.views.pacing import Pacing
 from polyglotic_desktop.ui_next.views.placement import Edge, Preset, Rect, Size
 from polyglotic_desktop.ui_next.views.presets import contrast, readable_on
 from polyglotic_desktop.ui_next.views.reveal import Reveal
+from polyglotic_desktop.ui_next.views.sentences import selected_sentence, worth_saving
 
 if TYPE_CHECKING:
     from polyglotic_desktop.ui_next.joined_window import JoinedWindow
@@ -562,7 +584,9 @@ def one_layout(look: CaptionLook) -> FlowOptions | None:
     lab = look.lab
     if not lab.flow:
         return None
-    return flow_options(lab.fill, lab.join, look.show_original, lab.run_on, lab.aligned)
+    return flow_options(
+        lab.fill, lab.join, look.show_original, lab.run_on, lab.aligned, lab.placing
+    )
 
 
 RUN_ON_MOST = 12
@@ -701,8 +725,9 @@ def spoken_in(heard: Sequence[str]) -> str:
 
 def reading_hint() -> str:
     """Said once, on a finished caption with Chinese in it, to a learner
-    with Chinese's dictionary and pinyin off (369, decision 0155)."""
-    return _tr("Pinyin above Chinese: turn it on in Settings, under Look")
+    with Chinese's dictionary and pinyin off (369, decision 0155) - under
+    Readings, its own section since 470."""
+    return _tr("Pinyin above Chinese: turn it on in Settings, under Readings")
 
 
 READING_HINT_SEC = 10.0
@@ -714,6 +739,19 @@ def word_hint() -> str:
     learner's first lookup (polyglotic-hq 160: people didn't find that the
     words are clickable; 176)."""
     return _tr("Click any word to look it up")
+
+
+def whose_captions(source: SourceId, name: str) -> str:
+    """An empty window's second line: whose captions will appear in it -
+    for everything the PC plays, a new learner's first window (polyglotic-hq
+    484), that anything it plays is captioned there ("Everything the PC
+    plays's captions" doesn't read)."""
+    if source == WHOLE_SYSTEM:
+        return pc_or_mac(
+            _tr("Anything the PC plays is captioned here"),
+            _tr("Anything the Mac plays is captioned here"),
+        )
+    return _tr("{app}'s captions appear here").format(app=name)
 
 
 def notice_text(notice: Notice, retry_in: int | None) -> str:
@@ -1558,7 +1596,7 @@ class Canvas(CaptionSurface):
         """With nothing to read yet: "Waiting for audio…" ("Listening…" once
         speech is heard) and whose captions will appear - from the moment its
         app is chosen until its first captions (polyglotic-hq 272), in the
-        window's own colour."""
+        window's own colour (`whose_captions`)."""
         look = self.owner.look
         waiting = QColor(readable_on(look.original, look.background, LABEL_CONTRAST))
         whose = QColor(waiting)
@@ -1583,7 +1621,7 @@ class Canvas(CaptionSurface):
         painter.drawText(
             QRectF(PAD, middle + 2, width, tall),
             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
-            _tr("{app}'s captions appear here").format(app=self.owner.label.name),
+            whose_captions(self.owner.source, self.owner.label.name),
         )
 
     def _paint_mark(self, painter: QPainter) -> QRect:
@@ -1674,6 +1712,23 @@ def linked_with(line: Line, marked: Marked) -> list[tuple[Marked, int]]:
         for w in other.links
         if w.link in numbers
     ]
+
+
+def chip_text(spoken: str | None, target: Language | None, open_: bool = False) -> str:
+    """The bar's language chip (465): what its app speaks - Detect, or
+    the language named - and what it's translated into."""
+    #: Short, on a caption window's bar: the language heard (or "Detect")
+    #: and the one its captions are translated into
+    text = _tr("{spoken} → {translation}").format(
+        spoken=spoken_name(spoken) if spoken else _tr("Detect"),
+        translation=language_name(str(target)) if target else _tr("Original only"),
+    )
+    return f"{text}  {'▴' if open_ else '▾'}"
+
+
+CHIP_LEAST_LABEL = 60
+"""At 100 % text size: the room the label keeps before the chip goes from
+a narrow strip."""
 
 
 class SourceTag(QWidget):
@@ -1974,9 +2029,17 @@ class CaptionWindow(QWidget):
     """The question about a language (its code) went by itself, unanswered:
     not asked again until the app starts again (350)."""
     second_wanted = Signal(str, str)
-    """Its settings' "Lines already in ...": a translation language and the
-    language its lines already in it are shown in ("": left as they are) -
-    by translation language, so for every window with it (263)."""
+    """Its settings' "When they already speak ...": a translation language
+    and the language its lines already in it are shown in ("": left as they
+    are) - by translation language, so for every window with it (263)."""
+    start_like_this_wanted = Signal(bool)
+    """Its languages' "Start new windows like this", on or off (465)."""
+    ask_set_up_wanted = Signal(bool)
+    """Its languages' "Ask when a window opens", on or off: the set-up
+    again on every window that opens, or never (478)."""
+    set_up_done = Signal(bool)
+    """Its set-up went: Start captions, or its first caption came (465) -
+    with "Use as my default" chosen in it, or not (478)."""
 
     def __init__(
         self,
@@ -2062,6 +2125,10 @@ class CaptionWindow(QWidget):
         self.card = card
         self._selecting: _Selecting | None = None
         self.popover: SettingsPopover | None = None
+        self.languages: SettingsPopover | None = None
+        """What the bar's language chip opens (465; made when first opened)."""
+        self.set_up: CaptionSetUp | None = None
+        """The first window's set-up while it's asked (465)."""
         self._drag: _Drag | None = None
         self._seen = -1  # the newest line's key when last following
         self._alpha = 1.0
@@ -2118,6 +2185,9 @@ class CaptionWindow(QWidget):
             text_size=choices.text_size,
             sizes=CAPTION_TEXT_SIZES,
         )
+        self.sentence_card: SentenceCard | None = None
+        """Offers a selection to save as a sentence (polyglotic-hq 459):
+        made the first time one is."""
         self.held = HeldSelection(
             self,
             lambda: shown(self.view.lines),
@@ -2347,6 +2417,7 @@ class CaptionWindow(QWidget):
         """The view's captions changed (`CaptionWindows` applied an update)."""
         if new_caption:
             self._last_activity = time.monotonic()
+            self.set_up_heard()
         self._pace_lines()
         self._refresh()
         self._note_arrivals()
@@ -2583,9 +2654,7 @@ class CaptionWindow(QWidget):
     def set_timing(self, mode: CaptionMode) -> None:
         self.timing = mode
         self.controls[mode.value].setChecked(True)
-        if self.settings_open:
-            assert self.popover is not None
-            self.popover.refresh()
+        self._refresh_popovers()
 
     def entry_changed(self, entry_id: EntryId, texts: tuple[str, ...]) -> None:
         """A Learning action changed one entry (`texts`: its forms): the
@@ -2622,18 +2691,14 @@ class CaptionWindow(QWidget):
         self.second_languages = dict(seconds)
         self.view.set_language(self.choices.target, self._second())
         self._refresh()
-        if self.settings_open:
-            assert self.popover is not None
-            self.popover.refresh()  # its "Lines already in ..." row
+        self._refresh_popovers()  # its "When they already speak ..." row
 
     def set_spoken_fallback(self, fallback: bool) -> None:
         """Whether its app is heard as Detect, not as its spoken language
         (`spoken_fallback`)."""
         if fallback != self.spoken_fallback:
             self.spoken_fallback = fallback
-            if self.settings_open:
-                assert self.popover is not None
-                self.popover.refresh()
+            self._refresh_popovers()
 
     def set_listening(self, listening: bool) -> None:
         if listening != self.listening:
@@ -2880,6 +2945,7 @@ class CaptionWindow(QWidget):
             self.go_live()
             self.show_notice(locked_text(self.unlock_keys), LOCKED_SEC)
         self.unlock_spot.watch(locked and self.isVisible())
+        self._show_set_up()  # not over a locked window: clicks pass through it
         if self.nudge is not None:  # clicks pass through a locked window
             self.nudge.setVisible(not locked and self.nudge.code is not None)
             self._place_overlays()
@@ -2922,6 +2988,7 @@ class CaptionWindow(QWidget):
         if self.popover is not None:  # its rows differ: made again when next opened
             self.popover.deleteLater()
             self.popover = None
+        self.finish_set_up()  # joined: two windows - the learner is past it
         self._show_band(False)
         self.hovered = False
         self.let_in()
@@ -3107,6 +3174,24 @@ class CaptionWindow(QWidget):
             glyph=Glyph.REPORT,
         )
         self._action(
+            "start_like_this",
+            _tr("Start new windows like this"),
+            _tr(
+                "New caption windows take this one's languages - what they "
+                "speak too, not Detect"
+            ),
+            checkable=True,
+        ).triggered.connect(lambda on: self.start_like_this_wanted.emit(bool(on)))
+        self._action(
+            "ask_set_up",
+            _tr("Ask when a window opens"),
+            _tr(
+                "A caption window that opens asks what they speak and what to "
+                "translate into, until you choose Use as my default there"
+            ),
+            checkable=True,
+        ).triggered.connect(lambda on: self.ask_set_up_wanted.emit(bool(on)))
+        self._action(
             "show_mic",
             _tr("Show my speech here"),
             _tr("Your microphone is sent to the server only while this is on"),
@@ -3161,9 +3246,24 @@ class CaptionWindow(QWidget):
         self.tag = SourceTag(band)
         self.tag.ink = self.bar
         self.tag.setMouseTracking(True)
-        # the label takes what's left, and is what shortens when it's narrow
-        self.tag.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
-        row.addWidget(self.tag, 1)
+        # the label takes what it needs, and is what shortens when it's narrow
+        self.tag.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.tag.setMinimumWidth(0)
+        row.addWidget(self.tag)
+        chip = self.chip = QToolButton(band)
+        chip.setObjectName("caption_window.band.languages")
+        chip.setProperty("chip", True)
+        chip.setCursor(Qt.CursorShape.PointingHandCursor)
+        chip.setMouseTracking(True)
+        chip.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        chip.setToolTip(
+            _tr(
+                "What this app speaks, and what it's translated into - change them here"
+            )
+        )
+        chip.clicked.connect(self.toggle_languages)
+        row.addWidget(chip)
+        row.addStretch(1)
         self.buttons: dict[str, QToolButton] = {}
         for name in STRIP:
             action = self.controls[name]
@@ -3180,6 +3280,7 @@ class CaptionWindow(QWidget):
         self.tips.watch(self.tag, self.tag.tip_at)
         for button in self.buttons.values():
             self.tips.watch(button)
+        self.tips.watch(chip)
         self._draw_glyphs()
         band.hide()
         self.set_timing(self.timing)
@@ -3207,8 +3308,13 @@ class CaptionWindow(QWidget):
         self.controls["stop"].setToolTip(stop)
         self._name_buttons()
         self._fit_band()
-        if self.popover is not None and self.popover.isVisible():
-            self.popover.refresh()
+        self._refresh_popovers()
+
+    def _refresh_popovers(self) -> None:
+        """Every popover of its that shows says its choices as they are now."""
+        for each in (self.popover, self.languages, self.set_up):
+            if each is not None and each.isVisible():
+                each.refresh()
 
     def _show_links(self) -> None:
         """The strip's word links button: on or off. With what was said
@@ -3255,17 +3361,33 @@ class CaptionWindow(QWidget):
             self._fit_band()
 
     def _fit_band(self) -> None:
-        note = _tr("Original only") if self.choices.target is None else ""
-        self.tag.show_label(self.label, self.choices.show_mic, note)
         # a column: lock is the joined window's, at the right of the last
         self.buttons["lock"].setVisible(self.host is None)
         self.buttons["report"].setVisible(self.reporting)
         room = self.host.controls_width(self) if self.host is not None else 0
+        width = max(0, self.width() - 2 * placement.CORNER_ZONE - room)
+        self.chip.setText(
+            chip_text(
+                self.choices.spoken_language,
+                self.choices.target,
+                self.languages is not None and self.languages.isVisible(),
+            )
+        )
+        self.chip.setAccessibleName(self.chip.text().rstrip(" ▾▴"))
+        buttons = sum(
+            b.sizeHint().width() + 3 for b in self.buttons.values() if not b.isHidden()
+        )
+        chip = self.chip.sizeHint().width() + 3
+        fits = width - buttons - chip >= style.px(CHIP_LEAST_LABEL)
+        self.chip.setVisible(fits)
+        # the chip says Original only; with no chip, the label does
+        note = _tr("Original only") if self.choices.target is None and not fits else ""
+        self.tag.show_label(self.label, self.choices.show_mic, note)
         # inside the corner zones, so every edge still resizes
         self.band.setGeometry(
             placement.CORNER_ZONE,
             placement.EDGE_ZONE - 1,
-            max(0, self.width() - 2 * placement.CORNER_ZONE - room),
+            width,
             band_height() - placement.EDGE_ZONE,
         )
 
@@ -3273,13 +3395,18 @@ class CaptionWindow(QWidget):
 
     @property
     def settings_open(self) -> bool:
-        return self.popover is not None and self.popover.isVisible()
+        """Its settings popover or its languages' is open."""
+        return any(
+            each is not None and each.isVisible()
+            for each in (self.popover, self.languages)
+        )
 
     def toggle_settings(self) -> None:
         """The settings popover, beside the settings button - or closed."""
-        if self.settings_open:
+        if self.popover is not None and self.popover.isVisible():
             self.close_settings()
             return
+        self.close_settings()
         if self.locked or not self.isVisible():
             return
         with spans.span("caption_window.settings"):
@@ -3309,8 +3436,77 @@ class CaptionWindow(QWidget):
             popover._toggle_apps()
 
     def close_settings(self) -> None:
-        if self.popover is not None:
-            self.popover.close()
+        for each in (self.popover, self.languages):
+            if each is not None:
+                each.close()
+
+    def toggle_languages(self) -> None:
+        """The bar's language chip: its three language choices and Start
+        new windows like this, under the chip - or closed (465)."""
+        if self.languages is not None and self.languages.isVisible():
+            self.close_settings()
+            self._fit_band()
+            return
+        self.close_settings()
+        if self.locked or not self.isVisible():
+            return
+        if self.languages is None:
+            self.languages = SettingsPopover(self, self.keys, LANGUAGE_ROWS)
+            self.languages.setObjectName("caption_window.languages")
+        chip = self.chip
+        anchor = QRect(chip.mapToGlobal(QPoint(0, 0)), chip.size())
+        self.languages.open_beside(anchor)
+        self._fit_band()  # its arrow turned up
+
+    # -- the first window's set-up (465) ------------------------------------------------
+
+    def band_bottom(self) -> int:
+        """Where its captions start under the hover band (the set-up's top)."""
+        return band_height()
+
+    def ask_set_up(self) -> None:
+        """Its three language choices asked in it (`caption_set_up`):
+        shown now if it is, else when it shows."""
+        if self.set_up is None:
+            self.set_up = CaptionSetUp(self)
+            self.set_up.done.connect(self.finish_set_up)
+        self._show_set_up()
+
+    def _show_set_up(self) -> None:
+        if self.set_up is None:
+            return
+        if self.isVisible() and not self.locked and self.host is None:
+            self.set_up.open_over()
+        else:
+            self.set_up.hide()
+
+    def set_up_heard(self) -> None:
+        """A caption came: captions start, the set-up goes - unless the
+        learner is at it (the next caption after, then)."""
+        if self.set_up is not None and not self.set_up.busy():
+            self.finish_set_up()
+
+    def finish_set_up(self) -> None:
+        """The set-up goes, its answers this window's - and, with "Use as
+        my default" chosen in it, how new windows start (478)."""
+        set_up, self.set_up = self.set_up, None
+        if set_up is None:
+            return
+        as_default = set_up.as_default.isChecked()
+        set_up.close()
+        set_up.deleteLater()
+        self.set_up_done.emit(as_default)
+        self._wake()
+
+    def set_start_like_this(self, on: bool) -> None:
+        """Whether new windows start like the last one, the spoken language
+        too (the session's: `CaptionWindows`)."""
+        self.controls["start_like_this"].setChecked(on)
+
+    def set_asks_set_up(self, on: bool) -> None:
+        """Whether a window that opens asks its languages (the session's:
+        `CaptionWindows`; 478)."""
+        self.controls["ask_set_up"].setChecked(on)
 
     def area_at(self, rect: QRect) -> Rect:
         """The work area holding `rect` (global), or this window's."""
@@ -3335,6 +3531,8 @@ class CaptionWindow(QWidget):
         if self.settings_open:  # the strip stays while its popover is open
             self._band_out.start()
             return
+        if self.chip.isVisible():
+            self._fit_band()  # its arrow down again
         self.hovered = False
         self._show_band(False)
 
@@ -3349,6 +3547,8 @@ class CaptionWindow(QWidget):
     def showEvent(self, event: QShowEvent) -> None:
         self._wake()  # faded when it was hidden: it looks for the mouse again
         self.unlock_spot.watch(self.locked)
+        if self.set_up is not None:  # over it once it's on the screen
+            QTimer.singleShot(0, self, self._show_set_up)
 
     def changeEvent(self, event: QEvent) -> None:
         super().changeEvent(event)
@@ -3364,6 +3564,8 @@ class CaptionWindow(QWidget):
         self._stop_looking_for_pointer()
         self.unlock_spot.watch(False)
         self.close_settings()  # hidden (Ctrl+Alt+H) or closed: so is its popover
+        if self.set_up is not None:  # asked again when it shows
+            self.set_up.hide()
         self._let_go_of_word()
         self.canvas.forget_panel()  # its memory: a window's size, four times over
         if self.card is not None:
@@ -3576,6 +3778,7 @@ class CaptionWindow(QWidget):
             or not self.view.scroll.following
             or self.mark_showing
             or self.notices.paused
+            or self.set_up is not None
         )
         quiet = now - self._last_activity
         intro = self._intro_until
@@ -3661,6 +3864,12 @@ class CaptionWindow(QWidget):
         self.canvas.setGeometry(self.rect())
         self._fit_band()
         self._place_overlays()
+        if self.set_up is not None:
+            self.set_up.follow()
+
+    def moveEvent(self, event: object) -> None:
+        if self.set_up is not None:
+            self.set_up.follow()
 
     def enterEvent(self, event: QEnterEvent) -> None:
         self.came_over()
@@ -4030,6 +4239,68 @@ class CaptionWindow(QWidget):
 
     def _held_changed(self) -> None:
         self.canvas.update()
+        if self.held.selection is None and self.sentence_card is not None:
+            self.sentence_card.withdraw()
+
+    def _offer_sentence(self) -> None:
+        """The selection just let go of, if more than a word: offered to
+        save as a sentence (polyglotic-hq 459), by a card under the caption
+        it ends in - into the learning data of the language it was spoken
+        in."""
+        chosen, learner = self.held.selection, self.learner
+        if chosen is None or learner is None:
+            return
+        found = selected_sentence(
+            held_pieces(self.view.lines, chosen), self._speaker, self.view.caption
+        )
+        rects = held_rects(self.canvas.placed, chosen)
+        if found is None or not worth_saving(found) or not rects:
+            return
+        vocabulary = learner.of(found.language).vocabulary
+        sentence = found
+
+        def save(category_id: CategoryId) -> str:
+            try:
+                vocabulary.save_sentence(
+                    sentence.parts,
+                    sentence.original,
+                    sentence.translation,
+                    category_id,
+                    sentence.translation_language,
+                )
+            except ValueError:
+                return ""
+            category = vocabulary.category(category_id)
+            return category.name if category is not None else ""
+
+        last = max(rects, key=lambda r: (r.bottom(), r.right()))
+        # under the whole caption the selection ends in - never over its
+        # translation, which the learner is saving too
+        caption = next(
+            (where for _, _, where in self.canvas.placed if where.intersects(last)),
+            last,
+        ).toRect()
+        anchor = QRect(
+            self.mapToGlobal(QPoint(last.toRect().left(), caption.top())),
+            QSize(last.toRect().width(), caption.height()),
+        )
+        area = self._area()
+        if self.sentence_card is None:
+            self.sentence_card = SentenceCard(self)
+            self.held.keeps.append(self.sentence_card)
+        self.sentence_card.offer(
+            vocabulary.categories,
+            save,
+            anchor,
+            QRect(area.x, area.y, area.width, area.height),
+        )
+
+    def _speaker(self, line: Line) -> str:
+        """Who said `line`, as its label names them: "You", or its app."""
+        if line.by_you:
+            return self.labels.you.name
+        found = self.labels.sources.get(line.source)
+        return found.name if found is not None else ""
 
     def _on_held(self, pos: QPointF) -> bool:
         """`pos` is on the words selected - not under the hover strip."""
@@ -4107,6 +4378,7 @@ class CaptionWindow(QWidget):
         if selecting.across:  # a selection: held, no lookup
             self.held.hold()
             self.setCursor(Qt.CursorShape.PointingHandCursor)
+            self._offer_sentence()
             return
         selection, self.canvas.selection = self.canvas.selection, None
         marked = selecting.word
@@ -4121,6 +4393,7 @@ class CaptionWindow(QWidget):
                         Place(selection.key, clause, selection.end, kind),
                     )
                 )
+                self._offer_sentence()  # more than a word: a sentence too
             start, end = selection.start, selection.end
             while start < end and not _wordlike(text[start]):
                 start += 1

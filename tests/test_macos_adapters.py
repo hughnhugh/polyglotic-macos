@@ -33,6 +33,7 @@ from polyglotic_desktop.platform.macos import (
     capture,
     categories,
     keychain,
+    mic_permission,
     system,
 )
 from polyglotic_desktop.platform.macos.one_copy import FileLock
@@ -59,6 +60,8 @@ def test_macos_gets_a_whole_record() -> None:
             assert piece == categories.COMMON_APPS
         elif field.name == "typing_permission":  # a Mac's Accessibility (438)
             assert piece is not None and callable(piece.allowed)
+        elif field.name == "mic_permission":  # the Mac's microphone (478)
+            assert isinstance(piece, mic_permission.Permission)
         else:
             assert callable(piece), field.name
             assert "windows" not in getattr(piece, "__module__", ""), field.name
@@ -89,6 +92,7 @@ def test_windows_record_is_as_it_was() -> None:
     assert windows.data_folder().name == "Polyglotic"
     assert "platform.windows" in windows.copy_lock.__module__
     assert windows.typing_permission is None  # Windows asks none (438)
+    assert windows.mic_permission is None  # nor for the mic (478)
 
 
 # --- system -----------------------------------------------------------------

@@ -46,6 +46,7 @@ from polyglotic_desktop.ui_next.views.lab import (
     LoadRare,
     NewFade,
     OwnLabel,
+    Placing,
     Unfinished,
 )
 from polyglotic_desktop.ui_next.views.panels import LanguagesView, LookView
@@ -509,6 +510,30 @@ class LabPanel(Panel):
         )
         self.aligned.switch.toggled.connect(lambda on: self._set(aligned=bool(on)))
         self.add(self.aligned)
+        # where a line's parts go in its room (458): packed, as now, by default
+        self.placing = Segmented(
+            [
+                (Placing.PACKED, _tr("Packed")),
+                (Placing.NEAREST, _tr("Nearest their links")),
+                (Placing.EVENLY, _tr("Evenly")),
+            ]
+        )
+        self.placing.setObjectName("lab.placing")
+        self.placing.changed.connect(lambda v: self._set(placing=Placing(v)))
+        self.add(
+            Row(
+                _tr("Parts placed"),
+                _tr(
+                    "Where the parts of a line go in the room the line has. "
+                    "Packed: each straight after the one before, as now. Nearest "
+                    "their links: each part moves over its translation's words, "
+                    "so the word links are as short as they can be. Evenly: a "
+                    "full line's parts are spread over the width. "
+                    "Choosing one also turns on New layout."
+                ),
+                _left(self.placing),
+            )
+        )
 
     def _learning_load(self) -> None:
         """The learning load's viewing mode (324): on or off, and how the
@@ -597,6 +622,8 @@ class LabPanel(Panel):
         # value kept for when it does), and a click there makes it work (365)
         self.run_on.switch.set_quietly(lab.run_on and lab.line_by_line)
         self.aligned.switch.set_quietly(lab.lined_up)
+        # as the switches above: Packed where New layout is off (its value kept)
+        self.placing.set_value(lab.placing if lab.flow else Placing.PACKED)
         self.load.switch.set_quietly(lab.load)
         self.load_rare.set_value(lab.load_rare if lab.load else LoadRare.NORMAL)
         self.to_load.setVisible(lab.load)

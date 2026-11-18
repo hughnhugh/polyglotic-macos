@@ -151,6 +151,49 @@
     </message>
 </context>
 <context>
+    <name>CaptionSetUp</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Detect works out the language each time someone speaks.</source>
+        <translation type="unfinished">自動識別會在每次有人說話時判斷語言。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Translate those lines into a second language too, or leave them.</source>
+        <translation type="unfinished">把這些行也翻譯成第二種語言，或保持原樣。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Set up your captions</source>
+        <translation type="unfinished">設定你的字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Shown as &quot;You&quot;. Your mic is sent to the server only while it&apos;s on.</source>
+        <translation type="unfinished">顯示為「我」。只有在此項開啟時，你的麥克風才會傳送到伺服器。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Use as my default</source>
+        <translation type="unfinished">設為我的預設</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>New caption windows start like this, and this stops showing</source>
+        <translation type="unfinished">新的字幕視窗將依此開始，此畫面不再顯示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Start captions</source>
+        <translation type="unfinished">開始字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>On: new windows start like this and this stops showing. The languages on a window&apos;s bar change them, or bring it back.</source>
+        <translation type="unfinished">開啟：新視窗依此開始，此畫面不再顯示。視窗列上的語言可以變更它們，或重新顯示此畫面。</translation>
+    </message>
+</context>
+<context>
     <name>CaptionWindow</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -184,13 +227,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Pinyin above Chinese: turn it on in Settings, under Look</source>
-        <translation type="unfinished">漢字上方的拼音：在「設定」的「字幕外觀」中開啟</translation>
+        <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">漢字上方的拼音：在「設定」的「讀音」中開啟</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Click any word to look it up</source>
         <translation type="unfinished">點擊任意一個詞即可查詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Anything the PC plays is captioned here</source>
+        <translation type="unfinished">電腦播放的任何聲音都會在這裡加字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Anything the Mac plays is captioned here</source>
+        <translation type="unfinished">電腦播放的任何聲音都會在這裡加字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>{app}&apos;s captions appear here</source>
+        <translation type="unfinished">{app} 的字幕會顯示在這裡</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -409,8 +467,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>{app}&apos;s captions appear here</source>
-        <translation type="unfinished">{app} 的字幕會顯示在這裡</translation>
+        <source>{spoken} → {translation}</source>
+        <extracomment>Short, on a caption window&apos;s bar: the language heard (or &quot;Detect&quot;) and the one its captions are translated into</extracomment>
+        <translation type="unfinished">{spoken} → {translation}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Detect</source>
+        <translation type="unfinished">自動識別</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">僅原文</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -524,6 +593,26 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Start new windows like this</source>
+        <translation type="unfinished">新視窗依此開始</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>New caption windows take this one&apos;s languages - what they speak too, not Detect</source>
+        <translation type="unfinished">新的字幕視窗沿用此視窗的語言——包括說話語言，而不是自動識別</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Ask when a window opens</source>
+        <translation type="unfinished">開啟視窗時詢問</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>A caption window that opens asks what they speak and what to translate into, until you choose Use as my default there</source>
+        <translation type="unfinished">開啟的字幕視窗會詢問對方說什麼語言、翻譯成什麼語言，直到你在那裡選擇「設為我的預設」</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here</source>
         <translation type="unfinished">在此顯示我說的話</translation>
     </message>
@@ -574,6 +663,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>What this app speaks, and what it&apos;s translated into - change them here</source>
+        <translation type="unfinished">此應用程式說的語言和翻譯成的語言——在這裡變更</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Stop captioning {app}</source>
         <translation type="unfinished">停止給 {app} 加字幕</translation>
     </message>
@@ -581,11 +675,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links need what was said: turn on “Show the original above the translation” in Settings</source>
         <translation type="unfinished">詞語對應需要顯示說的話：在「設定」裡開啟「在譯文上方顯示原文」</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Original only</source>
-        <translation type="unfinished">僅原文</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -935,13 +1024,18 @@
     <name>DesktopApp</name>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
-        <source>This PC</source>
-        <translation type="unfinished">這台電腦</translation>
+        <source>Your Mac didn&apos;t allow Polyglotic to use the microphone, so your own speech isn&apos;t captioned. To caption it, allow Polyglotic in System Settings &gt; Privacy &amp; Security &gt; Microphone, then turn on Show my speech here.</source>
+        <translation type="unfinished">你的 Mac 未允許 Polyglotic 使用麥克風，所以你自己說的話沒有字幕。要顯示字幕，請在「系統設定 &gt; 隱私權與安全性 &gt; 麥克風」中允許 Polyglotic，然後開啟「在此顯示我說的話」。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
-        <source>This Mac</source>
-        <translation type="unfinished">這台電腦</translation>
+        <source>Everything the PC plays</source>
+        <translation type="unfinished">電腦播放的所有聲音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">電腦播放的所有聲音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
@@ -2616,13 +2710,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>everything the PC plays</source>
-        <translation type="unfinished">電腦播放的所有聲音</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>everything the Mac plays</source>
-        <translation type="unfinished">電腦播放的所有聲音</translation>
+        <source>every app&apos;s sound</source>
+        <translation type="unfinished">所有應用程式的聲音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2848,16 +2937,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>This PC</source>
-        <translation type="unfinished">這台電腦</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>This Mac</source>
-        <translation type="unfinished">這台電腦</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>1 app + everything else</source>
         <translation type="unfinished">1 個應用程式 + 其他所有聲音</translation>
     </message>
@@ -2865,6 +2944,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{n} of {limit}</source>
         <translation type="unfinished">{n} / {limit}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption one app instead</source>
+        <translation type="unfinished">改為只給一個應用程式加字幕</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2880,6 +2964,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: not shown - add an app first, then turn it on with its row&apos;s microphone, or its window&apos;s settings</source>
         <translation type="unfinished">我說的話：未顯示。請先新增應用程式，再用它那一行的麥克風按鈕或它的視窗設定開啟</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays is captioned - a call&apos;s voices too. To caption one app instead, choose it below.</source>
+        <translation type="unfinished">正在給電腦播放的所有聲音加字幕——通話中的聲音也包括在內。如果只想給一個應用程式加字幕，請在下面選擇它。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays is captioned - a call&apos;s voices too. To caption one app instead, choose it below.</source>
+        <translation type="unfinished">正在給電腦播放的所有聲音加字幕——通話中的聲音也包括在內。如果只想給一個應用程式加字幕，請在下面選擇它。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays is captioned - a call&apos;s voices too.</source>
+        <translation type="unfinished">正在給電腦播放的所有聲音加字幕——通話中的聲音也包括在內。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays is captioned - a call&apos;s voices too.</source>
+        <translation type="unfinished">正在給電腦播放的所有聲音加字幕——通話中的聲音也包括在內。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3516,6 +3620,31 @@
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Each part of what was said starts at the same place as its translation, so a word&apos;s translation is under it - however captions fill the width. Turning it on also turns on New layout.</source>
         <translation type="unfinished">所說內容的每個部分與其譯文從同一位置開始，詞語的譯文就在它的正下方——無論字幕以哪種方式填滿寬度。開啟後也會開啟新版排版。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Packed</source>
+        <translation type="unfinished">緊排</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Nearest their links</source>
+        <translation type="unfinished">靠近對應詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Evenly</source>
+        <translation type="unfinished">均勻分布</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Parts placed</source>
+        <translation type="unfinished">各部分的位置</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Where the parts of a line go in the room the line has. Packed: each straight after the one before, as now. Nearest their links: each part moves over its translation&apos;s words, so the word links are as short as they can be. Evenly: a full line&apos;s parts are spread over the width. Choosing one also turns on New layout.</source>
+        <translation type="unfinished">一行中的各部分放在該行空餘位置的哪裡。緊排：每個部分緊跟在前一個之後，和現在一樣。靠近對應詞：每個部分移到其譯文詞語的正上方，讓詞語對應的連線盡量短。均勻分布：排滿的一行，其各部分在整個寬度上均勻鋪開。選擇任一項也會開啟新版排版。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5235,8 +5364,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Second language</source>
-        <translation type="unfinished">第二語言</translation>
+        <source>When they already speak the window&apos;s language</source>
+        <translation type="unfinished">當他們說的已是視窗的語言</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5305,8 +5434,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Lines already in {language} are translated into</source>
-        <translation type="unfinished">已經是{language}的句子翻譯成</translation>
+        <source>Caption windows translating into {language} - when someone already speaks {language}, also translate into</source>
+        <translation type="unfinished">翻譯成{language}的字幕視窗——有人已在說{language}時，也翻譯成</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5315,8 +5444,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Lines already in {language} are translated into:</source>
-        <translation type="unfinished">已經是{language}的句子翻譯成：</translation>
+        <source>Caption windows translating into {language} - when someone already speaks {language}, also translate into:</source>
+        <translation type="unfinished">翻譯成{language}的字幕視窗——有人已在說{language}時，也翻譯成：</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5661,8 +5790,9 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin</source>
-        <translation type="unfinished">拼音</translation>
+        <source>Readings</source>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <translation type="unfinished">讀音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5673,6 +5803,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. It isn&apos;t part of the text: copying and looking up words work as before.</source>
         <translation type="unfinished">在每個漢字上方顯示一個小音節，原話和譯成中文的譯文都有。拼音不是文字的一部分：複製和查詞與原來一樣。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin</source>
+        <translation type="unfinished">拼音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5691,6 +5826,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Jyutping above Cantonese</source>
+        <translation type="unfinished">粵語上方顯示粵拼</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A small syllable over each Cantonese character, its tone as a raised number (hai⁶), from the Cantonese dictionary - once you learn Cantonese and its dictionary is here.</source>
+        <translation type="unfinished">在每個粵語漢字上方顯示一個小音節，聲調寫成上標數字（hai⁶），來自粵語詞典——學習粵語並且它的詞典已在本機時顯示。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">每個詞</translation>
     </message>
@@ -5701,8 +5846,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin over</source>
-        <translation type="unfinished">拼音標在</translation>
+        <source>Readings over</source>
+        <translation type="unfinished">讀音標在</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5716,8 +5861,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin size</source>
-        <translation type="unfinished">拼音大小</translation>
+        <source>Reading size</source>
+        <translation type="unfinished">讀音大小</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5741,23 +5886,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin colour</source>
-        <translation type="unfinished">拼音顏色</translation>
+        <source>Reading colour</source>
+        <translation type="unfinished">讀音顏色</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">對應詞語的顏色：有對應時，拼音用它所在詞語的對應顏色。詞語對應也可以給被對應的詞語上色。</translation>
+        <source>Its word link&apos;s colour: a reading takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">對應詞語的顏色：有對應時，讀音用它所在詞語的對應顏色。詞語對應也可以給被對應的詞語上色。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Custom pinyin colour</source>
-        <translation type="unfinished">自訂拼音顏色</translation>
+        <source>Custom reading colour</source>
+        <translation type="unfinished">自訂讀音顏色</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The one colour pinyin is drawn in, over any line.</source>
-        <translation type="unfinished">拼音統一使用的顏色，不管在哪一行。</translation>
+        <source>The one colour readings are drawn in, over any line.</source>
+        <translation type="unfinished">讀音統一使用的顏色，不管在哪一行。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6019,6 +6164,106 @@
     </message>
 </context>
 <context>
+    <name>SavedSentences</name>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>{found} of %Ln saved sentence(s)</source>
+        <translation type="unfinished">
+            <numerusform>{found}/%Ln 個收藏的句子</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>%Ln saved sentence(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 個收藏的句子</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Move to…</source>
+        <translation type="unfinished">移到…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Remove</source>
+        <translation type="unfinished">移除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Saved sentences</source>
+        <translation type="unfinished">收藏的句子</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>What you selected in captions and saved, with its translation. Search in either language: a sentence with most of your words is found.</source>
+        <translation type="unfinished">你在字幕裡選取並收藏的內容，連同譯文。用任一種語言搜尋：包含你大部分詞語的句子都會找到。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Search - words in either language</source>
+        <translation type="unfinished">搜尋：任一種語言的詞語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Search your sentences</source>
+        <translation type="unfinished">搜尋你的句子</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Clear the search</source>
+        <translation type="unfinished">清除搜尋</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show sentences in this category</source>
+        <translation type="unfinished">顯示這個分類的句子</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show sentences with this saved word</source>
+        <translation type="unfinished">顯示含有這個收藏詞的句子</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show more</source>
+        <translation type="unfinished">顯示更多</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>None yet - drag across more than a word in a caption window, then pick a category to save it.</source>
+        <translation type="unfinished">還沒有：在字幕視窗裡拖選不只一個詞，再選一個分類。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>All categories</source>
+        <translation type="unfinished">所有分類</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Any saved word</source>
+        <translation type="unfinished">任一收藏詞</translation>
+    </message>
+</context>
+<context>
+    <name>SentenceCard</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Save sentence to</source>
+        <translation type="unfinished">收藏句子到</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Saved to {category}</source>
+        <translation type="unfinished">已收藏到「{category}」</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Couldn&apos;t save it</source>
+        <translation type="unfinished">未能收藏</translation>
+    </message>
+</context>
+<context>
     <name>Settings</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6094,21 +6339,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>A few parts change at the next start.</source>
         <translation type="unfinished">有些部分下次啟動時才會改變。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Language</source>
-        <translation type="unfinished">語言</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>The app&apos;s language</source>
-        <translation type="unfinished">應用程式的語言</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Menus, buttons and help - not your captions. It changes the next time Polyglotic starts.</source>
-        <translation type="unfinished">選單、按鈕和說明，不包括你的字幕。下次啟動 Polyglotic 時生效。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6273,6 +6503,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Language</source>
+        <translation type="unfinished">語言</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">自動識別：每次按住按鍵時，你說哪種語言就輸入哪種語言。指定一種語言（英語、普通話……）後，總是按這種語言來聽：短句不會被聽成別的語言。系統匣選單也可以切換。</translation>
     </message>
@@ -6324,6 +6559,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">詞語對應</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Readings</source>
+        <extracomment>Settings&apos; section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <translation type="unfinished">讀音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Timing</source>
         <translation type="unfinished">時機</translation>
     </message>
@@ -6351,6 +6597,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>App language</source>
         <translation type="unfinished">應用程式語言</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>The app&apos;s language</source>
+        <translation type="unfinished">應用程式的語言</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Menus, buttons and help - not your captions. It changes the next time Polyglotic starts.</source>
+        <translation type="unfinished">選單、按鈕和說明，不包括你的字幕。下次啟動 Polyglotic 時生效。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6427,6 +6683,27 @@
     <name>SettingsPopover</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>When they already speak {language}</source>
+        <extracomment>A caption window&apos;s row: what to do with lines already spoken in {language}, the language this window translates into</extracomment>
+        <translation type="unfinished">當他們說的已是{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{language} is this window&apos;s language, so those lines get no translation. Translate them into a second language too, or leave them as they are.</source>
+        <translation type="unfinished">{language}是此視窗的語言，所以這些行沒有翻譯。也把它們翻譯成第二種語言，或保持原樣。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Leave as they are</source>
+        <translation type="unfinished">保持原樣</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Also translate into {language}</source>
+        <translation type="unfinished">也翻譯成{language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{app} - playing</source>
         <translation type="unfinished">{app}（正在播放）</translation>
     </message>
@@ -6457,8 +6734,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Spoken language</source>
-        <translation type="unfinished">說話語言</translation>
+        <source>They speak</source>
+        <translation type="unfinished">他們說</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -6477,13 +6754,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>A line spoken in this window&apos;s language gets no translation. Show it in another language instead, or leave it.</source>
-        <translation type="unfinished">用這個視窗的語言說的句子不會翻譯。可以改為顯示成另一種語言，或保持原樣。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Lines already in this window&apos;s language</source>
-        <translation type="unfinished">已經是這個視窗語言的句子</translation>
+        <source>When they already speak this window&apos;s language</source>
+        <translation type="unfinished">當他們說的已是此視窗的語言</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -6559,16 +6831,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{percent}%</source>
         <translation type="unfinished">{percent}%</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Lines already in {language}</source>
-        <translation type="unfinished">已經是{language}的句子</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Leave as they are</source>
-        <translation type="unfinished">保持原樣</translation>
     </message>
 </context>
 <context>
@@ -7416,6 +7678,13 @@
         <source>Couldn&apos;t write {name}. It may be open in another program, or the folder may be read-only - close it or pick another folder, and try again.</source>
         <translation type="unfinished">無法寫入 {name}。它可能在另一個程式中開啟著，或者資料夾是隻讀的：請關閉它或換一個資料夾，然後再試一次。</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>%Ln saved sentence(s) written to {name}.</source>
+        <translation type="unfinished">
+            <numerusform>已將 %Ln 個收藏的句子寫入 {name}。</numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No new words since the last export - {name} is empty.</source>
@@ -7431,6 +7700,14 @@
         <source>%Ln word(s) written to {name}.</source>
         <translation type="unfinished">
             <numerusform>已將 %Ln 個詞寫入 {name}。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>And %Ln saved sentence(s).</source>
+        <extracomment>after &quot;12 words written to polyglotic-words.apkg.&quot;</extracomment>
+        <translation type="unfinished">
+            <numerusform>另有 %Ln 個收藏的句子。</numerusform>
         </translation>
     </message>
     <message numerus="yes">

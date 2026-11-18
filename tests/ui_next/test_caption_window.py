@@ -260,11 +260,16 @@ def test_the_strip_is_the_label_and_four_buttons_at_every_width(
     # each its own width: its words', or an icon's as wide as its glyph was (179)
     hints = [max(b.sizeHint().width(), b.minimumWidth()) for b in shown]
     assert [b.width() for b in shown] == hints
-    wide = window.tag.width()
+    # the language chip right after the label (465)
+    assert window.chip.isVisible()
+    assert window.chip.x() >= window.tag.geometry().right()
+    assert window.chip.x() - window.tag.geometry().right() <= 8
     window.resize(MIN_PANEL.width, 180)
     qapp.processEvents()
     assert all(not b.isHidden() and b.width() > 0 for b in shown)
-    assert window.tag.width() < wide  # the label gave up the room
+    # too narrow for the chip and a readable label: the chip goes first
+    assert window.chip.isHidden()
+    assert window.tag.width() > 0
 
 
 def test_an_alpha_testers_strip_reports_a_problem_at_every_width(
@@ -1209,8 +1214,15 @@ def test_the_band_covers_whole_rows_never_half_a_label(window: CaptionWindow) ->
 
 
 def test_original_only_says_so_on_the_strip(window: CaptionWindow) -> None:
+    """On the language chip (465) - or, where the strip is too narrow for
+    the chip, beside the label."""
+    window.resize(960, 180)
     assert window.tag.note == ""
     window.set_language("")
+    assert window.chip.text().startswith("Detect → Original only")
+    assert window.tag.note == ""  # the chip says it
+    window.resize(MIN_PANEL.width, 180)
+    assert window.chip.isHidden()
     assert window.tag.note == "Original only"
     assert "Original only" in window.tag.toolTip()
     window.set_language("en")

@@ -175,7 +175,7 @@ of the app's windows has it, and the right-click everywhere.
 
 ## Kept for later, and where they sit
 
-- **Pinyin above Chinese** (the user's Taiga work, DECISIONS #153): a
+- **Pinyin above Chinese** (DECISIONS #153): a
   per-unit annotation over places of the original side; the layout gives
   a line an annotation band (more ascent) and widens a unit to its
   annotation. `_Side` is where a unit's width is decided.

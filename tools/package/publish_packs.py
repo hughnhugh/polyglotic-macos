@@ -118,6 +118,7 @@ SPLITS = {
     "ja": "japanese",
     "vi": "vietnamese",
     "th": "thai",
+    "yue": "han",
     "hi": "marks",
     "ar": "clitics",
     "id": "clitics",
@@ -143,7 +144,9 @@ guesses; one from before `affixes` finds Filipino's, Czech's and Greek's
 words only below the floor (77.1, 89.8 and 89.8 % of the probe's words,
 not 90.8, 90.6 and 90.1; polyglotic-hq 387). An app with either has every
 split before it. One from before `thai` would take a Thai phrase, written
-without spaces, as one word (polyglotic-hq 389)."""
+without spaces, as one word (polyglotic-hq 389); one from before `han`
+would take a Cantonese line as one word (polyglotic-hq 450), and has no
+Cantonese in its basic languages."""
 WIKTIONARY_AND_WORDFREQ = (
     "Wiktionary's contributors (via kaikki.org) and wordfreq; CC BY-SA 4.0"
 )
@@ -175,6 +178,11 @@ CREDIT_LINES = {
         "from Common Voice's Thai sentences (CC0)"
     ),
     "jmdict": "JMdict (EDRDG), Wiktionary's contributors and wordfreq; CC BY-SA 4.0",
+    "canto": (
+        "CC-Canto and its Cantonese readings for CC-CEDICT (Pleco), CC-CEDICT "
+        "(MDBG), rime-cantonese (CanCLID); CC BY-SA 4.0; ranks from HKCanCor "
+        "(CC BY 4.0) and wordfreq"
+    ),
 }
 
 

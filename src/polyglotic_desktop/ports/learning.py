@@ -2,13 +2,13 @@
 
 The learner's level, the word statuses they set (and those Learning
 estimated from a lookup), saved words with their categories and source
-sentences, exposure counts, each day's coverage and listening time, and
+sentences, saved sentences, exposure counts, each day's coverage and listening time, and
 the learning load's words.
 Core's Learning reads it all once at start
 and writes each change through this port; it gives the values their
 meaning (statuses, sources, the known line).
 
-Privacy (DOMAIN.md, "Data and privacy"): a saved word's source sentence,
+Privacy (DOMAIN.md, "Data and privacy"): a saved word's source sentence, saved sentences,
 the exposure counts and the days' coverage and listening stay on this PC. What goes to the server - entry
 IDs and times - is sent by the connection, not read from here.
 """
@@ -69,6 +69,35 @@ class StoredSavedWord:
     category_id: str
     source_sentence: str
     source_translation: str
+    saved_at: datetime
+
+
+@dataclass(frozen=True)
+class StoredSentencePart:
+    """A clause of a saved sentence: what was said (as much as was
+    selected), its translation, the word links between them - each
+    `(original start, end, translation start, end, key)` - and the
+    speaker's label."""
+
+    original: str
+    translation: str
+    links: tuple[tuple[int, int, int, int, bool], ...]
+    speaker: str
+
+
+@dataclass(frozen=True)
+class StoredSentence:
+    """A saved sentence (polyglotic-hq 459, version 9): each side's text,
+    its parts, the language of its translation ("" for none), its
+    category, and when it was saved (the user's own data, kept on this
+    PC)."""
+
+    id: str
+    original: str
+    translation: str
+    parts: tuple[StoredSentencePart, ...]
+    translation_language: str
+    category_id: str
     saved_at: datetime
 
 
@@ -250,7 +279,7 @@ class LearningStore(Protocol):
         ...
 
     def delete_category(self, category_id: str) -> None:
-        """Deletes the category and every word saved in it."""
+        """Deletes the category and every word and sentence saved in it."""
         ...
 
     def save_word(self, word: StoredSavedWord) -> None:
@@ -258,6 +287,19 @@ class LearningStore(Protocol):
         ...
 
     def delete_word(self, entry_id: str) -> None: ...
+
+    def saved_sentences(self) -> Sequence[StoredSentence]:
+        """The saved sentences that can be read - read when they're first
+        wanted, not at the start (`load`): a learner's thousands of them
+        would slow every start (polyglotic-hq 459). One that can't be read
+        is left out and kept, as `load` leaves a row out."""
+        ...
+
+    def save_sentence(self, sentence: StoredSentence) -> None:
+        """Adds or replaces the saved sentence."""
+        ...
+
+    def delete_sentence(self, sentence_id: str) -> None: ...
 
     def save_deck_word(self, word: StoredDeckWord) -> None:
         """Adds or replaces the entry's deck word."""
@@ -330,9 +372,9 @@ class LearningStore(Protocol):
         ...
 
     def delete_learning_data(self) -> None:
-        """Deletes every status, saved word, deck word, export time, exposure
-        count, daily count, day's coverage and listening, lookup count, and
-        the learning load's words - the learner
+        """Deletes every status, saved word, saved sentence, deck word,
+        export time, exposure count, daily count, day's coverage and
+        listening, lookup count, and the learning load's words - the learner
         deleted their learning data. The level and the categories stay.
         None of what's deleted stays readable in the store's files, and any
         copy of the store set aside after damage (`SetAsideLearningData`) is

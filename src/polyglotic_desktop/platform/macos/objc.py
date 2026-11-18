@@ -180,3 +180,28 @@ class Block:
     @property
     def address(self) -> int:
         return ctypes.addressof(self._literal)
+
+
+_FLAG_BLOCK = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool)
+
+
+class FlagBlock:
+    """A block taking one yes or no and returning nothing (`void
+    (^)(BOOL)`), calling `call` with it on whatever thread the framework
+    calls it - AVFoundation's answer to a permission asked (polyglotic-hq
+    478). Global, as `Block`: keep it while it can be called."""
+
+    def __init__(self, call: Callable[[bool], None]) -> None:
+        self._invoke = _FLAG_BLOCK(lambda _block, value: call(bool(value)))
+        self._descriptor = _Descriptor(0, ctypes.sizeof(_Literal), b"v12@?0B8")
+        self._literal = _Literal(
+            runtime().global_block,
+            _BLOCK_IS_GLOBAL | _BLOCK_HAS_SIGNATURE,
+            0,
+            ctypes.cast(self._invoke, ctypes.c_void_p).value,
+            ctypes.pointer(self._descriptor),
+        )
+
+    @property
+    def address(self) -> int:
+        return ctypes.addressof(self._literal)

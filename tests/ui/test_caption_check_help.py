@@ -106,7 +106,7 @@ def test_not_signed_in_is_the_first_broken_link(qapp: QApplication) -> None:
 def test_nothing_ticked_then_the_mic_and_everything_the_pc_plays(
     qapp: QApplication,
 ) -> None:
-    app = make_app()
+    app = make_app(MemorySettingsStore({"whole_system": False}))  # all stopped
     app.set_connection(ConnectionState.LISTENING)
     assert lines(app)["ticked"].startswith("✗")
     app.settings.update(caption_mic=True)

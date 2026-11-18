@@ -63,12 +63,11 @@ def held_in(root: QWidget) -> list[QWidget]:
 
 def page_of(control: QWidget) -> QAbstractScrollArea | None:
     """The scrolling page `control` is on: the nearest scroll area it's
-    inside (its viewport's), or None."""
+    inside - in its viewport, or pinned above it, as Settings' sections
+    dropdown is (polyglotic-hq 470) - or None."""
     found = control.parentWidget()
     while found is not None:
-        if isinstance(found, QAbstractScrollArea) and found.viewport().isAncestorOf(
-            control
-        ):
+        if isinstance(found, QAbstractScrollArea):
             return found
         if found.isWindow():  # a page may be a window of its own
             return None

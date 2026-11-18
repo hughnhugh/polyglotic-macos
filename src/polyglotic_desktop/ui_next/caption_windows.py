@@ -36,6 +36,19 @@ names (`set_captioned`: an app's key - its name - and its source id; or
   steadily (`core.listening.spoken.SteadyLanguage`, its own app's finished
   captions only) asks "Always hear it as ...?" (`spoken_nudge`); Not now is
   remembered by the window's key (`StoredWindows.declined_spoken`).
+- **A window sets itself up** (polyglotic-hq 465, 449's 3A; 478): with
+  `offer_set_up` (`main`'s), a caption window that opens asks its three
+  language choices in it (`caption_set_up`) - every one, until the
+  learner chooses Use as my default in one (`StoredWindows.set_up`; a
+  window's chip brings it back, "Ask when a window opens"). A learner
+  with windows from before it came is never asked. With Use as my
+  default its answers are how new windows start: Start new windows like
+  this goes on (`StoredWindows.start_like_this`), so a spoken language
+  named there carries to the next window; any window's language chip
+  turns it off or on again. Without it, a new window hears Detect, as
+  before. A new learner's first window shows my speech too, its switch
+  in the set-up (478); Home's sample's window - a trial - neither asks
+  nor counts as the first.
 - **Joined or separate** (109's 2a): "Join windows" puts every window
   into one (`joined_window`), a column each in the apps' order, at the
   place and height of the window it came from, as wide as they are
@@ -87,7 +100,7 @@ from polyglotic_desktop.core.listening.hidden import HiddenWindows, Sight
 from polyglotic_desktop.core.listening.recheck import RecheckResult
 from polyglotic_desktop.core.listening.settings import agreed_language
 from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
-from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
+from polyglotic_desktop.core.listening.sources import SAMPLE, SourceId, SourceLabel
 from polyglotic_desktop.core.listening.spoken import SteadyLanguage
 from polyglotic_desktop.core.listening.timing import (
     MAX_WAIT_FOR_TEXT_SEC,
@@ -197,6 +210,9 @@ class CaptionWindows(QObject):
     show_wanted = Signal()
     """Speech started in a hidden window and the learner asked for the
     windows back then (the look's `show_on_speech`)."""
+    set_up_done = Signal()
+    """A window's set-up went (465; 478: on every open until Use as my
+    default)."""
 
     def __init__(
         self,
@@ -207,12 +223,16 @@ class CaptionWindows(QObject):
         keys: KeyState | None = None,
         learner: Learner | None = None,
         on_top: OnTop | None = None,
+        offer_set_up: bool = False,
     ) -> None:
         """`keys`: whether Esc or a mouse button is held anywhere (from
         `platform`, by way of `main`), for closing a settings popover;
         `learner`: the learning tools, for the windows' highlights and the
-        lookup; `on_top`: Windows' always-on-top band (`keep_on_top`)."""
+        lookup; `on_top`: Windows' always-on-top band (`keep_on_top`);
+        `offer_set_up`: a window that opens asks its languages, until Use as
+        my default (465, 478)."""
         super().__init__(parent)
+        self.offer_set_up = offer_set_up
         self.keys = keys
         self.on_top = on_top
         self._on_top_at = -ON_TOP_EVERY_SEC
@@ -325,7 +345,9 @@ class CaptionWindows(QObject):
     def _open(self, key: str, source: SourceId, index: int) -> CaptionWindow:
         choices = self.stored.by_key.get(key)
         if choices is None:
-            choices = self.stored.by_key[key] = self.stored.for_new(index)
+            choices = self.stored.by_key[key] = self.stored.for_new(
+                index, key, self.offer_set_up
+            )
             self._save.start()
         label = self.labels.get(source) or SourceLabel(key, ACCENT)
         window = CaptionWindow(
@@ -353,6 +375,17 @@ class CaptionWindows(QObject):
         window.set_connection(*self.connection)
         window.set_unlock_keys(self.unlock_keys)
         window.set_locked(self.locked)
+        window.set_start_like_this(self.stored.start_like_this)
+        window.start_like_this_wanted.connect(
+            lambda on: self._start_like_this(window, on)
+        )
+        window.set_asks_set_up(self.offer_set_up and not self.stored.set_up)
+        window.ask_set_up_wanted.connect(self.set_asks_set_up)
+        window.set_up_done.connect(
+            lambda as_default: self._set_up_done(window, as_default)
+        )
+        if self._asks_set_up() and source != SAMPLE:  # the sample is a trial (478)
+            window.ask_set_up()
         self._marks[key] = ListeningMark()
         if self.hidden:  # opened hidden: its timer starts now
             self.sights.hide(key, self.clock())
@@ -501,6 +534,46 @@ class CaptionWindows(QObject):
                 steady.start_again()
         self.stored.by_key[window.key] = window.choices
         self.stored.last = window.choices
+        self._save.start()
+
+    def _asks_set_up(self) -> bool:
+        """Whether a window opening now asks its languages: every one, until
+        the learner chose Use as my default in one (478; the first on a PC
+        alone, 465) - while no other one is asking."""
+        return (
+            self.offer_set_up
+            and not self.stored.set_up
+            and not any(w.set_up is not None for w in self.windows.values())
+        )
+
+    def _set_up_done(self, window: CaptionWindow, as_default: bool) -> None:
+        """A window's set-up went, its answers that window's. With Use as
+        my default: never asked again, and new windows start like it - its
+        spoken language too (465, 478). Without: the next window that
+        opens asks again (the user, 2026-11-18: "selecting as default on
+        start up gets rid of the screen for future opens")."""
+        if as_default:
+            self.stored.last = window.choices
+            self._start_like_this(window, True)
+            self.set_asks_set_up(False)
+        self.set_up_done.emit()
+
+    def set_asks_set_up(self, on: bool) -> None:
+        """Whether a window that opens asks its languages - a window's
+        "Ask when a window opens", or Use as my default (off) (478)."""
+        self.stored.set_up = not on
+        for each in self.windows.values():
+            each.set_asks_set_up(self.offer_set_up and on)
+        self._save.start()
+
+    def _start_like_this(self, window: CaptionWindow, on: bool) -> None:
+        """Start new windows like this, on or off from a window's languages:
+        on, `window` is the one they start like."""
+        self.stored.start_like_this = on
+        if on:
+            self.stored.last = window.choices
+        for each in self.windows.values():
+            each.set_start_like_this(on)
         self._save.start()
 
     def recent_spoken(self) -> tuple[str, ...]:

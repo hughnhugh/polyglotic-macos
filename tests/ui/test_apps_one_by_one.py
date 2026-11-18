@@ -222,7 +222,7 @@ def test_the_sources_move_to_everything_the_pc_plays_when_it_falls_back() -> Non
         lambda: FakeCapture("mic"),
         everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
     )
-    value = AppSettings(apps=("Web Browser",))
+    value = AppSettings(whole_system=False, apps=("Web Browser",))
     sources.follow(value)
     assert sources.plan is not None and not sources.plan.whole_system
     sources.per_app = False

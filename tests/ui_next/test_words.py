@@ -705,6 +705,11 @@ def test_what_an_export_says(qapp: QApplication) -> None:
         "No new words since the last export"
     )
     assert "open in another program" in export_said(None, "w.csv", False)
+    # saved sentences go with the words (polyglotic-hq 459)
+    assert export_said(12, "w.apkg", False, 3) == (
+        "12 words written to w.apkg. And 3 saved sentences."
+    )
+    assert export_said(0, "w.apkg", True, 1) == "1 saved sentence written to w.apkg."
 
 
 def test_a_word_pins_the_caption_windows_lookup(

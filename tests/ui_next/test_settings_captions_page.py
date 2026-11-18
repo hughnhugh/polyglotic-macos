@@ -13,8 +13,10 @@ import shiboken6
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 from tests.ui_next.test_caption_window import window_of
+from tools.ui_lab import checks, lab
 
 from polyglotic_desktop.core.listening.timing import CaptionMode
+from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import Card
 from polyglotic_desktop.ui_next.main_window import MainWindow
 from polyglotic_desktop.ui_next.settings_page import SECTIONS, SettingsPage
@@ -65,13 +67,17 @@ def page_with(
     return page
 
 
-def test_six_sections_at_the_top_look_first(qapp: QApplication) -> None:
+def test_eight_sections_at_the_top_look_first(qapp: QApplication) -> None:
     page = page_with()
     page.show()
     qapp.processEvents()
-    assert SECTIONS == ("look", "timing", "speech", "dictation", "app", "lab")
+    assert SECTIONS == (
+        "look", "links", "readings", "timing", "speech", "dictation", "app", "lab",
+    )  # fmt: skip
     assert [b.text() for b in page.sections.buttons] == [
         "Look",
+        "Word links",
+        "Readings",
         "Timing",
         "Speech",
         "Dictation",
@@ -91,12 +97,12 @@ def test_six_sections_at_the_top_look_first(qapp: QApplication) -> None:
 
 def test_the_former_sections_names_still_land(qapp: QApplication) -> None:
     """A way in written for 248's sections lands where its settings went:
-    Captions on Look, its first; Learning on Look, whose Word links points
-    to the Learning page; App on App."""
+    Captions on Look, its first; Learning on Word links, which points to
+    the Learning page (470: Look before); App on App."""
     page = page_with()
     page.show()
     qapp.processEvents()
-    for former, now in (("captions", "look"), ("learning", "look"), ("app", "app")):
+    for former, now in (("captions", "look"), ("learning", "links"), ("app", "app")):
         page.show_section("timing")
         page.show_section(former)
         assert page.sections.value() == now
@@ -116,19 +122,21 @@ def cards_in(page: SettingsPage, key: str) -> list[QWidget]:
 def test_each_caption_group_is_in_the_section_it_is_come_to_for(
     qapp: QApplication,
 ) -> None:
-    """In 248's order within each: Look holds the look, Word links, Pinyin
-    (369) and Reset; Timing the timing and Behaviour (when captions come and go);
-    Speech what's heard; the Lab, experimental, is last on its own."""
+    """In 248's order within each: Look holds the look and Reset; Word links
+    and Readings (369: pinyin; 450: Jyutping too) are sections of their own
+    (470: Look was 2,557 px with no landmark); Timing the timing and
+    Behaviour (when captions come and go); Speech what's heard; the Lab,
+    experimental, is last on its own."""
     page = page_with()
     groups: list[Card] = [page.look, page.word_links, page.reading, page.timing]
     groups += [page.behaviour, page.speech, page.reset]
     titles = [g.title.text() if g.title else "" for g in groups]
     assert titles == [
-        "Look", "Word links", "Pinyin", "Timing", "Behaviour", "Speech", "Reset",
+        "Look", "Word links", "Readings", "Timing", "Behaviour", "Speech", "Reset",
     ]  # fmt: skip
-    assert cards_in(page, "look") == [
-        page.look, page.word_links, page.reading, page.reset,
-    ]  # fmt: skip
+    assert cards_in(page, "look") == [page.look, page.reset]
+    assert cards_in(page, "links") == [page.word_links]
+    assert cards_in(page, "readings") == [page.reading]
     assert cards_in(page, "timing") == [page.timing, page.behaviour]
     assert cards_in(page, "speech") == [page.speech]
     assert cards_in(page, "lab") == [page.lab]
@@ -140,9 +148,13 @@ SETTINGS = {
         "look.preset.classic", "look.original_colour", "look.translation_colour",
         "look.background_colour", "look.background", "look.font",
         "look.show_original", "look.show_language", "look.show_source",
-        "look.word_links", "look.link_line", "look.link_gap", "look.link_detail",
-        "look.to_learning", "look.reading_zh", "look.reading_size", "look.reset",
+        "look.reset",
     ),
+    "links": (
+        "look.word_links", "look.link_line", "look.link_gap", "look.link_detail",
+        "look.to_learning",
+    ),
+    "readings": ("look.reading_zh", "look.reading_yue", "look.reading_size"),
     "timing": (
         "timing.mode", "timing.live_interval", "timing.translate_live",
         "timing.max_wait", "timing.settle_after", "look.arrival", "look.fade_after",
@@ -154,7 +166,7 @@ SETTINGS = {
     ),
     "app": (
         "settings.text_size", "settings.theme", "settings.window_theme",
-        "settings.interface_language", "settings.check_updates",
+        "settings.check_updates",
         "settings.restart_update", "settings.notices",
     ),
     "lab": (
@@ -314,8 +326,9 @@ def test_the_apps_language_is_under_the_title_in_every_section(
 ) -> None:
     """The user's live testing (polyglotic-hq 270): "App language should
     also be more obvious rather than hid in 2 layers" - so it's under the
-    page's title whichever section shows, each language by its own name,
-    the same setting as App's Language (284)."""
+    page's title whichever section shows, each language by its own name
+    (284) - and only there: App's own Language card said it a second time
+    (polyglotic-hq 449's finding 9, 470)."""
     actions = {"L": QAction("Lock all caption windows")}, QAction("Tell us")
     page = SettingsPage(
         [("margin", "Margin")],
@@ -343,13 +356,11 @@ def test_the_apps_language_is_under_the_title_in_every_section(
     assert not page.language_later.isVisible()
     picker.setCurrentIndex(2)
     assert chosen == ["zh_CN"]
-    assert page.interface_language.currentData() == "zh_CN"  # App's shows it too
     assert page.language_later.isVisible()  # from the next start
-    page.interface_language.setCurrentIndex(page.interface_language.findData("en"))
-    assert picker.currentData() == "en" and chosen[-1] == "en"
+    picker.setCurrentIndex(picker.findData("en"))
+    assert chosen[-1] == "en"
     page.show_interface_language("")
     assert picker.currentIndex() == 0
-    assert page.interface_language.currentIndex() == 0
     assert chosen[-1] == "en"  # showing the setting isn't choosing it
 
 
@@ -386,3 +397,188 @@ def test_a_machine_drafted_language_says_so_and_asks(qapp: QApplication) -> None
     assert note.y() >= picker.y()
     page.language_wrong.click()
     assert asked == [True]
+
+
+# -- settings you can scan (polyglotic-hq 470; 449's design 4A) -------------------------
+
+
+def test_each_section_and_card_has_its_mark_beside_its_name(
+    qapp: QApplication,
+) -> None:
+    """The user, 2026-11-17: "More icons in settings for visibility ...
+    make each setting category very obvious as you scroll the page": each
+    tab its mark beside its name, each card's title a size up with its mark
+    in a soft square - never a mark alone (NN/g's icon usability)."""
+    page = page_with()
+    page.show()
+    qapp.processEvents()
+    for key, button in zip(SECTIONS, page.sections.buttons, strict=True):
+        assert not button.icon().isNull(), key
+        assert button.text(), key  # beside its name
+    for key in SECTIONS:
+        cards = [c for c in cards_in(page, key) if isinstance(c, Card)]
+        assert cards, key
+        for card in cards:
+            assert card.title is not None
+            marks = card.findChildren(QWidget, "CardMark")  # its soft square
+            assert len(marks) == 1, card.title.text()
+            assert card.title.property("heading") is True
+            assert card.title.wordWrap()  # a long title wraps at Largest
+    app_titles = [
+        c.title.text() for c in cards_in(page, "app") if isinstance(c, Card) and c.title
+    ]
+    assert "Language" not in app_titles  # the line under the title is the one place
+    page.close()
+
+
+def test_a_card_title_is_a_size_up_from_a_rows(qapp: QApplication) -> None:
+    sheet = style.stylesheet(style.current())
+    page = page_with()
+    page.use_sheet(sheet)
+    page.show()
+    qapp.processEvents()
+    title = page.look.title
+    assert title is not None
+    row_title = page.word_links.findChild(QLabel, "RowTitle")
+    assert row_title is not None
+    assert title.font().pixelSize() == style.px(16)
+    assert title.font().pixelSize() > row_title.font().pixelSize()
+    mark = page.look.findChild(QWidget, "CardMark")
+    assert mark is not None and mark.width() == style.px(30)
+    style.use_app_text_size("largest")  # its square grows with the text
+    try:
+        page.use_sheet(style.stylesheet(style.current()))
+        qapp.processEvents()
+        assert title.font().pixelSize() == style.px(16) > 16
+        assert mark.width() == style.px(30) > 30
+    finally:
+        style.use_app_text_size("normal")
+    page.close()
+
+
+def test_the_title_and_sections_stay_put_as_the_page_scrolls(
+    qapp: QApplication,
+) -> None:
+    """Pinned at the top (449's finding 7: Look was 2,557 px, and the tabs
+    and card titles scrolled away)."""
+    page = page_with()
+    page.resize(900, 500)
+    page.show()
+    qapp.processEvents()
+    page.show_section("app")
+    qapp.processEvents()
+    bar = page.verticalScrollBar()
+    assert bar.maximum() > 0
+    before = page.sections.mapTo(page, page.sections.rect().topLeft())
+    bar.setValue(bar.maximum())
+    qapp.processEvents()
+    assert page.sections.mapTo(page, page.sections.rect().topLeft()) == before
+    assert page.sections.isVisible() and not page.viewport().isAncestorOf(page.sections)
+    # what scrolls stays under them
+    assert page.viewport().geometry().top() >= page.head.geometry().bottom()
+    page.close()
+
+
+def test_the_card_scrolled_into_is_named_under_the_sections(
+    qapp: QApplication,
+) -> None:
+    """Its title scrolled away, the card the learner is in is named, with
+    its mark, under the pinned sections; at a card's top it isn't."""
+    page = page_with()
+    page.resize(900, 500)
+    page.show()
+    qapp.processEvents()
+    page.show_section("app")
+    qapp.processEvents()
+    assert not page.pinned.isVisible()
+    transcripts = next(
+        c for c in cards_in(page, "app") if isinstance(c, Card) and c.title
+        and c.title.text() == "Transcripts"
+    )  # fmt: skip
+    inner = page.widget()
+    assert inner is not None
+    top = transcripts.mapTo(inner, transcripts.rect().topLeft()).y()
+    page.verticalScrollBar().setValue(top + 40)
+    qapp.processEvents()
+    assert page.pinned.isVisible()
+    assert page.pinned.title.text() == "Transcripts"
+    assert page.pinned.geometry().top() == page.viewport().geometry().top()
+    page.verticalScrollBar().setValue(top - 2)  # its own title in view
+    qapp.processEvents()
+    assert not page.pinned.isVisible() or page.pinned.title.text() != "Transcripts"
+    page.show_section("look")  # another section starts at its top
+    qapp.processEvents()
+    assert not page.pinned.isVisible()
+    page.close()
+
+
+def test_where_the_tabs_dont_fit_on_one_line_they_are_a_dropdown(
+    qapp: QApplication,
+) -> None:
+    """449's finding 8: at 390 px the eight tabs wrapped to four rows."""
+    page = page_with()
+    page.show()
+    qapp.processEvents()
+    assert page.sections.isVisible() and not page.section_picker.isVisible()
+    page.resize(420, 600)
+    qapp.processEvents()
+    assert not page.sections.isVisible() and page.section_picker.isVisible()
+    picker = page.section_picker
+    assert [picker.itemText(i) for i in range(picker.count())][:3] == [
+        "Look", "Word links", "Readings",
+    ]  # fmt: skip
+    assert all(not picker.itemIcon(i).isNull() for i in range(picker.count()))
+    picker.setCurrentIndex(SECTIONS.index("readings"))
+    assert page.sections.value() == "readings"
+    assert [k for k, box in page.section.items() if box.isVisible()] == ["readings"]
+    page.show_section("app")
+    assert picker.currentData() == "app"
+    page.resize(900, 600)
+    qapp.processEvents()
+    assert page.sections.isVisible() and not page.section_picker.isVisible()
+    page.close()
+
+
+def test_the_dropdown_holds_every_section_at_the_largest_text_size(
+    qapp: QApplication,
+) -> None:
+    """Each section's name fits the dropdown as it's drawn - at the largest
+    text size, Traditional Chinese's "應用程式" (App) ran 2 px past its
+    right (the UI lab on Train A, 2026-11-18; polyglotic-hq 500). In the
+    lab's fonts, Windows' (`lab.application`): its Chinese face's ink is
+    narrower than its advance, where offscreen's own face's isn't."""
+    lab.application()
+    style.use_interface_language("zh_TW")
+    style.use_app_text_size("largest")
+    page = page_with()
+    try:
+        page.use_sheet(style.stylesheet(style.current()))
+        picker = page.section_picker
+        names = (
+            "字幕外觀",
+            "詞語對應",
+            "讀音",
+            "時機",
+            "語音",
+            "聽寫",
+            "應用程式",
+            "實驗室",
+        )
+        for index, name in enumerate(names):  # zh_TW's, as its .ts file has them
+            picker.setItemText(index, name)
+        page.resize(420, 600)
+        page.show()
+        qapp.processEvents()
+        assert picker.isVisible()
+        for index in range(picker.count()):
+            picker.setCurrentIndex(index)
+            qapp.processEvents()
+            found = checks.inspect(
+                "ui_next.test", page, lambda w: lab.photograph(w, False), windows=[page]
+            ).findings
+            cut = [f.detail for f in found if f.check == "clipped_text"]
+            assert [d for d in cut if names[index] in d] == []
+    finally:
+        page.close()
+        style.use_app_text_size("normal")
+        style.use_interface_language("en")

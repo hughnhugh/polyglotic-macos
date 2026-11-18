@@ -36,7 +36,13 @@ from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 
 from polyglotic_desktop.core.learning import exposures as exposure_rules
-from polyglotic_desktop.core.learning.anki import AnkiNote, anki_csv, deck_notes
+from polyglotic_desktop.core.learning.anki import (
+    AnkiNote,
+    anki_csv,
+    deck_notes,
+    deck_sentences,
+    sentence_note,
+)
 from polyglotic_desktop.core.learning.bands import MetWord
 from polyglotic_desktop.core.learning.coverage import (
     RECENT_DAYS,
@@ -79,6 +85,15 @@ from polyglotic_desktop.core.learning.saved_words import (
     SavedWord,
     SavedWordMatcher,
 )
+from polyglotic_desktop.core.learning.sentences import (
+    Found,
+    SavedSentence,
+    SentenceId,
+    SentenceLink,
+    SentencePart,
+    SentenceSearch,
+    saved_words_in,
+)
 from polyglotic_desktop.core.learning.statuses import (
     StatusRecord,
     StatusSource,
@@ -97,7 +112,7 @@ from polyglotic_desktop.core.shared import (
     WordStatusChanged,
     WordUnsaved,
 )
-from polyglotic_desktop.ports.anki_deck import DeckNote
+from polyglotic_desktop.ports.anki_deck import DeckNote, DeckSentence
 from polyglotic_desktop.ports.learning import (
     LearningStore,
     StoredAnkiExport,
@@ -109,6 +124,8 @@ from polyglotic_desktop.ports.learning import (
     StoredListening,
     StoredLookups,
     StoredSavedWord,
+    StoredSentence,
+    StoredSentencePart,
     StoredStatus,
 )
 
@@ -153,6 +170,7 @@ class Changed(StrEnum):
     SAVED_WORDS = "saved_words"  # saved words or categories
     EXPOSURES = "exposures"  # exposures, or the days' coverage or listening
     LOAD = "load"  # the learning load: its words, their stages, its rules
+    SENTENCES = "sentences"  # saved sentences (459)
 
 
 @dataclass(frozen=True)
@@ -219,6 +237,28 @@ class AnkiExport:
     text: str
     notes: tuple[DeckNote, ...]
     entry_ids: tuple[EntryId, ...]
+    """The words' entries, then each saved sentence's `sentence_key`."""
+    sentences: tuple[DeckSentence, ...] = ()
+
+    @property
+    def counts(self) -> tuple[int, int]:
+        """How many words, and how many sentences, it holds."""
+        return words_and_sentences(self.entry_ids)
+
+
+def sentence_key(sentence_id: SentenceId) -> EntryId:
+    """A saved sentence as Anki exports remember it, beside the words'
+    entries (`Vocabulary.mark_exported`): `sentence:<its ID>`, which no
+    dictionary entry ID is (they start with their dictionary's name)."""
+    return EntryId(f"sentence:{sentence_id}")
+
+
+def words_and_sentences(entry_ids: Iterable[EntryId]) -> tuple[int, int]:
+    """How many of `entry_ids` are words, and how many sentences
+    (`sentence_key`)."""
+    ids = tuple(entry_ids)
+    sentences = sum(1 for e in ids if e.startswith("sentence:"))
+    return len(ids) - sentences, sentences
 
 
 def _utc_now() -> datetime:
@@ -246,9 +286,15 @@ class AnkiWords:
     saved: Mapping[EntryId, SavedWord]
     deck: Mapping[EntryId, DeckWord]
     leave_out: frozenset[EntryId]
+    sentences: Sequence[SavedSentence] = ()
+    """The saved sentences (polyglotic-hq 459), those exported already left
+    out if only new ones are wanted."""
 
     def export(
-        self, describe: Describe | None = None, pack_language: str | None = None
+        self,
+        describe: Describe | None = None,
+        pack_language: str | None = None,
+        language: str = "",
     ) -> AnkiExport:
         """The saved words and the words in the deck as a CSV file's text
         for Anki (`anki`) and a deck file's notes - a pack language's
@@ -305,10 +351,23 @@ class AnkiWords:
                     max(changes),
                 )
             )
+        saved_words = list(self.saved.values())
+        sentences = [
+            sentence_note(
+                s,
+                saved_words_in(s, saved_words),
+                self.category_names.get(s.category_id, ""),
+            )
+            for s in self.sentences
+        ]
         return AnkiExport(
-            anki_csv(notes),
+            anki_csv(notes, sentences),
             deck_notes(notes, pack_language),
-            tuple(EntryId(n.entry_id) for n in notes),
+            (
+                *(EntryId(n.entry_id) for n in notes),
+                *(sentence_key(s.sentence_id) for s in sentences),
+            ),
+            deck_sentences(sentences, language or pack_language or "en"),
         )
 
 
@@ -418,6 +477,8 @@ class Vocabulary:
             key = (e.day, e.category)
             self._listening[key] = self._listening.get(key, 0.0) + e.seconds
         self._matcher = SavedWordMatcher(self._saved.values())
+        self._saved_sentences: SentenceSearch | None = None
+        """The saved sentences, read when first wanted (`_sentences`)."""
         self.knowledge = Knowledge(
             self._statuses.get,
             lambda: self._line,
@@ -865,7 +926,98 @@ class Vocabulary:
             del self._saved[entry_id]
             self._publish(WordUnsaved(entry_id, at))
         self._matcher = SavedWordMatcher(self._saved.values())
+        gone_too: list[SentenceId] = []
+        kept = self._saved_sentences
+        if kept is not None:  # not read yet: they went from the store with it
+            gone_too = [s.id for s in kept.sentences() if s.category_id == category_id]
+            for sentence_id in gone_too:
+                kept.remove(sentence_id)
         self._publish(VocabularyChanged(Changed.SAVED_WORDS))
+        if gone_too:
+            self._publish(VocabularyChanged(Changed.SENTENCES))
+
+    # -- saved sentences (polyglotic-hq 459) -------------------------------------------
+
+    def _sentences(self) -> SentenceSearch:
+        """The saved sentences, read from the store the first time they're
+        wanted - never at the start (`LearningStore.saved_sentences`)."""
+        if self._saved_sentences is None:
+            self._saved_sentences = SentenceSearch(
+                _sentence(s) for s in self._store.saved_sentences()
+            )
+        return self._saved_sentences
+
+    @property
+    def sentences(self) -> list[SavedSentence]:
+        """Newest first."""
+        return self._sentences().sentences()
+
+    def sentence(self, sentence_id: SentenceId) -> SavedSentence | None:
+        return self._sentences().get(sentence_id)
+
+    def save_sentence(
+        self,
+        parts: Sequence[SentencePart],
+        original: str,
+        translation: str,
+        category_id: CategoryId,
+        translation_language: str = "",
+    ) -> SavedSentence:
+        """Saves what the learner selected - `parts`, each a clause, and the
+        text of each side joined - into a category. Kept on this PC only:
+        nothing is published to the server."""
+        if self.category(category_id) is None:
+            raise ValueError(f"no category {category_id!r}")
+        if not original.strip() and not translation.strip():
+            raise ValueError("an empty sentence")
+        sentence = SavedSentence(
+            uuid.uuid4().hex,
+            original,
+            translation,
+            tuple(parts),
+            category_id,
+            self._clock(),
+            translation_language,
+        )
+        self._keep_sentence(sentence)
+        return sentence
+
+    def move_sentence(self, sentence_id: SentenceId, category_id: CategoryId) -> None:
+        """Moves a saved sentence into another category."""
+        old = self._sentences().get(sentence_id)
+        if old is None or old.category_id == category_id:
+            return
+        if self.category(category_id) is None:
+            raise ValueError(f"no category {category_id!r}")
+        self._keep_sentence(replace(old, category_id=category_id))
+
+    def _keep_sentence(self, sentence: SavedSentence) -> None:
+        self._sentences().add(sentence)
+        self._store.save_sentence(_stored_sentence(sentence))
+        self._publish(VocabularyChanged(Changed.SENTENCES))
+
+    def unsave_sentence(self, sentence_id: SentenceId) -> None:
+        sentences = self._sentences()
+        if sentences.get(sentence_id) is None:
+            return
+        sentences.remove(sentence_id)
+        self._store.delete_sentence(sentence_id)
+        self._publish(VocabularyChanged(Changed.SENTENCES))
+
+    def find_sentences(
+        self,
+        query: str = "",
+        category_id: CategoryId | None = None,
+        word: EntryId | None = None,
+    ) -> list[Found]:
+        """The saved sentences `query` finds, best first - with at least half
+        of its words (each Chinese character a word) in what was said or
+        its translation (`SentenceSearch.search`); only a category's, or
+        only those with the saved `word` in them, if given."""
+        saved = self._saved.get(word) if word is not None else None
+        if word is not None and saved is None:
+            return []
+        return self._sentences().search(query, category_id, saved)
 
     def _store_category(self, category: Category) -> None:
         position = self._categories.index(category)
@@ -1077,7 +1229,7 @@ class Vocabulary:
 
     def delete_learning_data(self) -> None:
         """Deletes the learner's learning data on this PC - statuses, saved
-        words, exposure counts, lookups, the days' coverage and listening, and any
+        words and sentences, exposure counts, lookups, the days' coverage and listening, and any
         copy of it set aside after damage, the learning load's words - once
         they've confirmed; nothing
         is published (the server's copy goes by its own request). The level
@@ -1096,9 +1248,15 @@ class Vocabulary:
         self._listening.clear()
         self._listening_runs = ListeningCounter()
         self._matcher = SavedWordMatcher(())
+        self._saved_sentences = SentenceSearch()
         self.load.clear()
         self.load.refill(self._clock())  # the mode still on: a new load
-        for what in (Changed.STATUSES, Changed.SAVED_WORDS, Changed.EXPOSURES):
+        for what in (
+            Changed.STATUSES,
+            Changed.SAVED_WORDS,
+            Changed.SENTENCES,
+            Changed.EXPOSURES,
+        ):
             self._publish(VocabularyChanged(what))
         self._load_changed()
 
@@ -1135,13 +1293,20 @@ class Vocabulary:
         can be made into the file on another thread while this vocabulary
         changes (polyglotic-hq 273: the deck file took 5.4 s on the
         interface thread). Quick: no dictionary, no store. `only_new`: the
-        words not yet written to that kind of `file` (368)."""
+        words not yet written to that kind of `file` (368) - and the
+        sentences (459)."""
+        leave_out = frozenset(self._exported[file]) if only_new else frozenset()
         return AnkiWords(
             {c.id: c.name for c in self._categories},
             dict(self._statuses),
             dict(self._saved),
             dict(self._deck),
-            frozenset(self._exported[file]) if only_new else frozenset(),
+            leave_out,
+            tuple(
+                s
+                for s in reversed(self._sentences().sentences())
+                if sentence_key(s.id) not in leave_out
+            ),
         )
 
     def mark_exported(
@@ -1464,4 +1629,44 @@ def _stored_word(word: SavedWord) -> StoredSavedWord:
         word.source_sentence,
         word.source_translation,
         word.saved_at,
+    )
+
+
+def _stored_sentence(sentence: SavedSentence) -> StoredSentence:
+    return StoredSentence(
+        sentence.id,
+        sentence.original,
+        sentence.translation,
+        tuple(
+            StoredSentencePart(
+                p.original,
+                p.translation,
+                tuple((*k.original, *k.translation, k.key) for k in p.links),
+                p.speaker,
+            )
+            for p in sentence.parts
+        ),
+        sentence.translation_language,
+        sentence.category_id,
+        sentence.saved_at,
+    )
+
+
+def _sentence(stored: StoredSentence) -> SavedSentence:
+    return SavedSentence(
+        stored.id,
+        stored.original,
+        stored.translation,
+        tuple(
+            SentencePart(
+                p.original,
+                p.translation,
+                tuple(SentenceLink((a, b), (c, d), key) for a, b, c, d, key in p.links),
+                p.speaker,
+            )
+            for p in stored.parts
+        ),
+        stored.category_id,
+        stored.saved_at,
+        stored.translation_language,
     )

@@ -3,7 +3,13 @@ forms counting for their entry - statuses and exposures are per entry."""
 
 from tests.lexicon.sample import FakeDictionaryFile
 
-from polyglotic_desktop.core.lexicon.english import EnglishDictionary, word_at, words
+from polyglotic_desktop.core.lexicon.english import (
+    EnglishDictionary,
+    inside_sentence,
+    names_first,
+    word_at,
+    words,
+)
 from polyglotic_desktop.ports.dictionary import EntryRecord
 
 
@@ -156,6 +162,61 @@ def test_a_form_the_dictionary_lacks_is_found_by_its_base_word() -> None:
     ]
 
 
+def test_a_lower_case_word_found_only_capitalised_is_tried_so() -> None:
+    """ECDICT has "North", "I" and "Mr" only capitalised: a lower-case
+    caption's "north", "i'm" or "mr" was in no dictionary (polyglotic-hq
+    447's top-200 check, 462). A word written in lower case is tried
+    capitalised when it isn't found; a name never finds the word before
+    its own entry."""
+    records = [
+        record("North", "n. 北方", 578),
+        record("I", "pron. 我", 11),
+        record("Mr", "先生", 123),
+        record("Bill", "n. 比尔", 5000),
+        record("bill", "n. 账单", 800),
+        record("S", "n. 硫", 2800),
+    ]
+    d = EnglishDictionary(
+        FakeDictionaryFile(records, forms={r.headword: [r.entry_id] for r in records})
+    )
+
+    def headwords(word: str) -> list[str]:
+        return [e.headword for e in d.lookup(word)]
+
+    assert headwords("north") == ["North"]
+    assert headwords("i") == headwords("i'm") == headwords("i've") == ["I"]
+    assert headwords("mr") == ["Mr"]
+    assert headwords("bill") == ["bill"] and headwords("Bill") == ["Bill"]
+    assert headwords("nOrth") == [] and headwords("xyzzy") == []
+    assert headwords("s") == [] and headwords("S") == ["S"]  # 1990s: a letter
+
+
+def test_spoken_forms_open_the_word_they_are_made_of() -> None:
+    """ "gonna", "cannot", "wanna" and "gotta" aren't in ECDICT: they were
+    in no dictionary, though "gonna" is among English's commonest 500
+    words (polyglotic-hq 462's top-200 check, 463). Each opens its word:
+    going to (go's), can not, want to, got to (get's)."""
+    records = [
+        record("go", "vi. 去", 47),
+        record("going", "n. 去", 900),
+        record("can", "aux. 能", 28),
+        record("want", "vt. 要", 78),
+        record("get", "vt. 得到", 36),
+    ]
+    d = EnglishDictionary(
+        FakeDictionaryFile(
+            records,
+            forms={r.headword: [r.entry_id] for r in records},
+            lemmas={"going": "go", "got": "get"},
+        )
+    )
+    assert [e.headword for e in d.lookup("gonna")] == ["go", "going"]
+    assert d.entry_for_word("Gonna") == d.lookup("go")[0]
+    assert [e.headword for e in d.lookup("cannot")] == ["can"]
+    assert [e.headword for e in d.lookup("wanna")] == ["want"]
+    assert [e.headword for e in d.lookup("gotta")] == ["get"]
+
+
 def test_capitalised_words_are_names_but_i_is_not() -> None:
     d = dictionary()
     assert d.lookup("English")[0].is_name
@@ -177,3 +238,76 @@ def test_the_words_past_a_rank_are_the_ones_captions_count() -> None:
     # a batch of nothing but inflected forms is read past, not the end
     assert [r for r, _ in dictionary().words_past(700, 1, "en-frequency")] == [900]
     assert dictionary().words_past(900, 5, "en-frequency") == []
+
+
+def names_dictionary() -> EnglishDictionary:
+    """As polyglotic-hq 464's build writes them: "John" a name of our own
+    (ECDICT's john is a toilet); "Bill" the word bill, then the name;
+    "bit" its own entry, then bite's."""
+    records = [
+        record("john", "n. 厕所", 30000),
+        record("John", "n. 约翰（男子名）"),
+        record("bill", "n. 帐单", 900),
+        record("Bill", "n. 比尔（男子名）"),
+        record("bite", "v. 咬", 2000),
+        record("bit", "n. 少量", 400),
+        record("Monday", "n. 星期一", 700),
+    ]
+    forms = {r.headword: [r.entry_id] for r in records}
+    forms["Bill"] = ["ecdict:bill", "ecdict:Bill"]
+    forms["bit"] = ["ecdict:bit", "ecdict:bite"]
+    return EnglishDictionary(FakeDictionaryFile(records, forms=forms))
+
+
+def test_a_word_is_inside_a_sentence_unless_it_starts_one() -> None:
+    line = 'Bill said "Will you?" and Bill left. - Mark? Then: Rose, and Grace'
+    inside = {line[s:e]: inside_sentence(line, s) for s, e in words(line)}
+    assert inside == {
+        "Bill": True,  # the second (a dict keeps the last)
+        "said": True,
+        "Will": False,  # after an opening quote at a sentence's start
+        "you": True,
+        "and": True,
+        "left": True,
+        "Mark": False,  # a dialogue line's dash
+        "Then": False,
+        "Rose": False,  # after a colon
+        "Grace": True,
+    }
+    assert not inside_sentence(line, 0)
+    assert not inside_sentence("  Bill", 2)
+
+
+def test_a_given_name_ecdict_has_only_as_a_word_opens_as_a_name() -> None:
+    """polyglotic-hq 464: a caption's "John" opened john, 厕所 ("toilet");
+    "Bill" inside a sentence is the name, but a sentence's first "Bill" is
+    still looked up as the word, the name second."""
+    d = names_dictionary()
+    assert [e.headword for e in d.lookup("John")] == ["John"]
+    assert [e.headword for e in d.lookup("John", inside=True)] == ["John"]
+    assert d.lookup("John")[0].is_name
+    assert [e.headword for e in d.lookup("john")] == ["john"]
+    assert [e.headword for e in d.lookup("Bill")] == ["bill", "Bill"]
+    assert [e.headword for e in d.lookup("Bill", inside=True)] == ["Bill", "bill"]
+    assert [e.headword for e in d.lookup("Bill's", inside=True)] == ["Bill", "bill"]
+    assert [e.headword for e in d.lookup("bill", inside=True)] == ["bill"]
+    assert [e.headword for e in d.lookup("Monday", inside=True)] == ["Monday"]
+
+    line = "Bill paid the bill and Bill left with John"
+    counted = [(line[w.start : w.end], w.entry.is_name) for w in d.words_in(line, "x")]
+    assert counted == [
+        ("Bill", False),  # a sentence's first word: the word bill
+        ("bill", False),
+        ("Bill", True),
+        ("John", True),
+    ]
+    assert names_first(d.lookup("Bill"), "bill") == d.lookup("Bill")
+
+
+def test_a_form_listed_with_its_own_entry_first_counts_for_it() -> None:
+    """polyglotic-hq 464: "a bit" opened bite (咬), and counted for it. The
+    dictionary file lists bit's own entry first, then bite's."""
+    d = names_dictionary()
+    assert [e.headword for e in d.lookup("bit")] == ["bit", "bite"]
+    assert d.entry_for_word("bit") == d.lookup("bit")[0]
+    assert d.entry_for_word("Bit") == d.lookup("bit")[0]

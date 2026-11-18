@@ -14,7 +14,8 @@ width - and 248's copy (section 2.4).
 - **Languages:** "This window" (its language - or
   Original only - and Show my speech here) only in a transcript's rail,
   otherwise one line saying each window picks its own; Spoken language;
-  Second language, a row per language in use; Translate live captions;
+  When they already speak the window's language (its second language,
+  named by the window's: 465), a row per language in use; Translate live captions;
   Names and slang. Settings > Captions shows it as **Speech**, without
   what's learned (the Learning page's) or live translation (Timing's).
 - **Timing:** Caption timing, with the chosen one's sentence, and under
@@ -250,7 +251,9 @@ class LanguagesPanel(Panel):
         self._in_use: tuple[str, ...] | None = None
         self.add(
             Row(
-                _tr("Second language"),
+                # named by the window's language, as each caption window
+                # names it (polyglotic-hq 465, 449: one name)
+                _tr("When they already speak the window's language"),
                 _tr(
                     "Lines already in a window's language get no translation there. "
                     "Pick a second language and they get one into it, in yellow like "
@@ -378,9 +381,10 @@ class LanguagesPanel(Panel):
             box = Combo()
             box.setObjectName(f"languages.second.{target}")
             box.setAccessibleName(
-                _tr("Lines already in {language} are translated into").format(
-                    language=language_name(target)
-                )
+                _tr(
+                    "Caption windows translating into {language} - when someone already "
+                    "speaks {language}, also translate into"
+                ).format(language=language_name(target))
             )
             box.addItem(_tr("None"), None)
             for code in target_languages():
@@ -396,9 +400,13 @@ class LanguagesPanel(Panel):
             row.setSpacing(3)
             row.addWidget(
                 label(
-                    _tr("Lines already in {language} are translated into:").format(
-                        language=language_name(target)
-                    ),
+                    # the user, 2026-11-17: "Why english? what if you're
+                    # targetting chinese translation?" - each row is the
+                    # windows translating into its language (465)
+                    _tr(
+                        "Caption windows translating into {language} - when someone "
+                        "already speaks {language}, also translate into:"
+                    ).format(language=language_name(target)),
                     "Dim",
                     wrap=True,
                 )
@@ -1008,14 +1016,17 @@ class WordLinksPanel(_LookGroup):
 
 
 class ReadingLinesPanel(_LookGroup):
-    """Pinyin above Chinese (polyglotic-hq 369, decision 0155): a small
-    syllable over each character, on whichever row is in Chinese - what
-    was said or its translation - and how big it is."""
+    """Pinyin above Chinese (polyglotic-hq 369, decision 0155) and Jyutping
+    above Cantonese (polyglotic-hq 450, decision 0160): a small syllable
+    over each character, on whichever row is in that language - what was
+    said or its translation - each with its own switch; over which words,
+    how big and in what colour, for both."""
 
     def __init__(
         self, view: LookView, notes: bool = False, parent: QWidget | None = None
     ) -> None:
-        super().__init__(_tr("Pinyin"), view, notes, parent=parent)
+        #: Settings > Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese
+        super().__init__(_tr("Readings"), view, notes, parent=parent)
         value = view.value
         self.chinese = self._switch(
             "reading_zh",
@@ -1046,6 +1057,16 @@ class ReadingLinesPanel(_LookGroup):
             ),
             self.reading_system,
         )
+        self.cantonese = self._switch(
+            "reading_yue",
+            _tr("Jyutping above Cantonese"),
+            _tr(
+                "A small syllable over each Cantonese character, its tone as a "
+                "raised number (hai⁶), from the Cantonese dictionary - once you "
+                "learn Cantonese and its dictionary is here."
+            ),
+            lambda on: view.set_reading_line("yue", on),
+        )
         self.reading_over = Segmented(
             [(False, _tr("Every word")), (True, _tr("Past what you know"))],
             value.reading_past,
@@ -1053,7 +1074,7 @@ class ReadingLinesPanel(_LookGroup):
         self.reading_over.setObjectName("look.reading_past")
         self.reading_over.changed.connect(lambda v: view.set_reading_past(bool(v)))
         self._row(
-            _tr("Pinyin over"),
+            _tr("Readings over"),
             _tr(
                 "Past what you know: only over the words past your known line "
                 "on Learning, the ones word links point out. Less to read as you learn."
@@ -1072,7 +1093,7 @@ class ReadingLinesPanel(_LookGroup):
             lambda v: view.set_reading_size(ReadingSize(v))
         )
         self._row(
-            _tr("Pinyin size"),
+            _tr("Reading size"),
             _tr(
                 "Beside the characters' own size. Medium reads better in a small "
                 "window."
@@ -1092,11 +1113,11 @@ class ReadingLinesPanel(_LookGroup):
             lambda v: view.set_reading_colour(ReadingColour(v))
         )
         self._row(
-            _tr("Pinyin colour"),
+            _tr("Reading colour"),
             _tr(
-                "Its word link's colour: pinyin takes the colour of its word's "
-                "link, where one joins it. Word links can colour the linked "
-                "words too."
+                "Its word link's colour: a reading takes the colour of its "
+                "word's link, where one joins it. Word links can colour the "
+                "linked words too."
             ),
             self.reading_colour,
         )
@@ -1104,12 +1125,12 @@ class ReadingLinesPanel(_LookGroup):
             COLOUR_CHOICES["reading"],
             value.reading_custom,
             "look.reading_custom",
-            _tr("Pinyin colour"),
+            _tr("Reading colour"),
         )
         self.reading_custom.chosen.connect(view.set_reading_custom)
         self.custom_row = self._row(
-            _tr("Custom pinyin colour"),
-            _tr("The one colour pinyin is drawn in, over any line."),
+            _tr("Custom reading colour"),
+            _tr("The one colour readings are drawn in, over any line."),
             self.reading_custom,
         )
         self.bind(view)
@@ -1117,14 +1138,16 @@ class ReadingLinesPanel(_LookGroup):
 
     def refresh(self) -> None:
         value = self.view.value
-        on = "zh" in value.reading_lines
-        self.chinese.set_quietly(on)
+        chinese = "zh" in value.reading_lines
+        self.chinese.set_quietly(chinese)
+        self.cantonese.set_quietly("yue" in value.reading_lines)
+        on = bool(value.reading_lines)  # the rest are both's
         self.reading_size.set_value(value.reading_size)
         self.reading_size.setEnabled(on)
         self.reading_over.set_value(value.reading_past)
         self.reading_over.setEnabled(on)
         self.reading_system.set_value(value.reading_system)
-        self.reading_system.setEnabled(on)
+        self.reading_system.setEnabled(chinese)
         self.reading_colour.set_value(value.reading_colour)
         self.reading_colour.setEnabled(on)
         self.reading_custom.show_colour(value.reading_custom)

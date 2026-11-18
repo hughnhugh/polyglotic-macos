@@ -24,8 +24,8 @@ from polyglotic_desktop.main import captioning, follow_choice, listen_then_sync
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.settings import AppSettings
 
-CHOSEN = AppSettings(apps=("Web Browser",))
-NOTHING = AppSettings()
+CHOSEN = AppSettings(whole_system=False, apps=("Web Browser",))
+NOTHING = AppSettings(whole_system=False)
 
 
 class Recording:
@@ -79,7 +79,7 @@ def test_the_session_opens_once_something_is_chosen_and_closes_when_nothing_is()
     assert connection.calls == []  # any other setting changed: nothing to do
     follow_choice(connection, CHOSEN, connection.listen)  # type: ignore[arg-type]
     assert connection.calls == ["listen", "start"]
-    both = AppSettings(apps=("Web Browser",), caption_mic=True)
+    both = AppSettings(whole_system=False, apps=("Web Browser",), caption_mic=True)
     follow_choice(connection, both, connection.listen)  # type: ignore[arg-type]
     assert connection.calls == ["listen", "start"]  # already listening
     follow_choice(connection, NOTHING, connection.listen)  # type: ignore[arg-type]
@@ -108,7 +108,9 @@ def test_a_session_opened_by_picking_an_app_says_connecting_at_once(
 ) -> None:
     """Home said "Stopped" - the session closed when the last app went -
     for the moment after + until the new session's first word (145)."""
-    desktop = DesktopApp(MemorySettingsStore(), None, FakeAppList())
+    desktop = DesktopApp(
+        MemorySettingsStore({"whole_system": False}), None, FakeAppList()
+    )
     connection = Recording()
     desktop.set_connection(ConnectionState.STOPPED)  # the last app went
     follow_choice(connection, CHOSEN, connection.listen, desktop)  # type: ignore[arg-type]

@@ -86,6 +86,11 @@ Tables:
   lookup as an entry ID and a time. It starts with one pinned lookup for
   every word a pinned lookup had turned back to new (a status "new" whose
   source is "estimated": the only lookups kept before).
+- version 9: `saved_sentences`: id -> a saved sentence - what was said,
+  its translation and that translation's language, its parts (each
+  clause's text, links and speaker, as JSON: `_parts_json`), its category
+  (shared with saved words: deleting a category deletes its sentences)
+  and when it was saved (polyglotic-hq 459, decision 0216); never sent.
 """
 
 from __future__ import annotations
@@ -120,6 +125,8 @@ from polyglotic_desktop.ports.learning import (
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
+    StoredSentence,
+    StoredSentencePart,
     StoredStatus,
 )
 
@@ -236,6 +243,17 @@ _MIGRATIONS: tuple[tuple[str, ...], ...] = (
             "INSERT INTO lookups SELECT entry_id, 1, 0, at, 0 FROM statuses"
             " WHERE source = 'estimated' AND status = 'new'"
         ),
+    ),
+    (  # version 9: saved sentences (polyglotic-hq 459, decision 0216)
+        """CREATE TABLE saved_sentences (
+            id TEXT PRIMARY KEY,
+            original TEXT NOT NULL,
+            translation TEXT NOT NULL,
+            parts TEXT NOT NULL,
+            translation_language TEXT NOT NULL,
+            category_id TEXT NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
+            saved_at TEXT NOT NULL
+        ) WITHOUT ROWID""",
     ),
 )
 VERSION = len(_MIGRATIONS)
@@ -576,6 +594,30 @@ class SqliteLearningStore:
             )
         return days
 
+    def saved_sentences(self) -> Sequence[StoredSentence]:
+        """Read apart from `load`, when first wanted (polyglotic-hq 459): a
+        row that can't be read is left out, kept in the file, and logged by
+        count - however many, since nothing here is written back from what
+        was read."""
+        kept: list[StoredSentence] = []
+        unreadable = 0
+        for row in self._db.execute(
+            "SELECT id, original, translation, parts, translation_language, "
+            "category_id, saved_at FROM saved_sentences"
+        ):
+            try:
+                kept.append(_sentence(row))
+            except (ValueError, TypeError):
+                unreadable += 1
+        if unreadable:
+            log.warning(
+                "saved sentences: %d of %d that can't be read left out, kept in"
+                " the file",
+                unreadable,
+                unreadable + len(kept),
+            )
+        return kept
+
     # -- writing ----------------------------------------------------------------------
 
     @_then_scrub
@@ -658,6 +700,36 @@ class SqliteLearningStore:
     def delete_word(self, entry_id: str) -> None:
         if self._db.execute(
             "DELETE FROM saved_words WHERE entry_id = ?", (entry_id,)
+        ).rowcount:
+            self._scrub()
+
+    @_then_scrub
+    def save_sentence(self, sentence: StoredSentence) -> None:
+        replacing = (
+            self._db.execute(
+                "SELECT 1 FROM saved_sentences WHERE id = ?", (sentence.id,)
+            ).fetchone()
+            is not None
+        )
+        self._db.execute(
+            "INSERT OR REPLACE INTO saved_sentences VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                sentence.id,
+                sentence.original,
+                sentence.translation,
+                _parts_json(sentence.parts),
+                sentence.translation_language,
+                sentence.category_id,
+                sentence.saved_at.isoformat(),
+            ),
+        )
+        if replacing:
+            self._scrub()  # its old text goes
+
+    @_then_scrub
+    def delete_sentence(self, sentence_id: str) -> None:
+        if self._db.execute(
+            "DELETE FROM saved_sentences WHERE id = ?", (sentence_id,)
         ).rowcount:
             self._scrub()
 
@@ -832,6 +904,7 @@ class SqliteLearningStore:
             for table in (
                 "statuses",
                 "saved_words",
+                "saved_sentences",
                 "deck_words",
                 "anki_exports",
                 "anki_csv_exports",
@@ -1311,6 +1384,62 @@ def _saved_word(row: tuple[object, ...]) -> StoredSavedWord:
         category,
         sentence,
         translation,
+        _time(saved_at),
+    )
+
+
+def _parts_json(parts: Sequence[StoredSentencePart]) -> str:
+    """A saved sentence's parts as the text of its `parts` column: a list
+    of `[original, translation, speaker, [[o start, o end, t start, t end,
+    key], ...]]` (`_parts` reads it)."""
+    return json.dumps(
+        [
+            [p.original, p.translation, p.speaker, [list(link) for link in p.links]]
+            for p in parts
+        ],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+
+
+def _parts(value: object) -> tuple[StoredSentencePart, ...]:
+    """`_parts_json`'s text read back - ValueError or TypeError for any
+    value not of its shape (the row is left out, 207)."""
+    parts = json.loads(_text(value))
+    if not isinstance(parts, list):
+        raise TypeError("not a list of parts")
+    found = []
+    for part in parts:
+        original, translation, speaker, links = part
+        found.append(
+            StoredSentencePart(
+                _text(original),
+                _text(translation),
+                tuple(_link(link) for link in links),
+                _text(speaker),
+            )
+        )
+    return tuple(found)
+
+
+def _link(value: object) -> tuple[int, int, int, int, bool]:
+    if not isinstance(value, list) or len(value) != 5:
+        raise TypeError("not a link")
+    o_start, o_end, t_start, t_end, key = value
+    if not isinstance(key, bool):
+        raise TypeError("not a link")
+    return _whole(o_start), _whole(o_end), _whole(t_start), _whole(t_end), key
+
+
+def _sentence(row: tuple[object, ...]) -> StoredSentence:
+    sentence_id, original, translation, parts, language, category, saved_at = row
+    return StoredSentence(
+        _text(sentence_id),
+        _text(original),
+        _text(translation),
+        _parts(parts),
+        _text(language),
+        _text(category),
         _time(saved_at),
     )
 

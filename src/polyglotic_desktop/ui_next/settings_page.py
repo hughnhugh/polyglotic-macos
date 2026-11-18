@@ -1,20 +1,34 @@
 """Settings, in the new main window, at the sidebar's foot with Help: one
-page with six sections side by side at its top - **Look · Timing ·
-Speech · Dictation · App · Lab** - each named for what a learner comes to
-change, the most reached first and the experimental Lab last; nothing
-nested, so every setting is one click from the top (the user,
-2026-11-13: "Categorise the settings better"; polyglotic-hq 304, which
-replaced 248's Captions · Learning · App - Captions had grown to five
+page with eight sections side by side at its top - **Look · Word links ·
+Readings · Timing · Speech · Dictation · App · Lab** - each named for what
+a learner comes to change, the most reached first and the experimental Lab
+last; nothing nested, so every setting is one click from the top (the
+user, 2026-11-13: "Categorise the settings better"; polyglotic-hq 304,
+which replaced 248's Captions · Learning · App - Captions had grown to five
 windows' height). A caption window's "All caption settings..." opens it
 on Look; the tray's "More languages…" on Dictation.
+
+**Settings you can scan** (polyglotic-hq 470, 449's design 4A; the user,
+2026-11-17: "make each setting category very obvious as you scroll the
+page"): each section's tab has its mark beside its name; the title and
+the tabs stay pinned at the top while the page scrolls, and under them the
+name of the card the learner is in, once its own title has scrolled away;
+each card's title is a size up, its mark in a soft square at its left
+(`settings_marks`). Where the tabs don't fit on one line - a narrow window,
+a large text size - they're a dropdown (449's finding 8: eight tabs
+wrapped to four rows). Look was 2,557 px with no landmark: Word links and
+Readings are sections of their own now.
 
 The caption windows' settings are the panels of `ui_next.panels`, bound
 to the same views as a transcript's rail, each with a line under its name
 where the name isn't enough (248's section 2.4, F18):
 
 - **Look** - how the captions look: the preview, the preset, the colours,
-  the panel, the font, what each caption shows; Word links (and the way
-  to the Learning page, where which words are new is chosen); Reset;
+  the panel, the font, what each caption shows; Reset;
+- **Word links** - their style, and the way to the Learning page, where
+  which words are new is chosen;
+- **Readings** - pinyin above Chinese, Jyutping above Cantonese (369,
+  450): their size, words and colour;
 - **Timing** - when captions come and go: Timing (Steady, Quick preview,
   Live updates and their waits) and Behaviour (how a new caption
   arrives, fading after quiet);
@@ -37,9 +51,10 @@ sections 1.1 and 7; today's page, project 096):
 - **Appearance:** the window's theme (Margin, Glaze or Signal) and light
   or dark - this window and the transcripts; the caption windows stay as
   they are (decision 0029);
-- **Language:** the app's own words - like Windows, or one offered - from
-  the next start (decision 0034); also under the page's title, in every
-  section (284), the same setting;
+  The app's language - like Windows, or one offered, from the next start
+  (decision 0034) - is the line under the page's title, in every section
+  (284); App's own Language card, the same setting a second time, went
+  (polyglotic-hq 449's finding 9, 470);
 - **Transcripts:** how far back a transcript window scrolls and searches -
   the newest 1,000 lines (as before), the last 3 hours or the whole
   session; Copy all and Save have the whole session whichever - and
@@ -68,8 +83,8 @@ settings' views, and connects what the page asks for.
 
 from collections.abc import Callable, Mapping, Sequence
 
-from PySide6.QtCore import QEvent, QLocale, Qt, Signal
-from PySide6.QtGui import QAction, QKeySequence, QShowEvent
+from PySide6.QtCore import QEvent, QLocale, QObject, QPoint, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QAction, QKeySequence, QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -91,10 +106,11 @@ from polyglotic_desktop.core.listening.dictation_keys import (
     DictationKey,
     refusal,
 )
-from polyglotic_desktop.ui_next import os_words
+from polyglotic_desktop.ui_next import glyphs, os_words, style
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Combo,
+    FittingCombo,
     Flow,
     Row,
     Segmented,
@@ -103,7 +119,8 @@ from polyglotic_desktop.ui_next.controls import (
     right_row,
 )
 from polyglotic_desktop.ui_next.dictation_key import KeyBox, key_words, refusal_words
-from polyglotic_desktop.ui_next.home import Page
+from polyglotic_desktop.ui_next.glyphs import Glyph
+from polyglotic_desktop.ui_next.home import MARGIN, Page
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
 from polyglotic_desktop.ui_next.languages import detect_name, dictation_choices
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
@@ -116,16 +133,43 @@ from polyglotic_desktop.ui_next.panels import (
     TimingPanel,
     WordLinksPanel,
 )
+from polyglotic_desktop.ui_next.settings_marks import PinnedCard, mark_card
 from polyglotic_desktop.ui_next.sound_card import SoundCard
 from polyglotic_desktop.ui_next.views.panels import LanguagesView, LookView, TimingView
 from polyglotic_desktop.ui_next.views.sound import SoundView
 
-SECTIONS = ("look", "timing", "speech", "dictation", "app", "lab")
-"""The page's six sections, left to right at its top (304)."""
-FORMER = {"captions": "look", "learning": "look"}
+SECTIONS = (
+    "look",
+    "links",
+    "readings",
+    "timing",
+    "speech",
+    "dictation",
+    "app",
+    "lab",
+)
+"""The page's eight sections, left to right at its top (304; Word links
+and Readings out of Look, 470)."""
+MARKS = {
+    "look": Glyph.LOOK,
+    "links": Glyph.LINKS,
+    "readings": Glyph.READINGS,
+    "timing": Glyph.TIMING,
+    "speech": Glyph.SPEECH,
+    "dictation": Glyph.MIC,
+    "app": Glyph.APP,
+    "lab": Glyph.LAB,
+}
+"""Each section's mark, beside its name on its tab (470)."""
+FORMER = {"captions": "look", "learning": "links"}
 """The sections' names before 304, still taken by `show_section`, so a way
 in written for them lands: Captions' first part was Look; Learning only
-pointed to the Learning page, as Look's Word links does."""
+pointed to the Learning page, as Word links does."""
+TAB = 16
+"""A section's mark on its tab, at 100 % text size."""
+PINNED_GAP = 16
+"""Between the pinned title and sections and what scrolls under them: the
+column's spacing."""
 
 
 def _tr(text: str) -> str:
@@ -250,14 +294,25 @@ class SettingsPage(Page):
         inner = self.widget()
         assert inner is not None
         inner.setAutoFillBackground(False)
-        # the title, its sections' switch and the language lines in one part,
-        # which takes the window's stylesheet once (`use_sheet`)
+        # the title and its sections' switch pinned above what scrolls (470):
+        # a part of the page's own, over the room the viewport leaves at its
+        # top (`_place_head`), lined up with the column
+        self._placing = False
+        self._head()
+        self.pinned = PinnedCard(self)
+        self.pinned.hide()
+        margins = self._row.contentsMargins()
+        margins.setTop(0)  # the head keeps the page's margin above it
+        self._row.setContentsMargins(margins)
+        self.content.parentWidget().installEventFilter(self)  # type: ignore[union-attr]
+        self.verticalScrollBar().valueChanged.connect(self._place_pinned)
+        # the language lines in one part, which takes the window's stylesheet
+        # once (`use_sheet`)
         top = QWidget()
         top.setObjectName("settings.top")
         rows = QVBoxLayout(top)
         rows.setContentsMargins(0, 0, 0, 0)
         rows.setSpacing(self.content.spacing())
-        self._head(rows)
         self._language_line(rows, languages)
         self.content.insertWidget(0, top)
         self.section: dict[str, QWidget] = {}
@@ -269,10 +324,14 @@ class SettingsPage(Page):
             column.setSpacing(16)
             self.section[key] = box
             self.content.addWidget(box)
+        self._marks: dict[QWidget, Glyph] = {}
+        """Each card's mark, beside its title (`settings_marks`, 470)."""
         self._captions(look, timing, speech)
-        self._section_layout("dictation").addWidget(self._dictation())
+        self._section_layout("dictation").addWidget(
+            self._marked(self._dictation(), Glyph.MIC)
+        )
         app = self._section_layout("app")
-        app.addWidget(self._text_size())
+        app.addWidget(self._marked(self._text_size(), Glyph.TEXT_SIZE))
 
         appearance = Card(
             _tr("Appearance"),
@@ -302,35 +361,9 @@ class SettingsPage(Page):
                 self.window_theme,
             )
         )
-        app.addWidget(appearance)
+        app.addWidget(self._marked(appearance, Glyph.THEME))
 
-        language = Card(_tr("Language"))
-        # a list, not buttons: every main language (polyglotic-hq 294)
-        self.interface_language = Combo()
-        self.interface_language.setObjectName("settings.interface_language")
-        self.interface_language.setAccessibleName(_tr("The app's language"))
-        for code, name in [
-            ("", pc_or_mac(_tr("Like this PC"), _tr("Like this Mac"))),
-            *languages,
-        ]:
-            self.interface_language.addItem(name, code)
-        # as wide as its longest name, not the card
-        self.interface_language.setSizePolicy(
-            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
-        )
-        self.interface_language.currentIndexChanged.connect(self._language_chosen)
-        language.add(
-            Row(
-                _tr("The app's language"),
-                _tr(
-                    "Menus, buttons and help - not your captions. It changes "
-                    "the next time Polyglotic starts."
-                ),
-                self.interface_language,
-            )
-        )
-        app.addWidget(language)
-        app.addWidget(self._transcripts())
+        app.addWidget(self._marked(self._transcripts(), Glyph.TRANSCRIPTS))
 
         keys = Card(
             _tr("Hotkeys"), _tr("They work from any program, including a game.")
@@ -344,7 +377,7 @@ class SettingsPage(Page):
             line.addWidget(value)
             self.hotkey_values[key] = value
             keys.add(line)
-        app.addWidget(keys)
+        app.addWidget(self._marked(keys, Glyph.KEYS))
 
         updates = Card(
             _tr("Updates"),
@@ -365,7 +398,7 @@ class SettingsPage(Page):
         buttons = right_row(self.update_now)
         buttons.addWidget(self.restart_now)
         updates.add(buttons)
-        app.addWidget(updates)
+        app.addWidget(self._marked(updates, Glyph.UPDATES))
 
         about = Card(_tr("About Polyglotic"))
         about.add(
@@ -387,7 +420,7 @@ class SettingsPage(Page):
         tell_us.setCursor(Qt.CursorShape.PointingHandCursor)
         row.addWidget(tell_us)
         about.add(row)
-        app.addWidget(about)
+        app.addWidget(self._marked(about, Glyph.ABOUT))
         self.content.addStretch(1)
         self.show_section("look")
         self.refresh()
@@ -688,30 +721,183 @@ class SettingsPage(Page):
 
     # -- the sections ------------------------------------------------------------------
 
-    def _head(self, rows: QVBoxLayout) -> None:
-        """The title, with the sections' switch at its right."""
+    def _head(self) -> None:
+        """The title, with the sections' switch at its right - each tab its
+        mark beside its name (470) - pinned at the page's top
+        (`_place_head`); the sections a dropdown where the tabs don't fit on
+        one line (`section_picker`)."""
         title = self.content.takeAt(0)
         assert title is not None
         heading = title.widget()
         assert heading is not None
-        head = Flow(spacing=16)  # the sections under it when they don't fit
+        self.head = QWidget(self)
+        self.head.setObjectName("settings.head")
+        head = Flow(self.head, spacing=16)  # the sections under it when they don't fit
+        head.setContentsMargins(0, 0, 0, 0)
         head.addWidget(heading)
-        self.sections = Segmented(
-            [
-                ("look", _tr("Look")),
-                ("timing", _tr("Timing")),
-                ("speech", _tr("Speech")),
-                ("dictation", _tr("Dictation")),
-                ("app", _tr("App")),
-                ("lab", _tr("Lab")),
-            ],
-            "look",
-        )
+        names = {
+            "look": _tr("Look"),
+            "links": _tr("Word links"),
+            #: Settings' section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese
+            "readings": _tr("Readings"),
+            "timing": _tr("Timing"),
+            "speech": _tr("Speech"),
+            "dictation": _tr("Dictation"),
+            "app": _tr("App"),
+            "lab": _tr("Lab"),
+        }
+        self.sections = Segmented([(key, names[key]) for key in SECTIONS], "look")
         self.sections.setObjectName("settings.sections")
         self.sections.setAccessibleName(_tr("Settings sections"))
         self.sections.changed.connect(lambda key: self.show_section(str(key)))
         head.addWidget(self.sections)
-        rows.addLayout(head)
+        self.section_picker = FittingCombo()  # its width its own (500)
+        self.section_picker.setObjectName("settings.section_picker")
+        self.section_picker.setAccessibleName(_tr("Settings sections"))
+        self.section_picker.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
+        for key in SECTIONS:
+            self.section_picker.addItem(names[key], key)
+        self.section_picker.currentIndexChanged.connect(
+            lambda index: self.show_section(SECTIONS[index])
+        )
+        self.section_picker.setHidden(True)
+        head.addWidget(self.section_picker)
+        self._ink_tabs()
+        self.head.installEventFilter(self)
+
+    def _ink_tabs(self) -> None:
+        """Each section's mark on its tab and in the dropdown, in the theme
+        and at the text size now: dim, as the tab's name is, and the text's
+        colour on the chosen one."""
+        theme = style.current()
+        side = style.px(TAB)
+        for key, button in zip(SECTIONS, self.sections.buttons, strict=True):
+            button.setIcon(
+                glyphs.icon(MARKS[key], theme["TEXT_DIM"], side, on=theme["TEXT"])
+            )
+            button.setIconSize(QSize(side, side))
+        for index, key in enumerate(SECTIONS):
+            self.section_picker.setItemIcon(
+                index, glyphs.icon(MARKS[key], theme["TEXT"], side)
+            )
+        self.section_picker.setIconSize(QSize(side, side))
+
+    def _marked(self, card: QWidget, glyph: Glyph) -> QWidget:
+        """`card` with `glyph` beside its title (`settings_marks`)."""
+        assert isinstance(card, Card)
+        mark_card(card, glyph)
+        self._marks[card] = glyph
+        return card
+
+    # -- pinned while the page scrolls (470) ----------------------------------------
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        """The column moved or resized, or the head's layout changed (a text
+        size): the head and the pinned card placed again. The wheel over the
+        head - outside the viewport - scrolls the page as over the rest."""
+        head = self.__dict__.get("head")  # Qt's scroll area asks before it's made
+        if head is None or watched not in (head, self.content.parentWidget()):
+            return super().eventFilter(watched, event)
+        if watched is head and event.type() == QEvent.Type.Wheel:
+            QApplication.sendEvent(self.verticalScrollBar(), event)
+            return True
+        if event.type() in (
+            QEvent.Type.Resize,
+            QEvent.Type.Move,
+            QEvent.Type.LayoutRequest,
+        ):
+            self._place_head()
+        return super().eventFilter(watched, event)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._place_head()
+
+    def changeEvent(self, event: QEvent) -> None:
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.StyleChange:  # perhaps another text size
+            QTimer.singleShot(0, self, self._place_head)
+
+    def _place_head(self) -> None:
+        """The title and the sections over the room the viewport leaves at
+        the page's top, as wide as the column and lined up with it; the
+        tabs or, where they don't fit on one line, the dropdown."""
+        if self._placing or "pinned" not in self.__dict__:
+            return
+        self._placing = True
+        try:
+            column = self.content.parentWidget()
+            assert column is not None
+            left = column.mapTo(self, QPoint(0, 0)).x()
+            width = column.width()
+            narrow = self.sections.sizeHint().width() > width
+            if narrow != self.sections.isHidden():
+                self.sections.setHidden(narrow)
+                self.section_picker.setHidden(not narrow)
+            layout = self.head.layout()
+            assert layout is not None
+            height = layout.heightForWidth(width)
+            self.head.setGeometry(left, MARGIN, width, height)
+            top = MARGIN + height + PINNED_GAP
+            if self.viewportMargins().top() != top:
+                self.setViewportMargins(0, top, 0, 0)
+        finally:
+            self._placing = False
+        self._place_pinned()
+
+    def _place_pinned(self) -> None:
+        """The card the learner is in, by name, under the sections - once
+        its own title has scrolled away under them; hidden at a card's top."""
+        card = self._card_scrolled_into()
+        if card is None or card.title is None:
+            self.pinned.hide()
+            return
+        self.pinned.show_card(self._marks[card], card.title.text())
+        column = self.content.parentWidget()
+        assert column is not None
+        left = column.mapTo(self, QPoint(0, 0)).x()
+        self.pinned.setGeometry(
+            left,
+            self.viewport().geometry().top(),
+            column.width(),
+            self.pinned.sizeHint().height(),
+        )
+        self.pinned.show()
+        self.pinned.raise_()
+
+    def _card_scrolled_into(self) -> Card | None:
+        """The section's last card whose top is under the pinned name's
+        line, if its own title is scrolled out of sight and some of it is
+        still in view."""
+        if self.verticalScrollBar().value() == 0:
+            return None
+        viewport = self.viewport()
+        line = self.pinned.sizeHint().height()
+        found: Card | None = None
+        for card in self.cards(str(self.sections.value())):
+            if card.mapTo(viewport, QPoint(0, 0)).y() > line:
+                break
+            found = card
+        if found is None or found.title is None:
+            return None
+        if found.title.mapTo(viewport, QPoint(0, 0)).y() >= 0:
+            return None  # its own title shows
+        if found.mapTo(viewport, QPoint(0, found.height())).y() <= 0:
+            return None
+        return found
+
+    def cards(self, key: str) -> list[Card]:
+        """Section `key`'s cards, top to bottom, those shown."""
+        column = self._section_layout(key)
+        items = (column.itemAt(i) for i in range(column.count()))
+        widgets = (item.widget() for item in items if item is not None)
+        return [
+            w
+            for w in widgets
+            if isinstance(w, Card) and w in self._marks and w.isVisible()
+        ]
 
     def _language_line(
         self, rows: QVBoxLayout, languages: Sequence[tuple[str, str]]
@@ -719,8 +905,9 @@ class SettingsPage(Page):
         """The app's language under the title, in every section - not only
         at App's foot (the user's live testing, polyglotic-hq 270: "App
         language should also be more obvious rather than hid in 2 layers";
-        284). The same setting as App's Language; each language by its own
-        name, so it's found whatever language the app is in now."""
+        284) - its one place since App's own card went (470); each
+        language by its own name, so it's found whatever language the app is
+        in now."""
         line = Flow()
         line.addWidget(label(_tr("App language"), "Dim"))
         self.language_picker = Combo()
@@ -774,7 +961,6 @@ class SettingsPage(Page):
 
     def _language_picked(self, index: int) -> None:
         code = str(self.language_picker.itemData(index) or "")
-        self._show_chosen(self.interface_language, code)
         self.language_later.setHidden(False)
         self.interface_language_chosen.emit(code)
 
@@ -795,7 +981,7 @@ class SettingsPage(Page):
         self.timing = TimingPanel(timing, languages=speech)
         self.behaviour = BehaviourPanel(look, notes=True, hidden_windows=True)
         # Spoken language here sets every window's own, and the second
-        # languages are the ones each window's "Lines already in ..." sets
+        # languages are the ones each window's "When they already speak ..." sets
         # (248's F28; polyglotic-hq 263: each caption window has its own)
         self.speech = LanguagesPanel(speech, speech=True)
         self.sound = SoundCard(self._sound) if self._sound is not None else None
@@ -803,7 +989,11 @@ class SettingsPage(Page):
         # experimental: a section of its own, last (284)
         self.lab = LabPanel(look, languages=speech)
         placed: dict[str, tuple[QWidget, ...]] = {
-            "look": (self.look, self.word_links, self.reading, self.reset),
+            "look": (self.look, self.reset),
+            # Look was 2,557 px with no landmark: links and readings are
+            # sections of their own (449's design 4A, 470)
+            "links": (self.word_links,),
+            "readings": (self.reading,),
             "timing": (self.timing, self.behaviour),
             # the speakers and the mic first, as Home's Sound (372): one view
             "speech": (
@@ -811,10 +1001,22 @@ class SettingsPage(Page):
             ),
             "lab": (self.lab,),
         }
+        marks: dict[QWidget, Glyph] = {
+            self.look: Glyph.LOOK,
+            self.word_links: Glyph.LINKS,
+            self.reading: Glyph.READINGS,
+            self.reset: Glyph.RESET,
+            self.timing: Glyph.TIMING,
+            self.behaviour: Glyph.BEHAVIOUR,
+            self.speech: Glyph.SPEECH,
+            self.lab: Glyph.LAB,
+        }
+        if self.sound is not None:
+            marks[self.sound] = Glyph.SPEAKER
         for key, panels in placed.items():
             column = self._section_layout(key)
             for panel in panels:
-                column.addWidget(panel)
+                column.addWidget(self._marked(panel, marks[panel]))
 
     def show_section(self, key: str) -> None:
         """Section `key` (one of `SECTIONS`, or a former name: `FORMER`),
@@ -823,10 +1025,14 @@ class SettingsPage(Page):
         if key not in self.section:
             raise ValueError(key)
         self.sections.set_value(key)
+        blocked = self.section_picker.blockSignals(True)
+        self.section_picker.setCurrentIndex(SECTIONS.index(key))
+        self.section_picker.blockSignals(blocked)
         self._styled(self.section[key])  # before it's shown: polished once
         for each, box in self.section.items():
             box.setVisible(each == key)
         self.verticalScrollBar().setValue(0)
+        self._place_pinned()
 
     # -- the window's stylesheet (decision 0152) -----------------------------------
 
@@ -841,6 +1047,7 @@ class SettingsPage(Page):
         if sheet == self._sheet:
             return
         self._sheet = sheet
+        self._ink_tabs()  # the marks in the theme and at the text size now
         sections = set(self.section.values())
         column = self.content.parentWidget()
         assert column is not None
@@ -868,13 +1075,6 @@ class SettingsPage(Page):
         self.theme.set_value(theme)
         self.window_theme.set_value(window_theme)
 
-    def _language_chosen(self, index: int) -> None:
-        """App's Language: the picker under the title shows it too."""
-        code = str(self.interface_language.itemData(index) or "")
-        self._show_chosen(self.language_picker, code)
-        self.language_later.setHidden(False)
-        self.interface_language_chosen.emit(code)
-
     @staticmethod
     def _show_chosen(picker: QComboBox, code: str) -> None:
         index = max(0, picker.findData(code))
@@ -884,7 +1084,6 @@ class SettingsPage(Page):
 
     def show_interface_language(self, code: str) -> None:
         """The interface language as the settings have it ("": like Windows)."""
-        self._show_chosen(self.interface_language, code)
         self._show_chosen(self.language_picker, code)
 
     def showEvent(self, event: QShowEvent) -> None:

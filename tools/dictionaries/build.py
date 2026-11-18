@@ -10,7 +10,11 @@ alone, from its own sources - CI's start gate builds only CC-CEDICT):
   ranks and HSK 3.0 levels (2025 syllabus and 2021 standard);
 - `ecdict.sqlite` - ECDICT cut to the commonest words, for English
   learners, with inflections and frequency ranks (from wordfreq, or with
-  `--english-frequency ecdict` from ECDICT's own columns);
+  `--english-frequency ecdict` from ECDICT's own columns), the commonest
+  words' Chinese meanings everyday first (`ecdict_order`);
+- `ecdict-en.sqlite` - the same entries with their meanings in English
+  (`english_meanings`: Open English WordNet and our own), for an English
+  learner whose app isn't in Chinese (decision 0211);
 - `CREDITS.md` - each source, its version, licence and what we changed.
 
 The files are built, not committed: the release workflow (D5) runs this
@@ -27,6 +31,7 @@ import time
 import zipfile
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from pathlib import Path
 
 from polyglotic_desktop.adapters.sqlite_dictionary import (
@@ -37,7 +42,15 @@ from polyglotic_desktop.adapters.sqlite_dictionary import (
 from polyglotic_desktop.core.lexicon import chinese
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
 from polyglotic_desktop.ports.dictionary import EntryRecord
-from tools.dictionaries import cedict, ecdict, wordfreq_ranks
+from tools.dictionaries import (
+    cedict,
+    ecdict,
+    ecdict_order,
+    english_meanings,
+    oewn,
+    treebanks,
+    wordfreq_ranks,
+)
 from tools.dictionaries.entry_ids import Registry, assign_ids
 from tools.dictionaries.sources import (
     CEDICT,
@@ -45,14 +58,19 @@ from tools.dictionaries.sources import (
     HSK30,
     JIEBA,
     MIT,
+    OEWN,
     SOURCES,
     WORDFREQ,
+    WORDNET_LICENCE,
     Source,
     fetch,
 )
 
 REPO = Path(__file__).resolve().parents[2]
 REGISTRY = Path(__file__).parent / "registry"
+TREEBANKS = treebanks.of("en")
+"""UD English-EWT's files: how often English uses each word as each part
+of speech, which orders its English meanings (`english_meanings`)."""
 HSK_TABLES = {
     "hsk-2025": "hsk30/data/hsk2025_words.tsv",
     "hsk-2021": "hsk30/data/hsk30_words.tsv",
@@ -192,49 +210,156 @@ def build_english(
     wordfreq's data is CC BY-SA, so the file is too when it's used."""
     rows = list(ecdict.read(paths["ecdict"]))
     kept = ecdict.cut(rows)
-    ids = assign_ids(registry, (row.word for row in kept))
+    given = given_names(kept)
+    ids = assign_ids(registry, [*(row.word for row in kept), *given])
     lemmas = ecdict.lemmas(rows, {row.word for row in kept})
+    written = ecdict.names(kept, lemmas)  # "mary": Mary (polyglotic-hq 464)
+    lemmas, second = ecdict.own_first(lemmas)  # "bit": bit, then bite
     if frequency == "wordfreq":
         words = [row.word for row in kept]
         ranks = wordfreq_ranks.frequency_ranks(paths["wordfreq"], words, lemmas)
-        used, licence = [ECDICT, WORDFREQ], "CC BY-SA 4.0"
+        used, licence = [ECDICT, WORDFREQ, *TREEBANKS], "CC BY-SA 4.0"
     else:
         ranks = ecdict.frequency_ranks(kept)
-        used, licence = [ECDICT], ECDICT.licence
+        used, licence = [ECDICT, *TREEBANKS], ECDICT.licence
+    uses = treebanks.uses([paths[s.name] for s in TREEBANKS])
+    first = ecdict_order.read_first()
     records = [
         EntryRecord(
             entry_id=ids[row.word],
-            headword=row.word,
+            headword=written.get(row.word, row.word),
             traditional="",
             reading=row.phonetic,
-            meanings=row.meanings,
+            meanings=ecdict_order.ordered(
+                row.word, row.meanings, ranks.get(row.word), uses, first
+            ),
             frequency_rank=ranks.get(row.word),
         )
         for row in kept
     ]
-    write_dictionary(
-        out,
-        {
-            **info(
-                ECDICT,
-                used,
-                frequency=frequency,
-                schemes="en-frequency",
-                ranked=sum(1 for r in records if r.frequency_rank),
+    phonetic = {row.word: row.phonetic for row in kept}
+    records += [
+        EntryRecord(
+            entry_id=ids[name.name],
+            headword=name.name,
+            traditional="",
+            reading=phonetic.get(name.name.lower(), ""),
+            meanings=(name.meaning,),
+            frequency_rank=None,  # numbering them would move every rank after
+        )
+        for name in given.values()
+    ]
+    plain = lemmas
+    lemmas = {form: written.get(lemma, lemma) for form, lemma in lemmas.items()}
+    about = {
+        **info(
+            ECDICT,
+            used,
+            frequency=frequency,
+            schemes="en-frequency",
+            ranked=sum(1 for r in records if r.frequency_rank),
+        ),
+        "licence": licence,
+    }
+    forms = {r.headword: [r.entry_id] for r in records}
+    for lower, word in ecdict.lower_case_forms({row.word for row in kept}).items():
+        forms[lower] = [ids[word]]  # "tv": TV (polyglotic-hq 463)
+    for form, lemma in second.items():
+        forms[form].append(ids[lemma])
+    for name in given.values():
+        word = name.name.lower()
+        forms[name.name] = [
+            *(
+                [*([ids[plain[word]]] if word in plain else []), ids[word]]
+                if name.word_first and word in ids
+                else []
             ),
-            "licence": licence,
+            ids[name.name],
+        ]
+    merged = registry.resolved_merges()
+    write_dictionary(out, about, records, forms, lemmas=lemmas, merged=merged)
+    names = {  # a name's first line in English: "a man's name"
+        r.entry_id: "; ".join(kinds)
+        for r in records
+        if r.headword[:1].isupper() and (kinds := ecdict.name_kinds(r.meanings[0]))
+    }
+    english = english_records(paths, kept, rows, records, uses, names)
+    write_dictionary(
+        out.with_name(ENGLISH_MEANINGS),
+        {
+            **about,
+            "sources": "; ".join(
+                f"{s.name} {s.version} sha256:{s.sha256}" for s in [*used, OEWN]
+            ),
+            "licence": "CC BY-SA 4.0",
+            "meanings": "en",
         },
-        records,
-        {r.headword: [r.entry_id] for r in records},
+        english,
+        forms,
         lemmas=lemmas,
-        merged=registry.resolved_merges(),
+        merged=merged,
     )
     return {
         "entries": len(records),
         "of ECDICT rows": len(rows),
         "ranked": len(ranks),
         "inflected forms": len(lemmas),
+        "own entry first": len(second),
+        "names ECDICT writes in lower case": len(written),
+        "names of our own": len(given),
+        "with English meanings": sum(1 for r in english if r.meanings),
     }
+
+
+ENGLISH_MEANINGS = "ecdict-en.sqlite"
+"""The English dictionary with its meanings in English (decision 0211):
+the same entries, IDs, inflections and ranks as `ecdict.sqlite`."""
+
+
+def english_records(
+    paths: Mapping[str, Path],
+    kept: Sequence[ecdict.EcdictRow],
+    rows: Sequence[ecdict.EcdictRow],
+    records: Sequence[EntryRecord],
+    uses: english_meanings.Uses,
+    names: Mapping[str, str],
+) -> list[EntryRecord]:
+    """`records` (ECDICT's, in Chinese) with their meanings in English
+    (`english_meanings`): Open English WordNet's, ordered by UD
+    English-EWT's counts, and our own for the words WordNet lacks. An
+    entry none of them has keeps no meanings: the card says so. A name's
+    (`names`: entry ID -> "a man's name") comes first: WordNet's first
+    "david" was the patron saint of Wales (polyglotic-hq 464)."""
+    senses = oewn.read(paths["oewn"])
+    core = english_meanings.read_core()
+    forms = english_meanings.inflections(rows)
+    by_id = {record.entry_id: row for record, row in zip(records, kept, strict=False)}
+    out = []
+    for record in records:
+        row = by_id.get(record.entry_id)
+        meanings = (
+            english_meanings.meanings_of(row, senses, core, uses, forms)
+            if row is not None
+            else ()
+        )
+        if record.entry_id in names:
+            meanings = (
+                english_meanings.said("name", names[record.entry_id]),
+                *meanings,
+            )[: english_meanings.MAX_MEANINGS]
+        out.append(replace(record, meanings=meanings))
+    return out
+
+
+def given_names(kept: Sequence[ecdict.EcdictRow]) -> dict[str, ecdict.GivenName]:
+    """`english_names.txt`'s names by name. The build fails if ECDICT has
+    one written so: it has its own entry now, so take it off the list."""
+    words = {row.word for row in kept}
+    given = {name.name: name for name in ecdict.read_names()}
+    for name in given.values():
+        if name.name in words:
+            raise ValueError(f"english_names.txt: ECDICT has {name.name!r} now")
+    return given
 
 
 # -- both -----------------------------------------------------------------------------
@@ -275,10 +400,21 @@ def credits() -> str:
         "  Chinese meanings and inflections, plus frequency ranks from wordfreq.",
         "  ECDICT is MIT-licensed (below); with wordfreq's ranks the file is shared",
         "  under **CC BY-SA 4.0**. Changes: cut, converted to SQLite, entries",
-        "  given IDs, frequency ranks added.",
+        "  given IDs, frequency ranks added; the commonest words' meanings put in",
+        "  everyday order, by how often UD English-EWT uses each word as each part",
+        "  of speech (counts only) and Polyglotic's own first lines for some;",
+        "  people's names written capitalised, and entries of Polyglotic's own",
+        "  for given names ECDICT has only as other words (John, Bill).",
+        "- `ecdict-en.sqlite` is `ecdict.sqlite` with English meanings in place",
+        "  of the Chinese: Open English WordNet's definitions and examples",
+        "  (CC BY 4.0; Princeton WordNet's licence below), shortened, their",
+        "  parts of speech ordered by how often UD English-EWT uses each word as",
+        "  each (counts only), and Polyglotic's own definitions of the commonest",
+        "  words WordNet lacks (the, of, you...). It is shared under",
+        "  **CC BY-SA 4.0**, as `ecdict.sqlite` is.",
         "",
     ]
-    for source in SOURCES:
+    for source in (*SOURCES, *TREEBANKS):
         lines += [
             f"## {source.title}",
             "",
@@ -292,6 +428,10 @@ def credits() -> str:
         ]
         if source.licence == "MIT":
             lines += [f"{source.notice}", "", MIT, ""]
+        elif source.name == OEWN.name:
+            cc_by = "https://creativecommons.org/licenses/by/4.0/"
+            lines += [f"{source.notice}. Licensed under CC BY 4.0: {cc_by}", ""]
+            lines += [WORDNET_LICENCE, ""]
         else:
             cc_by_sa = "https://creativecommons.org/licenses/by-sa/4.0/"
             lines += [f"{source.notice}. Licensed under CC BY-SA 4.0: {cc_by_sa}", ""]
@@ -300,7 +440,12 @@ def credits() -> str:
 
 NEEDS = {
     "cedict": ("cedict", "jieba", "hsk30"),
-    "ecdict": ("ecdict", "wordfreq"),
+    "ecdict": (
+        "ecdict",
+        "wordfreq",
+        "oewn",
+        *(source.name for source in TREEBANKS),
+    ),
 }
 """Each dictionary's sources, by name (`sources.py`)."""
 
@@ -329,7 +474,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     names = (args.only,) if args.only else tuple(NEEDS)
     needed = {source for name in names for source in NEEDS[name]}
     paths = {}
-    for source in (s for s in SOURCES if s.name in needed):
+    for source in (s for s in (*SOURCES, *TREEBANKS) if s.name in needed):
         started = time.perf_counter()
         paths[source.name] = fetch(source, args.sources)
         print(

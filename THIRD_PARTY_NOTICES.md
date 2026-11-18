@@ -101,14 +101,19 @@ They remain under the OFL.
 
 ## The dictionaries
 
-`cedict.sqlite` and `ecdict.sqlite` ship as separate, unlocked files beside
+`cedict.sqlite`, `ecdict.sqlite` and `ecdict-en.sqlite` ship as separate, unlocked files beside
 the app, in `dictionaries`, with their own `CREDITS.md` naming every source, its version,
 licence and notice (written by `tools/dictionaries/build.py` from
 `tools/dictionaries/sources.py`; decision 0009). In short: CC-CEDICT (CC
 BY-SA 4.0), jieba's word frequencies (MIT), the hsk30 package's HSK lists
 (MIT), ECDICT (MIT) and wordfreq's English frequencies (CC BY-SA 4.0,
-including SUBTLEX, Google Books Ngram and OpenSubtitles data). Both files
-are shared under CC BY-SA 4.0: anyone may reuse them under that licence.
+including SUBTLEX, Google Books Ngram and OpenSubtitles data).
+`ecdict-en.sqlite` is `ecdict.sqlite` with English meanings (decision
+0211): Open English WordNet's (CC BY 4.0, from Princeton WordNet under the
+WordNet License, whose notice `CREDITS.md` carries), ordered with counts
+from UD English-EWT (CC BY-SA 4.0; counts only), and Polyglotic's own.
+All three files are shared under CC BY-SA 4.0: anyone may reuse them
+under that licence.
 
 The dictionary packs for other caption languages (decision 0035) aren't
 in the app: each is downloaded when its language is learned (decision

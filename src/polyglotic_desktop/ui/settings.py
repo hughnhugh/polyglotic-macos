@@ -102,6 +102,20 @@ OLD_LIVE_DEFAULT = 1.5  # the interval before there were caption modes
 # the caption mode as versions before 176 kept it: Steady whether chosen or
 # not, so only Quick preview and Live updates show a choice
 OLD_CAPTION_TIMING = "caption_timing"
+FOLLOW_DEFAULT = (
+    "dictation",
+    "word_links",
+    "show_hidden_on_speech",
+    "reading_past",
+    "whole_system",
+)
+"""The switches that follow the app's default until changed on this PC
+(`AppSettings.changed`) - turned on for a new learner by polyglotic-hq 478
+(the user, 2026-11-18: "Default all functional features as on") and 484
+(everything the PC plays: "Make the first time launch easier, everything
+the PC plays should be [the default]"). Another setting is kept as stored,
+as before. A name added here later follows its new default only where the
+record began before it was changed."""
 
 
 @dataclass(frozen=True)
@@ -131,7 +145,9 @@ class AppSettings:
     spelling_hints: tuple[str, ...] = ()  # names and slang, for recognition only
     # captions: how the overlays look and when they update
     show_original: bool = True
-    word_links: str = WordLinks.OFF.value
+    # on for a new learner (polyglotic-hq 478): the links with their lines,
+    # as a caption window's word links button turns them on (446)
+    word_links: str = WordLinks.ARROWS.value
     link_detail: str = LinkDetail.MOST.value
     link_line: str = LinkLine.MEDIUM.value  # a word link's underline (F14)
     link_gap: str = LinkGap.MEDIUM.value  # and how far below the text
@@ -145,12 +161,14 @@ class AppSettings:
     # a hidden caption window: minutes it still listens (None: always), and
     # whether it comes back when its app's speech starts (polyglotic-hq 335)
     pause_hidden_after: int | None = PAUSE_AFTER_MIN
-    show_hidden_on_speech: bool = False
+    show_hidden_on_speech: bool = True  # on for a new learner (478)
     # the languages with a reading line over their text ("zh": pinyin above
     # Chinese), and its size (core.listening.display; polyglotic-hq 369)
     reading_lines: tuple[str, ...] = ()
     reading_size: str = ReadingSize.SMALL.value
-    reading_past: bool = False  # only over the words past what the learner knows
+    # only over the words past what the learner knows: off - readings over
+    # every word, as the user's picture shows (2026-11-18, DECISIONS #206)
+    reading_past: bool = False
     # the reading line's colour: its line's, its word link's or one picked
     # (`reading_custom_color`); and linked words in their link's colour (395)
     reading_system: str = ReadingSystem.PINYIN.value  # or zhuyin (395)
@@ -251,9 +269,12 @@ class AppSettings:
     # maintenance's `stored`), so the app still says it after a restart while
     # the server can't be reached; empty: none (polyglotic-hq 319)
     maintenance: dict[str, object] = field(default_factory=dict)
-    # audio: what's listened to - nothing until the learner picks (the
-    # first run starts paused: polyglotic-hq DECISIONS.md #25)
-    whole_system: bool = False  # everything the PC plays, not chosen apps
+    # audio: what's listened to - everything the PC plays for a new learner,
+    # from the first launch until they pick apps (polyglotic-hq 484, the
+    # user, 2026-11-18; it was nothing until they picked, DECISIONS.md #25,
+    # until then). Follows the default until changed (`FOLLOW_DEFAULT`), so
+    # a learner from 0.1.7 or before keeps what they had
+    whole_system: bool = True  # everything the PC plays, not chosen apps
     # the apps picked, by name (they stay on this PC): each captioned at once,
     # as a source of its own
     apps: tuple[str, ...] = ()
@@ -285,17 +306,24 @@ class AppSettings:
     # end to shown, and the server's share (polyglotic-hq 271; the tray's
     # "Show each caption's delay"). For finding out why captions come late.
     show_delay: bool = False
-    # dictation (polyglotic-hq 283, decision 0073): off until turned on - the
-    # mic is then sent only while `dictation_key` (a DictationKey as kept:
+    # dictation (polyglotic-hq 283, decision 0073): on for a new learner
+    # (478; off until turned on before) - the mic is sent only while
+    # `dictation_key` (a DictationKey as kept:
     # "right_ctrl", "ctrl+alt+d", 283's "insert"...; polyglotic-hq 289) is
     # held; heard as `dictation_language` - None: whatever language is
     # detected, each hold; else that one, forced (one of the speech model's,
     # DICTATION_LANGUAGES); English in Australian spelling if
     # `dictation_australian`
-    dictation: bool = False
+    dictation: bool = True
     dictation_key: str = str(DEFAULT_KEY)
     dictation_language: str | None = None
     dictation_australian: bool = False
+    # the settings changed on this PC since this record began (0.1.8), by
+    # name - by the learner, or by the app for them: a switch that follows
+    # the app's default (`FOLLOW_DEFAULT`) and isn't here takes the default
+    # of the version running. Settings from before the record count as all
+    # changed: they can't say which were (polyglotic-hq 478, decision 0220)
+    changed: tuple[str, ...] = ()
 
     @property
     def caption_mode(self) -> CaptionMode:
@@ -348,6 +376,7 @@ class AppSettings:
         values["reading_lines"] = list(self.reading_lines)
         values["also_learning"] = list(self.also_learning)
         values["not_now_learning"] = list(self.not_now_learning)
+        values["changed"] = list(self.changed)
         # what versions before 176 read: the mode followed, chosen or not
         values[OLD_CAPTION_TIMING] = self.caption_mode.value
         return values
@@ -357,6 +386,7 @@ class AppSettings:
         """Settings from what was stored: anything missing or not valid
         takes its default. The one app an older version kept (`app_name`)
         becomes the only app picked."""
+        as_filed = stored  # as the file has it, before `_migrated` fills it in
         stored = _migrated(stored)
         defaults = cls()
         found: dict[str, Any] = {}
@@ -381,6 +411,23 @@ class AppSettings:
                 for t, s in found["second_languages"].items()
                 if t not in NOT_OFFERED and s not in NOT_OFFERED
             }
+        # a switch nobody changed follows today's default (478); settings
+        # without the record (0.1.7 and before, or not valid) can't say
+        # which were changed, so each valid one they hold counts as changed
+        changed = found.get("changed")
+        if changed is None:
+            changed = tuple(
+                f.name for f in fields(cls) if f.name in as_filed and f.name in found
+            )
+            found["changed"] = changed
+        for name in FOLLOW_DEFAULT:
+            if name not in changed:
+                found.pop(name, None)
+        # what's captioned is one choice (484): apps picked by a learner who
+        # never chose everything the PC plays - in a record begun while its
+        # default was off, or a file without it - are captioned, not everything
+        if found.get("apps") and "whole_system" not in changed:
+            found["whole_system"] = False
         return replace(defaults, **found)
 
     @property
@@ -494,6 +541,7 @@ _TUPLES = (  # stored as lists
     "also_learning",
     "not_now_learning",
     "reading_lines",
+    "changed",
 )
 
 
@@ -750,7 +798,21 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
     "app_capture_fell_back": lambda v: _text_map(v, lambda text: len(text) <= 100),
     # read whole by core.listening.maintenance.from_stored, which refuses the rest
     "maintenance": lambda v: isinstance(v, dict) and len(v) <= 3,
+    "changed": _languages,  # a list of settings' names
 }
+
+
+def with_changed(before: AppSettings, after: AppSettings) -> AppSettings:
+    """`after`, with every setting that differs from `before` named in its
+    record of changes (`AppSettings.changed`; 478)."""
+    moved = [
+        f.name
+        for f in fields(AppSettings)
+        if f.name != "changed"
+        and f.name not in after.changed
+        and getattr(before, f.name) != getattr(after, f.name)
+    ]
+    return replace(after, changed=(*after.changed, *moved)) if moved else after
 
 
 class Settings(QObject):
@@ -775,6 +837,7 @@ class Settings(QObject):
         new = replace(self.value, **changes)  # type: ignore[arg-type]
         if new == self.value:
             return
+        new = with_changed(self.value, new)
         self.value = new
         if self._store is not None:
             # the file's other keys as they are now: saved, changed or

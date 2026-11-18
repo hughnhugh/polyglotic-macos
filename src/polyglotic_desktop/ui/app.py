@@ -209,8 +209,8 @@ class DesktopApp(QObject):
     crosses, no content) to attach."""
     window_wanted = Signal(bool)
     """The main window, in front: True from the tray - on the page where
-    the learner picks what to caption while nothing is (the first run,
-    polyglotic-hq DECISIONS.md #25); False: on whatever page it shows
+    the learner picks what to caption while nothing is (DECISIONS.md
+    #25; a new learner's first run captions everything, 484); False: on whatever page it shows
     (nothing asks for that since "Looks wrong?" went, polyglotic-hq 339)."""
     caption_notice = Signal(str)
     """A notice the caption windows show briefly (a server notice;
@@ -440,13 +440,16 @@ class DesktopApp(QObject):
 
     def source_labels(self) -> dict[SourceId, SourceLabel]:
         """How each source's captions are labelled: the learner's name for
-        it, or its own ("You" for the mic, "This PC" for everything it
-        plays, "Everything else" beside one app, an app's on-screen name);
-        and its colour."""
+        it, or its own ("You" for the mic, "Everything the PC plays" for
+        everything it plays - "This PC" until polyglotic-hq 484 -,
+        "Everything else" beside one app, an app's on-screen name); and its
+        colour."""
         value = self.settings.value
         names = {
             SOURCE_KEY_MIC: self.tr("You"),
-            SOURCE_KEY_SYSTEM: pc_or_mac(self.tr("This PC"), self.tr("This Mac")),
+            SOURCE_KEY_SYSTEM: pc_or_mac(
+                self.tr("Everything the PC plays"), self.tr("Everything the Mac plays")
+            ),
         }
         ids = {SOURCE_KEY_MIC: MIC, SOURCE_KEY_SYSTEM: WHOLE_SYSTEM}
         for source_id, (name, title) in self._apps.items():
@@ -757,8 +760,9 @@ class DesktopApp(QObject):
 
     def show_window(self) -> None:
         """The main window, in front - on the page where the learner picks
-        what to caption while nothing is chosen, so the first run (after
-        signing in) opens there (polyglotic-hq DECISIONS.md #25)."""
+        what to caption while nothing is chosen (polyglotic-hq DECISIONS.md
+        #25). A new learner's first run captions everything the PC plays
+        (484), so it opens on Home, which says so."""
         self.window_wanted.emit(True)
 
     def set_minutes(self, used: float, left: float | None) -> None:

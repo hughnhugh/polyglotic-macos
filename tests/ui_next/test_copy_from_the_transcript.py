@@ -149,7 +149,11 @@ def test_the_right_click_menu_copies_the_selection_or_offers_the_line_s(
     drag(shown, start, end)
     menu = shown.menu_at(start.y())
     assert menu is not None
-    assert [a.text() for a in menu.actions()] == ["Copy", "Select all"]
+    assert [a.text() for a in menu.actions()] == [
+        "Copy",
+        "Select all",
+        "Save sentence to",  # more than a word (459)
+    ]
     menu.actions()[0].trigger()
     assert QGuiApplication.clipboard().text() == shown.selectedText()
     menu.actions()[1].trigger()

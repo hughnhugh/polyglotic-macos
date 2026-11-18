@@ -11,7 +11,9 @@ from polyglotic_desktop.ui.settings import AppSettings
 
 def test_each_captured_source_has_its_category() -> None:
     sources = sources_with(FakePipeline(), ChangingAppList(CHAT))
-    sources.follow(AppSettings(apps=("Chat App",), everything_else=True))
+    sources.follow(
+        AppSettings(whole_system=False, apps=("Chat App",), everything_else=True)
+    )
     assert sources.category_of_source(sources.app_id("Chat App")) is SourceCategory.CALL
     assert sources.category_of_source(EVERYTHING_ELSE) is SourceCategory.SYSTEM
     assert sources.category_of_source(MIC) is SourceCategory.OTHER  # not captured

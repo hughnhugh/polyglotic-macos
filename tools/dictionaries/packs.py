@@ -30,11 +30,12 @@ from __future__ import annotations
 import argparse
 import csv
 import heapq
+import re
 import sys
 import time
 import unicodedata
 from collections import defaultdict
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import partial
 from pathlib import Path
@@ -50,6 +51,8 @@ from polyglotic_desktop.core.lexicon import arabic, english
 from polyglotic_desktop.core.lexicon.vietnamese import key as word_key
 from polyglotic_desktop.ports.dictionary import EntryRecord
 from tools.dictionaries import (
+    cantonese,
+    cedict,
     coverage,
     frequency,
     jmdict,
@@ -64,11 +67,15 @@ from tools.dictionaries import (
 )
 from tools.dictionaries.entry_ids import Registry, assign_ids
 from tools.dictionaries.sources import (
+    CANTO_READINGS,
     CC0,
+    CC_CANTO,
+    CEDICT_FOR_CANTONESE,
     COMMONVOICE_FA,
     COMMONVOICE_TH,
     COUNTS_ONLY,
     FREQUENCYWORDS_RU,
+    HKCANCOR,
     JLPT,
     JMDICT,
     KAIKKI_AR,
@@ -97,7 +104,10 @@ from tools.dictionaries.sources import (
     KAIKKI_ZH,
     MIT,
     OPENSUBTITLES_VI,
+    RIME_CHARS,
+    RIME_WORDS,
     WORDFREQ,
+    WORDFREQ_ZH,
     Source,
     fetch,
 )
@@ -158,7 +168,8 @@ class Draft:
     far more than suonare's, and Portuguese's "no" - wrongly the
     comparative in two adjectives' tables - had made austro-húngaro the
     12th word (polyglotic-hq 380). The older readers (Spanish, Russian)
-    keep giving each lemma the whole until their ranks are measured again."""
+    keep giving each lemma the whole until their ranks are measured again;
+    Spanish's were, by polyglotic-hq 461's audit."""
     keep_unranked: bool = False
     """Every entry is kept, ranked or not: a language whose word split is
     by the pack's own words (Thai) needs them all, or a word the pack
@@ -254,7 +265,11 @@ def read_spanish(paths: Mapping[str, Path]) -> Draft:
     for key, glosses in zh.items():
         zh_by_word[key.split("|")[0]][key] = glosses
     written = treebanks.uses_for("es", paths, forms_only=True)
-    return with_treebanks(draft_of(words, zh_by_word), words, uses, written)
+    draft = with_treebanks(draft_of(words, zh_by_word), words, uses, written)
+    # "mercedes" (Mercedes; merced's plural) had made mercedar, whose form
+    # it also is, the 4,283rd word (polyglotic-hq 448, 461)
+    draft.split_shared_forms = True
+    return draft
 
 
 def with_treebanks(
@@ -345,6 +360,10 @@ class Spelling:
     elided: Mapping[str, str] = field(default_factory=dict)
     """Words written short onto the next or the last with a hyphen, as
     written short -> the word (`with_elided`)."""
+    phrase_heads: frozenset[str] = frozenset()
+    """The first words of two-word adpositions whose second word is no
+    word of a caption alone: each such second word gets the phrase's
+    meanings (`phrase_words`)."""
 
 
 AS_WRITTEN = Spelling()
@@ -354,6 +373,35 @@ FILIPINO = Spelling(linked=True)
 ROMANIZED = Spelling(reading=kaikki.romanization)
 """A language in another script: its reading is Wiktionary's romanization
 ("laṛkā"), which a learner reads before IPA."""
+_HINDI_Y = re.compile("(?<=[ऀ-ॿ])(?<!्)य(ें|ीं|े|ी)")
+_HINDI_VOWEL = {"े": ("ए",), "ें": ("एँ", "एं"), "ी": ("ई",), "ीं": ("ईं",)}
+
+
+def hindi_spellings(word: str) -> set[str]:
+    """Other ways Hindi text writes `word`: ए for ये and ई for यी after a
+    letter, not in a cluster (बनायेगी as बनाएगी, गये as गए; not प्यार). Wiktionary's inflection tables
+    write the य forms and captions the vowels, so every verb's future
+    ("बनाएगी", will make) found nothing (polyglotic-hq 448, 461)."""
+    out = {word}
+    for found in _HINDI_Y.finditer(word):
+        out |= {
+            w[: found.start()] + vowel + w[found.end() :]
+            for w in out
+            if w[found.start() : found.end()] == found.group()
+            for vowel in _HINDI_VOWEL[found.group(1)]
+        }
+    out.discard(word)
+    return out
+
+
+HINDI = Spelling(
+    reading=kaikki.romanization,
+    also=hindi_spellings,
+    phrase_heads=frozenset({"के", "की"}),
+)
+"""Hindi: read by romanization; its tables' य forms written with vowels too
+(`hindi_spellings`); के लिए's and के साथ's second word a word of its own
+(`phrase_words`)."""
 GERMAN = Spelling(nouns_capitalised=True)
 """German: its nouns' capitals are spelling (Mensch, Abend)."""
 
@@ -469,11 +517,14 @@ def read_wiktionary(
     its word's rank and come first on its card - Persian's و, "and", the
     commonest word, showed "the thirtieth letter of the Persian alphabet"
     (polyglotic-hq 387)."""
-    objects = (
+    objects: Iterable[dict[str, object]] = (
         obj
         for obj in kaikki.lines(paths[f"kaikki-{language}"], language)
         if not russian.is_letter(obj)
     )
+    if spelling.phrase_heads:
+        read = list(objects)
+        objects = [*read, *phrase_words(read, spelling.phrase_heads)]
     uses = treebanks.uses_for(language, paths, spelling.written)
     words = kaikki.read_language(
         objects, spelling.reading, uses=uses, derived=spelling.derived, chain=True
@@ -503,6 +554,33 @@ def read_wiktionary(
             paths[sentences], english.words
         )
     return draft
+
+
+def phrase_words(
+    objects: Sequence[Mapping[str, object]], heads: frozenset[str]
+) -> list[dict[str, object]]:
+    """An entry of its own, as Wiktionary's lines are, for the second word
+    of each two-word adposition whose first is one of `heads`, with the
+    phrase's meanings: Hindi's के लिए ("for") gives लिए "के लिए: ... for".
+    A caption's words are looked up one by one, and लिए, the 12th
+    commonest word in Hindi's test sentences, had opened on लेना, "to
+    take", whose form it also is (polyglotic-hq 448, 461)."""
+    out: list[dict[str, object]] = []
+    for obj in objects:
+        words = str(obj.get("word") or "").split()
+        pos = obj.get("pos")
+        if len(words) != 2 or words[0] not in heads or pos not in kaikki.ADPOSITIONS:
+            continue
+        phrase = " ".join(words)
+        senses = []
+        listed = obj.get("senses")
+        for sense in listed if isinstance(listed, list) else ():
+            glosses = sense.get("glosses") if isinstance(sense, dict) else None
+            if isinstance(glosses, list) and glosses and isinstance(glosses[0], str):
+                senses.append({"glosses": [f"{phrase}: {glosses[0]}"]})
+        if senses:
+            out.append({"word": words[1], "pos": pos, "senses": senses})
+    return out
 
 
 def linked_forms(words: kaikki.Language) -> dict[str, set[str]]:
@@ -588,7 +666,10 @@ def own_first(
     those the treebanks use more as their own entries' other parts of speech
     than as a verb (Dutch's zij, "she", zijn's subjunctive), and those that
     are a verb of their own (German's sein, "to be", which werden's table
-    lists), which come first where they are the commoner verb. A shared
+    lists), which come first where they are the commoner verb; and a
+    verb's participle that is an adjective of its own (German's "fehlend",
+    "missing", had opened on fehlen, "to be absent"; Czech's "zděděný",
+    "inherited", on zdědit: polyglotic-hq 448, 461). A shared
     pronoun table had hidden both: its pronoun had been their commonest
     lemma, so the verb never came first (polyglotic-hq 399)."""
     own: dict[str, set[str]] = defaultdict(set)
@@ -610,6 +691,9 @@ def own_first(
             used.add(form)
         if "verb" in own[form]:
             verbs.add(form)
+    for (form, _), kinds in words.link_kinds.items():
+        if "participle" in kinds and "adj" in own.get(form, ()):
+            used.add(form)  # fehlend, "missing", before fehlen
     return frozenset(used), frozenset(verbs)
 
 
@@ -935,13 +1019,16 @@ def read_thai(paths: Mapping[str, Path]) -> Draft:
     sentences by the app's word split (`thai.counted_words`; decision
     0173). English meanings only (DECISIONS #175). A word's commonest part
     of speech first, by Thai's treebanks (`treebanks.uses_for`; decision
-    0176): กับ is "with" before "trap"."""
+    0176): กับ is "with" before "trap"; the commonest words' first
+    meanings as read by hand (`thai.first_senses`): โลก is "world", not
+    "land; country" (polyglotic-hq 461)."""
     words = kaikki.read_language(
         thai.words(kaikki.lines(paths["kaikki-th"], "th")),
         kaikki.romanization,
         uses=treebanks.uses_for("th", paths),
         short_forms=True,
     )
+    words.entries = thai.first_senses(words.entries)
     draft = draft_of(words)
     draft.split_shared_forms = True
     draft.keep_unranked = True
@@ -955,6 +1042,282 @@ def read_thai(paths: Mapping[str, Path]) -> Draft:
         "commonvoice-th": thai.counted_words(paths["commonvoice-th"], draft.forms)
     }
     return draft
+
+
+# -- Cantonese: CC-Canto and CC-CEDICT ------------------------------------------
+
+
+CANTONESE_RANKS = "hkcancor+wordfreq-zh"
+"""The Cantonese pack's frequency list (`Draft.counted`): HKCanCor's words as
+spoken, averaged with wordfreq's written Chinese where speech bears it out
+(`cantonese.Said`)."""
+
+
+def read_cantonese(paths: Mapping[str, Path]) -> Draft:
+    """The Cantonese pack's draft from its sources (`cantonese_draft`)."""
+    counts = cantonese.hkcancor_counts(paths["hkcancor"])
+    total = sum(counts.values()) or 1
+    canto = cantonese.read_canto(paths["cc-canto"])
+    cedict_lines = cedict.read(paths["cedict"])
+    utterances = cantonese.hkcancor_utterances(paths["hkcancor"])
+    forms = {line.traditional for line in canto} | {
+        line.traditional for line in cedict_lines
+    }
+    return cantonese_draft(
+        canto,
+        cantonese.read_readings(paths["canto-readings"]),
+        cedict_lines,
+        cantonese.Everyday(
+            cantonese.read_rime_words(paths["rime-words"]),
+            cantonese.read_rime_chars(paths["rime-chars"]),
+            cantonese.heard_readings(utterances),
+        ),
+        {word: n / total for word, n in counts.items()},
+        wordfreq_ranks.frequencies(paths["wordfreq"], "zh"),
+        cantonese.said(utterances, cantonese.captions(), forms),
+    )
+
+
+def cantonese_draft(
+    canto: Sequence[cantonese.CantoLine],
+    readings: Mapping[tuple[str, str, str], list[str]],
+    cedict_lines: Sequence[cedict.CedictLine],
+    everyday: cantonese.ReadsEveryday,
+    spoken: Mapping[str, float],
+    written: Mapping[str, float],
+    said: cantonese.Said,
+    senses: Mapping[str, tuple[str, ...]] = cantonese.FIRST_SENSES,
+    own: Mapping[str, tuple[str, ...]] = cantonese.OWN_SENSES,
+) -> Draft:
+    """Cantonese words (decision 0160; polyglotic-hq 371 and 450): CC-Canto's
+    entries (Cantonese words, Jyutping, English meanings), then CC-CEDICT's
+    entries with their Cantonese reading - of the readings file's
+    (`readings`), the everyday one (`everyday`: rime-cantonese's) where it
+    gives several; where it gives none, rime-cantonese's own. A CC-CEDICT
+    entry CC-Canto has with the same reading is left to CC-Canto's if they
+    have a meaning in common (CC-Canto adapted it) or it only points
+    elsewhere (`POINTER`: "variant of", "used in", a surname); else it is
+    kept, after CC-Canto's (四 "four" beside CC-Canto's "(slang) labourer";
+    polyglotic-hq 467).
+
+    Headwords in Traditional characters, as Cantonese captions come; the
+    Simplified form finds the same entries, unless it is a Traditional
+    headword of its own (系, "system", isn't 係's). A form's entries:
+    those read its everyday way first (嘅 is ge3 before koi3); then
+    one that only says "variant of" last, and before it one that is only
+    slang or a surname (四 "four" before "(slang) labourer", 年 "year" before
+    "surname Nian"; polyglotic-hq 467); then CC-Canto's before CC-CEDICT's.
+    Then the commonest words open on the meanings a learner hears
+    (`cantonese.FIRST_SENSES`).
+    Jyutping with its tones raised (`cantonese.raised`). Every entry is
+    kept, ranked or not: the word split is by the pack's own words.
+
+    Ranks: HKCanCor's words (`spoken`: speech) and wordfreq's written
+    Chinese (`written`, by each headword's Simplified form), averaged -
+    Cantonese's own words (佢哋, 嘅) are ranked by HKCanCor alone, written
+    ones by both. A word written far more often than speech says it
+    (`said`: HKCanCor's and real captions' words, `cantonese.Said.written`)
+    counts in writing only as often as it is said (polyglotic-hq 467): 的,
+    是 and 他 are Mandarin's, where Cantonese says 嘅, 係 and 佢."""
+    entries: list[DraftEntry] = []
+    simplified: dict[str, str] = {}
+    order: dict[str, tuple[str, int]] = {}  # a key -> (Jyutping, origin)
+    by_key: dict[str, int] = {}
+    # (Traditional, Jyutping) of CC-Canto's -> its meanings, in pieces
+    in_canto: dict[tuple[str, str], set[str]] = defaultdict(set)
+
+    lines_of: dict[str, list[tuple[str, ...]]] = defaultdict(list)
+
+    def add(
+        key: str,
+        traditional: str,
+        simple: str,
+        jyutping: str,
+        meanings: tuple[str, ...],
+        origin: int,
+    ) -> None:
+        lines_of[key].append(meanings)
+        if key in by_key:  # a line again: one entry of both (`one_entry`)
+            return
+        by_key[key] = len(entries)
+        entries.append(
+            DraftEntry(
+                key=key,
+                headword=traditional,
+                reading=cantonese.raised(jyutping),
+                meanings=meanings,
+                ranked_by=(traditional,),
+            )
+        )
+        simplified.setdefault(traditional, simple)
+        order[key] = (jyutping, origin)
+
+    for line in canto:
+        if line.meanings and line.jyutping:
+            key = f"canto|{line.traditional} {line.simplified} {{{line.jyutping}}}"
+            add(
+                key,
+                line.traditional,
+                line.simplified,
+                line.jyutping,
+                line.meanings,
+                0,
+            )
+            in_canto[(line.traditional, line.jyutping)] |= cantonese.meaning_pieces(
+                line.meanings
+            )
+    for entry in cedict_lines:
+        found = readings.get(
+            (entry.traditional, entry.simplified, cantonese.pinyin_key(entry.pinyin))
+        )
+        if not found:
+            usual = everyday(entry.traditional, None)
+            if usual is None:
+                continue
+            found = [usual]
+        jyutping = everyday(entry.traditional, found) or found[0]
+        canto_has = in_canto.get((entry.traditional, jyutping))
+        if canto_has is not None and (
+            canto_has & cantonese.meaning_pieces(entry.meanings)
+            or all(m.lower().startswith(POINTER) for m in entry.meanings)
+        ):
+            continue
+        add(
+            f"cedict|{entry.key}",
+            entry.traditional,
+            entry.simplified,
+            jyutping,
+            entry.meanings,
+            1,
+        )
+    forms: dict[str, list[str]] = defaultdict(list)
+
+    for key, lines in lines_of.items():
+        if len(lines) > 1:
+            n = by_key[key]
+            entries[n] = replace(entries[n], meanings=cantonese.one_entry(lines))
+    said_as: dict[str, set[str]] = defaultdict(set)  # a headword -> its readings
+    for e in entries:
+        said_as[e.headword].add(order[e.key][0])
+    usual_of = {word: everyday(word, ways) for word, ways in said_as.items()}
+
+    def place(e: DraftEntry) -> tuple[int, int, int, int]:
+        """Where an entry goes among its form's: by its reading (the
+        everyday one of those the word's entries have), then by its meanings
+        once every line of it is in (polyglotic-hq 467: CC-Canto's 曾 has a
+        line of only "Chinese surname" before its line of "once")."""
+        jyutping, origin = order[e.key]
+        variant = all(m.startswith(VARIANT_OF) for m in e.meanings)
+        aside = all(m.lower().startswith(cantonese.ASIDE) for m in e.meanings)
+        return int(jyutping != usual_of[e.headword]), int(variant), int(aside), origin
+
+    ordered = sorted(entries, key=place)
+    for e in ordered:
+        forms[e.headword].append(e.key)
+    headwords = set(forms)
+    for e in ordered:
+        simple = simplified[e.headword]
+        if simple != e.headword and simple not in headwords:
+            forms[simple].append(e.key)
+    open_on(entries, forms, senses, own)
+    pointers = cantonese.pointer_only(
+        ((e.headword, e.meanings) for e in entries), VARIANT_OF
+    )
+    for form, keys in forms.items():
+        target = pointers.get(form)
+        if (
+            target in forms
+            and target != form
+            and all(entries[by_key[k]].headword == form for k in keys)
+        ):
+            keys[:0] = [k for k in forms[target] if k not in keys]
+    averaged = frequency.Frequencies(
+        (
+            (
+                word,
+                (
+                    spoken.get(word, 0.0)
+                    + (
+                        0.0
+                        if word in pointers
+                        else said.written(word, written.get(simple, 0.0))
+                    )
+                )
+                / 2,
+            )
+            for word, simple in simplified.items()
+            if word in spoken or (simple in written and word not in pointers)
+        ),
+        hyphenated=True,
+    )
+    draft = Draft(entries, dict(forms), counted={CANTONESE_RANKS: averaged})
+    draft.keep_unranked = True
+    return draft
+
+
+VARIANT_OF = ("variant of ", "old variant of ", "archaic variant of ", "see ")
+"""How CC-CEDICT starts a meaning that only points to another entry."""
+
+POINTER = (*VARIANT_OF, "used in ", "surname ")
+"""How CC-CEDICT starts a meaning that only points to another word (in
+lower case): variants, "used in 胡同", surnames."""
+
+
+def open_on(
+    entries: list[DraftEntry],
+    forms: Mapping[str, list[str]],
+    senses: Mapping[str, tuple[str, ...]],
+    own: Mapping[str, tuple[str, ...]],
+) -> None:
+    """Each word in `senses` opening on its meanings there, and each in
+    `own` on its own meanings before them (`cantonese.FIRST_SENSES`,
+    `cantonese.OWN_SENSES`), in place: of the word's entries read as its
+    first is, the one with the first meaning moves first in every form that
+    finds the word, those meanings first in it. Every key stays (no entry
+    ID changes). A word the sources haven't got is passed over; a meaning
+    a word no longer has stops the build (ValueError), so new sources
+    can't quietly undo the order."""
+    at = {e.key: i for i, e in enumerate(entries)}
+
+    def put_first(word: str, key: str) -> None:
+        for form in {word, *(f for f, keys in forms.items() if key in keys)}:
+            keys = forms.get(form, [])
+            if key not in keys:
+                continue
+            ours = [k for k in keys if entries[at[k]].headword == word]
+            keys.remove(key)
+            keys.insert(keys.index(ours[0]) if ours[0] != key else 0, key)
+
+    def lead(key: str, meanings: tuple[str, ...]) -> None:
+        e = entries[at[key]]
+        rest = tuple(m for m in e.meanings if m not in meanings)
+        entries[at[key]] = replace(e, meanings=(*meanings, *rest))
+
+    for word, meanings in senses.items():
+        keys = forms.get(word)
+        if not keys:
+            continue
+        reading = entries[at[keys[0]]].reading
+        first = next(
+            (
+                k
+                for k in keys
+                if entries[at[k]].reading == reading
+                and meanings[0] in entries[at[k]].meanings
+            ),
+            None,
+        )
+        missing = [
+            m for m in meanings if first and m not in entries[at[first]].meanings
+        ]
+        if first is None or missing:
+            raise ValueError(f"{word}: no {reading} entry with {meanings!r}")
+        lead(first, meanings)
+        put_first(word, first)
+    for word, added in own.items():
+        mine = [k for k in forms.get(word, []) if entries[at[k]].headword == word]
+        if mine:
+            lead(mine[0], added)
 
 
 # -- Japanese: JMdict -----------------------------------------------------------
@@ -1085,7 +1448,7 @@ PACKS = {
     "it": wiktionary_pack("it", "Italian", KAIKKI_IT),
     "id": wiktionary_pack("id", "Indonesian", KAIKKI_ID),
     "ar": wiktionary_pack("ar", "Arabic", KAIKKI_AR, ARABIC),
-    "hi": wiktionary_pack("hi", "Hindi", KAIKKI_HI, ROMANIZED),
+    "hi": wiktionary_pack("hi", "Hindi", KAIKKI_HI, HINDI),
     "pl": wiktionary_pack("pl", "Polish", KAIKKI_PL),
     "tr": wiktionary_pack("tr", "Turkish", KAIKKI_TR, TURKISH),
     "ms": Pack(
@@ -1186,6 +1549,33 @@ PACKS = {
             "the Chinese edition of Wiktionary's Chinese meanings in the -zh "
             "file), unofficial JLPT levels, and frequency ranks from wordfreq"
         ),
+    ),
+    "yue": Pack(
+        language="yue",
+        name="canto",
+        title="Cantonese",
+        sources=(
+            CC_CANTO,
+            CANTO_READINGS,
+            CEDICT_FOR_CANTONESE,
+            RIME_WORDS,
+            RIME_CHARS,
+            HKCANCOR,
+            WORDFREQ_ZH,
+        ),
+        read=read_cantonese,
+        level_schemes="yue-frequency",
+        about=(
+            "CC-Canto's Cantonese words with their Jyutping and English "
+            "meanings, then CC-CEDICT's words with their Cantonese readings "
+            "(the readings file's, else rime-cantonese's), in Traditional "
+            "characters with Jyutping's tones raised, each word's everyday "
+            "reading first (by rime-cantonese); with frequency ranks from "
+            "HKCanCor's spoken words and wordfreq's written Chinese, averaged "
+            "(words met in neither are kept, unranked)"
+        ),
+        frequency=(CANTONESE_RANKS,),
+        meanings=("en",),
     ),
 }
 
@@ -1329,12 +1719,18 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
     """
     names = name_only(draft)
     headword = {e.key: e.headword for e in draft.entries}
+    forms_of = inflections_of(draft)
     declined = {
         key
         for key, forms in draft.capitalised.items()
         if in_use(headword[key], forms, freq)
     }
     declined_forms = {f for key in declined for f in draft.capitalised[key]}
+    nouns: dict[str, str] = {}  # a declined noun's spelling -> its headword
+    for key in declined:
+        nouns[headword[key]] = headword[key]
+        for spelling in draft.capitalised[key]:
+            nouns.setdefault(spelling, headword[key])
     by_headword: dict[str, list[str]] = defaultdict(list)
     lower_case = {
         e.headword for e in draft.entries if e.headword == e.headword.lower()
@@ -1359,6 +1755,13 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
             total[e.key] = sum(
                 elided_frequency(w, freq, draft.elisions) for w in own_words
             )
+    taken, kept = shared_spellings(
+        draft, total, freq, look_alike & set(draft.capitalised), by_headword
+    )
+    # only an inflection: a noun's own headword (Bisschen) or a name (Soleil,
+    # Jean) says nothing of how often the lower-case word is met
+    inflected = declined_forms - {headword[key] for key in declined}
+    cut = looked_like(draft, total, freq, inflected, forms_of)
     alone = {
         word: max(total[k] for k in keys) for word, keys in by_headword.items()
     }  # each word's own frequency, before its forms'
@@ -1375,20 +1778,146 @@ def frequencies(draft: Draft, freq: Mapping[str, float]) -> dict[str, float]:
             else frequency_of(form, freq)
             or elided_frequency(form, freq, draft.elisions)
         )
+        f = max(0.0, f - taken.get(form, 0.0))  # Wasser's share of "wasser"
         if form in draft.elided:
             gives_way.update(by_headword.get(form, ()))  # Romanian's "i": îi's
         if form in names and any(lemma not in names for lemma in lemmas):
             gives_way.update(by_headword[form])  # the name gives way
+        # a lower-case form of a word cut down as a look-alike, that is a
+        # noun's spelling in capitals ("herz", herzen's imperative, is Herz),
+        # shares with that noun, whose part is counted already (`declined`):
+        # herzen had taken Herz's
+        capital = form[:1].upper() + form[1:]
+        noun = (
+            nouns.get(capital)
+            if form == form.lower() and capital != form and lemmas & cut
+            else None
+        )
+        sharing = lemmas | {noun} if noun and noun in by_headword else lemmas
         if f:
-            for lemma, share in shares(draft, lemmas, by_headword, alone).items():
+            for lemma, share in shares(draft, sharing, by_headword, alone).items():
+                if lemma not in lemmas:
+                    continue
                 for key in by_headword[lemma]:
                     total[key] += f * share
-    for key in gives_way | {k for k in look_alike if headword[k] not in names}:
+    for key in gives_way | {
+        k for k in look_alike if headword[k] not in names and k not in kept
+    }:
         total[key] = 0.0  # only a name keeps its own forms' (Polska's Polsce)
     for e in draft.entries:
         if no_word(e.headword):  # "4x4" had taken quatre-quatre's (380)
             total[e.key] = 0.0
     return total
+
+
+def shared_spellings(
+    draft: Draft,
+    total: dict[str, float],
+    freq: Mapping[str, float],
+    look_alike: Collection[str],
+    by_headword: Mapping[str, Sequence[str]],
+) -> tuple[dict[str, float], set[str]]:
+    """German nouns whose lower case is only another word's inflected form,
+    not a word of its own (`look_alike`: capitalised nouns not in use by
+    their own forms): each takes, of that spelling's frequency, at most
+    1 / `DECLINED` times its own forms' that are no other word's (Wassers,
+    Endes, Glücks), in `total`. Returns
+    each such spelling -> what the nouns took of it (its lemmas share the
+    rest), and the nouns' keys. A lower-case list can't tell "wasser"
+    (wassern's imperative) from Wasser, so Wasser had no frequency and was
+    cut from the pack, and "Wasser" opened on wassern, "to land on water";
+    so did Ende (enden), Glück (glücken) and Titel (titeln) (polyglotic-hq
+    461). A noun with no such forms (Habe, "belongings": "habe" is haben's)
+    or whose lower case is a word (Essen, essen) keeps none, as before."""
+    words = {e.headword for e in draft.entries if e.headword == e.headword.lower()}
+    taken: dict[str, float] = {}
+    kept: set[str] = set()
+    for e in draft.entries:
+        low = e.headword.lower()
+        if e.key not in look_alike or low in words or low not in draft.inflections:
+            continue
+        met = sum(
+            frequency_of(form, freq)
+            for form in draft.capitalised.get(e.key, ())
+            if form.lower() != low
+            and form.lower() not in words
+            and form.lower() not in draft.inflections
+        )
+        share = min(frequency_of(low, freq), met / DECLINED)
+        if share:
+            total[e.key] = share
+            taken[low] = taken.get(low, 0.0) + share
+            kept.add(e.key)
+    return taken, kept
+
+
+def inflections_of(draft: Draft) -> dict[str, list[str]]:
+    """Each lemma -> its inflected forms (`Draft.inflections` turned round)."""
+    out: dict[str, list[str]] = defaultdict(list)
+    for form, lemmas in draft.inflections.items():
+        for lemma in lemmas:
+            out[lemma].append(form)
+    return out
+
+
+def met_as_forms(
+    word: str,
+    forms_of: Mapping[str, Sequence[str]],
+    freq: Mapping[str, float],
+    others: Collection[str] = (),
+) -> float:
+    """How often `word`'s inflected forms other than itself are met, leaving
+    out those that are, in lower case, another word (`others`): German
+    tables list a verb's auxiliary, "haben", and herzen's imperative
+    "herz" is Herz."""
+    return sum(
+        frequency_of(f, freq)
+        for f in forms_of.get(word, ())
+        if f.lower() != word.lower() and f.lower() not in others
+    )
+
+
+def looked_like(
+    draft: Draft,
+    total: dict[str, float],
+    freq: Mapping[str, float],
+    capitalised: Collection[str],
+    forms_of: Mapping[str, Sequence[str]],
+) -> set[str]:
+    """`total` with a lower-case word's own frequency cut down where its
+    spelling, capitalised, is a German noun's inflected form in use, where
+    it is a verb
+    (`capitalised`) and its own forms are met less than `DECLINED` times
+    as often as its spelling: a lower-case list counts the noun's uses as
+    its own. It keeps at most 1 / `DECLINED` times its forms' frequency.
+    German's "herzen" (to hug) took Herzen's (hearts) and was 502nd;
+    "ketten" (to chain) took Ketten's, "titeln" Titeln's (polyglotic-hq
+    448, 461). Not where the capitalised spelling is a name or a noun's
+    own headword: Soleil, Jean and Bisschen had cut soleil, jean and
+    bisschen out of their packs' top 1,000; nor where it is no verb (danke,
+    whose capital is Dank's dative, had dropped to 44,972nd; gewesen, out
+    of the top 1,000). A word without forms keeps its
+    own: nothing says how often it is met. Returns the words cut down: of
+    their forms, those spelled as a noun share with it (`frequencies`)."""
+    cut: set[str] = set()
+    others = {e.headword.lower() for e in draft.entries} | {
+        c.lower() for c in capitalised
+    }
+    for e in draft.entries:
+        word = e.headword
+        capital = word[:1].upper() + word[1:]
+        if (
+            word != word.lower()
+            or capital == word
+            or capital not in capitalised
+            or part_of_speech(e.meanings) != "verb"
+        ):
+            continue  # a verb's spelling: "danke" and "gewesen" are words in use
+        met = met_as_forms(word, forms_of, freq, others - {word})
+        if met and total[e.key] > met / DECLINED:
+            total[e.key] = met / DECLINED
+            cut.add(word)
+    return cut
 
 
 def name_frequency(
@@ -2116,6 +2645,18 @@ def build(pack: Pack, paths: Mapping[str, Path], out: Path) -> dict[str, object]
         )
         stats["top words"] = str(top)
         stats["finds its commonest words"] = not top.missing
+        if draft.written:  # how the top running words open, against their use
+            ranked = (
+                counted
+                if counted is not None
+                else wordfreq_ranks.frequencies(paths["wordfreq"], pack.language)
+            )
+            opened = coverage.probe_opened_as_used(
+                files["en"], pack.language, ranked, draft.written
+            )
+            stats["top words opened as used"] = not opened.mismatched
+            if opened.mismatched:
+                stats["top words opened otherwise"] = str(opened)
     junk = rank_check.problems(built.records, pack.language)
     stats["ranks pass the junk check"] = not junk
     if junk:

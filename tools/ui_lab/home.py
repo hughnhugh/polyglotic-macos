@@ -150,7 +150,9 @@ def no_horizontal_scrollbar(built: Hub) -> None:
 
 
 def picker_none(lab: Lab) -> QWidget:
-    built = hub(lab, {})
+    """Nothing chosen: a learner who stopped everything (a new learner
+    captions everything the PC plays since 484: `everything`)."""
+    built = hub(lab, {"whole_system": False})
     no_horizontal_scrollbar(built)
     return built.window
 
@@ -158,7 +160,7 @@ def picker_none(lab: Lab) -> QWidget:
 def sample(lab: Lab) -> QWidget:
     """Nothing playing on a first run: Home offers the sample (176), and
     says "Stop the sample" while it's on."""
-    built = hub(lab, {"learning": "zh"}, apps=QuietApps())
+    built = hub(lab, {"learning": "zh", "whole_system": False}, apps=QuietApps())
 
     def turn(on: bool) -> None:
         built.sample_on = on
@@ -177,7 +179,7 @@ def sample_ended(lab: Lab) -> QWidget:
     """The sample played to its end (203's item 5, option B; polyglotic-hq
     208): offered again, with the next step - an app of the learner's own.
     Its window stays for lookups (not drawn here)."""
-    built = hub(lab, {"learning": "zh"}, apps=QuietApps())
+    built = hub(lab, {"learning": "zh", "whole_system": False}, apps=QuietApps())
     built.sample = lambda on: None
     built.sample_ended = True
     built.follow()
@@ -334,7 +336,10 @@ def everything_else(lab: Lab) -> QWidget:
 
 
 def everything(lab: Lab) -> QWidget:
-    built = hub(lab, {"whole_system": True})
+    """Everything the PC plays - a new learner's first launch (484): what
+    it takes in, a call's voices too, and the apps playing to caption one
+    instead with one click."""
+    built = hub(lab, {})
     return built.window
 
 

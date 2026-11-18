@@ -49,6 +49,14 @@ options (`FlowOptions`), not code of its own:
   alone (the translation ran on past what was said) has no line above it
   to take what the next caption said: that starts on the pair below.
 
+- `placing` (polyglotic-hq 458, decision 0215): where a line pair's
+  parts go in the room the pair has, once its lines are made - packed
+  (each straight after the one before: all of the above), nearest their
+  word links (`_near`), or a full pair's spread evenly (`_even`). A pass
+  over a finished pair that only moves pieces sideways: every line holds
+  the same characters in all three. Finished captions only - text still
+  being spoken stays packed.
+
 What it is given, and what it gives back:
 
 - **Models, not rows** (`core.listening.caption_model`): the units a line
@@ -69,6 +77,7 @@ Plain Python, no Qt: `Fonts` hands in the measuring. Holds no caption text
 beyond the models it was given.
 """
 
+from bisect import bisect_right
 from collections import OrderedDict, deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
@@ -85,7 +94,8 @@ from polyglotic_desktop.core.listening.caption_model import (
 )
 from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import RowKind
-from polyglotic_desktop.ui_next.views.lab import Fill, Join
+from polyglotic_desktop.ui_next.views.lab import Fill, Join, Placing
+from polyglotic_desktop.ui_next.views.placing import evenly, nearest
 
 SIDES_KEPT = 1200
 """Clause sides whose measured widths are kept: a caption window's 150
@@ -130,6 +140,7 @@ class FlowOptions:
     run_on: bool = False
     join: Join = Join.ELLIPSIS
     show_original: bool = True
+    placing: Placing = Placing.PACKED
 
 
 def flow_options(
@@ -138,13 +149,19 @@ def flow_options(
     show_original: bool = True,
     run_on: bool = False,
     aligned: bool = False,
+    placing: Placing = Placing.PACKED,
 ) -> FlowOptions:
     """The Lab's choices as the composer's options. `run_on` is Line by
     line's: only there do a clause and its translation share a line pair
-    with others. `aligned` lines parts up in every one (372)."""
+    with others. `aligned` lines parts up in every one (372); `placing`
+    says where a line pair's parts go in the room it has (458)."""
     if fill is Fill.STACKED:
         return FlowOptions(
-            Cut.CAPTION, aligned=aligned, join=join, show_original=show_original
+            Cut.CAPTION,
+            aligned=aligned,
+            join=join,
+            show_original=show_original,
+            placing=placing,
         )
     if fill is Fill.PAIRED:
         return FlowOptions(
@@ -154,8 +171,11 @@ def flow_options(
             run_on=run_on,
             join=join,
             show_original=show_original,
+            placing=placing,
         )
-    return FlowOptions(aligned=aligned, join=join, show_original=show_original)
+    return FlowOptions(
+        aligned=aligned, join=join, show_original=show_original, placing=placing
+    )
 
 
 class Font(Protocol):
@@ -356,6 +376,19 @@ class _Side:
                 return n
         return len(self.starts)
 
+    def span(self, first: int, start: int, end: int) -> tuple[float, float]:
+        """Where characters `[start, end)` are drawn, from the start of
+        unit `first`: their left and right edges - a place inside a unit
+        by its share of the unit's characters."""
+        return self._at(first, start, start), self._at(first, max(start, end - 1), end)
+
+    def _at(self, first: int, within: int, char: int) -> float:
+        """The x of `char`, in the unit holding character `within`."""
+        unit = max(first, bisect_right(self.starts, within) - 1)
+        a, b, _ = self.units[unit]
+        share = min(max(char - a, 0), b - a) / (b - a) if b > a else 0.0
+        return self.cum[unit] - self.cum[first] + self.word[unit] * share
+
     def fitting(self, first: int, end: int, room: float) -> int:
         """The most units from `first` that fit in `room`: where they end."""
         fits = first
@@ -379,6 +412,41 @@ class _Piece:
     def width(self) -> float:
         return self.measured.width(self.first, self.end)
 
+    @property
+    def chars(self) -> tuple[int, int]:
+        """The characters of its side it holds."""
+        units = self.measured.units
+        return units[self.first][0], units[self.end - 1][2]
+
+
+@dataclass(slots=True)
+class _Item:
+    """A piece on a line whose parts are placed (458): where the packed
+    line has it (`least`) and where it is (`x`); its run and, if a join's
+    ellipsis stands before it, that one's place in the line's joins and
+    its distance from the text before (`before`); the room it keeps after
+    the text before it (`lead`); its segment's number (the two pieces of
+    a part share one) and its clause."""
+
+    piece: _Piece
+    least: float
+    x: float
+    run: int
+    mark: int | None
+    before: float
+    lead: float
+    part: int
+    model: ClauseModel
+
+    @property
+    def end(self) -> float:
+        return self.x + self.piece.width
+
+    def centre(self, start: int, end: int) -> float:
+        """Where characters `[start, end)` of its side have their middle."""
+        left, right = self.piece.measured.span(self.piece.first, start, end)
+        return self.x + (left + right) / 2.0
+
 
 @dataclass(slots=True)
 class _Segment:
@@ -399,7 +467,9 @@ class _Row:
         "ascent",
         "below",
         "carried",
+        "closing",
         "ended",
+        "items",
         "joins",
         "last",
         "runs",
@@ -407,10 +477,15 @@ class _Row:
         "text_end",
     )
 
-    def __init__(self, side: RowKind, carried: OpenLine | None = None) -> None:
+    def __init__(
+        self, side: RowKind, carried: OpenLine | None = None, placing: bool = False
+    ) -> None:
         """`carried`: the line already holds the caption before's text, as
-        far as `carried.end` (run-on): this one's goes after it."""
+        far as `carried.end` (run-on): this one's goes after it.
+        `placing`: its pieces are kept apart, to be placed (458)."""
         self.side = side
+        self.items: list[_Item] | None = [] if placing else None
+        self.closing: int | None = None  # its closing ellipsis, in `joins`
         self.runs: list[Run] = []
         self.joins: list[float] = []
         self.text_end = 0.0
@@ -469,8 +544,31 @@ class _Row:
         before = 0.0 if tight else space * 0.5
         return before + dots + between, self.text_end + before
 
-    def add(self, piece: _Piece, x: float, ends: bool, mark: float | None) -> None:
+    def add(
+        self,
+        piece: _Piece,
+        x: float,
+        ends: bool,
+        mark: float | None,
+        part: tuple[int, ClauseModel, float] | None = None,
+    ) -> None:
+        """`part`, on a line whose pieces are placed: the piece's
+        segment's number, its clause and the room it keeps before it."""
         measured = piece.measured
+        if self.items is not None and part is not None:
+            self.items.append(
+                _Item(
+                    piece,
+                    x,
+                    x,
+                    len(self.runs),
+                    len(self.joins) if mark is not None else None,
+                    mark - self.text_end if mark is not None else 0.0,
+                    part[2],
+                    part[0],
+                    part[1],
+                )
+            )
         if mark is not None:
             self.joins.append(mark)
         start = measured.units[piece.first][0]
@@ -480,6 +578,7 @@ class _Row:
         last = self.runs[-1] if self.runs else None
         if (
             last is not None
+            and self.items is None
             and mark is None
             and last.caption == piece.caption
             and last.words.clause == piece.clause
@@ -502,20 +601,58 @@ class _Row:
             return 0.0
         return last.measured.whole[last.end - 1] - last.measured.word[last.end - 1]
 
+    def put(self, shifts: Sequence[float]) -> None:
+        """Its pieces each `shifts` right of where the packed line has
+        them (458): their runs, the ellipses before them (each stays with
+        the text it follows) and the line's end move with them."""
+        items = self.items
+        if not items:
+            return
+        was = items[-1].end
+        end = self.carried.end if self.carried is not None else 0.0
+        for item, shift in zip(items, shifts, strict=True):
+            item.x = item.least + shift
+            run = self.runs[item.run]
+            self.runs[item.run] = Run(run.caption, run.words, item.x, run.width)
+            if item.mark is not None:
+                self.joins[item.mark] = end + item.before
+            end = item.end
+        moved = end - was
+        if self.closing is not None:
+            self.joins[self.closing] += moved
+        self.text_end += moved
+
+    def closes(self, join: Join, width: float, more: bool) -> float | None:
+        """The room its closing ellipsis takes after its text (`close`);
+        None: it has none."""
+        found = self._before()
+        if found is None or not more or join is Join.SPACE:
+            return None
+        if not self.ended and join is not Join.LINE_ENDS:
+            return None
+        space, dots, tight = found
+        before = 0.0 if tight else space * 0.5
+        if self.text_end + before + dots <= width + FIT:
+            return before + dots
+        return None
+
     def close(self, join: Join, width: float, more: bool) -> None:
         """The line ends here; `more`: text follows it. An ellipsis at its
         end where the join asks for one, if there is room - never room
         made for it."""
+        room = self.closes(join, width, more)
+        if room is None:
+            return
         found = self._before()
-        if found is None or not more or join is Join.SPACE:
-            return
-        if not self.ended and join is not Join.LINE_ENDS:
-            return
-        space, dots, tight = found
-        before = 0.0 if tight else space * 0.5
-        if self.text_end + before + dots <= width + FIT:
-            self.joins.append(self.text_end + before)
-            self.text_end += before + dots
+        assert found is not None
+        self.closing = len(self.joins)
+        self.joins.append(self.text_end + room - found[1])
+        self.text_end += room
+
+
+_Starts = tuple[float, float, float | None, float | None]
+"""Where a segment's pieces start on a pair - its upper line, its lower -
+and where each line's join's ellipsis goes (None: none)."""
 
 
 def _below(rows: list[tuple[_Row, int, bool]], first: int, pair: int) -> int:
@@ -617,8 +754,14 @@ class Flow:
             entry = None
         rows: list[tuple[_Row, int, bool]] = []  # the row, its pair, starts a pair
         pair = 0
-        upper = _Row(RowKind.ORIGINAL, entry.upper if entry else None)
-        lower = _Row(RowKind.TRANSLATION, entry.lower if entry else None)
+        # parts are placed once a caption is finished (458): text still
+        # being spoken has no links yet, and must not move as more comes
+        places = options.placing is not Placing.PACKED and not any(
+            caption.live for caption in captions
+        )
+        number = 0  # the segments placed so far: a part's two pieces share one
+        upper = _Row(RowKind.ORIGINAL, entry.upper if entry else None, places)
+        lower = _Row(RowKind.TRANSLATION, entry.lower if entry else None, places)
         left_open: tuple[_Row, _Row] | None = None
         # The pair the caption before ended in holds its translation's last
         # line and nothing of what was said: no upper line can go over that
@@ -626,10 +769,15 @@ class Flow:
         # takes it only where none of what was said comes with it (366).
         barred = upper.empty and not lower.empty
 
-        def close(more: bool) -> None:
+        def close(more: bool, full: bool = False, last: bool = False) -> None:
+            """The pair ends here. `full`: because what came next didn't
+            fit it; `last`: the composition's last (run-on leaves it open
+            for the caption after)."""
             nonlocal upper, lower, pair, left_open, barred
             barred = False
             left_open = None if upper.empty and lower.empty else (upper, lower)
+            if places and options.placing is Placing.NEAREST:
+                self._near(upper, lower, options, width, more, runs_on and last, right)
             first = True
             for row in (upper, lower):
                 if row.empty:
@@ -637,9 +785,19 @@ class Flow:
                 row.close(options.join, width, more)
                 rows.append((row, pair, first))
                 first = False
+            if places and full and options.placing is Placing.EVENLY:
+                self._even(upper, lower, width)
             if not first:
                 pair += 1
-            upper, lower = _Row(RowKind.ORIGINAL), _Row(RowKind.TRANSLATION)
+            upper = _Row(RowKind.ORIGINAL, None, places)
+            lower = _Row(RowKind.TRANSLATION, None, places)
+
+        def place(segment: _Segment, starts: _Starts) -> None:
+            nonlocal number
+            self._place(
+                segment, starts, upper, lower, number if places else None, options.join
+            )
+            number += 1
 
         def block(segment: _Segment, more: bool) -> None:
             """A segment in lines of its own: what was said wrapped over
@@ -674,7 +832,7 @@ class Flow:
                     continue
                 starts = self._starts(segment, upper, lower, options)
                 if self._fits(segment, starts, width):
-                    self._place(segment, starts, upper, lower)
+                    place(segment, starts)
                     # a clause a row: its parts, lined up, share its pair (372)
                     if not options.share and segment.ends:
                         close(more)
@@ -688,12 +846,12 @@ class Flow:
                     )
                     if cut is not None:
                         first, rest = cut
-                        self._place(first, starts, upper, lower)
-                        close(True)
+                        place(first, starts)
+                        close(True, full=True)
                         pending.appendleft(rest)
                         continue
                 if not (upper.empty and lower.empty):
-                    close(True)
+                    close(True, full=True)
                     pending.appendleft(segment)
                     continue
                 block(segment, more)
@@ -701,7 +859,7 @@ class Flow:
                 close(not last_caption)
             if lined_below:
                 pair = _below(rows, first_row, first_pair)
-        close(False)
+        close(False, last=True)
         live = bool(captions) and captions[-1].live
         still_open = left_open if runs_on and not live else None
         if trail and captions and captions[-1].live and rows:
@@ -753,7 +911,7 @@ class Flow:
 
     def _starts(
         self, segment: _Segment, upper: _Row, lower: _Row, options: FlowOptions
-    ) -> tuple[float, float, float | None, float | None]:
+    ) -> _Starts:
         """Where `segment`'s pieces would start on the pair being filled -
         its upper line, its lower - and where each line's join's ellipsis
         would go."""
@@ -770,11 +928,7 @@ class Flow:
         return top_at, bottom_at, top_mark, bottom_mark
 
     @staticmethod
-    def _fits(
-        segment: _Segment,
-        starts: tuple[float, float, float | None, float | None],
-        width: float,
-    ) -> bool:
+    def _fits(segment: _Segment, starts: _Starts, width: float) -> bool:
         top_at, bottom_at, _, _ = starts
         return all(
             at + piece.width <= width + FIT
@@ -785,20 +939,166 @@ class Flow:
     @staticmethod
     def _place(
         segment: _Segment,
-        starts: tuple[float, float, float | None, float | None],
+        starts: _Starts,
         upper: _Row,
         lower: _Row,
+        number: int | None = None,
+        join: Join = Join.ELLIPSIS,
     ) -> None:
+        """`number`: the segment's, where a pair's parts are placed (458)."""
         top_at, bottom_at, top_mark, bottom_mark = starts
-        if segment.top is not None:
-            upper.add(segment.top, top_at, segment.ends, top_mark)
-        if segment.bottom is not None:
-            lower.add(segment.bottom, bottom_at, segment.ends, bottom_mark)
+        for piece, row, at, mark in (
+            (segment.top, upper, top_at, top_mark),
+            (segment.bottom, lower, bottom_at, bottom_mark),
+        ):
+            if piece is None:
+                continue
+            part = None
+            if number is not None:
+                part = (number, segment.model, row.lead(piece, join)[0])
+            row.add(piece, at, segment.ends, mark, part)
+
+    # -- placing a pair's parts (458) ------------------------------------------------
+
+    def _near(
+        self,
+        upper: _Row,
+        lower: _Row,
+        options: FlowOptions,
+        width: float,
+        more: bool,
+        stays_open: bool,
+        right: bool,
+    ) -> None:
+        """The pair's parts moved to where their word links are shortest,
+        in the room the packed pair leaves - so every part still starts on
+        the line, and the pair, it does when packed.
+
+        *Lined up*: a part's two pieces share a slot as wide as the wider
+        one, and the narrower one moves inside it - over (or under) the
+        words it is linked to, instead of at the slot's start. A part's
+        links never leave it (`matching_cuts`), so each slot is settled by
+        itself. *Not lined up*: the fuller line of the two stays as it is,
+        text from the left edge, and the other line's pieces move as a
+        row, in order, over (or under) it (`placing.nearest`: the least
+        total there is for that line; moving the fuller one as well
+        gained about 1 % at most on real captions, 458's measure, and
+        left its text starting away from the edge). A pair left open for the
+        caption after (`stays_open`) keeps that caption's start where it
+        is, or nearly: lined up, its last piece stops short of the slot's
+        end by the room a join takes; not, the line that moves ends no
+        further right than the fuller one."""
+        if options.aligned:
+            self._near_parts(upper, lower, stays_open)
+        elif not right:
+            self._near_rows(upper, lower, options, width, more, stays_open)
+
+    def _near_parts(self, upper: _Row, lower: _Row, stays_open: bool) -> None:
+        over, under = upper.items or [], lower.items or []
+        tops = {item.part: n for n, item in enumerate(over)}
+        shifts = {id(over): [0.0] * len(over), id(under): [0.0] * len(under)}
+        for m, below in enumerate(under):
+            n = tops.get(below.part)
+            if n is None:
+                continue
+            above = over[n]
+            if above.piece.width <= below.piece.width:
+                items, at, item, facing = over, n, above, below
+            else:
+                items, at, item, facing = under, m, below, above
+            most = facing.end - item.end
+            if at + 1 < len(items):
+                after = items[at + 1]
+                most = min(most, after.least - after.lead - item.end)
+            elif stays_open:
+                # the caption after starts past both lines' ends and the
+                # room it keeps: no further right than it would be anyway
+                measured = item.piece.measured
+                most -= measured.space * 1.5 + measured.dots
+            wants = self._wants(item, [facing])
+            if most > 0.0 and wants:
+                shifts[id(items)][at] = nearest([wants], most)[0]
+        upper.put(shifts[id(over)])
+        lower.put(shifts[id(under)])
+
+    def _near_rows(
+        self,
+        upper: _Row,
+        lower: _Row,
+        options: FlowOptions,
+        width: float,
+        more: bool,
+        stays_open: bool,
+    ) -> None:
+        if not upper.items or not lower.items:
+            return
+        row, fuller = sorted((upper, lower), key=lambda row: row.text_end)
+        if stays_open:
+            # no further right than the fuller line ends: the caption
+            # after starts no later on the line that decides what fits
+            most = fuller.text_end - row.text_end
+        else:
+            closing = row.closes(options.join, width, more) or 0.0
+            most = width - closing - row.text_end
+        facing = fuller.items or []
+        row.put(nearest([self._wants(item, facing) for item in row.items or []], most))
+
+    @staticmethod
+    def _wants(item: _Item, facing: Sequence[_Item]) -> list[float]:
+        """How far right `item` would have each of its linked words right
+        over (or under) its counterpart, where that is in `facing`."""
+        piece = item.piece
+        start, end = piece.chars
+        said = piece.side is RowKind.ORIGINAL
+        wants: list[float] = []
+        for pairs in item.model.pairs:
+            for span in pairs.original:
+                mine, theirs = (
+                    (span, pairs.translation) if said else (pairs.translation, span)
+                )
+                if not start <= mine[0] < end:
+                    continue
+                for other in facing:
+                    if (
+                        other.model is not item.model
+                        or other.piece.caption != piece.caption
+                    ):
+                        continue
+                    low, high = other.piece.chars
+                    if low <= theirs[0] < high:
+                        wants.append(other.centre(*theirs) - item.centre(*mine))
+                        break
+        return wants
+
+    @staticmethod
+    def _even(upper: _Row, lower: _Row, width: float) -> None:
+        """A full pair's pieces spread over the width, each line's by
+        themselves, with the same room between every two - the links
+        drawn as they fall. Lined up, the pieces are the parts and each
+        line holds what it does lined up; where a part starts is no
+        longer its counterpart's place."""
+        for row in (upper, lower):
+            items = row.items or []
+            if not items:
+                continue
+            after = row.text_end - items[-1].end  # its closing ellipsis
+            end = row.carried.end if row.carried is not None else 0.0
+            natural = []  # each straight after the one before
+            for item in items:
+                natural.append(end + item.lead)
+                end = natural[-1] + item.piece.width
+            spread = evenly(len(items), width - end - after, row.carried is not None)
+            row.put(
+                [
+                    x + more - item.least
+                    for item, x, more in zip(items, natural, spread, strict=True)
+                ]
+            )
 
     def _split(
         self,
         segment: _Segment,
-        starts: tuple[float, float, float | None, float | None],
+        starts: _Starts,
         empty: bool,
         width: float,
     ) -> tuple[_Segment, _Segment] | None:

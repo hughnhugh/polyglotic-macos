@@ -49,6 +49,7 @@ from polyglotic_desktop.ports.learning import (
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
+    StoredSentence,
     StoredStatus,
 )
 
@@ -120,6 +121,9 @@ class BackgroundLearningStore:
     def days_to_hand_over(self) -> Sequence[date]:
         return self._read(self._store.days_to_hand_over, [])
 
+    def saved_sentences(self) -> Sequence[StoredSentence]:
+        return self._read(self._store.saved_sentences, [])
+
     def _read(self, read: Callable[[], T], nothing: T) -> T:
         """`read` on the store's thread, or `nothing` once it's out."""
 
@@ -158,6 +162,12 @@ class BackgroundLearningStore:
 
     def delete_word(self, entry_id: str) -> None:
         self._write(self._store.delete_word, entry_id)
+
+    def save_sentence(self, sentence: StoredSentence) -> None:
+        self._write(self._store.save_sentence, sentence)
+
+    def delete_sentence(self, sentence_id: str) -> None:
+        self._write(self._store.delete_sentence, sentence_id)
 
     def save_deck_word(self, word: StoredDeckWord) -> None:
         self._write(self._store.save_deck_word, word)

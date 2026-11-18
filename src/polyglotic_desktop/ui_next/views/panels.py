@@ -289,11 +289,14 @@ class TimingView(Shared[Timing]):
 # -- Look ------------------------------------------------------------------------------
 
 
-def look_defaults(now: CaptionLook) -> CaptionLook:
-    """The look as Polyglotic first had it - Quick preview's line is the
-    timing's, so it stays as it is, and the Lab has its own reset; what
-    happens to a hidden window isn't the look (polyglotic-hq 335)."""
-    return CaptionLook(
+def look_defaults(now: CaptionLook, first: CaptionLook | None = None) -> CaptionLook:
+    """The look as Polyglotic first had it - `first`, the app's defaults
+    (`main`'s; 478: word links on), or the plain look - but Quick
+    preview's line is the timing's, so it stays as it is, and the Lab has
+    its own reset; what happens to a hidden window isn't the look
+    (polyglotic-hq 335)."""
+    return replace(
+        first if first is not None else CaptionLook(),
         preview=now.preview,
         lab=now.lab,
         pause_hidden_after=now.pause_hidden_after,
@@ -358,8 +361,13 @@ class LookView(Shared[CaptionLook]):
         self,
         value: CaptionLook,
         on_change: Callable[[CaptionLook], None] | None = None,
+        first: CaptionLook | None = None,
     ) -> None:
         super().__init__(value, on_change)
+        self.first = first
+        """The look as Polyglotic first has it - the app's defaults, which
+        Reset to defaults goes back to (`look_defaults`); None: the plain
+        look."""
         self.links_when_on = LINKS_WHEN_ON
         """How word links show when a caption window's button turns them on:
         the way last chosen in Look, while the app runs."""
@@ -526,7 +534,7 @@ class LookView(Shared[CaptionLook]):
     def reset(self) -> None:
         """The look as Polyglotic first had it - the look only: the
         windows' places are Home's "Reset positions" (248's section 2.2)."""
-        self.change(look_defaults(self.value))
+        self.change(look_defaults(self.value, self.first))
 
     def set_lab(self, lab: CaptionLab) -> None:
         """Settings > Captions > Lab's values (`views.lab`, 284)."""

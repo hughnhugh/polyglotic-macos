@@ -1,0 +1,352 @@
+# Our own short definitions of English words (polyglotic-hq 447, decision
+# 0211), written for this app: the words Open English WordNet has nothing
+# for (the, of, you) or whose first sense there isn't the everyday one
+# (can: a tin; he: helium; like: no preposition). For a word listed here,
+# these replace WordNet's senses on the card.
+#
+# One sense a line, in the order the card shows them:
+#   word | part of speech | definition | example
+# The example (of the first sense only) is shown on the card; it may be
+# left empty. A word is matched exactly as ECDICT writes it ("I", "OK").
+the | article | used before a noun to mean a particular one that both people know about | Close the door, please.
+the | article | used before a noun to mean all things of that kind | The dog is a loyal animal.
+a | article | one; used before a singular noun the first time it is mentioned | I saw a bird in the garden.
+a | article | each; per | three times a day
+an | article | one; used instead of "a" before a vowel sound | She ate an apple.
+an | article | each; per | 50 miles an hour
+to | prep | in the direction of; towards | We went to the beach.
+to | particle | used before a verb to make its basic form | I want to sleep.
+to | prep | used to show who receives something | Give it to me.
+and | conj | used to join words or ideas together | bread and butter
+and | conj | then; after that | She opened the door and walked in.
+of | prep | belonging to or connected with | the roof of the house
+of | prep | used to say what something contains or is made of | a cup of tea
+of | prep | used to say what part of a whole you mean | some of the students
+in | prep | inside a place or thing | The keys are in my bag.
+in | prep | during a period of time | in the morning
+in | prep | after a period of time | I'll be back in ten minutes.
+in | adv | into a place; at home or at work | Come in!
+I | pron | the person speaking or writing | I am hungry.
+for | prep | intended to be given to or used by | This present is for you.
+for | prep | used to say how long something lasts | We waited for an hour.
+for | prep | in order to help or support | I did it for you.
+that | det | used to point to a person or thing further away, or already known | Who is that man?
+that | conj | used to introduce what someone says, thinks or knows | She said that she was tired.
+that | pron | used instead of "which" or "who" at the start of a clause | the book that I read
+you | pron | the person or people being spoken or written to | Are you ready?
+you | pron | people in general; anyone | You never know what will happen.
+it | pron | the thing, animal or situation already mentioned | I lost my phone and can't find it.
+it | pron | used as the subject when talking about time, weather or distance | It's raining.
+on | prep | touching the top surface of something | The book is on the table.
+on | prep | used to say the day or date | on Monday
+on | prep | about a subject | a book on history
+on | adv | working or switched on | Is the TV on?
+with | prep | together with; in the company of | I live with my parents.
+with | prep | having; carrying | a girl with red hair
+with | prep | using | Cut it with a knife.
+this | det | used to point to a person or thing that is near, or being talked about now | Is this your bag?
+this | det | the present one; the current one | this week
+as | prep | in the role of; being | She works as a teacher.
+as | conj | while; at the same time that | He sang as he worked.
+as | conj | because | As it was late, we went home.
+as | adv | used in comparisons: "as ... as" | She is as tall as her brother.
+at | prep | used to say where someone or something is | I'm at home.
+at | prep | used to say when something happens | at 6 o'clock
+at | prep | towards; in the direction of | Look at me.
+he | pron | a man, boy or male animal already mentioned | He is my brother.
+by | prep | used to say who or what does something | a book written by a famous author
+by | prep | near; beside | a house by the sea
+by | prep | not later than | Finish it by Friday.
+by | prep | using a method or way of travelling | We went by train.
+but | conj | used to add something different or opposite | It's cheap but good.
+but | prep | except | Everyone but me went.
+from | prep | used to say where something starts or comes from | a letter from my mother
+from | prep | used to say when something starts | from Monday to Friday
+can | verb | to be able to | I can swim.
+can | verb | to be allowed to | Can I go now?
+can | noun | a metal container for food or drink | a can of soup
+do | verb | to perform an action or activity | What are you doing?
+do | verb | used with another verb to make questions and negatives | Do you like it?
+do | verb | to be enough or acceptable | That will do.
+my | det | belonging to me | This is my car.
+or | conj | used to give a choice between things | Tea or coffee?
+or | conj | if not; otherwise | Hurry, or you'll be late.
+we | pron | the person speaking and one or more others | We are friends.
+your | det | belonging to you | Is this your coat?
+all | det | the whole number or amount of | All the children were there.
+all | pron | everyone or everything | All are welcome.
+all | adv | completely | She was all alone.
+his | det | belonging to him | That is his bike.
+his | pron | the one or ones that belong to him | The red one is his.
+they | pron | the people or things already mentioned | They live next door.
+they | pron | one person, when you don't know or don't say if they are a man or a woman | Someone called, but they didn't leave a name.
+me | pron | the person speaking, as the object of a verb or preposition | Can you help me?
+if | conj | used to say that one thing happens only when another does | If it rains, we'll stay home.
+if | conj | whether | I asked if he was coming.
+will | verb | used to talk about the future | I will call you tomorrow.
+will | verb | used to ask or offer something | Will you help me?
+will | noun | the power to decide and do what you want | She has a strong will.
+will | noun | a legal document saying who gets your money and property after you die |
+like | prep | similar to; in the same way as | She looks like her mother.
+like | verb | to enjoy or find pleasant | I like chocolate.
+like | verb | to want | Would you like some tea?
+like | conj | in the same way that; as if (informal) | It feels like it's going to rain.
+about | prep | on the subject of; concerning | a film about a dog
+about | adv | a little more or less than; approximately | about ten people
+about | adv | around; in many places | running about
+up | adv | towards a higher place | Stand up.
+up | adv | completely; so that nothing is left | Eat it up.
+up | prep | along; towards the top of | We walked up the hill.
+up | adj | awake and out of bed | Are you up yet?
+out | adv | away from the inside of a place | Get out!
+out | adv | not at home or at work | She's out at the moment.
+out | adj | not shining or burning | The lights are out.
+what | pron | used to ask about a thing or for information | What is your name?
+what | det | used to ask which thing or kind | What colour is it?
+what | pron | the thing that | I know what you mean.
+when | adv | at what time | When does the film start?
+when | conj | at the time that | I was asleep when you called.
+no | det | not any | There is no milk.
+no | intj | used to say "not so", or to refuse | "Is it raining?" "No."
+who | pron | what or which person | Who is that?
+who | pron | used to say which person you mean | the girl who lives next door
+their | det | belonging to them | They sold their house.
+there | pron | used to say that something exists or happens | There is a cat on the roof.
+there | adv | in, at or to that place | Put it there.
+her | pron | a woman, girl or female animal, as the object of a verb or preposition | I saw her yesterday.
+her | det | belonging to her | her bag
+which | det | used to ask about one of a group | Which one do you want?
+which | pron | used to add information about the thing just mentioned | The house, which was old, was cheap.
+would | verb | used to talk about something that could happen, or that you imagine | I would go if I had time.
+would | verb | used to ask politely | Would you open the window?
+would | verb | past of "will" | She said she would come.
+she | pron | a woman, girl or female animal already mentioned | She is my sister.
+how | adv | in what way | How do you make bread?
+how | adv | to what amount or degree | How old are you?
+how | adv | in what state or condition | How are you?
+some | det | an amount or number of, not saying how much or how many | Have some cake.
+some | det | certain ones, but not all | Some people like it.
+them | pron | the people or things already mentioned, as the object of a verb or preposition | I gave them the money.
+its | det | belonging to it | The dog wagged its tail.
+our | det | belonging to us | our house
+than | conj | used in comparisons, after words like "more" and "better" | She is taller than me.
+him | pron | a man, boy or male animal, as the object of a verb or preposition | I called him.
+after | prep | later than | after lunch
+after | prep | following; behind | Close the door after you.
+after | conj | at a time later than when | She left after he arrived.
+into | prep | to the inside of | He went into the house.
+into | prep | used to say what something changes to | The water turned into ice.
+could | verb | was able to; past of "can" | I could swim when I was five.
+could | verb | used to say something is possible | It could rain later.
+could | verb | used to ask politely | Could you help me?
+these | det | plural of "this": the ones near, or being talked about now | These shoes are new.
+us | pron | the person speaking and others, as the object of a verb or preposition | Come with us.
+because | conj | for the reason that | I stayed home because I was ill.
+where | adv | in or to what place | Where do you live?
+where | adv | in or at which (place) | the town where I was born
+should | verb | used to say what is right or a good idea | You should see a doctor.
+should | verb | used to say what is likely | They should be here soon.
+may | verb | used to say something is possible | It may rain tomorrow.
+may | verb | used to ask for or give permission | May I come in?
+off | adv | away from a place | He drove off.
+off | prep | down from or away from a surface | Take your feet off the table.
+off | adj | not working or switched off | The lights are off.
+before | prep | earlier than | before dinner
+before | conj | earlier than the time when | Wash your hands before you eat.
+before | adv | at an earlier time | I've seen this film before.
+those | det | plural of "that": the ones further away, or already known | Look at those birds.
+down | adv | towards a lower place | Sit down.
+down | prep | from a higher to a lower part of; along | She ran down the stairs.
+down | adj | sad | I'm feeling a bit down.
+through | prep | from one side or end to the other | We walked through the forest.
+through | prep | because of; by means of | I got the job through a friend.
+while | conj | during the time that | She called while I was out.
+while | conj | but; although | He likes tea, while she likes coffee.
+while | noun | a period of time | Wait a while.
+something | pron | a thing that is not known or not named | There's something in my eye.
+both | det | the two; the one and the other | Both my parents are teachers.
+every | det | each one of a group, without exception | every day
+around | prep | on every side of; surrounding | We sat around the table.
+around | adv | approximately; about | around 6 o'clock
+around | prep | in or to different parts of | travel around the world
+between | prep | in the space or time that separates two things | between 2 and 3 o'clock
+between | prep | shared by or involving two people or things | a match between two teams
+since | prep | from a time in the past until now | I've lived here since 2010.
+since | conj | because | Since you're here, you can help.
+another | det | one more | Have another cup of tea.
+another | det | a different one | Let's try another way.
+under | prep | below; beneath | The cat is under the bed.
+under | prep | less than | children under five
+during | prep | all through a period of time, or at some point in it | He slept during the film.
+please | intj | used to ask politely | Please sit down.
+please | verb | to make someone happy | You can't please everyone.
+each | det | every one of two or more, thought of separately | Each child got a present.
+without | prep | not having, or not with | coffee without sugar
+against | prep | opposing; not agreeing with | They voted against the plan.
+against | prep | touching and leaning on | She leaned against the wall.
+must | verb | used to say something is necessary | You must stop at a red light.
+must | verb | used to say something is very likely | You must be tired.
+might | verb | used to say something is possible | It might rain.
+might | noun | great strength or power | with all his might
+someone | pron | a person who is not known or not named | Someone is at the door.
+until | prep | up to the time of | I'll wait until Friday.
+until | conj | up to the time when | Wait until I get back.
+anything | pron | a thing of any kind; something, in questions and negatives | Do you need anything?
+nothing | pron | not anything | There's nothing in the box.
+everything | pron | all things | Everything is ready.
+though | conj | although; despite the fact that | Though it was cold, we went out.
+though | adv | however (at the end of a sentence) | It's good, though.
+yes | intj | used to agree, say something is true, or accept | "Are you ready?" "Yes."
+everyone | pron | every person; all people | Everyone likes her.
+per | prep | for each | $10 per person
+within | prep | inside a period of time; not more than | within an hour
+within | prep | inside | within the city walls
+oh | intj | used to show surprise, understanding or other feelings | Oh, I see!
+along | prep | from one end towards the other end of | We walked along the river.
+along | adv | with you; with others | Bring a friend along.
+anyone | pron | any person; someone, in questions and negatives | Is anyone there?
+else | adv | other; different | Ask someone else.
+else | adv | more; besides | Anything else?
+yeah | intj | yes (informal) | "Coming?" "Yeah."
+near | prep | close to | We live near the station.
+near | adj | close in distance or time | The station is quite near.
+either | det | one or the other of two | You can take either road.
+either | conj | used before the first of two choices: "either ... or" | Either come in or go out.
+either | adv | also, in negatives | I don't like it either.
+whether | conj | if (used when there is a choice) | I don't know whether to go.
+among | prep | in the middle of; surrounded by | a house among the trees
+among | prep | shared by a group | Divide it among yourselves.
+myself | pron | me, when I am also the subject | I hurt myself.
+myself | pron | used to say "me and no one else" | I did it myself.
+yourself | pron | you, when you are also the subject | Did you hurt yourself?
+although | conj | despite the fact that | Although it rained, we enjoyed the day.
+behind | prep | at the back of | He hid behind the door.
+behind | adv | slower or later than others | We are behind with the work.
+across | prep | from one side to the other side of | We swam across the river.
+across | prep | on the other side of | The shop is across the street.
+himself | pron | him, when he is also the subject | He hurt himself.
+outside | prep | not inside; out of | Wait outside the door.
+outside | adv | out of a building | Let's eat outside.
+outside | noun | the outer side or surface | the outside of the box
+mine | pron | the one or ones that belong to me | This book is mine.
+mine | noun | a deep hole where coal, gold or other minerals are dug | a coal mine
+themselves | pron | them, when they are also the subject | They enjoyed themselves.
+whatever | pron | anything or everything that | Do whatever you want.
+whatever | det | no matter what | Whatever happens, call me.
+hey | intj | used to get someone's attention, or to say hello (informal) | Hey, wait for me!
+upon | prep | on (formal) | once upon a time
+itself | pron | it, when it is also the subject | The cat washed itself.
+whose | det | belonging to which person | Whose phone is this?
+whose | det | used to say who something belongs to | the man whose car was stolen
+towards | prep | in the direction of | She walked towards the door.
+towards | prep | about; concerning | his feelings towards her
+toward | prep | in the direction of | She walked toward the door.
+etc | adv | and so on; and other similar things | apples, oranges, bananas, etc.
+shall | verb | used to offer or suggest something | Shall I open the window?
+shall | verb | will (formal) | We shall see.
+except | prep | not including; but | Everyone came except Tom.
+via | prep | through; by way of | We flew to Rome via Paris.
+despite | prep | without being stopped by; even though there is | We went out despite the rain.
+hi | intj | hello | Hi, how are you?
+throughout | prep | in every part of | throughout the country
+throughout | prep | during the whole of | throughout the year
+beyond | prep | on the other side of; further than | beyond the mountains
+unless | conj | except if | You'll be late unless you hurry.
+anyway | adv | despite that; in any case | It was raining, but we went anyway.
+wow | intj | used to show surprise or admiration | Wow, that's amazing!
+nobody | pron | no person; not anyone | Nobody came.
+plus | prep | and; added to | Two plus two is four.
+none | pron | not any; not one | None of them came.
+vs | prep | against (in a game or contest); versus | Brazil vs Argentina
+whom | pron | who, as the object of a verb or preposition (formal) | To whom did you speak?
+everybody | pron | every person; all people | Everybody was happy.
+somebody | pron | a person who is not known or not named | Somebody called you.
+till | prep | until | Wait till tomorrow.
+herself | pron | her, when she is also the subject | She hurt herself.
+nor | conj | and not; used after "neither" or a negative | Neither he nor I went.
+onto | prep | to a position on | The cat jumped onto the table.
+neither | det | not one and not the other of two | Neither answer is right.
+neither | conj | used before the first of two negatives: "neither ... nor" | neither hot nor cold
+yours | pron | the one or ones that belong to you | Is this yours?
+hello | intj | used when you meet someone or answer the phone | Hello, nice to meet you.
+ya | pron | you (informal) | See ya!
+ah | intj | used to show surprise, pleasure or understanding | Ah, that's better.
+besides | prep | as well as; in addition to | Besides English, she speaks French.
+besides | adv | also; and another thing | I'm tired. Besides, it's late.
+whenever | conj | every time that; at any time that | Come whenever you like.
+ourselves | pron | us, when we are also the subject | We enjoyed ourselves.
+anybody | pron | any person; someone, in questions and negatives | Is anybody home?
+okay | adj | all right; acceptable | Is it okay if I sit here?
+okay | intj | used to agree or say yes | "Let's go." "Okay."
+OK | adj | all right; acceptable | Are you OK?
+OK | intj | used to agree or say yes | "See you at six." "OK."
+thanks | intj | thank you | Thanks for your help.
+bye | intj | goodbye | Bye! See you tomorrow.
+why | adv | for what reason | Why are you late?
+now | adv | at this time; at present | I'm busy now.
+now | adv | immediately | Do it now!
+so | adv | very; to such a degree | I'm so tired.
+so | conj | and therefore; for that reason | It was late, so I went home.
+so | adv | also; in the same way | "I'm hungry." "So am I."
+well | adv | in a good or satisfactory way | She sings well.
+well | intj | used to pause before saying something | Well, I'm not sure.
+well | adj | healthy | I don't feel well.
+well | noun | a deep hole for getting water from the ground | They dug a well.
+right | adj | correct; true | That's the right answer.
+right | adj | on the side of the body that is towards the east when you face north | my right hand
+right | adv | exactly; directly | right in the middle
+right | noun | something you are allowed to do or have, by law or morally | the right to vote
+make | verb | to create or produce something | She made a cake.
+make | verb | to cause something to happen or be | The news made her happy.
+make | verb | to force someone to do something | He made me wait.
+have | verb | to own or hold | I have two brothers.
+have | verb | used with a past participle to make perfect tenses | I have finished my work.
+have | verb | to eat, drink or experience something | Let's have lunch.
+have | verb | to need to; must ("have to") | I have to go.
+be | verb | used to say what or who someone or something is, or what they are like | She is a doctor.
+be | verb | to exist or be present; to be in a place | Where are you?
+be | verb | used with other verbs to make continuous and passive forms | I am reading.
+over | prep | above or on top of | a bridge over the river
+over | prep | more than | over 100 people
+over | adj | finished | The game is over.
+over | prep | across; to the other side of | jump over the wall
+just | adv | only; simply | It's just a game.
+just | adv | a very short time ago | I've just arrived.
+just | adv | exactly | It's just what I wanted.
+just | adj | fair and right | a just decision
+are | verb | the form of "be" used with "you", "we" and "they" | You are late.
+thing | noun | an object; something you do not name exactly | What's that thing on the table?
+thing | noun | an action, event, idea or fact | A strange thing happened.
+thing | noun | things: your belongings | Pack your things.
+point | noun | the main idea or purpose of something | What's the point of waiting?
+point | noun | a particular moment or place | At that point, I left.
+point | noun | a mark or score in a game | We won by two points.
+point | verb | to show where something is with your finger | She pointed at the map.
+new | adj | recently made, bought or started; not old | a new car
+new | adj | not known or seen before | I'm new here.
+new | adj | different from the one before | my new job
+part | noun | a piece or section of something; some but not all of it | the first part of the film
+part | noun | a role in a play, film or activity | She got the part of the queen.
+part | verb | to separate; to leave each other | We parted at the station.
+end | noun | the last part of something; the point where it stops | the end of the film
+end | noun | either of the two farthest points of something long | the end of the road
+end | verb | to finish; to stop | The meeting ended at five.
+North | noun | the direction to your left when you face the rising sun; the top of most maps | The wind is from the north.
+North | adj | in, from or towards the north | the north side of the house
+North | noun | the northern part of a country or region | She lives in the North.
+Dr | noun | doctor: a title used before the name of a doctor | Dr Smith will see you now.
+ST | noun | street, in an address; saint, before a saint's name | 10 High St
+APP | noun | a program for a phone, tablet or computer | I downloaded a new app.
+ATM | noun | a machine where you can take money out of your bank account with a card | Is there an ATM near here?
+BBC | noun | the British Broadcasting Corporation, Britain's public radio and television company | I heard it on the BBC.
+CCTV | noun | closed-circuit television: cameras that record a place for security | The theft was caught on CCTV.
+CD | noun | a compact disc: a small disc that stores music or information | The album is out on CD.
+CORE | noun | the central or most important part of something | the core of the problem
+DIY | noun | do-it-yourself: making or repairing things at home yourself | a DIY shop
+ELF | noun | a small magical creature with pointed ears, in stories | an elf in a fairy tale
+FIFA | noun | the organization that runs international football | the FIFA World Cup
+GB | noun | gigabyte: a unit of computer memory, about a thousand million bytes | a phone with 128 GB of storage
+IBM | noun | an American computer company |
+NHS | noun | the National Health Service, Britain's public health system | She works for the NHS.
+UAE | noun | the United Arab Emirates, a country in the Middle East | Dubai is in the UAE.
+UFC | noun | the Ultimate Fighting Championship, a mixed martial arts organization | a UFC fight

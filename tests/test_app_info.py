@@ -1,5 +1,6 @@
 """What the app tells the server about itself: the release the build
-stamped into it (decision 0015), or `0.0.0` from source."""
+stamped into it (decision 0015), or from source the newest release its
+RELEASE-NOTES.md names (decision 0224)."""
 
 import json
 from pathlib import Path
@@ -10,6 +11,7 @@ from polyglotic_desktop.connection.app import (
     AppInfo,
     Release,
     read_release,
+    source_version,
     this_release,
 )
 from polyglotic_desktop.connection.protocol import Channel
@@ -30,11 +32,75 @@ def test_a_release_build_reports_its_stamped_version_and_channel(
     assert this_release(file) == Release("0.1.0", "win-x64-alpha")
 
 
-def test_from_source_the_app_is_0_0_0_on_the_first_channel(tmp_path: Path) -> None:
+NOTES = """# Release notes
+
+## Unreleased
+
+- Not released yet.
+
+## 0.1.7 - 2026-11-17
+
+- Seven.
+
+## 0.1.6 - 2026-11-16
+
+- Six.
+"""
+
+
+def notes(tmp_path: Path, text: str = NOTES) -> Path:
+    file = tmp_path / "RELEASE-NOTES.md"
+    file.write_text(text, encoding="utf-8")
+    return file
+
+
+def test_from_source_the_copy_is_0_0_0_on_the_first_channel(tmp_path: Path) -> None:
+    """Not a release: Settings, what's new and the packs' `min_app` see
+    `0.0.0` (decision 0224 changes only what the server is told)."""
     assert this_release(tmp_path / "release.json") == Release("0.0.0", "win-x64-alpha")
-    # and the package itself carries no stamp: only release builds do
-    assert AppInfo.this_app("windows-11", "10.0.26200").app_version == "0.0.0"
-    assert AppInfo.this_app("windows-11", "10.0.26200").channel == "win-x64-alpha"
+
+
+def test_from_source_the_server_is_told_the_newest_release_the_notes_name(
+    tmp_path: Path,
+) -> None:
+    """Decision 0224: told `0.0.0`, the live server (minimum 0.1.0 on
+    2026-11-18) answered a copy built from the public source
+    `update_required`, so it could never caption."""
+    app = AppInfo.this_app(
+        "windows-11", "10.0.26200", tmp_path / "release.json", notes(tmp_path)
+    )
+    assert (app.app_version, app.channel) == ("0.1.7", "win-x64-alpha")
+
+
+def test_from_source_without_a_released_version_in_the_notes_0_0_0(
+    tmp_path: Path,
+) -> None:
+    missing = tmp_path / "release.json"
+    assert source_version(tmp_path / "none.md") == "0.0.0"
+    unreleased = notes(tmp_path, "# Release notes\n\n## Unreleased\n\n- a\n")
+    assert (
+        AppInfo.this_app("windows-11", "", missing, unreleased).app_version == "0.0.0"
+    )
+
+
+def test_a_release_build_tells_its_stamp_never_the_notes(tmp_path: Path) -> None:
+    file = stamp(tmp_path, {"version": "0.1.5", "channel": "win-x64-beta"})
+    app = AppInfo.this_app("windows-11", "", file, notes(tmp_path))
+    assert (app.app_version, app.channel) == ("0.1.5", "win-x64-beta")
+    # a broken stamp stays 0.0.0, so the server asks for an update (0015)
+    broken = stamp(tmp_path, {"version": "0.1", "channel": "win-x64-beta"})
+    assert AppInfo.this_app("windows-11", "", broken, notes(tmp_path)).app_version == (
+        "0.0.0"
+    )
+
+
+def test_this_repo_run_from_source_tells_a_released_version() -> None:
+    """The package carries no stamp (only release builds do), and the
+    repo's RELEASE-NOTES.md names a release."""
+    app = AppInfo.this_app("windows-11", "10.0.26200")
+    assert app.app_version == source_version() != "0.0.0"
+    assert app.channel == "win-x64-alpha"
+    assert AppInfo.this_app("macos-26", "26.1").channel == "macos-arm64-alpha"
 
 
 @pytest.mark.parametrize(

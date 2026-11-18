@@ -151,6 +151,49 @@
     </message>
 </context>
 <context>
+    <name>CaptionSetUp</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Detect works out the language each time someone speaks.</source>
+        <translation type="unfinished">पहचानें हर बार किसी के बोलने पर भाषा पता करता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Translate those lines into a second language too, or leave them.</source>
+        <translation type="unfinished">उन पंक्तियों का दूसरी भाषा में भी अनुवाद करें, या वैसे ही छोड़ दें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Set up your captions</source>
+        <translation type="unfinished">अपने कैप्शन सेट करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Shown as &quot;You&quot;. Your mic is sent to the server only while it&apos;s on.</source>
+        <translation type="unfinished">&quot;आप&quot; के नाम से दिखता है। यह चालू रहने तक ही आपका माइक सर्वर पर भेजा जाता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Use as my default</source>
+        <translation type="unfinished">मेरे डिफ़ॉल्ट के रूप में इस्तेमाल करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>New caption windows start like this, and this stops showing</source>
+        <translation type="unfinished">नई कैप्शन विंडो ऐसे ही शुरू होंगी, और यह फिर नहीं दिखेगा</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>Start captions</source>
+        <translation type="unfinished">कैप्शन शुरू करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
+        <source>On: new windows start like this and this stops showing. The languages on a window&apos;s bar change them, or bring it back.</source>
+        <translation type="unfinished">चालू: नई विंडो ऐसे ही शुरू होंगी और यह फिर नहीं दिखेगा। विंडो की पट्टी पर भाषाएँ इन्हें बदलती हैं, या इसे वापस लाती हैं।</translation>
+    </message>
+</context>
+<context>
     <name>CaptionWindow</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -184,13 +227,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Pinyin above Chinese: turn it on in Settings, under Look</source>
-        <translation type="unfinished">चीनी के ऊपर पिनयिन: इसे सेटिंग में, रूप के अंतर्गत चालू करें</translation>
+        <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">चीनी के ऊपर पिनयिन: इसे सेटिंग में, उच्चारण के अंतर्गत चालू करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Click any word to look it up</source>
         <translation type="unfinished">किसी भी शब्द पर क्लिक करके उसे खोजें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Anything the PC plays is captioned here</source>
+        <translation type="unfinished">पीसी पर चलने वाली हर चीज़ का कैप्शन यहाँ बनता है</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Anything the Mac plays is captioned here</source>
+        <translation type="unfinished">Mac पर चलने वाली हर चीज़ का कैप्शन यहाँ बनता है</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>{app}&apos;s captions appear here</source>
+        <translation type="unfinished">{app} के कैप्शन यहाँ दिखेंगे</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -409,8 +467,19 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>{app}&apos;s captions appear here</source>
-        <translation type="unfinished">{app} के कैप्शन यहाँ दिखेंगे</translation>
+        <source>{spoken} → {translation}</source>
+        <extracomment>Short, on a caption window&apos;s bar: the language heard (or &quot;Detect&quot;) and the one its captions are translated into</extracomment>
+        <translation type="unfinished">{spoken} → {translation}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Detect</source>
+        <translation type="unfinished">पहचानें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">केवल मूल</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -524,6 +593,26 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Start new windows like this</source>
+        <translation type="unfinished">नई विंडो ऐसे ही शुरू करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>New caption windows take this one&apos;s languages - what they speak too, not Detect</source>
+        <translation type="unfinished">नई कैप्शन विंडो इस विंडो की भाषाएँ लेंगी - बोली गई भाषा भी, पहचानें नहीं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Ask when a window opens</source>
+        <translation type="unfinished">विंडो खुलने पर पूछें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>A caption window that opens asks what they speak and what to translate into, until you choose Use as my default there</source>
+        <translation type="unfinished">खुलने वाली कैप्शन विंडो पूछती है कि कौन-सी भाषा बोली जा रही है और किसमें अनुवाद करना है, जब तक आप वहाँ &quot;मेरे डिफ़ॉल्ट के रूप में इस्तेमाल करें&quot; न चुनें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here</source>
         <translation type="unfinished">मेरी बोली यहाँ दिखाएँ</translation>
     </message>
@@ -574,6 +663,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>What this app speaks, and what it&apos;s translated into - change them here</source>
+        <translation type="unfinished">यह ऐप कौन-सी भाषा बोलता है, और किसमें अनुवाद होता है - यहाँ बदलें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Stop captioning {app}</source>
         <translation type="unfinished">{app} का कैप्शन बंद करें</translation>
     </message>
@@ -581,11 +675,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links need what was said: turn on “Show the original above the translation” in Settings</source>
         <translation type="unfinished">शब्द जोड़ को बोली गई बात चाहिए: सेटिंग में “अनुवाद के ऊपर मूल दिखाएँ” चालू करें</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Original only</source>
-        <translation type="unfinished">केवल मूल</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -938,13 +1027,18 @@
     <name>DesktopApp</name>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
-        <source>This PC</source>
-        <translation type="unfinished">यह पीसी</translation>
+        <source>Your Mac didn&apos;t allow Polyglotic to use the microphone, so your own speech isn&apos;t captioned. To caption it, allow Polyglotic in System Settings &gt; Privacy &amp; Security &gt; Microphone, then turn on Show my speech here.</source>
+        <translation type="unfinished">आपके Mac ने Polyglotic को माइक्रोफ़ोन इस्तेमाल करने की अनुमति नहीं दी, इसलिए आपकी अपनी बोली के कैप्शन नहीं बनते। कैप्शन के लिए System Settings &gt; Privacy &amp; Security &gt; Microphone में Polyglotic को अनुमति दें, फिर &quot;मेरी बोली यहाँ दिखाएँ&quot; चालू करें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
-        <source>This Mac</source>
-        <translation type="unfinished">यह Mac</translation>
+        <source>Everything the PC plays</source>
+        <translation type="unfinished">पीसी पर चलने वाला सब कुछ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Everything the Mac plays</source>
+        <translation type="unfinished">Mac पर चलने वाला सब कुछ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
@@ -2621,13 +2715,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>everything the PC plays</source>
-        <translation type="unfinished">पीसी पर चलने वाला सब कुछ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>everything the Mac plays</source>
-        <translation type="unfinished">Mac पर चलने वाला सब कुछ</translation>
+        <source>every app&apos;s sound</source>
+        <translation type="unfinished">हर ऐप की आवाज़</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2854,16 +2943,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>This PC</source>
-        <translation type="unfinished">यह पीसी</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>This Mac</source>
-        <translation type="unfinished">यह Mac</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>1 app + everything else</source>
         <translation type="unfinished">1 ऐप + बाकी सब</translation>
     </message>
@@ -2871,6 +2950,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{n} of {limit}</source>
         <translation type="unfinished">{limit} में से {n}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption one app instead</source>
+        <translation type="unfinished">इसके बजाय एक ऐप का कैप्शन बनाएँ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2886,6 +2970,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: not shown - add an app first, then turn it on with its row&apos;s microphone, or its window&apos;s settings</source>
         <translation type="unfinished">मेरी बोली: नहीं दिखती - पहले कोई ऐप जोड़ें, फिर उसकी पंक्ति के माइक्रोफ़ोन से, या उसकी विंडो की सेटिंग से इसे चालू करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays is captioned - a call&apos;s voices too. To caption one app instead, choose it below.</source>
+        <translation type="unfinished">पीसी पर चलने वाले सब कुछ का कैप्शन बनता है - कॉल की आवाज़ों का भी। इसके बजाय एक ऐप का कैप्शन बनाने के लिए, उसे नीचे चुनें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays is captioned - a call&apos;s voices too. To caption one app instead, choose it below.</source>
+        <translation type="unfinished">Mac पर चलने वाले सब कुछ का कैप्शन बनता है - कॉल की आवाज़ों का भी। इसके बजाय एक ऐप का कैप्शन बनाने के लिए, उसे नीचे चुनें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the PC plays is captioned - a call&apos;s voices too.</source>
+        <translation type="unfinished">पीसी पर चलने वाले सब कुछ का कैप्शन बनता है - कॉल की आवाज़ों का भी।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Everything the Mac plays is captioned - a call&apos;s voices too.</source>
+        <translation type="unfinished">Mac पर चलने वाले सब कुछ का कैप्शन बनता है - कॉल की आवाज़ों का भी।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3522,6 +3626,31 @@
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Each part of what was said starts at the same place as its translation, so a word&apos;s translation is under it - however captions fill the width. Turning it on also turns on New layout.</source>
         <translation type="unfinished">कही गई बात का हर हिस्सा अपने अनुवाद की ही जगह से शुरू होता है, ताकि शब्द का अनुवाद उसके नीचे रहे - कैप्शन चौड़ाई को चाहे जैसे भरें। इसे चालू करने से नया लेआउट भी चालू हो जाता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Packed</source>
+        <translation type="unfinished">सटाकर</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Nearest their links</source>
+        <translation type="unfinished">जोड़ों के पास</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Evenly</source>
+        <translation type="unfinished">बराबर दूरी पर</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Parts placed</source>
+        <translation type="unfinished">हिस्सों की जगह</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Where the parts of a line go in the room the line has. Packed: each straight after the one before, as now. Nearest their links: each part moves over its translation&apos;s words, so the word links are as short as they can be. Evenly: a full line&apos;s parts are spread over the width. Choosing one also turns on New layout.</source>
+        <translation type="unfinished">किसी पंक्ति के हिस्से पंक्ति की खाली जगह में कहाँ रखे जाएँ। सटाकर: हर हिस्सा पिछले के ठीक बाद, जैसा अभी है। जोड़ों के पास: हर हिस्सा अपने अनुवाद के शब्दों के ऊपर खिसकता है, ताकि शब्द जोड़ जितने हो सकें छोटे रहें। बराबर दूरी पर: भरी हुई पंक्ति के हिस्से पूरी चौड़ाई में फैला दिए जाते हैं। कोई एक चुनने से नया लेआउट भी चालू हो जाता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5249,8 +5378,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Second language</source>
-        <translation type="unfinished">दूसरी भाषा</translation>
+        <source>When they already speak the window&apos;s language</source>
+        <translation type="unfinished">जब वे पहले से विंडो की भाषा बोलें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5319,8 +5448,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Lines already in {language} are translated into</source>
-        <translation type="unfinished">जो पंक्तियाँ पहले से {language} में हैं, उनका अनुवाद इसमें होता है</translation>
+        <source>Caption windows translating into {language} - when someone already speaks {language}, also translate into</source>
+        <translation type="unfinished">{language} में अनुवाद करने वाली कैप्शन विंडो - जब कोई पहले से {language} बोले, तो इसमें भी अनुवाद करें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5329,8 +5458,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Lines already in {language} are translated into:</source>
-        <translation type="unfinished">जो पंक्तियाँ पहले से {language} में हैं, उनका अनुवाद इसमें होता है:</translation>
+        <source>Caption windows translating into {language} - when someone already speaks {language}, also translate into:</source>
+        <translation type="unfinished">{language} में अनुवाद करने वाली कैप्शन विंडो - जब कोई पहले से {language} बोले, तो इसमें भी अनुवाद करें:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5675,8 +5804,9 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin</source>
-        <translation type="unfinished">पिनयिन</translation>
+        <source>Readings</source>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <translation type="unfinished">उच्चारण</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5687,6 +5817,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. It isn&apos;t part of the text: copying and looking up words work as before.</source>
         <translation type="unfinished">हर चीनी अक्षर के ऊपर एक छोटा अक्षरांश, कही गई बात में और चीनी में अनुवाद में भी। यह टेक्स्ट का हिस्सा नहीं है: कॉपी करना और शब्द देखना पहले की तरह काम करते हैं।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Pinyin</source>
+        <translation type="unfinished">पिनयिन</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5705,6 +5840,16 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Jyutping above Cantonese</source>
+        <translation type="unfinished">कैंटोनीज़ के ऊपर Jyutping</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A small syllable over each Cantonese character, its tone as a raised number (hai⁶), from the Cantonese dictionary - once you learn Cantonese and its dictionary is here.</source>
+        <translation type="unfinished">हर कैंटोनीज़ अक्षर के ऊपर एक छोटा अक्षरांश, उसका स्वर ऊपर लिखी संख्या के रूप में (hai⁶), कैंटोनीज़ शब्दकोश से - जब आप कैंटोनीज़ सीखते हों और उसका शब्दकोश यहाँ हो।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">हर शब्द</translation>
     </message>
@@ -5715,8 +5860,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin over</source>
-        <translation type="unfinished">पिनयिन किसके ऊपर</translation>
+        <source>Readings over</source>
+        <translation type="unfinished">उच्चारण किसके ऊपर</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5730,8 +5875,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin size</source>
-        <translation type="unfinished">पिनयिन का आकार</translation>
+        <source>Reading size</source>
+        <translation type="unfinished">उच्चारण का आकार</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5755,23 +5900,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Pinyin colour</source>
-        <translation type="unfinished">पिनयिन का रंग</translation>
+        <source>Reading colour</source>
+        <translation type="unfinished">उच्चारण का रंग</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: pinyin takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">शब्द जोड़ का रंग: जहाँ कोई जोड़ हो, पिनयिन अपने शब्द के जोड़ का रंग लेता है। शब्द जोड़ जुड़े शब्दों को भी रंग सकते हैं।</translation>
+        <source>Its word link&apos;s colour: a reading takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">शब्द जोड़ का रंग: जहाँ कोई जोड़ हो, उच्चारण अपने शब्द के जोड़ का रंग लेता है। शब्द जोड़ जुड़े शब्दों को भी रंग सकते हैं।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Custom pinyin colour</source>
-        <translation type="unfinished">पिनयिन का अपना रंग</translation>
+        <source>Custom reading colour</source>
+        <translation type="unfinished">उच्चारण का अपना रंग</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>The one colour pinyin is drawn in, over any line.</source>
-        <translation type="unfinished">पिनयिन का एक ही रंग, हर पंक्ति के ऊपर।</translation>
+        <source>The one colour readings are drawn in, over any line.</source>
+        <translation type="unfinished">उच्चारण का एक ही रंग, हर पंक्ति के ऊपर।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6034,6 +6179,108 @@
     </message>
 </context>
 <context>
+    <name>SavedSentences</name>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>{found} of %Ln saved sentence(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln सहेजे गए वाक्य में से {found}</numerusform>
+            <numerusform>%Ln सहेजे गए वाक्यों में से {found}</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>%Ln saved sentence(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln सहेजा गया वाक्य</numerusform>
+            <numerusform>%Ln सहेजे गए वाक्य</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Move to…</source>
+        <translation type="unfinished">यहाँ ले जाएँ…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Remove</source>
+        <translation type="unfinished">हटाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Saved sentences</source>
+        <translation type="unfinished">सहेजे गए वाक्य</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>What you selected in captions and saved, with its translation. Search in either language: a sentence with most of your words is found.</source>
+        <translation type="unfinished">कैप्शन में आपने जो चुना और सहेजा, उसके अनुवाद के साथ। किसी भी भाषा में खोजें: आपके ज़्यादातर शब्दों वाला वाक्य मिल जाता है।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Search - words in either language</source>
+        <translation type="unfinished">खोजें - किसी भी भाषा के शब्द</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Search your sentences</source>
+        <translation type="unfinished">अपने वाक्य खोजें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Clear the search</source>
+        <translation type="unfinished">खोज साफ़ करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show sentences in this category</source>
+        <translation type="unfinished">इस श्रेणी के वाक्य दिखाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show sentences with this saved word</source>
+        <translation type="unfinished">इस सहेजे गए शब्द वाले वाक्य दिखाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Show more</source>
+        <translation type="unfinished">और दिखाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>None yet - drag across more than a word in a caption window, then pick a category to save it.</source>
+        <translation type="unfinished">अभी कोई नहीं - कैप्शन विंडो में एक से ज़्यादा शब्द पर खींचें, फिर एक श्रेणी चुनें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>All categories</source>
+        <translation type="unfinished">सभी श्रेणियाँ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>Any saved word</source>
+        <translation type="unfinished">कोई भी सहेजा गया शब्द</translation>
+    </message>
+</context>
+<context>
+    <name>SentenceCard</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Save sentence to</source>
+        <translation type="unfinished">वाक्य इसमें सहेजें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Saved to {category}</source>
+        <translation type="unfinished">{category} में सहेजा गया</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Couldn&apos;t save it</source>
+        <translation type="unfinished">सहेजा नहीं जा सका</translation>
+    </message>
+</context>
+<context>
     <name>Settings</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6109,21 +6356,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>A few parts change at the next start.</source>
         <translation type="unfinished">कुछ हिस्से अगली बार शुरू होने पर बदलते हैं।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Language</source>
-        <translation type="unfinished">भाषा</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>The app&apos;s language</source>
-        <translation type="unfinished">ऐप की भाषा</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Menus, buttons and help - not your captions. It changes the next time Polyglotic starts.</source>
-        <translation type="unfinished">मेनू, बटन और मदद - आपके कैप्शन नहीं। यह Polyglotic के अगली बार शुरू होने पर बदलती है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6288,6 +6520,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Language</source>
+        <translation type="unfinished">भाषा</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
         <translation type="unfinished">अपने-आप पहचान हर बार कुंजी दबाने पर आप जो भी भाषा बोलें, उसे टाइप करती है। एक भाषा सेट करें - अंग्रेज़ी, मैंडरिन… - और वह हमेशा उसी रूप में सुनी जाती है: कोई छोटा वाक्यांश कभी दूसरी भाषा नहीं समझा जाता। ट्रे का मेनू भी इसे बदलता है।</translation>
     </message>
@@ -6339,6 +6576,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">शब्द जोड़</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Readings</source>
+        <extracomment>Settings&apos; section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <translation type="unfinished">उच्चारण</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Timing</source>
         <translation type="unfinished">टाइमिंग</translation>
     </message>
@@ -6366,6 +6614,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>App language</source>
         <translation type="unfinished">ऐप की भाषा</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>The app&apos;s language</source>
+        <translation type="unfinished">ऐप की भाषा</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Menus, buttons and help - not your captions. It changes the next time Polyglotic starts.</source>
+        <translation type="unfinished">मेनू, बटन और मदद - आपके कैप्शन नहीं। यह Polyglotic के अगली बार शुरू होने पर बदलती है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6442,6 +6700,27 @@
     <name>SettingsPopover</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>When they already speak {language}</source>
+        <extracomment>A caption window&apos;s row: what to do with lines already spoken in {language}, the language this window translates into</extracomment>
+        <translation type="unfinished">जब वे पहले से {language} बोलें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{language} is this window&apos;s language, so those lines get no translation. Translate them into a second language too, or leave them as they are.</source>
+        <translation type="unfinished">{language} इस विंडो की भाषा है, इसलिए उन पंक्तियों का अनुवाद नहीं होता। उनका दूसरी भाषा में भी अनुवाद करें, या वैसे ही छोड़ दें।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Leave as they are</source>
+        <translation type="unfinished">वैसे ही छोड़ दें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Also translate into {language}</source>
+        <translation type="unfinished">{language} में भी अनुवाद करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{app} - playing</source>
         <translation type="unfinished">{app} - चल रहा है</translation>
     </message>
@@ -6472,8 +6751,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Spoken language</source>
-        <translation type="unfinished">बोली गई भाषा</translation>
+        <source>They speak</source>
+        <translation type="unfinished">वे बोलते हैं</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -6492,13 +6771,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>A line spoken in this window&apos;s language gets no translation. Show it in another language instead, or leave it.</source>
-        <translation type="unfinished">इस विंडो की भाषा में बोली गई पंक्ति का अनुवाद नहीं होता। उसकी जगह उसे किसी दूसरी भाषा में दिखाएँ, या वैसे ही छोड़ दें।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Lines already in this window&apos;s language</source>
-        <translation type="unfinished">जो पंक्तियाँ पहले से इस विंडो की भाषा में हैं</translation>
+        <source>When they already speak this window&apos;s language</source>
+        <translation type="unfinished">जब वे पहले से इस विंडो की भाषा बोलें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -6574,16 +6848,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{percent}%</source>
         <translation type="unfinished">{percent}%</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Lines already in {language}</source>
-        <translation type="unfinished">जो पंक्तियाँ पहले से {language} में हैं</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Leave as they are</source>
-        <translation type="unfinished">वैसे ही छोड़ दें</translation>
     </message>
 </context>
 <context>
@@ -7440,6 +7704,14 @@
         <source>Couldn&apos;t write {name}. It may be open in another program, or the folder may be read-only - close it or pick another folder, and try again.</source>
         <translation type="unfinished">{name} लिखा नहीं जा सका। शायद यह किसी दूसरे प्रोग्राम में खुला है, या फ़ोल्डर सिर्फ़ पढ़ने के लिए है - उसे बंद करें या कोई दूसरा फ़ोल्डर चुनें, और फिर कोशिश करें।</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>%Ln saved sentence(s) written to {name}.</source>
+        <translation type="unfinished">
+            <numerusform>%Ln सहेजा गया वाक्य {name} में लिखा गया।</numerusform>
+            <numerusform>%Ln सहेजे गए वाक्य {name} में लिखे गए।</numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No new words since the last export - {name} is empty.</source>
@@ -7456,6 +7728,15 @@
         <translation type="unfinished">
             <numerusform>%Ln शब्द {name} में लिखा गया।</numerusform>
             <numerusform>%Ln शब्द {name} में लिखे गए।</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>And %Ln saved sentence(s).</source>
+        <extracomment>after &quot;12 words written to polyglotic-words.apkg.&quot;</extracomment>
+        <translation type="unfinished">
+            <numerusform>और %Ln सहेजा गया वाक्य।</numerusform>
+            <numerusform>और %Ln सहेजे गए वाक्य।</numerusform>
         </translation>
     </message>
     <message numerus="yes">

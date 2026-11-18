@@ -41,7 +41,8 @@ def test_stored_settings_are_read_leniently() -> None:
         }
     )
     assert settings.targets == ("zh", "en")
-    assert settings.text_scale == 1.0 and settings.word_links == "off"
+    assert settings.text_scale == 1.0
+    assert settings.word_links == AppSettings().word_links  # the default
     assert settings.caption_mic is False and settings.fade_after is None
     assert settings.overlay_geometry == {}  # one bad entry: the default
     assert AppSettings.from_stored(settings.to_stored()) == settings
@@ -170,11 +171,11 @@ def test_the_tray_menu_has_the_named_commands(qapp: QApplication) -> None:
 
 def test_the_tray_turns_dictation_on_and_follows_settings(qapp: QApplication) -> None:
     app = make_app()
-    assert not app.dictation.isChecked()  # off until turned on (283)
+    assert app.dictation.isChecked()  # on for a new learner (478; off in 283)
     app.dictation.trigger()
-    assert app.settings.value.dictation
-    app.settings.update(dictation=False)  # Settings' switch
-    assert not app.dictation.isChecked()
+    assert not app.settings.value.dictation
+    app.settings.update(dictation=True)  # Settings' switch
+    assert app.dictation.isChecked()
     app.close()
 
 

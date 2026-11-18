@@ -1,5 +1,6 @@
 """The caption windows' small icons - word links, lock, settings, close,
-more and the mic - drawn with QPainter, so they're the same on every OS.
+more and the mic - and Settings' sections' and cards' marks (polyglotic-hq
+470), drawn with QPainter, so they're the same on every OS.
 
 They were Windows' icon font, Segoe Fluent Icons, whose private-use
 characters are empty boxes wherever the font isn't installed - macOS,
@@ -61,6 +62,37 @@ class Glyph(StrEnum):
     ALIGNED = "aligned"
     """Parts lined up (372): two lines whose parts start at the same
     places, a tick at each start."""
+
+    # Settings' sections and cards (polyglotic-hq 470, 449's design 4A):
+    # always beside their words, never alone (NN/g's icon usability)
+    LOOK = "look"
+    """Settings > Look: a caption's panel, two lines of text on it."""
+    READINGS = "readings"
+    """Settings > Readings: a short line over a letter - ruby, a reading."""
+    TIMING = "timing"
+    """Settings > Timing: a clock."""
+    SPEECH = "speech"
+    """Settings > Speech: a speech bubble."""
+    APP = "app"
+    """Settings > App: a window."""
+    LAB = "lab"
+    """Settings > Lab: a flask."""
+    BEHAVIOUR = "behaviour"
+    """Timing's Behaviour: lines arriving, an arrow down beside them."""
+    RESET = "reset"
+    """Look's Reset: an arrow going round."""
+    TEXT_SIZE = "text_size"
+    """App's Text size: a small A and a large one."""
+    THEME = "theme"
+    """App's Appearance: a circle, half filled - light and dark."""
+    TRANSCRIPTS = "transcripts"
+    """App's Transcripts: a page of lines."""
+    KEYS = "keys"
+    """App's Hotkeys: a keyboard."""
+    UPDATES = "updates"
+    """App's Updates: an arrow down into a tray."""
+    ABOUT = "about"
+    """App's About: an i in a circle."""
 
 
 def _gear() -> QPainterPath:
@@ -156,7 +188,121 @@ def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
                 wave = QRectF(7.75 - radius, 8 - radius, 2 * radius, 2 * radius)
                 lines.arcMoveTo(wave, -45)
                 lines.arcTo(wave, -45, 90)
+    else:
+        _settings_outline(glyph, lines, dots)
     return lines, dots
+
+
+def _settings_outline(glyph: Glyph, lines: QPainterPath, dots: QPainterPath) -> None:
+    """Settings' sections' and cards' marks (polyglotic-hq 470), drawn as
+    449's wireframes had them, on the 16-unit grid."""
+    if glyph is Glyph.LOOK:  # a caption's panel, its two lines
+        lines.addRoundedRect(QRectF(1.75, 3.25, 12.5, 9.5), 2, 2)
+        lines.moveTo(4.5, 6.5)
+        lines.lineTo(11.5, 6.5)
+        lines.moveTo(6, 9.5)
+        lines.lineTo(10, 9.5)
+    elif glyph is Glyph.READINGS:  # a short line over an A: a reading
+        lines.moveTo(4.5, 2.5)
+        lines.lineTo(11.5, 2.5)
+        lines.moveTo(4, 13.75)
+        lines.lineTo(8, 5.5)
+        lines.lineTo(12, 13.75)
+        lines.moveTo(5.5, 10.75)
+        lines.lineTo(10.5, 10.75)
+    elif glyph is Glyph.TIMING:  # a clock
+        lines.addEllipse(QPointF(8, 8), 6, 6)
+        lines.moveTo(8, 4.5)
+        lines.lineTo(8, 8)
+        lines.lineTo(10.5, 9.75)
+    elif glyph is Glyph.SPEECH:  # a speech bubble
+        lines.moveTo(4.5, 2.5)
+        lines.lineTo(11.5, 2.5)
+        lines.arcTo(QRectF(10.5, 2.5, 4, 4), 90, -90)
+        lines.lineTo(14.5, 9)
+        lines.arcTo(QRectF(10.5, 7, 4, 4), 0, -90)
+        lines.lineTo(7.5, 11)
+        lines.lineTo(4.5, 13.75)
+        lines.lineTo(4.5, 11)
+        lines.arcTo(QRectF(1.5, 7, 4, 4), 270, -90)
+        lines.lineTo(1.5, 4.5)
+        lines.arcTo(QRectF(1.5, 2.5, 4, 4), 180, -90)
+        lines.closeSubpath()
+    elif glyph is Glyph.APP:  # a window, its title bar
+        lines.addRoundedRect(QRectF(1.75, 2.75, 12.5, 10.5), 1.75, 1.75)
+        lines.moveTo(1.75, 5.75)
+        lines.lineTo(14.25, 5.75)
+    elif glyph is Glyph.LAB:  # a flask
+        lines.moveTo(5.75, 1.75)
+        lines.lineTo(10.25, 1.75)
+        lines.moveTo(6.5, 1.75)
+        lines.lineTo(6.5, 6.25)
+        lines.lineTo(2.75, 12.5)
+        lines.cubicTo(2.4, 13.4, 2.9, 14.25, 3.9, 14.25)
+        lines.lineTo(12.1, 14.25)
+        lines.cubicTo(13.1, 14.25, 13.6, 13.4, 13.25, 12.5)
+        lines.lineTo(9.5, 6.25)
+        lines.lineTo(9.5, 1.75)
+        lines.moveTo(4.5, 10)
+        lines.lineTo(11.5, 10)
+    elif glyph is Glyph.BEHAVIOUR:  # lines arriving, an arrow down beside them
+        for y, end in ((3.5, 14.25), (8.0, 9.5), (12.5, 7.0)):
+            lines.moveTo(1.75, y)
+            lines.lineTo(end, y)
+        lines.moveTo(12.75, 7.25)
+        lines.lineTo(12.75, 13.25)
+        lines.moveTo(10.5, 11)
+        lines.lineTo(12.75, 13.25)
+        lines.lineTo(15, 11)
+    elif glyph is Glyph.RESET:  # an arrow going round
+        ring = QRectF(2.5, 2.5, 11, 11)
+        lines.arcMoveTo(ring, 50)
+        lines.arcTo(ring, 50, 280)
+        lines.moveTo(12.25, 1.5)
+        lines.lineTo(11.75, 4.75)
+        lines.lineTo(8.5, 4.25)
+    elif glyph is Glyph.TEXT_SIZE:  # a small A and a large one
+        lines.moveTo(1.25, 13.5)
+        lines.lineTo(3.75, 7.5)
+        lines.lineTo(6.25, 13.5)
+        lines.moveTo(2.1, 11.5)
+        lines.lineTo(5.4, 11.5)
+        lines.moveTo(7.25, 13.5)
+        lines.lineTo(11, 2.75)
+        lines.lineTo(14.75, 13.5)
+        lines.moveTo(8.6, 9.75)
+        lines.lineTo(13.4, 9.75)
+    elif glyph is Glyph.THEME:  # a circle, its left half filled
+        lines.addEllipse(QPointF(8, 8), 6, 6)
+        dots.moveTo(8, 2)
+        dots.arcTo(QRectF(2, 2, 12, 12), 90, 180)
+        dots.closeSubpath()
+    elif glyph is Glyph.TRANSCRIPTS:  # a page of lines
+        lines.addRoundedRect(QRectF(3, 1.75, 10, 12.5), 1.75, 1.75)
+        for y in (5.0, 8.0, 11.0):
+            lines.moveTo(5.5, y)
+            lines.lineTo(10.5, y)
+    elif glyph is Glyph.KEYS:  # a keyboard
+        lines.addRoundedRect(QRectF(1.25, 3.75, 13.5, 8.5), 1.75, 1.75)
+        for x in (4.0, 6.65, 9.35, 12.0):
+            dots.addEllipse(QPointF(x, 6.75), 0.75, 0.75)
+        lines.moveTo(5, 9.5)
+        lines.lineTo(11, 9.5)
+    elif glyph is Glyph.UPDATES:  # an arrow down into a tray
+        lines.moveTo(8, 1.75)
+        lines.lineTo(8, 10)
+        lines.moveTo(4.75, 6.75)
+        lines.lineTo(8, 10)
+        lines.lineTo(11.25, 6.75)
+        lines.moveTo(2.25, 10.75)
+        lines.lineTo(2.25, 14)
+        lines.lineTo(13.75, 14)
+        lines.lineTo(13.75, 10.75)
+    elif glyph is Glyph.ABOUT:  # an i in a circle
+        lines.addEllipse(QPointF(8, 8), 6, 6)
+        lines.moveTo(8, 7.25)
+        lines.lineTo(8, 11.25)
+        dots.addEllipse(QPointF(8, 4.9), 0.85, 0.85)
 
 
 def paint(painter: QPainter, glyph: Glyph, box: QRectF, color: QColor) -> None:
@@ -192,15 +338,24 @@ def text_width(px: int) -> int:
     return px + 2 * space
 
 
-def icon(glyph: Glyph, color: str, size: int, disabled: str | None = None) -> QIcon:
+def icon(
+    glyph: Glyph,
+    color: str,
+    size: int,
+    disabled: str | None = None,
+    on: str | None = None,
+) -> QIcon:
     """`glyph` as an icon `size` pixels square, sharp at each display scale;
     in `disabled`'s colour while its button is off to clicks (Qt's own
-    greying leaves a near-white glyph near white, 258)."""
+    greying leaves a near-white glyph near white, 258); in `on`'s while its
+    button is checked (Settings' chosen section, polyglotic-hq 470)."""
     found = QIcon()
-    modes = [(QIcon.Mode.Normal, color)]
+    modes = [(QIcon.Mode.Normal, QIcon.State.Off, color)]
     if disabled is not None:
-        modes.append((QIcon.Mode.Disabled, disabled))
-    for mode, ink in modes:
+        modes.append((QIcon.Mode.Disabled, QIcon.State.Off, disabled))
+    if on is not None:
+        modes.append((QIcon.Mode.Normal, QIcon.State.On, on))
+    for mode, state, ink in modes:
         for scale in SCALES:
             side = round(size * scale)
             pixmap = QPixmap(QSize(side, side))
@@ -209,5 +364,5 @@ def icon(glyph: Glyph, color: str, size: int, disabled: str | None = None) -> QI
             painter = QPainter(pixmap)
             paint(painter, glyph, QRectF(0, 0, side / scale, side / scale), QColor(ink))
             painter.end()
-            found.addPixmap(pixmap, mode)
+            found.addPixmap(pixmap, mode, state)
     return found

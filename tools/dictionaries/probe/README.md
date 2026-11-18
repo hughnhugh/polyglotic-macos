@@ -19,3 +19,7 @@ floor (polyglotic-hq project 157: 90 %).
   https://github.com/facebookresearch/flores
 - Read text, not conversation: real captions have more names and slang,
   so they will miss more.
+
+`en.txt` is English's, the same way (086's `en-de.json`): what
+`tools.dictionaries.english_check` measures `ecdict-en.sqlite`'s English
+meanings on (polyglotic-hq 447). English isn't a pack.

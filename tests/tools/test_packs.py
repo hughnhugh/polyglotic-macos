@@ -400,7 +400,8 @@ BATCH = {
             "जाना",
             "verb",
             sense("to go"),
-            forms=forms(("jānā", "romanization"), ("गया", "perfective")),
+            # as Wiktionary's table tags it: an aspect alone is a partner verb
+            forms=forms(("jānā", "romanization"), ("गया", "masculine perfective")),
         ),
         hi("गया", "name", sense("Gaya (a city)")),
         hi("हिंदी", "name", sense("Hindi (language)")),
@@ -538,6 +539,7 @@ FREQ: dict[str, dict[int, list[str]]] = {
     "fa": {150: ["و"], 200: ["کتاب", "کردن"]},
     "fil": {150: ["isang"], 200: ["isa", "noon", "noong", "kung"]},
     "ja": {200: ["する"], 300: ["食べる"], 400: ["剃る"]},
+    "zh": {300: ["银行"]},
     "ru": {
         110: ["в", "или"],
         250: ["земля", "земли"],
@@ -551,6 +553,26 @@ FREQ: dict[str, dict[int, list[str]]] = {
 SUBTITLES_RU = "".join(f"{word} {n}\n" for word, n in (("сказать", 500), ("я", 400)))
 """Russian as said in films: OpenSubtitles' counts, as FrequencyWords
 publishes them."""
+
+
+CC_CANTO = """# CC-Canto
+係 係 [xi4] {hai6} /(Cantonese) to be/to connect/
+佢哋 渠哋 [qu2 di4] {keoi5 dei6} /(pronoun) they/
+嘅 嘅 [kai3] {ge3} /possessive marker/
+嘅 慨 [kai3] {koi3} /(final particle) surprise/
+"""
+CANTO_READINGS = """銀行 银行 [yin2 hang2] {ngan4 hong4}
+行 行 [xing2] {hang4}
+行 行 [xing2] {haang4}
+"""
+CEDICT_FOR_CANTO = """# CC-CEDICT
+係 系 [xi4] /to connect/
+銀行 银行 [yin2 hang2] /bank/
+行 行 [xing2] /to walk/to go/
+"""
+RIME = "# Rime dictionary\n---\nname: x\n...\n\n"
+HKCANCOR = "<sent_tag>\n\t佢哋/r/keoi5dei6/\n\t係/v/hai6/\n\t係/v/hai6/\n\t嘅/u/ge3/\n"
+"""Cantonese as said: three words of HKCanCor's tagged sentences."""
 
 
 def sources(folder: Path) -> dict[str, Path]:
@@ -568,6 +590,12 @@ def sources(folder: Path) -> dict[str, Path]:
         "opensubtitles-vi": folder / "vi.txt.gz",
         "kaikki-th": folder / "th.jsonl.gz",
         "commonvoice-th": folder / "th.txt",
+        "cc-canto": folder / "cccanto.zip",
+        "canto-readings": folder / "readings.zip",
+        "cedict": folder / "cedict.txt",
+        "rime-words": folder / "words.dict.yaml",
+        "rime-chars": folder / "chars.dict.yaml",
+        "hkcancor": folder / "hkcancor.zip",
     }
     paths["kaikki-es"].write_bytes(gzip.compress("\n".join(SPANISH).encode("utf-8")))
     paths["kaikki-fr"].write_bytes(gzip.compress("\n".join(FRENCH).encode("utf-8")))
@@ -592,6 +620,19 @@ def sources(folder: Path) -> dict[str, Path]:
     paths["opensubtitles-vi"].write_bytes(gzip.compress(SUBTITLES_VI.encode("utf-8")))
     paths["kaikki-th"].write_bytes(gzip.compress("\n".join(THAI).encode("utf-8")))
     paths["commonvoice-th"].write_bytes(COMMON_VOICE_TH.encode("utf-8"))
+    for name, text in (
+        ("cc-canto", CC_CANTO),
+        ("canto-readings", CANTO_READINGS),
+    ):
+        with zipfile.ZipFile(paths[name], "w") as archive:
+            archive.writestr(f"{name}.txt", text)
+    paths["cedict"].write_text(CEDICT_FOR_CANTO, encoding="utf-8")
+    paths["rime-words"].write_text(RIME + "行路\thaang4 lou6\n", encoding="utf-8")
+    paths["rime-chars"].write_text(
+        RIME + "行\thaang4\n行\thang4\t5%\n嘅\tge3\n嘅\tkoi3\t3%\n", encoding="utf-8"
+    )
+    with zipfile.ZipFile(paths["hkcancor"], "w") as archive:
+        archive.writestr("utf8/FC-001_v", HKCANCOR)
     with zipfile.ZipFile(paths["wordfreq"], "w") as wheel:
         for language, buckets in FREQ.items():
             data = msgpack(
@@ -890,6 +931,32 @@ def test_the_vietnamese_pack_has_words_of_several_syllables_ranked_by_use(
     assert not (built / "wiktvi-zh.sqlite").exists()
     credits = (built / "wiktvi.CREDITS.md").read_text(encoding="utf-8")
     assert "Only word counts" in credits and "opensubtitles.org" in credits
+
+
+def test_the_cantonese_pack_reads_its_words_in_jyutping(built: Path) -> None:
+    """Cantonese (polyglotic-hq 450, decision 0160): CC-Canto's words, then
+    CC-CEDICT's with their Cantonese readings, in Traditional characters with
+    Jyutping's tones raised, each word's everyday reading first; ranked by
+    HKCanCor's words and wordfreq's written Chinese, averaged."""
+    file = SqliteDictionary(built / "canto.sqlite")
+    assert file.info["language"] == "yue"
+    assert file.info["meanings_language"] == "en"
+    assert file.info["frequency_source"] == "hkcancor+wordfreq-zh"
+    assert [(r.reading, r.meanings[0]) for r in file.records("係")] == [
+        ("hai⁶", "(Cantonese) to be")
+    ]
+    assert [r.reading for r in file.records("嘅")] == ["ge³", "koi³"]
+    # the readings file reads 行 two ways: rime's everyday one, haang4
+    assert [r.reading for r in file.records("行")] == ["haang⁴"]
+    assert [r.headword for r in file.records("银行")] == ["銀行"]
+    ranks = {
+        r.headword: r.frequency_rank for r in every_record(file) if r.frequency_rank
+    }
+    # 係 twice, 佢哋 and 嘅 once in speech (a tie: the source's order); 銀行
+    # only written (银行)
+    assert ranks == {"係": 1, "佢哋": 2, "嘅": 3, "銀行": 4}
+    assert "行" not in ranks  # met in neither: kept, unranked
+    assert not (built / "canto-zh.sqlite").exists()
 
 
 def test_the_thai_pack_has_its_words_ranked_by_common_voice(built: Path) -> None:

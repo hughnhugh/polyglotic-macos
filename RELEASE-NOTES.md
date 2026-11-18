@@ -26,18 +26,89 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
+- Save sentences: drag across more than a word in a caption window - across lines, captions and speakers - and save it into a category, with its translation and word links; in a transcript, right-click a selection and choose Save sentence to. Saved sentences stay on your PC.
+- An English word's card explains it in English: short everyday
+  definitions, the commonest meaning first, each with its part of speech
+  and the first with an example. The meanings are in Chinese only when
+  the app's language is Chinese.
+- Lab: Parts placed. With Fill the width or Line up the parts on, a line's
+  parts can sit nearest the words they are linked to, so the word links
+  and Arrows are short, or be spread evenly over the width. Packed, as
+  before, unless you choose.
+- Cantonese is a language of its own to learn. Its dictionary reads a
+  Cantonese line's words in Jyutping with Cantonese meanings (係 is
+  "hai⁶: to be", not Mandarin's "xì"), finds words like 佢哋 and 而家
+  whole, and keeps your words as every other language does. The Chinese
+  dictionary still answers a word it hasn't got, and the card says so.
+- Jyutping above Cantonese, as pinyin goes above Chinese: turn it on in
+  Settings > Readings once you learn Cantonese. It takes the
+  same size, words and colour choices as pinyin, which are now under
+  Readings.
+- A caption window sets itself up when it opens: it asks what they
+  speak, what to translate into, and what to do when they already speak
+  that language - each already filled in. Choose Use as my default and
+  new windows start the same way, without asking again (the languages on
+  any window's bar bring it back). Captions start as soon as there's
+  sound, whether you've answered or not. Every caption window's bar now shows its languages ("Detect →
+  English"); click them to change them.
+- Everything on from the start, for someone new: your first caption
+  window captions what you say too, as "You" (its set-up shows the switch,
+  to turn it off); word links show with their lines; dictation is on -
+  hold Right Ctrl, speak, let go; a hidden caption window comes back when
+  its app starts speaking; and readings like pinyin, once turned on, go
+  over the words past what you know. On a Mac, macOS asks for the
+  microphone then; if it's refused, the switch goes off and says where to
+  allow it. If you've used Polyglotic before, your settings stay as they
+  are.
+
+- Cantonese is a language of its own to learn. Its dictionary reads a
+  Cantonese line's words in Jyutping with Cantonese meanings (係 is
+  "hai⁶: to be", not Mandarin's "xì"), finds words like 佢哋 and 而家
+  whole, and keeps your words as every other language does. The Chinese
+  dictionary still answers a word it hasn't got, and the card says so.
+- Jyutping above Cantonese, as pinyin goes above Chinese: turn it on in
+  Settings > Look > Readings once you learn Cantonese. It takes the
+  same size, words and colour choices as pinyin, which are now under
+  Readings.
 ### Better
+- Thai captions' word links are cut at Thai words, as the word card
+  splits them, instead of underlining a whole phrase; particles such as
+  ครับ, ค่ะ and นะ aren't linked.
+
+- A quicker first start: once you've signed in, everything your PC plays
+  is captioned straight away, in one window called "Everything the PC
+  plays" that sets itself up. Home says so (a call's voices too), and one
+  click on an app there captions just that app instead.
+- Settings is easier to find your way around. Each section's tab and
+  each card's title has a small picture beside its name, the titles are
+  bigger, and the title and tabs stay at the top as you scroll, with the
+  name of the card you're in under them. Word links and Readings are
+  sections of their own now, out of Look, and the app's language is set
+  in one place, under the title. In a narrow window the tabs become a
+  list.
 
 ### Fixed
 
-## 0.1.8 - 2026-11-18
-
-### Fixed
-
-- The Mac app couldn't sign in: every try said "Something on this network
-  is in the way" whatever the network, and never reached our server. It
-  now trusts the certificates macOS itself trusts, so signing in, live
-  captions, updates and dictionary downloads connect.
+- English cards open on the right word more often: "does" on do (not a
+  deer), "am" on be, and lower-case "north", "i", "i'm" and "mr" are
+  found. A few dozen rarer forms (ruined, panicked, scrolling) open on
+  their own verb.
+- An English word's Chinese meanings start with the everyday one: can is
+  能, 可以 (not 装罐, "to can"), will 将, may 可能, well 很好地, good 好的
+  and give 给. "tv", "ok", "uk" and a few dozen other abbreviations are
+  found in lower case, "number" no longer opens numb, and "gonna",
+  "cannot", "wanna" and "gotta" open go, can, want and get.
+- People's names in English captions are names: "John" opens 约翰 (not
+  john, a toilet), "Bill" inside a sentence is the name, and Mary, David,
+  Michael and about 1,300 more are no longer counted as words you've heard
+  or marked as new. "a bit" opens bit (一点, not bite), "later" opens
+  later (以后), and "training", "meeting", "interesting" and a dozen more
+  open their own meaning first and count as their own word.
+- Changing a setting on Learning - a learning window, word links, where
+  links start, Mark known - no longer jumps the page down to its middle:
+  it stays where you were, with the keyboard on the same control. The same
+  for removing a dictionary there, and for renaming or recolouring a
+  category on Words.
 
 ## 0.1.7 - 2026-11-17
 

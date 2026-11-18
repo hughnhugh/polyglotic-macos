@@ -1,6 +1,7 @@
 # 0015 A release's version comes from its git tag; the server and update addresses are constants in code
 
-- **Status:** accepted
+- **Status:** accepted; what a copy run from source tells the server is
+  [0224](0224-a-copy-from-source-tells-the-server-its-newest-release.md)'s
 - **Date:** 2026-11-05
 - **Decided by:** polyglotic-hq project 035 (D5)'s brief, from the user's
   release plan (ENGINEERING.md, "Releases", 2026-11-04) and project 032's

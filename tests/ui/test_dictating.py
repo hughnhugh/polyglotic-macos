@@ -446,8 +446,9 @@ def test_every_language_the_speech_model_takes_is_offered_by_name(
 
 
 def test_dictation_is_a_source_of_its_own_on_the_session_only_when_on() -> None:
-    off = listening_settings(AppSettings())
+    off = listening_settings(AppSettings(dictation=False))
     assert DICTATION not in off.source_targets
+    assert DICTATION in listening_settings(AppSettings()).source_targets  # on: 478
     on = listening_settings(
         AppSettings(dictation=True, dictation_language="zh", spoken_language="en")
     )
@@ -498,7 +499,7 @@ def test_dictations_answers_never_reach_the_caption_feed(qapp: QApplication) -> 
 
 
 def test_dictation_settings_are_read_leniently() -> None:
-    assert AppSettings().dictation is False  # off until turned on
+    assert AppSettings().dictation is True  # on for a new learner (478; off in 283)
     assert AppSettings().dictation_key == "right_ctrl"  # polyglotic-hq 289
     for kept in ("insert", "ctrl+alt+d", "ctrl+win", "pause"):  # 283's still read
         assert AppSettings.from_stored({"dictation_key": kept}).dictation_key == kept
@@ -520,7 +521,7 @@ def test_dictation_settings_are_read_leniently() -> None:
         {"dictation": "yes", "dictation_key": "space", "dictation_language": "Klingon"}
     )
     assert (bad.dictation, bad.dictation_key, bad.dictation_language) == (
-        False,
+        True,  # the default (478)
         "right_ctrl",
         None,
     )

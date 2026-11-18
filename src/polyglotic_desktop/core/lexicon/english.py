@@ -4,7 +4,13 @@ Word statuses and exposures are counted per entry, so "running", "ran"
 and "runs" in a caption all count for "run" (`entry_for_word`), using
 ECDICT's inflection data. A form with meanings of its own ("left": 左边的)
 is still looked up too: `lookup` shows its lemma's entry first, then its
-own.
+own - unless the dictionary file lists its own first, where that's the
+commoner meaning ("a bit" is 一点, not a bite: polyglotic-hq 464).
+
+A name is an entry written capitalised (`entry_from_record`). Where a name
+is also a word ("Bill"), the dictionary has the word first: a sentence's
+first word is looked up as the word, a capitalised one inside a sentence
+as the name (`names_first`).
 """
 
 import re
@@ -67,7 +73,18 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
     )
 
 
-_CONTRACTED = {"can't": "can", "won't": "will", "shan't": "shall"}
+_CONTRACTED = {
+    "can't": "can",
+    "won't": "will",
+    "shan't": "shall",
+    "cannot": "can",
+    "gonna": "going",
+    "wanna": "want",
+    "gotta": "got",
+}
+"""Contractions whose word isn't their start, and the spoken forms ECDICT
+hasn't got: "cannot" is can not, "gonna" going to (going: go's), "wanna"
+want to, "gotta" got to (polyglotic-hq 462, 463)."""
 _CONTRACTIONS = ("n't", "'re", "'ll", "'ve", "'m", "'d")
 
 
@@ -103,6 +120,45 @@ def base_words(word: str) -> list[str]:
     return found
 
 
+_OPENERS = "\"'“‘«([{-–—  "
+"""What may stand between a sentence's end and its first word: spaces,
+opening quotes and brackets, a dialogue line's dash."""
+_ENDS = ".!?…:;。！？"
+"""What ends a sentence, or may be followed by one ("He said: Will...")."""
+_QUOTES = '"“‘«'
+"""Opening quotes: what follows one starts a sentence ('said "Will you')."""
+
+
+def inside_sentence(text: str, start: int) -> bool:
+    """Whether the word at `start` of `text` is inside a sentence, not its
+    first word: something comes before it, the last thing before it (past
+    spaces, brackets and dashes) isn't a sentence's end, and no opening
+    quote stands between. A line's first word counts as a sentence's: a
+    caption's row can begin one ("Will you...")."""
+    before = text[:start].rstrip(_OPENERS)
+    between = text[len(before) : start]
+    return (
+        bool(before)
+        and before[-1] not in _ENDS
+        and not any(q in between for q in _QUOTES)
+    )
+
+
+def is_capitalised(word: str) -> bool:
+    """Written with a capital and then lower case ("John", "McDonald",
+    "Bill's") - not in capitals ("TV") nor a lone letter ("I")."""
+    return word[:1].isupper() and any(c.islower() for c in word[1:])
+
+
+def names_first(entries: Sequence[DictionaryEntry], word: str) -> list[DictionaryEntry]:
+    """`entries` for `word` as written inside a sentence: if it's
+    capitalised there, its names first ("and Bill said": Bill, a name, then
+    bill, 帐单) - in their order otherwise (polyglotic-hq 464)."""
+    if not is_capitalised(word):
+        return list(entries)
+    return sorted(entries, key=lambda e: not e.is_name)
+
+
 def words(text: str) -> list[tuple[int, int]]:
     """(start, end) of each word in `text`: runs of letters, with
     apostrophes and hyphens inside ("it's", "well-known")."""
@@ -130,13 +186,15 @@ class EnglishDictionary:
         """Always: nothing is loaded up front (`ChineseDictionary.ready`)."""
         return True
 
-    def lookup(self, word: str) -> list[DictionaryEntry]:
+    def lookup(self, word: str, inside: bool = False) -> list[DictionaryEntry]:
         """The entries for `word` as written, trying lower case too
         ("Running" at the start of a sentence): its lemma's entry first if
         it's an inflected form ("running" -> run), then its own. A
         possessive the dictionary hasn't got ("the game's graphics") is its
         word's: ECDICT has no "game's", and the card said "Not in the
-        dictionary" (polyglotic-hq 329)."""
+        dictionary" (polyglotic-hq 329). `inside`: written so inside a
+        sentence, where a capitalised word is a name first (`names_first`):
+        the dictionary has "Bill" as the word bill, then the name."""
         word = word.replace("’", "'")
         found = self._entries(word)
         if not found and len(word) > 2 and word[-2:].lower() == "'s":
@@ -145,11 +203,23 @@ class EnglishDictionary:
             found = self._entries(base)
             if found:
                 break
-        return list(found.values())
+        entries = list(found.values())
+        return names_first(entries, word) if inside else entries
 
     def _entries(self, word: str) -> dict[str, DictionaryEntry]:
+        """`word` as written, then in lower case, then - written in lower
+        case and found neither way - capitalised: ECDICT has "North",
+        "I" and "Mr" only so, and a lower-case caption's "north", "i'm"
+        or "mr" was in no dictionary (polyglotic-hq 462). Never the other
+        way round: a name finds its own entry before a word's. A lone
+        letter other than "i" isn't: the "s" of "the 1990s" isn't "S",
+        sulphur. (Words ECDICT has only in capitals, "TV", are found in
+        lower case by the dictionary's own forms: polyglotic-hq 463.)"""
         found: dict[str, DictionaryEntry] = {}
-        for form in dict.fromkeys((word, word.lower())):
+        tried = [word, word.lower()]
+        if word.islower() and (len(word) > 1 or word == "i"):
+            tried.append(word.capitalize())
+        for form in dict.fromkeys(tried):
             lemma = self._file.lemma(form)
             for record in [
                 *(self._file.records(lemma) if lemma else ()),
@@ -160,20 +230,22 @@ class EnglishDictionary:
                 break
         return found
 
-    def entry_for_word(self, word: str) -> DictionaryEntry | None:
+    def entry_for_word(self, word: str, inside: bool = False) -> DictionaryEntry | None:
         """The entry `word` counts for in statuses and exposures: its
-        lemma's if it's an inflected form, else its own; None if the
-        dictionary doesn't have it."""
-        entries = self.lookup(word)
+        lemma's if it's an inflected form, else its own (or a name's, as
+        `lookup` has it `inside` a sentence); None if the dictionary doesn't
+        have it."""
+        entries = self.lookup(word, inside)
         return entries[0] if entries else None
 
     def words_in(self, text: str, scheme_id: str) -> list[WordInLine]:
         """The words in `text` the dictionary has, each with the entry it
         counts for and the facts Learning needs for a learner in
-        `scheme_id` - for highlights and exposures."""
+        `scheme_id` - for highlights and exposures. A capitalised word
+        inside a sentence counts as a name, if it's one ("and Bill said")."""
         found = []
         for start, end in words(text):
-            entry = self.entry_for_word(text[start:end])
+            entry = self.entry_for_word(text[start:end], inside_sentence(text, start))
             if entry is not None:
                 found.append(WordInLine(start, end, entry.facts(scheme_id)))
         return found

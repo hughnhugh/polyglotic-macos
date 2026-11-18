@@ -7,8 +7,10 @@ The version and channel are the release's: the release build writes them
 into the app as `release.json` - the version from the git tag (`v0.1.0`
 -> `0.1.0`), the channel it was packed for (decision 0015) and, from 313,
 when it was built (decision 0104: never sent; the floor for a certificate's
-dates). Run from source, there's no such file: the app is `0.0.0` on
-`win-x64-alpha`.
+dates). Run from source, there's no such file: the copy is `0.0.0` on
+`win-x64-alpha` - not a release - but it tells the server the newest
+release its RELEASE-NOTES.md names, whose changes its code holds, so the
+server's minimum lets it in as it would that release (decision 0224).
 """
 
 from __future__ import annotations
@@ -20,7 +22,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from importlib.resources import files
 from importlib.resources.abc import Traversable
+from pathlib import Path
 from typing import TYPE_CHECKING, get_args
+
+from polyglotic_desktop.core.releases.notes import newest_released, sections
 
 if TYPE_CHECKING:
     # imported at runtime only to read a release stamp: `protocol` brings
@@ -118,8 +123,43 @@ class AppInfo:
         return self.os.split("-", 1)[0]
 
     @classmethod
-    def this_app(cls, os: Os, os_version: str) -> AppInfo:
+    def this_app(
+        cls,
+        os: Os,
+        os_version: str,
+        stamped: Traversable | None = None,
+        notes: Path | None = None,
+    ) -> AppInfo:
         """This copy of the app on this OS: its name and version number come
-        from the OS's adapters (`main.os_adapters`, decision 0038)."""
-        release = this_release(first=first_channel(os))
-        return cls(release.version, os, release.channel, os_version)
+        from the OS's adapters (`main.os_adapters`, decision 0038). A release
+        build tells its stamp's version; a copy run from source (no stamp)
+        the newest release its notes name (`source_version`)."""
+        stamp = stamped or files("polyglotic_desktop") / RELEASE_FILE
+        release = this_release(stamp, first_channel(os))
+        version = release.version if stamp.is_file() else source_version(notes)
+        return cls(version, os, release.channel, os_version)
+
+
+def source_notes() -> Path:
+    """The repo's RELEASE-NOTES.md, for a copy run from source
+    (`src/polyglotic_desktop/connection/app.py` -> the repo's root). Asked
+    only without a stamp: a release build never looks."""
+    return Path(__file__).resolve().parents[3] / "RELEASE-NOTES.md"
+
+
+def source_version(notes: Path | None = None) -> str:
+    """What a copy run from source tells the server it is (decision 0224):
+    the newest release its RELEASE-NOTES.md names (`notes`, by default
+    `source_notes()`), whose changes its code holds - so a developer's copy
+    of the code passes the server's minimum as that release would; `0.0.0`
+    without notes that name one."""
+    try:
+        text = (notes or source_notes()).read_text(encoding="utf-8")
+    except OSError:
+        return FROM_SOURCE_VERSION
+    newest = newest_released(sections(text))
+    return (
+        newest
+        if newest is not None and VERSION.fullmatch(newest)
+        else FROM_SOURCE_VERSION
+    )

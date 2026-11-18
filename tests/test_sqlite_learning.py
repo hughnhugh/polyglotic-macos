@@ -365,6 +365,7 @@ def test_a_version_1_file_gains_the_deck_tables(tmp_path: Path) -> None:
     db.execute("ALTER TABLE exposures DROP COLUMN first_heard")
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("PRAGMA user_version = 1")
     db.close()
     store = SqliteLearningStore(path)
@@ -404,6 +405,7 @@ def test_a_version_2_file_gains_the_coverage_table_and_keeps_its_data(
     db.execute("ALTER TABLE exposures DROP COLUMN first_heard")
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("PRAGMA user_version = 2")
     db.close()
     store = SqliteLearningStore(path)
@@ -443,6 +445,7 @@ def test_a_version_3_file_gains_the_listening_table(tmp_path: Path) -> None:
     db.execute("ALTER TABLE exposures DROP COLUMN first_heard")
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("PRAGMA user_version = 3")
     db.close()
     store = SqliteLearningStore(path)
@@ -485,6 +488,7 @@ def test_a_version_4_file_gains_first_heard_and_keeps_its_counts(
     db.execute("INSERT INTO exposures VALUES ('a', 3, 0, 1)")
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("PRAGMA user_version = 4")
     db.commit()
     db.close()
@@ -564,6 +568,7 @@ def test_a_version_5_file_gains_the_load_table_and_keeps_its_data(
     db.execute("INSERT INTO exposures VALUES ('a', 3, 0, 1, NULL)")
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("PRAGMA user_version = 5")
     db.commit()
     db.close()
@@ -600,6 +605,7 @@ def test_a_version_6_files_exports_are_remembered_by_both_kinds(
     db = sqlite3.connect(path)
     db.execute("DROP TABLE anki_csv_exports")
     db.execute("DROP TABLE lookups")  # version 8's
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     db.execute("INSERT INTO anki_exports VALUES ('a', ?)", (AT.isoformat(),))
     db.execute("PRAGMA user_version = 6")
     db.commit()
@@ -643,6 +649,7 @@ def test_a_version_7_file_keeps_its_pinned_lookups_as_lookups(tmp_path: Path) ->
     SqliteLearningStore(path).close()
     db = sqlite3.connect(path)
     db.execute("DROP TABLE lookups")
+    db.execute("DROP TABLE saved_sentences")  # version 9's
     rows = [
         ("looked", "new", "estimated"),
         ("said-new", "new", "learner"),
@@ -661,21 +668,22 @@ def test_a_version_7_file_keeps_its_pinned_lookups_as_lookups(tmp_path: Path) ->
     assert data.lookups == [StoredLookups("looked", 1, 0, AT, 0)]
     assert len(data.statuses) == 3
     store.close()
-    assert VERSION == 8
+    assert VERSION == 9
 
 
-def test_an_app_from_before_version_8_refuses_the_file(
+def test_an_app_from_before_version_9_refuses_the_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """What 0.1.6 (version 6) and a build with 368's #706 (version 7) do
-    with a file this version opened: refuse it as a newer app's, with
-    nothing written - the rule every version kept (decision 0010)."""
+    """What 0.1.6 (version 6), a build with 368's #706 (version 7) and
+    0.1.7 (version 8) do with a file this version opened: refuse it as a
+    newer app's, with nothing written - the rule every version kept
+    (decision 0010)."""
     path = tmp_path / "learning.sqlite"
     SqliteLearningStore(path).close()
-    for older in (6, 7):
+    for older in (6, 7, 8):
         monkeypatch.setattr(sqlite_learning, "VERSION", older)
-        with pytest.raises(LearningStoreFormatError, match="version 8"):
+        with pytest.raises(LearningStoreFormatError, match="version 9"):
             SqliteLearningStore(path)
     db = sqlite3.connect(path)
-    assert db.execute("PRAGMA user_version").fetchone() == (8,)
+    assert db.execute("PRAGMA user_version").fetchone() == (9,)
     db.close()

@@ -32,11 +32,37 @@ class DeckNote:
     changed: datetime
 
 
+@dataclass(frozen=True)
+class DeckSentence:
+    """A saved sentence as an Anki note (polyglotic-hq 459): `front` is
+    what was said with its saved words in <b>; `original` and
+    `translation` have their linked words underlined (HTML, escaped);
+    `speakers` who said it. `language` - the language it was spoken in -
+    picks the sentence note type and the sub-deck; `changed` is when it
+    was saved."""
+
+    guid: str
+    language: str
+    front: str
+    original: str
+    translation: str
+    speakers: str
+    sentence_id: str
+    tags: tuple[str, ...]
+    changed: datetime
+
+
 class AnkiDeckWriter(Protocol):
     def build(
-        self, notes: Sequence[DeckNote], *, listen: bool = False, recall: bool = False
+        self,
+        notes: Sequence[DeckNote],
+        *,
+        listen: bool = False,
+        recall: bool = False,
+        sentences: Sequence[DeckSentence] = (),
     ) -> bytes:
         """The `.apkg` file's bytes: the notes under the deck "Polyglotic",
         in a sub-deck per language. `listen` and `recall` switch on the
-        optional card types for these notes."""
+        optional card types for these notes. `sentences` go into their
+        language's sub-deck, in a note type of their own."""
         ...

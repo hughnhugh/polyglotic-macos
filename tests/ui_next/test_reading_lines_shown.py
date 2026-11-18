@@ -18,7 +18,7 @@ from PySide6.QtCore import QPointF
 from PySide6.QtGui import QColor, QFontMetricsF, QImage, QPainter, QPainterPath
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.budget_judge import sampled, within
-from tests.ui.fakes import chinese_tools
+from tests.ui.fakes import MemorySettingsStore, chinese_tools
 from tests.ui_next.made_up import EN, ZH, finished_updates, live_update
 from tests.ui_next.test_caption_window import areas
 from tests.ui_next.test_flow import PAIRED, ROWS
@@ -46,7 +46,7 @@ from polyglotic_desktop.ui.recorded_captions import (
     clause,
     finished,
 )
-from polyglotic_desktop.ui.settings import AppSettings
+from polyglotic_desktop.ui.settings import AppSettings, Settings
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_layout import (
     CaptionLayout,
@@ -481,8 +481,9 @@ def test_past_what_i_know_is_a_choice_saved_with_the_switch() -> None:
         assert panel.reading_over.isEnabled()
         view.set_reading_past(True)
         assert caption_style(view.value).reading_past
-        stored = {**AppSettings().to_stored(), **look_settings(view.value)}
-        assert caption_look(AppSettings.from_stored(stored)).reading_past
+        store = MemorySettingsStore({})
+        Settings(store).update(**look_settings(view.value))  # as main saves it
+        assert caption_look(AppSettings.from_stored(store.values)).reading_past
         view.set_reading_line("zh", False)
         assert not panel.reading_over.isEnabled()
     finally:

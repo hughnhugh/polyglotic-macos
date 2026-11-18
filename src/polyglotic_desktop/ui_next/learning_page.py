@@ -92,6 +92,7 @@ from polyglotic_desktop.ui_next.controls import (
     Combo,
     Flow,
     Segmented,
+    focus_kept,
     label,
     page_button,
     right_row,
@@ -992,43 +993,50 @@ class LearningPage(Page):
             return
         self._shown = shown
         self.languages, self.running = languages, running
-        for old in self.cards:
-            old.hide()
-            self.cards_layout.removeWidget(old)
-            old.deleteLater()
-        self.cards = []
-        for n, card in enumerate(cards):
-            view = LanguageCardView(replace(card, pack=packs.get(card.code)), running)
-            self.cards_layout.insertWidget(n, view)  # parented before it shows
-            if view.pack is not None:
-                view.pack.wanted.connect(self.pack_wanted)
-            if view.change_level is not None:
-                view.change_level.clicked.connect(
-                    lambda _=False, c=card.code: self.change_level_wanted.emit(c)
+        # the keyboard on the same control, and the page where it was: not run
+        # down to its middle as each old card hid in turn (480)
+        with focus_kept(self.cards_column):
+            for old in self.cards:
+                old.hide()
+                self.cards_layout.removeWidget(old)
+                old.deleteLater()
+            self.cards = []
+            for n, card in enumerate(cards):
+                view = LanguageCardView(
+                    replace(card, pack=packs.get(card.code)), running
                 )
-            view.choices_chosen.connect(
-                lambda chosen, c=card.code: self.choices_chosen.emit(c, chosen)
-            )
-            view.first_known_wanted.connect(
-                lambda n, c=card.code: self.first_known_wanted.emit(c, n)
-            )
-            view.undo_known_wanted.connect(
-                lambda c=card.code: self.undo_known_wanted.emit(c)
-            )
-            view.reset_known_wanted.connect(
-                lambda c=card.code: self.reset_known_wanted.emit(c)
-            )
-            if view.switch is not None:
-                view.switch.clicked.connect(
-                    lambda _=False, c=card.code: self._wanted(
-                        self.languages.switched_to(c)
+                self.cards_layout.insertWidget(n, view)  # parented before it shows
+                if view.pack is not None:
+                    view.pack.wanted.connect(self.pack_wanted)
+                if view.change_level is not None:
+                    view.change_level.clicked.connect(
+                        lambda _=False, c=card.code: self.change_level_wanted.emit(c)
                     )
+                view.choices_chosen.connect(
+                    lambda chosen, c=card.code: self.choices_chosen.emit(c, chosen)
                 )
-            if view.stop is not None:
-                view.stop.clicked.connect(
-                    lambda _=False, c=card.code: self._wanted(self.languages.stopped(c))
+                view.first_known_wanted.connect(
+                    lambda n, c=card.code: self.first_known_wanted.emit(c, n)
                 )
-            self.cards.append(view)
+                view.undo_known_wanted.connect(
+                    lambda c=card.code: self.undo_known_wanted.emit(c)
+                )
+                view.reset_known_wanted.connect(
+                    lambda c=card.code: self.reset_known_wanted.emit(c)
+                )
+                if view.switch is not None:
+                    view.switch.clicked.connect(
+                        lambda _=False, c=card.code: self._wanted(
+                            self.languages.switched_to(c)
+                        )
+                    )
+                if view.stop is not None:
+                    view.stop.clicked.connect(
+                        lambda _=False, c=card.code: self._wanted(
+                            self.languages.stopped(c)
+                        )
+                    )
+                self.cards.append(view)
         self.none_yet.setVisible(not cards)
         self._show_choices()
         self.introductions.set_value(introductions)
@@ -1064,35 +1072,37 @@ class LearningPage(Page):
         if tuple(packs) == self._installed_shown:
             return
         self._installed_shown = tuple(packs)
-        while self.installed_rows.count():
-            item = self.installed_rows.takeAt(0)
-            widget = item.widget() if item is not None else None
-            if widget is not None:
-                widget.hide()
-                widget.deleteLater()
-        for pack in packs:
-            row = QWidget(self.installed)
-            line = QHBoxLayout(row)
-            line.setContentsMargins(0, 0, 0, 0)
-            line.setSpacing(12)
-            said = label(
-                _tr("{language}: version {version}, {size}").format(
-                    language=learned_name(pack.code),
-                    version=pack.version,
-                    size=size_text(pack.size),
-                ),
-                wrap=True,
-            )
-            said.setParent(row)
-            line.addWidget(said, 1)
-            remove = _button(_tr("Remove"), f"learning.{pack.code}.pack_remove")
-            remove.setParent(row)
-            remove.setProperty("kind", "ghost")
-            remove.clicked.connect(
-                lambda _=False, c=pack.code: self.pack_wanted.emit(c, "remove")
-            )
-            line.addWidget(remove)
-            self.installed_rows.addWidget(row)
+        # a Remove's keyboard not handed on to Delete learning data (480)
+        with focus_kept(self.installed):
+            while self.installed_rows.count():
+                item = self.installed_rows.takeAt(0)
+                widget = item.widget() if item is not None else None
+                if widget is not None:
+                    widget.hide()
+                    widget.deleteLater()
+            for pack in packs:
+                row = QWidget(self.installed)
+                line = QHBoxLayout(row)
+                line.setContentsMargins(0, 0, 0, 0)
+                line.setSpacing(12)
+                said = label(
+                    _tr("{language}: version {version}, {size}").format(
+                        language=learned_name(pack.code),
+                        version=pack.version,
+                        size=size_text(pack.size),
+                    ),
+                    wrap=True,
+                )
+                said.setParent(row)
+                line.addWidget(said, 1)
+                remove = _button(_tr("Remove"), f"learning.{pack.code}.pack_remove")
+                remove.setParent(row)
+                remove.setProperty("kind", "ghost")
+                remove.clicked.connect(
+                    lambda _=False, c=pack.code: self.pack_wanted.emit(c, "remove")
+                )
+                line.addWidget(remove)
+                self.installed_rows.addWidget(row)
         self.no_packs.setVisible(not packs)
 
     def _known(self, code: str) -> PackKnown | None:

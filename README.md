@@ -25,6 +25,61 @@ are in place (project 013); since then, capture, speech detection and the
 live-update timing rules (project 016); the dictionaries (project 018); the
 connection to the server, signing in and a replay source (project 022).
 
+## Build it yourself
+
+The app's source is public under Apache-2.0
+(<https://github.com/hughnhugh/polyglotic-app>). With that copy alone you
+can build it, run its tests and run it from source. The server that does
+the speech recognition, translation and word links isn't public; the app
+talks to ours.
+
+You need Windows 10 or 11 (64-bit) - or a Mac with Apple silicon on macOS
+14.2 or later, which is in preview - plus git and
+[uv](https://docs.astral.sh/uv/), which fetches Python 3.12 itself.
+
+```
+git clone https://github.com/hughnhugh/polyglotic-app.git
+cd polyglotic-app
+uv sync                                     # the environment, from uv.lock
+uv run python -m tools.i18n build           # the interface's translations
+uv run python -m tools.dictionaries.build   # the built-in dictionaries, from their public sources
+uv run pytest                               # no server, account, sound device or GPU needed
+uv run python -m polyglotic_desktop.main --data build/try --credentials Polyglotic/source
+```
+
+- **Without an account:** `uv run python -m tools.app_tour build/tour`
+  runs the app signed in to a stand-in server on your own machine
+  (`tests/fake_server.py`) and captions the app's own sample recording
+  (FLEURS, CC BY 4.0). Its captions are made up - no speech recognition -
+  and it saves a picture of each window in `build/tour`.
+- **With our server** (`https://api.polyglotic.io`, the default): you need
+  an account. The alpha is by invitation; a waitlist opens at
+  <https://polyglotic.io>. The app asks for the invite code on its first
+  run. `--data` and `--credentials` keep this copy's settings and sign-in
+  apart from an installed Polyglotic's. Run from source, the app tells the
+  server it is the newest release `RELEASE-NOTES.md` names (decision
+  0224); if it says an update is needed, this copy is older than the
+  server takes - get the newest source.
+- **What isn't in the public copy:** the server (`polyglotic-server`: speech, translation,
+  word links, accounts - the app follows its protocol, whose examples are
+  in `tests/protocol_examples/`); our planning notes, which the docs name
+  as `polyglotic-hq` and `DECISIONS #N`; the CI workflows, which run on our
+  own machines; and the keys that sign the update feed and the dictionary
+  packs' list and upload them. So `tools.package` packs the app, but
+  publishing it, and the packs the app downloads, are ours to do. The
+  dictionaries and packs are built from public sources only
+  (`tools/dictionaries/sources.py`).
+- **Licences:** the code is Apache-2.0 ([LICENSE](LICENSE),
+  [NOTICE](NOTICE)). What it's built with and the data it uses keep their
+  own licences ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the
+  built dictionaries' in `build/dictionaries/CREDITS.md`) - among them
+  PySide6 (Qt) under the LGPL-3.0, and `anki`, a tool the tests use, under
+  the AGPL-3.0; both come from PyPI, neither is in this repository.
+- **The public copy has no history of its own:** it is refreshed from
+  the private repository we work in, so the rest of this README is how we
+  work on it - `polyglotic-server` and `polyglotic-hq` there are our
+  private repositories.
+
 ## Try it
 
 The app from source against a server on this PC - polyglotic-server with
@@ -39,7 +94,6 @@ PowerShell windows.
    uv sync
    New-Item -ItemType Directory -Force data
    $env:POLYGLOTIC_DATABASE_URL = "sqlite+aiosqlite:///data/try.sqlite3"
-   $env:POLYGLOTIC_MIN_APP_VERSION = "0.0.0"   # the app from source is 0.0.0
    uv run python -m polyglotic_server.adapters.sql.migrate
    uv run polyglotic-admin invite create --cohort alpha   # prints a code once: copy it
    uv run polyglotic-server                               # http://127.0.0.1:8080
@@ -67,8 +121,7 @@ quit, delete that folder (or `%APPDATA%\Polyglotic`) and sign out on the
 Account page first - an invite code works once, so make another.
 
 Real captions need the model servers, on the GPU: polyglotic-server's
-test copy with `compose.use-models.yaml` (its README, "Running it"), with
-`POLYGLOTIC_MIN_APP_VERSION=0.0.0` in `deploy/test.env`, then
+test copy with `compose.use-models.yaml` (its README, "Running it"), then
 `--server http://127.0.0.1:8081`.
 
 ## Development
@@ -110,19 +163,20 @@ uv run python -m polyglotic_desktop.harness listen --server http://127.0.0.1:808
 uv run python -m polyglotic_desktop.harness sign-out
 ```
 
-Run from source, the app reports version 0.0.0 (a release build carries
-its tag's version, decision 0015), so start a local server with
-`POLYGLOTIC_MIN_APP_VERSION=0.0.0`, or it answers `update_required`.
-Without `--server` the app connects to the live server built into it -
-a placeholder that reaches nothing until the domain exists.
+Run from source, the app tells the server it is the newest release
+`RELEASE-NOTES.md` names (decision 0224; a release build carries its tag's
+version, decision 0015), so a server whose minimum that release meets
+takes it. Settings > Updates still says `0.0.0`: from source it isn't a
+release. Without `--server` the app connects to the live server,
+`https://api.polyglotic.io`.
 
 The app itself - main window, tray, caption windows, transcripts, the
-app picker on Home - runs the same way. At first run it asks for the language being learned (Chinese or
-English), the level, what to share (the consent screen) and an invite
-code; the Account page signs in and out later. It
-captures what Home's picker says - nothing until the learner picks an
-app or everything the PC plays, so the first run opens there
-(polyglotic-hq DECISIONS.md #25) - and keeps its settings, learning data
+app picker on Home - runs the same way. At first run it asks what to
+share and the yes (the consent screen), then an invite code; the
+Account page signs in and out later. It captures what Home's picker
+says - for a new learner, everything the PC plays from the first launch,
+in one caption window that sets itself up, until they pick one app on
+Home (polyglotic-hq 484, decision 0225) - and keeps its settings, learning data
 and the outbox of what waits
 for the server in `%APPDATA%\Polyglotic` - outside the folder the
 installer replaces (decision 0014):

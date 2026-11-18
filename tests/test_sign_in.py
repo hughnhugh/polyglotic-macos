@@ -14,7 +14,7 @@ import pytest
 from tests.fakes import MemoryCredentialStore
 from tests.test_protocol import example
 
-from polyglotic_desktop.connection.app import AppInfo
+from polyglotic_desktop.connection.app import AppInfo, source_version
 from polyglotic_desktop.connection.sign_in import (
     InviteNotValid,
     NotACode,
@@ -289,5 +289,5 @@ def test_this_app_says_the_os_it_was_given() -> None:
     assert (app.os, app.os_version, app.app_version) == (
         "windows-11",
         "10.0.26200",
-        "0.0.0",
+        source_version(),  # from source: the newest release its notes name (0224)
     )

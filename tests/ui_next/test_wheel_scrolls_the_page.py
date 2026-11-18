@@ -211,9 +211,9 @@ def test_the_wheel_over_a_list_scrolls_settings(
 ) -> None:
     built.hub.window.go_to("settings")
     page = built.hub.settings
-    page.show_section("app")  # long enough to scroll on any grouping (304)
+    page.show_section("look")  # long enough to scroll on any grouping (304, 470)
     qapp.processEvents()
-    box = page.interface_language
+    box = page.look.font_box
     bar = page.verticalScrollBar()
     page.ensureWidgetVisible(box, 0, 200)
     qapp.processEvents()
@@ -319,11 +319,37 @@ def test_a_list_added_after_the_page_shows_is_held_too(
     assert box.focusPolicy() == A_LISTS_KEYS
 
 
+def test_the_wheel_over_the_pinned_sections_scrolls_settings(
+    built: Built, qapp: QApplication
+) -> None:
+    """The title and sections stay put above what scrolls (polyglotic-hq
+    470): the wheel over them still scrolls the page, and never changes the
+    section - not even where they're a dropdown."""
+    built.hub.window.go_to("settings")
+    page = built.hub.settings
+    page.show_section("look")
+    qapp.processEvents()
+    bar = page.verticalScrollBar()
+    top = bar.value()
+    assert top < bar.maximum()
+    # at the head itself: Qt passes a real wheel up from its title or a tab,
+    # a test's (not spontaneous) it doesn't
+    turn(page.head, -1, at=QPoint(page.head.width() - 1, page.head.height() - 1))
+    assert bar.value() > top
+    assert page.sections.value() == "look"
+    page.section_picker.setHidden(False)  # as in a narrow window
+    qapp.processEvents()
+    index, top = page.section_picker.currentIndex(), bar.value()
+    turn(page.section_picker, -1)
+    assert page.section_picker.currentIndex() == index
+    assert bar.value() > top and page.sections.value() == "look"
+
+
 def test_the_keyboard_still_changes_a_list(built: Built, qapp: QApplication) -> None:
     built.hub.window.go_to("settings")
     page = built.hub.settings
     qapp.processEvents()
-    box = page.interface_language
+    box = page.dictation_language
     box.setCurrentIndex(0)
     QTest.keyClick(box, Qt.Key.Key_Down)
     assert box.currentIndex() == 1

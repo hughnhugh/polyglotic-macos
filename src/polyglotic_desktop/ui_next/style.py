@@ -431,6 +431,8 @@ QToolTip {{ background: {SURFACE_2}; color: {TEXT}; border: 1px solid {BORDER}; 
     border-radius: 8px; padding: 6px 10px;
 }}
 #CardTitle {{ font-size: {px(14)}px; font-weight: 600; }}
+#CardTitle[heading="true"] {{ font-size: {px(16)}px; }}
+#PinnedCard {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 8px; }}
 #Brand {{ font-size: {px(15)}px; font-weight: 600; }}
 #RowTitle {{ font-weight: 600; }}
 #StateTitle {{ font-size: {px(20)}px; font-weight: 600; }}

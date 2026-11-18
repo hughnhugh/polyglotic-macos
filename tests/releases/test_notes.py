@@ -6,6 +6,7 @@ when several versions were skipped."""
 from pathlib import Path
 
 from polyglotic_desktop.core.releases.notes import (
+    newest_released,
     plain,
     plain_items,
     sections,
@@ -69,6 +70,19 @@ def test_the_repos_own_notes_read() -> None:
     found = sections(text)
     assert [n.version for n in found][-1] == "0.1.0"
     assert all(n.markdown for n in found)
+
+
+def test_the_newest_released_version_is_what_a_copy_from_source_is() -> None:
+    """Decision 0224: Unreleased isn't a version; the newest by number,
+    whatever the file's order, written as protocol.md's versions are."""
+    assert newest_released(NOTES) == "0.1.6"
+    out_of_order = sections(
+        "## 0.1.9 - 2026-11-01\n\n- a\n\n## 0.1.10 - 2026-11-02\n\n- b\n"
+        "\n## 00.2.0 - 2026-11-03\n\n- c\n"
+    )
+    assert newest_released(out_of_order) == "0.2.0"
+    assert newest_released(sections("# Notes\n\n## Unreleased\n\n- a\n")) is None
+    assert newest_released(()) is None
 
 
 def test_versions_in_order() -> None:

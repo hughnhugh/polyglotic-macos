@@ -57,6 +57,31 @@ _NOT_A_FORM = frozenset(
         "error-unknown-tag",
     }
 )
+ASPECTS = frozenset({"perfective", "imperfective"})
+_QUALIFIERS = frozenset(
+    {
+        "rare",
+        "dialectal",
+        "obsolete",
+        "archaic",
+        "colloquial",
+        "determinate",
+        "indeterminate",
+    }
+)
+"""A table row tagged with an aspect and nothing else but these is the verb's
+partner of the other aspect, not its inflection: Polish's zacząć lists
+zaczynać ("imperfective"), Ukrainian's розповісти розповідати - another
+verb, with its own page. As a form, its card had opened on the partner
+before its own entry (polyglotic-hq 448, 461)."""
+
+
+def aspect_partner(tags: set[str]) -> bool:
+    """Whether a table row's `tags` make it the verb's aspect partner
+    (`ASPECTS`), not one of its forms."""
+    return bool(tags & ASPECTS) and tags <= ASPECTS | _QUALIFIERS
+
+
 # "decir combined with indirect object me and direct object lo" -> decir
 _COMBINED = re.compile(r"\s+combined with\b.*$")
 # what kaikki writes after a form-of target's word: Russian's aspect ("стать
@@ -374,6 +399,34 @@ def elided_of(sense: Mapping[str, object]) -> list[str]:
     return [found.group(1)] if found else []
 
 
+_REFERS = re.compile(
+    r"^(?!(?:an?|the|any|some|one|kind|type|sort)\b)"
+    r"(?P<what>[^:;()]*?\b(?:form|spelling|noun|plural|singular|participle|gerund"
+    r"|genitive|dative|accusative|locative|ablative|instrumental|vocative"
+    r"|indicative|subjunctive|imperative|conditional|infinitive))"
+    r" of (?P<target>[^\s,;:()]+)(?: \([^)]*\))?\s*\.?$",
+    re.IGNORECASE,
+)
+
+
+def referred_to(sense: Mapping[str, object]) -> list[str]:
+    """The word a sense only refers to, where its gloss is that reference
+    and nothing else and kaikki gave it no form-of link - a word saying
+    which kind of form or spelling it is: Hindi's इश्क,
+    "nuqtaless form of इश्क़ (iśq)"; Italian's possiamo, "first-person
+    plural present indicative/present subjunctive of potere"; Tagalog's
+    turnilyo, "superseded, pre-2014 spelling of tornilyo"; Thai's
+    ความชั่วช้า, "abstract noun of ชั่วช้า". Its card had shown that line
+    and no meaning (polyglotic-hq 448, 461). Not "a form of government",
+    nor a gloss that goes on to say what it means ("abstract noun of
+    ปลอดภัย: safety")."""
+    glosses = _strs(sense.get("glosses"))
+    found = _REFERS.match(" ".join(glosses[-1].split())) if glosses else None
+    if not found or " " not in found.group("what"):
+        return []  # "form of address": no word says which form
+    return [found.group("target")]
+
+
 def said_for_several(sense: Mapping[str, object]) -> bool:
     """A form-of sense that names several words and says what it means
     after them (kaikki's `extra`): Romanian's își, "unstressed reflexive
@@ -536,6 +589,23 @@ def read_language(
                 )
             if targets:
                 form_pos[word].add(pos)
+            if not targets and not tags & _FORM_OF_TAGS:
+                for lemma in referred_to(sense):
+                    # its target first, its own line after: the entry (its
+                    # ID) stays, as a form's whose page starts as one
+                    # (`lemma_first`), or a verb's form (`verb_forms`)
+                    if lemma != word:
+                        out.forms[word].add(lemma)
+                        out.came_through[(word, lemma)].add(pos)
+                        form_of[word].add(lemma)
+                        if pos == "verb":
+                            out.verb_forms.add((word, lemma))
+                        elif first_object and n == 0:
+                            starts_as_form[word] = (
+                                frozenset({lemma}),
+                                pos,
+                                frozenset(),
+                            )
             said_alone = not targets and pos in SMALL_WORDS and "alt-of" not in tags
             # Romanian's îi, îți, vă: "to him", "to you", "you", tagged a form
             # of no word - their meanings (polyglotic-hq 399)
@@ -594,6 +664,7 @@ def read_language(
                 and text.translate(_STRESS) != owner
                 and (spaced_words or " " not in text)
                 and not tags & _NOT_A_FORM
+                and not aspect_partner(tags)
                 and not text.startswith("-")  # a bare ending ("-lor")
                 and (short_forms or len(text) > SHORT or small_word)
             ):
@@ -673,12 +744,15 @@ def link_kind(pos: str, tags: set[str]) -> set[str]:
     says its form is, for `Language.link_kinds`: "comparative" or
     "superlative"; "pronoun" where an adposition's form has a person
     (Arabic's لَكُنَّ, "to you", second-person feminine plural of ل); "case"
-    where it is in an oblique case (Turkish's "içinde", iç's locative)."""
+    where it is in an oblique case (Turkish's "içinde", iç's locative);
+    "participle" where it is a verb's participle (German's "fehlend")."""
     kind = set(tags & DEGREES)
     if pos in ADPOSITIONS and tags & PERSONS:
         kind.add("pronoun")
     if tags & OBLIQUE:
         kind.add("case")
+    if "participle" in tags:
+        kind.add("participle")
     return kind
 
 

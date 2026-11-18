@@ -78,6 +78,17 @@ def version_order(version: str) -> tuple[int, int, int] | None:
     return int(found["major"]), int(found["minor"]), int(found["patch"])
 
 
+def newest_released(notes: tuple[ReleaseNotes, ...]) -> str | None:
+    """The newest version the notes name as released, as `MAJOR.MINOR.PATCH`
+    with no leading zeros (`0.1.7`); None when they name none. What a copy
+    run from source tells the server it is (decision 0224): its code holds
+    every change up to that release."""
+    found = [at for each in notes if (at := version_order(each.version)) is not None]
+    if not found:
+        return None
+    return ".".join(str(part) for part in max(found))
+
+
 def seen_at_start(seen: str | None, current: str, fresh: bool) -> str | None:
     """The version whose notes count as seen, at this start: a fresh
     install's first run has seen this version's (it shows none); otherwise

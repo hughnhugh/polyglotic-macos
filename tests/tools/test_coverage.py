@@ -136,3 +136,31 @@ def test_an_elided_word_is_looked_up_as_captions_write_it() -> None:
     )
     assert coverage.finds(BasicDictionary(french, FakeSplit(), "fr"), "l")
     assert not coverage.finds(BasicDictionary(french, FakeSplit(), "es"), "l")
+
+
+def test_the_commonest_running_words_open_as_the_treebanks_use_them() -> None:
+    """The top-words check asks only whether a word is found: Hindi's लिए,
+    the 12th commonest running word, was - on लेना, "to take", though the
+    treebanks use it as a postposition (के लिए, "for"). The build lists
+    such words (polyglotic-hq 448, 461): here "vengo" opens on venir, a
+    verb, but is used as an adposition; "casa" (a noun, used so) and "supe" (too
+    few uses) pass."""
+    hindi_like = FakeDictionaryFile(
+        [
+            EntryRecord("wiktes:venir", "venir", "", "", ("(verb) to come",), 270),
+            EntryRecord("wiktes:casa", "casa", "", "", ("(noun) house",), 300),
+            EntryRecord("wiktes:saber", "saber", "", "", ("(verb) to know",), 160),
+        ],
+        {"venir": ["wiktes:venir"], "casa": ["wiktes:casa"], "saber": ["wiktes:saber"]},
+        lemmas={"vengo": "venir", "supe": "saber"},
+    )
+    dictionary = BasicDictionary(hindi_like, FakeSplit(), "es")
+    freq = {"vengo": 1e-2, "casa": 5e-3, "supe": 1e-3}
+    uses = {
+        "vengo": {"ADP": 30, "VERB": 2},
+        "casa": {"NOUN": 40, "PROPN": 1},
+        "supe": {"ADP": 3},
+    }
+    result = coverage.opened_as_used(dictionary, freq, "es", uses)
+    assert result.mismatched == [(1, "vengo", "venir (verb)", "ADP")]
+    assert str(result) == "vengo (1): venir (verb), used as ADP"

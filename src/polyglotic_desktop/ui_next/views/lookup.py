@@ -70,7 +70,11 @@ from polyglotic_desktop.core.learning.vocabulary import EntryText, Vocabulary
 from polyglotic_desktop.core.lexicon import compounds
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary, has_han, is_han
-from polyglotic_desktop.core.lexicon.english import EnglishDictionary
+from polyglotic_desktop.core.lexicon.english import (
+    EnglishDictionary,
+    inside_sentence,
+    names_first,
+)
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
 from polyglotic_desktop.core.lexicon.meanings import (
     definitions,
@@ -563,8 +567,25 @@ class Lookup:
         whose language isn't learned: nothing of it is reported or kept."""
         if self._shown is None or self.basic:
             return None
-        entries = self._tools().lookup(self._shown.word)
+        entries = self._entries(self._shown.word)
         return entries[0] if entries else None
+
+    def _entries(self, word: str) -> list[DictionaryEntry]:
+        """`word`'s entries in its learner's dictionary. The word shown,
+        capitalised inside its sentence, has its names first, as its
+        caption counted it ("and Bill said": the name, then bill, 帐单 -
+        `names_first`, polyglotic-hq 464)."""
+        entries = self._tools().lookup(word)
+        shown = self._shown
+        if (
+            shown is not None
+            and not shown.history
+            and word == shown.word
+            and shown.at is not None
+            and inside_sentence(shown.context.sentence, shown.at[0])
+        ):
+            return names_first(entries, word)
+        return entries
 
     # -- the commands --------------------------------------------------------------------
 
@@ -676,7 +697,7 @@ class Lookup:
         meaning = (
             meaning_of(dictionary, word)
             if isinstance(dictionary, ChineseDictionary)
-            else short_meaning(self._tools().lookup(word))
+            else short_meaning(self._entries(word))
         )
         return EntryText(entry.headword, entry.traditional, entry.reading, meaning)
 
@@ -754,7 +775,7 @@ class Lookup:
             )
         ):
             return self._chinese_for(dictionary, word, back_to)
-        entries = self._tools().lookup(word)
+        entries = self._entries(word)
         context = shown.context if pinned and not shown.history else None
         found_at = shown.at if context is not None else None
         if not entries:

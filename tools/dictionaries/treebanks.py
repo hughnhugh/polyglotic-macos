@@ -30,6 +30,7 @@ COMMITS = {
     "Czech-CAC": "414d8497523be1df3b23d153755c16d1fd15855f",
     "Czech-PUD": "dfab1926110b82c2e01278c292d9c01b0abbc0ff",
     "Dutch-Alpino": "d64749ac918f18d31dd4c4e75ff56626432d9ba3",
+    "English-EWT": "c5baffde1e106bcd828c520109eb905bfc3ac06f",
     "Dutch-LassySmall": "b8cdca9661408608945133e80bb566a6a58146ea",
     "French-GSD": "b40dc639c6eff162075d1e576d59fa8506c5a402",
     "French-PUD": "c281ae7df41405c38d49499b72f3e29963f05a33",
@@ -76,6 +77,24 @@ LICENCES = {
 }
 """The treebanks whose licence isn't CC BY-SA 4.0."""
 FILES = (
+    (
+        "en",
+        "English-EWT",
+        "en_ewt-ud-train",
+        "6fe5692f2e02198262483daba0626efe346dd19f0ce6c3ee7728b08af9b90a9c",
+    ),
+    (
+        "en",
+        "English-EWT",
+        "en_ewt-ud-dev",
+        "de507882611c54f19934f9a65d654b37f55a5c315da1794b9f13348b28b39c12",
+    ),
+    (
+        "en",
+        "English-EWT",
+        "en_ewt-ud-test",
+        "b837531faddd54f5c89cf5259cfe5306b075556a9ff19b2271393df29c6b02f8",
+    ),
     (
         "ar",
         "Arabic-PUD",

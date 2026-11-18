@@ -1,0 +1,122 @@
+# Given names that ECDICT has only as another word, in lower case
+# (polyglotic-hq 464): "John" opened john, 厕所 ("toilet"); "Peter" opened
+# peter, 逐渐消失 ("to peter out"); "Bill" opened bill, 帐单. Each gets a
+# name entry of our own, written capitalised, so it is a name (never shown
+# as unfamiliar, never counted as heard). Read by a person.
+#
+# One name a line:
+#   name | Chinese | m, f or n (a man's, a woman's or anyone's) | name or word
+# "name": the name, wherever it's written capitalised ("John said" opens
+# John). "word": its lower-case word is common, so a sentence's first word
+# is still the word, with the name after ("Will you" opens will); inside a
+# sentence the name comes first (`core.lexicon.english`).
+John | 约翰 | m | name
+Peter | 彼得 | m | name
+Harry | 哈里 | m | name
+Mike | 迈克 | m | name
+Tom | 汤姆 | m | name
+Jerry | 杰里 | m | name
+Matt | 马特 | m | name
+Jake | 杰克 | m | name
+Jack | 杰克 | m | name
+Tony | 托尼 | m | name
+Rick | 里克 | m | name
+Ted | 泰德 | m | name
+Ben | 本 | m | name
+Dan | 丹 | m | name
+Eric | 埃里克 | m | name
+Ron | 罗恩 | m | name
+Phil | 菲尔 | m | name
+Josh | 乔希 | m | name
+Hank | 汉克 | m | name
+Henry | 亨利 | m | name
+Gary | 加里 | m | name
+Kyle | 凯尔 | m | name
+Oliver | 奥利弗 | m | name
+Elijah | 以利亚 | m | name
+Jimmy | 吉米 | m | name
+Dick | 迪克 | m | name
+Sonny | 桑尼 | m | name
+Bob | 鲍勃 | m | name
+Nick | 尼克 | m | name
+Jay | 杰伊 | m | name
+Les | 莱斯 | m | name
+Vic | 维克 | m | name
+Nat | 纳特 | m | name
+Moe | 莫 | m | name
+Bart | 巴特 | m | name
+Lee | 李 | n | name
+Taylor | 泰勒 | n | name
+Jenny | 珍妮 | f | name
+Nancy | 南希 | f | name
+Molly | 莫莉 | f | name
+Melissa | 梅利莎 | f | name
+Ava | 艾娃 | f | name
+Mia | 米娅 | f | name
+Charlotte | 夏洛特 | f | name
+Stella | 斯特拉 | f | name
+Abigail | 阿比盖尔 | f | name
+Zoe | 佐伊 | f | name
+Sally | 萨莉 | f | name
+Ruth | 露丝 | f | name
+Mark | 马克 | m | word
+Will | 威尔 | m | word
+Bill | 比尔 | m | word
+Frank | 弗兰克 | m | word
+Ray | 雷 | m | word
+Rob | 罗布 | m | word
+Dean | 迪恩 | m | word
+Don | 唐 | m | word
+Art | 阿特 | m | word
+Chuck | 查克 | m | word
+Chip | 奇普 | m | word
+Clay | 克莱 | m | word
+Drew | 德鲁 | m | word
+Gene | 吉恩 | m | word
+Guy | 盖伊 | m | word
+Lance | 兰斯 | m | word
+Miles | 迈尔斯 | m | word
+Norm | 诺姆 | m | word
+Rich | 里奇 | m | word
+Rocky | 罗基 | m | word
+Victor | 维克多 | m | word
+Wade | 韦德 | m | word
+Ward | 沃德 | m | word
+Cliff | 克利夫 | m | word
+Earl | 厄尔 | m | word
+Glen | 格伦 | m | word
+Grant | 格兰特 | m | word
+Hunter | 亨特 | m | word
+Mason | 梅森 | m | word
+Rod | 罗德 | m | word
+Bud | 巴德 | m | word
+Sterling | 斯特林 | m | word
+Pat | 帕特 | n | word
+Sandy | 桑迪 | n | word
+Robin | 罗宾 | n | word
+Angel | 安吉尔 | n | word
+Rose | 罗丝 | f | word
+Grace | 格蕾丝 | f | word
+Hope | 霍普 | f | word
+Joy | 乔伊 | f | word
+Faith | 费丝 | f | word
+Lily | 莉莉 | f | word
+Daisy | 黛西 | f | word
+Ruby | 鲁比 | f | word
+Jade | 杰德 | f | word
+Amber | 安伯 | f | word
+Carol | 卡罗尔 | f | word
+Sue | 苏 | f | word
+Holly | 霍莉 | f | word
+Ivy | 艾薇 | f | word
+Iris | 艾丽丝 | f | word
+Dawn | 道恩 | f | word
+Summer | 萨默 | f | word
+Autumn | 奥特姆 | f | word
+Hazel | 黑兹尔 | f | word
+Violet | 维奥莱特 | f | word
+Aurora | 奥萝拉 | f | word
+Penny | 彭妮 | f | word
+Pearl | 珀尔 | f | word
+Heather | 希瑟 | f | word
+Crystal | 克丽丝特尔 | f | word

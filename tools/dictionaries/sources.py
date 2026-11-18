@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 MIT = (
@@ -159,7 +159,69 @@ WORDFREQ = Source(
     used_for="English frequency ranks, per entry with its inflected forms",
 )
 
-SOURCES = (CEDICT, JIEBA, HSK30, ECDICT, WORDFREQ)
+WORDNET_LICENCE = (
+    "WordNet 3.1 Copyright 2011 by Princeton University. All rights reserved.\n\n"
+    "Permission to use, copy, modify and distribute this software and database and "
+    "its documentation for any purpose and without fee or royalty is hereby granted, "
+    "provided that you agree to comply with the following copyright notice and "
+    "statements, including the disclaimer, and that the same appear on ALL copies of "
+    "the software, database and documentation, including modifications that you make "
+    "for internal use or for distribution.\n\n"
+    'THIS SOFTWARE AND DATABASE IS PROVIDED "AS IS" AND PRINCETON UNIVERSITY MAKES NO '
+    "REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED. BY WAY OF EXAMPLE, BUT NOT "
+    "LIMITATION, PRINCETON UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF "
+    "MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF THE "
+    "LICENSED SOFTWARE, DATABASE OR DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY "
+    "PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.\n\n"
+    "The name of Princeton University or Princeton may not be used in advertising or "
+    "publicity pertaining to distribution of the software and/or database. Title to "
+    "copyright in this software, database and any associated documentation shall at "
+    "all times remain with Princeton University and LICENSEE agrees to preserve same."
+)
+"""Princeton WordNet's licence, which Open English WordNet's underlying data
+keeps (its WNDB_License.txt): its notice goes with every copy."""
+
+OEWN = Source(
+    name="oewn",
+    title="Open English WordNet (the 2025+ edition, with names and places)",
+    version="2025 edition (2025-12-31), english-wordnet-2025-plus.xml.gz",
+    url=(
+        "https://github.com/globalwordnet/english-wordnet/releases/download/"
+        "2025-edition/english-wordnet-2025-plus.xml.gz"
+    ),
+    sha256="31f4af16c54b532fd5484d4cc33aee588a31bb5b70683ae8197842fde5b586bc",
+    filename="english-wordnet-2025-plus.xml.gz",
+    homepage="https://en-word.net",
+    licence="CC BY 4.0",
+    notice=(
+        "Copyright (c) 2019-present, The Open English WordNet Team "
+        "(https://github.com/globalwordnet/english-wordnet). Derived from "
+        "Princeton WordNet under the WordNet License (below)"
+    ),
+    used_for=(
+        "the English dictionary's English meanings (ecdict-en.sqlite): definitions, "
+        "parts of speech and examples, shortened at their first semicolon"
+    ),
+)
+
+SOURCES = (CEDICT, JIEBA, HSK30, ECDICT, WORDFREQ, OEWN)
+
+CMUDICT = Source(
+    name="cmudict",
+    title="The CMU Pronouncing Dictionary (CMUdict)",
+    version="commit 74790861f652b15e4ac49015a90074ad62a27690 (2025-10-24), cmudict.dict",
+    url=(
+        "https://raw.githubusercontent.com/cmusphinx/cmudict/"
+        "74790861f652b15e4ac49015a90074ad62a27690/cmudict.dict"
+    ),
+    sha256="81917843c7f44ce2b094ac63873c2c7a4cf802040792c455ba3ca406891c3d22",
+    filename="cmudict-7479086.dict",
+    homepage="https://github.com/cmusphinx/cmudict",
+    licence="BSD 2-clause style (CMUdict's own; its text is in the credits)",
+    notice="Copyright (C) 1993-2015 Carnegie Mellon University. All rights reserved",
+    used_for="the English respelling: each word's American sounds and stress",
+)
+"""Not in SOURCES: only `respell` reads it (polyglotic-hq 471)."""
 
 
 # -- the basic packs (polyglotic-hq project 164; nothing ships with the app) --
@@ -487,6 +549,126 @@ JLPT = Source(
     used_for="Japanese levels N5-N1 (unofficial)",
 )
 
+# -- Cantonese (polyglotic-hq 371 and 450; decision 0160) ------------------------
+
+CC_CANTO = Source(
+    name="cc-canto",
+    title="CC-Canto",
+    version="2017-02-02 (34,335 lines)",
+    # cantonese.org publishes only this release; the Wayback Machine's copy
+    # of it is the pinned, durable one (the same bytes, 2026-11-17)
+    url=(
+        "https://web.archive.org/web/20220122063705id_/"
+        "https://cantonese.org/cccanto-170202.zip"
+    ),
+    sha256="0cc9e600a19c02405064d6d227d96563c09da1a0af1c7717508c0f231028af27",
+    filename="cccanto-170202.zip",
+    homepage="https://cantonese.org/",
+    licence="CC BY-SA 3.0",
+    notice="CC-Canto, Copyright (c) 2015-17 Pleco Inc (cantonese.org)",
+    used_for="Cantonese words with their Jyutping and English meanings",
+)
+
+CANTO_READINGS = Source(
+    name="canto-readings",
+    title="Cantonese readings for CC-CEDICT",
+    version="2015-09-23",
+    url=(
+        "https://web.archive.org/web/20251203213516id_/"
+        "https://cantonese.org/cccedict-canto-readings-150923.zip"
+    ),
+    sha256="f6d99991791f49aaf96d97b2838a3ba9e057e060a5a9e24311cf851f8f71a950",
+    filename="cccedict-canto-readings-150923.zip",
+    homepage="https://cantonese.org/",
+    licence="CC BY-SA 3.0",
+    notice=(
+        "Cantonese readings for CC-CEDICT, Copyright (c) 2015 Pleco Inc (cantonese.org)"
+    ),
+    used_for="the Jyutping of CC-CEDICT's entries",
+)
+
+CEDICT_FOR_CANTONESE = replace(
+    CEDICT,
+    used_for=(
+        "the English meanings of Chinese words read in Cantonese, after CC-Canto's own"
+    ),
+)
+
+RIME_CANTONESE_COMMIT = "259f0e48bba840c3a2e0d117539e96937f3d89bc"
+"""rime/rime-cantonese's main of 2026-08-13, as polyglotic-hq 450 read it."""
+_RIME_NOTICE = (
+    "rime-cantonese (jyut6ping3), by the Cantonese Computational Linguistics "
+    "Infrastructure Development Workgroup (CanCLID) and its contributors"
+)
+RIME_WORDS = Source(
+    name="rime-words",
+    title="rime-cantonese: word readings (jyut6ping3.words.dict.yaml)",
+    version=f"commit {RIME_CANTONESE_COMMIT[:12]} (2026-08-13; 103,077 lines)",
+    url=(
+        "https://raw.githubusercontent.com/rime/rime-cantonese/"
+        f"{RIME_CANTONESE_COMMIT}/jyut6ping3.words.dict.yaml"
+    ),
+    sha256="54d174ad2bb997e4a678b7b076b84e4dc5914481b32467cdea3b43e88b7d5474",
+    filename=f"jyut6ping3.words-{RIME_CANTONESE_COMMIT[:12]}.dict.yaml",
+    homepage="https://github.com/rime/rime-cantonese",
+    licence="CC BY 4.0",
+    notice=_RIME_NOTICE,
+    used_for=(
+        "each word's everyday Jyutping: which of a word's entries comes first, "
+        "and a reading for an entry that has none"
+    ),
+)
+RIME_CHARS = Source(
+    name="rime-chars",
+    title="rime-cantonese: character readings (jyut6ping3.chars.dict.yaml)",
+    version=f"commit {RIME_CANTONESE_COMMIT[:12]} (2026-08-13)",
+    url=(
+        "https://raw.githubusercontent.com/rime/rime-cantonese/"
+        f"{RIME_CANTONESE_COMMIT}/jyut6ping3.chars.dict.yaml"
+    ),
+    sha256="9b053a594c80eae76545bcdd83239884a49b1ba48b89ca0ab9e8daac79f33013",
+    filename=f"jyut6ping3.chars-{RIME_CANTONESE_COMMIT[:12]}.dict.yaml",
+    homepage="https://github.com/rime/rime-cantonese",
+    licence="CC BY 4.0",
+    notice=_RIME_NOTICE,
+    used_for="each character's everyday Jyutping, by its weight",
+)
+
+HKCANCOR = Source(
+    name="hkcancor",
+    title="Hong Kong Cantonese Corpus (HKCanCor)",
+    version=(
+        "fcbond/hkcancor commit 39aeadf920e0 (2025-11-03), data/hkcancor-utf8.zip "
+        "(128,205 words in Chinese characters, of conversation and radio, 1997-98)"
+    ),
+    url=(
+        "https://raw.githubusercontent.com/fcbond/hkcancor/"
+        "39aeadf920e0b5ca93d0ad7792c59e740e7bdd65/data/hkcancor-utf8.zip"
+    ),
+    sha256="09223963b8756254e15353cad843f8a4b0cbc4b9223dc8a8fa27fb1cf846057e",
+    filename="hkcancor-utf8-39aeadf.zip",
+    homepage="https://github.com/fcbond/hkcancor",
+    licence="CC BY 4.0",
+    notice=(
+        "Hong Kong Cantonese Corpus, by K. K. Luke and May L. Y. Wong. "
+        "Only word counts made from it are in the pack, as frequency ranks"
+    ),
+    used_for=(
+        "Cantonese frequency ranks: its words as spoken (its own word split), "
+        "averaged with wordfreq's written Chinese"
+    ),
+)
+
+WORDFREQ_ZH = replace(
+    WORDFREQ,
+    title="wordfreq (Python package; only its Chinese data file is read)",
+    version="3.1.1 (2023-11-21), wordfreq/data/large_zh.msgpack.gz",
+    used_for=(
+        "Cantonese frequency ranks: written Chinese's word frequencies, by each "
+        "word's Simplified form, averaged with HKCanCor's"
+    ),
+)
+
 PACK_SOURCES = (
     KAIKKI_ES,
     KAIKKI_FR,
@@ -519,6 +701,11 @@ PACK_SOURCES = (
     JMDICT,
     JLPT,
     WORDFREQ,
+    CC_CANTO,
+    CANTO_READINGS,
+    RIME_WORDS,
+    RIME_CHARS,
+    HKCANCOR,
 )
 
 

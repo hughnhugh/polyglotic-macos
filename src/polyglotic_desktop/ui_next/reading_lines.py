@@ -1,5 +1,6 @@
 """Reading lines over caption text: pinyin above Chinese (polyglotic-hq
-364 and 369, decision 0155).
+364 and 369, decision 0155), and Jyutping above Cantonese (polyglotic-hq
+450, decision 0160).
 
 A reading (`core.lexicon.readings.Reading`) is drawn small above the
 characters it reads, centred on them. Where it is wider than they are,
@@ -16,7 +17,8 @@ room (`WORD_GAP`), so the words show in a script written without spaces.
 Which languages have their line on is the caption style's
 (`CaptionStyle.reading_lines`); where readings come from is the caption
 layout's `readings` - the Chinese dictionary's word split and everyday
-readings, on this PC: nothing is sent anywhere for it.
+readings, or the Cantonese pack's (`core.lexicon.jyutping`), on this PC:
+nothing is sent anywhere for it.
 
 Holds caption text's sound in what it lays out: never log it.
 """
@@ -34,7 +36,9 @@ from PySide6.QtGui import (
     QTextLayout,
 )
 
+from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
+from polyglotic_desktop.core.lexicon.jyutping import JyutpingReader
 from polyglotic_desktop.core.lexicon.readings import Reading, Readings
 from polyglotic_desktop.core.listening.display import READING_LANGUAGES, ReadingSize
 from polyglotic_desktop.core.shared import EntryFacts
@@ -70,11 +74,12 @@ def language_of(language: str | None) -> str | None:
 
 def source_of(learner: Learner, past: bool = False) -> Readings:
     """Where a caption window's readings come from: pinyin from the
-    Chinese dictionary on this PC (a learner's, `Learner.of`), once its
-    word split's data is read - never read here, on the interface's
-    thread (None: ask again when `dictionary_ready`). Nothing for a
-    language without a reading line; None, too, without a Chinese
-    dictionary open (Chinese not learned): ask again.
+    Chinese dictionary on this PC (a learner's, `Learner.of`), Jyutping
+    from the Cantonese pack (`reader`), once its word split's data is
+    read - never read here, on the interface's thread (None: ask again
+    when `dictionary_ready`). Nothing for a language without a reading
+    line; None, too, without its dictionary open (Chinese or Cantonese not
+    learned): ask again.
     `past`: only over the words past what the learner knows - the words
     word links "past what I know" link (decision 0130; `past_only`)."""
 
@@ -83,9 +88,9 @@ def source_of(learner: Learner, past: bool = False) -> Readings:
             return ()
         dictionary = reader(learner, language)
         if dictionary is None:
-            # Chinese not learned, so no Chinese dictionary open: no reading
-            # line, and no room kept for one (395: an empty band over a
-            # translation into Chinese) - asked again on the next layout
+            # its language not learned, so no dictionary of it open: no
+            # reading line, and no room kept for one (395: an empty band over
+            # a translation into Chinese) - asked again on the next layout
             return None
         if not dictionary.ready:
             return None
@@ -134,13 +139,33 @@ def knows(
     return lambda facts: ours.vocabulary.needs_no_link(facts, links_from)
 
 
-def reader(learner: Learner, language: str | None) -> ChineseDictionary | None:
-    """The dictionary that reads a row in `language` on this PC, if one
-    does: the learner's Chinese dictionary, for Chinese."""
-    if language_of(language) != "zh":
-        return None
-    dictionary = learner.of(language).dictionary
-    return dictionary if isinstance(dictionary, ChineseDictionary) else None
+def reader(
+    learner: Learner, language: str | None
+) -> ChineseDictionary | JyutpingReader | None:
+    """What reads a row in `language` on this PC, if anything does: the
+    learner's Chinese dictionary, for Chinese; for Cantonese, the Cantonese
+    pack once Cantonese is learned and its pack here (its own tools,
+    `Learner.of`; decision 0175) - as pinyin needs Chinese learned."""
+    code = language_of(language)
+    if code == "zh":
+        dictionary = learner.of(language).dictionary
+        return dictionary if isinstance(dictionary, ChineseDictionary) else None
+    if code == "yue":
+        pack = learner.of(language).dictionary
+        if isinstance(pack, BasicDictionary) and pack.language == "yue":
+            return _jyutping(pack)
+    return None
+
+
+_READERS: list[JyutpingReader] = []
+"""The Cantonese pack's reader, kept while the pack is the same: it keeps
+the words it has read."""
+
+
+def _jyutping(pack: BasicDictionary) -> JyutpingReader:
+    if not _READERS or _READERS[0].dictionary is not pack:
+        _READERS[:] = [JyutpingReader(pack)]
+    return _READERS[0]
 
 
 @dataclass(frozen=True, slots=True)

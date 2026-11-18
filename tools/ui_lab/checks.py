@@ -601,25 +601,27 @@ def chinese_face(text: str, font: QFont) -> str:
     none, or it isn't Japanese. Only kanji a Japanese face has: a
     Simplified-only character (这) in a Japanese sentence - a Chinese
     example in a Japanese interface (polyglotic-hq 294) - has no Japanese
-    shape to be drawn in."""
+    shape to be drawn in.
+
+    Each kanji's face is asked of its own runs (`glyphRuns(at, length)`):
+    a run's `stringIndexes` can name the wrong character - in "聞いた文：
+    日风天水" the YaHei run drawing only 风 gave index 3, 文 (Qt 6.12;
+    polyglotic-hq 472)."""
     if not has_han(text) or not any(_is_kana(c) for c in text):
         return ""
     layout = QTextLayout(text, font)
     layout.beginLayout()
     layout.createLine()
     layout.endLayout()
-    flags = QTextLayout.GlyphRunRetrievalFlag
-    for run in layout.glyphRuns(
-        -1, -1, flags.RetrieveString | flags.RetrieveStringIndexes
-    ):
-        face = run.rawFont().familyName()
-        source = run.sourceString()
-        if face.startswith(CHINESE_FONTS) and any(
-            is_han(source[i]) and _japanese_has(source[i])
-            for i in run.stringIndexes()
-            if 0 <= i < len(source)
-        ):
-            return face
+    at = 0  # in UTF-16 code units, as Qt counts
+    for character in text:
+        length = 2 if ord(character) > 0xFFFF else 1
+        if is_han(character) and _japanese_has(character):
+            for run in layout.glyphRuns(at, length):
+                face = run.rawFont().familyName()
+                if face.startswith(CHINESE_FONTS):
+                    return face
+        at += length
     return ""
 
 

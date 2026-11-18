@@ -1,0 +1,1004 @@
+# polyglotic-hq 471: the CMUdict pronunciation each word is respelled from, where it
+# isn't CMUdict's first stressed one, and the alternates worth showing (with the sense
+# for a heteronym). Made by the project's pick.py from Wiktionary (CC BY-SA 4.0) and by hand.
+word	pronunciation	alternates	why
+a	AH0	EY1 (stressed, the letter)	by hand: the article
+in	IH0 N		one way
+with	W IH1 TH	W IH1 DH	Wiktionary
+your	Y AO1 R	Y UH1 R	Wiktionary (CMUdict first)
+what	W AH1 T	HH W AH1 T	Wiktionary (CMUdict first)
+when	W EH1 N	HH W EH1 N	Wiktionary (CMUdict first)
+which	W IH1 CH	HH W IH1 CH	Wiktionary (CMUdict first)
+get	G EH1 T	G IH1 T	Wiktionary (CMUdict first)
+new	N UW1	N Y UW1	Wiktionary (CMUdict first)
+our	AW1 ER0	AW1 R	Wiktionary (CMUdict first)
+want	W AA1 N T	W AO1 N T	Wiktionary (CMUdict first)
+because	B IH0 K AO1 Z	B IH0 K AH1 Z; B IH0 K AA1 Z	Wiktionary (CMUdict first), far (1.0)
+where	W EH1 R	HH W EH1 R	Wiktionary (CMUdict first)
+really	R IH1 L IY0	R IY1 L IY0	Wiktionary (CMUdict first)
+before	B IH0 F AO1 R	B IY2 F AO1 R	Wiktionary (CMUdict first)
+why	W AY1	HH W AY1	Wiktionary (CMUdict first)
+while	W AY1 L	HH W AY1 L	Wiktionary (CMUdict first), tie
+use	Y UW1 Z	Y UW1 S (noun)	by hand: verb commoner
+every	EH1 V ER0 IY0	EH1 V R IY0	Wiktionary (CMUdict first), tie
+between	B IH0 T W IY1 N	B IY0 T W IY1 N	Wiktionary (CMUdict first)
+always	AO1 L W EY2 Z	AO1 L W IY0 Z	Wiktionary (CMUdict first)
+during	D UH1 R IH0 NG	D Y UH1 R IH0 NG; D ER1 IH0 NG	Wiktionary (CMUdict first), tie
+again	AH0 G EH1 N	AH0 G EY1 N	Wiktionary (CMUdict first)
+without	W IH0 TH AW1 T	W IH0 DH AW1 T	Wiktionary (CMUdict first)
+family	F AE1 M AH0 L IY0	F AE1 M L IY0	Wiktionary (CMUdict first), tie
+different	D IH1 F ER0 AH0 N T	D IH1 F R AH0 N T	Wiktionary (CMUdict first)
+government	G AH1 V ER0 M AH0 N T	G AH1 V ER0 N M AH0 N T	Wiktionary (CMUdict first), tie
+business	B IH1 Z N IH0 S	B IH1 Z N AH0 S	Wiktionary
+already	AO0 L R EH1 D IY0	AO0 R EH1 D IY0	Wiktionary (CMUdict first), far (1.0)
+live	L IH1 V	L AY1 V (adjective)	by hand: verb commoner
+read	R IY1 D	R EH1 D (past)	by hand: present first
+national	N AE1 SH AH0 N AH0 L	N AE1 SH N AH0 L	Wiktionary (CMUdict first)
+white	W AY1 T	HH W AY1 T	Wiktionary (CMUdict first)
+actually	AE1 K CH UW2 AH0 L IY0	AE1 K CH L IY0; AE1 K SH AH0 L IY0	Wiktionary (CMUdict first), tie
+american	AH0 M EH1 R IH0 K AH0 N	AH0 M EH1 R AH0 K AH0 N	Wiktionary
+service	S ER1 V IH0 S	S ER1 V AH0 S	Wiktionary
+general	JH EH1 N ER0 AH0 L	JH EH1 N R AH0 L	Wiktionary (CMUdict first), tie
+law	L AO1	L AA1	Wiktionary (CMUdict first)
+president	P R EH1 Z IH0 D AH0 N T		Wiktionary
+within	W IH0 DH IH1 N	W IH0 TH IH1 N	Wiktionary (CMUdict first)
+friends	F R EH1 N D Z	F R EH1 N Z	Wiktionary (CMUdict first), tie
+given	G IH1 V AH0 N	G IH1 V IH0 N	Wiktionary (CMUdict first)
+often	AO1 F AH0 N	AO1 F T AH0 N	Wiktionary (CMUdict first)
+we're	W IH1 R		Wiktionary
+history	HH IH1 S T ER0 IY0	HH IH1 S T R IY0	Wiktionary (CMUdict first)
+research	R IY1 S ER0 CH	R IY0 S ER1 CH (verb)	by hand: noun commoner
+several	S EH1 V R AH0 L	S EH1 V ER0 AH0 L	Wiktionary (CMUdict first), tie
+close	K L OW1 Z	K L OW1 S (adjective, near)	by hand: toss-up: verb first, as dictionaries do
+international	IH2 N T ER0 N AE1 SH AH0 N AH0 L	IH2 N ER0 N AE1 SH AH0 N AH0 L	Wiktionary (CMUdict first), tie
+cause	K AO1 Z	K AA1 Z	Wiktionary
+due	D UW1	D Y UW1	Wiktionary (CMUdict first)
+community	K AH0 M Y UW1 N AH0 T IY0	K AH0 M Y UW1 N IH0 T IY0	Wiktionary (CMUdict first)
+data	D EY1 T AH0	D AE1 T AH0	Wiktionary (CMUdict first)
+watch	W AA1 CH	W AO1 CH	Wiktionary (CMUdict first)
+either	IY1 DH ER0	AY1 DH ER0	by hand: American usual first (Wiktionary lists EYE- first)
+report	R IH0 P AO1 R T		Wiktionary
+whether	W EH1 DH ER0	HH W EH1 DH ER0	Wiktionary (CMUdict first)
+services	S ER1 V IH0 S IH0 Z	S ER1 V AH0 S AH0 Z	Wiktionary
+yourself	Y ER0 S EH1 L F	Y UH0 R S EH1 L F	Wiktionary (CMUdict first), tie, far (1.0)
+asked	AE1 S K T	AE1 S T	Wiktionary (CMUdict first)
+fire	F AY1 ER0	F AY1 R	Wiktionary (CMUdict first)
+market	M AA1 R K IH0 T	M AA1 R K AH0 T	Wiktionary
+political	P AH0 L IH1 T IH0 K AH0 L	P AH0 L IH1 T AH0 K AH0 L	Wiktionary
+sometimes	S AH1 M T AY2 M Z		Wiktionary
+gets	G EH1 T S	G IH1 T S	Wiktionary (CMUdict first)
+cost	K AO1 S T	K AA1 S T	Wiktionary
+wants	W AA1 N T S	W AO1 N T S	Wiktionary (CMUdict first)
+re	R IY1	R EY1	Wiktionary
+america	AH0 M EH1 R IH0 K AH0	AH0 M EH1 R AH0 K AH0	Wiktionary
+project	P R AA1 JH EH0 K T	P R AH0 JH EH1 K T (verb)	by hand: noun commoner
+especially	AH0 S P EH1 SH L IY0	AH0 S P EH1 SH AH0 L IY0	Wiktionary (CMUdict first), tie
+record	R EH1 K ER0 D	R IH0 K AO1 R D (verb)	by hand: noun commoner
+knew	N UW1	N Y UW1	Wiktionary (CMUdict first), tie
+lead	L IY1 D	L EH1 D (the metal)	by hand: verb commoner
+military	M IH1 L IH0 T EH2 R IY0	M IH1 L AH0 T EH2 R IY0	Wiktionary
+perfect	P ER1 F IH2 K T	P ER0 F EH1 K T (verb)	by hand: adjective commoner
+what's	W AH1 T S	HH W AH1 T S	Wiktionary (CMUdict first)
+won	W AH1 N	W AA1 N (the currency)	by hand: past of win
+county	K AW1 N T IY0	K AW1 N IY0	Wiktionary (CMUdict first), tie
+inside	IH1 N S AY2 D	IH2 N S AY1 D	Wiktionary
+needed	N IY1 D IH0 D	N IY1 D AH0 D	Wiktionary
+present	P R EH1 Z AH0 N T	P R IY0 Z EH1 N T (verb)	by hand: noun and adjective commoner
+interest	IH1 N T R AH0 S T	IH1 N T R IH0 S T; IH1 N T ER0 AH0 S T; IH1 N T ER0 IH0 S T	Wiktionary (CMUdict first), tie, far (1.0)
+july	JH AH0 L AY1	JH UW2 L AY1	Wiktionary
+added	AE1 D AH0 D	AE1 D IH0 D	Wiktionary (CMUdict first)
+average	AE1 V ER0 IH0 JH	AE1 V R AH0 JH; AE1 V R IH0 JH	Wiktionary (CMUdict first)
+hands	HH AE1 N D Z	HH AE1 N Z	Wiktionary (CMUdict first), tie
+medical	M EH1 D IH0 K AH0 L	M EH1 D AH0 K AH0 L	Wiktionary
+received	R IH0 S IY1 V D	R AH0 S IY1 V D	Wiktionary
+themselves	DH EH0 M S EH1 L V Z	DH AH0 M S EH1 L V Z	Wiktionary (CMUdict first)
+director	D IH0 R EH1 K T ER0	D ER0 EH1 K T ER0; D AY0 R EH1 K T ER0	Wiktionary
+usually	Y UW1 ZH AH0 L IY0		Wiktionary, far (1.0)
+lives	L AY1 V Z	L IH1 V Z (verb)	by hand: toss-up: plural of life first
+reading	R IY1 D IH0 NG	R EH1 D IH0 NG (the town)	by hand: reading a book
+fall	F AO1 L	F AA1 L	Wiktionary (CMUdict first)
+management	M AE1 N IH0 JH M AH0 N T	M AE1 N AH0 JH M AH0 N T	Wiktionary
+changes	CH EY1 N JH IH0 Z	CH EY1 N JH AH0 Z	Wiktionary
+cannot	K AE1 N AA0 T	K AH0 N AA1 T	Wiktionary (CMUdict first)
+natural	N AE1 CH ER0 AH0 L	N AE1 CH R AH0 L	Wiktionary (CMUdict first), tie
+august	AO1 G AH0 S T		Wiktionary, far (2.0)
+economic	EH2 K AH0 N AA1 M IH0 K	IY2 K AH0 N AA1 M IH0 K	Wiktionary (CMUdict first)
+language	L AE1 NG G W IH0 JH	L AE1 NG G W AH0 JH	Wiktionary
+article	AA1 R T IH0 K AH0 L	AA1 R T AH0 K AH0 L	Wiktionary
+enjoy	EH2 N JH OY1	IH0 N JH OY1	Wiktionary (CMUdict first)
+financial	F AY2 N AE1 N SH AH0 L		Wiktionary
+foreign	F AO1 R AH0 N	F AA1 R AH0 N	Wiktionary (CMUdict first)
+increase	IH2 N K R IY1 S	IH1 N K R IY2 S (noun)	by hand: verb commoner
+walk	W AO1 K	W AA1 K	Wiktionary (CMUdict first)
+washington	W AA1 SH IH0 NG T AH0 N	W AO1 SH IH0 NG T AH0 N	Wiktionary (CMUdict first)
+practice	P R AE1 K T IH0 S	P R AE1 K T AH0 S	Wiktionary
+towards	T AH0 W AO1 R D Z	T AO1 R D Z	Wiktionary (CMUdict first)
+aren't	AA1 R AH0 N T	AA1 R N T	Wiktionary (CMUdict first), tie
+created	K R IY0 EY1 T IH0 D	K R IY0 EY1 T AH0 D	Wiktionary
+cases	K EY1 S IH0 Z	K EY1 S AH0 Z	Wiktionary
+minister	M IH1 N AH0 S T ER0	M IH1 N IH0 S T ER0	Wiktionary (CMUdict first)
+february	F EH1 B R UW0 EH2 R IY0		Wiktionary
+included	IH2 N K L UW1 D IH0 D	IH2 N K L UW1 D AH0 D	Wiktionary
+officer	AO1 F IH0 S ER0	AO1 F AH0 S ER0	Wiktionary
+places	P L EY1 S IH0 Z	P L EY1 S AH0 Z	Wiktionary
+specific	S P IH0 S IH1 F IH0 K	S P AH0 S IH1 F IH0 K	Wiktionary
+tonight	T AH0 N AY1 T	T UH0 N AY1 T	Wiktionary (CMUdict first)
+effect	IH0 F EH1 K T	AH0 F EH1 K T	Wiktionary (CMUdict first)
+limited	L IH1 M IH0 T IH0 D	L IH1 M AH0 T AH0 D	Wiktionary
+required	R IY0 K W AY1 R D		Wiktionary, far (1.0)
+via	V AY1 AH0	V IY1 AH0	Wiktionary (CMUdict first)
+anti	AE1 N T AY2		Wiktionary
+association	AH0 S OW2 SH IY0 EY1 SH AH0 N	AH0 S OW2 S IY0 EY1 SH AH0 N	Wiktionary
+capital	K AE1 P IH0 T AH0 L	K AE1 P AH0 T AH0 L	Wiktionary
+conference	K AA1 N F ER0 AH0 N S	K AA1 N F R AH0 N S	Wiktionary (CMUdict first), tie
+difference	D IH1 F ER0 AH0 N S	D IH1 F R AH0 N S	Wiktionary (CMUdict first), tie
+content	K AA1 N T EH0 N T	K AH0 N T EH1 N T (adjective)	by hand: noun commoner
+credit	K R EH1 D IH0 T	K R EH1 D AH0 T	Wiktionary
+focus	F OW1 K AH0 S	F OW1 K IH0 S	Wiktionary (CMUdict first)
+interesting	IH1 N T ER0 AH0 S T IH0 NG	IH1 N T R AH0 S T IH0 NG; IH1 N T R IH0 S T IH0 NG; IH1 N T ER0 IH0 S T IH0 NG	Wiktionary
+message	M EH1 S IH0 JH	M EH1 S AH0 JH	Wiktionary
+reported	R IH0 P AO1 R T IH0 D		Wiktionary
+minute	M IH1 N AH0 T	M AY0 N UW1 T (adjective, tiny)	by hand: time commoner
+significant	S IH0 G N IH1 F IH0 K AH0 N T	S AH0 G N IH1 F IH0 K AH0 N T	Wiktionary
+episode	EH1 P AH0 S OW2 D	EH1 P IH0 S OW2 D	Wiktionary (CMUdict first)
+favorite	F EY1 V R AH0 T		Wiktionary
+justice	JH AH1 S T IH0 S	JH AH1 S T AH0 S	Wiktionary
+manager	M AE1 N AH0 JH ER0	M AE1 N IH0 JH ER0	Wiktionary (CMUdict first)
+costs	K AO1 S T S	K AA1 S T S	Wiktionary
+expected	IH0 K S P EH1 K T IH0 D	IH0 K S P EH1 K T AH0 D	Wiktionary
+friday	F R AY1 D EY2		Wiktionary
+knowledge	N AA1 L IH0 JH	N AA1 L AH0 JH	Wiktionary
+particularly	P ER0 T IH1 K Y AH0 L ER0 L IY0		Wiktionary
+subject	S AH1 B JH IH0 K T	S AH0 B JH EH1 K T (verb)	by hand: noun commoner
+generally	JH EH1 N ER0 AH0 L IY0	JH EH1 N R AH0 L IY0	Wiktionary (CMUdict first), far (1.0)
+interested	IH1 N T ER0 IH0 S T IH0 D	IH1 N T R AH0 S T IH0 D; IH1 N T R IH0 S T IH0 D	Wiktionary, far (1.3)
+nobody	N OW1 B AH0 D IY0	N OW1 B AA2 D IY2	Wiktionary
+unit	Y UW1 N IH0 T	Y UW1 N AH0 T	Wiktionary
+contract	K AA1 N T R AE2 K T	K AH0 N T R AE1 K T (verb)	by hand: noun commoner
+image	IH1 M IH0 JH	IH1 M AH0 JH	Wiktionary
+stupid	S T UW1 P IH0 D	S T UW1 P AH0 D	Wiktionary
+direction	D ER0 EH1 K SH AH0 N	D AY0 R EH1 K SH IH0 N; D IH0 R EH1 K SH IH0 N	Wiktionary (CMUdict first), tie
+africa	AE1 F R IH0 K AH0		Wiktionary
+awesome	AO1 S AH0 M	AA1 S AH0 M	Wiktionary
+ended	EH1 N D IH0 D	EH1 N D AH0 D	Wiktionary
+impact	IH1 M P AE0 K T	IH2 M P AE1 K T (verb)	by hand: noun commoner
+secret	S IY1 K R IH0 T	S IY1 K R AH0 T	Wiktionary
+sunday	S AH1 N D EY2	S AH1 N D IY2	Wiktionary (CMUdict first)
+activities	AE0 K T IH1 V IH0 T IY0 Z	AE0 K T IH1 V AH0 T IY0 Z	Wiktionary
+address	AH0 D R EH1 S	AE1 D R EH2 S	Wiktionary
+analysis	AH0 N AE1 L IH0 S IH0 S	AH0 N AE1 L AH0 S AH0 S	Wiktionary
+bought	B AO1 T	B AA1 T	Wiktionary
+details	D IY1 T EY0 L Z	D IH0 T EY1 L Z	Wiktionary
+direct	D AY0 R EH1 K T	D ER0 EH1 K T; D IH0 R EH1 K T	Wiktionary
+literally	L IH1 T ER0 AH0 L IY0	L IH1 T R AH0 L IY0	Wiktionary (CMUdict first)
+caught	K AO1 T	K AA1 T	Wiktionary
+damage	D AE1 M IH0 JH	D AE1 M AH0 JH	Wiktionary
+directly	D ER0 EH1 K T L IY0	D AY0 R EH1 K L IY0; D IH0 R EH1 K L IY0	Wiktionary lists CMUdict's fuller first
+notice	N OW1 T IH0 S	N OW1 T AH0 S	Wiktionary
+records	R EH1 K ER0 D Z	R IH0 K AO1 R D Z (verb)	by hand: noun commoner
+associated	AH0 S OW1 SH IY0 EY2 T IH0 D	AH0 S OW1 S IY0 EY2 T IH0 D	Wiktionary
+advice	AH0 D V AY1 S		Wiktionary
+caused	K AO1 Z D	K AA1 Z D	Wiktionary
+christian	K R IH1 S CH AH0 N	K R IH1 S CH IH0 N	Wiktionary (CMUdict first), far (1.0)
+lived	L IH1 V D	L AY1 V D (in long-lived)	by hand: past of live
+prices	P R AY1 S IH0 Z	P R AY1 S AH0 Z	Wiktionary
+theory	TH IH1 R IY0	TH IY1 ER0 IY0	Wiktionary (CMUdict first)
+uses	Y UW1 Z IH0 Z	Y UW1 S IH0 Z (noun)	by hand: verb commoner
+camera	K AE1 M ER0 AH0	K AE1 M R AH0	Wiktionary (CMUdict first)
+economy	IY0 K AA1 N AH0 M IY0	IH0 K AA1 N AH0 M IY0	Wiktionary
+officers	AO1 F IH0 S ER0 Z	AO1 F AH0 S ER0 Z	Wiktionary
+status	S T EY1 T AH0 S	S T AE1 T AH0 S	Wiktionary
+activity	AE0 K T IH1 V IH0 T IY0	AE0 K T IH1 V AH0 T IY0	Wiktionary
+coffee	K AO1 F IY0	K AA1 F IY0	Wiktionary
+complex	K AA1 M P L EH0 K S	K AH0 M P L EH1 K S (adjective, also)	by hand: noun and adjective
+putting	P UH1 T IH0 NG	P AH1 T IH0 NG (golf)	by hand: put commoner
+accept	AH0 K S EH1 P T	AE0 K S EH1 P T	Wiktionary
+actual	AE1 K CH AH0 W AH0 L	AE1 K SH AH0 L	by hand: the fuller form first, as dictionaries
+learned	L ER1 N D	L ER1 N IH0 D (adjective, scholarly)	by hand: past tense commoner
+receive	R IH0 S IY1 V	R AH0 S IY1 V	Wiktionary
+engine	EH1 N JH AH0 N	IH1 N JH AH0 N	Wiktionary (CMUdict first)
+investment	IH2 N V EH1 S T M AH0 N T	IH2 N V EH1 S M AH0 N T	Wiktionary (CMUdict first)
+wind	W IH1 N D	W AY1 N D (verb, to turn)	by hand: noun commoner
+digital	D IH1 JH IH0 T AH0 L	D IH1 JH AH0 T AH0 L	Wiktionary
+mostly	M OW1 S T L IY0	M OW1 S L IY0	Wiktionary (CMUdict first)
+separate	S EH1 P R AH0 T	S EH1 P ER0 EY2 T (verb)	by hand: adjective commoner
+african	AE1 F R IH0 K AH0 N	AE1 F R AH0 K AH0 N	Wiktionary
+louis	L UW1 IH0 S	L UW1 IY0	Wiktionary lists CMUdict's fuller first
+village	V IH1 L IH0 JH	V IH1 L AH0 JH	Wiktionary
+basis	B EY1 S IH0 S	B EY1 S AH0 S	Wiktionary
+projects	P R AA1 JH EH0 K T S	P R AH0 JH EH1 K T S (verb)	by hand: noun commoner
+adult	AH0 D AH1 L T	AE1 D AH0 L T	Wiktionary (CMUdict first)
+artist	AA1 R T IH0 S T	AA1 R T AH0 S T	Wiktionary
+edition	IH0 D IH1 SH AH0 N	AH0 D IH1 SH AH0 N	Wiktionary
+monday	M AH1 N D EY2	M AH1 N D IY0	Wiktionary
+senate	S EH1 N AH0 T	S EH1 N IH0 T	Wiktionary (CMUdict first)
+somebody	S AH1 M B AH0 D IY2	S AH1 M B AA2 D IY0	Wiktionary
+spirit	S P IH1 R IH0 T	S P IH1 R AH0 T	Wiktionary
+produce	P R AH0 D UW1 S	P R OW1 D UW0 S (noun, fruit and vegetables)	by hand: verb commoner
+progress	P R AA1 G R EH2 S	P R AH0 G R EH1 S (verb)	by hand: noun commoner
+require	R IY0 K W AY1 R		Wiktionary, tie, far (1.0)
+classes	K L AE1 S IH0 Z	K L AE1 S AH0 Z	Wiktionary
+completed	K AH0 M P L IY1 T IH0 D	K AH0 M P L IY1 T AH0 D	Wiktionary
+dogs	D AO1 G Z	D AA1 G Z	Wiktionary
+israel	IH1 Z R IY0 AH0 L	IH1 Z R EY0 L	Wiktionary lists CMUdict's fuller first
+length	L EH1 NG K TH	L EH1 NG TH	Wiktionary (CMUdict first), tie
+neither	N IY1 DH ER0	N AY1 DH ER0	by hand: American usual first
+software	S AO1 F T W EH2 R	S AO1 F W EH2 R	Wiktionary (CMUdict first), tie
+units	Y UW1 N IH0 T S	Y UW1 N AH0 T S	Wiktionary
+boss	B AO1 S	B AA1 S	Wiktionary
+florida	F L AO1 R IH0 D AH0	F L AO1 R AH0 D AH0	Wiktionary
+managed	M AE1 N IH0 JH D	M AE1 N AH0 JH D	Wiktionary
+vehicle	V IY1 HH IH0 K AH0 L	V IY1 IH0 K AH0 L	Wiktionary lists CMUdict's fuller first
+images	IH1 M IH0 JH IH0 Z	IH1 M AH0 JH AH0 Z	Wiktionary
+surprise	S ER0 P R AY1 Z	S AH0 P R AY1 Z	Wiktionary (CMUdict first)
+yours	Y AO1 R Z	Y UH1 R Z	Wiktionary
+excited	IH0 K S AY1 T IH0 D	IH0 K S AY1 T AH0 D	Wiktionary
+martin	M AA1 R T IH0 N	M AA1 R T AH0 N	Wiktionary
+reference	R EH1 F ER0 AH0 N S	R EH1 F R AH0 N S	Wiktionary (CMUdict first), tie
+audience	AO1 D IY0 AH0 N S	AA1 D IY0 AH0 N S	Wiktionary
+closer	K L OW1 S ER0	K L OW1 Z ER0 (one who closes)	by hand: adjective commoner
+reduce	R AH0 D UW1 S	R IH0 D UW1 S	Wiktionary (CMUdict first)
+victory	V IH1 K T ER0 IY0	V IH1 K T R IY0	Wiktionary (CMUdict first)
+citizens	S IH1 T IH0 Z AH0 N Z	S IH1 T AH0 Z AH0 N Z	Wiktionary
+clothes	K L OW1 Z	K L OW1 DH Z	by hand: the usual American one
+festival	F EH1 S T AH0 V AH0 L	F EH1 S T IH0 V AH0 L	Wiktionary (CMUdict first)
+fuel	F Y UW1 AH0 L	F Y UW1 L	Wiktionary (CMUdict first)
+hello	HH EH0 L OW1		Wiktionary
+houses	HH AW1 Z IH0 Z		by hand: CMUdict lacks the z
+pieces	P IY1 S IH0 Z	P IY1 S AH0 Z	Wiktionary
+toward	T AH0 W AO1 R D	T AO1 R D	Wiktionary lists CMUdict's fuller first
+transfer	T R AE1 N S F ER0	T R AE0 N S F ER1 (verb)	by hand: noun first
+anywhere	EH1 N IY0 W EH2 R	EH1 N IY0 HH W EH2 R	Wiktionary (CMUdict first), tie
+articles	AA1 R T IH0 K AH0 L Z	AA1 R T AH0 K AH0 L Z	Wiktionary
+capacity	K AH0 P AE1 S IH0 T IY0	K AH0 P AE1 S AH0 T IY0	Wiktionary
+climate	K L AY1 M IH0 T	K L AY1 M AH0 T	Wiktionary
+communities	K AH0 M Y UW1 N IH0 T IY0 Z	K AH0 M Y UW1 N AH0 T IY0 Z	Wiktionary
+hundred	HH AH1 N D R AH0 D	HH AH1 N D R IH0 D	Wiktionary (CMUdict first)
+ensure	IH0 N SH UH1 R		Wiktionary
+forest	F AO1 R IH0 S T	F AO1 R AH0 S T	Wiktionary
+profit	P R AA1 F IH0 T	P R AA1 F AH0 T	Wiktionary
+listed	L IH1 S T IH0 D	L IH1 S T AH0 D	Wiktionary
+noted	N OW1 T IH0 D	N OW1 T AH0 D	Wiktionary
+originally	ER0 IH1 JH AH0 N AH0 L IY0	ER0 IH1 JH N AH0 L IY0	Wiktionary (CMUdict first)
+survey	S ER1 V EY2	S ER0 V EY1 (verb)	by hand: noun commoner
+update	AH1 P D EY2 T	AH0 P D EY1 T (verb)	by hand: noun first
+ancient	EY1 N SH AH0 N T	EY1 N CH AH0 N T	Wiktionary
+charges	CH AA1 R JH IH0 Z	CH AA1 R JH AH0 Z	Wiktionary
+hero	HH IH1 R OW0	HH IY1 R OW0	Wiktionary (CMUdict first)
+restaurant	R EH1 S T ER0 AA2 N T	R EH1 S T R AA2 N T	Wiktionary lists CMUdict's fuller first
+soft	S AO1 F T	S AA1 F T	Wiktionary
+surprised	S ER0 P R AY1 Z D	S AH0 P R AY1 Z D	Wiktionary (CMUdict first)
+transport	T R AE0 N S P AO1 R T	T R AE1 N S P AO0 R T (noun)	by hand: toss-up: verb first (American English says transportation for the noun)
+accepted	AH0 K S EH1 P T IH0 D		Wiktionary
+appropriate	AH0 P R OW1 P R IY0 AH0 T	AH0 P R OW1 P R IY0 EY2 T (verb)	by hand: adjective commoner
+boston	B AO1 S T AH0 N	B AA1 S T AH0 N	Wiktionary
+era	EH1 R AH0	IH1 R AH0	Wiktionary (CMUdict first)
+lawyer	L AO1 Y ER0	L OY1 ER0	Wiktionary lists CMUdict's fuller first
+requires	R IY0 K W AY1 R Z		Wiktionary, far (1.0)
+route	R UW1 T	R AW1 T	Wiktionary (CMUdict first)
+schedule	S K EH1 JH UH0 L	S K EH1 JH UW0 L	Wiktionary (CMUdict first)
+abuse	AH0 B Y UW1 S	AH0 B Y UW1 Z (verb)	by hand: noun commoner
+businesses	B IH1 Z N IH0 S IH0 Z	B IH1 Z N AH0 S AH0 Z	Wiktionary
+candidate	K AE1 N D AH0 D EY0 T	K AE1 N AH0 D IH0 T	Wiktionary (CMUdict first), tie, far (1.3)
+everywhere	EH1 V R IY0 W EH2 R	EH1 V R IY0 HH W EH2 R	Wiktionary (CMUdict first), tie
+facilities	F AH0 S IH1 L IH0 T IY0 Z		Wiktionary, far (1.0)
+holiday	HH AA1 L AH0 D EY2	HH AA1 L IH0 D EY2	Wiktionary (CMUdict first)
+interests	IH1 N T R IH0 S T S	IH1 N T R AH0 S T S; IH1 N T ER0 AH0 S T S; IH1 N T ER0 IH0 S T S	Wiktionary, tie
+listening	L IH1 S AH0 N IH0 NG	L IH1 S N IH0 NG	Wiktionary lists CMUdict's fuller first
+recorded	R AH0 K AO1 R D IH0 D	R IH0 K AO1 R D IH0 D	Wiktionary (CMUdict first)
+finance	F AY1 N AE2 N S		Wiktionary
+focused	F OW1 K AH0 S T	F OW1 K IH0 S T	Wiktionary (CMUdict first)
+taxes	T AE1 K S IH0 Z	T AE1 K S AH0 Z	Wiktionary
+twenty	T W EH1 N T IY0	T W EH1 N IY0	Wiktionary (CMUdict first)
+acts	AE1 K T S	AE1 K S	Wiktionary lists CMUdict's fuller first
+conflict	K AA1 N F L IH0 K T	K AH0 N F L IH1 K T (verb)	by hand: noun commoner
+corporate	K AO1 R P ER0 AH0 T	K AO1 R P R AH0 T	Wiktionary (CMUdict first)
+extended	IH0 K S T EH1 N D AH0 D	IH0 K S T EH1 N D IH0 D	Wiktionary (CMUdict first)
+friendly	F R EH1 N D L IY0	F R EH1 N L IY0	Wiktionary (CMUdict first)
+reduced	R IH0 D UW1 S T	R AH0 D UW1 S T	Wiktionary
+revenue	R EH1 V AH0 N Y UW2	R EH1 V AH0 N UW2	Wiktionary
+temperature	T EH1 M P ER0 AH0 CH ER0		Wiktionary
+thousand	TH AW1 Z AH0 N D	TH AW1 Z AH0 N	Wiktionary (CMUdict first), tie
+besides	B IH0 S AY1 D Z	B IY2 S AY1 D Z	Wiktionary (CMUdict first)
+causes	K AO1 Z IH0 Z	K AA1 Z AH0 Z	Wiktionary
+coverage	K AH1 V ER0 IH0 JH	K AH1 V ER0 AH0 JH; K AH1 V R IH0 JH	Wiktionary, tie
+determine	D IH0 T ER1 M AH0 N	D AH0 T ER1 M AH0 N	Wiktionary
+elected	IH0 L EH1 K T IH0 D	IH0 L EH1 K T AH0 D	Wiktionary
+ministry	M IH1 N IH0 S T R IY0	M IH1 N AH0 S T R IY0	Wiktionary
+tuesday	T UW1 Z D EY2	T UW1 Z D IY0; T Y UW1 Z D EY2	Wiktionary
+zero	Z IH1 R OW0	Z IY1 R OW0	Wiktionary (CMUdict first)
+editor	EH1 D IH0 T ER0	EH1 D AH0 T ER0	Wiktionary
+estimated	EH1 S T AH0 M EY2 T IH0 D		by hand: the verb
+iran	IH2 R AA1 N	AY2 R AE1 N	Wiktionary (CMUdict first)
+orange	AO1 R AH0 N JH	AO1 R IH0 N JH	Wiktionary (CMUdict first)
+ourselves	AW0 ER0 S EH1 L V Z	AA0 R S EH1 L V Z	Wiktionary (CMUdict first)
+pages	P EY1 JH IH0 Z	P EY1 JH AH0 Z	Wiktionary
+suicide	S UW1 IH0 S AY2 D	S UW1 AH0 S AY2 D	Wiktionary
+typically	T IH1 P IH0 K L IY0	T IH1 P IH0 K AH0 L IY0	Wiktionary (CMUdict first)
+usual	Y UW1 ZH UW0 AH0 L		Wiktionary
+vehicles	V IY1 HH IH0 K AH0 L Z	V IY1 IH0 K AH0 L Z	Wiktionary lists CMUdict's fuller first
+granted	G R AE1 N T IH0 D	G R AE1 N T AH0 D	Wiktionary
+markets	M AA1 R K IH0 T S	M AA1 R K AH0 T S	Wiktionary
+perfectly	P ER1 F AH0 K T L IY0	P ER1 F AH0 K L IY0	Wiktionary (CMUdict first), tie
+referred	R IH0 F ER1 D	R AH0 F ER1 D	Wiktionary
+ticket	T IH1 K IH0 T	T IH1 K AH0 T	Wiktionary
+upset	AH0 P S EH1 T	AH1 P S EH2 T (noun)	by hand: adjective and verb commoner
+directed	D IH0 R EH1 K T IH0 D	D ER0 EH1 K T AH0 D; D ER0 EH1 K T IH0 D; D AY0 R EH1 K T IH0 D	Wiktionary
+entertainment	EH2 N T ER0 T EY1 N M AH0 N T	EH2 N ER0 T EY1 N M AH0 N T	Wiktionary (CMUdict first), tie
+republic	R IY0 P AH1 B L IH0 K		Wiktionary, far (1.0)
+tickets	T IH1 K IH0 T S	T IH1 K AH0 T S	Wiktionary
+circumstances	S ER1 K AH0 M S T AE2 N S IH0 Z	S ER1 K AH0 M S T AE2 N S AH0 Z	Wiktionary
+devices	D IH0 V AY1 S IH0 Z	D IH0 V AY1 S AH0 Z	Wiktionary
+empty	EH1 M P T IY0	EH1 M T IY0	Wiktionary (CMUdict first), tie
+enjoyed	EH2 N JH OY1 D	IH0 N JH OY1 D	Wiktionary (CMUdict first)
+faces	F EY1 S IH0 Z	F EY1 S AH0 Z	Wiktionary
+matches	M AE1 CH IH0 Z	M AE1 CH AH0 Z	Wiktionary
+reasonable	R IY1 Z AH0 N AH0 B AH0 L	R IY1 Z N AH0 B AH0 L	Wiktionary (CMUdict first)
+receiving	R IH0 S IY1 V IH0 NG	R AH0 S IY1 V IH0 NG	Wiktionary
+typical	T IH1 P IH0 K AH0 L	T IH1 P AH0 K AH0 L	Wiktionary
+wednesday	W EH1 N Z D EY2		Wiktionary
+decades	D EH1 K EY0 D Z		Wiktionary
+recovery	R IH0 K AH1 V ER0 IY0	R IH0 K AH1 V R IY0	Wiktionary
+reviews	R AH0 V Y UW1 Z		Wiktionary
+chemical	K EH1 M IH0 K AH0 L	K EH1 M AH0 K AH0 L	Wiktionary
+competitive	K AH0 M P EH1 T AH0 T IH0 V	K AH0 M P EH1 T IH0 T IH0 V	Wiktionary (CMUdict first)
+detail	D IY1 T EY0 L	D IH0 T EY1 L	Wiktionary
+personally	P ER1 S AH0 N AH0 L IY0	P ER1 S N AH0 L IY0	Wiktionary (CMUdict first)
+representative	R EH2 P R IH0 Z EH1 N T AH0 T IH0 V	R EH2 P R AH0 Z EH1 N T AH0 T IH0 V	Wiktionary
+storage	S T AO1 R IH0 JH	S T AO1 R AH0 JH	Wiktionary
+combat	K AA1 M B AE0 T	K AH0 M B AE1 T	Wiktionary (CMUdict first)
+employment	IH0 M P L OY1 M AH0 N T	EH0 M P L OY1 M AH0 N T	Wiktionary
+excuse	IH0 K S K Y UW1 Z	IH0 K S K Y UW1 S (noun)	by hand: verb commoner (excuse me)
+golf	G AA1 L F	G AO1 L F	Wiktionary (CMUdict first)
+object	AA1 B JH EH0 K T	AH0 B JH EH1 K T (verb)	by hand: noun commoner
+victim	V IH1 K T IH0 M	V IH1 K T AH0 M	Wiktionary
+victims	V IH1 K T IH0 M Z	V IH1 K T AH0 M Z	Wiktionary
+concert	K AA1 N S ER0 T	K AH0 N S ER1 T (in concert, verb)	by hand: noun commoner
+existence	EH0 G Z IH1 S T AH0 N S	IH0 G Z IH1 S T AH0 N S	Wiktionary (CMUdict first)
+headed	HH EH1 D IH0 D	HH EH1 D AH0 D	Wiktionary
+maintenance	M EY1 N T AH0 N AH0 N S	M EY1 N T N AH0 N S	Wiktionary (CMUdict first), tie
+practices	P R AE1 K T IH0 S IH0 Z	P R AE1 K T AH0 S AH0 Z	Wiktionary
+roof	R UW1 F	R UH1 F	Wiktionary (CMUdict first)
+stronger	S T R AO1 NG G ER0		Wiktionary
+updated	AH1 P D EY2 T IH0 D		by hand: the verb
+calm	K AA1 M	K AA1 L M	Wiktionary (CMUdict first)
+manage	M AE1 N IH0 JH	M AE1 N AH0 JH	Wiktionary
+messages	M EH1 S IH0 JH IH0 Z	M EH1 S AH0 JH AH0 Z	Wiktionary
+refused	R IH0 F Y UW1 Z D	R AH0 F Y UW1 Z D	Wiktionary
+reporting	R IH0 P AO1 R T IH0 NG		Wiktionary
+soviet	S OW1 V IY0 AH0 T	S OW1 V IY0 EH2 T	Wiktionary (CMUdict first)
+ages	EY1 JH IH0 Z	EY1 JH AH0 Z	Wiktionary
+causing	K AO1 Z IH0 NG	K AA1 Z IH0 NG	Wiktionary
+contest	K AA1 N T EH0 S T	K AH0 N T EH1 S T (verb)	by hand: noun commoner
+invited	IH2 N V AY1 T IH0 D	IH2 N V AY1 T AH0 D	Wiktionary
+reform	R AH0 F AO1 R M	R IH0 F AO1 R M	Wiktionary (CMUdict first), tie, far (1.0)
+suffering	S AH1 F ER0 IH0 NG	S AH1 F R IH0 NG	Wiktionary (CMUdict first)
+conduct	K AA0 N D AH1 K T	K AA1 N D AH0 K T (noun)	by hand: verb commoner
+debut	D EY0 B Y UW1	D EY1 B Y UW0	Wiktionary (CMUdict first)
+decade	D EH1 K EY0 D		Wiktionary
+differences	D IH1 F ER0 AH0 N S IH0 Z	D IH1 F R AH0 N S AH0 Z	Wiktionary (CMUdict first)
+representatives	R EH2 P R IH0 Z EH1 N T AH0 T IH0 V Z	R EH2 P R AH0 Z EH1 N T AH0 T IH0 V Z	Wiktionary
+chances	CH AE1 N S IH0 Z	CH AE1 N S AH0 Z	Wiktionary
+clinical	K L IH1 N IH0 K AH0 L	K L IH1 N AH0 K AH0 L	Wiktionary
+objects	AA1 B JH EH0 K T S	AH0 B JH EH1 K T S (verb)	by hand: noun commoner
+purposes	P ER1 P AH0 S IH0 Z	P ER1 P AH0 S AH0 Z	Wiktionary
+recording	R IH0 K AO1 R D IH0 NG	R AH0 K AO1 R D IH0 NG	Wiktionary
+semi	S EH1 M IY0	S EH1 M AY0	Wiktionary (CMUdict first)
+suspect	S AH0 S P EH1 K T	S AH1 S P EH2 K T (noun)	by hand: toss-up: verb first (I suspect)
+valuable	V AE1 L Y UW0 B AH0 L	V AE1 L Y AH0 B AH0 L	Wiktionary
+aged	EY1 JH D	EY1 JH IH0 D (adjective, very old)	by hand: aged 25 commoner
+employee	EH0 M P L OY1 IY0	IH0 M P L OY1 IY0	Wiktionary (CMUdict first), far (1.2)
+graduate	G R AE1 JH UW0 W AH0 T	G R AE1 JH UW0 EY2 T (verb)	by hand: noun commoner
+wheel	W IY1 L	HH W IY1 L	Wiktionary (CMUdict first)
+cabinet	K AE1 B AH0 N AH0 T	K AE1 B N AH0 T	Wiktionary (CMUdict first)
+davis	D EY1 V IH0 S	D EY1 V AH0 S	Wiktionary
+naturally	N AE1 CH ER0 AH0 L IY0	N AE1 CH R AH0 L IY0	Wiktionary (CMUdict first), tie
+offices	AO1 F AH0 S IH0 Z	AO1 F AH0 S AH0 Z	Wiktionary
+percentage	P ER0 S EH1 N T IH0 JH	P ER0 S EH1 N T AH0 JH	Wiktionary
+practical	P R AE1 K T IH0 K AH0 L	P R AE1 K T AH0 K AH0 L	Wiktionary
+elizabeth	IH0 L IH1 Z AH0 B AH0 TH	IH0 L IH1 Z AH0 B IH0 TH	Wiktionary (CMUdict first)
+limits	L IH1 M IH0 T S	L IH1 M AH0 T S	Wiktionary
+province	P R AA1 V IH0 N S	P R AA1 V AH0 N S	Wiktionary
+recognition	R EH2 K AH0 G N IH1 SH AH0 N	R EH2 K IH0 G N IH1 SH AH0 N	Wiktionary (CMUdict first)
+tears	T IH1 R Z	T EH1 R Z (rips)	by hand: crying commoner
+adventure	AH0 D V EH1 N CH ER0	AE0 D V EH1 N CH ER0	Wiktionary
+awful	AO1 F AH0 L	AA1 F AH0 L	Wiktionary
+choices	CH OY1 S IH0 Z	CH OY1 S AH0 Z	Wiktionary
+colorado	K AA2 L ER0 AA1 D OW0	K AA2 L ER0 AE1 D OW0	Wiktionary (CMUdict first)
+contrast	K AA1 N T R AE0 S T	K AH0 N T R AE1 S T (verb)	by hand: noun commoner
+courses	K AO1 R S IH0 Z	K AO1 R S AH0 Z	Wiktionary
+package	P AE1 K IH0 JH	P AE1 K AH0 JH	Wiktionary
+pointed	P OY1 N T IH0 D	P OY1 N AH0 D	Wiktionary (CMUdict first)
+sensitive	S EH1 N S IH0 T IH0 V	S EH1 N S AH0 T IH0 V	Wiktionary
+violent	V AY1 AH0 L AH0 N T	V AY1 L AH0 N T	Wiktionary (CMUdict first)
+directors	D IH0 R EH1 K T ER0 Z	D ER0 EH1 K T ER0 Z; D AY0 R EH1 K T ER0 Z	Wiktionary
+discovery	D IH0 S K AH1 V ER0 IY0	D IH0 S K AH1 V R IY0	Wiktionary lists CMUdict's fuller first
+egypt	IY1 JH IH0 P T	IY1 JH AH0 P T	Wiktionary
+encourage	IH0 N K ER1 AH0 JH		Wiktionary
+governments	G AH1 V ER0 M AH0 N T S	G AH1 V ER0 N M AH0 N T S	Wiktionary (CMUdict first), tie
+horses	HH AO1 R S IH0 Z	HH AO1 R S AH0 Z	Wiktionary
+passes	P AE1 S IH0 Z	P AE1 S AH0 Z	Wiktionary
+protest	P R OW1 T EH2 S T	P R AH0 T EH1 S T (verb)	by hand: noun commoner
+refer	R IH0 F ER1	R AH0 F ER1	Wiktionary
+concrete	K AH0 N K R IY1 T	K AA1 N K R IY0 T	Wiktionary (CMUdict first), far (1.0)
+stages	S T EY1 JH IH0 Z	S T EY1 JH AH0 Z	Wiktionary
+wire	W AY1 ER0	W AY1 R	Wiktionary (CMUdict first)
+centers	S EH1 N T ER0 Z	S EH1 N ER0 Z	Wiktionary (CMUdict first), tie
+disappointed	D IH2 S AH0 P OY1 N T IH0 D	D IH2 S AH0 P OY1 N IH0 D	Wiktionary (CMUdict first)
+employed	IH0 M P L OY1 D	EH0 M P L OY1 D	Wiktionary
+enjoying	EH2 N JH OY1 IH0 NG	IH0 N JH OY1 IH0 NG	Wiktionary (CMUdict first)
+handed	HH AE1 N D AH0 D	HH AE1 N D IH0 D	Wiktionary (CMUdict first)
+islam	IH1 S L AA2 M	IH2 S L AA1 M	Wiktionary
+languages	L AE1 NG G W IH0 JH IH0 Z	L AE1 NG G W AH0 JH AH0 Z	Wiktionary
+prayer	P R EH1 R	P R EY1 ER0 (one who prays)	by hand: the prayer itself
+references	R EH1 F ER0 AH0 N S IH0 Z	R EH1 F R AH0 N S IH0 Z	Wiktionary (CMUdict first), tie
+minority	M AY0 N AO1 R AH0 T IY0	M AH0 N AO1 R AH0 T IY0	Wiktionary (CMUdict first)
+presents	P R EH1 Z AH0 N T S	P R IY0 Z EH1 N T S (verb)	by hand: toss-up: gifts first
+whereas	W EH0 R AE1 Z	HH W EH0 R AE1 Z	Wiktionary (CMUdict first), tie
+alexander	AE2 L IH0 G Z AE1 N D ER0	AE2 L AH0 G Z AE1 N D ER0	Wiktionary
+contracts	K AA1 N T R AE2 K T S	K AH0 N T R AE1 K T S (verb)	by hand: noun commoner
+desert	D EH1 Z ER0 T	D IH0 Z ER1 T (verb, to leave)	by hand: noun commoner
+elite	IH0 L IY1 T	EY0 L IY1 T	Wiktionary (CMUdict first)
+hire	HH AY1 ER0	HH AY1 R	Wiktionary lists CMUdict's fuller first
+nowhere	N OW1 HH W EH2 R		Wiktionary
+printed	P R IH1 N T IH0 D	P R IH1 N AH0 D; P R IH1 N IH0 D	Wiktionary (CMUdict first)
+recall	R IH0 K AO1 L	R IY1 K AO2 L (noun)	by hand: verb commoner
+associate	AH0 S OW1 SH IY0 EY2 T	AH0 S OW1 SH IY0 AH0 T (noun, adjective)	by hand: verb commoner
+citizen	S IH1 T IH0 Z AH0 N	S IH1 T AH0 Z AH0 N	Wiktionary
+cricket	K R IH1 K IH0 T	K R IH1 K AH0 T	Wiktionary
+damaged	D AE1 M IH0 JH D	D AE1 M AH0 JH D	Wiktionary
+francis	F R AE1 N S IH0 S	F R AE1 N S AH0 S	Wiktionary
+friendship	F R EH1 N D SH IH0 P	F R EH1 N SH IH0 P	Wiktionary (CMUdict first), tie
+lawyers	L AO1 Y ER0 Z	L OY1 ER0 Z	Wiktionary lists CMUdict's fuller first
+liquid	L IH1 K W IH0 D	L IH1 K W AH0 D	Wiktionary
+mortgage	M AO1 R G IH0 JH	M AO1 R G AH0 JH	Wiktionary
+occasionally	AH0 K EY1 ZH AH0 N AH0 L IY0	AH0 K EY1 ZH N AH0 L IY0; AH0 K EY1 ZH AH0 N L IY0	Wiktionary (CMUdict first)
+refuse	R IH0 F Y UW1 Z	R EH1 F Y UW2 S (noun, rubbish)	by hand: verb commoner
+ross	R AO1 S	R AA1 S	Wiktionary
+sciences	S AY1 AH0 N S IH0 Z	S AY1 AH0 N S AH0 Z	Wiktionary
+journalist	JH ER1 N AH0 L IH0 S T	JH ER1 N AH0 L AH0 S T	Wiktionary
+races	R EY1 S IH0 Z	R EY1 S AH0 Z	Wiktionary
+rapid	R AE1 P IH0 D	R AE1 P AH0 D	Wiktionary
+subjects	S AH1 B JH IH0 K T S	S AH0 B JH EH1 K T S (verb)	by hand: noun commoner
+thirty	TH ER1 T IY2		Wiktionary
+prisoners	P R IH1 Z AH0 N ER0 Z	P R IH1 Z N ER0 Z	Wiktionary (CMUdict first)
+regret	R IH0 G R EH1 T	R AH0 G R EH1 T	Wiktionary
+resort	R IY0 Z AO1 R T	R IY0 S AO1 R T	Wiktionary
+diseases	D IH0 Z IY1 Z IH0 Z	D IH0 Z IY1 Z AH0 Z	Wiktionary
+extraordinary	IH0 K S T R AO1 R D AH0 N EH2 R IY0		Wiktionary
+headquarters	HH EH1 D K W AO2 R T ER0 Z	HH EH1 D K AO2 R T ER0 Z	Wiktionary (CMUdict first), tie
+heritage	HH EH1 R AH0 T AH0 JH	HH EH1 R IH0 T IH0 JH	Wiktionary (CMUdict first), tie
+reducing	R IH0 D UW1 S IH0 NG	R AH0 D UW1 S IH0 NG	Wiktionary
+chemistry	K EH1 M IH0 S T R IY0	K EH1 M AH0 S T R IY0	Wiktionary
+concluded	K AH0 N K L UW1 D IH0 D	K AH0 N K L UW1 D AH0 D	Wiktionary
+detroit	D IY1 T R OY2 T		Wiktionary
+discount	D IH1 S K AW0 N T	D IH0 S K AW1 N T (verb, to disregard)	by hand: noun commoner
+exit	EH1 G Z IH0 T	EH1 K S AH0 T	Wiktionary (CMUdict first)
+heroes	HH IH1 R OW0 Z	HH IY1 R OW0 Z	Wiktionary (CMUdict first)
+inches	IH1 N CH IH0 Z	IH1 N CH AH0 Z	Wiktionary
+preferred	P R IH0 F ER1 D	P R AH0 F ER1 D	Wiktionary
+tear	T EH1 R	T IH1 R (from the eye)	by hand: toss-up: to rip first
+tennis	T EH1 N IH0 S	T EH1 N AH0 S	Wiktionary
+voices	V OY1 S IH0 Z	V OY1 S AH0 Z	Wiktionary
+agricultural	AE2 G R IH0 K AH1 L CH ER0 AH0 L	AE2 G R AH0 K AH1 L CH ER0 AH0 L	Wiktionary
+boxes	B AA1 K S IH0 Z	B AA1 K S AH0 Z	Wiktionary
+glasses	G L AE1 S IH0 Z	G L AE1 S AH0 Z	Wiktionary
+indicated	IH1 N D AH0 K EY2 T IH0 D	IH1 N D AH0 K EY2 T AH0 D	Wiktionary
+ministers	M IH1 N AH0 S T ER0 Z	M IH1 N IH0 S T ER0 Z	Wiktionary (CMUdict first)
+density	D EH1 N S AH0 T IY0	D EH1 N S IH0 T IY0	Wiktionary (CMUdict first)
+difficulty	D IH1 F AH0 K AH0 L T IY0	D IH1 F IH0 K AH2 L T IY0	Wiktionary (CMUdict first), tie
+expenses	IH0 K S P EH1 N S IH0 Z	IH0 K S P EH1 N S AH0 Z	Wiktionary
+instagram	IH1 N S T AH0 G R AE2 M		by hand: CMUdict marks no main stress
+radical	R AE1 D IH0 K AH0 L	R AE1 D AH0 K AH0 L	Wiktionary
+reward	R IH0 W AO1 R D	R IY0 W AO1 R D	Wiktionary (CMUdict first)
+robin	R AA1 B IH0 N	R AA1 B AH0 N	Wiktionary
+struggling	S T R AH1 G AH0 L IH0 NG	S T R AH1 G L IH0 NG	Wiktionary (CMUdict first)
+transmission	T R AE0 N Z M IH1 SH AH0 N	T R AE0 N S M IH1 SH AH0 N	Wiktionary
+courage	K ER1 IH0 JH	K ER1 AH0 JH	Wiktionary
+desperate	D EH1 S P R IH0 T	D EH1 S P ER0 IH0 T	Wiktionary (CMUdict first), tie
+diversity	D AY0 V ER1 S IH0 T IY0	D IH0 V ER1 S IH0 T IY0	Wiktionary
+encouraged	IH0 N K ER1 AH0 JH D		Wiktionary, far (1.3)
+jacket	JH AE1 K IH0 T	JH AE1 K AH0 T	Wiktionary
+justin	JH AH1 S T IH0 N	JH AH1 S T AH0 N	Wiktionary
+romance	R OW1 M AE0 N S	R OW0 M AE1 N S	Wiktionary
+tissue	T IH1 SH UW0		Wiktionary
+versus	V ER1 S AH0 S	V ER1 S AH0 Z	Wiktionary (CMUdict first)
+database	D EY1 T AH0 B EY2 S	D AE1 T AH0 B EY2 S	Wiktionary (CMUdict first)
+edited	EH1 D IH0 T IH0 D	EH1 D AH0 T AH0 D	Wiktionary
+ruin	R UW1 IH0 N	R UW1 AH0 N	Wiktionary
+saudi	S AW1 D IY0	S AO1 D IY0	Wiktionary
+secrets	S IY1 K R IH0 T S	S IY1 K R AH0 T S	Wiktionary
+updates	AH1 P D EY2 T S	AH0 P D EY1 T S (verb)	by hand: noun commoner
+bow	B OW1	B AW1 (to bend)	by hand: toss-up: bow and arrow, bow tie first
+enable	IH0 N EY1 B AH0 L		Wiktionary
+estimates	EH1 S T AH0 M AH0 T S	EH1 S T AH0 M EY2 T S (verb)	by hand: noun commoner
+fortune	F AO1 R CH AH0 N	F AO1 R CH UW0 N	Wiktionary (CMUdict first)
+graham	G R EY1 AH0 M	G R AE1 M	Wiktionary lists CMUdict's fuller first
+physically	F IH1 Z IH0 K L IY0		Wiktionary
+regime	R AH0 ZH IY1 M	R EY0 ZH IY1 M	Wiktionary (CMUdict first)
+summit	S AH1 M AH0 T	S AH1 M IH0 T	Wiktionary (CMUdict first)
+warriors	W AO1 R IY0 ER0 Z	W AO1 R Y ER0 Z	Wiktionary (CMUdict first)
+awkward	AO1 K W ER0 D	AA1 K W ER0 D	Wiktionary
+cited	S AY1 T IH0 D	S AY1 T AH0 D	Wiktionary
+constructed	K AH0 N S T R AH1 K T AH0 D	K AH0 N S T R AH1 K T IH0 D	Wiktionary (CMUdict first)
+eligible	EH1 L AH0 JH AH0 B AH0 L	EH1 L IH0 JH AH0 B AH0 L	Wiktionary (CMUdict first)
+estimate	EH1 S T AH0 M AH0 T	EH1 S T AH0 M EY2 T (verb)	by hand: toss-up: noun first, as Wiktionary
+funded	F AH1 N D IH0 D	F AH1 N D AH0 D	Wiktionary
+integrated	IH1 N T AH0 G R EY2 T AH0 D	IH1 N T AH0 G R EY2 T IH0 D	Wiktionary (CMUdict first)
+polish	P OW1 L IH0 SH	P AA1 L IH0 SH (to shine)	by hand: toss-up: wordfreq folds Polish into polish
+witnesses	W IH1 T N AH0 S IH0 Z	W IH1 T N AH0 S AH0 Z	Wiktionary
+worship	W ER1 SH IH0 P	W ER1 SH AH0 P	Wiktionary
+bass	B EY1 S	B AE1 S (the fish)	by hand: music commoner
+dual	D UW1 AH0 L	D UW1 L	Wiktionary lists CMUdict's fuller first
+expanded	IH0 K S P AE1 N D IH0 D		Wiktionary, far (1.0)
+philip	F IH1 L IH0 P	F IH1 L AH0 P	Wiktionary
+satisfied	S AE1 T IH0 S F AY2 D	S AE1 T AH0 S F AY2 D	Wiktionary
+spaces	S P EY1 S IH0 Z	S P EY1 S AH0 Z	Wiktionary
+specialist	S P EH1 SH AH0 L IH0 S T	S P EH1 SH AH0 L AH0 S T	Wiktionary
+surprising	S ER0 P R AY1 Z IH0 NG	S AH0 P R AY1 Z IH0 NG	Wiktionary (CMUdict first)
+thompson	T AA1 M P S AH0 N	T AA1 M S AH0 N	Wiktionary (CMUdict first)
+acceptable	AH0 K S EH1 P T AH0 B AH0 L	AE0 K S EH1 P T AH0 B AH0 L	Wiktionary
+auction	AO1 K SH AH0 N	AA1 K SH AH0 N	Wiktionary
+counting	K AW1 N T IH0 NG	K AW1 N IH0 NG	Wiktionary (CMUdict first)
+editing	EH1 D IH0 T IH0 NG	EH1 D AH0 T IH0 NG	Wiktionary
+investments	IH2 N V EH1 S T M AH0 N T S	IH2 N V EH1 S M AH0 N T S	Wiktionary (CMUdict first), tie
+moderate	M AA1 D ER0 AH0 T	M AA1 D ER0 EY2 T (verb)	by hand: adjective commoner
+passage	P AE1 S IH0 JH	P AE1 S AH0 JH	Wiktionary
+traveling	T R AE1 V AH0 L IH0 NG	T R AE1 V L IH0 NG	Wiktionary lists CMUdict's fuller first
+wherever	W EH0 R EH1 V ER0	HH W EH0 R EH1 V ER0	Wiktionary (CMUdict first), tie
+alice	AE1 L IH0 S	AE1 L AH0 S	Wiktionary
+missouri	M AH0 Z UH1 R IY0	M AH0 Z ER1 AH0	Wiktionary (CMUdict first)
+mounted	M AW1 N T IH0 D	M AW1 N T AH0 D	Wiktionary
+ruined	R UW1 IH0 N D	R UW1 AH0 N D	Wiktionary
+segment	S EH1 G M AH0 N T	S EH2 G M EH1 N T (verb)	by hand: noun commoner
+boundaries	B AW1 N D ER0 IY0 Z	B AW1 N D R IY0 Z	Wiktionary (CMUdict first), tie
+brooklyn	B R UH1 K L AH0 N	B R UH1 K L IH0 N	Wiktionary (CMUdict first)
+employers	IH0 M P L OY1 ER0 Z	EH0 M P L OY1 ER0 Z	Wiktionary
+enormous	IH0 N AO1 R M AH0 S	IH0 N AO1 R M IH0 S; IY0 N AO1 R M AH0 S; IY0 N AO1 R M IH0 S	Wiktionary (CMUdict first)
+focusing	F OW1 K AH0 S IH0 NG	F OW1 K IH0 S IH0 NG	Wiktionary (CMUdict first)
+oxygen	AA1 K S IH0 JH AH0 N	AA1 K S AH0 JH AH0 N	Wiktionary
+recovered	R IH0 K AH1 V ER0 D	R AH0 K AH1 V ER0 D	Wiktionary
+wages	W EY1 JH IH0 Z	W EY1 JH AH0 Z	Wiktionary
+deposit	D AH0 P AA1 Z IH0 T	D IH0 P AA1 Z AH0 T	Wiktionary (CMUdict first), tie
+destination	D EH2 S T IH0 N EY1 SH AH0 N	D EH2 S T AH0 N EY1 SH AH0 N	Wiktionary
+diverse	D AY0 V ER1 S	D IH0 V ER1 S	Wiktionary (CMUdict first)
+grandfather	G R AE1 N D F AA2 DH ER0	G R AE1 N F AA2 DH ER0	Wiktionary (CMUdict first), tie
+isolated	AY1 S AH0 L EY2 T IH0 D	AY1 S AH0 L EY2 T AH0 D	Wiktionary
+landed	L AE1 N D IH0 D	L AE1 N D AH0 D	Wiktionary
+relate	R IH0 L EY1 T	R IY0 L EY1 T	Wiktionary (CMUdict first)
+sacred	S EY1 K R IH0 D	S EY1 K R AH0 D	Wiktionary
+upgrade	AH1 P G R EY1 D	AH0 P G R EY1 D	Wiktionary
+wound	W UW1 N D	W AW1 N D (past of wind)	by hand: injury commoner
+casual	K AE1 ZH W AH0 L		Wiktionary, far (1.0)
+directions	D ER0 EH1 K SH AH0 N Z	D AY0 R EH1 K SH IH0 N Z; D IH0 R EH1 K SH IH0 N Z	Wiktionary (CMUdict first), tie
+essay	EH1 S EY2	EH0 S EY1	Wiktionary
+margaret	M AA1 R G ER0 IH0 T	M AA1 R G R AH0 T; M AA1 R G R IH0 T	Wiktionary lists CMUdict's fuller first
+usage	Y UW1 S IH0 JH	Y UW1 S AH0 JH	Wiktionary
+amateur	AE1 M AH0 CH ER2	AE1 M AH0 T ER2	Wiktionary
+employer	IH0 M P L OY1 ER0	EH0 M P L OY1 ER0	Wiktionary
+fluid	F L UW1 IH0 D	F L UW1 AH0 D	Wiktionary
+integrity	IH2 N T EH1 G R AH0 T IY0	IH0 N T EH1 G R IH0 T IY0	Wiktionary (CMUdict first)
+longest	L AO1 NG G AH0 S T	L AO1 NG G IH0 S T	Wiktionary (CMUdict first)
+oliver	AA1 L IH0 V ER0	AA1 L AH0 V ER0	Wiktionary
+permit	P ER0 M IH1 T	P ER1 M IH2 T (noun)	by hand: verb commoner
+socialist	S OW1 SH AH0 L IH0 S T	S OW1 SH AH0 L AH0 S T	Wiktionary
+theories	TH IY1 ER0 IY0 Z	TH IH1 R IY0 Z	Wiktionary
+unity	Y UW1 N IH0 T IY0	Y UW1 N AH0 T IY0	Wiktionary
+winds	W IH1 N D Z	W AY1 N D Z (verb, turns)	by hand: noun commoner
+advocate	AE1 D V AH0 K AH0 T	AE1 D V AH0 K EY2 T (verb)	by hand: noun commoner
+branches	B R AE1 N CH IH0 Z	B R AE1 N CH AH0 Z	Wiktionary
+difficulties	D IH1 F AH0 K AH0 L T IY0 Z	D IH1 F IH0 K AH2 L T IY0 Z	Wiktionary (CMUdict first), tie
+excess	EH1 K S EH2 S	IH0 K S EH1 S	Wiktionary (CMUdict first)
+gravity	G R AE1 V IH0 T IY0	G R AE1 V AH0 T IY0	Wiktionary
+negotiations	N IH0 G OW2 SH IY0 EY1 SH AH0 N Z	N AH0 G OW2 SH IY0 EY1 SH AH0 N Z	Wiktionary
+veteran	V EH1 T ER0 AH0 N	V EH1 T R AH0 N	Wiktionary (CMUdict first)
+barbara	B AA1 R B ER0 AH0	B AA1 R B R AH0	Wiktionary (CMUdict first), tie
+eighth	EY1 T TH	EY1 TH	Wiktionary (CMUdict first)
+hated	HH EY1 T IH0 D	HH EY1 T AH0 D	Wiktionary
+prisoner	P R IH1 Z AH0 N ER0	P R IH1 Z N ER0	Wiktionary (CMUdict first)
+privilege	P R IH1 V IH0 L IH0 JH	P R IH1 V L AH0 JH; P R IH1 V L IH0 JH; P R IH1 V IH0 L AH0 JH	Wiktionary
+protests	P R OW1 T EH2 S T S	P R AH0 T EH1 S T S (verb)	by hand: noun commoner
+terrorists	T EH1 R ER0 IH0 S T S	T EH1 R ER0 AH0 S T S	Wiktionary
+tourist	T UH1 R IH0 S T	T UH1 R AH0 S T	Wiktionary
+beside	B IH0 S AY1 D	B IY2 S AY1 D	Wiktionary (CMUdict first)
+emphasis	EH1 M F AH0 S IH0 S	EH1 M F AH0 S AH0 S	Wiktionary
+glasgow	G L AE1 S G OW2		Wiktionary
+invested	IH2 N V EH1 S T IH0 D	IH2 N V EH1 S T AH0 D	Wiktionary
+practically	P R AE1 K T IH0 K L IY0	P R AE1 K T IH0 K AH0 L IY0	Wiktionary (CMUdict first), tie
+preserve	P R AH0 Z ER1 V	P R IH0 Z ER1 V	Wiktionary (CMUdict first)
+produces	P R AH0 D UW1 S IH0 Z	P R AH0 D UW1 S AH0 Z	Wiktionary
+receives	R IH0 S IY1 V Z	R AH0 S IY1 V Z	Wiktionary
+restricted	R IY0 S T R IH1 K T IH0 D		Wiktionary, far (1.0)
+routes	R UW1 T S	R AW1 T S	Wiktionary (CMUdict first)
+threatening	TH R EH1 T AH0 N IH0 NG	TH R EH1 T N IH0 NG	Wiktionary (CMUdict first)
+accepting	AE0 K S EH1 P T IH0 NG	AH0 K S EH1 P T IH0 NG	Wiktionary (CMUdict first)
+advised	AH0 D V AY1 Z D		Wiktionary
+bases	B EY1 S IH0 Z	B EY1 S IY0 Z (plural of basis)	by hand: plural of base commoner
+compound	K AA1 M P AW0 N D	K AH0 M P AW1 N D (verb)	by hand: noun commoner
+costume	K AA1 S T UW0 M	K AA0 S T UW1 M	Wiktionary
+significance	S IH0 G N IH1 F IH0 K AH0 N S	S AH0 G N IH1 F IH0 K AH0 N S	Wiktionary
+sizes	S AY1 Z IH0 Z	S AY1 Z AH0 Z	Wiktionary
+beloved	B IH0 L AH1 V D	B IH0 L AH1 V AH0 D	Wiktionary (CMUdict first)
+decrease	D IH0 K R IY1 S	D IY1 K R IY2 S (noun)	by hand: verb commoner
+illustrated	IH1 L AH0 S T R EY2 T IH0 D	IH1 L AH0 S T R EY2 T AH0 D	Wiktionary
+invented	IH2 N V EH1 N T IH0 D	IH2 N V EH1 N T AH0 D	Wiktionary
+madison	M AE1 D IH0 S AH0 N	M AE1 D AH0 S AH0 N	Wiktionary
+villages	V IH1 L IH0 JH IH0 Z	V IH1 L AH0 JH AH0 Z	Wiktionary
+acceptance	AH0 K S EH1 P T AH0 N S		Wiktionary
+embrace	EH0 M B R EY1 S	IH0 M B R EY1 S	Wiktionary (CMUdict first)
+iranian	IH2 R AA1 N IY0 AH0 N	AY0 R EY1 N IY0 AH0 N	Wiktionary (CMUdict first), tie, far (1.0)
+ours	AW1 ER0 Z	AA1 R Z	Wiktionary (CMUdict first)
+preliminary	P R IH0 L IH1 M AH0 N EH2 R IY0	P R IY0 L IH1 M AH0 N EH2 R IY0	Wiktionary (CMUdict first)
+reaches	R IY1 CH IH0 Z	R IY1 CH AH0 Z	Wiktionary
+remarks	R IH0 M AA1 R K S	R IY0 M AA1 R K S	Wiktionary (CMUdict first)
+satisfaction	S AE2 T IH0 S F AE1 K SH AH0 N	S AE2 T AH0 S F AE1 K SH AH0 N	Wiktionary
+sheriff	SH EH1 R IH0 F	SH EH1 R AH0 F	Wiktionary
+travelling	T R AE1 V AH0 L IH0 NG	T R AE1 V L IH0 NG	Wiktionary lists CMUdict's fuller first
+warrior	W AO1 R IY0 ER0	W AO1 R Y ER0	Wiktionary (CMUdict first)
+admission	AH0 D M IH1 SH AH0 N		Wiktionary
+aka	EY2 K EY2 EY1		by hand: letters, the last stressed
+ion	AY1 AA2 N		Wiktionary
+minded	M AY1 N D IH0 D	M AY1 N D AH0 D	Wiktionary
+morris	M AO1 R IH0 S		Wiktionary, far (1.0)
+productivity	P R OW2 D AH0 K T IH1 V AH0 T IY0	P R OW2 D AH0 K T IH1 V IH0 T IY0	Wiktionary (CMUdict first)
+protocol	P R OW1 T AH0 K AA2 L	P R OW1 T AH0 K AO2 L	Wiktionary (CMUdict first)
+welsh	W EH1 L SH		Wiktionary
+abstract	AE1 B S T R AE2 K T	AE0 B S T R AE1 K T (verb)	by hand: adjective and noun commoner
+accent	AE1 K S EH2 N T		Wiktionary
+associates	AH0 S OW1 SH IY0 AH0 T S	AH0 S OW1 SH IY0 EY2 T S (verb)	by hand: noun commoner
+encouraging	IH0 N K ER1 AH0 JH IH0 NG		Wiktionary
+fifteen	F IH1 F T IY1 N	F IH0 F T IY1 N	Wiktionary
+intensity	IH0 N T EH1 N S IH0 T IY0	IH0 N T EH1 N S AH0 T IY0	Wiktionary
+requiring	R IY0 K W AY1 R IH0 NG		Wiktionary, far (1.0)
+tours	T AO1 R Z		Wiktionary
+vincent	V IH1 N S AH0 N T	V IH1 N S IH0 N T	Wiktionary (CMUdict first)
+wrestling	R EH1 S AH0 L IH0 NG	R EH1 S L IH0 NG	Wiktionary
+activist	AE1 K T IH0 V IH0 S T	AE1 K T AH0 V AH0 S T	Wiktionary
+addresses	AH0 D R EH1 S IH0 Z	AE1 D R EH1 S IH0 Z	Wiktionary
+availability	AH0 V EY2 L AH0 B IH1 L IH0 T IY0	AH0 V EY2 L AH0 B IH1 L AH0 T IY0	Wiktionary
+ba	B AA1		Wiktionary
+boundary	B AW1 N D ER0 IY0	B AW1 N D R IY0	Wiktionary lists CMUdict's fuller first
+chancellor	CH AE1 N S AH0 L ER0	CH AE1 N S L ER0	Wiktionary (CMUdict first), far (1.3)
+combine	K AH0 M B AY1 N	K AA1 M B AY0 N (noun, the harvester)	by hand: verb commoner
+damages	D AE1 M IH0 JH IH0 Z	D AE1 M AH0 JH AH0 Z	Wiktionary
+financing	F AY0 N AE1 N S IH0 NG		Wiktionary, far (1.2)
+fitted	F IH1 T IH0 D	F IH1 T AH0 D	Wiktionary
+goodness	G UH1 D N AH0 S	G UH1 D N IH0 S	Wiktionary (CMUdict first)
+sandwich	S AE1 N D W IH0 CH	S AE1 N W IH0 CH	Wiktionary (CMUdict first), tie
+sentences	S EH1 N T AH0 N S IH0 Z	S EH1 N T AH0 N S AH0 Z	Wiktionary
+stuart	S T UW1 ER0 T	S T Y UW1 ER0 T	Wiktionary (CMUdict first), tie
+surgeon	S ER1 JH AH0 N	S ER1 JH IH0 N	Wiktionary (CMUdict first)
+caribbean	K EH2 R IH0 B IY1 AH0 N	K ER0 IH1 B IY0 AH0 N	Wiktionary, far (1.0)
+cruel	K R UW1 AH0 L	K R UW1 L	Wiktionary (CMUdict first)
+demanded	D IH0 M AE1 N D IH0 D	D IH0 M AE1 N D AH0 D	Wiktionary
+entity	EH1 N T IH0 T IY0	EH1 N T AH0 T IY0	Wiktionary
+exercises	EH1 K S ER0 S AY2 Z IH0 Z	EH1 K S ER0 S AY2 Z AH0 Z	Wiktionary
+interface	IH1 N T ER0 F EY2 S	IH1 N ER0 F EY2 S	Wiktionary (CMUdict first), tie
+jewelry	JH UW1 AH0 L R IY0	JH UW1 L R IY0	Wiktionary (CMUdict first), tie
+juan	HH W AA1 N	W AA1 N	Wiktionary
+oriented	AO1 R IY0 EH2 N T IH0 D	AO1 R IY0 EH2 N T AH0 D	Wiktionary
+resume	R IH0 Z UW1 M	R EH1 Z AH0 M EY2 (noun, a CV)	by hand: verb commoner
+alternate	AO1 L T ER0 N AH0 T	AO1 L T ER0 N EY2 T (verb)	by hand: adjective commoner
+bankruptcy	B AE1 NG K R AH0 P S IY0	B AE1 NG K R AH0 P T S IY0	Wiktionary (CMUdict first), tie
+catherine	K AE1 TH ER0 IH0 N	K AE1 TH ER0 AH0 N; K AE1 TH R IH0 N	Wiktionary, tie
+convert	K AH0 N V ER1 T	K AA1 N V ER0 T (noun)	by hand: verb commoner
+eternal	IH0 T ER1 N AH0 L	IY0 T ER1 N AH0 L	Wiktionary (CMUdict first)
+hybrid	HH AY1 B R IH0 D	HH AY1 B R AH0 D	Wiktionary
+preference	P R EH1 F ER0 AH0 N S	P R EH1 F R AH0 N S	Wiktionary (CMUdict first), tie
+ally	AE1 L AY0	AH0 L AY1 (verb)	by hand: noun commoner
+bridges	B R IH1 JH IH0 Z	B R IH1 JH AH0 Z	Wiktionary
+conflicts	K AA1 N F L IH0 K T S	K AH0 N F L IH1 K T S (verb)	by hand: noun commoner
+cycling	S AY1 K AH0 L IH0 NG	S AY1 K L IH0 NG	Wiktionary (CMUdict first), tie
+import	IH1 M P AO2 R T	IH2 M P AO1 R T (verb)	by hand: toss-up: noun first
+innovative	IH1 N AH0 V EY2 T IH0 V	IH1 N OW0 V EY2 T IH0 V	Wiktionary (CMUdict first)
+jurisdiction	JH UH2 R IH0 S D IH1 K SH AH0 N	JH UH2 R AH0 S D IH1 K SH AH0 N	Wiktionary
+outta	AW1 T AH0		Wiktionary
+technically	T EH1 K N IH0 K AH0 L IY0	T EH1 K N IH0 K L IY0	Wiktionary (CMUdict first)
+unlimited	AH0 N L IH1 M IH0 T IH0 D	AH0 N L IH1 M AH0 T IH0 D	Wiktionary
+watches	W AA1 CH IH0 Z	W AA1 CH AH0 Z	Wiktionary
+advise	AH0 D V AY1 Z		Wiktionary
+cafe	K AE0 F EY1		Wiktionary
+diary	D AY1 ER0 IY0	D AY1 R IY0	Wiktionary (CMUdict first), tie
+edges	EH1 JH IH0 Z	EH1 JH AH0 Z	Wiktionary
+euro	Y UH1 R OW0		Wiktionary
+heated	HH IY1 T IH0 D	HH IY1 T AH0 D	Wiktionary
+lasted	L AE1 S T IH0 D	L AE1 S T AH0 D	Wiktionary
+olive	AA1 L IH0 V	AA1 L AH0 V	Wiktionary
+receiver	R AH0 S IY1 V ER0	R IH0 S IY1 V ER0	Wiktionary (CMUdict first)
+surprisingly	S AH0 P R AY1 Z IH0 NG L IY0		Wiktionary
+comparable	K AA1 M P ER0 AH0 B AH0 L	K AH0 M P EH1 R AH0 B AH0 L	Wiktionary (CMUdict first)
+console	K AA1 N S OW0 L	K AH0 N S OW1 L (verb, to comfort)	by hand: noun commoner
+essays	EH1 S EY2 Z	EH0 S EY1 Z	Wiktionary
+focuses	F OW1 K AH0 S IH0 Z	F OW1 K IH0 S IH0 Z	Wiktionary (CMUdict first)
+gambling	G AE1 M B AH0 L IH0 NG	G AE1 M B L IH0 NG	Wiktionary (CMUdict first)
+historically	HH IH0 S T AO1 R IH0 K L IY0		Wiktionary
+overwhelming	OW2 V ER0 W EH1 L M IH0 NG	OW2 V ER0 HH W EH1 L M IH0 NG	Wiktionary (CMUdict first)
+particles	P AA1 R T IH0 K AH0 L Z	P AA1 R T AH0 K AH0 L Z	Wiktionary
+rebel	R EH1 B AH0 L	R IH0 B EH1 L (verb)	by hand: noun commoner
+separately	S EH1 P R AH0 T L IY0		Wiktionary
+allied	AH0 L AY1 D	AE1 L AY2 D (adjective, also)	by hand: verb commoner
+blanket	B L AE1 NG K IH0 T	B L AE1 NG K AH0 T	Wiktionary
+bucket	B AH1 K IH0 T	B AH1 K AH0 T	Wiktionary
+inhabitants	IH0 N HH AE1 B IH0 T AH0 N T S	IH0 N HH AE1 B AH0 T AH0 N T S	Wiktionary
+miserable	M IH1 Z ER0 AH0 B AH0 L	M IH1 Z R AH0 B AH0 L	Wiktionary (CMUdict first), tie
+newcastle	N UW1 K AE2 S AH0 L	N Y UW1 K AE2 S AH0 L	Wiktionary (CMUdict first), tie
+preserved	P R AH0 Z ER1 V D	P R IH0 Z ER1 V D	Wiktionary (CMUdict first)
+rebels	R EH1 B AH0 L Z	R IH0 B EH1 L Z (verb)	by hand: noun commoner
+rises	R AY1 Z IH0 Z	R AY1 Z AH0 Z	Wiktionary
+tremendous	T R IH0 M EH1 N D AH0 S	T R AH0 M EH1 N D AH0 S	Wiktionary
+cemetery	S EH1 M IH0 T EH2 R IY0	S EH1 M AH0 T EH2 R IY0	Wiktionary
+compact	K AA1 M P AE0 K T	K AH0 M P AE1 K T	Wiktionary (CMUdict first)
+detected	D IH0 T EH1 K T IH0 D	D IH0 T EH1 K T AH0 D	Wiktionary
+elaborate	IH0 L AE1 B R AH0 T	IH0 L AE1 B ER0 EY2 T (verb)	by hand: adjective commoner
+grocery	G R OW1 S ER0 IY0	G R OW1 S R IY0	Wiktionary (CMUdict first), tie
+guided	G AY1 D IH0 D	G AY1 D AH0 D	Wiktionary
+insisted	IH2 N S IH1 S T IH0 D	IH2 N S IH1 S T AH0 D	Wiktionary
+instances	IH1 N S T AH0 N S IH0 Z	IH1 N S T AH0 N S AH0 Z	Wiktionary
+intimate	IH1 N T AH0 M AH0 T	IH1 N T AH0 M EY2 T (verb)	by hand: adjective commoner
+presumably	P R IH0 Z UW1 M AH0 B L IY0	P R AH0 Z UW1 M AH0 B L IY0	Wiktionary
+rational	R AE1 SH AH0 N AH0 L	R AE1 SH N AH0 L	Wiktionary (CMUdict first), tie
+reforms	R IH0 F AO1 R M Z	R AH0 F AO1 R M Z	Wiktionary
+traditionally	T R AH0 D IH1 SH AH0 N AH0 L IY0	T R AH0 D IH1 SH N AH0 L IY0	Wiktionary (CMUdict first)
+whites	W AY1 T S	HH W AY1 T S	Wiktionary (CMUdict first), tie
+diesel	D IY1 S AH0 L	D IY1 Z AH0 L	Wiktionary (CMUdict first)
+dresses	D R EH1 S IH0 Z	D R EH1 S AH0 Z	Wiktionary
+milan	M IH0 L AA1 N	M AH0 L AA1 N	Wiktionary
+mobility	M OW0 B IH1 L IH0 T IY0	M OW0 B IH1 L AH0 T IY0	Wiktionary
+rabbit	R AE1 B IH0 T	R AE1 B AH0 T	Wiktionary
+ranges	R EY1 N JH IH0 Z	R EY1 N JH AH0 Z	Wiktionary
+retire	R IH0 T AY1 R	R IY2 T AY1 ER0	Wiktionary (CMUdict first)
+savage	S AE1 V IH0 JH	S AE1 V AH0 JH	Wiktionary
+wallace	W AO1 L AH0 S	W AO1 L IH0 S	Wiktionary (CMUdict first), far (1.0)
+withdraw	W IH0 DH D R AO1	W IH0 TH D R AO1	Wiktionary (CMUdict first)
+withdrawal	W IH0 DH D R AO1 AH0 L	W IH0 TH D R AO1 AH0 L	Wiktionary (CMUdict first)
+authentic	AO0 TH EH1 N T IH0 K		Wiktionary
+counted	K AW1 N T IH0 D	K AW1 N IH0 D; K AW1 N AH0 D	Wiktionary (CMUdict first)
+magnificent	M AE0 G N IH1 F AH0 S AH0 N T	M AE0 G N IH1 F IH0 S AH0 N T	Wiktionary (CMUdict first)
+nevada	N AH0 V AE1 D AH0	N AH0 V AA1 D AH0	Wiktionary
+transform	T R AE0 N S F AO1 R M	T R AE1 N S F AO0 R M (noun)	by hand: verb commoner
+arctic	AA1 R K T IH0 K	AA1 R T IH0 K	Wiktionary (CMUdict first), tie
+bennett	B EH1 N AH0 T	B EH1 N IH0 T	Wiktionary (CMUdict first)
+impacts	IH1 M P AE0 K T S	IH2 M P AE1 K T S (verb)	by hand: noun commoner
+mineral	M IH1 N ER0 AH0 L	M IH1 N R AH0 L	Wiktionary (CMUdict first)
+navigation	N AE2 V AH0 G EY1 SH AH0 N		Wiktionary
+nicholas	N IH1 K AH0 L AH0 S	N IH1 K L AH0 S	Wiktionary (CMUdict first)
+reject	R IH0 JH EH1 K T	R IY1 JH EH0 K T (noun)	by hand: verb commoner
+associations	AH0 S OW2 SH IY0 EY1 SH AH0 N Z	AH0 S OW2 S IY0 EY1 SH AH0 N Z	Wiktionary
+bizarre	B IH0 Z AA1 R	B AH0 Z AA1 R	Wiktionary
+complexity	K AH0 M P L EH1 K S IH0 T IY0	K AH0 M P L EH1 K S AH0 T IY0	Wiktionary
+deliberately	D IH0 L IH1 B ER0 AH0 T L IY0	D IH0 L IH1 B R AH0 T L IY0	Wiktionary (CMUdict first), tie
+extract	EH1 K S T R AE2 K T	IH0 K S T R AE1 K T (verb)	by hand: toss-up: noun first
+graduates	G R AE1 JH UW0 W AH0 T S	G R AE1 JH UW0 EY2 T S (verb)	by hand: noun commoner
+paths	P AE1 DH Z	P AE1 TH S	Wiktionary (CMUdict first)
+platinum	P L AE1 T AH0 N AH0 M	P L AE1 T N AH0 M	Wiktionary
+resignation	R EH2 Z IH0 G N EY1 SH AH0 N	R EH2 Z AH0 G N EY1 SH AH0 N	Wiktionary
+ruins	R UW1 IH0 N Z	R UW1 AH0 N Z	Wiktionary
+superman	S UW1 P ER0 M AE2 N		Wiktionary
+transfers	T R AE1 N S F ER0 Z	T R AE0 N S F ER1 Z (verb)	by hand: noun commoner
+voltage	V OW1 L T IH0 JH	V OW1 L T AH0 JH	Wiktionary
+insert	IH2 N S ER1 T	IH1 N S ER2 T (noun)	by hand: verb commoner
+legit	L AH0 JH IH1 T		Wiktionary
+prizes	P R AY1 Z IH0 Z	P R AY1 Z AH0 Z	Wiktionary
+wheat	W IY1 T	HH W IY1 T	Wiktionary (CMUdict first)
+whip	W IH1 P	HH W IH1 P	Wiktionary (CMUdict first)
+celtic	K EH1 L T IH0 K	S EH1 L T IH0 K	Wiktionary
+cottage	K AA1 T IH0 JH	K AA1 T AH0 JH	Wiktionary
+defended	D IH0 F EH1 N D IH0 D	D IH0 F EH1 N D AH0 D	Wiktionary
+deposits	D AH0 P AA1 Z IH0 T S	D IH0 P AA1 Z AH0 T S	Wiktionary (CMUdict first), tie
+ensuring	IH0 N SH UH1 R IH0 NG		Wiktionary
+escort	EH1 S K AO0 R T	EH0 S K AO1 R T (verb)	by hand: noun commoner
+publicity	P AH0 B L IH1 S IH0 T IY0	P AH0 B L IH1 S AH0 T IY0	Wiktionary
+recruitment	R IH0 K R UW1 T M AH0 N T	R AH0 K R UW1 T M AH0 N T	Wiktionary
+surveys	S ER1 V EY2 Z	S ER0 V EY1 Z (verb)	by hand: noun commoner
+affiliate	AH0 F IH1 L IY0 AH0 T	AH0 F IH1 L IY0 EY2 T (verb)	by hand: noun commoner
+alfred	AE1 L F R AH0 D	AE1 L F R IH0 D	Wiktionary (CMUdict first)
+compounds	K AA1 M P AW0 N D Z	K AH0 M P AW1 N D Z (verb)	by hand: noun commoner
+cylinder	S IH1 L AH0 N D ER0	S IH1 L IH0 N D ER0	Wiktionary (CMUdict first)
+entrepreneur	AA2 N T R AH0 P R AH0 N ER1	AA2 N T R AH0 P R AH0 N UH1 R	Wiktionary (CMUdict first)
+initiated	IH2 N IH1 SH IY0 EY2 T IH0 D	IH2 N IH1 SH IY0 EY2 T AH0 D	Wiktionary
+insult	IH2 N S AH1 L T	IH1 N S AH2 L T (noun)	by hand: toss-up: verb first
+negotiate	N AH0 G OW1 SH IY0 EY2 T	N IH0 G OW1 SH IY0 EY2 T	Wiktionary (CMUdict first)
+offset	AO1 F S EH2 T	AO0 F S EH1 T	Wiktionary
+refusing	R IH0 F Y UW1 Z IH0 NG	R AH0 F Y UW1 Z IH0 NG	Wiktionary
+rehabilitation	R IY2 AH0 B IH2 L AH0 T EY1 SH AH0 N		Wiktionary
+whatsoever	W AH2 T S OW0 EH1 V ER0	HH W AH2 T S OW0 EH1 V ER0	Wiktionary (CMUdict first), tie
+construct	K AH0 N S T R AH1 K T	K AA1 N S T R AH0 K T (noun)	by hand: verb commoner
+crowded	K R AW1 D IH0 D	K R AW1 D AH0 D	Wiktionary
+moses	M OW1 Z AH0 S	M OW1 Z IH0 S	Wiktionary (CMUdict first)
+reduces	R IH0 D UW1 S IH0 Z	R AH0 D UW1 S AH0 Z	Wiktionary
+rounded	R AW1 N D IH0 D	R AW1 N D AH0 D	Wiktionary
+satisfy	S AE1 T IH0 S F AY2	S AE1 T AH0 S F AY2	Wiktionary
+touches	T AH1 CH IH0 Z	T AH1 CH AH0 Z	Wiktionary
+bachelor	B AE1 CH AH0 L ER0	B AE1 CH L ER0	Wiktionary (CMUdict first)
+caution	K AO1 SH AH0 N	K AA1 SH AH0 N	Wiktionary
+hers	HH ER0 Z		one way
+resign	R IH0 Z AY1 N	R IY0 S AY1 N (to sign again)	by hand: quit commoner
+superintendent	S UW2 P ER0 IH0 N T EH1 N D AH0 N T	S UW2 P ER0 AH0 N T EH1 N D AH0 N T	Wiktionary, far (1.0)
+therapist	TH EH1 R AH0 P IH0 S T	TH EH1 R AH0 P AH0 S T	Wiktionary
+beaches	B IY1 CH IH0 Z	B IY1 CH AH0 Z	Wiktionary
+curry	K ER1 IY0		Wiktionary
+employ	IH0 M P L OY1	EH0 M P L OY1	Wiktionary
+forbidden	F ER0 R B IH1 D AH0 N		Wiktionary, far (1.0)
+janet	JH AE1 N IH0 T	JH AE1 N AH0 T	Wiktionary
+advocates	AE1 D V AH0 K AH0 T S	AE1 D V AH0 K EY2 T S (verb)	by hand: noun commoner
+bargain	B AA1 R G AH0 N	B AA1 R G IH0 N	Wiktionary (CMUdict first)
+businessman	B IH1 Z N AH0 S M AE2 N	B IH1 Z N IH0 S M AE2 N	Wiktionary (CMUdict first)
+corrected	K ER0 EH1 K T IH0 D	K ER0 EH1 K T AH0 D	Wiktionary
+cough	K AO1 F	K AA1 F	Wiktionary
+excuses	IH0 K S K Y UW1 S IH0 Z	IH0 K S K Y UW1 Z IH0 Z (verb)	by hand: noun commoner
+finland	F IH1 N L AH0 N D		Wiktionary
+frederick	F R EH1 D R IH0 K	F R EH1 D ER0 IH0 K	Wiktionary (CMUdict first), tie
+mainland	M EY1 N L AH0 N D		Wiktionary
+messenger	M EH1 S AH0 N JH ER0	M EH1 S IH0 N JH ER0	Wiktionary (CMUdict first)
+sixteen	S IH1 K S T IY1 N	S IH0 K S T IY1 N	Wiktionary
+aggregate	AE1 G R AH0 G AH0 T	AE1 G R AH0 G EY0 T (verb)	by hand: noun and adjective commoner
+cement	S AH0 M EH1 N T	S IH0 M EH1 N T	Wiktionary (CMUdict first), tie, far (2.0)
+consequently	K AA1 N S AH0 K W EH2 N T L IY0		Wiktionary
+curtis	K ER1 T IH0 S	K ER1 T AH0 S	Wiktionary
+masses	M AE1 S IH0 Z	M AE1 S AH0 Z	Wiktionary
+permits	P ER0 M IH1 T S	P ER1 M IH2 T S (noun)	by hand: verb commoner
+recipient	R AH0 S IH1 P IY0 AH0 N T	R IH0 S IH1 P IY0 AH0 N T	Wiktionary (CMUdict first)
+refund	R IY1 F AH2 N D	R IH0 F AH1 N D (verb)	by hand: noun commoner
+remembering	R IH0 M EH1 M B ER0 IH0 NG	R IH0 M EH1 M B R IH0 NG	Wiktionary (CMUdict first), tie
+suspects	S AH1 S P EH2 K T S	S AH0 S P EH1 K T S (verb)	by hand: toss-up: noun first
+amen	AA0 M EH1 N	EY0 M EH1 N	Wiktionary
+ashes	AE1 SH IH0 Z	AE1 SH AH0 Z	Wiktionary
+disabilities	D IH0 S AH0 B IH1 L IH0 T IY0 Z	D IH0 S AH0 B IH1 L AH0 T IY0 Z	Wiktionary
+discharge	D IH0 S CH AA1 R JH	D IH1 S CH AA2 R JH (noun)	by hand: verb commoner
+enjoys	EH2 N JH OY1 Z	IH0 N JH OY1 Z	Wiktionary (CMUdict first)
+han	HH AE1 N		Wiktionary
+isaac	AY1 Z AH0 K	AY1 Z IH0 K	Wiktionary (CMUdict first)
+mentor	M EH1 N T AO2 R	M EH1 N T ER0	Wiktionary (CMUdict first)
+offended	AH0 F EH1 N D IH0 D	AH0 F EH1 N D AH0 D	Wiktionary
+printer	P R IH1 N T ER0	P R IH1 N ER0	Wiktionary (CMUdict first)
+speeches	S P IY1 CH IH0 Z	S P IY1 CH AH0 Z	Wiktionary
+sullivan	S AH1 L IH0 V AH0 N	S AH1 L AH0 V AH0 N	Wiktionary
+venice	V EH1 N IH0 S	V EH1 N AH0 S	Wiktionary
+attributes	AE1 T R AH0 B Y UW2 T S	AH0 T R IH1 B Y UW2 T S (verb)	by hand: noun commoner
+biblical	B IH1 B L IH0 K AH0 L	B IH1 B L AH0 K AH0 L	Wiktionary
+inequality	IH2 N IH0 K W AA1 L AH0 T IY0	IH2 N AH0 K W AA1 L AH0 T IY0	Wiktionary (CMUdict first)
+leisure	L IY1 ZH ER0	L EH1 ZH ER0	Wiktionary
+consisted	K AH0 N S IH1 S T IH0 D	K AH0 N S IH1 S T AH0 D	Wiktionary
+immunity	IH2 M Y UW1 N AH0 T IY0	IH2 M Y UW1 N IH0 T IY0	Wiktionary (CMUdict first)
+nationalist	N AE1 SH AH0 N AH0 L IH0 S T	N AE1 SH AH0 N AH0 L AH0 S T; N AE1 SH N AH0 L AH0 S T; N AE1 SH N AH0 L IH0 S T	Wiktionary
+necessity	N AH0 S EH1 S AH0 T IY0	N AH0 S EH1 S IH0 T IY0	Wiktionary (CMUdict first)
+plaza	P L AA1 Z AH0	P L AE1 Z AH0	Wiktionary (CMUdict first)
+shortage	SH AO1 R T IH0 JH	SH AO1 R T AH0 JH	Wiktionary
+armstrong	AA1 R M S T R AO2 NG	AA1 R M S T R AA2 NG	Wiktionary
+brigade	B R IH0 G EY1 D	B R AH0 G EY1 D	Wiktionary
+cardinal	K AA1 R D IH0 N AH0 L	K AA1 R D AH0 N AH0 L	Wiktionary
+cheated	CH IY1 T IH0 D	CH IY1 T AH0 D	Wiktionary
+clarity	K L EH1 R IH0 T IY0	K L EH1 R AH0 T IY0	Wiktionary, far (1.0)
+eva	IY1 V AH0	EY1 V AH0	Wiktionary
+finances	F AY1 N AE2 N S IH0 Z	F IH0 N AE1 N S IH0 Z	Wiktionary
+fog	F AO1 G	F AA1 G	Wiktionary
+individually	IH2 N D IH0 V IH1 JH UW0 AH0 L IY0	IH2 N D IH0 V IH1 JH AH0 L IY0	Wiktionary (CMUdict first), tie
+monument	M AA1 N Y AH0 M AH0 N T		Wiktionary
+ng	EH1 NG	IH1 NG	Wiktionary (CMUdict first), tie, far (1.0)
+particle	P AA1 R T AH0 K AH0 L	P AA1 R T IH0 K AH0 L	Wiktionary (CMUdict first)
+reservoir	R EH1 Z AH0 V W AA2 R	R EH1 Z ER0 V W AA2 R	Wiktionary (CMUdict first), tie
+trinity	T R IH1 N AH0 T IY0	T R IH1 N IH0 T IY0	Wiktionary (CMUdict first)
+withdrawn	W IH0 DH D R AO1 N	W IH0 TH D R AO1 N	Wiktionary
+adverse	AE1 D V ER2 S	AH0 D V ER1 S	Wiktionary
+ana	AE1 N AH0	AA1 N AH0	Wiktionary
+excluded	IH0 K S K L UW1 D IH0 D	IH0 K S K L UW1 D AH0 D	Wiktionary
+gifted	G IH1 F T IH0 D	G IH1 F T AH0 D	Wiktionary
+hon	HH AH1 N	HH AA1 N	Wiktionary
+memphis	M EH1 M F IH0 S	M EH1 M F AH0 S	Wiktionary
+phrases	F R EY1 Z IH0 Z	F R EY1 Z AH0 Z	Wiktionary
+recruit	R IH0 K R UW1 T	R AH0 K R UW1 T	Wiktionary
+traces	T R EY1 S IH0 Z	T R EY1 S AH0 Z	Wiktionary
+voyage	V OY1 IH0 JH	V OY1 AH0 JH	Wiktionary
+corridor	K AO1 R AH0 D ER0	K AO1 R IH0 D ER0	Wiktionary (CMUdict first), far (1.0)
+credited	K R EH1 D IH0 T IH0 D	K R EH1 D AH0 T AH0 D	Wiktionary
+critically	K R IH1 T IH0 K AH0 L IY0	K R IH1 T IH0 K L IY0	Wiktionary (CMUdict first)
+distracted	D IH0 S T R AE1 K T IH0 D	D IH0 S T R AE1 K T AH0 D	Wiktionary
+imports	IH1 M P AO2 R T S	IH2 M P AO1 R T S (verb)	by hand: noun commoner
+juvenile	JH UW1 V AH0 N AY2 L	JH UW1 V AH0 N AH0 L	Wiktionary
+leverage	L EH1 V ER0 IH0 JH	L EH1 V R AH0 JH; L IY1 V ER0 IH0 JH	Wiktionary (CMUdict first)
+militia	M AH0 L IH1 SH AH0	M IH0 L IH1 SH AH0	Wiktionary (CMUdict first)
+overwhelmed	OW2 V ER0 W EH1 L M D	OW2 V ER0 HH W EH1 L M D	Wiktionary (CMUdict first)
+whistle	W IH1 S AH0 L	HH W IH1 S AH0 L	Wiktionary (CMUdict first)
+economist	IY0 K AA1 N AH0 M IH0 S T	IH0 K AA1 N AH0 M IH0 S T	Wiktionary
+transmitted	T R AE0 N S M IH1 T IH0 D	T R AE0 N Z M IH1 T AH0 D	Wiktionary (CMUdict first)
+abs	AE1 B Z		Wiktionary
+baptist	B AE1 P T IH0 S T	B AE1 P T AH0 S T	Wiktionary
+dentist	D EH1 N T IH0 S T	D EH1 N T AH0 S T	Wiktionary
+endangered	IH0 N D EY1 N JH ER0 D		Wiktionary
+granite	G R AE1 N IH0 T	G R AE1 N AH0 T	Wiktionary
+mon	M AA1 N		Wiktionary
+patches	P AE1 CH IH0 Z	P AE1 CH AH0 Z	Wiktionary
+wheelchair	W IY1 L CH EH2 R	HH W IY1 L CH EH2 R	Wiktionary (CMUdict first), tie
+arbitrary	AA1 R B IH0 T R EH2 R IY0	AA1 R B AH0 T R EH2 R IY0	Wiktionary
+carriage	K AE1 R IH0 JH	K EH1 R AH0 JH	Wiktionary (CMUdict first)
+comprises	K AH0 M P R AY1 Z IH0 Z	K AH0 M P R AY1 Z AH0 Z	Wiktionary
+erected	IH0 R EH1 K T IH0 D	IH0 R EH1 K T AH0 D	Wiktionary
+governmental	G AH2 V ER0 N M EH1 N T AH0 L		Wiktionary
+ivory	AY1 V ER0 IY0	AY1 V R IY0	Wiktionary (CMUdict first), tie
+misses	M IH1 S IH0 Z	M IH1 S AH0 Z	Wiktionary
+settling	S EH1 T L IH0 NG		Wiktionary
+advertisement	AE2 D V ER0 T AY1 Z M AH0 N T		Wiktionary, far (1.2)
+confronted	K AH0 N F R AH1 N T IH0 D	K AH0 N F R AH1 N T AH0 D	Wiktionary
+exile	EH1 G Z AY2 L	EH1 K S AY2 L	Wiktionary (CMUdict first)
+instructed	IH2 N S T R AH1 K T IH0 D	IH2 N S T R AH1 K T AH0 D	Wiktionary
+jenkins	JH EH1 NG K IH0 N Z	JH EH1 NG K AH0 N Z	Wiktionary
+switches	S W IH1 CH IH0 Z	S W IH1 CH AH0 Z	Wiktionary
+urine	Y UH1 R AH0 N	Y ER1 AH0 N	Wiktionary
+violet	V AY1 AH0 L IH0 T	V AY1 L IH0 T	Wiktionary (CMUdict first)
+ahmed	AA1 M EH0 D		Wiktionary
+charities	CH EH1 R AH0 T IY0 Z	CH EH1 R IH0 T IY0 Z	Wiktionary (CMUdict first)
+chooses	CH UW1 Z IH0 Z	CH UW1 Z AH0 Z	Wiktionary
+critique	K R IH0 T IY1 K	K R AH0 T IY1 K	Wiktionary
+economically	EH2 K AH0 N AA1 M IH0 K L IY0	IY2 K AH0 N AA1 M IH0 K L IY0	Wiktionary (CMUdict first)
+exploit	EH2 K S P L OY1 T	EH1 K S P L OY2 T (noun)	by hand: verb commoner
+imagery	IH1 M IH0 JH R IY0	IH1 M AH0 JH R IY0	Wiktionary
+inherent	IH0 N HH IH1 R AH0 N T	IH0 N HH EH1 R AH0 N T	Wiktionary (CMUdict first), far (1.0)
+katherine	K AE1 TH ER0 IH0 N	K AE1 TH R IH0 N	Wiktionary (CMUdict first), tie
+llc	EH2 L EH2 L S IY1		by hand: letters, the last stressed
+phases	F EY1 Z IH0 Z	F EY1 Z AH0 Z	Wiktionary
+pumpkin	P AH1 M P K IH0 N	P AH1 M K IH0 N	Wiktionary (CMUdict first), tie
+refined	R IH0 F AY1 N D	R AH0 F AY1 N D	Wiktionary
+refusal	R IH0 F Y UW1 Z AH0 L	R AH0 F Y UW1 Z AH0 L	Wiktionary
+reset	R IY0 S EH1 T	R IY1 S EH0 T (noun)	by hand: verb commoner
+simpler	S IH1 M P AH0 L ER0	S IH1 M P L ER0	Wiktionary (CMUdict first)
+strengths	S T R EH1 NG K TH S	S T R EH1 NG TH S	Wiktionary (CMUdict first), tie
+victories	V IH1 K T ER0 IY0 Z	V IH1 K T R IY0 Z	Wiktionary (CMUdict first), tie
+calvin	K AE1 L V IH0 N	K AE1 L V AH0 N	Wiktionary
+coordinate	K OW0 AO1 R D AH0 N AH0 T	K OW0 AO1 R D AH0 N EY2 T (verb)	by hand: toss-up: noun first
+coordinates	K OW0 AO1 R D AH0 N AH0 T S	K OW0 AO1 R D AH0 N EY2 T S (verb)	by hand: noun commoner
+deliberate	D IH0 L IH1 B ER0 AH0 T	D IH0 L IH1 B ER0 EY2 T (verb)	by hand: adjective commoner
+endure	IH0 N D UH1 R		Wiktionary
+evolutionary	IY2 V AH0 L UW1 SH AH0 N EH2 R IY0	EH2 V AH0 L UW1 SH AH0 N EH2 R IY0	Wiktionary
+hans	HH AA1 N S	HH AE1 N Z	Wiktionary (CMUdict first), tie, far (1.0)
+practiced	P R AE1 K T IH0 S T	P R AE1 K T AH0 S T	Wiktionary
+rooted	R UW1 T IH0 D	R UW1 T AH0 D	Wiktionary
+verses	V ER1 S IH0 Z	V ER1 S AH0 Z	Wiktionary
+whoa	W OW1	HH W OW1	Wiktionary (CMUdict first)
+competitor	K AH0 M P EH1 T IH0 T ER0	K AH0 M P EH1 T AH0 T ER0	Wiktionary
+eclipse	IH0 K L IH1 P S	AH0 K L IH1 P S; IY0 K L IH1 P S	Wiktionary (CMUdict first)
+eighteen	EY1 T IY1 N	EY0 T IY1 N	Wiktionary
+eleanor	EH1 L AH0 N AO0 R	EH1 L AH0 N ER0	Wiktionary (CMUdict first)
+enjoyment	IH0 N JH OY1 M AH0 N T	EH2 N JH OY1 M AH0 N T	Wiktionary
+inquiries	IH1 N K W ER0 IY0 Z		Wiktionary
+privileged	P R IH1 V L IH0 JH D	P R IH1 V L AH0 JH D; P R IH1 V IH0 L AH0 JH D; P R IH1 V IH0 L IH0 JH D	Wiktionary, tie
+submarine	S AH2 B M ER0 IY1 N	S AH1 B M ER0 IY2 N	Wiktionary
+acquiring	AH0 K W AY1 R IH0 NG	AH0 K W AY1 ER0 IH0 NG	Wiktionary (CMUdict first), tie
+admitting	AH0 D M IH1 T IH0 NG		Wiktionary
+awe	AO1	AA1	Wiktionary
+epidemic	EH2 P IH0 D EH1 M IH0 K	EH2 P AH0 D EH1 M IH0 K	Wiktionary
+luggage	L AH1 G IH0 JH	L AH1 G AH0 JH	Wiktionary
+madame	M AH0 D AE1 M	M AE1 D AH0 M	Wiktionary
+primitive	P R IH1 M IH0 T IH0 V	P R IH1 M AH0 T IH0 V	Wiktionary
+puppet	P AH1 P IH0 T	P AH1 P AH0 T	Wiktionary
+sausage	S AO1 S IH0 JH	S AO1 S AH0 JH	Wiktionary
+twentieth	T W EH1 N T IY0 AH0 TH	T W EH1 N T IY0 IH0 TH; T W EH1 N IY0 AH0 TH; T W EH1 N IY0 IH0 TH	Wiktionary (CMUdict first)
+vicinity	V AH0 S IH1 N AH0 T IY0	V IH0 S IH1 N IH0 T IY0	Wiktionary (CMUdict first)
+weaknesses	W IY1 K N AH0 S IH0 Z	W IY1 K N AH0 S AH0 Z	Wiktionary
+wired	W AY1 R D		Wiktionary
+baldwin	B AO1 L D W IH0 N	B AO1 L D W AH0 N	Wiktionary
+dances	D AE1 N S IH0 Z	D AE1 N S AH0 Z	Wiktionary
+discounts	D IH1 S K AW2 N T S	D IH0 S K AW1 N T S (verb)	by hand: noun commoner
+flooded	F L AH1 D IH0 D	F L AH1 D AH0 D	Wiktionary
+latino	L AH0 T IY1 N OW0		Wiktionary
+mechanic	M IH0 K AE1 N IH0 K	M AH0 K AE1 N IH0 K	Wiktionary
+neglect	N IH0 G L EH1 K T	N AH0 G L EH1 K T	Wiktionary
+rehab	R IY1 HH AE2 B		by hand: CMUdict marks no main stress
+tearing	T EH1 R IH0 NG	T IH1 R IH0 NG (crying)	by hand: ripping commoner
+allison	AE1 L IH0 S AH0 N	AE1 L AH0 S AH0 N	Wiktionary
+collaborative	K AH0 L AE1 B ER0 EY2 T IH0 V	K AH0 L AE1 B R AH0 T IH0 V	Wiktionary (CMUdict first), tie, far (1.0)
+dorothy	D AO1 R AH0 TH IY0	D AO1 R TH IY0	Wiktionary (CMUdict first)
+fertility	F ER0 T IH1 L AH0 T IY0	F ER0 T IH1 L IH0 T IY0	Wiktionary (CMUdict first)
+folded	F OW1 L D IH0 D	F OW1 L D AH0 D	Wiktionary
+hierarchy	HH AY1 ER0 AA2 R K IY0	HH AY1 R AA2 R K IY0	Wiktionary (CMUdict first)
+invalid	IH2 N V AE1 L AH0 D	IH1 N V AH0 L IH0 D (noun, a sick person)	by hand: adjective commoner
+lancaster	L AE1 N K AE2 S T ER0	L AE1 NG K AH0 S T ER0	Wiktionary (CMUdict first)
+melted	M EH1 L T IH0 D	M EH1 L T AH0 D	Wiktionary
+neglected	N IH0 G L EH1 K T IH0 D	N AH0 G L EH1 K T AH0 D	Wiktionary
+omega	OW0 M EY1 G AH0	OW0 M EH1 G AH0	Wiktionary
+uganda	Y UW2 G AA1 N D AA0		Wiktionary, far (1.0)
+whiskey	W IH1 S K IY0	HH W IH1 S K IY0	Wiktionary (CMUdict first)
+attribute	AE1 T R AH0 B Y UW2 T	AH0 T R IH1 B Y UW2 T (verb)	by hand: toss-up: noun first
+depicted	D IH0 P IH1 K T IH0 D	D IH0 P IH1 K T AH0 D	Wiktionary
+determines	D IH0 T ER1 M AH0 N Z	D AH0 T ER1 M AH0 N Z	Wiktionary
+digit	D IH1 JH IH0 T	D IH1 JH AH0 T	Wiktionary
+drainage	D R EY1 N AH0 JH	D R EY1 N IH0 JH	Wiktionary (CMUdict first)

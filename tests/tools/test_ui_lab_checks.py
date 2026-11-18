@@ -544,6 +544,24 @@ def test_a_chinese_example_in_japanese_has_no_japanese_shape(page: QWidget) -> N
         assert found(page, "chinese_font") == []
 
 
+def test_a_chinese_sentence_after_a_japanese_label_is_not_japanese_misdrawn(
+    page: QWidget,
+) -> None:
+    """472: Saved words' "Heard in" line in a Japanese interface - its
+    label, then a Chinese sentence - draws only the Simplified-only 风 in
+    YaHei; the kanji Japanese has are in Yu Gothic. Qt's run named 风 as
+    文, and the check found Japanese in a Chinese face."""
+    with _windows_fonts():
+        label = QLabel("聞いた文：日风天水", page)
+        label.setObjectName("page.heard_in")
+        font = QFont()
+        font.setFamilies(["Segoe UI", "Yu Gothic UI", "Microsoft YaHei UI"])
+        font.setPixelSize(35)  # a size of its own (`_font`)
+        label.setFont(font)
+        label.setGeometry(10, 10, 300, 40)
+        assert found(page, "chinese_font") == []
+
+
 def test_a_japanese_interfaces_own_kanji_are_japanese(
     page: QWidget, qapp: QApplication
 ) -> None:

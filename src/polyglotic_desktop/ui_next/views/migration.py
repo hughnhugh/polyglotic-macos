@@ -78,7 +78,8 @@ def moved_over(stored: Mapping[str, object]) -> StoredWindows:
     by_key = {}
     for index, key in enumerate(todays_sources(stored)):
         by_key[key] = today if index == 0 else at_default_slot(today)
-    return StoredWindows(by_key, today, first_use=True)
+    # today's apps had windows: the first window's set-up isn't for them (465)
+    return StoredWindows(by_key, today, first_use=True, set_up=bool(by_key))
 
 
 def todays_values(stored: Mapping[str, object]) -> WindowChoices:
@@ -116,8 +117,14 @@ def todays_values(stored: Mapping[str, object]) -> WindowChoices:
 
 def todays_sources(stored: Mapping[str, object]) -> list[str]:
     """What today's settings caption, as the windows' keys: everything the
-    PC plays, or the apps picked in order (each once)."""
-    if stored.get("whole_system") is True:
+    PC plays, or the apps picked in order (each once). Everything the PC
+    plays only where it was chosen: from 0.1.8 the file names what was
+    changed (`changed`), and a new learner's file holds it on as the default
+    before any window has opened (polyglotic-hq 484) - that learner had no
+    window of today's, and their first window is set up as a first."""
+    changed = stored.get("changed")
+    chosen = not isinstance(changed, list) or "whole_system" in changed
+    if stored.get("whole_system") is True and chosen:
         return [SYSTEM]
     apps = stored.get("apps")
     if not isinstance(apps, list):

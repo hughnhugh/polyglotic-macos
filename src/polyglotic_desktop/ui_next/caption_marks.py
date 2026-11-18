@@ -218,6 +218,8 @@ class CaptionMarks:
         may have (the window repaints); not for exposures."""
         if what in (Changed.EXPOSURES.value, Changed.LOAD.value):
             return False  # the load's stages: `load_changed`
+        if what == Changed.SENTENCES.value:
+            return False  # a saved sentence marks nothing (459)
         self._kept.clear()
         return True
 

@@ -40,6 +40,7 @@ from polyglotic_desktop.core.listening.selection import (
 from polyglotic_desktop.ui_next.caption_layout import LaidLine, span_rects
 from polyglotic_desktop.ui_next.copying import copy_key_is_ours, copy_quietly
 from polyglotic_desktop.ui_next.views.captions import Line
+from polyglotic_desktop.ui_next.views.sentences import Piece
 
 if TYPE_CHECKING:
     from polyglotic_desktop.ports.system import KeyState
@@ -135,6 +136,23 @@ def held_words(lines: Sequence[Line], selection: Selection) -> dict[int, list[Wo
     return found
 
 
+def held_pieces(lines: Sequence[Line], selection: Selection) -> list[Piece]:
+    """The rows `selection` holds in `lines`, each with its selected
+    characters, in reading order: what `views.sentences` saves
+    (polyglotic-hq 459)."""
+    by_key = {line.key: line for line in lines}
+    found: list[Piece] = []
+    for key, words in selected(shown(lines), selection):
+        line = by_key[key]
+        row = next(
+            (r for r in line.rows if (r.clause, r.kind) == (words.clause, words.side)),
+            None,
+        )
+        if row is not None:
+            found.append((line, row, words.start, words.end))
+    return found
+
+
 def word_rects(laid: LaidLine, words: Sequence[Words]) -> list[QRectF]:
     """Where `words` of a line laid out as `laid` are drawn, from its top
     left: a rectangle per line of text each run of them is on."""
@@ -183,6 +201,9 @@ class HeldSelection(QObject):
         self.changed = changed
         self.selection: Selection | None = None
         """What's selected: drawn while it's dragged, then held."""
+        self.keeps: list[QWidget] = []
+        """Windows of its own whose clicks don't let go of it: the card
+        that saves it as a sentence (polyglotic-hq 459)."""
         self.watching = False
         self._poll = QTimer(self, interval=POLL_MS)
         self._poll.timeout.connect(self._look_at_keys)
@@ -265,6 +286,7 @@ class HeldSelection(QObject):
             and isinstance(watched, QWidget)
             and watched is not self.window
             and not self.window.isAncestorOf(watched)
+            and watched.window() not in self.keeps
         ):
             self.clear()
         return False

@@ -120,8 +120,8 @@ def test_the_repos_own_notes_parse() -> None:
 def test_unreleased_names_only_settings_sections_the_app_has() -> None:
     """A line under Unreleased that sends a tester to "Settings - X" (or
     "Settings > X") names one of Settings' sections as the app has them
-    now: Look, Timing, Speech, Dictation, App, Lab (304). "Settings -
-    Captions" went with 304, and still sent testers there (polyglotic-hq
+    now: Look, Word links, Readings, Timing, Speech, Dictation, App, Lab
+    (304, 470). "Settings - Captions" went with 304, and still sent testers there (polyglotic-hq
     329's #606, and 336: the hidden windows' Behaviour is in Timing)."""
     import re
 
@@ -136,15 +136,10 @@ def test_unreleased_names_only_settings_sections_the_app_has() -> None:
         for items in section.groups.values()
         for line in items
     )
-    pattern = r"Settings\s*(?:-|>)\s*([A-Z][a-z]+)"
-    # the pattern still reads a section's name; a release with no line that
-    # names one (0.1.8, a one-line hotfix) has nothing more to check
-    assert re.findall(pattern, "in Settings > Look and Settings - Lab") == [
-        "Look",
-        "Lab",
-    ]
-    named = re.findall(pattern, text)
-    assert [n for n in named if n.lower() not in SECTIONS] == []
+    named = re.findall(r"Settings\s*(?:-|>)\s*(Word links|[A-Z][a-z]+)", text)
+    assert named, "no line names a section: the pattern no longer matches"
+    keys = {"word links": "links"}  # its tab's name, and its key (470)
+    assert [n for n in named if keys.get(n.lower(), n.lower()) not in SECTIONS] == []
 
 
 PUBLISHED = {

@@ -51,7 +51,7 @@ from polyglotic_desktop.ui_next.views.placement import Rect
 KEY = "everything_else"
 APP = "Web Browser"
 APP_1 = SourceId("app-1")
-ONE_AND_ELSE = AppSettings(apps=(APP,), everything_else=True)
+ONE_AND_ELSE = AppSettings(whole_system=False, apps=(APP,), everything_else=True)
 
 
 def ids(name: str) -> SourceId:
@@ -65,7 +65,7 @@ def test_everything_else_is_captioned_beside_one_app_only() -> None:
     """Windows leaves only one app out of a capture: with 0, 2 or 3 apps,
     or everything the PC plays, it doesn't apply (even if it was kept on)."""
     assert ONE_AND_ELSE.captions_everything_else
-    assert not AppSettings(apps=(APP,)).captions_everything_else
+    assert not AppSettings(whole_system=False, apps=(APP,)).captions_everything_else
     for apps in ((), (APP, "Video Player"), (APP, "Video Player", "Chat App")):
         assert not replace(ONE_AND_ELSE, apps=apps).captions_everything_else
     assert not replace(ONE_AND_ELSE, whole_system=True).captions_everything_else
@@ -97,12 +97,17 @@ def test_a_window_for_the_app_then_one_for_everything_else() -> None:
 
 
 def test_turning_it_on_needs_one_app_and_fixes_its_colour() -> None:
-    changes = everything_else_change(AppSettings(apps=(APP,)), True)
+    changes = everything_else_change(AppSettings(whole_system=False, apps=(APP,)), True)
     assert changes is not None and changes["everything_else"] is True
     colours = changes["source_colors"]
     assert isinstance(colours, dict) and KEY in colours
     assert everything_else_change(AppSettings(), True) is None
-    assert everything_else_change(AppSettings(apps=(APP, "Chat App")), True) is None
+    assert (
+        everything_else_change(
+            AppSettings(whole_system=False, apps=(APP, "Chat App")), True
+        )
+        is None
+    )
     assert (
         everything_else_change(replace(ONE_AND_ELSE, whole_system=True), True) is None
     )
@@ -136,7 +141,10 @@ def test_the_usage_statistics_name_the_mode() -> None:
     assert chosen_capture(ONE_AND_ELSE) == Capture(
         CaptureMode.APPS_PLUS_REST, 1, my_speech=False
     )
-    assert chosen_capture(AppSettings(apps=(APP,))).mode is CaptureMode.APPS
+    assert (
+        chosen_capture(AppSettings(whole_system=False, apps=(APP,))).mode
+        is CaptureMode.APPS
+    )
 
 
 # -- Home --------------------------------------------------------------------------

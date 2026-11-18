@@ -37,10 +37,12 @@ from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
 from polyglotic_desktop.adapters.spaced_split import ELIDED, SpacedSplit, unelided
 from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
+from polyglotic_desktop.core.lexicon.han import HanSplit
 from polyglotic_desktop.core.lexicon.thai import ThaiSplit
 from polyglotic_desktop.core.lexicon.vietnamese import VietnameseSplit
 from polyglotic_desktop.ports.dictionary import DictionaryFile
 from polyglotic_desktop.ports.word_split import SplitWord, WordSplit
+from tools.dictionaries import kaikki
 
 PROBE = Path(__file__).parent / "probe"
 REPO = Path(__file__).resolve().parents[2]
@@ -159,8 +161,8 @@ class Coverage:
 
 
 def split_for(language: str, file: DictionaryFile, simplemma: bool = True) -> WordSplit:
-    """The word split a language's pack (`file`) uses: Vietnamese's and
-    Thai's are by the pack's own words. `simplemma`: False splits as the
+    """The word split a language's pack (`file`) uses: Vietnamese's, Thai's and
+    Cantonese's are by the pack's own words. `simplemma`: False splits as the
     installed app."""
     if language == "ja":
         return JapaneseSplit()
@@ -168,6 +170,8 @@ def split_for(language: str, file: DictionaryFile, simplemma: bool = True) -> Wo
         return VietnameseSplit(file)
     if language == "th":
         return ThaiSplit(file)
+    if language == "yue":
+        return HanSplit(file)
     return SpacedSplit(language, simplemma)
 
 
@@ -307,6 +311,86 @@ def top_words(
         [(n, w) for n, w in gaps if w not in exempt],
         [(n, w) for n, w in gaps if w in exempt],
     )
+
+
+USED_AS = 0.5
+"""The share of a word's uses the treebanks must give one part of speech for
+`opened_as_used` to hold its card to it."""
+
+
+@dataclass(frozen=True)
+class OpenedAs:
+    """Of the `TOP_WORDS` commonest running words: those whose card opens on
+    an entry in a part of speech the treebanks seldom use the word as, each
+    as (place, word, the entry it opens on, how the treebanks use it)."""
+
+    mismatched: list[tuple[int, str, str, str]]
+
+    def __str__(self) -> str:
+        return (
+            ", ".join(
+                f"{w} ({n}): {opened}, used as {used}"
+                for n, w, opened, used in self.mismatched
+            )
+            or "none"
+        )
+
+
+def opened_as_used(
+    dictionary: BasicDictionary,
+    frequencies: Mapping[str, float],
+    language: str,
+    uses: kaikki.Uses,
+    top: int = TOP_WORDS,
+) -> OpenedAs:
+    """Which of the `top` commonest words of `frequencies` (running words,
+    commonest first: forms as captions write them, not headwords) open, as
+    a caption's word is looked up, on an entry in a part of speech the
+    treebanks (`uses`, each form as written) don't use it as, where they
+    use it at least `kaikki.MIN_USES` times and one part of speech in
+    `USED_AS` of them. The top-words check (`top_words`) asks only whether
+    a word is found: Hindi's लिए, the 12th commonest, was - on लेना, "to
+    take", though it is the postposition of के लिए, "for" (polyglotic-hq
+    448, 461)."""
+    script = SCRIPTS.get(language)
+    words = [w for w in frequencies if in_script(w, script)][:top]
+    out = []
+    for n, word in enumerate(words, 1):
+        counts = uses.get(word.lower(), {})
+        if sum(counts.values()) < kaikki.MIN_USES:
+            continue
+        spellings = dict.fromkeys((word, word.capitalize(), word.upper()))
+        entries = next((e for w in spellings if (e := dictionary.lookup(w))), [])
+        if not entries:
+            continue
+        first = entries[0].meanings[0] if entries[0].meanings else ""
+        pos = (
+            first[1 : first.index(")")]
+            if first.startswith("(") and ")" in first
+            else ""
+        )
+        resolved = kaikki.resolved(counts, {pos})
+        tag, most = max(resolved.items(), key=lambda item: item[1])
+        used = most >= USED_AS * sum(resolved.values())
+        if pos and used and tag not in kaikki.UD_POS.get(pos, ()):
+            out.append((n, word, f"{entries[0].headword} ({pos})", tag))
+    return OpenedAs(out)
+
+
+def probe_opened_as_used(
+    pack_file: Path, language: str, frequencies: Mapping[str, float], uses: kaikki.Uses
+) -> OpenedAs:
+    """`opened_as_used` over `frequencies` (any order), looked up as the
+    installed app looks up."""
+    ranked = dict(sorted(frequencies.items(), key=lambda item: -item[1]))
+    file = SqliteDictionary(pack_file)
+    try:
+        split = split_for(language, file, simplemma=False)
+        return opened_as_used(
+            BasicDictionary(file, split, language), ranked, language, uses
+        )
+    finally:
+        file.close()
 
 
 def probe_top_words(pack_file: Path, language: str, wordfreq: Path) -> TopWords:

@@ -17,6 +17,7 @@ from polyglotic_desktop.ports.learning import (
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
+    StoredSentence,
     StoredStatus,
 )
 
@@ -39,6 +40,7 @@ class MemoryLearningStore:
         self.handed_over: set[date] = set()
         self.load_words: dict[str, StoredLoadWord] = {}
         self.lookups: dict[str, StoredLookups] = {}
+        self.sentences: dict[str, StoredSentence] = {}
 
     def load(self) -> LearningSnapshot:
         return LearningSnapshot(
@@ -72,12 +74,24 @@ class MemoryLearningStore:
         self.words = {
             k: w for k, w in self.words.items() if w.category_id != category_id
         }
+        self.sentences = {
+            k: s for k, s in self.sentences.items() if s.category_id != category_id
+        }
 
     def save_word(self, word: StoredSavedWord) -> None:
         self.words[word.entry_id] = word
 
     def delete_word(self, entry_id: str) -> None:
         self.words.pop(entry_id, None)
+
+    def saved_sentences(self) -> list[StoredSentence]:
+        return list(self.sentences.values())
+
+    def save_sentence(self, sentence: StoredSentence) -> None:
+        self.sentences[sentence.id] = sentence
+
+    def delete_sentence(self, sentence_id: str) -> None:
+        self.sentences.pop(sentence_id, None)
 
     def save_deck_word(self, word: StoredDeckWord) -> None:
         self.deck_words[word.entry_id] = word
@@ -152,6 +166,7 @@ class MemoryLearningStore:
     def delete_learning_data(self) -> None:
         self.statuses.clear()
         self.words.clear()
+        self.sentences.clear()
         self.deck_words.clear()
         self.anki_exports.clear()
         self.exposures.clear()

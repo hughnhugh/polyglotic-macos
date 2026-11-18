@@ -17,7 +17,9 @@ from polyglotic_desktop.core.learning.languages import (
 def test_each_language_is_in_one_tier() -> None:
     assert [tier_of(c) for c in ("zh", "en")] == [Tier.FULL, Tier.FULL]
     assert tier_of("ja") is tier_of("es") is Tier.BASIC
-    assert tier_of("th") is tier_of("yue") is Tier.NONE
+    # Cantonese has a pack of its own (decision 0160), not Chinese's
+    assert tier_of("yue") is Tier.BASIC
+    assert tier_of("th") is tier_of("xx") is Tier.NONE
 
 
 def test_chinese_in_either_script_is_one_language_and_cantonese_its_own() -> None:

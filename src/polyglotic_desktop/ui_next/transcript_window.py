@@ -113,12 +113,13 @@ from PySide6.QtWidgets import (
     QScrollBar,
     QSizePolicy,
     QToolButton,
+    QToolTip,
     QVBoxLayout,
     QWidget,
 )
 
 from polyglotic_desktop.core.learning.lookups import LookupContext, lookup_context
-from polyglotic_desktop.core.learning.saved_words import SavedSpan
+from polyglotic_desktop.core.learning.saved_words import Category, SavedSpan
 from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.listening.display import RowKind, clause_versions
 from polyglotic_desktop.core.listening.history import Caption
@@ -163,6 +164,7 @@ from polyglotic_desktop.ui_next.languages import (
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
 from polyglotic_desktop.ui_next.os_words import hotkeys_here
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
+from polyglotic_desktop.ui_next.sentence_card import save_to_text, saved_to_text
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
@@ -173,6 +175,11 @@ from polyglotic_desktop.ui_next.views.captions import Line
 from polyglotic_desktop.ui_next.views.lookup import WordAt, with_counterpart
 from polyglotic_desktop.ui_next.views.placement import Rect
 from polyglotic_desktop.ui_next.views.scroll import Anchor, Placed
+from polyglotic_desktop.ui_next.views.sentences import (
+    Selected,
+    selected_sentence,
+    worth_saving,
+)
 from polyglotic_desktop.ui_next.views.transcript import (
     MIN_SIZE,
     RAIL_WIDTH,
@@ -181,6 +188,7 @@ from polyglotic_desktop.ui_next.views.transcript import (
     TranscriptChoices,
     match_spans,
     rail_inline,
+    selected_pieces,
     selected_spans,
     selected_text,
 )
@@ -918,6 +926,44 @@ class TranscriptList(QWidget):
             self.copy_selection()
             say_copied(QCursor.pos(), self)
 
+    def sentence_selected(self) -> Selected | None:
+        """What's selected, as a sentence to save (polyglotic-hq 459)."""
+        if self.anchor is None or self.head is None:
+            return None
+        pieces = selected_pieces(self.transcript.lines, self.anchor, self.head)
+        return selected_sentence(pieces, self._speaker)
+
+    def _speaker(self, line: Line) -> str:
+        if line.by_you:
+            return self.you.name
+        window = self.window()
+        label = getattr(window, "label", None)
+        return label.name if isinstance(label, SourceLabel) else ""
+
+    def _add_save_sentence(self, menu: QMenu) -> None:
+        """The selection menu's "Save sentence to", a category each, when
+        what's selected is more than a word (459): into the learning data
+        of the language it was spoken in."""
+        found = self.sentence_selected()
+        if self.learner is None or found is None or not worth_saving(found):
+            return
+        vocabulary = self.learner.of(found.language).vocabulary
+        into = menu.addMenu(save_to_text())
+        for category in vocabulary.categories:
+
+            def save(_: bool = False, chosen: Category = category) -> None:
+                vocabulary.save_sentence(
+                    found.parts,
+                    found.original,
+                    found.translation,
+                    chosen.id,
+                    found.translation_language,
+                )
+                said = saved_to_text(chosen.name)
+                QToolTip.showText(QCursor.pos(), said, self, QRect(), COPIED_MS)
+
+            into.addAction(category.name, save)
+
     def select_all(self) -> None:
         """Every line listed (a search's matches while searching)."""
         lines = self.transcript.lines
@@ -1039,7 +1085,9 @@ class TranscriptList(QWidget):
         """The right-click menu: with text selected, Copy (it) and Select
         all (343); else the line's at `y` (`line_menu`), if there's one."""
         if self.hasSelectedText():
-            return selection_menu(self, self._copy_chosen, self.select_all)
+            menu = selection_menu(self, self._copy_chosen, self.select_all)
+            self._add_save_sentence(menu)
+            return menu
         line = self.line_at(y)
         return self.line_menu(line) if line is not None else None
 

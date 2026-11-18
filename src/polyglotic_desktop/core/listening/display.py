@@ -127,16 +127,19 @@ class ReadingColour(StrEnum):
 
 class ReadingSystem(StrEnum):
     """How a Chinese reading line is written (a setting; polyglotic-hq 395:
-    Taiwan's readers learn zhuyin, not pinyin)."""
+    Taiwan's readers learn zhuyin, not pinyin). Cantonese's is Jyutping
+    whichever is chosen."""
 
     PINYIN = "pinyin"
     ZHUYIN = "zhuyin"
     """Bopomofo (注音), from the same pinyin (`core.lexicon.zhuyin`)."""
 
 
-READING_LANGUAGES = ("zh",)
+READING_LANGUAGES = ("zh", "yue")
 """The languages a reading line can be put over (decision 0155): Chinese,
-read in pinyin. Furigana for Japanese would come next."""
+read in pinyin (or zhuyin), and Cantonese, read in Jyutping (decision 0160;
+the user, 2026-11-17: "the same level as pinyin and zhuyin"). Furigana for
+Japanese would come next."""
 
 
 @dataclass(frozen=True, slots=True)

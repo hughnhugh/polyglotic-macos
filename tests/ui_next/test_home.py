@@ -309,16 +309,56 @@ def test_rename_inline(qapp: QApplication) -> None:
 
 
 def test_everything_the_pc_plays_replaces_the_rows(qapp: QApplication) -> None:
-    page, _ = home(
+    """A new learner's first launch (polyglotic-hq 484): its row, what it
+    takes in - a call's voices too, said plainly - and one click on an app
+    playing captions that app instead."""
+    everything = pc_or_mac("Everything the PC plays", "Everything the Mac plays")
+    page, commands = home(
         Picker(
-            captioned=(AppRow("system", "This PC", "#fff", AppStatus.EVERYTHING),),
+            captioned=(AppRow("system", everything, "#fff", AppStatus.EVERYTHING),),
+            available=(AddableApp("Zoom", "Zoom", True),),
             whole_system=True,
         )
     )
     card = page.picker_card
-    assert card.count.text() == pc_or_mac("This PC", "This Mac")
-    assert card.adding.isHidden()
+    page.show()
+    assert card.count.text() == ""  # its row says it
     assert card.rows["system"].stop.isHidden()  # Apps | Everything switches it
+    said = card.everything_said
+    assert said.isVisible() and "a call's voices too" in said.text()
+    assert "one app instead" in said.text()
+    assert card.adding.isVisible()
+    assert card.add_title.text() == "Caption one app instead"
+    card.add_rows["Zoom"].add.click()
+    assert commands.asked == [("add", ("Zoom",))]
+    page.close()
+
+
+def test_with_apps_alone_the_line_goes(qapp: QApplication) -> None:
+    page, _ = home(Picker(captioned=(_row("discord"),)))
+    card = page.picker_card
+    page.show()
+    assert not card.everything_said.isVisible()
+    assert card.add_title.text() == "Add an app"
+    page.close()
+
+
+def test_where_apps_cant_be_alone_it_says_only_what_is_captioned(
+    qapp: QApplication,
+) -> None:
+    page, _ = home(
+        Picker(
+            captioned=(AppRow("system", "x", "#fff", AppStatus.EVERYTHING),),
+            whole_system=True,
+            per_app=False,
+        )
+    )
+    card = page.picker_card
+    page.show()
+    assert "a call's voices too" in card.everything_said.text()
+    assert "instead" not in card.everything_said.text()
+    assert card.adding.isHidden()
+    page.close()
 
 
 def test_nothing_captioned_says_so(qapp: QApplication) -> None:

@@ -17,8 +17,9 @@ window has shown with no question over it, OUT gets `shown.json` (the windows' h
 questions asked and the ID the taskbar knows the app by) and each shown window's picture (Qt's own `grab()`). The
 test says what's next by a file in OUT, so it can look from outside first:
 - `captions`: caption windows show, as when three apps are captioned
-  while signed in - the app's own windows, told they're signed in and
-  given the apps (`CaptionWindows.set_connection`, `set_captioned`) - and
+  while signed in - the app's own windows, told they're signed in
+  (`CaptionWindows.set_connection`), for apps picked as Home's + picks
+  them (`adding_app`) - and
   OUT gets `captions.json` (their handles). Quit has to end the app with
   them up: Qt's `quit()` gave up when the main window, kept in the tray,
   came before one of them in Qt's order of windows, and the app ran on
@@ -59,7 +60,6 @@ from PySide6.QtWidgets import QApplication, QDialog, QWidget
 from tools.private_desktop import grab_windows
 
 from polyglotic_desktop import main as app
-from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.platform.windows import taskbar
 from polyglotic_desktop.ports.capture import PlayingApp
 from polyglotic_desktop.ui.app import DesktopApp
@@ -195,15 +195,19 @@ class Driven(QApplication):
         assert windows is not None
         if not self.captioned:
             self.captioned = True
-            # a later session: the tray's one-time note was said in the first.
-            # Said at Quit instead, it would change a setting, and the windows
-            # would follow the settings' apps (none here) and close before
-            # Quit looked at them
+            # a later session: the tray's one-time note was said in the first
             desktop.settings.update(tray_note_shown=True)
             windows.set_connection(None, None)  # signed in, as far as they know
-            windows.set_captioned(
-                [(k, SourceId(f"app:{k}")) for k in ("discord", "chrome", "zoom")]
-            )
+            # three apps picked, as Home's + picks them: the windows follow the
+            # settings, so a later change of any setting leaves them up. Put up
+            # behind the settings' back, they went at the next one - "Caption
+            # my own speech", turned by the windows themselves (478) - to the
+            # settings' own choice: none, or everything the PC plays (484;
+            # polyglotic-hq 500)
+            for name in ("discord", "chrome", "zoom"):
+                picked = app.adding_app(desktop.settings.value, name)
+                assert picked is not None
+                desktop.settings.update(**picked)
             return
         shown = [int(w.winId()) for w in windows.windows.values() if w.isVisible()]
         if shown:

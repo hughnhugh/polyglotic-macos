@@ -14,8 +14,20 @@ know, so today's interface ignores it).
 The first time the new interface runs, the windows take today's values
 (`views.migration`, once). After that, a window new to the list copies
 the last window's language and text size; its spoken language is
-Detect - a new app may speak anything - and "Show my speech here" starts
+Detect - a new app may speak anything - unless the learner chose "Start
+new windows like this" (`StoredWindows.start_like_this`: then it is the
+last window's too; polyglotic-hq 465), and "Show my speech here" starts
 off (section 2, defaults).
+
+The very first caption window on a PC sets itself up (polyglotic-hq 465,
+449's 3A): its three language choices are asked in it - and in every
+window that opens after, until the learner chooses "Use as my default" in
+one (polyglotic-hq 478; `StoredWindows.set_up`, kept). Its answers are then
+how new windows start. A new learner's first window shows my speech too
+(`StoredWindows.first_window`; 478, the user, 2026-11-18: "record user mic
+in first window is the default"), with its switch in the set-up to turn it
+off. Home's sample's window is neither: it's a trial, not what the learner
+captions.
 
 `JoinedChoices`: whether the windows are joined into one, a column each
 (109's 2a), and that window's own place - kept beside each
@@ -42,6 +54,7 @@ from polyglotic_desktop.core.listening.display import (
     WordLinks,
 )
 from polyglotic_desktop.core.listening.hidden import PAUSE_AFTER_MIN
+from polyglotic_desktop.core.listening.sources import SAMPLE
 from polyglotic_desktop.core.listening.spoken import SPOKEN_LANGUAGES as SPOKEN
 from polyglotic_desktop.core.listening.spoken import with_recent
 from polyglotic_desktop.core.listening.timing import CaptionMode
@@ -217,7 +230,11 @@ class StoredWindows:
     `declined_spoken`: by a window's key, the languages it was asked to
     always hear as and the learner said "Not now" to - never asked again
     (317). `reading_hinted`: a window has said once that pinyin can go
-    above Chinese (369)."""
+    above Chinese (369). `set_up`: "Use as my default" was chosen in a
+    window's set-up (478), or there were windows before it came (polyglotic-hq
+    465; a window's chip turns it off again, "Ask when a window opens"): never asked
+    again. `start_like_this`: "Start new windows like this" - a new window
+    takes the last one's spoken language too, not Detect (465)."""
 
     by_key: dict[str, WindowChoices] = field(default_factory=dict)
     last: WindowChoices = field(default_factory=WindowChoices)
@@ -227,6 +244,8 @@ class StoredWindows:
     recent_spoken: tuple[str, ...] = ()
     declined_spoken: dict[str, tuple[str, ...]] = field(default_factory=dict)
     reading_hinted: bool = False
+    set_up: bool = False
+    start_like_this: bool = False
 
     def spoken_declined(self, key: str, code: str) -> None:
         """The window of `key` was asked to always hear `code` and the
@@ -240,23 +259,39 @@ class StoredWindows:
         recent ones, if it's a language."""
         self.recent_spoken = with_recent(self.recent_spoken, code)
 
-    def for_new(self, index: int) -> WindowChoices:
-        """The `index`-th window, new to the list: the last one's language,
-        text size and translation size, at its default place, my speech
-        off. On first
+    @property
+    def first_window(self) -> bool:
+        """The next window opened is a new learner's first: Use as my default
+        isn't chosen and no window is kept but the sample's (478)."""
+        return not self.set_up and all(key == SAMPLE for key in self.by_key)
+
+    def for_new(self, index: int, key: str = "", set_up: bool = False) -> WindowChoices:
+        """The `index`-th window, new to the list (its key `key`): the last
+        one's language, text size and translation size, at its default
+        place, my speech off - and its spoken language with "Start new
+        windows like this", else Detect (465). On first
         use, today's values: my speech as "Caption my own speech" was, and
-        the overlays' position - where the first was put, for the first."""
+        the overlays' position - where the first was put, for the first.
+        Where the first window's set-up is offered (`set_up`: `main`'s), a
+        new learner's first window shows my speech (`first_window`; not the
+        sample's), and the set-up shows its switch (478)."""
+        first = set_up and self.first_window and key != SAMPLE
         last = self.last
         if not self.first_use:
-            return WindowChoices(
+            choices = WindowChoices(
                 last.translate_into,
                 last.text_size,
                 translation_size=last.translation_size,
+                spoken_language=last.spoken_language if self.start_like_this else None,
             )
-        if index == 0:
-            return last
-        preset = Preset.BOTTOM_CENTRE if last.preset is Preset.CUSTOM else last.preset
-        return replace(last, preset=preset, geometry=None)
+        elif index == 0:
+            choices = last
+        else:
+            preset = (
+                Preset.BOTTOM_CENTRE if last.preset is Preset.CUSTOM else last.preset
+            )
+            choices = replace(last, preset=preset, geometry=None)
+        return replace(choices, show_mic=True) if first else choices
 
     def only_offered(self, offered: Collection[str]) -> "StoredWindows":
         """These choices with each translation language one of `offered` or
@@ -284,6 +319,8 @@ class StoredWindows:
             "reading_hinted": self.reading_hinted,
             "recent_spoken": list(self.recent_spoken),
             "declined_spoken": {k: list(v) for k, v in self.declined_spoken.items()},
+            "set_up": self.set_up,
+            "start_like_this": self.start_like_this,
         }
 
     @classmethod
@@ -322,6 +359,11 @@ class StoredWindows:
             }
             if isinstance(declined, Mapping)
             else {},
+            # windows from before the set-up came (0.1.7): already set up;
+            # since, as the learner left it - asked on every open until Use
+            # as my default (478)
+            set_up=own.get("set_up") is True or ("set_up" not in own and bool(by_key)),
+            start_like_this=own.get("start_like_this") is True,
         )
 
 

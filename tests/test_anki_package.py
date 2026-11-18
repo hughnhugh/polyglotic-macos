@@ -27,6 +27,7 @@ from polyglotic_desktop.core.learning.anki import AnkiNote, deck_notes, guid
 from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.learning.vocabulary import EntryText, Vocabulary
 from polyglotic_desktop.core.shared import EntryFacts, EntryId
+from polyglotic_desktop.ports.anki_deck import DeckSentence
 
 HANG = EntryId("cedict:行-háng")
 XING = EntryId("cedict:行-xíng")
@@ -105,7 +106,9 @@ def note(entry_id: EntryId, sentence: str = "", translation: str = "") -> AnkiNo
 
 
 def build(notes: list[AnkiNote], **options: bool) -> Collection:
-    return read_apkg(GenankiDeckWriter().build(deck_notes(notes), **options))
+    listen, recall = options.get("listen", False), options.get("recall", False)
+    built = GenankiDeckWriter().build(deck_notes(notes), listen=listen, recall=recall)
+    return read_apkg(built)
 
 
 def test_chinese_and_english_notes_go_in_their_own_note_type_and_sub_deck() -> None:
@@ -357,3 +360,25 @@ def test_a_language_with_no_name_here_yet_still_exports() -> None:
     c = pack_build("xx", [note(HOUSE)])
     assert c.note_models[guid(HOUSE)] == "Polyglotic xx"
     assert "Polyglotic::xx" in set(c.decks.values())
+
+
+SENTENCE_TYPE = (datetime(2026, 11, 7, 12, 5, tzinfo=UTC), "c0b34a6b5fd2166c")
+"""`NOTE_TYPES_CHANGED` and the sentence note type's fingerprint then
+(polyglotic-hq 459): a change to its cards or style needs a new time too."""
+
+
+def test_a_changed_sentence_card_carries_a_new_note_types_changed() -> None:
+    sentence = DeckSentence(
+        "polyglotic:sentence:a", "zh", "我", "我", "I", "", "a", ("polyglotic",), WHEN
+    )
+    c = read_apkg(GenankiDeckWriter().build([], sentences=[sentence]))
+    model = c.models["Polyglotic Chinese sentence"]
+    shape = (
+        model["css"],
+        [f["name"] for f in model["flds"]],
+        [(t["name"], t["qfmt"], t["afmt"]) for t in model["tmpls"]],
+    )
+    digest = hashlib.sha256(json.dumps(shape).encode()).hexdigest()[:16]
+    assert (NOTE_TYPES_CHANGED, digest) == SENTENCE_TYPE
+    assert c.note_models == {"polyglotic:sentence:a": "Polyglotic Chinese sentence"}
+    assert c.decks[str(1_791_606_101)] == "Polyglotic::Chinese"

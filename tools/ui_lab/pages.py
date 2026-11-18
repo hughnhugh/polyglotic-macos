@@ -19,7 +19,7 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime
 from functools import partial
 
-from PySide6.QtCore import QCoreApplication, QRect
+from PySide6.QtCore import QCoreApplication, QPoint, QRect
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import QAbstractScrollArea, QScrollArea, QWidget
 from tests.learning.fakes import Clock, MemoryLearningStore
@@ -34,6 +34,7 @@ from polyglotic_desktop.core.learning.levels import (
     WindowSize,
 )
 from polyglotic_desktop.core.learning.lookups import LookupContext
+from polyglotic_desktop.core.learning.sentences import SentencePart
 from polyglotic_desktop.core.learning.vocabulary import Vocabulary
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
@@ -314,6 +315,48 @@ def words_full(lab: Lab) -> QWidget:
     return window
 
 
+SENTENCES = (
+    ("我今天去超市买水果。", "I went to the supermarket today to buy fruit.", "saved"),
+    ("你吃饭了吗?我们一起去吧。", "Have you eaten? Let's go together.", "tricky"),
+    ("这个游戏很好玩,我天天玩。", "This game is fun, I play it every day.", "saved"),
+    ("明天的天气怎么样?", "What's the weather like tomorrow?", "saved"),
+)
+"""Made-up saved sentences for Words' Saved sentences (polyglotic-hq 459)."""
+
+
+def words_sentences(lab: Lab) -> QWidget:
+    """Words' Saved sentences, scrolled into view, searched in either
+    language (polyglotic-hq 459): "天 game" finds two, the one with both
+    first."""
+    window, page = _full_words(lab, scaled(NORMAL))
+    vocabulary = page.first.learner.vocabulary
+    for original, translation, category in SENTENCES:
+        part = SentencePart(original, translation, (), "Discord")
+        vocabulary.save_sentence((part,), original, translation, category, "en")
+    lab.pump()
+    card = page.first.sentences
+    terms = ["天 game", "", "fruit", ""]
+
+    def search() -> None:
+        card.search.setText(terms[0])
+        card._searching.stop()
+        card.refresh()  # what the search's pause runs
+        terms.append(terms.pop(0))
+
+    lab.time("sentence_search", search, repeat=4, budget=budgets.CLICK)
+    card.search.setText("天 game")
+    card._searching.stop()
+    card.refresh()
+    settled = time.monotonic() + 0.4  # the field's clear button fades in
+    while time.monotonic() < settled:
+        lab.pump()
+    scroll = page.findChild(QScrollArea) or window.findChild(QScrollArea)
+    if scroll is not None:
+        scroll.ensureWidgetVisible(card, 0, 0)
+    lab.pump()
+    return window
+
+
 def words_two_languages(lab: Lab) -> QWidget:
     """Words for a learner of two languages (polyglotic-hq 250, the user's
     F23): a section each, under a heading with its count, the first open -
@@ -510,12 +553,13 @@ def account(signed_in: bool) -> Callable[[Lab], QWidget]:
 
 
 def settings(
-    section: str, size: tuple[int, int] | None = None
+    section: str, size: tuple[int, int] | None = None, scrolled_into: int = -1
 ) -> Callable[[Lab], QWidget]:
-    """Settings on `section` (304's six: Look, Timing, Speech, Dictation,
-    App, Lab) - at `size` if given (the window's minimum) - the views made
+    """Settings on `section` (one of `SECTIONS`: 304's six, and 470's Word
+    links and Readings) - at `size` if given (the window's minimum) - the views made
     up as a learner might have them; on the Lab, some of its values moved
-    (284)."""
+    (284). `scrolled_into`: scrolled into the section's card of that index,
+    its own title under the pinned sections, which name it (470)."""
 
     def run(lab: Lab) -> QWidget:
         hotkeys = {}
@@ -564,6 +608,13 @@ def settings(
         if section == "lab":  # its own section, at its top (304)
             look.set_lab(CaptionLab(new_for=3.0, new_fade=NewFade.GRADUAL, older=0.55))
             lab.pump()
+        if scrolled_into >= 0:
+            card = page.cards(section)[scrolled_into]
+            inner = page.widget()
+            assert inner is not None
+            top = card.mapTo(inner, QPoint(0, 0)).y()
+            page.verticalScrollBar().setValue(top + 60)
+            lab.pump()
         no_horizontal_scrollbar(window)
         return window
 
@@ -573,7 +624,7 @@ def settings(
 def section_switches(lab: Lab, page: SettingsPage, section: str) -> None:
     """Each section Settings hasn't shown yet, shown for the first time
     (`section_first_show`, held to a first show's budget), ending on
-    `section`; then going round the six twice, ending on it again
+    `section`; then going round the sections twice, ending on it again
     (`section_switch`, a section shown again: a warm switch's budget). Both
     timed apart (polyglotic-hq 381): timed together, 5 of the 12 switches
     were first shows (9-45 ms), so the median held to 8 ms was in effect
@@ -802,6 +853,7 @@ STATES = [
     for name, run in (
         ("words_empty", words_empty),
         ("words_full", words_full),
+        ("words_sentences", words_sentences),
         ("words_minimum", words_minimum),
         ("pages_at_floor", at_floor),
         ("words_two_languages", words_two_languages),
@@ -978,10 +1030,13 @@ STATES = [
         ("account_signed_out", account(False)),
         ("account_signed_in", account(True)),
         ("settings", settings("look")),
+        ("settings_links", settings("links")),
+        ("settings_readings", settings("readings")),
         ("settings_timing", settings("timing")),
         ("settings_speech", settings("speech")),
         ("settings_dictation", settings("dictation")),
         ("settings_app", settings("app")),
+        ("settings_app_scrolled", settings("app", scrolled_into=2)),
         ("settings_minimum", settings("look", minimum_size())),
         ("settings_lab", settings("lab")),
         ("help", help_page),

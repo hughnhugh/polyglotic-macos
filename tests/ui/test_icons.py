@@ -123,7 +123,12 @@ def test_a_missing_master_says_so(qapp: QApplication) -> None:
 
 
 def _tray_app(light: bool) -> DesktopApp:
-    app = DesktopApp(MemorySettingsStore(), None, None, light_taskbar=lambda: light)
+    app = DesktopApp(
+        MemorySettingsStore({"whole_system": False}),
+        None,
+        None,
+        light_taskbar=lambda: light,
+    )
     app.tray = QSystemTrayIcon(app)  # offscreen has no tray: as show_tray makes it
     app.tray_icons = icons.tray_icon  # Windows' (the Mac's template: below)
     return app
@@ -259,7 +264,12 @@ def test_on_a_mac_the_tray_is_the_menu_bars_template(
     from polyglotic_desktop.ui import app as app_module
 
     monkeypatch.setattr(app_module, "on_a_mac", lambda: True)
-    app = DesktopApp(MemorySettingsStore(), None, None, light_taskbar=lambda: False)
+    app = DesktopApp(
+        MemorySettingsStore({"whole_system": False}),
+        None,
+        None,
+        light_taskbar=lambda: False,
+    )
     app.tray = QSystemTrayIcon(app)
     app.set_connection(ConnectionState.NOT_CONNECTED)
     assert app.tray.icon().cacheKey() == icons.menu_bar_icon(TrayState.IDLE).cacheKey()

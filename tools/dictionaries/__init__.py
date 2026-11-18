@@ -4,6 +4,10 @@
   dictionary updates (decision 0007).
 - `sources`: each source pinned to a version and checksum; fetching them.
 - `cedict`, `ecdict`: reading CC-CEDICT's text and ECDICT's CSV.
+- `oewn`, `english_meanings`, `english_core.txt`: an English word's
+  meanings in English for `ecdict-en.sqlite` - Open English WordNet's,
+  ordered by UD English-EWT's counts, and our own (decision 0211);
+  `english_check` measures them on FLEURS and wordfreq's commonest.
 - `wordfreq_ranks`: frequency ranks from wordfreq's data.
 - `frequency`: a pack's frequency lists - wordfreq's, or counts from
   subtitles - and averaging them (decision 0120).

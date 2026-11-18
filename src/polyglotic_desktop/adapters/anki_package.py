@@ -26,7 +26,10 @@ Each back adds only what its front didn't show (polyglotic-hq 162):
   nearly spells an English word; pinyin would make it "write it from the
   pinyin") or the line itself (it holds the word); the back adds the word,
   its reading and its line, and says it.
-Audio is
+A saved sentence (polyglotic-hq 459) has a note type of its own per
+language - "Polyglotic Chinese sentence", in the language's sub-deck -
+with one card, Read (`SENTENCE_FIELDS`, `_sentence_templates`); its IDs
+are clear of the words' (`_sentence_type_id`). Audio is
 Anki's own text-to-speech (`{{tts}}`) until a word has a sound file. The
 clip fields stay empty for now.
 
@@ -55,7 +58,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from polyglotic_desktop.ports.anki_deck import DeckNote
+from polyglotic_desktop.ports.anki_deck import DeckNote, DeckSentence
 
 if TYPE_CHECKING:
     import genanki
@@ -283,15 +286,91 @@ def _model(language: str) -> "genanki.Model":
     )
 
 
+SENTENCE_FIELDS = (
+    "Sentence",
+    "Linked",
+    "Translation",
+    "Speakers",
+    "SentenceAudio",
+    "Notes",
+    "SentenceID",
+)
+"""A saved sentence's note (polyglotic-hq 459): what was said with its
+saved words in bold (Sentence), the same with its linked words underlined
+(Linked), the translation underlined to match, who said it, a sound file
+(empty for now: Anki's text-to-speech), the learner's own notes, and the
+sentence's ID (last). Never add, remove or rename one (as `FIELDS`)."""
+_SENTENCE_TYPES = {"zh": 1_791_606_201, "en": 1_791_606_202}
+"""Chinese's and English's sentence note type IDs; a pack language's is
+worked out from its code (`_sentence_type_id`)."""
+
+
+def _sentence_type_id(code: str) -> int:
+    """Clear of the words' note types and decks: those end below
+    1_791_660_000 (`_ids`)."""
+    if code in _SENTENCE_TYPES:
+        return _SENTENCE_TYPES[code]
+    return _ids(code)[0] - 1_791_610_000 + 1_791_660_000
+
+
+def _sentence_templates(voice: str) -> list[dict[str, str]]:
+    """One card, Read: what was said, its saved words marked, read aloud;
+    the back shows it again with its links underlined - in place of the
+    front, not under it - then the translation, underlined to match, and
+    who said it."""
+    sound = (
+        "{{SentenceAudio}}{{^SentenceAudio}}"
+        f"{{{{tts {voice}:Sentence}}}}"
+        "{{/SentenceAudio}}"
+    )
+    return [
+        {
+            "name": "Read",
+            "qfmt": '<div class="sentence">{{Sentence}}</div>' + sound,
+            "afmt": (
+                '<div class="sentence">{{Linked}}</div><hr id=answer>'
+                '<div class="sentence-translation">{{Translation}}</div>'
+                '{{#Speakers}}<div class="label">{{Speakers}}</div>{{/Speakers}}'
+                '<div class="notes">{{Notes}}</div>'
+            ),
+        }
+    ]
+
+
+SENTENCE_CSS = ".sentence-translation { font-size: 1.1em; }\n"
+"""Added to the words' style for the sentence note type: the translation
+is the answer here, so it isn't dimmed."""
+
+
+def _sentence_model(language: str) -> "genanki.Model":
+    import genanki
+
+    _, _, _, voice, name = _language(language)
+    return genanki.Model(
+        _sentence_type_id(language),
+        f"{name} sentence",
+        fields=[{"name": f} for f in SENTENCE_FIELDS],
+        templates=_sentence_templates(voice),
+        css=_css(language) + SENTENCE_CSS,
+        sort_field_index=0,
+    )
+
+
 class GenankiDeckWriter:
     """`AnkiDeckWriter` with genanki."""
 
     def build(
-        self, notes: Sequence[DeckNote], *, listen: bool = False, recall: bool = False
+        self,
+        notes: Sequence[DeckNote],
+        *,
+        listen: bool = False,
+        recall: bool = False,
+        sentences: Sequence[DeckSentence] = (),
     ) -> bytes:
         import genanki  # here, not at start: it and yaml take about 70 ms
 
         models: dict[str, Any] = {}
+        sentence_models: dict[str, Any] = {}
         decks: dict[str, Any] = {}
 
         def made(code: str) -> None:
@@ -324,11 +403,34 @@ class GenankiDeckWriter:
                     tags=list(note.tags),
                 )
             )
+        for sentence in sentences:
+            code = sentence.language if _CODE.fullmatch(sentence.language) else "en"
+            made(code)
+            used.add(code)
+            if code not in sentence_models:
+                sentence_models[code] = _sentence_model(code)
+            values = {
+                "Sentence": sentence.front,
+                "Linked": sentence.original,
+                "Translation": sentence.translation,
+                "Speakers": sentence.speakers,
+                "SentenceID": sentence.sentence_id,
+            }
+            decks[code].add_note(
+                genanki.Note(
+                    sentence_models[code],
+                    fields=[values.get(f, "") for f in SENTENCE_FIELDS],
+                    guid=sentence.guid,
+                    tags=list(sentence.tags),
+                )
+            )
         made("en")  # an empty export is still a file with a deck
         package: Any = genanki.Package(
             [decks[c] for c in sorted(used)] or [decks["en"]]
         )
-        return _zip(package, {note.guid: note.changed for note in notes})
+        times = {note.guid: note.changed for note in notes}
+        times.update((s.guid, s.changed) for s in sentences)
+        return _zip(package, times)
 
 
 def _zip(package: Any, note_times: Mapping[str, datetime]) -> bytes:

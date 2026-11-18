@@ -332,6 +332,7 @@ from polyglotic_desktop.ports.system import (
     KeyState,
     LaunchClock,
     LightTaskbar,
+    MicPermission,
     OnTop,
     OsVersion,
     StorePackage,
@@ -824,6 +825,9 @@ class OsAdapters:
     typing_permission: TypingPermission | None = None
     """The OS's leave to type, where it asks for one: a Mac's Accessibility
     (polyglotic-hq 438). None on Windows, which asks none."""
+    mic_permission: MicPermission | None = None
+    """The OS's leave to hear the microphone, where it asks the learner: a
+    Mac's (polyglotic-hq 478). None on Windows, which asks none."""
     common_apps: tuple[CommonApp, ...] = ()
     """Browsers and the main apps a caption window lists before they play."""
     sound_devices: Callable[[], SoundDevices] = SoundDevices
@@ -951,6 +955,7 @@ def macos_adapters() -> OsAdapters:
         hotkeys,
         keychain,
         keys,
+        mic_permission,
         not_yet,
         on_top,
         one_copy,
@@ -1019,6 +1024,7 @@ def macos_adapters() -> OsAdapters:
         type_text=text_input.type_text,
         keyboard_window=text_input.keyboard_window,
         typing_permission=text_input.Permission(),
+        mic_permission=mic_permission.Permission(),
         metered=not_yet.not_metered,
         common_apps=categories.COMMON_APPS,
         sound_devices=devices.sound_devices,
@@ -1211,7 +1217,7 @@ def caption_look(value: AppSettings) -> CaptionLook:
 def second_language_chosen(
     value: AppSettings, target: str, second: str
 ) -> dict[str, object]:
-    """The settings change a window's "Lines already in ..." asks for: lines
+    """The settings change a window's "When they already speak ..." asks for: lines
     already in `target` shown in `second` - "" (or `target` itself): left as
     they are. Kept by language, so every window with `target` follows
     (263)."""
@@ -1374,22 +1380,90 @@ def wire_maintenance(
     return soon_line
 
 
+class MicAsked(QObject):
+    """My speech captioned only with the OS's leave to hear the mic, where
+    it asks for one (a Mac: `MicPermission`; polyglotic-hq 478). A caption
+    window showing my speech turns "Caption my own speech" on - at once
+    where the leave is given (and on Windows, which asks none); never asked
+    yet, after the OS's question is answered yes. Refused, then or before,
+    every window's switch goes off and the learner is told why, on Home
+    and in the caption windows - the mic is never opened to record
+    silence."""
+
+    answered = Signal(bool)
+    """The OS's answer, from any thread - handled on the interface's."""
+
+    def __init__(
+        self,
+        windows: CaptionWindows,
+        desktop: DesktopApp,
+        permission: MicPermission | None,
+    ) -> None:
+        super().__init__(windows)
+        self.windows, self.desktop, self.permission = windows, desktop, permission
+        self.asking = False
+        self.answered.connect(self._answered)
+
+    def wanted(self, on: bool) -> None:
+        """A caption window shows my speech now (`on`), or none does."""
+        allowed = (
+            True if not on or self.permission is None else self.permission.allowed()
+        )
+        if allowed:
+            self.desktop.caption_mic.setChecked(on)
+        elif allowed is False:
+            self._refused()
+        elif not self.asking:
+            self.asking = True
+            assert self.permission is not None
+            self.permission.ask(self.answered.emit)
+
+    def _answered(self, yes: bool) -> None:
+        self.asking = False
+        if yes:
+            self.desktop.caption_mic.setChecked(self.windows.show_mic_anywhere)
+        elif self.windows.show_mic_anywhere:
+            self._refused()
+
+    def _refused(self) -> None:
+        self.windows.set_show_mic_everywhere(False)
+        self.desktop.caption_mic.setChecked(False)
+        self.desktop.home_notice.emit(mic_refused_text())
+        self.desktop.caption_notice.emit(mic_refused_text())
+
+
+def mic_refused_text() -> str:
+    """What the learner is told when the OS doesn't let the app hear the
+    mic (a Mac's Privacy & Security; 478)."""
+    return _tr_app(
+        "Your Mac didn't allow Polyglotic to use the microphone, so your own"
+        " speech isn't captioned. To caption it, allow Polyglotic in System"
+        " Settings > Privacy & Security > Microphone, then turn on Show my"
+        " speech here."
+    )
+
+
 def wire_caption_windows(
-    windows: CaptionWindows, desktop: DesktopApp, send_settings: Callable[[], None]
-) -> None:
+    windows: CaptionWindows,
+    desktop: DesktopApp,
+    send_settings: Callable[[], None],
+    mic_permission: MicPermission | None = None,
+) -> MicAsked:
     """The caption windows in step with the app: captions, notices,
     pause, today's free minutes used (the server's count) and the listening
     mark reach them - and signed out, they go until the learner signs in
     (`CaptionWindows`); lock and hide every window are the app's commands
     (tray, Home, hotkeys), which the windows' own buttons check; "Caption
-    my own speech" is on while any window shows my speech, and turns it on
-    or off in every window; Learning's changes redraw the highlights; a
+    my own speech" is on while any window shows my speech - with the OS's
+    leave to hear the mic, where it asks (`MicAsked`, returned) - and turns
+    it on or off in every window; Learning's changes redraw the highlights; a
     window's close unticks its app; its timing chip sets the session's;
     each window's label follows its app's source as it's found;
     All caption settings... opens Settings > Captions (`Hub`) and Open transcript its
     transcript window (`wire_transcripts`)."""
     windows.languages_changed.connect(send_settings)
-    windows.mic_wanted.connect(desktop.caption_mic.setChecked)
+    asked = MicAsked(windows, desktop, mic_permission)
+    windows.mic_wanted.connect(asked.wanted)
     desktop.caption_mic.toggled.connect(
         lambda on: (
             windows.set_show_mic_everywhere(on)
@@ -1452,6 +1526,7 @@ def wire_caption_windows(
     if desktop.tools is not None:  # highlights drawn again on a Learning change
         desktop.tools.changed.connect(windows.learning_changed)
         desktop.tools.load_changed.connect(windows.load_changed)  # stages (324)
+    return asked
 
 
 def wire_transcripts(transcripts: Transcripts, desktop: DesktopApp) -> None:
@@ -1773,7 +1848,10 @@ class Panels:
                 text_settles_after=t.settle_after,
             ),
         )
-        self.look = LookView(caption_look(value), self._look_changed)
+        # Reset to defaults: the look a new learner starts with (478)
+        self.look = LookView(
+            caption_look(value), self._look_changed, caption_look(AppSettings())
+        )
         self.look_waiting = False
         """A look change waits to be saved."""
         self._look_settles = QTimer(singleShot=True, interval=SETTLE_MS)
@@ -1858,7 +1936,10 @@ def picker_of(
         if key == SOURCE_KEY_SYSTEM:
             status, own = (
                 AppStatus.EVERYTHING,
-                pc_or_mac(_tr_app("This PC"), _tr_app("This Mac")),
+                pc_or_mac(
+                    _tr_app("Everything the PC plays"),
+                    _tr_app("Everything the Mac plays"),
+                ),
             )
         elif key == SOURCE_KEY_EVERYTHING_ELSE:
             status, own = AppStatus.EVERYTHING_ELSE, _tr_app("Everything else")
@@ -1897,8 +1978,11 @@ def picker_of(
         colours[SOURCE_KEY_MIC],
         AppStatus.QUIET,
     )
+    # with everything the PC plays, any app can be captioned instead - the
+    # apps picked before it was chosen too (`adding_app`, 484)
     available = addable(
-        [(a.name, a.title, a.playing) for a in found], tuple(value.apps)
+        [(a.name, a.title, a.playing) for a in found],
+        () if value.whole_system else tuple(value.apps),
     )
     return Picker(
         you=you,
@@ -1930,7 +2014,12 @@ def adding_app(value: AppSettings, name: str) -> dict[str, object] | None:
     """The settings change Home's + asks for: `name` captioned, with its
     colour fixed now (unticking another later won't change it) - or None
     at the limit (DECISIONS.md #53: 3 apps), or while everything else is
-    captioned beside one app (it can be beside one only, #59)."""
+    captioned beside one app (it can be beside one only, #59). While
+    everything the PC plays is captioned, `name` alone instead - one click
+    from Home (polyglotic-hq 484): the apps picked before it was chosen
+    aren't shown, so they don't come back with it."""
+    if value.whole_system:
+        value = replace(value, apps=())
     if name in value.apps or len(value.apps) >= LIMIT or value.captions_everything_else:
         return None
     colours = dict(value.source_colors)
@@ -2814,8 +2903,14 @@ class Hub:
     # -- the picker's commands ----------------------------------------------------------
 
     def add(self, name: str) -> None:
-        changes = adding_app(self.desktop.settings.value, name)
+        value = self.desktop.settings.value
+        changes = adding_app(value, name)
         if changes is not None:
+            if value.whole_system:
+                # one app instead of everything (484): in the window everything
+                # was in - its place, languages and my speech - as a window's
+                # Captioning list switches an app (F12)
+                self.windows.carry(SOURCE_KEY_SYSTEM, name)
             self.desktop.settings.update(**changes)
 
     def remove(self, key: str) -> None:
@@ -2826,7 +2921,10 @@ class Hub:
         own = next(
             (a.title for a in self.apps.playing_apps() if a.name == key),
             {
-                SOURCE_KEY_SYSTEM: pc_or_mac(_tr_app("This PC"), _tr_app("This Mac")),
+                SOURCE_KEY_SYSTEM: pc_or_mac(
+                    _tr_app("Everything the PC plays"),
+                    _tr_app("Everything the Mac plays"),
+                ),
                 SOURCE_KEY_EVERYTHING_ELSE: _tr_app("Everything else"),
                 SOURCE_KEY_MIC: _tr_app("You"),
             }.get(key, key),
@@ -2977,11 +3075,12 @@ def pack_reader(version: str) -> Reader:
     (polyglotic-hq 388), Persian's words kept whole at their zero-width
     non-joiner (`joiners`) and Filipino's, Czech's and Greek's affixes
     guessed (`affixes`) always (polyglotic-hq 387), Thai's always (plain
-    Python over the pack's own words: decision 0173), Sudachi only with its
-    dictionary - and its version."""
+    Python over the pack's own words: decision 0173), Cantonese's `han`
+    always (plain Python over the pack's own words: decision 0160), Sudachi
+    only with its dictionary - and its version."""
     splits = {
         *("spaced", "elided", "marks", "clitics", "turkish", "vietnamese"),
-        *("joiners", "affixes", "thai"),
+        *("joiners", "affixes", "thai", "han"),
     }
     if all(
         importlib.util.find_spec(m) is not None
@@ -3001,6 +3100,7 @@ def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDiction
     and its file, for closing."""
     file = SqliteDictionary(path)
     # imported here: a pack opens after the first paint (400)
+    from polyglotic_desktop.core.lexicon.han import HanSplit
     from polyglotic_desktop.core.lexicon.thai import ThaiSplit
 
     split: WordSplit = (
@@ -3010,6 +3110,8 @@ def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDiction
         if language == "vi"
         else ThaiSplit(file)
         if language == "th"
+        else HanSplit(file)
+        if language == "yue"
         else SpacedSplit(language)
     )
     return BasicDictionary(file, split, language), file
@@ -3568,7 +3670,13 @@ def new_interface(
     `common_apps`: browsers and the main apps a window's Captioning list
     shows before they play (F12, 249)."""
     windows = CaptionWindows(
-        store, MIC, parent=desktop, keys=keys, learner=tools, on_top=on_top
+        store,
+        MIC,
+        parent=desktop,
+        keys=keys,
+        learner=tools,
+        on_top=on_top,
+        offer_set_up=True,  # the first window on a PC asks its languages (465)
     )
     found_apps = desktop.apps
     assert found_apps is not None  # the app is always given an app list
@@ -4160,9 +4268,9 @@ def once_running(call: Callable[[], None]) -> None:
 
 def captioning(value: AppSettings) -> bool:
     """Something is chosen to caption: apps, everything the PC plays, or
-    the mic. A listening session is open only then - until the learner
-    picks (the first run starts paused, polyglotic-hq DECISIONS.md #25) it
-    would hold one of the account's places on the server for nothing
+    the mic. A listening session is open only then - while nothing is (a
+    learner who stopped everything; a new learner captions everything the
+    PC plays from the first launch, polyglotic-hq 484) it would hold one of the account's places on the server for nothing
     (project 051's note; 061). Learning syncs in sync sessions meanwhile."""
     return value.source_chosen or value.caption_mic
 
@@ -4756,9 +4864,9 @@ class SourcePlan:
 def plan_sources(
     value: AppSettings, apps: list[PlayingApp], per_app: bool
 ) -> SourcePlan:
-    """The sources the settings ask for. Nothing until the learner picks
-    what to caption (the first run starts paused: polyglotic-hq
-    DECISIONS.md #25). Everything the PC plays when they chose it, or
+    """The sources the settings ask for. Nothing while nothing is chosen
+    to caption (a new learner's is everything the PC plays: polyglotic-hq
+    484). Everything the PC plays when it's chosen, or
     picked apps Windows can't capture on their own (Windows 10); otherwise
     each app picked that's open - one that isn't joins when it opens -
     and everything else beside the one app, if it's on. The mic follows
@@ -5322,6 +5430,30 @@ def learner_dictionary(english: bool) -> str:
     return "ecdict" if english else "cedict"
 
 
+ENGLISH_IN_ENGLISH = "ecdict-en.sqlite"
+"""The English dictionary with its meanings in English (decision 0211):
+ECDICT's entries, IDs, inflections and ranks, the meanings from Open
+English WordNet and our own (`tools.dictionaries.english_meanings`)."""
+
+
+def learner_dictionary_file(dictionaries: Path, english: bool, meanings: str) -> Path:
+    """The learner's dictionary's file: CC-CEDICT's; for an English
+    learner, ECDICT's in English (`ENGLISH_IN_ENGLISH`) unless the
+    interface's meanings language is Chinese (`pack_meanings`) - the
+    user, 2026-11-17: "only display the chinese if the app main language
+    is set to chinese" (polyglotic-hq 447, decision 0211). A folder
+    without the English file (an older build) gives ECDICT's in Chinese,
+    as before."""
+    chinese = dictionaries / f"{learner_dictionary(english)}.sqlite"
+    if not english or meanings == "zh":
+        return chinese
+    in_english = dictionaries / ENGLISH_IN_ENGLISH
+    if in_english.is_file():
+        return in_english
+    log.info("dictionary: %s not found, English meanings in Chinese", in_english.name)
+    return chinese
+
+
 def installer_packs(dictionaries: Path) -> Path:
     """Where a build made with `--packs` keeps the packs it carries
     (decision 0124): `dictionaries/packs` in the app's folder, read before
@@ -5346,9 +5478,11 @@ def learner_tools(
     english: bool,
     data: Path,
     basic: dict[str, BasicDictionary] | None = None,
+    meanings: str = "en",
 ) -> tuple[LearningTools, BackgroundLearningStore]:
     """The learner's vocabulary and dictionary: CC-CEDICT for a Chinese
-    learner, ECDICT for an English one. Each language keeps its own
+    learner, ECDICT for an English one - its meanings in `meanings`, the
+    interface's (`learner_dictionary_file`). Each language keeps its own
     learning data, so switching back finds it as it was. With it, the
     learning store, for closing at the end.
 
@@ -5364,7 +5498,7 @@ def learner_tools(
     (`open_learning_store`). One from a newer app still does. One found
     damaged later - a save failing - is set aside then, nothing more is
     saved this session, and the tools' `learning_damaged` says so."""
-    file = GuardedDictionary(dictionaries / f"{learner_dictionary(english)}.sqlite")
+    file = GuardedDictionary(learner_dictionary_file(dictionaries, english, meanings))
     dictionary: ChineseDictionary | EnglishDictionary = (
         EnglishDictionary(file) if english else ChineseDictionary(file)
     )
@@ -5487,6 +5621,7 @@ def tools_beside(
     languages: LearningLanguages,
     own: str | None = None,
     packs_ready: Collection[str] | None = None,
+    meanings: str = "en",
 ) -> list[tuple[LearningTools, BackgroundLearningStore]]:
     """Every other full language learned (`open_beside`; until one is, every
     other full one but the learner's `own`) and every pack language learned
@@ -5514,7 +5649,7 @@ def tools_beside(
             # the same basic packs as the main tools' (327): one dict for all
             if tier_of(code) is Tier.FULL:
                 other, store = learner_tools(
-                    dictionaries, code == "en", data, tools.basic
+                    dictionaries, code == "en", data, tools.basic, meanings
                 )
             else:
                 other, store = pack_learner_tools(code, data, tools.basic)
@@ -6063,62 +6198,6 @@ def check_parity(report: Path, system: OsAdapters, os_name: str) -> int:
     return 0 if ok else 1
 
 
-NOT_ANYONES = "0000-0000-0000-0000"
-"""An invite code of the right shape that is no one's: `--check-tls` signs
-in with it to hear the server's own "that code isn't valid"."""
-
-
-class _NoCredentials:
-    """`--check-tls`'s credential store: nothing kept, nothing saved."""
-
-    def load(self) -> None:
-        return None
-
-    def install_id(self) -> None:
-        return None
-
-    def save(self, credentials: object) -> None:
-        pass
-
-    def forget(self) -> None:
-        pass
-
-
-def check_tls(report: Path, server: str, app: AppInfo) -> int:
-    """Secure connections from this copy to `server` (polyglotic-hq 512,
-    run on GitHub's Mac): the roots this copy trusts (`tls.roots`), the
-    server's `/health` over `tls.urlopen`, and sign-in's own path with a
-    code that's no one's (`NOT_ANYONES`), expecting the server's answer
-    that it isn't valid - not a network failure. Nothing is saved; no
-    token can come back. Writes what was found to `report` as JSON; 0 if
-    both reached the server."""
-    import urllib.request
-
-    from polyglotic_desktop.connection import sign_in, tls
-    from polyglotic_desktop.core.shared.client import USER_AGENT
-
-    found: dict[str, object] = {"server": server, "roots": tls.roots()}
-    health = urllib.request.Request(
-        f"{server}/health", headers={"User-Agent": USER_AGENT}
-    )
-    try:
-        with tls.urlopen(health, sign_in.TIMEOUT_SEC) as response:
-            found["health"] = response.status
-    except Exception as e:  # noqa: BLE001 - reported by type: it's the point
-        found["health"] = f"{type(e).__name__}: {e}"
-    answer = sign_in.redeem(server, NOT_ANYONES, _NoCredentials(), app)
-    found["sign_in"] = type(answer).__name__
-    if isinstance(answer, sign_in.RedeemFailed):
-        found["sign_in_failed"] = {
-            "why": answer.why,
-            "unreachable": str(answer.unreachable),
-        }
-    found["ok"] = found["health"] == 200 and isinstance(answer, sign_in.InviteNotValid)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(json.dumps(found, indent=2), encoding="utf-8")
-    return 0 if found["ok"] else 1
-
-
 PACK_CHECKED = {
     "unpacked": True,
     "opened": True,
@@ -6270,7 +6349,7 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
         choices=["en", "zh"],
         default=None,
         help="developers: the dictionary packs' meanings in English or Chinese,"
-        " whatever the interface's language",
+        " and English's dictionary's, whatever the interface's language",
     )
     parser.add_argument(
         "--packs-from",
@@ -6297,9 +6376,6 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--check-capture", type=Path, help=argparse.SUPPRESS)
     # GitHub's Mac only (polyglotic-hq 428): refused off a Mac
     parser.add_argument("--check-parity", type=Path, help=argparse.SUPPRESS)
-    # GitHub's Mac (polyglotic-hq 512): secure connections to --server, and
-    # sign-in's path with a code that's no one's
-    parser.add_argument("--check-tls", type=Path, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -6341,7 +6417,7 @@ def this_copy(argv: list[str] | None = None) -> FirstCopy | None:
     if any(a.startswith(VELOPACK_HOOK) for a in [*given, *sys.argv[1:]]):
         return None
     args = arguments(argv)
-    if args.check_install or args.check_capture or args.check_parity or args.check_tls:
+    if args.check_install or args.check_capture or args.check_parity:
         return None
     try:
         system = os_adapters()
@@ -6405,9 +6481,6 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(check_capture(args.check_capture, system.os_name(), to_capture))
     if args.check_parity:
         sys.exit(check_parity(args.check_parity, system, system.os_name()))
-    if args.check_tls:
-        about = AppInfo.this_app(system.os_name(), system.os_version())
-        sys.exit(check_tls(args.check_tls, args.server, about))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
@@ -6464,6 +6537,9 @@ def main(argv: list[str] | None = None) -> None:
     store = JsonSettingsStore(data / "settings.json")
     # its translators are the app's children; its fonts once they're read
     start_interface_language(app, store, fonts_listed=False)
+    # the meanings language of the packs and of English's dictionary: the
+    # interface's, Chinese or English (decision 0211)
+    meanings = args.basic_dictionaries or pack_meanings(interface_language.in_use(app))
     # the app's own text size (Settings > App), on Windows': every window from
     # the first run's on is built at it (polyglotic-hq 292, decision 0084)
     style.use_app_text_size(Settings(store).value.app_text_size)
@@ -6510,7 +6586,7 @@ def main(argv: list[str] | None = None) -> None:
     ) -> tuple[LearningTools, BackgroundLearningStore]:
         """The learner's tools, made while Windows' fonts are read; then the
         fonts, before the first run's first screen or the window."""
-        made = learner_tools(args.dictionaries, english, data, basic)
+        made = learner_tools(args.dictionaries, english, data, basic, meanings)
         start_parts.done("learner")  # the dictionary opened, the data read
         # Windows' first-time work for a first window, in what would be a
         # wait for the fonts (polyglotic-hq 322, decision 0113)
@@ -6562,7 +6638,7 @@ def main(argv: list[str] | None = None) -> None:
         system.app_capture_support(),
         desktop.settings,
         system.windows_build(),
-        app_info.app_version,
+        release.version,  # this copy's, not what it tells the server (0224)
         system.app_capture_trial,
         desktop,
     )
@@ -7051,8 +7127,10 @@ def main(argv: list[str] | None = None) -> None:
     packs = PackDelivery(
         packs_folder(args.dictionaries, data),
         basic,
-        args.basic_dictionaries or pack_meanings(interface_language.in_use(app)),
-        pack_reader(app_info.app_version),
+        meanings,
+        # this copy's version: from source `0.0.0`, which reads any pack's
+        # `min_app` - not what it tells the server (decision 0224)
+        pack_reader(release.version),
         *pack_storage(args.packs_from, args.packs_key, installed()),
         metered=system.metered,
         also=(installer_packs(args.dictionaries),),
@@ -7366,10 +7444,13 @@ def main(argv: list[str] | None = None) -> None:
     per_app.changed.connect(apps_changed)
     hub.apps_again = per_app.try_again
 
-    wire_caption_windows(windows, desktop, send_settings)
+    mic_asked = wire_caption_windows(
+        windows, desktop, send_settings, system.mic_permission
+    )
     follow_settings(windows, desktop, sources)
-    # the mic is captured only while a window shows my speech
-    desktop.caption_mic.setChecked(windows.show_mic_anywhere)
+    # the mic is captured only while a window shows my speech - with the
+    # OS's leave, where it asks (478)
+    mic_asked.wanted(windows.show_mic_anywhere)
     wire_transcripts(transcripts, desktop)
     # what the learner does, in the listening session's summary (project 134)
     transcripts.opened.connect(lambda: connection.did(SessionAction.TRANSCRIPT_OPENED))
@@ -7438,7 +7519,7 @@ def main(argv: list[str] | None = None) -> None:
             return
         tried.update(wanted)  # once each: one left closed isn't tried again
         for other, store in tools_beside(
-            tools, args.dictionaries, data, languages, own, packs.ready
+            tools, args.dictionaries, data, languages, own, packs.ready, meanings
         ):
             beside.append(store)
             other.vocabulary.subscribe(to_server)

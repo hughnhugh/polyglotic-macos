@@ -5,8 +5,8 @@ structure, sections 5 and 7).
   first line shows - its tone, title, the details after it and its button
   - from the session's state (`HomeState`), with today's rules: Paused
   first (and how to resume); "Pick what to caption" while nothing is
-  chosen and no session needs to be (the first run starts paused, and
-  ends here - DECISIONS.md #25); otherwise the connection's state - signed
+  chosen and no session needs to be (DECISIONS.md #25; since 484 a new
+  learner's first run captions everything the PC plays); otherwise the connection's state - signed
   out with Sign in in place of Pause (109's section 7); an update needed
   with what to do (polyglotic-hq 137); stopped with how to start again
   (polyglotic-hq 228); waiting to try again with why the server can't be

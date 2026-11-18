@@ -827,9 +827,8 @@ def _status(status: AppStatus) -> str:
         AppStatus.PLAYING: _tr("playing"),
         AppStatus.QUIET: _tr("quiet"),
         AppStatus.NOT_OPEN: _tr("not open - captioned when it opens"),
-        AppStatus.EVERYTHING: pc_or_mac(
-            _tr("everything the PC plays"), _tr("everything the Mac plays")
-        ),
+        # its name says "Everything the PC plays" since 484 (it was "This PC")
+        AppStatus.EVERYTHING: _tr("every app's sound"),
         AppStatus.EVERYTHING_ELSE: pc_or_mac(
             _tr("everything else the PC plays"), _tr("everything else the Mac plays")
         ),
@@ -1130,6 +1129,12 @@ class PickerCard(Card):
             wrap=True,
         )
         self.add(self.nothing)
+        # everything the PC plays - a new learner's from the first launch: what
+        # that takes in, said plainly once, and the one click to an app instead
+        # (polyglotic-hq 484)
+        self.everything_said = label("", "Dim", wrap=True)
+        self.everything_said.setObjectName("picker.everything_said")
+        self.add(self.everything_said)
         self.rows_box = QVBoxLayout()
         self.rows_box.setSpacing(0)
         self.add(self.rows_box)
@@ -1161,9 +1166,9 @@ class PickerCard(Card):
         adding.setSpacing(4)
         add_head = QHBoxLayout()
         # the list's order on hover, not beside it (151's P2, 176)
-        add_title = label(_tr("Add an app"), "RowTitle")
-        add_title.setToolTip(_tr("apps with sound open, playing first"))
-        add_head.addWidget(add_title)
+        self.add_title = label(_tr("Add an app"), "RowTitle")
+        self.add_title.setToolTip(_tr("apps with sound open, playing first"))
+        add_head.addWidget(self.add_title)
         add_head.addStretch(1)
         refresh = _button(_tr("Refresh"), "ghost")
         refresh.setObjectName("picker.refresh")
@@ -1272,8 +1277,8 @@ class PickerCard(Card):
         self.everything.set_value(value.whole_system)
         self.everything.buttons[0].setEnabled(value.per_app)
         self._note(value)
-        if value.whole_system:
-            self.count.setText(pc_or_mac(_tr("This PC"), _tr("This Mac")))
+        if value.whole_system:  # its row says it: no count of apps
+            self.count.setText("")
         elif value.everything_else:
             self.count.setText(_tr("1 app + everything else"))
         else:
@@ -1282,7 +1287,12 @@ class PickerCard(Card):
             )
         self._everything_else(value)
         self.nothing.setVisible(not value.captioned)
-        self.adding.setVisible(not value.whole_system and value.per_app)
+        self._everything_said(value)
+        # with everything the PC plays too: one click captions an app instead
+        self.adding.setVisible(value.per_app)
+        self.add_title.setText(
+            _tr("Caption one app instead") if value.whole_system else _tr("Add an app")
+        )
         self._addable(value)
         if value.you is not None:
             self.you.show_row(value.you, hidden=False)
@@ -1310,6 +1320,33 @@ class PickerCard(Card):
                     "its row's microphone, or its window's settings"
                 )
             )
+
+    def _everything_said(self, value: Picker) -> None:
+        """While everything the PC plays is captioned: that a call's voices
+        are in it too - said plainly once, where it's chosen (polyglotic-hq
+        484: a new learner's first launch captions it) - and, where apps
+        can be captioned one by one, that one click on an app below
+        captions it instead."""
+        self.everything_said.setVisible(value.whole_system)
+        if not value.whole_system:
+            return
+        if value.per_app:
+            said = pc_or_mac(
+                _tr(
+                    "Everything the PC plays is captioned - a call's voices too. "
+                    "To caption one app instead, choose it below."
+                ),
+                _tr(
+                    "Everything the Mac plays is captioned - a call's voices too. "
+                    "To caption one app instead, choose it below."
+                ),
+            )
+        else:
+            said = pc_or_mac(
+                _tr("Everything the PC plays is captioned - a call's voices too."),
+                _tr("Everything the Mac plays is captioned - a call's voices too."),
+            )
+        self.everything_said.setText(said)
 
     def _note(self, value: Picker) -> None:
         """What "Everything the PC plays" is: on hover where apps can be

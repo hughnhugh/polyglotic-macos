@@ -150,6 +150,25 @@
     </message>
 </context>
 <context>
+    <name>SavedSentences</name>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>{found} of %Ln saved sentence(s)</source>
+        <translation>
+            <numerusform>{found} of %Ln saved sentence</numerusform>
+            <numerusform>{found} of %Ln saved sentences</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
+        <source>%Ln saved sentence(s)</source>
+        <translation>
+            <numerusform>%Ln saved sentence</numerusform>
+            <numerusform>%Ln saved sentences</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>SignInDialog</name>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -235,10 +254,27 @@
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>%Ln saved sentence(s) written to {name}.</source>
+        <translation>
+            <numerusform>%Ln saved sentence written to {name}.</numerusform>
+            <numerusform>%Ln saved sentences written to {name}.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>%Ln word(s) written to {name}.</source>
         <translation>
             <numerusform>%Ln word written to {name}.</numerusform>
             <numerusform>%Ln words written to {name}.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
+        <source>And %Ln saved sentence(s).</source>
+        <extracomment>after &quot;12 words written to polyglotic-words.apkg.&quot;</extracomment>
+        <translation>
+            <numerusform>And %Ln saved sentence.</numerusform>
+            <numerusform>And %Ln saved sentences.</numerusform>
         </translation>
     </message>
     <message numerus="yes">

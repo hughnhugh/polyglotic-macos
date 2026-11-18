@@ -11,7 +11,8 @@ and the dot paint themselves in the theme's colours at paint time.
 
 import math
 import time
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 
 from PySide6.QtCore import QRect, QRectF, QSize, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import (
@@ -19,6 +20,7 @@ from PySide6.QtGui import (
     QDesktopServices,
     QFont,
     QFontMetrics,
+    QFontMetricsF,
     QIcon,
     QPainter,
     QPaintEvent,
@@ -511,6 +513,82 @@ def label(
     return found
 
 
+@contextmanager
+def focus_kept(within: QWidget) -> Iterator[None]:
+    """Rows inside `within` made again - a language's card on Learning, a
+    category's row on Words - with the keyboard where it was: on the same
+    control of the row made again (or the same one, not made again), found
+    by its object name and which of its parts had the keyboard (a
+    `Segmented`'s choice); with none, on nothing. Wrap the making again in
+    it; each old row is hidden as it goes.
+
+    Qt hands the keyboard of a widget that hides to the next control along,
+    and a page scrolls that one into view: as each old card hid in turn,
+    Learning ran down to about its middle at every setting changed
+    (polyglotic-hq 480). Taken from the old control before its row hides,
+    the keyboard is handed to nothing; given to the new one, nothing
+    scrolls - the page stays where it was. The window's keyboard, active or
+    not: one made again behind a dialog (Change your level's) has it back
+    on the same control when the dialog closes."""
+    focused = within.window().focusWidget()
+    place = _place(focused, within) if focused is not None else None
+    if focused is None or place is None:
+        yield
+        return
+    name, part = place
+    focused.clearFocus()
+    yield
+    again = _named(within, name)
+    if len(again) != 1:
+        return  # gone with its row, or not one to be sure of
+    found: QWidget | None = again[0]
+    if part >= 0:
+        parts = again[0].findChildren(QWidget)
+        found = parts[part] if part < len(parts) else None
+    if found is not None and type(found) is type(focused):
+        found.setFocus(Qt.FocusReason.OtherFocusReason)
+
+
+def _place(focused: QWidget, within: QWidget) -> tuple[str, int] | None:
+    """Where `focused` is inside `within`: the object name of the nearest
+    widget at or above it that no other in `within` has, and which of that
+    one's widgets it is (-1: that one). None: not inside `within`, or under
+    no such name (a label's role, a card's "Card")."""
+    if not within.isAncestorOf(focused):
+        return None
+    named = focused
+    while not named.objectName():
+        parent = named.parentWidget()
+        if parent is None or parent is within:
+            return None
+        named = parent
+    same = _named(within, named.objectName())
+    if len(same) != 1 or same[0] is not named:
+        return None
+    part = -1 if named is focused else named.findChildren(QWidget).index(focused)
+    return named.objectName(), part
+
+
+def _named(within: QWidget, name: str) -> list[QWidget]:
+    """The widgets called `name` in `within` that show, or will once they're
+    shown - not one in a row hidden as it goes (it's deleted later), nor
+    one hidden on purpose. A row just made isn't shown until the event loop
+    comes round, and a second making again can come first: "Mark known"
+    shows the page twice in one click."""
+    found = []
+    for each in within.findChildren(QWidget, name):
+        widget: QWidget | None = each
+        while widget is not None and widget is not within:
+            if widget.isHidden() and widget.testAttribute(
+                Qt.WidgetAttribute.WA_WState_ExplicitShowHide
+            ):
+                break
+            widget = widget.parentWidget()
+        else:
+            found.append(each)
+    return found
+
+
 class Card(QFrame):
     """A titled card: a column of rows."""
 
@@ -715,6 +793,40 @@ class Combo(QComboBox):
             DROP,
         )
         painter.end()
+
+
+LABEL_GAP = 6
+"""Between a choice's icon and its name, as Qt's stylesheet style draws a
+`Combo`'s label (CE_ComboBoxLabel: its rule's `spacing`, 6 when none is
+set) - where Qt's own measure of the box allows 4."""
+
+
+class FittingCombo(Combo):
+    """A `Combo` whose width is its own (a fixed size policy): its widest
+    choice fits as it's drawn, at the text size now. Qt's measure
+    (`QComboBox.sizeHint`) takes a name's ink, a pixel or two inside its
+    advance in Chinese, and 4 px beside an icon where the label is drawn
+    6 px from it: at the largest text size Settings' sections dropdown cut
+    "應用程式" (App, Traditional Chinese) 2 px short (polyglotic-hq 500).
+    Measured again whenever a choice changes (`AdjustToContents`)."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+
+    def sizeHint(self) -> QSize:
+        hint = super().sizeHint()
+        drawn, measured = QFontMetricsF(self.font()), self.fontMetrics()
+        icon = self.iconSize().width()
+        needed = held = 0
+        for index in range(self.count()):
+            name = self.itemText(index)
+            beside = not self.itemIcon(index).isNull()
+            advance = math.ceil(drawn.horizontalAdvance(name))
+            needed = max(needed, advance + (icon + LABEL_GAP if beside else 0))
+            ink = measured.boundingRect(name).width()
+            held = max(held, ink + (icon + 4 if beside else 0))  # Qt's own
+        return QSize(hint.width() + max(0, needed - held), hint.height())
 
 
 class GlyphButton(QToolButton):

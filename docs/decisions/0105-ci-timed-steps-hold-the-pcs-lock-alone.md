@@ -27,7 +27,7 @@ From 2026-11-13 14:00 UTC, with agents busy, the start was 472 ms beside the oth
 An alone holder waits for the shared ones to finish and keeps new ones waiting. Shared holders run beside each other, as before.
 
 - **Where:** in ProgramData, because no runner folder is open to both accounts (`icacls`, 2026-11-14).
-  - `C:\polyglotic-runner`: `polyglotic-runner:(M)`, `hughn:(RX)`, Administrators, SYSTEM.
+  - `C:\polyglotic-runner`: `polyglotic-runner:(M)`, the user's own account `(RX)`, Administrators, SYSTEM.
   - `C:\polyglotic-runner2`: the same for `polyglotic-runner2`.
   - So neither runner can open a lock in the other's folder. In ProgramData every account may make files and read the others' (`Users:(OI)(CI)(RX)`, `(CI)(WD,AD,WEA,WA)`), and reading is enough to lock. The user's own account (agents, `local_ci.sh`) can take it there too.
 - **Never left held:** a `LockFileEx` lock belongs to the open file handle. Windows releases it when the handle closes, and closes every handle of a process when the process ends. So a cancelled, timed-out or killed job can't leave the PC locked (tested: a killed holder's lock is free at once).

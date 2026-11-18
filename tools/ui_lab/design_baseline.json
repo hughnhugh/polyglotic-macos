@@ -27,6 +27,8 @@
  "ui_next.w4_help_learning_set_aside | line_length | Faint (QLabel)",
  "ui_next.w4_learning_set_aside | line_length | Banner (QLabel)",
  "ui_next.w4_learning_unsaved | line_length | Banner (QLabel)",
+ "ui_next.w4_settings_app_scrolled | misaligned | Dim (QLabel)",
+ "ui_next.w4_settings_app_scrolled | text_overlap | Dim (QLabel)",
  "ui_next.w4_settings_dictation | line_length | Faint (QLabel)",
  "ui_next.w4_settings_lab | line_length | Faint (QLabel)"
 ]

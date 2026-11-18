@@ -11,6 +11,8 @@ hands over:
   `TypingPermission` - where the OS lets an app type only with the
   learner's leave (a Mac's Accessibility), whether it has it and where to
   give it (polyglotic-hq 438);
+- `MicPermission` - where the OS asks the learner before an app hears the
+  microphone (a Mac's), whether it may and the question (polyglotic-hq 478);
 - `KeyState` - whether a key or the mouse is held now, for the settings
   popovers;
 - `LightTaskbar` - whether the taskbar the tray icon sits on is light;
@@ -107,6 +109,24 @@ class TypingPermission(Protocol):
 
     def open_settings(self) -> None:
         """Opens the OS's settings where the learner gives it."""
+        ...
+
+
+class MicPermission(Protocol):
+    """The OS's leave to hear the microphone, where it asks the learner for
+    one (a Mac: Privacy & Security > Microphone; Windows asks none) - asked
+    when a caption window first shows the learner's speech (polyglotic-hq
+    478)."""
+
+    def allowed(self) -> bool | None:
+        """True if given, False if refused (or not the learner's to give),
+        None if never asked yet - asking nothing."""
+        ...
+
+    def ask(self, answered: Callable[[bool], None]) -> None:
+        """The OS's own question, with the app's line saying why (a Mac
+        app's `NSMicrophoneUsageDescription`); `answered` is called once
+        with the answer, on any thread."""
         ...
 
 

@@ -6,7 +6,8 @@ whole, Save to open, after Add to deck, the learner's dictionary damaged
 (polyglotic-hq 199), the speaker saying the word and no voice for it (286)
 - and two of W1's marks: a word's links on hover, and
 a word both linked and in the deck. And other learners' cards (215): an
-English learner's (ECDICT's meanings are Chinese) and a Japanese word's
+English learner's (ECDICT's meanings are Chinese; and in English,
+polyglotic-hq 447) and a Japanese word's
 (a basic dictionary, Sudachi's word split), each pinned, checked by the
 font checks (`japanese_font`, `chinese_font`) like every state.
 
@@ -37,8 +38,10 @@ from polyglotic_desktop.core.listening.display import (
     ReadingColour,
     ReadingSize,
     ReadingSystem,
+    RowKind,
     WordLinks,
 )
+from polyglotic_desktop.core.listening.selection import Place, Selection
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordStatus
 from polyglotic_desktop.main import LearningOffer
 from polyglotic_desktop.perf import budgets
@@ -545,9 +548,51 @@ def _other_learners_windows(
 
 
 def english_card(lab: Lab) -> QWidget:
-    """An English learner's card (ECDICT's meanings are Chinese): the
-    commonest Chinese on a card, which 198 found in MS UI Gothic."""
+    """An English learner's card in a Chinese interface (ECDICT's meanings
+    are Chinese): the commonest Chinese on a card, which 198 found in MS UI
+    Gothic."""
     dictionary = EnglishDictionary(english_sample())
+    tools = _tools(dictionary, ENGLISH_FREQUENCY.id)
+    found = _other_learners_windows(lab, tools, ENGLISH_CAPTIONS, EN)
+    _pinned(found, "awkward")
+    lab.pump()
+    return _photo(found)
+
+
+ENGLISH_IN_ENGLISH = FakeDictionaryFile(
+    [
+        EntryRecord(
+            "ecdict:awkward",
+            "awkward",
+            "",
+            "ˈɔ:kwəd",
+            (
+                '(adj) causing inconvenience: "they arrived at an awkward time"',
+                "(adj) lacking grace or skill in manner or movement or performance",
+                "(adj) difficult to handle or manage especially because of shape",
+            ),
+            2500,
+        ),
+        EntryRecord(
+            "ecdict:thing",
+            "thing",
+            "",
+            "θiŋ",
+            ("(noun) an object; something you do not name exactly",),
+            180,
+        ),
+    ],
+    {"awkward": ["ecdict:awkward"], "thing": ["ecdict:thing"]},
+)
+"""An English learner's dictionary in English (`ecdict-en.sqlite`,
+decision 0211), as built from Open English WordNet: "awkward"'s."""
+
+
+def english_card_in_english(lab: Lab) -> QWidget:
+    """An English learner's card in an interface that isn't Chinese: its
+    meanings in English, each with its part of speech, the first with an
+    example (polyglotic-hq 447)."""
+    dictionary = EnglishDictionary(ENGLISH_IN_ENGLISH)
     tools = _tools(dictionary, ENGLISH_FREQUENCY.id)
     found = _other_learners_windows(lab, tools, ENGLISH_CAPTIONS, EN)
     _pinned(found, "awkward")
@@ -698,6 +743,39 @@ def _tools(
     return LearningTools(vocabulary, dictionary)
 
 
+def _sentence_offered(lab: Lab) -> CaptionWindow:
+    """Words selected across the newest captions in view (up to three),
+    from part way through the first: the card that saves them as a
+    sentence, under the selection's last line (polyglotic-hq 459)."""
+    shown = window_of(windows(lab))
+    lines = [line for line, _, _ in shown.canvas.placed]
+    first, last = lines[-min(3, len(lines))], lines[-1]
+    shown.held.hold(
+        Selection(
+            Place(first.key, 0, 2, RowKind.ORIGINAL),
+            Place(last.key, 0, 4, RowKind.ORIGINAL),
+        )
+    )
+    lab.time("sentence_offered", shown._offer_sentence, budget=budgets.CLICK)
+    lab.pump()
+    return shown
+
+
+def sentence_offered(lab: Lab) -> QWidget:
+    card = _sentence_offered(lab).sentence_card
+    assert card is not None and card.isVisible()
+    return card
+
+
+def sentence_saved(lab: Lab) -> QWidget:
+    """The same, a category clicked: "Saved to Tricky" for a moment."""
+    card = _sentence_offered(lab).sentence_card
+    assert card is not None
+    card.buttons[-1].click()
+    lab.pump()
+    return card
+
+
 STATES = [
     State(f"ui_next.{name}", run, gated=True, scene=scene)
     for name, run, scene in (
@@ -707,6 +785,8 @@ STATES = [
         ("w3_not_found", not_found, False),
         ("w3_learning_action", learning_action, False),
         ("w3_save_to", save_to, False),
+        ("w3_sentence_offered", sentence_offered, False),
+        ("w3_sentence_saved", sentence_saved, False),
         ("w3_dictionary_out", dictionary_out, False),
         ("w3_say_it", say_it, False),
         ("w3_no_voice", no_voice, False),
@@ -719,6 +799,7 @@ STATES = [
         ("w1_pinyin_custom", pinyin_custom, True),
         ("w1_zhuyin", zhuyin, True),
         ("w3_english_card", english_card, False),
+        ("w3_english_card_in_english", english_card_in_english, False),
         ("w3_japanese_card", japanese_card, False),
         ("w3_russian_card", russian_card, False),
         ("w3_german_compound", german_compound, False),

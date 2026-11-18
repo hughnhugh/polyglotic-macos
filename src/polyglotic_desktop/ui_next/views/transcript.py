@@ -59,6 +59,7 @@ from polyglotic_desktop.ui_next.views.captions import (
 )
 from polyglotic_desktop.ui_next.views.placement import Rect, Size
 from polyglotic_desktop.ui_next.views.scroll import Scroll
+from polyglotic_desktop.ui_next.views.sentences import Piece
 
 STORED_KEY = "transcripts"
 """The setting the transcripts' own choices are stored under, by app."""
@@ -286,6 +287,22 @@ def selected_text(lines: Sequence[Line], one: Spot, other: Spot) -> str:
             break
         said += [line.rows[i].text[a:b] for i, a, b in selected_spans(line, one, other)]
     return "\n".join(said)
+
+
+def selected_pieces(lines: Sequence[Line], one: Spot, other: Spot) -> list[Piece]:
+    """What's selected between `one` and `other`, as rows with their
+    selected characters, in reading order: what `views.sentences` saves
+    (polyglotic-hq 459)."""
+    start, end = sorted((one, other))
+    found: list[Piece] = []
+    first = bisect.bisect_left(lines, start[0], key=lambda ln: ln.key)
+    for line in lines[first:]:
+        if line.key > end[0]:
+            break
+        found += [
+            (line, line.rows[i], a, b) for i, a, b in selected_spans(line, one, other)
+        ]
+    return found
 
 
 @dataclass(frozen=True, slots=True)

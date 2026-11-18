@@ -163,7 +163,9 @@ def import_deck(
     path = files.path(".apkg")
     if cards:
         export = learner.vocabulary.export_anki(learner.describe)
-        path.write_bytes(learner.deck_writer.build(export.notes, **cards))
+        listen, recall = cards.get("listen", False), cards.get("recall", False)
+        built = learner.deck_writer.build(export.notes, listen=listen, recall=recall)
+        path.write_bytes(built)
     else:
         export_deck(learner, path)
     options = anki._backend.get_import_anki_package_presets()

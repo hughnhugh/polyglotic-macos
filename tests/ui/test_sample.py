@@ -33,6 +33,9 @@ from polyglotic_desktop.ui_next.views.home import AddableApp, Sample, sample_sta
 
 QUIET = AddableApp("Chat App", "Chat App", playing=False)
 PLAYING = AddableApp("Video Player", "Video Player", playing=True)
+NOTHING = AppSettings(whole_system=False)
+"""Nothing chosen to caption: the sample is offered (a new learner captions
+everything the PC plays since 484)."""
 
 
 def test_a_sample_for_each_language_learned_with_its_credits() -> None:
@@ -101,7 +104,7 @@ def test_the_sample_is_a_source_of_its_own_until_an_app_is_chosen() -> None:
     pipeline = FakePipeline()
     apps = ChangingAppList(PlayingApp(30, "Chat App", True, SourceCategory.CALL))
     sources = sources_with_sample(pipeline, apps)
-    sources.follow(AppSettings())  # the first run: nothing chosen
+    sources.follow(NOTHING)  # the first run: nothing chosen
     assert pipeline.calls == []
     sources.play_sample(True)
     assert pipeline.calls == [f"sample:{SourceCategory.OTHER}:sample:False"]
@@ -109,7 +112,9 @@ def test_the_sample_is_a_source_of_its_own_until_an_app_is_chosen() -> None:
     assert pipeline.calls[-1] == "remove:sample"
     sources.play_sample(True)  # again: from its start
     assert pipeline.calls[-1] == f"sample:{SourceCategory.OTHER}:sample:False"
-    sources.follow(AppSettings(apps=("Chat App",)))  # an app chosen ends it
+    sources.follow(
+        AppSettings(whole_system=False, apps=("Chat App",))
+    )  # an app chosen ends it
     assert not sources.sample_on
     assert "remove:sample" in pipeline.calls
     assert pipeline.calls[-1].startswith("app-1:")
@@ -160,7 +165,7 @@ def test_played_to_its_end_it_ends_and_its_window_stays() -> None:
         everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
         sample_capture=recorded,
     )
-    sources.follow(AppSettings())
+    sources.follow(NOTHING)
     sources.play_sample(True)
     assert not sources.sample_done  # playing
     pipeline.heard = frozenset({SAMPLE})
@@ -184,16 +189,18 @@ def test_played_to_its_end_it_ends_and_its_window_stays() -> None:
     assert sources.sample_on and not sources.sample_kept
     captures[-1].over = True
     sources.end_sample()
-    sources.follow(AppSettings(apps=("Chat App",)))  # an app chosen: it goes
+    sources.follow(
+        AppSettings(whole_system=False, apps=("Chat App",))
+    )  # an app chosen: it goes
     assert not sources.sample_shown
 
 
 def test_its_window_stays_after_the_end(qapp: QApplication) -> None:
-    store = MemorySettingsStore({"learning": "zh"})
+    store = MemorySettingsStore({"learning": "zh", "whole_system": False})
     desktop = DesktopApp(store, None, QuietApps())
     built = new_interface(desktop, store, None, per_app=True)
     sources = sources_with_sample(FakePipeline(), ChangingAppList())
-    sources.follow(AppSettings())
+    sources.follow(NOTHING)
     sources.sample_kept = True  # ended
     follow_settings(built.windows, desktop, sources)
     assert "sample" in built.windows.windows
@@ -237,7 +244,7 @@ def test_signing_out_while_it_plays_stops_it_and_its_window_goes() -> None:
     playing aloud with nothing to caption it. It stops, as an app does."""
     pipeline = FakePipeline()
     sources = sources_with_sample(pipeline, ChangingAppList())
-    sources.follow(AppSettings())
+    sources.follow(NOTHING)
     sources.play_sample(True)
     assert pipeline.calls == [f"sample:{SourceCategory.OTHER}:sample:False"]
     sources.set_signed_in(False)
@@ -251,7 +258,7 @@ def test_nothing_is_played_while_signed_out_or_with_no_sample() -> None:
     pipeline = FakePipeline()
     sources = sources_with_sample(pipeline, ChangingAppList())
     sources.set_signed_in(False)
-    sources.follow(AppSettings())
+    sources.follow(NOTHING)
     sources.play_sample(True)
     assert pipeline.calls == []
     none = Sources(
@@ -264,7 +271,7 @@ def test_nothing_is_played_while_signed_out_or_with_no_sample() -> None:
         everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
         sample_capture=lambda: None,  # none in the language learned
     )
-    none.follow(AppSettings())
+    none.follow(NOTHING)
     none.play_sample(True)
     assert pipeline.calls == []
 
@@ -273,9 +280,19 @@ def test_listening_while_the_sample_is_on() -> None:
     """Nothing is chosen on a first run, so no listening session (#25) -
     but the sample is something to caption."""
     connection = Recording()
-    follow_choice(connection, AppSettings(), connection.listen, sample=True)  # type: ignore[arg-type]
+    follow_choice(
+        connection,  # type: ignore[arg-type]
+        NOTHING,
+        connection.listen,
+        sample=True,
+    )
     assert connection.calls == ["listen", "start"]
-    follow_choice(connection, AppSettings(), connection.listen, sample=False)  # type: ignore[arg-type]
+    follow_choice(
+        connection,  # type: ignore[arg-type]
+        NOTHING,
+        connection.listen,
+        sample=False,
+    )
     assert connection.calls[-1] == "stop listening"
 
 
@@ -287,7 +304,7 @@ class QuietApps:
 
 
 def test_home_offers_it_and_turns_it_on_and_off(qapp: QApplication) -> None:
-    store = MemorySettingsStore({"learning": "zh"})
+    store = MemorySettingsStore({"learning": "zh", "whole_system": False})
     desktop = DesktopApp(store, None, QuietApps())
     built = new_interface(desktop, store, None, per_app=True)
     hub, wanted = built.hub, []
@@ -316,8 +333,9 @@ def test_with_no_language_chosen_the_sample_is_the_running_dictionarys(
 ) -> None:
     """The first run asks no language (polyglotic-hq 293): until one is
     chosen on Learning, the sample is in the language whose dictionary
-    runs, so a first start still has one to try."""
-    store = MemorySettingsStore()
+    runs, so a learner with nothing chosen still has one to try (a first
+    start captions everything the PC plays since 484)."""
+    store = MemorySettingsStore({"whole_system": False})
     tools = tools_for(ChineseDictionary(chinese_sample()), "hsk-2025")
     assert sample_language(AppSettings(), tools) == "zh"
     assert sample_language(AppSettings(learning="en"), tools) == "en"  # chosen
@@ -337,7 +355,7 @@ def test_home_follows_it_while_it_plays_and_says_whats_next_after(
     """203's item 5: while it played, Home said "Pick what to caption /
     nothing is captioned yet" under a window that was captioning; after its
     end, nothing said what was next (208, option B)."""
-    store = MemorySettingsStore({"learning": "zh"})
+    store = MemorySettingsStore({"learning": "zh", "whole_system": False})
     desktop = DesktopApp(store, None, QuietApps())
     built = new_interface(desktop, store, None, per_app=True)
     hub, wanted = built.hub, list[bool]()
@@ -367,12 +385,12 @@ def test_once_it_has_ended_home_names_no_language_for_its_window(
     captioned yet · captions in English" - the window kept for lookups
     counted as a language in use. While it plays, it's captioning: its
     language is named (213)."""
-    store = MemorySettingsStore({"learning": "zh"})
+    store = MemorySettingsStore({"learning": "zh", "whole_system": False})
     desktop = DesktopApp(store, None, QuietApps())
     built = new_interface(desktop, store, None, per_app=True)
     hub = built.hub
     sources = sources_with_sample(FakePipeline(), ChangingAppList())
-    sources.follow(AppSettings())
+    sources.follow(NOTHING)
     sources.play_sample(True)
     follow_settings(built.windows, desktop, sources)
     desktop.set_connection(ConnectionState.LISTENING)

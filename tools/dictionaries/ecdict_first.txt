@@ -1,0 +1,58 @@
+# The first lines of an English word's Chinese meanings in ecdict.sqlite
+# (polyglotic-hq 463), where ordering ECDICT's lines by how often English
+# uses each part of speech (`ecdict_order`) still doesn't put the everyday
+# meaning first. Read by a person, with the 500 commonest words.
+#
+# One line a line, in the order the card shows them:
+#   word | line
+# A bare part of speech ("vt.") moves ECDICT's line with that label; a
+# line with text of its own ("aux. 可以, 可能") replaces ECDICT's line
+# with its label, or is added. The rest follow. A word is matched exactly
+# as ECDICT writes it ("I", "Mr").
+have | vt.
+the | art. 这, 那 (指已知或特定的人或物)
+a | art. 一(个), 一种, 每一(个)
+that | a.
+that | pron.
+will | aux. 将, 会, 愿意
+may | aux. 可能, 也许, 可以, 愿
+up | adv.
+out | adv.
+down | adv.
+right | a.
+long | a.
+please | adv.
+yes | adv.
+lot | n. 许多, 大量, 一堆, 运气, 签, 份额
+stay | vi.
+due | a.
+series | n. 系列, 连续, 序列, 丛书, 套, 串联, 级数, 组
+well | adv.
+well | interj.
+well | a.
+kid | n. 小孩, 年轻人, 小山羊
+train | n.
+face | n.
+miss | vt. 错过, 想念, 未击中, 未得到, 遗漏
+present | vt.
+present | n. 礼物, 现在
+present | a.
+sound | vi. 听起来, 发出声音, 回响
+sound | n.
+grow | vi.
+film | n. 电影, 影片, 胶卷, 薄膜
+feature | n. 特色, 特征, 特写, 容貌
+issue | n. 问题, 议题, 发行, 期刊, 后果
+account | n. 账户, 账目, 描述, 解释, 原因
+ST | abbr. 街 (Street), 圣 (Saint)
+APP | n. 应用程序, 应用
+# Given names whose ECDICT line isn't the name (polyglotic-hq 464): its
+# Robert is a police officer ([法] 警察), its Alex a file system.
+Robert | n. 罗伯特（男子名）
+Alex | n. 亚历克斯（男子名）
+# Entries that fell out of the commonest 600 when their forms stopped
+# counting for them (polyglotic-hq 464: lay, shot and bit are their own),
+# kept in the order the count gave them.
+lie | vi.
+shoot | vt.
+bite | v.

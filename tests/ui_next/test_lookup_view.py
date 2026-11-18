@@ -574,3 +574,31 @@ def test_a_word_in_a_language_with_no_dictionary_here_says_so() -> None:
     spanish = Lookup(with_spanish())  # the pack here: its own "not found"
     spanish.show("Wallace", LookupContext("Wallace."), pinned=True, language="es")
     assert spanish.card().shows is Shows.NOT_FOUND
+
+
+def test_a_name_inside_its_sentence_opens_on_the_name_first() -> None:
+    """polyglotic-hq 464: the dictionary has "Bill" as the word bill (帐单),
+    then the name. Clicked inside its sentence it's the name, as its caption
+    counted it; a sentence's first "Bill" is still the word."""
+    d = learner(english=True)
+    records = [
+        EntryRecord("ecdict:bill", "bill", "", "", ("n. 帐单",), 900),
+        EntryRecord("ecdict:Bill", "Bill", "", "", ("n. 比尔（男子名）",), None),
+    ]
+    file = FakeDictionaryFile(
+        records,
+        forms={"bill": ["ecdict:bill"], "Bill": ["ecdict:bill", "ecdict:Bill"]},
+    )
+    d.dictionary = EnglishDictionary(file)
+    lookup = Lookup(d)
+    line = "Then Bill paid the bill"
+    lookup.show("Bill", LookupContext(line), pinned=True, at=(5, 9))
+    entry = lookup.entry()
+    assert entry is not None and entry.headword == "Bill" and entry.is_name
+    assert "比尔" in lookup.card().readings[0].senses[0]
+    lookup.show("Bill", LookupContext("Bill paid"), pinned=True, at=(0, 4))
+    entry = lookup.entry()
+    assert entry is not None and entry.headword == "bill"
+    lookup.show("Bill", LookupContext(line), pinned=True)  # where: unknown
+    entry = lookup.entry()
+    assert entry is not None and entry.headword == "bill"

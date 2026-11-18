@@ -469,7 +469,9 @@ def tour() -> Step:
                      if hasattr(w, "show_section")), None)  # fmt: skip
     if sections is not None:
         window.go_to("settings")
-        for key in ("look", "timing", "speech", "dictation", "app", "lab"):
+        for key in (  # Settings' sections (settings_page.SECTIONS)
+            "look", "links", "readings", "timing", "speech", "dictation", "app", "lab",
+        ):  # fmt: skip
             try:
                 sections.show_section(key)
             except Exception as error:  # noqa: BLE001

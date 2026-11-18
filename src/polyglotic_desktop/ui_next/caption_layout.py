@@ -378,7 +378,8 @@ class CaptionLayout:
         read = source(row.text, language) if source is not None else None
         if read is None:
             return None  # not yet: the dictionary is still being read
-        if self.style.reading_system is ReadingSystem.ZHUYIN:
+        chinese = language.split("-")[0] == "zh"  # Cantonese's is Jyutping
+        if chinese and self.style.reading_system is ReadingSystem.ZHUYIN:
             read = [replace(r, text=zhuyin(r.text)) for r in read]
         found = reading_lines.ruby(row.text, read, font, self.style.reading_share)
         self._rubies[key] = found

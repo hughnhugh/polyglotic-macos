@@ -249,7 +249,9 @@ def test_minutes_and_notices_reach_home_on_the_qt_thread(qapp: QApplication) -> 
     """project 027's "What's left": the server's `minutes` and `notice` were
     only logged; now Home shows them (and the caption windows a notice,
     briefly)."""
-    desktop = DesktopApp(MemorySettingsStore(), None, FakeAppList())
+    desktop = DesktopApp(
+        MemorySettingsStore({"whole_system": False}), None, FakeAppList()
+    )
     listener = QtListener(desktop, FakePipeline())  # type: ignore[arg-type]
     minutes: list[tuple[float, object]] = []
     notices: list[str] = []
@@ -275,7 +277,9 @@ def test_captions_failing_reach_the_qt_thread_in_order_with_captions(
 ) -> None:
     """`processing_failed` from the session's thread: two in a row say
     captions are failing; a caption after them, queued behind, ends it."""
-    desktop = DesktopApp(MemorySettingsStore(), None, FakeAppList())
+    desktop = DesktopApp(
+        MemorySettingsStore({"whole_system": False}), None, FakeAppList()
+    )
     listener = QtListener(desktop, FakePipeline())  # type: ignore[arg-type]
     failing: list[bool] = []
     desktop.captions_failing.connect(failing.append)
@@ -296,17 +300,17 @@ def test_captions_failing_reach_the_qt_thread_in_order_with_captions(
 
 def test_the_sources_the_settings_ask_for() -> None:
     apps = [BROWSER, CHAT]
-    chosen = AppSettings(apps=("Web Browser",))
+    chosen = AppSettings(whole_system=False, apps=("Web Browser",))
     assert plan_sources(chosen, apps, per_app=True).apps == (
         (20, "Web Browser", SourceCategory.BROWSER),
     )
-    several = AppSettings(apps=("Chat App", "Web Browser", "Gone"))
+    several = AppSettings(whole_system=False, apps=("Chat App", "Web Browser", "Gone"))
     assert plan_sources(several, apps, per_app=True).apps == (
         (30, "Chat App", SourceCategory.CALL),
         (20, "Web Browser", SourceCategory.BROWSER),
     )  # in the order picked; one not open joins when it opens
     assert plan_sources(chosen, [], per_app=True) == plan_sources(
-        AppSettings(apps=("Gone",)), apps, True
+        AppSettings(whole_system=False, apps=("Gone",)), apps, True
     )  # not open: nothing until it is
     assert not plan_sources(chosen, [], per_app=True).whole_system
     assert plan_sources(chosen, apps, per_app=False).whole_system  # Windows 10
@@ -343,15 +347,22 @@ def test_nothing_is_captured_until_the_learner_picks() -> None:
     Before, the whole system was captured until an app was picked (#18).
     The mic follows its own switch."""
     nothing = SourcePlan((), False, False)
-    assert plan_sources(AppSettings(), [BROWSER], per_app=True) == nothing
-    assert plan_sources(AppSettings(), [BROWSER], per_app=False) == nothing
+    assert (
+        plan_sources(AppSettings(whole_system=False), [BROWSER], per_app=True)
+        == nothing
+    )
+    assert (
+        plan_sources(AppSettings(whole_system=False), [BROWSER], per_app=False)
+        == nothing
+    )
     assert plan_sources(AppSettings(caption_mic=True), [], True).mic
-    assert not AppSettings().source_chosen
-    assert AppSettings(apps=("Web Browser",)).source_chosen
+    assert not AppSettings(whole_system=False).source_chosen
+    assert AppSettings().source_chosen  # a new learner's: everything (484)
+    assert AppSettings(whole_system=False, apps=("Web Browser",)).source_chosen
     assert AppSettings(whole_system=True).source_chosen
     pipeline = FakePipeline()
     sources = sources_with(pipeline, FakeAppList())
-    sources.follow(AppSettings())
+    sources.follow(AppSettings(whole_system=False))
     assert pipeline.calls == []  # no capture started
 
 
@@ -363,7 +374,7 @@ def test_nothing_is_captured_while_signed_out() -> None:
     pipeline = FakePipeline()
     sources = sources_with(pipeline, FakeAppList())
     sources.signed_in = False  # as `main` builds it with no device token
-    value = AppSettings(apps=("Web Browser",), caption_mic=True)
+    value = AppSettings(whole_system=False, apps=("Web Browser",), caption_mic=True)
     sources.follow(value)
     assert pipeline.calls == []  # an app picked, the mic on: nothing captured
     sources.set_signed_in(True)
@@ -380,7 +391,7 @@ def test_nothing_is_captured_while_signed_out() -> None:
 def test_sources_follow_the_settings_and_only_restart_on_a_change() -> None:
     pipeline = FakePipeline()
     sources = sources_with(pipeline, FakeAppList())
-    value = AppSettings(apps=("Web Browser",), caption_mic=True)
+    value = AppSettings(whole_system=False, apps=("Web Browser",), caption_mic=True)
     sources.follow(value)
     assert pipeline.calls == [
         f"app-1:{SourceCategory.BROWSER}:app 20:False",
@@ -408,7 +419,9 @@ def test_an_app_closing_or_opening_leaves_the_other_sources_running() -> None:
     pipeline = FakePipeline()
     apps = ChangingAppList(BROWSER, CHAT)
     sources = sources_with(pipeline, apps)
-    value = AppSettings(apps=("Web Browser", "Chat App"), caption_mic=True)
+    value = AppSettings(
+        whole_system=False, apps=("Web Browser", "Chat App"), caption_mic=True
+    )
     sources.follow(value)
     assert pipeline.calls == [
         f"app-1:{SourceCategory.BROWSER}:app 20:False",
@@ -445,16 +458,20 @@ def test_two_instances_of_one_app_keep_one_source_whatever_their_order() -> None
     changes (polyglotic-hq project 059, Low 6)."""
     other = replace(BROWSER, process_id=25)
     assert plan_sources(
-        AppSettings(apps=("Web Browser",)), [other, BROWSER], per_app=True
+        AppSettings(whole_system=False, apps=("Web Browser",)),
+        [other, BROWSER],
+        per_app=True,
     ).apps == ((20, "Web Browser", SourceCategory.BROWSER),)
     silent = replace(BROWSER, playing=False)
     assert plan_sources(
-        AppSettings(apps=("Web Browser",)), [silent, other], per_app=True
+        AppSettings(whole_system=False, apps=("Web Browser",)),
+        [silent, other],
+        per_app=True,
     ).apps == ((25, "Web Browser", SourceCategory.BROWSER),)  # the one playing
     pipeline = FakePipeline()
     apps = ChangingAppList(other, BROWSER)
     sources = sources_with(pipeline, apps)
-    value = AppSettings(apps=("Web Browser",))
+    value = AppSettings(whole_system=False, apps=("Web Browser",))
     sources.follow(value)
     assert pipeline.calls == [f"app-1:{SourceCategory.BROWSER}:app 20:False"]
     pipeline.calls.clear()
@@ -482,7 +499,9 @@ def test_everything_else_leaves_its_app_out_so_nothing_is_heard_twice() -> None:
         on_capture=told.append,
         everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
     )
-    value = AppSettings(apps=("Chat App",), everything_else=True, caption_mic=True)
+    value = AppSettings(
+        whole_system=False, apps=("Chat App",), everything_else=True, caption_mic=True
+    )
     sources.follow(value)
     assert pipeline.calls == [
         f"app-1:{SourceCategory.CALL}:app 30:False",
@@ -520,7 +539,12 @@ def test_the_sources_that_can_hear_the_app_are_hushed_while_it_speaks() -> None:
     pipeline = FakePipeline()
     sources = sources_with(pipeline, ChangingAppList(CHAT))
     sources.follow(
-        AppSettings(apps=("Chat App",), everything_else=True, caption_mic=True)
+        AppSettings(
+            whole_system=False,
+            apps=("Chat App",),
+            everything_else=True,
+            caption_mic=True,
+        )
     )
     assert pipeline.hear_the_app == {
         "app-1": False,
@@ -537,9 +561,13 @@ def test_everything_else_is_never_beside_two_apps_or_on_windows_10() -> None:
     before) it isn't captured - it would hear the second app twice."""
     pipeline = FakePipeline()
     sources = sources_with(pipeline, ChangingAppList(BROWSER, CHAT))
-    sources.follow(AppSettings(apps=("Chat App", "Web Browser"), everything_else=True))
+    sources.follow(
+        AppSettings(
+            whole_system=False, apps=("Chat App", "Web Browser"), everything_else=True
+        )
+    )
     assert not any("everything_else" in call for call in pipeline.calls)
-    value = AppSettings(apps=("Chat App",), everything_else=True)
+    value = AppSettings(whole_system=False, apps=("Chat App",), everything_else=True)
     assert plan_sources(value, [CHAT], per_app=False) == SourcePlan((), True, False)
 
 
@@ -561,13 +589,13 @@ def test_sources_say_which_app_each_source_is_for_its_label() -> None:
         lambda found: shown.append(dict(found)),
         everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
     )
-    sources.follow(AppSettings(apps=("Chat App", "Web Browser")))
+    sources.follow(AppSettings(whole_system=False, apps=("Chat App", "Web Browser")))
     assert shown[-1] == {
         "app-1": ("Chat App", "Chat"),
         "app-2": ("Web Browser", "Web Browser"),
     }
     apps.apps = [BROWSER]  # closed: its captions keep their label
-    sources.follow(AppSettings(apps=("Chat App", "Web Browser")))
+    sources.follow(AppSettings(whole_system=False, apps=("Chat App", "Web Browser")))
     assert shown[-1][SourceId("app-1")] == ("Chat App", "Chat")
     # the known app, as the tracking plan names it, rides with its source - for the summary
     # only (DECISIONS.md #30); an app not on the list has none

@@ -42,10 +42,13 @@ BASIC = (
     *("ja", "es", "ko", "fr", "de", "pt", "it", "ru", "vi", "nl"),
     *("id", "ar", "hi", "pl"),
     *("uk", "fa", "sv", "cs", "ro", "el", "tl", "mk"),
+    "yue",
 )
 """Languages with a basic dictionary: #65's ten for the public launch,
 then the batches paired with English (DECISIONS #175; polyglotic-hq 380
-and 387) - each offered once its pack is published."""
+and 387), then Cantonese - its own language, not a variety of Chinese
+(DECISIONS #179; decision 0160) - each offered once its pack is
+published."""
 
 
 class Tier(StrEnum):

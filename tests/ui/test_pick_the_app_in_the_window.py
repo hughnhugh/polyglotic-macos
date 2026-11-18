@@ -93,7 +93,7 @@ def test_a_common_app_not_playing_yet_is_captioned_once_it_plays() -> None:
     session - so a browser picked before it plays waits, and joins then."""
     from polyglotic_desktop.ports.capture import PlayingApp, SourceCategory
 
-    value = AppSettings(apps=("chrome.exe",))
+    value = AppSettings(whole_system=False, apps=("chrome.exe",))
     assert plan_sources(value, [], per_app=True).apps == ()  # nothing to catch yet
     playing = [PlayingApp(4242, "chrome.exe", True, SourceCategory.BROWSER)]
     assert [a[0] for a in plan_sources(value, playing, per_app=True).apps] == [4242]

@@ -90,6 +90,13 @@ Each slider's ends were found by trying them (284's report says how):
   these rows (one state), every window's like the rest of the Lab; off
   again puts the three back as they were. **Parts lined up** has its own
   click (`lined_up`, `with_lined_up`), beside it, in every way of filling.
+- **Parts placed** (`placing`; polyglotic-hq 458, decision 0215, the user,
+  2026-11-17: "placing characters in such a way to reducing distance
+  between all arrow length sums ... a 3rd alternate lab mode could be
+  clean even space everything"): in New layout, where a line's parts go
+  in the room the line has - packed (the default, today's), nearest the
+  words they are linked to, or a full line's spread evenly. Choosing one
+  turns New layout on.
 - **Learning load** (polyglotic-hq 324; the user, 2026-11-14: "an
   alternate viewing mode [with] a configurable learning capacity/load"):
   `load` turns the mode on - a set number of the next words past what the
@@ -255,6 +262,22 @@ class Join(StrEnum):
     """Nothing but a space."""
 
 
+class Placing(StrEnum):
+    """Where a line pair's parts go in the room the pair has (polyglotic-hq
+    458; the user, 2026-11-17: "placing characters in such a way to
+    reducing distance between all arrow length sums ... a 3rd alternate
+    lab mode could be clean even space everything"). New layout's
+    (`views.flow`): the lines, and what is on each, are the same in all
+    three."""
+
+    PACKED = "packed"
+    """Today's: each part straight after the one before."""
+    NEAREST = "nearest"
+    """Each part where its word links are shortest."""
+    EVENLY = "evenly"
+    """A full line's parts spread over the width, the gaps alike."""
+
+
 class LoadRare(StrEnum):
     """How the words outside the learning load that aren't known yet look
     while the mode is on."""
@@ -309,6 +332,8 @@ class CaptionLab:
     """The new layout (340): the one layout lays the captions out; with
     Line by line, captions run on into each other, and parts are lined up
     over their counterparts."""
+    placing: Placing = Placing.PACKED
+    """Where a line pair's parts go in its room, in New layout (458)."""
 
     @property
     def line_by_line(self) -> bool:
@@ -368,7 +393,8 @@ class CaptionLab:
         greyed-out switches: "I can't seem to select these settings"):
         turning `run_on` on turns New layout on and Captions fill the width
         to Line by line; `aligned`, New layout alone - it lines parts up
-        however captions fill the width (372); dimming the words outside
+        however captions fill the width (372); a placing of the parts other
+        than packed, New layout too (458); dimming the words outside
         the load turns Learning load on; choosing what stands between
         clauses while captions don't fill the width sets them to
         Translation below (polyglotic-hq 368). Turning one off, or later
@@ -377,6 +403,8 @@ class CaptionLab:
         if changes.get("run_on") is True:
             changes = {"flow": True, "fill": Fill.PAIRED, **changes}
         if changes.get("aligned") is True:
+            changes = {"flow": True, **changes}
+        if changes.get("placing") in (Placing.NEAREST, Placing.EVENLY):
             changes = {"flow": True, **changes}
         if "join" in changes and self.fill is Fill.CLAUSES:
             changes = {"fill": Fill.STACKED, **changes}
@@ -449,6 +477,8 @@ class CaptionLab:
             found["fill"] = Fill(str(stored["fill"]))
         if stored.get("join") in {k.value for k in Join}:
             found["join"] = Join(str(stored["join"]))
+        if stored.get("placing") in {k.value for k in Placing}:
+            found["placing"] = Placing(str(stored["placing"]))
         gap = _number(stored.get("arrival_gap"), ARRIVAL_GAP_RANGE)
         if gap is not None:
             found["arrival_gap"] = gap
