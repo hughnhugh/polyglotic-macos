@@ -89,6 +89,9 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Fixed
 
+- On a Mac, a caption window's settings and its language chip's choices
+  stay in front of the window: they went behind it within a second of
+  opening.
 - English cards open on the right word more often: "does" on do (not a
   deer), "am" on be, and lower-case "north", "i", "i'm" and "mr" are
   found. A few dozen rarer forms (ruined, panicked, scrolling) open on

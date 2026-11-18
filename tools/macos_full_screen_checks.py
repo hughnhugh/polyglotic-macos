@@ -27,6 +27,10 @@ and owner, front to back (`platform.macos.window_list`): never a picture.
 - sign: the dictation sign shown over the full-screen app (the interface
   never hands it over): shown although the app isn't active, and set by
   the watch's call too, above TextEdit.
+- popover_in_front: the caption window's settings popover opened over
+  it: in front of it in the window list as it opens, after the windows are
+  put on top again (what a caption's arrival does) and a moment later
+  (polyglotic-hq 515: it went behind).
 - click: unlocked, a click on it (System Events' `click at`): TextEdit
   stays in front and full-screen.
 - typed: dictation's `type_text` types "héllo 你好 😀" into TextEdit, read
@@ -601,10 +605,11 @@ class Run:
         def level() -> int:
             return int(objc.send(ns, "level", restype=ctypes.c_long))
 
-        self.until(lambda: level() == on_top.LEVEL, 3)
+        # the caption windows' level, or above them (515: `on_top.ABOVE`)
+        self.until(lambda: level() >= on_top.LEVEL, 3)
         number = int(objc.send(ns, "windowNumber", restype=ctypes.c_long))
         shown, is_above = above(window_list.on_screen(), number, self.textedit)
-        ok = level() == on_top.LEVEL and shown and is_above
+        ok = level() >= on_top.LEVEL and shown and is_above
         self.add(
             "sign",
             PASS if ok else FAIL,
@@ -615,6 +620,77 @@ class Run:
         )
         sign.hide()
         sign.deleteLater()
+
+    def popover_in_front(self) -> None:
+        """A caption window's settings popover open over it: in front of its
+        window in macOS's window list as it opens, after the caption windows
+        are put on top again (what a caption's arrival does, at most once a
+        second) and a moment later (polyglotic-hq 515: Qt made the popover
+        at its window's level, and ordering the window to the front put it
+        behind)."""
+        from polyglotic_desktop.platform.macos import objc, on_top, window_list
+
+        self.full_screen(False)
+        self.window.set_locked(False)
+        self.window.setGeometry(100, 100, 600, 160)
+        self.window.show()
+        self.on_top.put_on_top([int(self.window.winId())])
+        self.wait(0.5)
+        self.window.toggle_settings()
+        popover = self.window.popover
+        self.until(lambda: popover is not None and popover.isVisible(), 2)
+        if popover is None or not popover.isVisible():
+            self.add("popover_in_front", UNKNOWN, "the popover didn't open")
+            return
+
+        def number(widget: Any) -> int:
+            ns = on_top.window_of(int(widget.winId()))
+            return int(objc.send(ns, "windowNumber", restype=ctypes.c_long))
+
+        def order() -> dict[str, Any]:
+            listed = [w.number for w in window_list.on_screen()]
+            mine, theirs = number(self.window), number(popover)
+            return {
+                "window": listed.index(mine) if mine in listed else None,
+                "popover": listed.index(theirs) if theirs in listed else None,
+            }
+
+        self.wait(0.5)
+        rows = {"opened": order()}
+        self.on_top.put_on_top([int(self.window.winId())])
+        self.wait(0.3)
+        rows["put on top"] = order()
+        self.wait(1.5)
+        rows["after"] = order()
+        front = all(
+            r["popover"] is not None and r["window"] is not None
+            and r["popover"] < r["window"]
+            for r in rows.values()
+        )  # fmt: skip
+        overlaps = popover.frameGeometry().intersects(self.window.frameGeometry())
+        self.add(
+            "popover_in_front",
+            PASS if front else FAIL,
+            "the popover stayed in front of its caption window"
+            if front
+            else "the popover went behind its caption window",
+            rows=rows,
+            overlaps=overlaps,
+            popover=self.window_facts_of(popover),
+        )
+        popover.close()
+        self.wait(0.3)
+
+    def window_facts_of(self, widget: Any) -> dict[str, Any]:
+        from polyglotic_desktop.platform.macos import objc, on_top
+
+        ns = on_top.window_of(int(widget.winId()))
+        if not ns:
+            return {}
+        return {
+            "level": int(objc.send(ns, "level", restype=ctypes.c_long)),
+            "style_mask": int(objc.send(ns, "styleMask", restype=ctypes.c_ulong)),
+        }
 
     def click(self) -> None:
         facts = self.window_facts()
@@ -928,6 +1004,7 @@ class Run:
         self.guarded("shown_after_full_screen", self.shown_after_full_screen)
         self.guarded("locked", self.locked)
         self.guarded("sign", self.sign)
+        self.guarded("popover_in_front", self.popover_in_front)
         self.guarded("click", self.click)
         self.guarded("typed", self.typed)
         self.guarded("key_combination", self.key_combination)

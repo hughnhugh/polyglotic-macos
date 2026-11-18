@@ -20,8 +20,15 @@ the interface makes any caption window) when run from source.
   (`QNSPanel`): the caption windows, the joined window, the lookup card -
   set so (`above_everything`), never hidden when the app isn't active,
   then ordered to the front without activating the app; and the app's
-  other always-on-top panels showing (the dictation sign, a settings
-  popover) set so too, where they are.
+  other always-on-top panels showing - a caption window's settings
+  popover and its language chip's, a strip's tip, the copy tip, the
+  dictation sign, a menu - set so one level higher (`ABOVE`) and ordered
+  to the front too: above the caption windows they came from
+  (`lifted`). Qt makes a popover at its caption window's own level, and
+  the caption windows are ordered to the front at every caption, so at the
+  same level a popover went behind its window within a second of opening
+  (the user, 2026-11-18, on 0.1.8: "caption settings modal is behind
+  overlay / caption window"; polyglotic-hq 515).
 - `MacOnTop.game_in_front` is always True: Qt puts a window back at its
   own level whenever its flags change (locking hides and shows it), so
   the interface's `keep_on_top` sets the windows again each time it asks -
@@ -40,7 +47,8 @@ own windows are asked and set.
 import ctypes
 import ctypes.util
 import logging
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
+from dataclasses import dataclass
 from functools import cache
 
 from polyglotic_desktop.platform.macos import objc
@@ -52,8 +60,19 @@ LEVEL = 1000
 floating (3), status bar (25) and modal panel (8) levels stay below)."""
 QT_ON_TOP_LEVEL = 8
 """`NSModalPanelWindowLevel`: where Qt puts an always-on-top window - the
-dictation sign and a settings popover too, which the interface doesn't
-hand to `put_on_top`."""
+dictation sign, and a settings popover made while its caption window was
+still at Qt's level - which the interface doesn't hand to `put_on_top`."""
+POP_UP_MENU_LEVEL = 101
+"""`NSPopUpMenuWindowLevel`: where Qt puts a pop-up (a menu)."""
+ABOVE = LEVEL + 1
+"""The app's other always-on-top panels showing (`lifted`): one level above
+the caption windows, so ordering those to the front never covers them."""
+LIFTED_FROM = frozenset({QT_ON_TOP_LEVEL, POP_UP_MENU_LEVEL, LEVEL, ABOVE})
+"""The levels an always-on-top panel of Qt's is at: Qt's own, a pop-up's,
+the screen saver's (a tool tip's, and a window's made with a caption window
+as its parent: Qt starts a window at least at its parent's level) - or
+already lifted. An ordinary window or a dialog (0) and a plain tool window
+(the floating level, 3) are left where they are, as on Windows."""
 
 CAN_JOIN_ALL_SPACES = 1 << 0
 MOVE_TO_ACTIVE_SPACE = 1 << 1
@@ -137,9 +156,9 @@ def _app() -> int:
     return int(objc.send(objc.cls("NSApplication"), "sharedApplication") or 0)
 
 
-def above_everything(window: int) -> bool:
-    """Sets an `NSWindow` as `put_on_top` wants it; True if anything
-    changed. Each is asked first, and set only if it differs."""
+def above_everything(window: int, level: int = LEVEL) -> bool:
+    """Sets an `NSWindow` as `put_on_top` wants it, at `level`; True if
+    anything changed. Each is asked first, and set only if it differs."""
     changed = False
     behaviour = _number(window, "collectionBehavior")
     wanted = collection_behaviour(behaviour)
@@ -169,8 +188,8 @@ def above_everything(window: int) -> bool:
             argtypes=[ctypes.c_ulong],
         )
         changed = True
-    if _number(window, "level") != LEVEL:
-        objc.send(window, "setLevel:", LEVEL, restype=None, argtypes=[ctypes.c_long])
+    if _number(window, "level") != level:
+        objc.send(window, "setLevel:", level, restype=None, argtypes=[ctypes.c_long])
         changed = True
     if _flag(window, "hidesOnDeactivate"):  # Qt's tool windows hide otherwise
         objc.send(
@@ -215,6 +234,11 @@ class MacOnTop:
             log.warning(
                 "macOS kept the app in the Dock: captions stay below full-screen apps"
             )
+        self._handed: set[int] = set()
+        """The window numbers `put_on_top` has been handed: the caption
+        windows, the joined window, the lookup card - numbers, which the
+        window server hands out afresh, not `NSWindow`s, whose memory a
+        later window may reuse. Every other panel showing is `lifted`."""
 
     def game_in_front(self) -> bool:
         """Always: Qt sets a window's level again whenever its flags change,
@@ -224,31 +248,54 @@ class MacOnTop:
     def put_on_top(self, windows: Sequence[int]) -> None:
         """`windows` (native handles: `NSView`s, bottom first) above
         everything, on every Space, in that order - none activated, nothing
-        moved or resized."""
+        moved or resized; then the app's other always-on-top panels showing
+        above them (`lifted`)."""
         with objc.pool():
             for view in windows:
                 window = window_of(view)
                 if not window:
                     continue
+                self._handed.add(_number(window, "windowNumber"))
                 above_everything(window)
                 objc.send(window, "orderFrontRegardless", restype=None)
-            for window in left_at_qts_level():
-                above_everything(window)
+            for window in lifted(panels_showing(), self._handed):
+                above_everything(window, ABOVE)
+                objc.send(window, "orderFrontRegardless", restype=None)
 
 
-def left_at_qts_level() -> list[int]:
-    """The app's other always-on-top panels showing at Qt's level (the
-    dictation sign, a settings popover)."""
-    panel = objc.cls("NSPanel")
+@dataclass(frozen=True)
+class Panel:
+    """One of the app's panels showing: its `NSWindow`, number and level."""
+
+    window: int
+    number: int
+    level: int
+
+
+def lifted(showing: Sequence[Panel], handed: Collection[int]) -> list[int]:
+    """The panels showing that go above the caption windows: every one at an
+    always-on-top level of Qt's (`LIFTED_FROM`) that isn't one `put_on_top`
+    was handed (`handed`: window numbers) - a settings popover, a strip's
+    tip, the dictation sign, a menu. A dialog or a plain tool window stays
+    where it is."""
     return [
-        window
+        panel.window
+        for panel in showing
+        if panel.number not in handed and panel.level in LIFTED_FROM
+    ]
+
+
+def panels_showing() -> list[Panel]:
+    """The app's panels (Qt's tool windows, pop-ups and tips) showing now."""
+    kind = objc.cls("NSPanel")
+    return [
+        Panel(window, _number(window, "windowNumber"), _number(window, "level"))
         for window in objc.items(objc.send(_app(), "windows"))
         if _flag(window, "isVisible")
-        and _number(window, "level") == QT_ON_TOP_LEVEL
         and objc.send(
             window,
             "isKindOfClass:",
-            panel,
+            kind,
             restype=ctypes.c_bool,
             argtypes=[ctypes.c_void_p],
         )

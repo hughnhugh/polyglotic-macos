@@ -31,11 +31,12 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
-from PySide6.QtCore import QPoint, QRect, Qt
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QAbstractButton, QApplication, QWidget
 
@@ -172,6 +173,122 @@ def picture_of_screen(name: str, rect: QRect) -> None:
     kit.RESULTS["pictures"].append({"file": path.name, "what": name, "screen": True})
 
 
+TRACE: list[tuple[Any, ...]] = []
+"""The caption window's mouse, move and resize events during one drag."""
+
+
+class Tracer(QObject):
+    """Records the caption window's mouse, move and resize events (`TRACE`)."""
+
+    KINDS: ClassVar[dict[QEvent.Type, str]] = {
+        QEvent.Type.MouseButtonPress: "press",
+        QEvent.Type.MouseButtonRelease: "release",
+        QEvent.Type.MouseMove: "move",
+        QEvent.Type.Resize: "resize",
+        QEvent.Type.Move: "moved",
+        QEvent.Type.Enter: "enter",
+        QEvent.Type.Leave: "leave",
+        QEvent.Type.NonClientAreaMouseButtonPress: "nc-press",
+    }
+
+    def __init__(self, captions: Any) -> None:
+        super().__init__(captions)
+        self.captions = captions
+        self.began = time.monotonic()
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        kind = self.KINDS.get(event.type())
+        if kind is not None and len(TRACE) < 400:
+            at: Any = None
+            if hasattr(event, "globalPosition"):
+                g = event.globalPosition()
+                at = (round(g.x()), round(g.y()))
+            drag = getattr(self.captions, "_drag", None)
+            TRACE.append((
+                round(time.monotonic() - self.began, 3), kind, at,
+                self.captions.geometry().getRect(),
+                str(drag.edges) if drag is not None else None,
+                type(watched).__name__,
+            ))  # fmt: skip
+        return False
+
+
+class _Point(ctypes.Structure):
+    _fields_ = (("x", ctypes.c_double), ("y", ctypes.c_double))
+
+
+class _Rect(ctypes.Structure):
+    _fields_ = (
+        ("x", ctypes.c_double),
+        ("y", ctypes.c_double),
+        ("width", ctypes.c_double),
+        ("height", ctypes.c_double),
+    )
+
+
+def system_cursor() -> dict[str, Any]:
+    """The cursor macOS shows now: its hot spot and size, and the arrow's."""
+    from polyglotic_desktop.platform.macos import objc
+
+    def facts(cursor: int) -> tuple[float, float, float, float]:
+        spot = objc.send(cursor, "hotSpot", restype=_Point)
+        image = objc.send(cursor, "image")
+        size = objc.send(image, "size", restype=_Point)
+        return (spot.x, spot.y, size.x, size.y)
+
+    try:
+        with objc.pool():
+            kind = objc.cls("NSCursor")
+            now = objc.send(kind, "currentSystemCursor")
+            return {
+                "now": facts(now) if now else None,
+                "arrow": facts(objc.send(kind, "arrowCursor")),
+            }
+    except Exception as error:  # noqa: BLE001
+        return {"error": repr(error)}
+
+
+ACTIVE_ALWAYS = 0x80
+ENTERED_AND_EXITED, MOVED, IN_VISIBLE_RECT = 0x01, 0x02, 0x200
+
+
+def track_always(widget: QWidget) -> dict[str, Any]:
+    """A tracking area on the window's view that's active even while the
+    app isn't, owned by Qt's own mouse-move helper if it has one."""
+    from polyglotic_desktop.platform.macos import objc
+
+    lib = objc.runtime().objc
+    p = ctypes.c_void_p
+    lib.object_getClass.restype = p
+    lib.object_getClass.argtypes = [p]
+    lib.class_getInstanceVariable.restype = p
+    lib.class_getInstanceVariable.argtypes = [p, ctypes.c_char_p]
+    lib.object_getIvar.restype = p
+    lib.object_getIvar.argtypes = [p, p]
+    view = int(widget.winId())
+    kind = lib.object_getClass(view)
+    ivar = lib.class_getInstanceVariable(kind, b"m_mouseMoveHelper")
+    helper = lib.object_getIvar(view, ivar) if ivar else None
+    owner = int(helper or view)
+    options = ENTERED_AND_EXITED | MOVED | ACTIVE_ALWAYS | IN_VISIBLE_RECT
+    area = objc.send(
+        objc.send(objc.cls("NSTrackingArea"), "alloc"),
+        "initWithRect:options:owner:userInfo:",
+        _Rect(0, 0, 0, 0),
+        options,
+        owner,
+        None,
+        argtypes=[_Rect, ctypes.c_ulong, p, p],
+    )
+    objc.send(view, "addTrackingArea:", area, restype=None, argtypes=[p])
+    return {
+        "view_class": objc.text(objc.send(view, "className")),
+        "helper": bool(helper),
+        "owner_class": objc.text(objc.send(owner, "className")),
+        "areas": len(objc.items(objc.send(view, "trackingAreas"))),
+    }
+
+
 _CLICLICK: list[str] = []
 
 
@@ -233,13 +350,29 @@ def hover(state: str, captions: Any) -> kit.Step:
               captions.band_shown or captions.hovered, facts)  # fmt: skip
 
 
-def resize(state: str, captions: Any, how: str) -> kit.Step:
+def resize(
+    state: str, captions: Any, how: str, inset: int = 2, only: tuple[str, ...] = ()
+) -> kit.Step:
+    """Each handle dragged out by 40 x 30 from `inset` px inside the window's
+    edge (negative: outside it)."""
     for name, (sx, sy) in HANDLES.items():
+        if only and name not in only:
+            continue
         captions.setGeometry(START)
         yield kit.pause(0.5)
         g = captions.frameGeometry()
-        px = g.x() + (2 if sx < 0 else g.width() - 3 if sx > 0 else g.width() // 2)
-        py = g.y() + (2 if sy < 0 else g.height() - 3 if sy > 0 else g.height() // 2)
+        px = g.x() + (
+            inset if sx < 0 else g.width() - 1 - inset if sx > 0 else g.width() // 2
+        )
+        py = g.y() + (
+            inset if sy < 0 else g.height() - 1 - inset if sy > 0 else g.height() // 2
+        )
+        if how != "qt":
+            to_corner = cliclick(f"m:{px},{py}")
+            yield kit.wait(lambda d=to_corner: done(d), 10, "cliclick")
+            yield kit.pause(0.3)
+        cursor_there = system_cursor()
+        TRACE.clear()
         dx, dy = 40 * sx, 30 * sy
         local = QPoint(px - g.x(), py - g.y())
         image = captions.grab().toImage()
@@ -253,7 +386,7 @@ def resize(state: str, captions: Any, how: str) -> kit.Step:
                 captions, Qt.MouseButton.LeftButton, pos=local + QPoint(dx, dy)
             )
         else:
-            dragging = cliclick(f"m:{px},{py}", f"dd:{px},{py}",
+            dragging = cliclick(f"dd:{px},{py}",
                                 f"dm:{px + dx // 2},{py + dy // 2}",
                                 f"dm:{px + dx},{py + dy}", f"du:{px + dx},{py + dy}")  # fmt: skip
             yield kit.wait(lambda d=dragging: done(d), 10, "cliclick")
@@ -266,11 +399,13 @@ def resize(state: str, captions: Any, how: str) -> kit.Step:
         )
         facts = {
             "state": state, "how": how, "handle": name, "pressed": (px, py),
-            "alpha_there": alpha, "before": g.getRect(), "after": after.getRect(),
-            "app_active": app_active(),
+            "inset": inset, "alpha_there": alpha, "before": g.getRect(),
+            "after": after.getRect(), "app_active": app_active(),
+            "cursor_there": cursor_there, "trace": list(TRACE),
         }  # fmt: skip
         FINDINGS["resize"].append({**facts, "ok": ok})
-        kit.check(f"{state} {how}: {name} resizes", ok, facts)
+        kit.check(f"{state} {how} inset {inset}: {name} resizes", ok,
+                  {k: v for k, v in facts.items() if k != "trace"})  # fmt: skip
 
 
 def order_check(
@@ -437,23 +572,34 @@ def qa() -> kit.Step:
     FINDINGS["facts"]["app_active_with_textedit_in_front"] = app_active()
     picture_of_screen("start", captions.frameGeometry())
 
+    tracer = Tracer(captions)
+    captions.installEventFilter(tracer)
+    handle = captions.windowHandle()
+    if handle is not None:
+        handle.installEventFilter(tracer)
     for state in ("inactive", "active"):
         if state == "active":
             activate()
             yield kit.pause(1.0)
         yield from guarded(f"{state} hover", hover(state, captions))
         yield from guarded(f"{state} resize", resize(state, captions, "mouse"))
+        yield from guarded(f"{state} resize outside",
+                           resize(state, captions, "mouse", inset=-2,
+                                  only=("right", "bottom_right", "left")))  # fmt: skip
         yield from guarded(f"{state} popovers", popovers(state, captions))
         if state == "inactive":
             yield from textedit_in_front()
     yield from guarded("qt resize", resize("active", captions, "qt"))
-    # the same real drags once the window takes every click
-    take_every_click(captions)
-    FINDINGS["facts"]["after_take_every_click"] = ns_facts(captions)
+    # hover while another app is in front, with a tracking area always active
     yield from textedit_in_front()
-    yield from guarded(
-        "every-click resize", resize("inactive-every-click", captions, "mouse")
-    )
+    try:
+        FINDINGS["facts"]["track_always"] = track_always(captions)
+    except Exception:  # noqa: BLE001
+        FINDINGS["facts"]["track_always"] = traceback.format_exc()[-800:]
+    yield kit.pause(0.5)
+    yield from guarded("always hover", hover("inactive-always", captions))
+    yield from guarded("always resize", resize("inactive-always", captions, "mouse"))
+    yield from guarded("always popovers", popovers("inactive-always", captions))
     # locked and unlocked once (Qt sets ignoresMouseEvents NO then)
     captions.set_locked(True)
     yield kit.pause(0.6)

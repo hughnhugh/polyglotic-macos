@@ -122,7 +122,7 @@ on:
       old_tree:
         description: A public snapshot to run 515's probe on too (e.g. 0.1.8's)
         type: string
-        default: "9fb63fd231"
+        default: ""
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -212,7 +212,12 @@ jobs:
 
       - name: 515's probe (this tree)
         if: ${{ !cancelled() && inputs.qa515 }}
-        run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 300
+        run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
+
+      - name: 515's Chinese voices (what the Mac says)
+        if: ${{ !cancelled() && inputs.qa515 }}
+        continue-on-error: true
+        run: uv run --no-sync python -m tools.macos_audio515 "$OUT/qa515/audio"
 
       - name: 515's probe (an older public snapshot's app)
         if: ${{ !cancelled() && inputs.qa515 && inputs.old_tree != '' }}
@@ -396,6 +401,7 @@ jobs:
             ${{ env.OUT }}/updates/
             ${{ env.OUT }}/qa515/**/*.png
             ${{ env.OUT }}/qa515/**/*.json
+            ${{ env.OUT }}/qa515/**/*.wav
           retention-days: 1
           if-no-files-found: ignore
 
