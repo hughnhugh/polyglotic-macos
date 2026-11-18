@@ -1,5 +1,5 @@
 """The lookup card's "say it" (polyglotic-hq 286): a pinned card's speaker
-says its word in the right voice, at its own pace then slower; a click
+says its word in the right voice, at its own pace every time (518); a click
 while it speaks stops it, and so does the card closing or another word; R
 does the same unless a text field has the keyboard; with no voice it says
 so and leads to Windows' speech settings; the app's own sound is handed
@@ -15,12 +15,16 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QApplication, QLineEdit, QWidget
 from tests.ui_next.test_lookup_view import learner
 
-from polyglotic_desktop.ports.speaker import Ended, Sounding, Voice
+from polyglotic_desktop.ports.speaker import Ended, Quality, Sounding, Voice
 from polyglotic_desktop.ui_next import glyphs
-from polyglotic_desktop.ui_next.lookup_card import LookupCard
+from polyglotic_desktop.ui_next.lookup_card import LookupCard, better_voice_steps
 from polyglotic_desktop.ui_next.views.lookup import LookupContext, WordAt
 from polyglotic_desktop.ui_next.views.placement import Rect
-from polyglotic_desktop.ui_next.views.speech import MAC_SPEECH_SETTINGS, SPEECH_SETTINGS
+from polyglotic_desktop.ui_next.views.speech import (
+    MAC_SPEECH_SETTINGS,
+    SPEECH_SETTINGS,
+    BetterVoice,
+)
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 
 AREA = Rect(0, 0, 1920, 1040)
@@ -139,9 +143,12 @@ def test_a_pinned_card_says_its_word_and_a_hover_card_has_no_button(
     assert glyph(shown) is glyphs.Glyph.SPEAKING and shown.tip("say") == "Stop (R)"
     finish(qapp, speaker)
     assert glyph(shown) is glyphs.Glyph.SPEAKER
-    assert shown.tip("say") == "Say it again, slower (R)"
-    shown.do("say")  # the second time: slower
-    assert speaker.said[-1] == ("电脑", "zh-cn-1", 0.7)
+    assert shown.tip("say") == "Say it (R)"
+    shown.do("say")  # every time at its own pace, never slower (518)
+    finish(qapp, speaker)
+    shown.do("say")
+    assert speaker.said == [("电脑", "zh-cn-1", 1.0)] * 3
+    assert shown.tip("say") == "Stop (R)"
 
 
 def test_a_click_while_it_speaks_stops_it(
@@ -317,4 +324,70 @@ def test_without_speech_wired_the_card_is_as_it_was(qapp: QApplication) -> None:
         card.close_card()
         card.close()
         card.deleteLater()
+        qapp.processEvents()
+
+
+TINGTING = Voice("compact.zh-CN.Tingting", "Tingting", "zh-CN", Quality.BASIC)
+"""A Mac's compact Chinese voice (polyglotic-hq 515's Mac)."""
+
+
+def test_a_basic_voice_brings_the_better_voice_notice_until_silenced(
+    qapp: QApplication,
+) -> None:
+    """518: each time the word plays in a basic voice the card says how to
+    add a better one, with "Don't show again" and Dismiss; ticked and
+    dismissed, never again for the language."""
+    quiet: list[str] = []
+    speaker = Speaker((TINGTING, DAVID))
+    speech = WordSpeech(
+        speaker, open_url=Opened(), better=BetterVoice(lambda: quiet, quiet.append)
+    )
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        assert not has(card, "voice_dismiss")
+        card.do("say")
+        assert speaker.said == [("电脑", TINGTING.id, 1.0)]
+        assert has(card, "voice_never") and has(card, "voice_dismiss")
+        steps = [t.text for t in card._painted.texts]
+        assert better_voice_steps("zh") in steps  # where a Mac adds a better one
+        card.do("voice_dismiss")  # not ticked: gone for now only
+        assert not has(card, "voice_dismiss") and quiet == []
+        finish(qapp, speaker)
+        card.do("say")  # every time it plays
+        assert has(card, "voice_dismiss")
+        card.do("voice_never")
+        assert any("☑" in run.text for run in card._painted.runs)
+        card.do("voice_dismiss")
+        assert quiet == ["zh"] and not has(card, "voice_dismiss")
+        finish(qapp, speaker)
+        card.do("say")
+        assert len(speaker.said) == 3 and not has(card, "voice_dismiss")
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
+        qapp.processEvents()
+
+
+def test_a_good_voice_or_a_recording_brings_no_notice(qapp: QApplication) -> None:
+    """518: Windows' voices are the best it lets apps use; a recording is
+    ours - neither brings the notice."""
+    speaker = Speaker((HUIHUI, DAVID))
+    speech = WordSpeech(
+        speaker, open_url=Opened(), better=BetterVoice(lambda: (), lambda _l: None)
+    )
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        card.do("say")
+        assert speaker.said and not has(card, "voice_dismiss")
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
         qapp.processEvents()

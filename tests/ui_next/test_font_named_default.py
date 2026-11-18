@@ -1,19 +1,23 @@
-"""The caption font Polyglotic chooses is called "Polyglotic (Default)" -
+"""The caption font Polyglotic chooses is marked "(Default)" -
 "Polyglotic's own" didn't say it was the default (the user's rehearsal
-feedback F20, polyglotic-hq 249, 2026-11-08)."""
+feedback F20, polyglotic-hq 249, 2026-11-08); since 482 each language's
+row names its face too: "Noto Sans SC (Default)"."""
 
 from PySide6.QtWidgets import QApplication
 
-from polyglotic_desktop.ui_next.panels import LookPanel
-from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
-from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.face_rows import FaceBox
 
 
 def test_the_default_font_says_it_is_the_default(qapp: QApplication) -> None:
-    panel = LookPanel(LookView(CaptionLook()))
-    assert panel.font_box.currentText() == "Polyglotic (Default)"
-    assert panel.font_box.currentData() is None
-    panel.font_box.showPopup()  # the PC's fonts listed: still first, same name
-    panel.font_box.hidePopup()
-    assert panel.font_box.itemText(0) == "Polyglotic (Default)"
-    assert panel.font_box.itemData(0) is None
+    box = FaceBox("zh")
+    try:
+        assert box.currentText() == "Noto Sans SC (Default)"
+        assert box.currentData() == ""
+        box.showPopup()  # the PC's fonts listed: still there, same name
+        box.hidePopup()
+        assert box.currentText() == "Noto Sans SC (Default)"
+        windows_own = FaceBox("ko")  # no face of its own yet: Windows' is the default
+        assert windows_own.currentText().endswith("(Default)")
+        windows_own.deleteLater()
+    finally:
+        box.deleteLater()

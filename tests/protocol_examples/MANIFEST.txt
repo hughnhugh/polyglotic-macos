@@ -1,10 +1,11 @@
 # Written by tools/protocol_examples.py; don't edit the copy by hand.
 # From hughnhugh/polyglotic-server docs/protocol-examples/ at
-# commit e6ddaf3d1f5ec37bf1840cc9a42b935584c36a94
+# commit 4f54fe43a4ade1f59616b785d84a9645b0c115a1
 1a38d4944f97b3f4599ab555825f7381e97ae831b1a76ded0655987b3548f592  v1/auth_failed.json
 33b5464800dfab2811f6348799bebabc095606a9108fbdff6f715bc62ca82a6f  v1/auth_failed.too_many_attempts.json
 07f52aaf6d2c341bbe97247904ba9eeeb1235fc0f71b2ba99513fa48d2ec17a2  v1/caption_update.finished.joined.json
 7fc29dfce885484e5467be7c7ff654f6193f675ad08143665f659a561aa7ed36  v1/caption_update.finished.json
+191b39cfe171d70beb0a3b4441caa3b5a2bd247d9511bb1e26f2c656cb64dee7  v1/caption_update.finished.mixed.json
 790fad59feead3d64d6da456cf562b653cc36e7bb58f8f5c86118cad95c78f4a  v1/caption_update.live.json
 62a48c90e4fef209e5c45898498421a04c5ad3eff11af7908e563ca0084a72ed  v1/caption_update.withdrawn.json
 9915c65c53f13fa6cccc98d1177fd799dec4d1d292c092f6b97d529145b406ba  v1/consent.agreement.json

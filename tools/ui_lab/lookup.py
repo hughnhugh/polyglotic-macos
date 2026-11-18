@@ -16,7 +16,7 @@ a part and Back (a click: 30 ms), and Learning's actions (Add to deck,
 Known - shown within 30 ms, the captions holding the word repainted).
 """
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import replace
 from functools import partial
 
@@ -28,6 +28,8 @@ from tests.lexicon.sample import FakeDictionaryFile, chinese_sample, english_sam
 
 from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
 from polyglotic_desktop.adapters.spaced_split import SpacedSplit
+from polyglotic_desktop.core.learning.curriculum import ChosenWords
+from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.learning.vocabulary import Vocabulary
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
@@ -46,15 +48,17 @@ from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordStatus
 from polyglotic_desktop.main import LearningOffer
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ports.dictionary import DictionaryProblem, EntryRecord
-from polyglotic_desktop.ports.speaker import Ended, Sounding, Voice
+from polyglotic_desktop.ports.speaker import Ended, Quality, Sounding, Spoken, Voice
 from polyglotic_desktop.ui import recorded_captions as recorded
 from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, EN, MIC, ZH, clause
 from polyglotic_desktop.ui.settings import Settings
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, Marked
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
-from polyglotic_desktop.ui_next.views.presets import BY_KEY
+from polyglotic_desktop.ui_next.selection_reading import SelectionReading
+from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, TextEdge
+from polyglotic_desktop.ui_next.views.presets import BY_KEY, LARGE_TEXT
+from polyglotic_desktop.ui_next.views.speech import BetterVoice
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 from tools.ui_lab.caption_window import LABELS, _areas
 from tools.ui_lab.lab import SCENE, Lab, State
@@ -346,6 +350,109 @@ def pinyin_in_link_colours_paper(lab: Lab) -> QWidget:
     return _drawn(lab, look)
 
 
+QUIET = CaptionLook(
+    quiet=True,
+    reading_lines=("zh",),
+    reading_size=ReadingSize.MEDIUM,  # Small's under the lab's 12 px, as above
+    quiet_words=frozenset({ChosenWords.SAVED}),
+)
+"""The quiet view (polyglotic-hq 477), saved words chosen: grey and gold,
+italic, a size step bigger, pinyin over every word, the saved words in
+blue."""
+
+
+def _quiet(lab: Lab, look: CaptionLook) -> CaptionWindows:
+    found = windows(lab, look)
+    tools = found.learner
+    assert tools is not None
+    for word in ("电脑", "游戏"):
+        entry = tools.lookup(word)[0].entry_id
+        tools.vocabulary.save(entry, word, word, "", word, "saved", LookupContext(word))
+    lab.pump()
+    window_of(found).canvas.repaint()
+    return found
+
+
+def quiet(lab: Lab) -> QWidget:
+    """477: the quiet view, two saved words in blue, their pinyin too."""
+    return window_of(_quiet(lab, QUIET))
+
+
+def quiet_hover(lab: Lab) -> QWidget:
+    """477: a word pointed at in the quiet view - it and its partner lit
+    quietly, no lines, no link colours - with its lookup."""
+    found = _quiet(lab, QUIET)
+    _hovered(found, "游戏")  # a size step bigger: fewer captions in view
+    lab.pump()
+    return _photo(found)
+
+
+def quiet_paper(lab: Lab) -> QWidget:
+    """477: the quiet view on Paper's light panel: the blue darkened to read."""
+    paper = BY_KEY["paper"]
+    look = replace(
+        QUIET,
+        original=paper.original,
+        translation=paper.translation,
+        background=paper.background,
+        opacity=paper.opacity,
+    )
+    return window_of(_quiet(lab, look))
+
+
+TONE_ENDS = {
+    "soft": {"contrast": -100},
+    "crisp": {"contrast": 100},
+    "muted": {"vibrance": -100},
+    "vivid": {"vibrance": 100},
+    "light": {"thickness": 300},
+    "bold": {"thickness": 700},
+    "shadow": {"edge": TextEdge.SHADOW},
+    "outline": {"edge": TextEdge.OUTLINE},
+}
+"""Each end of the caption text's controls (polyglotic-hq 481): contrast,
+vibrance, thickness - and Visibility's edges."""
+
+
+def _on_paper(look: CaptionLook) -> CaptionLook:
+    paper = BY_KEY["paper"]
+    return replace(
+        look,
+        original=paper.original,
+        translation=paper.translation,
+        background=paper.background,
+        opacity=paper.opacity,
+    )
+
+
+def _toned(base: CaptionLook, end: str, paper: bool) -> Callable[[Lab], QWidget]:
+    """481: `base` (word links in colour, or the quiet view) at one end of a
+    slider, on Classic's dark panel or Paper's light one - two saved words
+    in it, in their category's colour (the quiet view's blue)."""
+    look = replace(base, **TONE_ENDS[end])  # type: ignore[arg-type]
+    if paper:
+        look = _on_paper(look)
+
+    def run(lab: Lab) -> QWidget:
+        shown = window_of(_quiet(lab, look))
+        if look.contrast < 0:  # the learner chose text under WCAG's 4.5:1
+            shown.setProperty("contrast_floor", LARGE_TEXT)
+        return shown
+
+    return run
+
+
+TONE_STATES = [
+    (f"w1_{view}_{end}{'_paper' if paper else ''}", _toned(base, end, paper), True)
+    for view, base in (("links", MATCHED), ("quiet", QUIET))
+    for paper in (False, True)
+    for end in TONE_ENDS
+    if not (paper and end in ("light", "bold"))
+]
+"""Every slider's ends, word links and the quiet view, dark and light - a
+weight on the dark panel only: the panel doesn't change what it draws."""
+
+
 def pinyin_custom(lab: Lab) -> QWidget:
     """395: pinyin in one colour picked (the default custom one)."""
     return _drawn(
@@ -394,14 +501,31 @@ class _Speaker:
     ) -> None:
         pass
 
+    def read(
+        self,
+        chunks: Sequence[str],
+        voice: Voice,
+        rate: float,
+        sounding: Sounding,
+        ended: Ended,
+        spoken: Spoken,
+    ) -> None:
+        """The `Reader` port too (495): the first word said, at once."""
+        if chunks:
+            spoken(0, 0, 2)
+
     def stop(self) -> None:
         pass
 
 
-def _speaking(lab: Lab, voices: tuple[Voice, ...]) -> CaptionWindows:
+def _speaking(
+    lab: Lab, voices: tuple[Voice, ...], better: BetterVoice | None = None
+) -> CaptionWindows:
     found = windows(lab)
     assert found.card is not None
-    speech = WordSpeech(_Speaker(voices), open_url=lambda url: None, parent=found.card)
+    speech = WordSpeech(
+        _Speaker(voices), open_url=lambda url: None, parent=found.card, better=better
+    )
     found.card.use_speech(speech)
     _pinned(found, "电脑")
     return found
@@ -424,6 +548,25 @@ def no_voice(lab: Lab) -> QWidget:
     """No Chinese voice on this PC (an English-only Windows), after a click
     on the crossed-out speaker: how Windows adds one, and its button (286)."""
     found = _speaking(lab, (Voice("en", "Microsoft David", "en-US"),))
+    card = found.card
+    assert card is not None
+    card.do("say")
+    lab.pump()
+    return _photo(found)
+
+
+TINGTING = Voice("compact.zh-CN.Tingting", "Tingting", "zh-CN", Quality.BASIC)
+"""A Mac's compact Chinese voice (polyglotic-hq 518)."""
+
+
+def _better() -> BetterVoice:
+    return BetterVoice(lambda: (), lambda _language: None)
+
+
+def better_voice(lab: Lab) -> QWidget:
+    """A pinned word said in a Mac's basic Chinese voice: how to add a
+    better one, "Don't show again" and Dismiss (518)."""
+    found = _speaking(lab, (TINGTING,), _better())
     card = found.card
     assert card is not None
     card.do("say")
@@ -767,6 +910,74 @@ def sentence_offered(lab: Lab) -> QWidget:
     return card
 
 
+def _say_it_offered(
+    lab: Lab, voices: tuple[Voice, ...], better: BetterVoice | None = None
+) -> CaptionWindow:
+    """The sentence card with Say it (polyglotic-hq 495): a stand-in reader
+    with `voices`."""
+    found = windows(lab)
+    found.use_say_it(
+        SelectionReading(
+            _Speaker(voices), open_url=lambda url: None, parent=found, better=better
+        )
+    )
+    shown = window_of(found)
+    lines = [line for line, _, _ in shown.canvas.placed]
+    first, last = lines[-min(3, len(lines))], lines[-1]
+    shown.held.hold(
+        Selection(
+            Place(first.key, 0, 2, RowKind.ORIGINAL),
+            Place(last.key, 0, 4, RowKind.ORIGINAL),
+        )
+    )
+    shown._offer_sentence()
+    lab.pump()
+    return shown
+
+
+HUIHUI = Voice("zh", "Microsoft Huihui", "zh-CN")
+DAVID = Voice("en", "Microsoft David", "en-US")
+
+
+def sentence_say_it(lab: Lab) -> QWidget:
+    """The card's second row: Say it, a button a language (495)."""
+    card = _say_it_offered(lab, (HUIHUI, DAVID)).sentence_card
+    assert card is not None and card.isVisible()
+    return card
+
+
+def sentence_reading(lab: Lab) -> QWidget:
+    """Say it reading what was said: its button turned to Stop, the word
+    being said lit in the window under the selection (495)."""
+    shown = _say_it_offered(lab, (HUIHUI, DAVID))
+    card = shown.sentence_card
+    assert card is not None
+    card.sides[0][0].click()
+    lab.pump()
+    shown.canvas.repaint()
+    return _Together([shown, card])
+
+
+def sentence_no_voice(lab: Lab) -> QWidget:
+    """No Chinese voice on this PC: what was said's button says to add one
+    (495)."""
+    card = _say_it_offered(lab, (DAVID,)).sentence_card
+    assert card is not None and card.isVisible()
+    return card
+
+
+def sentence_better_voice(lab: Lab) -> QWidget:
+    """What was said read in a Mac's basic Chinese voice: the card says how
+    to add a better one, "Don't show again" and Dismiss (518)."""
+    shown = _say_it_offered(lab, (TINGTING, DAVID), _better())
+    card = shown.sentence_card
+    assert card is not None
+    card.sides[0][0].click()
+    lab.pump()
+    assert card.better.isVisible()
+    return card
+
+
 def sentence_saved(lab: Lab) -> QWidget:
     """The same, a category clicked: "Saved to Tricky" for a moment."""
     card = _sentence_offered(lab).sentence_card
@@ -787,9 +998,14 @@ STATES = [
         ("w3_save_to", save_to, False),
         ("w3_sentence_offered", sentence_offered, False),
         ("w3_sentence_saved", sentence_saved, False),
+        ("w3_sentence_say_it", sentence_say_it, False),
+        ("w3_sentence_reading", sentence_reading, False),
+        ("w3_sentence_no_voice", sentence_no_voice, False),
+        ("w3_sentence_better_voice", sentence_better_voice, False),
         ("w3_dictionary_out", dictionary_out, False),
         ("w3_say_it", say_it, False),
         ("w3_no_voice", no_voice, False),
+        ("w3_better_voice", better_voice, False),
         ("w1_links_on_hover", links_on_hover, False),
         ("w1_linked_and_in_deck", linked_and_in_deck, True),
         ("w1_linked_arrows", linked_arrows, True),
@@ -797,6 +1013,9 @@ STATES = [
         ("w1_pinyin_in_link_colours_paper", pinyin_in_link_colours_paper, True),
         ("w1_translation_in_link_colours", translation_in_link_colours, True),
         ("w1_pinyin_custom", pinyin_custom, True),
+        ("w1_quiet", quiet, True),
+        ("w1_quiet_hover", quiet_hover, False),
+        ("w1_quiet_paper", quiet_paper, True),
         ("w1_zhuyin", zhuyin, True),
         ("w3_english_card", english_card, False),
         ("w3_english_card_in_english", english_card_in_english, False),
@@ -808,5 +1027,6 @@ STATES = [
         ("w3_counterpart_long", counterpart_long, False),
         ("w3_counterpart_no_dictionary", counterpart_no_dictionary, False),
         ("w3_counterpart_none", counterpart_none, False),
+        *TONE_STATES,
     )
 ]

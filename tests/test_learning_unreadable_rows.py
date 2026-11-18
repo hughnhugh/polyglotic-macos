@@ -115,13 +115,22 @@ GARBLED: dict[str, tuple[str, tuple[object, ...]]] = {
         ("bad", "Bad", "#000000", "first"),
     ),
     "an exposure count as text": (
-        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?)",
-        ("cedict:bad", "lots", 0, 0, None),
+        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("cedict:bad", "lots", 0, 0, None, 0, None),
     ),
     # what was heard (polyglotic-hq 163, 209)
     "an exposure's bad first heard": (
-        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?)",
-        ("cedict:bad", 1, 0, 0, "last week"),
+        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("cedict:bad", 1, 0, 0, "last week", 1, None),
+    ),
+    # the days it was heard on (polyglotic-hq 489)
+    "an exposure's days as text": (
+        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("cedict:bad", 1, 0, 0, None, "a few", None),
+    ),
+    "an exposure's bad last heard": (
+        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("cedict:bad", 1, 0, 0, None, 1, "yesterday"),
     ),
     "a day's coverage as text": (
         "INSERT INTO daily_coverage VALUES (?, ?, ?, ?)",

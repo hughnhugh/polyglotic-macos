@@ -197,6 +197,11 @@
     <name>CaptionWindow</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Quiet view on or off: captions in quiet grey and gold, only your chosen words in blue, no underlines - point at a word to see its partner</source>
+        <translation type="unfinished">安靜檢視開關：字幕為安靜的灰色和金色，只有你選的詞是藍色，沒有底線——指向一個詞即可看到它的對應詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Steady</source>
         <translation type="unfinished">穩定</translation>
     </message>
@@ -505,6 +510,31 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links on or off: words that mean the same share a colour</source>
         <translation type="unfinished">開關詞語對應：意思相同的詞用同一種顏色標出</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Quiet view</source>
+        <translation type="unfinished">安靜檢視</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Our curriculum</source>
+        <translation type="unfinished">我們的課程</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Words at your edge</source>
+        <translation type="unfinished">你學習範圍內的詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">學習負荷</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Saved words</source>
+        <translation type="unfinished">收藏的詞</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -840,6 +870,106 @@
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Pick a colour: {what}</source>
         <translation type="unfinished">選取顏色：{what}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Light</source>
+        <translation type="unfinished">細</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Regular</source>
+        <translation type="unfinished">標準</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Medium</source>
+        <translation type="unfinished">中等</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Semibold</source>
+        <translation type="unfinished">半粗</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Bold</source>
+        <translation type="unfinished">粗</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Contrast</source>
+        <translation type="unfinished">對比度</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft</source>
+        <translation type="unfinished">柔和</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Crisp</source>
+        <translation type="unfinished">清晰</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How strongly captions stand out from their panel. Soft is as faint as Quick preview&apos;s line, and never too faint to read; crisp draws every line at full strength.</source>
+        <translation type="unfinished">字幕在面板上有多醒目。柔和與快速預覽的那一行一樣淡，但不會淡到看不清；清晰讓每一行都以全強度顯示。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Vibrance</source>
+        <translation type="unfinished">鮮豔度</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Muted</source>
+        <translation type="unfinished">素淡</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Vivid</source>
+        <translation type="unfinished">鮮豔</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How vivid captions&apos; colours are. Dull colours change most; white and grey stay as they are, and word links keep their colours so you can tell them apart.</source>
+        <translation type="unfinished">字幕的顏色有多鮮豔。越暗淡的顏色變化越大；白色和灰色保持不變，詞語對應保留各自的顏色，方便你區分。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Thickness</source>
+        <translation type="unfinished">粗細</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How thick captions&apos; letters are, and their pinyin a step thicker. A font without a weight draws the nearest it has.</source>
+        <translation type="unfinished">字幕文字的粗細，拼音比文字粗一級。字型沒有這種粗細時，用它最接近的一種。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>None</source>
+        <translation type="unfinished">無</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft shadow</source>
+        <translation type="unfinished">柔和陰影</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Outline</source>
+        <translation type="unfinished">描邊</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>What&apos;s drawn around captions&apos; letters, to read over a busy video. The panel behind them has its own slider, below.</source>
+        <translation type="unfinished">在字幕文字周圍畫的效果，讓文字在畫面繁雜的影片上也看得清。文字後面的面板有自己的滑桿，在下方。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Visibility</source>
+        <translation type="unfinished">清晰度</translation>
     </message>
 </context>
 <context>
@@ -1608,6 +1738,109 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Hold {key} and speak</source>
         <translation type="unfinished">按住 {key} 說話</translation>
+    </message>
+</context>
+<context>
+    <name>FaceRows</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Sans</source>
+        <translation type="unfinished">無襯線</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Serif</source>
+        <translation type="unfinished">襯線</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Handwritten</source>
+        <translation type="unfinished">手寫</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} isn&apos;t ready to download yet.</source>
+        <translation type="unfinished">{face} 暫時還不能下載。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} needs a newer Polyglotic.</source>
+        <translation type="unfinished">{face} 需要更新版本的 Polyglotic。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Refused: the list of downloads failed our signature check, so nothing was downloaded.</source>
+        <translation type="unfinished">已拒絕：下載清單未通過我們的簽章檢查，因此沒有下載任何內容。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Waiting for another download to finish.</source>
+        <translation type="unfinished">正在等待另一個下載完成。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Downloading {face}: {done} of {total} MB</source>
+        <translation type="unfinished">正在下載 {face}：{done} / {total} MB</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Checking {face}.</source>
+        <translation type="unfinished">正在檢查 {face}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Getting {face}.</source>
+        <translation type="unfinished">正在取得 {face}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>This PC&apos;s own</source>
+        <translation type="unfinished">這台電腦內建的字型</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>This Mac&apos;s own</source>
+        <translation type="unfinished">這台 Mac 內建的字型</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Any font on this PC</source>
+        <translation type="unfinished">這台電腦上的任何字型</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Any font on this Mac</source>
+        <translation type="unfinished">這台 Mac 上的任何字型</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} (Default)</source>
+        <translation type="unfinished">{face}（預設）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Download anyway</source>
+        <translation type="unfinished">仍然下載</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Retry</source>
+        <translation type="unfinished">重試</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Fonts</source>
+        <translation type="unfinished">字型</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Each language&apos;s captions in a face of its own.</source>
+        <translation type="unfinished">每種語言的字幕都可以用自己的字型。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{language} captions in</source>
+        <translation type="unfinished">{language}字幕字型</translation>
     </message>
 </context>
 <context>
@@ -3295,6 +3528,177 @@
     </message>
 </context>
 <context>
+    <name>KnownMap</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>No change in the last 7 days.</source>
+        <translation type="unfinished">過去 7 天沒有變化。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>In the last 7 days: {green} green, {red} red.</source>
+        <translation type="unfinished">過去 7 天：綠色 {green}，紅色 {red}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Within the about {words} words you know.</source>
+        <translation type="unfinished">在你認識的約 {words} 個詞以內。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Past the about {words} words you know.</source>
+        <translation type="unfinished">超出你認識的約 {words} 個詞。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Your level isn&apos;t set yet, so that&apos;s a guess.</source>
+        <translation type="unfinished">你還沒有設定程度，所以這是估計。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You said you know it.</source>
+        <translation type="unfinished">你說過你認識它。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Known from what you imported.</source>
+        <translation type="unfinished">來自你匯入的內容，已認識。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>A number written in numerals you know.</source>
+        <translation type="unfinished">用你認識的數字寫成的數。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You know the words it&apos;s made of.</source>
+        <translation type="unfinished">你認識組成它的詞。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Not all the words it&apos;s made of are known.</source>
+        <translation type="unfinished">組成它的詞並不都認識。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>In your deck.</source>
+        <translation type="unfinished">在你的學習卡組裡。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up twice, so new to you for now.</source>
+        <translation type="unfinished">查過兩次，所以暫時算生詞。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You said it&apos;s new to you.</source>
+        <translation type="unfinished">你說過它對你是生詞。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Nothing says how common it is.</source>
+        <translation type="unfinished">沒有資訊說明它有多常用。</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Heard on %n day(s).</source>
+        <translation type="unfinished">
+            <numerusform>在 %n 天裡聽到過。</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Saved.</source>
+        <translation type="unfinished">已收藏。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up, then heard again without a lookup.</source>
+        <translation type="unfinished">查過，之後又聽到且沒有再查。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up in the last 3 days.</source>
+        <translation type="unfinished">過去 3 天內查過。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up twice since you said you know it.</source>
+        <translation type="unfinished">你說認識之後又查了兩次。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>{word} · No. {place}</source>
+        <translation type="unfinished">{word} · 第 {place}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>A name, or a word you ignore: not coloured.</source>
+        <translation type="unfinished">人名，或你忽略的詞：不上色。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>About {percent} likely you know it.</source>
+        <translation type="unfinished">你認識它的可能性約為 {percent}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>How well you know the language</source>
+        <translation type="unfinished">你對這門語言的掌握</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Reading the language&apos;s words…</source>
+        <translation type="unfinished">正在讀取這門語言的詞……</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>This language&apos;s dictionary doesn&apos;t say how common its words are.</source>
+        <translation type="unfinished">這門語言的詞典沒有說明詞的常用程度。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Its {count} most common words, one square each, commonest first. Point at a square to see its word and why it&apos;s that colour.</source>
+        <translation type="unfinished">它最常用的 {count} 個詞，每個詞一個方塊，最常用的在前。指向方塊即可看到它的詞，以及為什麼是這個顏色。</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) green</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 個詞綠色</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) between</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 個詞在中間</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) red</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 個詞紅色</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>{share} of what you hear is green, by how often each word is said.</source>
+        <translation type="unfinished">你聽到的內容中有 {share} 是綠色的（依每個詞被說出的頻率計算）。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Red: never met, or far past what you know. The colours between: words you&apos;ve heard or partly know. Green: mastered. A native speaker&apos;s map is all green.</source>
+        <translation type="unfinished">紅色：從沒遇過，或遠超你已知的範圍。中間的顏色：聽過或部分認識的詞。綠色：已掌握。母語者的地圖全是綠色。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>How well you know {language}</source>
+        <translation type="unfinished">你對{language}的掌握</translation>
+    </message>
+</context>
+<context>
     <name>Lab</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -3653,8 +4057,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>A set number of the next words past what you know, each coloured by how often you have heard it since: red, orange, yellow, green, then ready to check. In place of the marks under new words. Its words and settings are on Learning.</source>
-        <translation type="unfinished">固定數量的詞：你已掌握範圍之後的下一批詞，依此後聽到的次數著色：紅、橙、黃、綠，然後可以檢查。它取代生詞下方的標記。詞表和設定在「學習」頁。</translation>
+        <source>Every word in a colour by how well you know it: red, never met or far past what you know; the colours between, words you have heard or partly know; green, mastered. In place of the marks under new words.</source>
+        <translation type="unfinished">每個詞都依你對它的掌握程度上色：紅色，從沒遇過或遠超你已知的範圍；中間的顏色，聽過或部分認識的詞；綠色，已掌握。取代生詞下方的標記。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -3668,18 +4072,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Dimmed</source>
-        <translation type="unfinished">調暗</translation>
+        <source>Red to green</source>
+        <translation type="unfinished">紅到綠</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Words outside the load</source>
-        <translation type="unfinished">負荷之外的詞</translation>
+        <source>Orange to blue</source>
+        <translation type="unfinished">橙到藍</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Rarer words you don&apos;t know yet, in Learning load: as now, or dimmed so the load&apos;s words stand out. Dimmed turns Learning load on.</source>
-        <translation type="unfinished">學習負荷中你還不認識的較少見的詞：維持現狀，或調暗以突顯負荷中的詞。選擇調暗會開啟學習負荷。</translation>
+        <source>Its colours</source>
+        <translation type="unfinished">它的顏色</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Red to green, or orange to blue if red and green look alike to you. Both go from darker to lighter as you know a word better. Choosing one turns Learning load on.</source>
+        <translation type="unfinished">紅到綠；如果你分不清紅色和綠色，就選橙到藍。兩種都是你越熟悉一個詞，顏色就從深變淺。選擇其中一種會開啟學習負荷。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4835,6 +5244,31 @@
 </context>
 <context>
     <name>LookupCard</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
+        <translation type="unfinished">這台電腦上還沒有{language}語音。Windows 可免費新增：設定 &gt; 時間與語言 &gt; 語音 &gt; 新增語音，然後選擇{language}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">這台 Mac 上還沒有{language}語音。macOS 可免費加入：系統設定 &gt; 輔助使用 &gt; 語音內容 &gt; 系統語音 &gt; 管理語音，然後選擇{language}。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>That was macOS&apos;s basic {language} voice. A more natural one is free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then a {language} voice marked Enhanced or Premium.</source>
+        <translation type="unfinished">剛才是 macOS 的基本{language}語音。更自然的語音可免費加入：系統設定 &gt; 輔助使用 &gt; 語音內容 &gt; 系統語音 &gt; 管理語音，然後選擇標有「增強」或「高級」的{language}語音。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Don&apos;t show again for {language}</source>
+        <translation type="unfinished">不再為{language}顯示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Dismiss</source>
+        <translation type="unfinished">關閉</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Heard in %Ln caption(s)</source>
@@ -4963,16 +5397,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
-        <translation type="unfinished">這台電腦上還沒有{language}語音。Windows 可免費新增：設定 &gt; 時間與語言 &gt; 語音 &gt; 新增語音，然後選擇{language}。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">這台 Mac 上還沒有{language}語音。macOS 可免費加入：系統設定 &gt; 輔助使用 &gt; 語音內容 &gt; 系統語音 &gt; 管理語音，然後選擇{language}。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">開啟語音設定</translation>
     </message>
@@ -5075,11 +5499,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">停止（R）</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Say it again, slower (R)</source>
-        <translation type="unfinished">再唸一次，慢一點（R）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5555,11 +5974,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Polyglotic (Default)</source>
-        <translation type="unfinished">Polyglotic（預設）</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Look</source>
         <translation type="unfinished">字幕外觀</translation>
     </message>
@@ -5577,6 +5991,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A matched set of colours for the text and the panel. Pick one, then change any colour.</source>
         <translation type="unfinished">文字和面板的一套搭配好的顏色。先選一套，再改任何一種顏色。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Caption text</source>
+        <translation type="unfinished">字幕文字</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How strongly captions stand out, how vivid their colours are and how thick their letters are, in every caption window - contrast and colour in transcripts too. In the middle: as they were.</source>
+        <translation type="unfinished">在每個字幕視窗中，字幕有多醒目、顏色有多鮮豔、文字有多粗；對比度和顏色也用於字幕記錄。置中：和以前一樣。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5617,21 +6041,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>0 % is no box at all; 100 % hides the video behind the text. Over a bright film, 70 % or more keeps the text readable.</source>
         <translation type="unfinished">0% 是完全沒有底框；100% 會擋住文字後面的影片。畫面明亮時，70% 或以上能讓文字看得清楚。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Font</source>
-        <translation type="unfinished">字型</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Any font on this PC. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
-        <translation type="unfinished">這台電腦上的任何字型。如果你選的字型沒有中文或日文，會自動換用有這些字的字型。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
-        <translation type="unfinished">這台電腦上的任何字型。如果你選的字型沒有中文或日文，會自動換用有這些字的字型。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5787,6 +6196,66 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Learning</source>
         <translation type="unfinished">學習</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Quiet view</source>
+        <translation type="unfinished">安靜檢視</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Captions in quiet grey and gold, a little bigger, with pinyin over every word and only your chosen words in blue - no underlines or arrows. Point at a word to see its partner. Turns word links off.</source>
+        <translation type="unfinished">字幕為安靜的灰色和金色，字稍大，每個詞上方有拼音，只有你選的詞是藍色——沒有底線或箭頭。指向一個詞即可看到它的對應詞。會關閉詞語對應。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Our curriculum</source>
+        <translation type="unfinished">我們的課程</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A few words just past what you know: the ones the talk is about, then the ones you hear most. A word the talk brought moves on once you know it; the others after three days met.</source>
+        <translation type="unfinished">剛超出你已知範圍的幾個詞：先是正在談論的詞，再是你最常聽到的詞。來自對話的詞在你掌握後移出；其他詞在三天裡都遇到過後移出。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Words at your edge</source>
+        <translation type="unfinished">你學習範圍內的詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any word in your learning window, each time it&apos;s said - never names, numbers or everyday talk.</source>
+        <translation type="unfinished">你學習範圍內的任何詞，每次說到都會標出——人名、數字和日常口頭語除外。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">學習負荷</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Every word of your learning load, as in the Lab.</source>
+        <translation type="unfinished">你學習負荷裡的每個詞，與實驗室中相同。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Saved words</source>
+        <translation type="unfinished">收藏的詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Words you saved, whatever their category.</source>
+        <translation type="unfinished">你收藏的詞，不論分類。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Curriculum words</source>
+        <translation type="unfinished">課程詞數</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How many words our curriculum holds at a time.</source>
+        <translation type="unfinished">我們的課程一次包含多少個詞。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6256,6 +6725,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
         <source>Saved to {category}</source>
         <translation type="unfinished">已收藏到「{category}」</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Say it</source>
+        <translation type="unfinished">朗讀</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Stop</source>
+        <translation type="unfinished">停止</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Say it in {language}</source>
+        <translation type="unfinished">用{language}朗讀</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Add a {language} voice</source>
+        <translation type="unfinished">新增{language}語音</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
@@ -6771,6 +7260,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Don&apos;t see your app here? Make sure it&apos;s playing audio.</source>
         <translation type="unfinished">沒看到你的應用程式？請確認它正在播放聲音。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Blue words in the quiet view</source>
+        <translation type="unfinished">安靜檢視中的藍色詞</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>

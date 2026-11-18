@@ -223,6 +223,7 @@ def caption_update(message: protocol.CaptionUpdate) -> CaptionUpdate:
         replaces=tuple(CaptionId(c) for c in message.replaces or ()),
         reason=reason,
         processing_ms=message.processing_ms,
+        established=max(0, message.established or 0) if message.kind == "live" else 0,
     )
 
 
@@ -236,6 +237,9 @@ def _clause(clause: protocol.Clause) -> Clause:
                 for link in links
             )
             for k, links in clause.links.items()
+        },
+        written_in={
+            Language(k): Language(v) for k, v in (clause.written_in or {}).items()
         },
     )
 

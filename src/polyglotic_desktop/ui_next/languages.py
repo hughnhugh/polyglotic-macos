@@ -91,6 +91,13 @@ def show_mandarin_in_traditional(on: bool) -> None:
     _mandarin_traditional = on
 
 
+def mandarin_in_traditional() -> bool:
+    """Whether Mandarin's lines are shown in Traditional characters now
+    (`show_mandarin_in_traditional`): their captions take Traditional
+    Chinese's face (polyglotic-hq 482)."""
+    return _mandarin_traditional
+
+
 def language_name(code: str) -> str:
     """A target language's name, to pick it or name it as a language:
     "French"; Mandarin's target is "Chinese", whatever script its lines are

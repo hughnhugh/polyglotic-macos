@@ -128,6 +128,25 @@ def test_the_tools_follow_the_settings_for_their_own_language(
         desktop.deleteLater()
 
 
+def test_the_start_fills_our_curriculums_set_only_once_the_window_is_up(
+    qapp: QApplication,
+) -> None:
+    """The app's start turns our curriculum on with the quiet view's chosen
+    words but leaves its set unfilled: filling looks through every word
+    heard, 31 ms at 30,000 words met on the main PC, and put the start over
+    its 400 ms (polyglotic-hq 509). `main` fills it after the first paint
+    (`DesktopApp.fill_curriculum`)."""
+    tools = english_tools()
+    desktop = DesktopApp(MemorySettingsStore({}), tools, None)
+    try:
+        assert tools.vocabulary.curriculum.on
+        assert tools.vocabulary.curriculum.members() == []
+        desktop.fill_curriculum()
+        assert len(tools.vocabulary.curriculum.members()) > 0
+    finally:
+        desktop.deleteLater()
+
+
 def test_which_words_are_linked_is_kept_with_the_windows_size() -> None:
     """Word links' choice for a language, and where they start (323)."""
     from polyglotic_desktop.core.learning.levels import LinkChoice
@@ -141,3 +160,17 @@ def test_which_words_are_linked_is_kept_with_the_windows_size() -> None:
     read = LanguageChoices.from_stored({"links": "by_colour", "window": 100})
     assert read == LanguageChoices(window_size=100)
     assert LanguageChoices.from_stored({"links": "off"}).links is LinkChoice.OFF
+
+
+def test_the_chosen_window_reaches_our_curriculum_and_the_edge_words(
+    qapp: QApplication,
+) -> None:
+    """Polyglotic-hq 496: the learning window's size chosen for the language
+    is the one `Vocabulary` lights words at your edge and takes the
+    conversation's words by (491 used the default)."""
+    tools = english_tools()
+    assert tools.vocabulary.learning_window.size == 1000  # the default
+    tools.set_choices(LanguageChoices(window_size=100))
+    assert tools.vocabulary.learning_window.size == 100
+    tools.set_choices(LanguageChoices(window_size=UNLIMITED))
+    assert tools.vocabulary.learning_window.size is UNLIMITED

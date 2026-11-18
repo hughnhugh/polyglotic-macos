@@ -1,0 +1,113 @@
+{
+  "type": "caption_update",
+  "caption_id": "7a2e3c4d-5b6f-4a70-9c8d-0e1f2a3b4c5d",
+  "source_id": "source-1",
+  "kind": "finished",
+  "language": "zh",
+  "languages_heard": [
+    "zh",
+    "en"
+  ],
+  "clauses": [
+    {
+      "original": "It's not what I expected in the beginning,",
+      "translations": {
+        "en": "这与我最初的预期不同。"
+      },
+      "links": {
+        "en": [
+          {
+            "original": [
+              14,
+              15
+            ],
+            "translation": [
+              2,
+              3
+            ],
+            "key": false,
+            "confidence": 0.86
+          },
+          {
+            "original": [
+              16,
+              24
+            ],
+            "translation": [
+              6,
+              8
+            ],
+            "key": true,
+            "confidence": 0.91
+          },
+          {
+            "original": [
+              32,
+              41
+            ],
+            "translation": [
+              3,
+              5
+            ],
+            "key": true,
+            "confidence": 0.84
+          }
+        ]
+      },
+      "written_in": {
+        "en": "zh"
+      }
+    },
+    {
+      "original": "对，最后就回到这里。",
+      "translations": {
+        "en": "Right, and then back to here."
+      },
+      "links": {
+        "en": [
+          {
+            "original": [
+              0,
+              1
+            ],
+            "translation": [
+              0,
+              5
+            ],
+            "key": true,
+            "confidence": 0.83
+          },
+          {
+            "original": [
+              5,
+              7
+            ],
+            "translation": [
+              16,
+              20
+            ],
+            "key": true,
+            "confidence": 0.88
+          },
+          {
+            "original": [
+              7,
+              9
+            ],
+            "translation": [
+              24,
+              28
+            ],
+            "key": true,
+            "confidence": 0.9
+          }
+        ]
+      },
+      "written_in": {
+        "en": "en"
+      }
+    }
+  ],
+  "replaces": [],
+  "processing_ms": 438
+}

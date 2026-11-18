@@ -91,6 +91,21 @@ Tables:
   clause's text, links and speaker, as JSON: `_parts_json`), its category
   (shared with saved words: deleting a category deletes its sentences)
   and when it was saved (polyglotic-hq 459, decision 0216); never sent.
+- version 10 (polyglotic-hq 477, decision 0219; never sent):
+  `curriculum_words`: entry ID -> a word of our curriculum's active set -
+  in it or retired, why it came, when it entered, the days it was met on
+  and the last, the sittings it sat, when it retired; `status_history`
+  and `line_history`: every change of a word's status (before, after, who,
+  when) and every move of the known line, appended in order and never
+  changed (474's store hooks); `set_words`: (set name, entry ID) -> a
+  word of a named word set with its sources and when added - the quiet
+  view's chosen words, `quiet`.
+- version 11 (polyglotic-hq 489, decision 0226; never sent):
+  `exposures.days_heard` and `exposures.last_heard` - the separate days
+  a word was heard on from what the PC played, and the last of them (the
+  learner's own day), for how well each word is known. Filled in from
+  the daily counts still kept (the last 8 weeks, UTC days), and at least
+  1 for a word heard.
 """
 
 from __future__ import annotations
@@ -118,16 +133,20 @@ from polyglotic_desktop.ports.learning import (
     StoredAnkiExport,
     StoredCategory,
     StoredCoverage,
+    StoredCurriculumWord,
     StoredDeckWord,
     StoredExposures,
     StoredLevel,
+    StoredLineChange,
     StoredListening,
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
     StoredSentence,
     StoredSentencePart,
+    StoredSetWord,
     StoredStatus,
+    StoredStatusChange,
 )
 
 _MIGRATIONS: tuple[tuple[str, ...], ...] = (
@@ -254,6 +273,52 @@ _MIGRATIONS: tuple[tuple[str, ...], ...] = (
             category_id TEXT NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
             saved_at TEXT NOT NULL
         ) WITHOUT ROWID""",
+    ),
+    (  # version 10: our curriculum, the histories, word sets (477, 0219)
+        """CREATE TABLE curriculum_words (
+            entry_id TEXT PRIMARY KEY,
+            standing TEXT NOT NULL,
+            came TEXT NOT NULL,
+            entered_at TEXT NOT NULL,
+            days_met INTEGER NOT NULL,
+            last_day TEXT,
+            sittings INTEGER NOT NULL,
+            retired_at TEXT
+        ) WITHOUT ROWID""",
+        """CREATE TABLE status_history (
+            id INTEGER PRIMARY KEY,
+            entry_id TEXT NOT NULL,
+            before TEXT NOT NULL,
+            after TEXT NOT NULL,
+            source TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        """CREATE TABLE line_history (
+            id INTEGER PRIMARY KEY,
+            scheme TEXT,
+            midpoint REAL,
+            source TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        """CREATE TABLE set_words (
+            name TEXT NOT NULL,
+            entry_id TEXT NOT NULL,
+            sources TEXT NOT NULL,
+            added_at TEXT NOT NULL,
+            PRIMARY KEY (name, entry_id)
+        ) WITHOUT ROWID""",
+    ),
+    (  # version 11: the days a word was heard on (polyglotic-hq 489, 0226)
+        "ALTER TABLE exposures ADD COLUMN days_heard INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE exposures ADD COLUMN last_heard TEXT",
+        (
+            "UPDATE exposures SET"
+            " days_heard = MAX(heard > 0, (SELECT COUNT(*) FROM daily_exposures d"
+            " WHERE d.entry_id = exposures.entry_id AND d.count > 0)),"
+            " last_heard = (SELECT MAX(day) FROM daily_exposures d"
+            " WHERE d.entry_id = exposures.entry_id AND d.count > 0)"
+        ),
+        "UPDATE exposures SET last_heard = first_heard WHERE last_heard IS NULL",
     ),
 )
 VERSION = len(_MIGRATIONS)
@@ -430,11 +495,19 @@ class SqliteLearningStore:
         self._db.close()
 
     def _migrate(self, version: int) -> None:
-        for number in range(version, VERSION):
-            with _Transaction(self._db):
+        """Every migration the file lacks, in one transaction: a new store's
+        nine are one write to the disk, not nine, and one that fails leaves
+        the file as it was found. A pack language's learning data is made
+        as its pack opens, the interface waiting for it: on a Ryzen 5 5600X
+        a new store took 22 ms on a quiet PC (12 of them the commits) and
+        45 ms beside other work; in one transaction, 13 (polyglotic-hq 509)."""
+        if version == VERSION:
+            return
+        with _Transaction(self._db):
+            for number in range(version, VERSION):
                 for statement in _MIGRATIONS[number]:
                     self._db.execute(statement)
-                self._db.execute(f"PRAGMA user_version = {number + 1}")
+            self._db.execute(f"PRAGMA user_version = {VERSION}")
 
     def _follow_level_file(self) -> None:
         """The level and its copy beside the store agree (decision 0048):
@@ -796,6 +869,107 @@ class SqliteLearningStore:
             )
 
     @_then_scrub
+    def save_curriculum_words(self, words: Sequence[StoredCurriculumWord]) -> None:
+        with _Transaction(self._db):
+            self._db.executemany(
+                "INSERT OR REPLACE INTO curriculum_words VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    (
+                        w.entry_id,
+                        w.standing,
+                        w.came,
+                        w.entered_at.isoformat(),
+                        w.days_met,
+                        w.last_day.isoformat() if w.last_day else None,
+                        w.sittings,
+                        w.retired_at.isoformat() if w.retired_at else None,
+                    )
+                    for w in words
+                ],
+            )
+
+    @_then_scrub
+    def delete_curriculum_words(self, entry_ids: Sequence[str]) -> None:
+        with _Transaction(self._db):
+            self._db.executemany(
+                "DELETE FROM curriculum_words WHERE entry_id = ?",
+                [(entry_id,) for entry_id in entry_ids],
+            )
+
+    def add_status_changes(self, changes: Sequence[StoredStatusChange]) -> None:
+        with _Transaction(self._db):
+            self._db.executemany(
+                "INSERT INTO status_history (entry_id, before, after, source, at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                [
+                    (c.entry_id, c.before, c.after, c.source, c.at.isoformat())
+                    for c in changes
+                ],
+            )
+
+    def add_line_change(self, change: StoredLineChange) -> None:
+        self._db.execute(
+            "INSERT INTO line_history (scheme, midpoint, source, at) VALUES (?, ?, ?, ?)",
+            (change.scheme, change.midpoint, change.source, change.at.isoformat()),
+        )
+
+    def status_changes(self) -> Sequence[StoredStatusChange]:
+        found: list[StoredStatusChange] = []
+        for entry_id, before, after, source, at in self._db.execute(
+            "SELECT entry_id, before, after, source, at FROM status_history ORDER BY id"
+        ):
+            try:
+                found.append(
+                    StoredStatusChange(
+                        _text(entry_id),
+                        _text(before),
+                        _text(after),
+                        _text(source),
+                        _time(at),
+                    )
+                )
+            except (ValueError, TypeError):
+                continue  # left in the file, as at the start (207)
+        return found
+
+    def line_changes(self) -> Sequence[StoredLineChange]:
+        found: list[StoredLineChange] = []
+        for scheme, midpoint, source, at in self._db.execute(
+            "SELECT scheme, midpoint, source, at FROM line_history ORDER BY id"
+        ):
+            try:
+                found.append(
+                    StoredLineChange(
+                        None if scheme is None else _text(scheme),
+                        None if midpoint is None else float(midpoint),
+                        _text(source),
+                        _time(at),
+                    )
+                )
+            except (ValueError, TypeError):
+                continue
+        return found
+
+    @_then_scrub
+    def save_set_words(self, words: Sequence[StoredSetWord]) -> None:
+        with _Transaction(self._db):
+            self._db.executemany(
+                "INSERT OR REPLACE INTO set_words VALUES (?, ?, ?, ?)",
+                [
+                    (w.name, w.entry_id, ",".join(w.sources), w.added_at.isoformat())
+                    for w in words
+                ],
+            )
+
+    @_then_scrub
+    def delete_set_words(self, name: str, entry_ids: Sequence[str]) -> None:
+        with _Transaction(self._db):
+            self._db.executemany(
+                "DELETE FROM set_words WHERE name = ? AND entry_id = ?",
+                [(name, entry_id) for entry_id in entry_ids],
+            )
+
+    @_then_scrub
     def save_lookups(self, lookups: StoredLookups) -> None:
         self._db.execute(
             "INSERT OR REPLACE INTO lookups VALUES (?, ?, ?, ?, ?)",
@@ -829,6 +1003,8 @@ class SqliteLearningStore:
                 "anki_csv_exports",
                 "load_words",
                 "lookups",
+                "curriculum_words",
+                "set_words",
             ):
                 deleted += self._db.execute(
                     f"DELETE FROM {table} WHERE entry_id = ?", (entry_id,)
@@ -842,7 +1018,7 @@ class SqliteLearningStore:
     ) -> None:
         with _Transaction(self._db):
             self._db.executemany(
-                "INSERT OR REPLACE INTO exposures VALUES (?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO exposures VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
                     (
                         c.entry_id,
@@ -850,6 +1026,8 @@ class SqliteLearningStore:
                         c.heard_by_you,
                         c.heard_in_deck,
                         c.first_heard.isoformat() if c.first_heard else None,
+                        c.days_heard,
+                        c.last_heard.isoformat() if c.last_heard else None,
                     )
                     for c in counts
                 ],
@@ -915,6 +1093,10 @@ class SqliteLearningStore:
                 "handed_over_days",
                 "load_words",
                 "lookups",
+                "curriculum_words",
+                "status_history",
+                "line_history",
+                "set_words",
             ):
                 self._db.execute(f"DELETE FROM {table}")
         self.delete_set_aside()
@@ -1292,6 +1474,13 @@ def _read(db: sqlite3.Connection) -> tuple[LearningSnapshot, _Tally]:
             "entry_id, pinned, hovered, last_at, pinned_since_known",
             _lookups,
         ),
+        curriculum_words=rows(
+            "curriculum_words",
+            "entry_id, standing, came, entered_at, days_met, last_day, sittings, "
+            "retired_at",
+            _curriculum_word,
+        ),
+        set_words=rows("set_words", "name, entry_id, sources, added_at", _set_word),
     )
     return snapshot, tally
 
@@ -1456,27 +1645,44 @@ def _read_exposures(db: sqlite3.Connection, tally: _Tally) -> list[StoredExposur
     unreadable = 0
     # None for words heard before version 5 (polyglotic-hq 163)
     days: dict[object, date | None] = {None: None}
-    for entry_id, heard, heard_by_you, heard_in_deck, first_heard in db.execute(
-        "SELECT entry_id, heard, heard_by_you, heard_in_deck, first_heard"
-        " FROM exposures"
+    for (
+        entry_id,
+        heard,
+        heard_by_you,
+        heard_in_deck,
+        first_heard,
+        days_heard,
+        last_heard,
+    ) in db.execute(
+        "SELECT entry_id, heard, heard_by_you, heard_in_deck, first_heard,"
+        " days_heard, last_heard FROM exposures"
     ):
         if (
             type(entry_id) is not str
             or type(heard) is not int
             or type(heard_by_you) is not int
             or type(heard_in_deck) is not int
+            or type(days_heard) is not int
         ):
             unreadable += 1
             continue
-        if first_heard in days:
-            day = days[first_heard]
-        else:
-            try:
+        try:
+            if first_heard in days:
+                day = days[first_heard]
+            else:
                 day = days[first_heard] = _day(first_heard)
-            except (ValueError, TypeError):
-                unreadable += 1
-                continue
-        kept.append(StoredExposures(entry_id, heard, heard_by_you, heard_in_deck, day))
+            if last_heard in days:
+                last = days[last_heard]
+            else:
+                last = days[last_heard] = _day(last_heard)
+        except (ValueError, TypeError):
+            unreadable += 1
+            continue
+        kept.append(
+            StoredExposures(
+                entry_id, heard, heard_by_you, heard_in_deck, day, days_heard, last
+            )
+        )
     tally["exposures"] = (unreadable, unreadable + len(kept))
     return kept
 
@@ -1493,6 +1699,31 @@ def _load_word(row: tuple[object, ...]) -> StoredLoadWord:
         _time(entered),
         None if met is None else _time(met),
         None if graduated is None else _time(graduated),
+    )
+
+
+def _curriculum_word(row: tuple[object, ...]) -> StoredCurriculumWord:
+    entry_id, standing, came, entered, days, last, sittings, retired = row
+    return StoredCurriculumWord(
+        _text(entry_id),
+        _text(standing),
+        _text(came),
+        _time(entered),
+        _whole(days),
+        None if last is None else _day(last),
+        _whole(sittings),
+        None if retired is None else _time(retired),
+    )
+
+
+def _set_word(row: tuple[object, ...]) -> StoredSetWord:
+    name, entry_id, sources, added = row
+    found = _text(sources)
+    return StoredSetWord(
+        _text(name),
+        _text(entry_id),
+        tuple(found.split(",")) if found else (),
+        _time(added),
     )
 
 

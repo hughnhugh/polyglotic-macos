@@ -96,10 +96,15 @@ jobs:
       - name: The interface's translations (.qm)
         run: uv run --no-sync python -m tools.i18n build
 
-      - name: Tests (pytest; Windows-only ones skipped)
+      - name: Tests (pytest; Windows-only ones skipped; all but tests/ui_next)
         # its peak memory against the container's cap, and a kill for memory
-        # (exit 137) named with the step (tools/ci_memory.py, polyglotic-hq 344, 350)
-        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest)" -- uv run --no-sync pytest -p no:cacheprovider
+        # (exit 137) named with the step (tools/ci_memory.py, polyglotic-hq 344, 350).
+        # In two processes (polyglotic-hq, 2026-11-18): the whole suite in one
+        # grew to 3,674 MB of the 3,800 MB cap and was killed at 98 % on the
+        # quiet view's train; each half now starts from nothing
+        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest)" -- uv run --no-sync pytest -p no:cacheprovider --ignore=tests/ui_next
+      - name: Tests (pytest; tests/ui_next)
+        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest, ui_next)" -- uv run --no-sync pytest -p no:cacheprovider tests/ui_next
 
   windows:
     # Not on an ordinary pull request (decision 0167): a push to main, the

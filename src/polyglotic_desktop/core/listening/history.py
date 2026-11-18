@@ -37,6 +37,13 @@ only what comes after them from the update (`core.listening.settling`).
 An update that comes too late is ignored: a live update for a caption
 already finished, or any update for one that was withdrawn or replaced.
 
+**Established text** (polyglotic-hq 494, decision 0228;
+`core.listening.established`): a live caption keeps how much of its start
+the server says is established - the update's count, carried over to the
+text as shown (its settled words kept) - and an update that changes words
+shown as established says which words took their place (`corrected`), for
+a quiet correction.
+
 **Checked by the best model** ("Looks wrong?", project 101): when the
 learner says the best model's version is right, `use_checked` puts it in
 the finished caption's place, marked `checked`, keeping the version first
@@ -58,6 +65,11 @@ from polyglotic_desktop.core.listening.captions import (
     Clause,
     Language,
     WordLink,
+)
+from polyglotic_desktop.core.listening.established import (
+    Span,
+    corrected,
+    kept_established,
 )
 from polyglotic_desktop.core.listening.settling import (
     SETTLE_AFTER_SEC,
@@ -88,7 +100,12 @@ class Caption:
     replaced later. `started_at` is when it first appeared (a join keeps
     the earlier caption's); `updated_at` when this version arrived.
     `checked`: the best model's version, chosen by the learner over
-    `first_shown`, the one the caption first finished with."""
+    `first_shown`, the one the caption first finished with. `established`:
+    how much of a live caption's start is established, in characters of
+    its clauses' originals counted in order (0 for a finished one: all of
+    it is final); `corrected`: the words this version put in place of
+    words the version before showed as established, in the same count
+    (`core.listening.established`)."""
 
     key: int
     caption_id: CaptionId
@@ -102,6 +119,8 @@ class Caption:
     updated_at: datetime
     checked: bool = False
     first_shown: tuple[Clause, ...] = ()
+    established: int = 0
+    corrected: tuple[Span, ...] = ()
 
     @property
     def original(self) -> str:
@@ -254,6 +273,14 @@ class CaptionHistory:
         clauses, stable = self._settled(update, replaced, now.timestamp())
         if current is not None:
             clauses = keep_translations(current.clauses, clauses, live)
+        established = (
+            kept_established(update.clauses, update.established, clauses) if live else 0
+        )
+        fixed = (
+            corrected(current.clauses, current.established, clauses)
+            if current is not None and current.live
+            else ()
+        )
         caption = Caption(
             key=0,  # set by _place
             caption_id=update.caption_id,
@@ -265,6 +292,8 @@ class CaptionHistory:
             languages_heard=update.languages_heard,
             started_at=now,
             updated_at=now,
+            established=established,
+            corrected=fixed,
         )
         placed = self._place(caption, (update.caption_id, *replaced))
         for caption_id in replaced:
@@ -326,6 +355,7 @@ class CaptionHistory:
             updated_at=self._clock(),
             checked=True,
             first_shown=current.first_shown or current.clauses,
+            corrected=(),
         )
         self._captions[self._captions.index(current)] = checked
         self._stable[caption_id] = self._stable.get(caption_id, Stable()).after(
@@ -432,11 +462,16 @@ def keep_translations(
             continue
         translations: dict[Language, str] = dict(clause.translations)
         links: dict[Language, tuple[WordLink, ...]] = dict(clause.links)
+        written: dict[Language, Language] = dict(clause.written_in)
         for lang in missing:
             translations[lang] = old.translations[lang]
             if same and lang in old.links:
                 links[lang] = old.links[lang]
             else:
                 links.pop(lang, None)
-        kept.append(Clause(clause.original, translations, links))
+            if lang in old.written_in:  # the kept line's own language
+                written[lang] = old.written_in[lang]
+            else:
+                written.pop(lang, None)
+        kept.append(Clause(clause.original, translations, links, written))
     return tuple(kept)

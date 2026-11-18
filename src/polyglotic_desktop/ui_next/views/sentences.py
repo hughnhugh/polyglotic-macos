@@ -21,6 +21,10 @@ keeps, one a clause:
 `worth_saving`: whether a selection is more than a word - a sentence
 offered to save - or a word, which its lookup already saves.
 
+`sides_aloud`: the same selection's sides to read aloud ("Say it",
+polyglotic-hq 495), each with where its text is shown, so the word being
+said lights there.
+
 Holds caption text: never log it.
 """
 
@@ -29,8 +33,10 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from polyglotic_desktop.core.learning.sentences import SentenceLink, SentencePart
+from polyglotic_desktop.core.listening.caption_model import Words
 from polyglotic_desktop.core.listening.display import LIVE_TRAIL, CaptionRow, RowKind
 from polyglotic_desktop.core.listening.history import Caption, is_cjk, join_text
+from polyglotic_desktop.core.listening.read_aloud import Origin, Stretch
 from polyglotic_desktop.ui_next.views.captions import Line
 
 Piece = tuple[Line, CaptionRow, int, int]
@@ -70,30 +76,31 @@ CaptionOf = Callable[[int], Caption | None]
 its clauses have, shown or not."""
 
 
-def selected_sentence(
-    pieces: Sequence[Piece],
-    speaker: Callable[[Line], str],
-    caption_of: CaptionOf | None = None,
-) -> Selected | None:
-    """`pieces` (in reading order) as a sentence; None when nothing but
-    spaces is selected. `speaker` names a line's speaker; `caption_of`
-    gives a line's caption, for its word links - all of them, whether the
-    window shows them or not (word links off, or only those past what the
-    learner knows); without it, those its rows show."""
+@dataclass(frozen=True)
+class _Clause:
+    """A clause the selection touches: its line, its rows by side, and each
+    side's kept characters `[start, end)` and text - the side dragged
+    across as selected, the other whole."""
+
+    line: Line
+    clause: int
+    rows: dict[RowKind, CaptionRow]
+    clips: dict[RowKind, tuple[int, int]]
+    texts: dict[RowKind, str]
+
+
+def _clauses(pieces: Sequence[Piece]) -> list[_Clause]:
+    """`pieces` by clause, in reading order, each with what it keeps of
+    each side; a clause with nothing but spaces kept is left out."""
     clauses: dict[tuple[int, int], tuple[Line, dict[RowKind, tuple[int, int]]]] = {}
     for line, row, start, end in pieces:
         line_clause = (line.key, row.clause)
         held = clauses.setdefault(line_clause, (line, {}))[1]
         old = held.get(row.kind)
         held[row.kind] = (min(start, old[0]), max(end, old[1])) if old else (start, end)
-    parts: list[SentencePart] = []
-    language: str | None = None
-    translation_language = ""
-    first = True
+    found = []
     for (_, clause), (line, held) in clauses.items():
         rows = {r.kind: r for r in line.rows if r.clause == clause}
-        original_row = rows.get(RowKind.ORIGINAL)
-        translation_row = rows.get(RowKind.TRANSLATION)
         texts: dict[RowKind, str] = {}
         clips: dict[RowKind, tuple[int, int]] = {}
         for kind in (RowKind.ORIGINAL, RowKind.TRANSLATION):
@@ -105,8 +112,30 @@ def selected_sentence(
             start, end = held.get(kind, (0, len(text)))
             clips[kind] = _trimmed(text, start, end)
             texts[kind] = text[clips[kind][0] : clips[kind][1]]
-        if not texts[RowKind.ORIGINAL] and not texts[RowKind.TRANSLATION]:
-            continue
+        if texts[RowKind.ORIGINAL] or texts[RowKind.TRANSLATION]:
+            found.append(_Clause(line, clause, rows, clips, texts))
+    return found
+
+
+def selected_sentence(
+    pieces: Sequence[Piece],
+    speaker: Callable[[Line], str],
+    caption_of: CaptionOf | None = None,
+) -> Selected | None:
+    """`pieces` (in reading order) as a sentence; None when nothing but
+    spaces is selected. `speaker` names a line's speaker; `caption_of`
+    gives a line's caption, for its word links - all of them, whether the
+    window shows them or not (word links off, or only those past what the
+    learner knows); without it, those its rows show."""
+    parts: list[SentencePart] = []
+    language: str | None = None
+    translation_language = ""
+    first = True
+    for held in _clauses(pieces):
+        line, clause, rows = held.line, held.clause, held.rows
+        texts, clips = held.texts, held.clips
+        original_row = rows.get(RowKind.ORIGINAL)
+        translation_row = rows.get(RowKind.TRANSLATION)
         if first:
             language = original_row.language if original_row else None
             first = False
@@ -197,6 +226,59 @@ def _links(
                 key,
             )
         )
+    return tuple(found)
+
+
+@dataclass(frozen=True)
+class SideAloud:
+    """One side of a selection, to read aloud (polyglotic-hq 495): `kind`,
+    what was said or the translation; `language`, the one its first clause
+    is in; `stretches`, what it keeps of each clause, as `read_aloud` takes
+    them; `shown`, where each stretch is in the window - its line's key and
+    its characters on that side, so a stretch's characters `[a, b)` are
+    `Words(kind, clause, start + a, start + b)`."""
+
+    kind: RowKind
+    language: str
+    stretches: tuple[Stretch, ...]
+    shown: tuple[tuple[int, Words], ...]
+
+    def lit(self, origins: Sequence[Origin]) -> dict[int, list[Words]]:
+        """The characters to light, by line key, for what `read_aloud`'s
+        `came_from` gives."""
+        found: dict[int, list[Words]] = {}
+        for stretch, start, end in origins:
+            if not 0 <= stretch < len(self.shown):
+                continue
+            key, where = self.shown[stretch]
+            found.setdefault(key, []).append(
+                Words(where.side, where.clause, where.start + start, where.start + end)
+            )
+        return found
+
+
+def sides_aloud(pieces: Sequence[Piece]) -> tuple[SideAloud, ...]:
+    """The sides of a selection that can be read aloud, what was said
+    first: as `selected_sentence` keeps them - the side dragged across as
+    selected, the other side of each clause it touches whole. A side with
+    no text, or whose language isn't known, is left out."""
+    found = []
+    clauses = _clauses(pieces)
+    for kind in (RowKind.ORIGINAL, RowKind.TRANSLATION):
+        language: str | None = None
+        stretches: list[Stretch] = []
+        shown: list[tuple[int, Words]] = []
+        for held in clauses:
+            row = held.rows.get(kind)
+            if row is None or not held.texts[kind]:
+                continue
+            if language is None:
+                language = row.language
+            start, end = held.clips[kind]
+            stretches.append(Stretch(held.texts[kind], held.line.key))
+            shown.append((held.line.key, Words(kind, held.clause, start, end)))
+        if language and stretches:
+            found.append(SideAloud(kind, language, tuple(stretches), tuple(shown)))
     return tuple(found)
 
 

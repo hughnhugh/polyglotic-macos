@@ -15,7 +15,9 @@ rehearsal feedback F9, 249; with a slider between them in 5 % steps, 60 to
 translation's text as a share of what was said's, 50 to 200 %, and "Same
 as what was said"; shown while it has a translation; 305), Colour linked
 words in what was said and in the translation (two switches, each on its
-own, for every window, as in Settings: 431), Copy all
+own, for every window, as in Settings: 431), Blue words in the quiet
+view (our curriculum, the learning load, saved words: three ticks, for
+every window, as in Settings: 477), Copy all
 captions (to the clipboard, as the transcript's Copy writes them:
 polyglotic-hq 333; Copy the newest caption went in 339), Open transcript, Join windows, Stop
 captioning, and All caption settings... - Settings > Captions in the
@@ -142,6 +144,7 @@ ROWS = (
     "translation_size",
     "said_colours",
     "translation_colours",
+    "quiet_words",
     "copy_all",
     "transcript",
     "join",
@@ -160,6 +163,7 @@ COLUMN_ROWS = (
     "translation_size",
     "said_colours",
     "translation_colours",
+    "quiet_words",
     "copy_all",
     "transcript",
     "stop",
@@ -625,6 +629,20 @@ class SettingsPopover(QWidget):
     def _translation_colours_row(self) -> QWidget:
         """And in the translation, on its own (431)."""
         return self._wide(self.owner.controls["translation_colours"], switch=True)
+
+    def _quiet_words_row(self) -> QWidget:
+        """Which words the quiet view shows in blue - our curriculum, words
+        at your edge, the learning load, saved words: each ticked or not, for every window,
+        as in Settings (477). In here, not on a menu of the strip's button:
+        nothing on a caption window opens a menu (it would take the focus)."""
+        row = QWidget(self)
+        column = QVBoxLayout(row)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
+        column.addWidget(QLabel(_tr("Blue words in the quiet view")))
+        for which in ("curriculum", "edge", "load", "saved"):
+            column.addWidget(self._button(self.owner.controls[f"quiet_{which}"], row))
+        return row
 
     def _start_like_this_row(self) -> QWidget:
         """Start new windows like this: a new window takes this one's

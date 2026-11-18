@@ -26,8 +26,9 @@ apartment. Words are never logged.
 import ctypes
 import time
 from ctypes import POINTER, byref, c_double, c_int32, c_uint32, c_void_p, wintypes
+from dataclasses import replace
 
-from polyglotic_desktop.platform.speaking import Clip, clip_of_wav
+from polyglotic_desktop.platform.speaking import Clip, WordTime, clip_of_wav
 from polyglotic_desktop.platform.windows.com import (
     GUID,
     ensure_com,
@@ -71,16 +72,25 @@ _IID_INSTALLED_VOICES = GUID.parse("{7D526ECC-7533-4C3F-85BE-888C2BAEEBDC}")
 _IID_SYNTHESIZER = GUID.parse("{CE9F7C76-97F4-4CED-AD68-D51C458E45C6}")
 _IID_SYNTHESIZER2 = GUID.parse("{A7C5ECB2-4339-4D6A-BBF8-C7A4F1544C2E}")
 _IID_VOICE = GUID.parse("{B127D6A4-1291-4604-AA9C-83134083352C}")
+_IID_OPTIONS = GUID.parse("{A0E23871-CC3D-43C9-91B1-EE185324D83D}")
 _IID_OPTIONS2 = GUID.parse("{1CBEF60E-119C-4BED-B118-D250C3A25793}")
 _IID_OPTIONS3 = GUID.parse("{401ED877-902C-4814-A582-A5D0C0769FA8}")
 _IID_ASYNC_INFO = GUID.parse("{00000036-0000-0000-C000-000000000046}")
 _IID_STREAM = GUID.parse("{0000000C-0000-0000-C000-000000000046}")
+# the word timings (polyglotic-hq 495; each checked on build 26200, 2026-11-18,
+# with Windows PowerShell's WinRT projection - `work/iids495.ps1`)
+_IID_TRACK_PROVIDER = GUID.parse("{3B7F2024-F74E-4ADE-93C5-219DA05B6856}")
+_IID_MEDIA_TRACK = GUID.parse("{03E1FAFC-C931-491A-B46B-C10EE8C256B7}")
+_IID_METADATA_TRACK = GUID.parse("{9E6AED9E-F67A-49A9-B330-CF03B0E9CF07}")
+_IID_CUE = GUID.parse("{C7D15E5D-59DC-431F-A0EE-27744323B36D}")
+_IID_SPEECH_CUE = GUID.parse("{AEE254DC-1725-4BAD-8043-A98499B017A2}")
 # vtable slots: IInspectable's six, then each interface's own in order
 _ALL_VOICES = 6  # IInstalledVoicesStatic.get_AllVoices
 _VECTOR_GET_AT, _VECTOR_SIZE = 6, 7  # IVectorView<VoiceInformation>
 _VOICE_NAME, _VOICE_ID, _VOICE_LANGUAGE = 6, 7, 8  # IVoiceInformation
 _SYNTHESIZE_TEXT, _PUT_VOICE = 6, 8  # ISpeechSynthesizer
 _OPTIONS = 6  # ISpeechSynthesizer2.get_Options
+_PUT_WORD_BOUNDARIES = 7  # ISpeechSynthesizerOptions.put_IncludeWordBoundaryMetadata
 _PUT_SPEAKING_RATE = 9  # ISpeechSynthesizerOptions2
 _PUT_APPENDED_SILENCE = 7  # ISpeechSynthesizerOptions3
 _APPENDED_SILENCE_MIN = 1
@@ -88,6 +98,14 @@ _ASYNC_STATUS, _ASYNC_ERROR = 7, 8  # IAsyncInfo
 _STARTED, _COMPLETED = 0, 1
 _GET_RESULTS = 8  # IAsyncOperation<SpeechSynthesisStream>
 _STREAM_READ = 3  # IStream::Read
+_TRACKS = 6  # ITimedMetadataTrackProvider.get_TimedMetadataTracks
+_TRACK_ID = 6  # IMediaTrack.get_Id: "SpeechWord" for the words' track
+_CUES = 12  # ITimedMetadataTrack.get_Cues
+_CUE_START = 7  # IMediaCue.get_StartTime (100 ns units)
+_CUE_FROM, _CUE_TO = 8, 10  # ISpeechCue.get_Start/EndPositionInInput
+_REFERENCE_VALUE = 6  # IReference<int>.get_Value
+_WORDS_TRACK = "SpeechWord"
+_TICKS_PER_SEC = 10_000_000
 
 
 class _HString:
@@ -186,7 +204,8 @@ class WindowsVoices:
             stream = c_void_p()
             method(operation, _GET_RESULTS, POINTER(c_void_p))(byref(stream))
             try:
-                return clip_of_wav(_read_all(stream))
+                clip = clip_of_wav(_read_all(stream))
+                return replace(clip, words=_word_times(stream, text))
             finally:
                 release(stream)
         finally:
@@ -249,6 +268,12 @@ class WindowsVoices:
                 release(silence)
             except OSError:
                 pass  # before 1809
+            try:  # when each word sounds: a reading's moving highlight (495)
+                words = query_interface(options, _IID_OPTIONS)
+                method(words, _PUT_WORD_BOUNDARIES, ctypes.c_bool)(True)
+                release(words)
+            except OSError:
+                pass  # before 1703: no word timings
         finally:
             release(options)
             release(second)
@@ -274,6 +299,116 @@ def _wait_for(operation: c_void_p) -> None:
             raise OSError(f"Windows' speech failed: {code.value & 0xFFFFFFFF:#x}")
     finally:
         release(info)
+
+
+def _word_times(stream: c_void_p, text: str) -> tuple[WordTime, ...]:
+    """When each word of `text` sounds in the synthesized `stream`: its
+    "SpeechWord" track's cues (polyglotic-hq 495) - none if Windows gave
+    none, or they can't be read (a reading is still heard, unlit)."""
+    try:
+        provider = query_interface(stream, _IID_TRACK_PROVIDER)
+    except OSError:
+        return ()
+    found: list[WordTime] = []
+    units = _utf16_index(text)
+    try:
+        for track in _items(provider, _TRACKS):
+            try:
+                if _track_id(track) == _WORDS_TRACK:
+                    found.extend(_cue_times(track, units))
+            except OSError:
+                pass  # a track that can't be read: its words unlit
+            finally:
+                release(track)
+    except OSError:
+        return ()
+    finally:
+        release(provider)
+    return tuple(sorted(found, key=lambda w: w.at))
+
+
+def _items(obj: c_void_p, slot: int) -> list[c_void_p]:
+    """The objects of the `IVectorView` property at `slot` of `obj` (each to
+    be released)."""
+    vector = c_void_p()
+    method(obj, slot, POINTER(c_void_p))(byref(vector))
+    try:
+        size = c_uint32()
+        method(vector, _VECTOR_SIZE, POINTER(c_uint32))(byref(size))
+        items = []
+        for index in range(size.value):
+            item = c_void_p()
+            method(vector, _VECTOR_GET_AT, c_uint32, POINTER(c_void_p))(
+                index, byref(item)
+            )
+            items.append(item)
+        return items
+    finally:
+        release(vector)
+
+
+def _track_id(track: c_void_p) -> str:
+    media = query_interface(track, _IID_MEDIA_TRACK)
+    try:
+        return _string_property(media, _TRACK_ID)
+    finally:
+        release(media)
+
+
+def _cue_times(track: c_void_p, units: list[int]) -> list[WordTime]:
+    """A words track's cues as word times; `units`: where each UTF-16 unit
+    of the text falls in Python's string (WinRT counts in UTF-16)."""
+    metadata = query_interface(track, _IID_METADATA_TRACK)
+    try:
+        cues = _items(metadata, _CUES)
+    finally:
+        release(metadata)
+    found = []
+    for cue in cues:
+        try:
+            timed = query_interface(cue, _IID_CUE)
+            speech = query_interface(cue, _IID_SPEECH_CUE)
+            try:
+                ticks = ctypes.c_int64()
+                method(timed, _CUE_START, POINTER(ctypes.c_int64))(byref(ticks))
+                first = _reference_int(speech, _CUE_FROM)
+                last = _reference_int(speech, _CUE_TO)
+            finally:
+                release(speech)
+                release(timed)
+            if first is None or last is None or not 0 <= first <= last < len(units):
+                continue
+            found.append(
+                WordTime(  # Windows' end is the word's last unit, not past it
+                    units[first], units[last] + 1, ticks.value / _TICKS_PER_SEC
+                )
+            )
+        finally:
+            release(cue)
+    return found
+
+
+def _reference_int(obj: c_void_p, slot: int) -> int | None:
+    """An `IReference<int>` property's value; None when it has none."""
+    reference = c_void_p()
+    method(obj, slot, POINTER(c_void_p))(byref(reference))
+    if not reference:
+        return None
+    try:
+        value = c_int32()
+        method(reference, _REFERENCE_VALUE, POINTER(c_int32))(byref(value))
+        return value.value
+    finally:
+        release(reference)
+
+
+def _utf16_index(text: str) -> list[int]:
+    """For each UTF-16 unit of `text`, the index of its character in the
+    Python string (a character past the BMP is two units)."""
+    found = []
+    for index, char in enumerate(text):
+        found.extend([index] * (2 if ord(char) > 0xFFFF else 1))
+    return found
 
 
 def _read_all(stream: c_void_p) -> bytes:

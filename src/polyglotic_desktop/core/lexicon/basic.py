@@ -57,11 +57,15 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
     a name's - not a capitalised headword, as English's rule has it:
     German writes every noun with a capital, and its nouns had all been
     names, never pointed out as new nor counted as heard (polyglotic-hq
-    380)."""
+    380). No spoken ranks: those are English's and Mandarin's (491)."""
     return replace(
         english_entry(record),
         is_name=bool(record.meanings)
         and all(m.startswith(NAME) for m in record.meanings),
+        spoken_rank=None,
+        is_filler=False,
+        spells_a_number=False,
+        names_capitalised=False,  # German capitalises its nouns
     )
 
 

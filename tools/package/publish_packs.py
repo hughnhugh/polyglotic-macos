@@ -47,7 +47,12 @@ What it does, in order:
    app has its recorded words put in the list's `built_in` entry for it
    (decision 0197), `cedict-<version>.audio`. The entries the list has
    already are kept, but one for the same dictionary is replaced;
-6. only with `--upload`: puts each file in the bucket with wrangler (as
+6. with `--fonts DIR` (`tools.caption_fonts --packs` writes it): each
+   caption face's files go up as riders (kind `font`, `--font-min-app`)
+   of its entry in the list's `fonts` (polyglotic-hq 482, decision 0223),
+   `<pack>-<style>-<version>.<ext>`; the faces the list has already stay,
+   but one of the same name is replaced;
+7. only with `--upload`: puts each file in the bucket with wrangler (as
    polyglotic-hq 280's publish-alpha.sh does; wrangler gets this
    environment without the signing key), then fetches the list back from
    the live address and checks it.
@@ -90,10 +95,12 @@ from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary, add_
 from polyglotic_desktop.core.lexicon.packs import (
     LIST_FORMAT,
     BuiltIn,
+    FontOffer,
     PackOffer,
     Rider,
     list_serial,
     read_built_in,
+    read_fonts,
     read_pack_list,
     version_key,
 )
@@ -109,6 +116,10 @@ RIDER_MIN_APP = "0.1.7"
 """The first app version that plays a pack's recorded words: the default
 `min_app` of a rider (decision 0192; 0.1.7 on the user's word of
 2026-11-16 ~23:00)."""
+FONT_MIN_APP = "0.1.8"
+"""The first app version that downloads caption faces (polyglotic-hq 482)."""
+FONT_FORMAT = "1"
+"""A caption face's file: a TrueType or OpenType font, or its licence text."""
 BUILT_IN = {"cedict": "zh"}
 """The dictionaries built into the app that may have recorded words, and
 the language each is learned for (main.BUILT_IN_RECORDED)."""
@@ -351,10 +362,13 @@ OUT_MARK = ".polyglotic-packs-publish"
 
 
 def list_bytes(
-    offers: Sequence[PackOffer], serial: int, built_in: Sequence[BuiltIn] = ()
+    offers: Sequence[PackOffer],
+    serial: int,
+    built_in: Sequence[BuiltIn] = (),
+    fonts: Sequence[FontOffer] = (),
 ) -> bytes:
     """The list as published: one JSON object, keys sorted, UTF-8 - with
-    `built_in` only if there are any (decision 0197)."""
+    `built_in` only if there are any (decision 0197), and `fonts` (482)."""
     whole: dict[str, object] = {
         "list": LIST_FORMAT,
         "serial": serial,
@@ -362,6 +376,8 @@ def list_bytes(
     }
     if built_in:
         whole["built_in"] = [asdict(b) for b in built_in]
+    if fonts:
+        whole["fonts"] = [asdict(f) for f in fonts]
     return (
         json.dumps(whole, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
     ).encode("utf-8")
@@ -378,7 +394,7 @@ def sign_list(data: bytes, key: SigningKey) -> bytes:
 
 def previous_list(
     source: str | None, get: Callable[[str], bytes]
-) -> tuple[tuple[PackOffer, ...], int, tuple[BuiltIn, ...]]:
+) -> tuple[tuple[PackOffer, ...], int, tuple[BuiltIn, ...], tuple[FontOffer, ...]]:
     """The list now published - `source`, a `list.signed` file, or None for
     the live one; its signature checked first - its serial, and its
     built-in dictionaries' riders; or none yet, serial 0."""
@@ -393,11 +409,54 @@ def previous_list(
                     f"the live list can't be read (HTTP {e.code})"
                 ) from None
             print("  no list published yet (404): starting one")
-            return (), 0, ()
+            return (), 0, (), ()
     signature, data = split_signed_list(whole)
     if not source:  # a file given is the operator's own (a dry run's stand-in)
         verify(signed_list_message(data), signature, app_keys())
-    return read_pack_list(data)[0], list_serial(data), read_built_in(data)
+    return (
+        read_pack_list(data)[0],
+        list_serial(data),
+        read_built_in(data),
+        read_fonts(data),
+    )
+
+
+def stamp_fonts(
+    folder: Path, out_files: Path, min_app: str
+) -> tuple[list[FontOffer], list[Path]]:
+    """Each caption face in `folder` (`fonts.json`, by
+    `tools.caption_fonts --packs`) as its list entry, each file a rider,
+    gzipped into `out_files`: the entries, and the files to upload."""
+    manifest = json.loads((folder / "fonts.json").read_text(encoding="utf-8"))
+    offers, files = [], []
+    for entry in manifest:
+        riders = []
+        for name in entry["files"]:
+            source = folder / name
+            packed = out_files / (name + ".gz")
+            with (
+                source.open("rb") as f,
+                packed.open("wb") as raw,
+                gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as gz,
+            ):
+                shutil.copyfileobj(f, gz)
+            riders.append(
+                Rider(
+                    "font",
+                    FONT_FORMAT,
+                    min_app,
+                    name,
+                    source.stat().st_size,
+                    sha256_of(source),
+                    packed.stat().st_size,
+                    sha256_of(packed),
+                )
+            )
+            files.append(packed)
+        offers.append(
+            FontOffer(entry["font"], entry["family"], entry["credits"], tuple(riders))
+        )
+    return offers, files
 
 
 def _get(url: str) -> bytes:
@@ -493,6 +552,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--rider-min-app", default=RIDER_MIN_APP)
     parser.add_argument(
+        "--fonts",
+        type=Path,
+        help="caption faces built by tools.caption_fonts --packs: their files "
+        "go up as riders of the list's fonts",
+    )
+    parser.add_argument("--font-min-app", default=FONT_MIN_APP)
+    parser.add_argument(
         "--riders-only",
         action="store_true",
         help="the riders beside the packs published at --version: no pack "
@@ -510,15 +576,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
     if any(
-        version_key(v) is None for v in (args.version, args.min_app, args.rider_min_app)
+        version_key(v) is None
+        for v in (args.version, args.min_app, args.rider_min_app, args.font_min_app)
     ):
         print("--version and the min apps are dotted numbers", file=sys.stderr)
         return 2
     if args.riders_only and (args.audio is None or args.build):
         print("--riders-only needs --audio, and builds no pack", file=sys.stderr)
         return 2
-    if not args.languages and not args.built_in:
-        print("name the packs to publish, or --built-in", file=sys.stderr)
+    if not args.languages and not args.built_in and args.fonts is None:
+        print("name the packs to publish, or --built-in, or --fonts", file=sys.stderr)
         return 2
     if args.built_in and args.audio is None:
         print("--built-in needs --audio", file=sys.stderr)
@@ -552,7 +619,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     (args.out / OUT_MARK).write_text("made by tools.package.publish_packs\n")
     from tools.dictionaries.packs import PACKS
 
-    previous, serial, built_in = previous_list(args.previous, _get)
+    previous, serial, built_in, faces = previous_list(args.previous, _get)
     new: list[PackOffer] = []
     new_files: list[Path] = []
     said_by: dict[str, dict[str, str]] = {}  # each audio file's info
@@ -627,8 +694,28 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 1
+    new_faces: list[FontOffer] = []
+    if args.fonts is not None:
+        new_faces, face_files = stamp_fonts(args.fonts, out_files, args.font_min_app)
+        face_shas = {r.file: r.sha256 for old in faces for r in old.riders}
+        clash_faces = [
+            r.file
+            for face in new_faces
+            for r in face.riders
+            if face_shas.get(r.file, r.sha256) != r.sha256
+        ]
+        if clash_faces:
+            print(
+                f"{clash_faces[0]} is published already with other bytes: "
+                "give the faces another version (caption_fonts.PACK_VERSION)",
+                file=sys.stderr,
+            )
+            return 1
+        new_files += face_files
+    renamed = {face.font for face in new_faces}
+    faces = tuple(new_faces) + tuple(f for f in faces if f.font not in renamed)
     offers = merged(new, previous)
-    data = list_bytes(offers, serial + 1, built_in)
+    data = list_bytes(offers, serial + 1, built_in, faces)
     signed = sign_list(data, key)
     (out_list / LIST_NAME).write_bytes(signed)
 
@@ -659,6 +746,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 f"{r.gz_size / 1e6:.1f} MB ({r.size / 1e6:.1f} MB unpacked) "
                 f"sha256 {r.gz_sha256[:12]}"
             )
+    for face in faces:
+        mark = "new" if face in new_faces else "kept"
+        size = sum(r.gz_size for r in face.riders)
+        print(
+            f"  {mark:4} face {face.font} ({face.family}): {len(face.riders)} files, "
+            f"{size / 1e6:.2f} MB, from app {face.riders[0].min_app}"
+        )
     for name, info in said_by.items():
         print(f"  {name}'s words: {info.get('words')}, said by {info.get('voice')}")
         print(f"    credit: {info.get('licence')}")

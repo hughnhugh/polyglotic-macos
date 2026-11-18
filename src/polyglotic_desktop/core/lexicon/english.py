@@ -17,6 +17,7 @@ import re
 import unicodedata
 from collections.abc import Mapping, Sequence
 
+from polyglotic_desktop.core.lexicon import spoken
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, words_in_runs
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordInLine
 from polyglotic_desktop.ports.dictionary import DictionaryFile, EntryRecord
@@ -60,7 +61,8 @@ _WORD = re.compile(rf"{_LETTERS}(?:['’{_JOINERS}-]{_LETTERS})*")
 
 def entry_from_record(record: EntryRecord) -> DictionaryEntry:
     """An ECDICT entry. A capitalised headword (other than "I") is a proper
-    noun - a name, place, language or day - not shown as unfamiliar."""
+    noun - a name, place, language or day - not shown as unfamiliar. Its
+    rank in speech and whether it's a filler: `spoken.ENGLISH`."""
     return DictionaryEntry(
         entry_id=EntryId(record.entry_id),
         headword=record.headword,
@@ -70,6 +72,10 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
         frequency_rank=record.frequency_rank,
         levels=record.levels,
         is_name=record.headword[:1].isupper() and len(record.headword) > 1,
+        spoken_rank=spoken.ENGLISH.rank(record.headword),
+        is_filler=spoken.ENGLISH.is_filler(record.headword),
+        spells_a_number=record.headword in spoken.ENGLISH_NUMBERS,
+        names_capitalised=True,
     )
 
 

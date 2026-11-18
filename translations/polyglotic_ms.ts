@@ -197,6 +197,11 @@
     <name>CaptionWindow</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Quiet view on or off: captions in quiet grey and gold, only your chosen words in blue, no underlines - point at a word to see its partner</source>
+        <translation type="unfinished">Paparan tenang hidup atau mati: sari kata dalam kelabu dan emas yang tenang, hanya perkataan pilihan anda berwarna biru, tanpa garis bawah – tuding sesuatu perkataan untuk melihat pasangannya</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Steady</source>
         <translation type="unfinished">Stabil</translation>
     </message>
@@ -505,6 +510,31 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links on or off: words that mean the same share a colour</source>
         <translation type="unfinished">Pautan perkataan hidup atau mati: perkataan yang sama maksud berkongsi warna</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Quiet view</source>
+        <translation type="unfinished">Paparan tenang</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Our curriculum</source>
+        <translation type="unfinished">Kurikulum kami</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Words at your edge</source>
+        <translation type="unfinished">Perkataan di sempadan anda</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">Beban pembelajaran</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Saved words</source>
+        <translation type="unfinished">Perkataan disimpan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -840,6 +870,106 @@
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Pick a colour: {what}</source>
         <translation type="unfinished">Pilih warna: {what}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Light</source>
+        <translation type="unfinished">Nipis</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Regular</source>
+        <translation type="unfinished">Biasa</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Medium</source>
+        <translation type="unfinished">Sederhana</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Semibold</source>
+        <translation type="unfinished">Separa tebal</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Bold</source>
+        <translation type="unfinished">Tebal</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Contrast</source>
+        <translation type="unfinished">Kontras</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft</source>
+        <translation type="unfinished">Lembut</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Crisp</source>
+        <translation type="unfinished">Tajam</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How strongly captions stand out from their panel. Soft is as faint as Quick preview&apos;s line, and never too faint to read; crisp draws every line at full strength.</source>
+        <translation type="unfinished">Sejauh mana kapsyen menonjol daripada panelnya. Lembut sepudar baris Pratonton, dan tidak pernah terlalu pudar untuk dibaca; tajam melukis setiap baris dengan kekuatan penuh.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Vibrance</source>
+        <translation type="unfinished">Kecerahan warna</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Muted</source>
+        <translation type="unfinished">Pudar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Vivid</source>
+        <translation type="unfinished">Terang</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How vivid captions&apos; colours are. Dull colours change most; white and grey stay as they are, and word links keep their colours so you can tell them apart.</source>
+        <translation type="unfinished">Sejauh mana warna kapsyen terang. Warna yang kusam paling banyak berubah; putih dan kelabu kekal seperti asal, dan pautan perkataan kekal dengan warnanya supaya anda boleh membezakannya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Thickness</source>
+        <translation type="unfinished">Ketebalan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>How thick captions&apos; letters are, and their pinyin a step thicker. A font without a weight draws the nearest it has.</source>
+        <translation type="unfinished">Sejauh mana tebal huruf kapsyen, dengan pinyin satu langkah lebih tebal. Fon tanpa ketebalan itu menggunakan yang paling hampir yang ada padanya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>None</source>
+        <translation type="unfinished">Tiada</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft shadow</source>
+        <translation type="unfinished">Bayang lembut</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Outline</source>
+        <translation type="unfinished">Garis luar</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>What&apos;s drawn around captions&apos; letters, to read over a busy video. The panel behind them has its own slider, below.</source>
+        <translation type="unfinished">Apa yang dilukis di sekeliling huruf kapsyen supaya mudah dibaca di atas video yang sibuk. Panel di belakangnya ada peluncur sendiri, di bawah.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Visibility</source>
+        <translation type="unfinished">Kebolehbacaan</translation>
     </message>
 </context>
 <context>
@@ -1608,6 +1738,109 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Hold {key} and speak</source>
         <translation type="unfinished">Tahan {key} dan bercakap</translation>
+    </message>
+</context>
+<context>
+    <name>FaceRows</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Sans</source>
+        <translation type="unfinished">Sans</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Serif</source>
+        <translation type="unfinished">Serif</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Handwritten</source>
+        <translation type="unfinished">Tulisan tangan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} isn&apos;t ready to download yet.</source>
+        <translation type="unfinished">{face} belum sedia untuk dimuat turun.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} needs a newer Polyglotic.</source>
+        <translation type="unfinished">{face} memerlukan Polyglotic yang lebih baharu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Refused: the list of downloads failed our signature check, so nothing was downloaded.</source>
+        <translation type="unfinished">Ditolak: senarai muat turun gagal dalam semakan tandatangan kami, jadi tiada apa-apa dimuat turun.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Waiting for another download to finish.</source>
+        <translation type="unfinished">Menunggu muat turun lain selesai.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Downloading {face}: {done} of {total} MB</source>
+        <translation type="unfinished">Memuat turun {face}: {done} daripada {total} MB</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Checking {face}.</source>
+        <translation type="unfinished">Menyemak {face}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Getting {face}.</source>
+        <translation type="unfinished">Mendapatkan {face}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>This PC&apos;s own</source>
+        <translation type="unfinished">Fon PC ini sendiri</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>This Mac&apos;s own</source>
+        <translation type="unfinished">Fon Mac ini sendiri</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Any font on this PC</source>
+        <translation type="unfinished">Mana-mana fon pada PC ini</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Any font on this Mac</source>
+        <translation type="unfinished">Mana-mana fon pada Mac ini</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{face} (Default)</source>
+        <translation type="unfinished">{face} (Lalai)</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Download anyway</source>
+        <translation type="unfinished">Muat turun juga</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Retry</source>
+        <translation type="unfinished">Cuba lagi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Fonts</source>
+        <translation type="unfinished">Fon</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Each language&apos;s captions in a face of its own.</source>
+        <translation type="unfinished">Kapsyen setiap bahasa dalam fonnya sendiri.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>{language} captions in</source>
+        <translation type="unfinished">{language}: fon kapsyen</translation>
     </message>
 </context>
 <context>
@@ -3295,6 +3528,177 @@
     </message>
 </context>
 <context>
+    <name>KnownMap</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>No change in the last 7 days.</source>
+        <translation type="unfinished">Tiada perubahan dalam 7 hari lepas.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>In the last 7 days: {green} green, {red} red.</source>
+        <translation type="unfinished">Dalam 7 hari lepas: {green} hijau, {red} merah.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Within the about {words} words you know.</source>
+        <translation type="unfinished">Dalam lingkungan kira-kira {words} perkataan yang anda tahu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Past the about {words} words you know.</source>
+        <translation type="unfinished">Melepasi kira-kira {words} perkataan yang anda tahu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Your level isn&apos;t set yet, so that&apos;s a guess.</source>
+        <translation type="unfinished">Tahap anda belum ditetapkan, jadi ini anggaran.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You said you know it.</source>
+        <translation type="unfinished">Anda kata anda tahu perkataan ini.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Known from what you imported.</source>
+        <translation type="unfinished">Diketahui daripada apa yang anda import.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>A number written in numerals you know.</source>
+        <translation type="unfinished">Nombor yang ditulis dengan angka yang anda tahu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You know the words it&apos;s made of.</source>
+        <translation type="unfinished">Anda tahu perkataan yang membentuknya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Not all the words it&apos;s made of are known.</source>
+        <translation type="unfinished">Tidak semua perkataan yang membentuknya diketahui.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>In your deck.</source>
+        <translation type="unfinished">Dalam dek anda.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up twice, so new to you for now.</source>
+        <translation type="unfinished">Dicari dua kali, jadi buat masa ini baharu bagi anda.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>You said it&apos;s new to you.</source>
+        <translation type="unfinished">Anda kata perkataan ini baharu bagi anda.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Nothing says how common it is.</source>
+        <translation type="unfinished">Tiada maklumat tentang betapa lazimnya perkataan ini.</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Heard on %n day(s).</source>
+        <translation type="unfinished">
+            <numerusform>Didengar pada %n hari.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Saved.</source>
+        <translation type="unfinished">Disimpan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up, then heard again without a lookup.</source>
+        <translation type="unfinished">Dicari, kemudian didengar semula tanpa dicari.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up in the last 3 days.</source>
+        <translation type="unfinished">Dicari dalam 3 hari lepas.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Looked up twice since you said you know it.</source>
+        <translation type="unfinished">Dicari dua kali sejak anda kata anda tahu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>{word} · No. {place}</source>
+        <translation type="unfinished">{word} · No. {place}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>A name, or a word you ignore: not coloured.</source>
+        <translation type="unfinished">Nama, atau perkataan yang anda abaikan: tidak diwarnakan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>About {percent} likely you know it.</source>
+        <translation type="unfinished">Kira-kira {percent} kemungkinan anda tahu perkataan ini.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>How well you know the language</source>
+        <translation type="unfinished">Sejauh mana anda mengenali bahasa ini</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Reading the language&apos;s words…</source>
+        <translation type="unfinished">Membaca perkataan bahasa ini…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>This language&apos;s dictionary doesn&apos;t say how common its words are.</source>
+        <translation type="unfinished">Kamus bahasa ini tidak menyatakan betapa lazimnya perkataannya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Its {count} most common words, one square each, commonest first. Point at a square to see its word and why it&apos;s that colour.</source>
+        <translation type="unfinished">{count} perkataan paling lazim, satu petak setiap satu, yang paling lazim dahulu. Tuding pada petak untuk melihat perkataannya dan sebab warnanya.</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) green</source>
+        <translation type="unfinished">
+            <numerusform>%Ln perkataan hijau</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) between</source>
+        <translation type="unfinished">
+            <numerusform>%Ln perkataan di antaranya</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) red</source>
+        <translation type="unfinished">
+            <numerusform>%Ln perkataan merah</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>{share} of what you hear is green, by how often each word is said.</source>
+        <translation type="unfinished">{share} daripada apa yang anda dengar berwarna hijau, mengikut kekerapan setiap perkataan disebut.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Red: never met, or far past what you know. The colours between: words you&apos;ve heard or partly know. Green: mastered. A native speaker&apos;s map is all green.</source>
+        <translation type="unfinished">Merah: tidak pernah ditemui, atau jauh melepasi apa yang anda tahu. Warna di antaranya: perkataan yang pernah anda dengar atau kenal sebahagiannya. Hijau: sudah dikuasai. Peta penutur asli semuanya hijau.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>How well you know {language}</source>
+        <translation type="unfinished">Sejauh mana anda mengenali {language}</translation>
+    </message>
+</context>
+<context>
     <name>Lab</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -3653,8 +4057,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>A set number of the next words past what you know, each coloured by how often you have heard it since: red, orange, yellow, green, then ready to check. In place of the marks under new words. Its words and settings are on Learning.</source>
-        <translation type="unfinished">Bilangan tetap perkataan seterusnya selepas perkataan yang anda sudah tahu, setiap satu diwarnakan mengikut kekerapan anda mendengarnya sejak itu: merah, jingga, kuning, hijau, kemudian sedia disemak. Menggantikan tanda di bawah perkataan baharu. Perkataan dan tetapannya ada di Pembelajaran.</translation>
+        <source>Every word in a colour by how well you know it: red, never met or far past what you know; the colours between, words you have heard or partly know; green, mastered. In place of the marks under new words.</source>
+        <translation type="unfinished">Setiap perkataan diwarnakan mengikut sejauh mana anda mengenalinya: merah, tidak pernah ditemui atau jauh melepasi apa yang anda tahu; warna di antaranya, perkataan yang pernah anda dengar atau kenal sebahagiannya; hijau, sudah dikuasai. Menggantikan tanda di bawah perkataan baharu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -3668,18 +4072,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Dimmed</source>
-        <translation type="unfinished">Dimalapkan</translation>
+        <source>Red to green</source>
+        <translation type="unfinished">Merah ke hijau</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Words outside the load</source>
-        <translation type="unfinished">Perkataan di luar beban</translation>
+        <source>Orange to blue</source>
+        <translation type="unfinished">Oren ke biru</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
-        <source>Rarer words you don&apos;t know yet, in Learning load: as now, or dimmed so the load&apos;s words stand out. Dimmed turns Learning load on.</source>
-        <translation type="unfinished">Perkataan yang lebih jarang dan belum anda tahu, dalam Beban pembelajaran: seperti sekarang, atau dimalapkan supaya perkataan dalam beban menonjol. Dimalapkan menghidupkan Beban pembelajaran.</translation>
+        <source>Its colours</source>
+        <translation type="unfinished">Warnanya</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
+        <source>Red to green, or orange to blue if red and green look alike to you. Both go from darker to lighter as you know a word better. Choosing one turns Learning load on.</source>
+        <translation type="unfinished">Merah ke hijau, atau oren ke biru jika merah dan hijau kelihatan sama bagi anda. Kedua-duanya berubah daripada lebih gelap kepada lebih cerah apabila anda lebih mengenali sesuatu perkataan. Memilih salah satu menghidupkan Beban pembelajaran.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4835,6 +5244,31 @@
 </context>
 <context>
     <name>LookupCard</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
+        <translation type="unfinished">Belum ada suara {language} pada PC ini. Windows menambahnya secara percuma: Tetapan &gt; Masa &amp; bahasa &gt; Pertuturan &gt; Tambah suara, kemudian {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
+        <translation type="unfinished">Belum ada suara {language} pada Mac ini. macOS menambahnya secara percuma: Seting Sistem &gt; Kebolehcapaian &gt; Kandungan Dituturkan &gt; Suara sistem &gt; Urus Suara, kemudian {language}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>That was macOS&apos;s basic {language} voice. A more natural one is free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then a {language} voice marked Enhanced or Premium.</source>
+        <translation type="unfinished">Itu suara {language} asas macOS. Suara yang lebih semula jadi adalah percuma: Seting Sistem &gt; Kebolehcapaian &gt; Kandungan Dituturkan &gt; Suara sistem &gt; Urus Suara, kemudian suara {language} bertanda Dipertingkat atau Premium.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Don&apos;t show again for {language}</source>
+        <translation type="unfinished">Jangan tunjukkan lagi untuk {language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>Dismiss</source>
+        <translation type="unfinished">Tutup</translation>
+    </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Heard in %Ln caption(s)</source>
@@ -4963,16 +5397,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
-        <translation type="unfinished">Belum ada suara {language} pada PC ini. Windows menambahnya secara percuma: Tetapan &gt; Masa &amp; bahasa &gt; Pertuturan &gt; Tambah suara, kemudian {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
-        <translation type="unfinished">Belum ada suara {language} pada Mac ini. macOS menambahnya secara percuma: Seting Sistem &gt; Kebolehcapaian &gt; Kandungan Dituturkan &gt; Suara sistem &gt; Urus Suara, kemudian {language}.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Open speech settings</source>
         <translation type="unfinished">Buka tetapan pertuturan</translation>
     </message>
@@ -5075,11 +5499,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Stop (R)</source>
         <translation type="unfinished">Henti (R)</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
-        <source>Say it again, slower (R)</source>
-        <translation type="unfinished">Sebut semula, lebih perlahan (R)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5555,11 +5974,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Polyglotic (Default)</source>
-        <translation type="unfinished">Polyglotic (Lalai)</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Look</source>
         <translation type="unfinished">Rupa</translation>
     </message>
@@ -5577,6 +5991,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A matched set of colours for the text and the panel. Pick one, then change any colour.</source>
         <translation type="unfinished">Set warna yang sepadan untuk teks dan panel. Pilih satu, kemudian tukar mana-mana warna.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Caption text</source>
+        <translation type="unfinished">Teks kapsyen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How strongly captions stand out, how vivid their colours are and how thick their letters are, in every caption window - contrast and colour in transcripts too. In the middle: as they were.</source>
+        <translation type="unfinished">Sejauh mana kapsyen menonjol, sejauh mana warnanya terang dan sejauh mana tebal hurufnya, dalam setiap tetingkap kapsyen - kontras dan warna dalam transkrip juga. Di tengah: seperti sebelum ini.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5617,21 +6041,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>0 % is no box at all; 100 % hides the video behind the text. Over a bright film, 70 % or more keeps the text readable.</source>
         <translation type="unfinished">0 % bermaksud tiada kotak langsung; 100 % menyembunyikan video di belakang teks. Di atas filem yang terang, 70 % atau lebih memastikan teks boleh dibaca.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Font</source>
-        <translation type="unfinished">Fon</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Any font on this PC. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
-        <translation type="unfinished">Mana-mana fon pada PC ini. Bahasa Cina dan Jepun beralih ke fon yang mempunyainya jika fon anda tidak.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Any font on this Mac. Chinese and Japanese fall back to a font that has them if yours doesn&apos;t.</source>
-        <translation type="unfinished">Mana-mana fon pada Mac ini. Bahasa Cina dan Jepun beralih ke fon yang mempunyainya jika fon anda tidak.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5787,6 +6196,66 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Learning</source>
         <translation type="unfinished">Pembelajaran</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Quiet view</source>
+        <translation type="unfinished">Paparan tenang</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Captions in quiet grey and gold, a little bigger, with pinyin over every word and only your chosen words in blue - no underlines or arrows. Point at a word to see its partner. Turns word links off.</source>
+        <translation type="unfinished">Sari kata dalam kelabu dan emas yang tenang, sedikit lebih besar, dengan pinyin di atas setiap perkataan dan hanya perkataan pilihan anda berwarna biru – tanpa garis bawah atau anak panah. Tuding sesuatu perkataan untuk melihat pasangannya. Mematikan pautan perkataan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Our curriculum</source>
+        <translation type="unfinished">Kurikulum kami</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>A few words just past what you know: the ones the talk is about, then the ones you hear most. A word the talk brought moves on once you know it; the others after three days met.</source>
+        <translation type="unfinished">Beberapa perkataan sedikit melepasi apa yang anda tahu: yang sedang dibualkan, kemudian yang paling kerap anda dengar. Perkataan yang dibawa oleh perbualan diteruskan sebaik anda mengetahuinya; yang lain selepas ditemui pada tiga hari berbeza.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Words at your edge</source>
+        <translation type="unfinished">Perkataan di sempadan anda</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Any word in your learning window, each time it&apos;s said - never names, numbers or everyday talk.</source>
+        <translation type="unfinished">Mana-mana perkataan dalam julat pembelajaran anda, setiap kali ia disebut - tidak sekali-kali nama, nombor atau cakap harian.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Learning load</source>
+        <translation type="unfinished">Beban pembelajaran</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Every word of your learning load, as in the Lab.</source>
+        <translation type="unfinished">Setiap perkataan dalam beban pembelajaran anda, seperti dalam Makmal.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Saved words</source>
+        <translation type="unfinished">Perkataan disimpan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Words you saved, whatever their category.</source>
+        <translation type="unfinished">Perkataan yang anda simpan, apa jua kategorinya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Curriculum words</source>
+        <translation type="unfinished">Perkataan kurikulum</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How many words our curriculum holds at a time.</source>
+        <translation type="unfinished">Berapa banyak perkataan yang dipegang kurikulum kami pada satu masa.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6256,6 +6725,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
         <source>Saved to {category}</source>
         <translation type="unfinished">Disimpan ke {category}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Say it</source>
+        <translation type="unfinished">Sebut</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Stop</source>
+        <translation type="unfinished">Henti</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Say it in {language}</source>
+        <translation type="unfinished">Sebut dalam {language}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Add a {language} voice</source>
+        <translation type="unfinished">Tambah suara {language}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
@@ -6771,6 +7260,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Don&apos;t see your app here? Make sure it&apos;s playing audio.</source>
         <translation type="unfinished">Tidak nampak apl anda di sini? Pastikan ia sedang memainkan audio.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Blue words in the quiet view</source>
+        <translation type="unfinished">Perkataan biru dalam paparan tenang</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>

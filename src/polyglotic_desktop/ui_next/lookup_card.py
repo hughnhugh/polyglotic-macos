@@ -38,8 +38,10 @@ lookup (`ui.lookup`) in 109's shape:
   read; on the work area.
 - **Say it** (polyglotic-hq 286): pinned, a speaker beside Close says the
   word aloud in one of the PC's voices (`WordSpeech`, `main`'s) - at its
-  own pace, then slower on the next click; a click while it speaks stops
-  it, and so does the card closing. R does the same while one of the app's
+  own pace, every click (518); a click while it speaks stops it, and so
+  does the card closing. Played in a basic voice (a Mac's compact one),
+  the card says how to add a better one, with "Don't show again" for the
+  language and Dismiss (518). R does the same while one of the app's
   windows has the keyboard (not in a text field) - never over a game,
   where R is the game's. With no voice for the word's language the
   speaker is crossed out, and a click says how Windows adds one, with a
@@ -131,7 +133,7 @@ from polyglotic_desktop.ui_next.views.lookup import (
     place,
 )
 from polyglotic_desktop.ui_next.views.placement import Size
-from polyglotic_desktop.ui_next.views.speech import Say, word_language
+from polyglotic_desktop.ui_next.views.speech import Say, notice_language, word_language
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 
 HOVER_MS = 100
@@ -202,6 +204,50 @@ def _tr(text: str) -> str:
 def _trn(text: str, n: int) -> str:
     """A count's text in the language's form for `n` (decision 0034)."""
     return QApplication.translate("LookupCard", text, None, n)
+
+
+def no_voice_steps(language: str) -> str:
+    """No voice for `language` on this PC, and how Windows adds one - or a
+    Mac's steps: the card's "say it", and the selection's Say it
+    (polyglotic-hq 495)."""
+    name = learned_name("zh" if language == "zh-hant" else language)
+    return pc_or_mac(
+        _tr(
+            "No {language} voice on this PC yet. Windows adds one for free: "
+            "Settings > Time & language > Speech > Add voices, then "
+            "{language}."
+        ),
+        _tr(
+            "No {language} voice on this Mac yet. macOS adds one for free: "
+            "System Settings > Accessibility > Spoken Content > System "
+            "voice > Manage Voices, then {language}."
+        ),
+    ).format(language=name)
+
+
+def better_voice_steps(language: str) -> str:
+    """A word or selection was said in a basic voice: how to add a better
+    one of its language (polyglotic-hq 518; Apple's steps, 428). Only a
+    Mac's voices are basic (`ports.speaker.Quality`): Windows' natural
+    voices are Narrator's own."""
+    name = learned_name(notice_language(language))
+    return _tr(
+        "That was macOS's basic {language} voice. A more natural one is "
+        "free: System Settings > Accessibility > Spoken Content > System "
+        "voice > Manage Voices, then a {language} voice marked Enhanced or "
+        "Premium."
+    ).format(language=name)
+
+
+def never_again_text(language: str) -> str:
+    """The better-voice notice's checkbox (518)."""
+    name = learned_name(notice_language(language))
+    return _tr("Don't show again for {language}").format(language=name)
+
+
+def dismiss_text() -> str:
+    """The better-voice notice's button (518)."""
+    return _tr("Dismiss")
 
 
 def heard_in(count: int) -> str:
@@ -577,6 +623,7 @@ class LookupCard(QWidget):
         self.speech: WordSpeech | None = None
         """Says the word aloud (`use_speech`); None: no speaker button."""
         self._voice_help = False  # no voice: how Windows adds one, shown
+        self._never_again = False  # the better-voice notice's box, ticked (518)
         self.create()  # its native window now: the first lookup shows at once
 
     def use_speech(self, speech: WordSpeech) -> None:
@@ -671,6 +718,7 @@ class LookupCard(QWidget):
         self._pending = None
         self._saving = False
         self._voice_help = False
+        self._never_again = False
         self._end_press()
         self.selection.clear()
         if self.speech is not None:
@@ -696,6 +744,7 @@ class LookupCard(QWidget):
             self._copied = False
             self._hot = None
             self._voice_help = False
+            self._never_again = False
             self.selection.clear()
             if self.speech is not None:
                 self.speech.forget()  # another word: the last one stops
@@ -813,6 +862,13 @@ class LookupCard(QWidget):
         self._headline(painted, card, room)
         if saying is not None and saying[1] is Say.NO_VOICE and self._voice_help:
             self._no_voice(painted, saying[0])
+        speech = self.speech
+        if (
+            saying is not None
+            and speech is not None
+            and speech.notice == speech.key(card.word, saying[0])
+        ):
+            self._better_voice(painted, saying[0])
         if card.shows is Shows.ENTRY and card.pinned:
             self._chips(painted, card)
         if card.counterpart:
@@ -933,24 +989,8 @@ class LookupCard(QWidget):
         """No voice for the word's language on this PC: how Windows adds
         one (Microsoft's steps, polyglotic-hq 286), and a button to it - on
         a Mac, how macOS adds one (Apple's steps, 428)."""
-        name = learned_name("zh" if language == "zh-hant" else language)
         painted.space(4)
-        painted.text(
-            pc_or_mac(
-                _tr(
-                    "No {language} voice on this PC yet. Windows adds one for free: "
-                    "Settings > Time & language > Speech > Add voices, then "
-                    "{language}."
-                ),
-                _tr(
-                    "No {language} voice on this Mac yet. macOS adds one for free: "
-                    "System Settings > Accessibility > Spoken Content > System "
-                    "voice > Manage Voices, then {language}."
-                ),
-            ).format(language=name),
-            _ui(12),
-            DIM,
-        )
+        painted.text(no_voice_steps(language), _ui(12), DIM)
         painted.space(2)
         painted.row(
             [
@@ -961,6 +1001,32 @@ class LookupCard(QWidget):
                     (None, _alpha(ACCENT, 0.8)),
                     "add_voice",
                 )
+            ]
+        )
+
+    def _better_voice(self, painted: _Painted, language: str) -> None:
+        """The word was said in a basic voice: how to add a better one, a
+        "Don't show again" box and Dismiss (518)."""
+        painted.space(4)
+        painted.text(better_voice_steps(language), _ui(12), DIM)
+        painted.space(2)
+        tick = "☑" if self._never_again else "☐"
+        painted.row(
+            [
+                _Piece(
+                    f"{tick} {never_again_text(language)}",
+                    _ui(12),
+                    TEXT,
+                    (None, _alpha(DIM, 0.6)),
+                    "voice_never",
+                ),
+                _Piece(
+                    dismiss_text(),
+                    _ui(12, bold=True),
+                    ACCENT,
+                    (None, _alpha(ACCENT, 0.8)),
+                    "voice_dismiss",
+                ),
             ]
         )
 
@@ -1337,8 +1403,6 @@ class LookupCard(QWidget):
             ).format(language=name)
         if state is Say.SPEAKING:
             return _tr("Stop (R)")
-        if self.speech.times_said(card.word, language) % 2:
-            return _tr("Say it again, slower (R)")
         return _tr("Say it (R)")
 
     def tip(self, what: str) -> str:
@@ -1439,6 +1503,12 @@ class LookupCard(QWidget):
             elif what == "add_voice":
                 if self.speech is not None:
                     self.speech.add_voice()
+            elif what == "voice_never":
+                self._never_again = not self._never_again
+            elif what == "voice_dismiss":
+                if self.speech is not None:
+                    self.speech.dismiss(self._never_again)
+                self._never_again = False
             elif what == "back":
                 model.back()
             elif what == "save":

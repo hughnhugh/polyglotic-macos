@@ -102,6 +102,7 @@ class SpeechPipeline:
         recent: RecentSpeech | None = None,
         outputs_playing: Callable[[], int | None] = lambda: None,
         new_mic_detector: Callable[[], FrameDetector] | None = None,
+        preparing: Callable[[], None] = lambda: None,
     ) -> None:
         """`on_ready` is called (on a capture thread) whenever something new
         is waiting; `take` returns it. Each finished caption `take` hands
@@ -110,7 +111,10 @@ class SpeechPipeline:
         known), for the caption log's line on each mic-bleed check.
         `new_mic_detector` makes the mic's speech detection (its gain at
         most `MIC_GAIN_MAX`, decision 0145); `new_detector` every other
-        source's, and the mic's when it's not given."""
+        source's, and the mic's when it's not given. `preparing` is called as
+        each source is added, before its first audio: the speech model
+        starts loading then, not at the app's start (polyglotic-hq 513)."""
+        self._preparing = preparing
         self._outputs_playing = outputs_playing
         self.recent = recent or RecentSpeech(time.monotonic)
         self._new_detector = new_detector
@@ -157,6 +161,7 @@ class SpeechPipeline:
         what the PC played, for the mic. `hears_the_app`: the capture can
         hear this app's own sound (the PC's mix, or the mic), so it's silent
         while that plays (`hush`). Returns the source's buffer."""
+        self._preparing()
         buffer = AudioBuffer()
         detector: FrameDetector | None = None  # made at the first audio
         bleed = (

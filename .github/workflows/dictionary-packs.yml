@@ -80,6 +80,8 @@ on:
       - "src/polyglotic_desktop/core/lexicon/entries.py"
       - "src/polyglotic_desktop/core/lexicon/pinyin.py"
       - "src/polyglotic_desktop/core/lexicon/readings.py"
+      - "src/polyglotic_desktop/core/lexicon/spoken.py"
+      - "src/polyglotic_desktop/core/lexicon/spoken_ranks.py"
       - "src/polyglotic_desktop/core/lexicon/thai.py"
       - "src/polyglotic_desktop/core/lexicon/turkish.py"
       - "src/polyglotic_desktop/core/lexicon/vietnamese.py"

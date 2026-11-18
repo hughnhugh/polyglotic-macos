@@ -18,6 +18,10 @@ read: it takes the pack as it always did. A rider has its own `min_app`
 hiding the pack from an app that can't play it. An app takes the riders it
 reads (`riders_wanted`).
 
+A **caption face** (polyglotic-hq 482, decision 0223) has no pack either:
+the list's `fonts` names each face its riders bring (`read_fonts`), which
+an app from before them doesn't read.
+
 A dictionary **built into the app** (CC-CEDICT) has no pack, so its riders
 have an entry of their own (`built_in`, decision 0197): the dictionary's
 name, its language, and its riders. An app from before them doesn't read
@@ -56,9 +60,13 @@ FROM_SOURCE = "0.0.0"
 every pack its formats and word splits allow, whatever `min_app` says."""
 
 
-RIDER_SUFFIXES = {"audio": ".audio"}
-"""Each kind of rider this code knows, and how its file's name ends; a
-kind it doesn't know is left out of a pack's riders (a newer list's)."""
+RIDER_SUFFIXES: dict[str, tuple[str, ...]] = {
+    "audio": (".audio",),
+    "font": (".ttf", ".otf", ".txt"),
+}
+"""Each kind of rider this code knows, and how its files' names end; a
+kind it doesn't know is left out of a pack's riders (a newer list's). A
+`font`'s are its faces and their licence text (polyglotic-hq 482)."""
 
 
 class PackListError(ValueError):
@@ -289,6 +297,60 @@ def read_built_in(data: bytes) -> tuple[BuiltIn, ...]:
     return tuple(found)
 
 
+@dataclass(frozen=True)
+class FontOffer:
+    """A caption face published for download (polyglotic-hq 482, decision
+    0223): `font` is its name in the list - the start of its files' names,
+    and the app's name for it (`ui_next.fonts.PACKED`) - `family` the
+    family its files hold, `credits` one line: whose face, under what
+    licence; its files are its riders (kind `font`: its faces and their
+    licence text)."""
+
+    font: str
+    family: str
+    credits: str
+    riders: tuple[Rider, ...]
+
+    def size(self, reader: "Reader") -> int:
+        """What comes down for this app: its riders' downloads."""
+        return sum(rider.gz_size for rider in riders_wanted(self, reader))
+
+
+def read_fonts(data: bytes) -> tuple[FontOffer, ...]:
+    """The caption faces a list offers (`fonts`): an entry that is
+    malformed, or has no face this code reads, is left out. Fields a newer
+    list adds are ignored. Only for a list `read_pack_list` has read:
+    anything else has none."""
+    try:
+        whole = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return ()
+    raw = whole.get("fonts") if isinstance(whole, dict) else None
+    found = []
+    for item in raw if isinstance(raw, list) else ():
+        if not isinstance(item, dict):
+            continue
+        font, family, credits = (
+            item.get("font"),
+            item.get("family"),
+            item.get("credits"),
+        )
+        if not (
+            isinstance(font, str)
+            and isinstance(family, str)
+            and isinstance(credits, str)
+            and DICTIONARY_NAME.fullmatch(font)
+            and 0 < len(family) <= 100
+        ):
+            continue
+        riders = tuple(
+            rider for rider in _riders(item.get("riders"), font) if rider.kind == "font"
+        )
+        if any(rider.file.endswith((".ttf", ".otf")) for rider in riders):
+            found.append(FontOffer(font, family, credits, riders))
+    return tuple(found)
+
+
 def _riders(raw: object, dictionary: str) -> tuple[Rider, ...]:
     """A pack's riders as its entry lists them: one that is malformed, or of
     a kind this code doesn't know, is left out - the pack and its other
@@ -375,9 +437,12 @@ def needs_newer_app(
     return bool(found) and not any(reader.reads(o) for o in found)
 
 
-def riders_wanted(offer: PackOffer | BuiltIn, reader: Reader) -> list[Rider]:
-    """The riders of `offer` (a pack's, or a built-in dictionary's) this app
-    takes: those of a kind and format it reads, and whose `min_app` it is."""
+def riders_wanted(
+    offer: PackOffer | BuiltIn | FontOffer, reader: Reader
+) -> list[Rider]:
+    """The riders of `offer` (a pack's, a built-in dictionary's or a caption
+    face's) this app takes: those of a kind and format it reads, and whose
+    `min_app` it is."""
     return [
         rider
         for rider in offer.riders

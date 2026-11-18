@@ -91,6 +91,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import gc
 import gzip
 import importlib.util
 import json
@@ -167,11 +168,13 @@ from polyglotic_desktop.connection.app import (
     Release,
     this_release,
 )
+from polyglotic_desktop.core.learning.curriculum import ChosenWords, chosen_from
 from polyglotic_desktop.core.learning.first_known import (
     Before,
     QuickMarks,
     marks_more,
 )
+from polyglotic_desktop.core.learning.known_map import MAP_WORDS
 from polyglotic_desktop.core.learning.languages import (
     LearningLanguages,
     Tier,
@@ -190,6 +193,7 @@ from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.learning.vocabulary import (
     Changed,
     EntryText,
+    LineSource,
     Vocabulary,
     VocabularyChanged,
 )
@@ -225,12 +229,14 @@ from polyglotic_desktop.core.listening.captions import (
 )
 from polyglotic_desktop.core.listening.delays import CAPTION_LOG
 from polyglotic_desktop.core.listening.display import (
+    READING_LANGUAGES,
     LinkDetail,
     LinkGap,
     LinkLine,
     ReadingColour,
     ReadingSize,
     ReadingSystem,
+    RowKind,
     WordLinks,
 )
 from polyglotic_desktop.core.listening.hidden import Sight
@@ -394,8 +400,8 @@ from polyglotic_desktop.ui.sign_in import (
     confirm_sign_out,
 )
 from polyglotic_desktop.ui.widgets import TextDialog
+from polyglotic_desktop.ui_next import caption_faces, fonts, style
 from polyglotic_desktop.ui_next import maintenance as maintenance_words
-from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.account_page import AccountPage as NextAccountPage
 from polyglotic_desktop.ui_next.caption_window import notice_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -403,7 +409,9 @@ from polyglotic_desktop.ui_next.first_window import made_ahead
 from polyglotic_desktop.ui_next.fonts_ahead import FontsAhead
 from polyglotic_desktop.ui_next.help_page import HelpPage as NextHelpPage
 from polyglotic_desktop.ui_next.home import WHATS_NEW_ON_HOME, HomePage, hotkey_works
+from polyglotic_desktop.ui_next.known_map_card import MapWords, WordsReader
 from polyglotic_desktop.ui_next.languages import (
+    language_name,
     learned_name,
     own_targets,
     show_mandarin_in_traditional,
@@ -419,6 +427,7 @@ from polyglotic_desktop.ui_next.pack_row import (
 )
 from polyglotic_desktop.ui_next.plan import plan_text
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
+from polyglotic_desktop.ui_next.selection_reading import SelectionReading
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
 from polyglotic_desktop.ui_next.transcripts import Transcripts
 from polyglotic_desktop.ui_next.views import known_words
@@ -428,6 +437,7 @@ from polyglotic_desktop.ui_next.views.caption_window import (
     LIMIT,
     CaptionLook,
     Notice,
+    TextEdge,
     WindowChoices,
     minutes_used_up,
     slowed_now,
@@ -444,6 +454,7 @@ from polyglotic_desktop.ui_next.views.home import (
     offer_start_with_windows,
     sample_state,
 )
+from polyglotic_desktop.ui_next.views.known_map import known_map_view
 from polyglotic_desktop.ui_next.views.lab import CaptionLab
 from polyglotic_desktop.ui_next.views.learning import (
     InstalledPackLine,
@@ -453,15 +464,18 @@ from polyglotic_desktop.ui_next.views.learning import cards as learning_cards
 from polyglotic_desktop.ui_next.views.load import load_view
 from polyglotic_desktop.ui_next.views.lookup import WordAt
 from polyglotic_desktop.ui_next.views.panels import (
+    DownloadsView,
     LanguagesView,
     LookView,
     SessionLanguages,
     Timing,
     TimingView,
+    captioned,
 )
 from polyglotic_desktop.ui_next.views.placement import Rect
 from polyglotic_desktop.ui_next.views.plan import PlanLine, PlanShown, plan_line
 from polyglotic_desktop.ui_next.views.sound import Sound, SoundView
+from polyglotic_desktop.ui_next.views.speech import BetterVoice
 from polyglotic_desktop.ui_next.views.transcript import TranscriptLength
 from polyglotic_desktop.ui_next.views.words import level_line
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
@@ -1180,14 +1194,40 @@ def captured(value: AppSettings) -> AppSettings:
     return replace(value, apps=value.apps[:LIMIT])
 
 
-def caption_look(value: AppSettings) -> CaptionLook:
-    """How every caption window looks: today's Captions page's settings."""
+def readings_by_default(value: AppSettings, own: Iterable[str] = ()) -> tuple[str, ...]:
+    """The reading lines of a learner who hasn't chosen them (the user,
+    2026-11-18: "default pinyin/script assistance on for next release";
+    polyglotic-hq 511): every language with a reading line but the
+    learner's own - the interface's language (chosen, else the one it runs
+    in), the overlays' and `own`, the caption windows' translations. An
+    English learner reading Chinese sees pinyin; a Chinese one sees none
+    over Chinese."""
+    app = QApplication.instance()
+    running = interface_language.in_use(app) if app else interface_language.ENGLISH
+    theirs = (value.interface_language or running, *value.targets, *own)
+    mine = {str(each).replace("_", "-").split("-")[0].lower() for each in theirs}
+    return tuple(sorted(code for code in READING_LANGUAGES if code not in mine))
+
+
+def reading_lines_of(value: AppSettings, own: Iterable[str] = ()) -> tuple[str, ...]:
+    """The reading lines shown: the learner's choice once they made one
+    (`AppSettings.changed`), else `readings_by_default`."""
+    if "reading_lines" in value.changed:
+        return value.reading_lines
+    return readings_by_default(value, own)
+
+
+def caption_look(value: AppSettings, own: Iterable[str] = ()) -> CaptionLook:
+    """How every caption window looks: today's Captions page's settings.
+    `own`: the caption windows' translations, the learner's own languages
+    (`readings_by_default`)."""
     return CaptionLook(
         opacity=value.opacity,
         background=value.background_color,
         original=value.original_color,
         translation=value.translation_color,
         font=value.caption_font,
+        faces=tuple(sorted(value.caption_faces.items())),
         show_original=value.show_original,
         show_language=value.show_language,
         show_source=value.show_source,
@@ -1203,7 +1243,7 @@ def caption_look(value: AppSettings) -> CaptionLook:
         introductions=value.word_introductions,
         preview=value.caption_mode.provisional_lines,
         lab=CaptionLab.from_stored(value.caption_lab),
-        reading_lines=value.reading_lines,
+        reading_lines=reading_lines_of(value, own),
         reading_size=ReadingSize(value.reading_size),
         reading_past=value.reading_past,
         reading_system=ReadingSystem(value.reading_system),
@@ -1211,6 +1251,13 @@ def caption_look(value: AppSettings) -> CaptionLook:
         reading_custom=value.reading_custom_color,
         said_in_link_colours=value.said_in_link_colours,
         translation_in_link_colours=value.translation_in_link_colours,
+        quiet=value.quiet_view,
+        quiet_words=chosen_from(value.quiet_words),
+        curriculum_size=value.curriculum_size,
+        contrast=value.caption_contrast,
+        vibrance=value.caption_vibrance,
+        thickness=value.caption_weight,
+        edge=TextEdge(value.caption_edge),
     )
 
 
@@ -1591,7 +1638,8 @@ def follow_settings(
     """The caption windows follow the settings: the look, the timing,
     second languages, labels, and which apps are captioned."""
     value = desktop.settings.value
-    windows.set_look(caption_look(value))
+    own = [str(t) for langs in windows.targets().values() for t in langs]
+    windows.set_look(caption_look(value, own))
     windows.set_timing(value.caption_mode)
     windows.set_longest_wait(value.max_wait_for_text)
     windows.set_settle_after(value.text_settles_after)
@@ -1766,6 +1814,23 @@ def shortcut_text(action: QAction) -> str:
     return action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
 
 
+def look_changes(
+    value: AppSettings, look: CaptionLook, own: Iterable[str] = ()
+) -> dict[str, object]:
+    """The settings saving `look` changes (`look_settings`). The reading
+    lines while they're still the default nobody chose are left out, so a
+    change of colour doesn't make them a choice; once they differ from it
+    they're a choice, recorded as one even where it matches what an
+    unchosen file holds (all off: ()) (polyglotic-hq 511)."""
+    changes = look_settings(look)
+    if "reading_lines" not in value.changed:
+        if tuple(look.reading_lines) == readings_by_default(value, own):
+            del changes["reading_lines"]
+        else:
+            changes["changed"] = (*value.changed, "reading_lines")
+    return changes
+
+
 def look_settings(look: CaptionLook) -> dict[str, object]:
     """The settings a change in the Look panel makes (Quick preview's line
     is the timing's, not the look's)."""
@@ -1775,6 +1840,7 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "original_color": look.original,
         "translation_color": look.translation,
         "caption_font": look.font,
+        "caption_faces": dict(look.faces),
         "show_original": look.show_original,
         "show_language": look.show_language,
         "show_source": look.show_source,
@@ -1795,6 +1861,13 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "reading_custom_color": look.reading_custom,
         "said_in_link_colours": look.said_in_link_colours,
         "translation_in_link_colours": look.translation_in_link_colours,
+        "quiet_view": look.quiet,
+        "quiet_words": tuple(sorted(look.quiet_words)),
+        "curriculum_size": look.curriculum_size,
+        "caption_contrast": look.contrast,
+        "caption_vibrance": look.vibrance,
+        "caption_weight": look.thickness,
+        "caption_edge": look.edge.value,
     }
 
 
@@ -1850,8 +1923,13 @@ class Panels:
         )
         # Reset to defaults: the look a new learner starts with (478)
         self.look = LookView(
-            caption_look(value), self._look_changed, caption_look(AppSettings())
+            caption_look(value, self.in_use()),
+            self._look_changed,
+            caption_look(AppSettings(), self.in_use()),
         )
+        self.downloads = DownloadsView()
+        """The downloaded caption faces, as Look's Fonts card shows them
+        (`FontDelivery`'s; polyglotic-hq 482)."""
         self.look_waiting = False
         """A look change waits to be saved."""
         self._look_settles = QTimer(singleShot=True, interval=SETTLE_MS)
@@ -1873,7 +1951,8 @@ class Panels:
         self._look_settles.stop()
         if self.look_waiting:
             self.look_waiting = False
-            self.settings.update(**look_settings(self.look.value))
+            changes = look_changes(self.settings.value, self.look.value, self.in_use())
+            self.settings.update(**changes)
 
     def _languages_chosen(self, languages: SessionLanguages) -> None:
         """A change in the Languages panel (Settings > Captions > Speech),
@@ -1901,7 +1980,7 @@ class Panels:
             session_languages(value, self.in_use(), self.windows.recent_spoken())
         )
         self.timing.follow(timing_of(value))
-        look = caption_look(value)
+        look = caption_look(value, self.in_use())
         if self.look_waiting:  # the panels' is newer: only the timing's line
             look = replace(self.look.value, preview=look.preview)
         self.look.follow(look)
@@ -2175,6 +2254,7 @@ class Hub:
         self.learning.undo_known_wanted.connect(self.undo_known)
         self.learning.reset_known_wanted.connect(self.reset_known)
         self._wire_load_card()
+        self._wire_known_map()
         self.window.add_page("learning", tr("MainWindow", "Learning"), self.learning)
         self.window.add_page("account", tr("MainWindow", "Account"), self.account)
         start_parts.done("page_learning_and_account")
@@ -2187,6 +2267,7 @@ class Hub:
             timing=panels.timing,
             speech=panels.languages,
             sound=self.sound,
+            downloads=panels.downloads,
         )
         app = QApplication.instance()
         running = interface_language.in_use(app) if app else interface_language.ENGLISH
@@ -2436,6 +2517,88 @@ class Hub:
             self.show_learning()
         elif what == Changed.LOAD.value:
             self._load_soon.start()
+        if what in (
+            Changed.LEVEL.value,
+            Changed.STATUSES.value,
+            Changed.SAVED_WORDS.value,
+        ):
+            self._map_soon.start()
+
+    def _wire_known_map(self) -> None:
+        """Learning's map of the language in use (polyglotic-hq 489): its
+        words read once a language and scheme, off this thread; the
+        chances worked out each time it shows, and again a second after
+        a status, a save or the line changes while it's in view - not for
+        every caption heard."""
+        self._map_words: dict[tuple[str, str], MapWords] = {}
+        self._map_reader = WordsReader(self.window)
+        self._map_reader.read.connect(self._map_words_read)
+        self._map_soon = QTimer(self.window)
+        self._map_soon.setSingleShot(True)
+        self._map_soon.setInterval(1000)
+        self._map_soon.timeout.connect(self.show_known_map)
+        self.learning.shown.connect(self.show_known_map)
+
+    def show_known_map(self) -> None:
+        """The map on Learning, as it is now - worked out only while the
+        page is in view."""
+        tools = self.desktop.tools
+        card = self.learning.known_map
+        if tools is None:
+            card.hide()
+            return
+        card.show()
+        if not self.learning.isVisible():
+            return
+        name = language_name(tools.language)
+        scheme = tools.vocabulary.scheme
+        key = (tools.language, scheme)
+        words = self._map_words.get(key)
+        if words is None:
+            card.show_reading(name)
+            dictionary = tools.dictionary
+            parts = tools.vocabulary.chances.parts
+
+            def read() -> MapWords:
+                words = list(dictionary.words_past(0, MAP_WORDS, scheme))[:MAP_WORDS]
+                if parts is not None:  # each compound's characters, read here
+                    for _, word in words:  # too: 1.3 s for 20,000 (489)
+                        parts(word)
+                return words
+
+            self._map_reader.start(key, read)
+            return
+
+        def describe(entry_id: EntryId) -> str:
+            text = tools.describe(entry_id)
+            if text is None:
+                return ""
+            return f"{text.headword} {text.reading}".strip()
+
+        if not words:
+            card.show_map(None, describe)
+            return
+        palette = CaptionLab.from_stored(
+            self.desktop.settings.value.caption_lab
+        ).load_colours
+        vocabulary = tools.vocabulary
+        card.show_map(
+            known_map_view(
+                name,
+                words,
+                vocabulary.chances,
+                vocabulary.chances_as_of,
+                datetime.now(UTC),
+                palette,
+            ),
+            describe,
+        )
+
+    def _map_words_read(self, found: tuple[tuple[str, str], MapWords]) -> None:
+        self._map_reader.done()
+        key, words = found
+        self._map_words[key] = words
+        self.show_known_map()
 
     def _wire_load_card(self) -> None:
         """Learning's card for the learning load (polyglotic-hq 324): what
@@ -2621,7 +2784,8 @@ class Hub:
             return
         marks = self._quick_marks(code).marked(vocabulary.line)
         self._set_quick_marks(code, marks, first - (known or 0))
-        vocabulary.set_known_words(first)  # Learning shown again, with Undo
+        # Learning shown again, with Undo
+        vocabulary.set_known_words(first, LineSource.FIRST_KNOWN)
 
     def undo_known(self, code: str) -> None:
         """Undo, right after a quick mark: the line as it was before it."""
@@ -3032,6 +3196,11 @@ PACKS_AFTER_START_MS = 1500  # the packs are opened after the first paint (322)
 PAGES_STYLED_AFTER_START_MS = 1000
 """The main window's pages not on show get its stylesheet this long after
 the first paint, one a turn (`MainWindow.style_ahead`, decision 0158)."""
+CURRICULUM_AFTER_START_MS = 1250
+"""Our curriculum's set is filled this long after the first paint
+(`DesktopApp.fill_curriculum`): between the pages' styling and the packs'
+opening, before the first caption usually arrives - which fills it anyway
+(polyglotic-hq 509)."""
 PACK_UPDATES_AFTER_START_MS = 120_000
 BUILT_IN_RECORDED = {"zh": "cedict"}
 """The dictionaries built into the app whose commonest words are recorded,
@@ -3090,6 +3259,7 @@ def pack_reader(version: str) -> Reader:
     from polyglotic_desktop.adapters import audio_file
 
     riders = {(audio_file.KIND, audio_file.FORMAT)}  # decision 0133
+    riders.add((FONTS_KIND, "1"))  # caption faces (polyglotic-hq 482)
     return Reader(
         frozenset({DICTIONARY_FORMAT}), frozenset(splits), version, frozenset(riders)
     )
@@ -3115,6 +3285,152 @@ def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDiction
         else SpacedSplit(language)
     )
     return BasicDictionary(file, split, language), file
+
+
+FONTS_KIND = "font"
+"""A caption face's riders' kind in the pack list (polyglotic-hq 482)."""
+FONT_DOWNLOAD = "font:"
+"""A caption face's download's name among the downloads: `font:<pack>`."""
+
+
+def fonts_folder(data: Path) -> Path:
+    """Where the downloaded caption faces are kept: with the learner's data,
+    never in the install folder an update replaces (as the packs are)."""
+    return data / "fonts"
+
+
+class FontDelivery(QObject):
+    """Caption faces downloaded onto this PC (polyglotic-hq 482, decision
+    0223): a language's default face once it's captioned, any other face
+    once it's chosen in Look - each a pack list entry's riders, through
+    downloads of their own (`PackDeliveries`, on its own thread, the list
+    kept beside them). A face in is added to Qt's fonts at once
+    (`caption_faces.add`), every caption laid out again in it, and Look's
+    rows say so; one asked for by the learner says how it goes there."""
+
+    _progress = Signal(object)  # a PackProgress, from the downloads' thread
+    _listed = Signal(object, object)  # the offers (or None) and why, from there
+
+    def __init__(
+        self,
+        folder: Path,
+        reader: Reader,
+        view: DownloadsView,
+        address: str = PACKS,
+        keys: Sequence[str] = FEED_KEYS,
+        metered: Callable[[], bool] = lambda: False,
+        open_url: Any = None,
+        parent: QObject | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self.folder = folder
+        self.reader = reader
+        self.view = view
+        self._address, self._keys = address, tuple(keys)
+        self._metered = metered
+        self._open_url = open_url
+        self.deliveries: PackDeliveries | None = None
+        self._asked: set[str] = set()  # the defaults asked for this run
+        self._waiting: list[tuple[str, bool]] = []  # asked before the start
+        view.want = self.want
+        view.refresh = self.refresh
+        self._progress.connect(self._step)
+        self._listed.connect(self._list)
+
+    def start(self) -> None:
+        """After the first paint: older files of a face replaced deleted,
+        and the downloads' thread started."""
+        from polyglotic_desktop.adapters.pack_downloads import (
+            PackDeliveries,
+            PackFolder,
+        )
+        from polyglotic_desktop.adapters.pack_list import PackList
+        from polyglotic_desktop.adapters.signed_feed import public_keys
+
+        folder = PackFolder(self.folder)
+        folder.remove(folder.outdated_riders())
+        self.deliveries = PackDeliveries(
+            PackList(self._address, public_keys(self._keys), self.folder / "list"),
+            folder,
+            self.reader,
+            self._progress.emit,
+            lambda _offer, _path: None,  # no packs: faces only
+            self._listed.emit,
+            metered=self._metered,
+            open_url=self._open_url,
+        )
+        self._show()
+        for pack, anyway in self._waiting:
+            self.want(pack, anyway)
+        self._waiting.clear()
+
+    def here(self) -> frozenset[str]:
+        """The packs whose faces are on this PC."""
+        if not self.folder.is_dir():
+            return frozenset()
+        return frozenset(
+            path.name.split("-")[0]
+            for path in self.folder.iterdir()
+            if path.suffix in caption_faces.DOWNLOADED_SUFFIXES
+        )
+
+    def want(self, pack: str, anyway: bool = False, quietly: bool = False) -> None:
+        """`pack`'s face downloaded; `quietly`: a default's, tried again at
+        the next start if it can't come now."""
+        if pack not in fonts.BY_PACK:
+            return
+        if self.deliveries is None:
+            self._waiting.append((pack, anyway))
+            return
+        self.deliveries.want(
+            FONT_DOWNLOAD + pack, "", metered_ok=anyway, update=quietly, font=pack
+        )
+
+    def refresh(self) -> None:
+        """The list read again: what each face comes to."""
+        if self.deliveries is not None:
+            self.deliveries.refresh()
+
+    def follow(self, codes: Sequence[str]) -> None:
+        """The captioned languages now: each one's default face that comes
+        as a download and isn't here, asked for once this run."""
+        here = self.here()
+        for code in codes:
+            face = fonts.FACES.get(fonts.DEFAULTS.get(fonts.script(code), ""))
+            if face is not None and face.pack and face.pack not in here | self._asked:
+                self._asked.add(face.pack)
+                self.want(face.pack, quietly=True)
+
+    def _show(self) -> None:
+        sizes = {}
+        if self.deliveries is not None:
+            sizes = {o.font: o.size(self.reader) for o in self.deliveries.fonts}
+        self.view.follow(replace(self.view.value, sizes=sizes, here=self.here()))
+
+    @Slot(object, object)
+    def _list(self, _offers: object, _problem: object) -> None:
+        self._show()
+
+    @Slot(object)
+    def _step(self, progress: PackProgress) -> None:
+        pack = progress.language.removeprefix(FONT_DOWNLOAD)
+        steps = dict(self.view.value.progress)
+        if progress.step is PackStep.CANCELLED:
+            steps.pop(pack, None)
+        else:
+            steps[pack] = progress
+        if progress.step is PackStep.DONE:
+            arrived = sorted(
+                path
+                for path in self.folder.glob(f"{pack}-*")
+                if path.suffix in caption_faces.DOWNLOADED_SUFFIXES
+            )
+            families = caption_faces.add(arrived)
+            log.info("caption face %s: in, %d files (%s)", pack, len(arrived), families)
+            for widget in QApplication.topLevelWidgets():  # laid out in it now
+                widget.update()
+        self.view.follow(replace(self.view.value, progress=steps, here=self.here()))
+        self._show()
 
 
 class PackDelivery(QObject):
@@ -3677,9 +3993,6 @@ def new_interface(
         learner=tools,
         on_top=on_top,
         offer_set_up=True,  # the first window on a PC asks its languages (465)
-        # a Mac tells a background app's windows nothing of the mouse (515);
-        # not offscreen, where there's no mouse to watch
-        watch_pointer=QGuiApplication.platformName() == "cocoa",
     )
     found_apps = desktop.apps
     assert found_apps is not None  # the app is always given an app list
@@ -3711,6 +4024,10 @@ def new_interface(
     )
     panels = Panels(desktop.settings, windows)
     windows.links_wanted.connect(panels.look.set_links_shown)  # a window's button
+    windows.quiet_wanted.connect(panels.look.set_quiet)  # and its quiet view (477)
+    windows.quiet_word_wanted.connect(
+        lambda which, on: panels.look.set_quiet_word(ChosenWords(which), on)
+    )
     windows.fill_wanted.connect(panels.look.set_filled)  # and its filled lines (372)
     windows.aligned_wanted.connect(panels.look.set_lined_up)  # and parts lined up
     windows.said_colours_wanted.connect(panels.look.set_said_in_link_colours)  # 431
@@ -4701,15 +5018,11 @@ def report_facts(
     channel: str,
     speech: Sequence[SpeechPart],
     apps_one_by_one: str | None = None,
-    devices: Callable[[], SoundDevices] | None = None,
 ) -> dict[str, object]:
-    """The app, the OS and the audio devices, for a problem report: no
+    """The app, Windows and the audio devices, for a problem report: no
     caption text, no app's name - each source by its id and category.
     `apps_one_by_one`: the log's line on capturing apps one by one - the
-    build, whether it was tried, how it went (decision 0076); `devices`:
-    the OS's own list of speakers and mics (`OsAdapters.sound_devices`).
-    The OS's part keeps its "windows" key on a Mac too (the reports read
-    so far)."""
+    build, whether it was tried, how it went (decision 0076)."""
     screens = [
         {
             "scale": screen.devicePixelRatio(),
@@ -4736,34 +5049,23 @@ def report_facts(
             {"id": part.source_id, "category": part.category.value} for part in speech
         ],
     }
-    facts["audio_devices"] = device_facts(devices)
-    return facts
-
-
-def device_facts(devices: Callable[[], SoundDevices] | None) -> dict[str, object]:
-    """The speakers and mics, and the OS's defaults, by name - from the OS's
-    own adapter, so a Mac's come from Core Audio. Main imported Windows'
-    own devices here, which on a Mac fails while the module loads
-    (AttributeError: ctypes has no WinDLL): a tester's Report a problem
-    never opened (GitHub's Mac, polyglotic-hq 515). Nothing listed stops
-    no report."""
-    if devices is None:
-        return {"unavailable": "not asked"}
     try:
-        found = devices()
-    except Exception as problem:  # noqa: BLE001 - a report goes without them
-        return {"unavailable": type(problem).__name__}
-    names = {d.id: d.name for d in (*found.speakers, *found.mics)}
-    return {
-        "output": {
-            "default": names.get(found.default_speaker or ""),
-            "active": [d.name for d in found.speakers],
-        },
-        "input": {
-            "default": names.get(found.default_mic or ""),
-            "active": [d.name for d in found.mics],
-        },
-    }
+        from polyglotic_desktop.platform.windows.devices import (
+            Flow,
+            active_devices,
+            default_device,
+        )
+
+        facts["audio_devices"] = {
+            flow.name.lower(): {
+                "default": getattr(default_device(flow), "name", None),
+                "active": [d.name for d in active_devices(flow)],
+            }
+            for flow in Flow
+        }
+    except (ImportError, OSError) as problem:  # no Core Audio here
+        facts["audio_devices"] = {"unavailable": type(problem).__name__}
+    return facts
 
 
 def _json_size(value: object) -> int:
@@ -5557,6 +5859,35 @@ def pack_learner_tools(
     )
 
 
+def characters_of(
+    dictionary_now: Callable[[], object], scheme: Callable[[], str]
+) -> Callable[[EntryFacts], Sequence[EntryFacts]]:
+    """A Chinese word's characters, each as a word of its own - what
+    Learning load's colours place a compound by (polyglotic-hq 489,
+    `known_chance.PARTS_FACTOR`): read from the dictionary once a word and
+    scheme, and kept. None for a single character, or where a character
+    isn't a word of its own."""
+    kept: dict[tuple[EntryId, str], tuple[EntryFacts, ...]] = {}
+
+    def parts(word: EntryFacts) -> Sequence[EntryFacts]:
+        key = (word.entry_id, scheme())
+        found = kept.get(key)
+        if found is None:
+            found = ()
+            dictionary = dictionary_now()
+            if isinstance(dictionary, ChineseDictionary):
+                entry = dictionary.entry(word.entry_id)
+                text = entry.headword if entry is not None else ""
+                if len(text) >= 2:
+                    each = [dictionary.words_in(c, key[1]) for c in text]
+                    if all(len(w) == 1 for w in each):
+                        found = tuple(w[0].entry for w in each)
+            kept[key] = found
+        return found
+
+    return parts
+
+
 def _learner(
     dictionary_now: Callable[
         [], ChineseDictionary | EnglishDictionary | BasicDictionary
@@ -5626,6 +5957,11 @@ def _learner(
         load_words=load_words,
         pack=pack,
     )
+    found = dictionary_now()
+    if isinstance(found, ChineseDictionary):  # its words made of characters (489)
+        vocabulary.chances.parts = characters_of(
+            dictionary_now, lambda: vocabulary.scheme
+        )
     store.on_damaged = tools.learning_damaged.emit  # later: a save failed (206)
     store.on_deleted = tools.learning_deleted.emit  # its files set aside too (213)
     store.on_not_deleted = tools.learning_not_deleted.emit  # some left (306)
@@ -6216,6 +6552,62 @@ def check_parity(report: Path, system: OsAdapters, os_name: str) -> int:
     return 0 if ok else 1
 
 
+NOT_ANYONES = "0000-0000-0000-0000"
+"""An invite code of the right shape that is no one's: `--check-tls` signs
+in with it to hear the server's own "that code isn't valid"."""
+
+
+class _NoCredentials:
+    """`--check-tls`'s credential store: nothing kept, nothing saved."""
+
+    def load(self) -> None:
+        return None
+
+    def install_id(self) -> None:
+        return None
+
+    def save(self, credentials: object) -> None:
+        pass
+
+    def forget(self) -> None:
+        pass
+
+
+def check_tls(report: Path, server: str, app: AppInfo) -> int:
+    """Secure connections from this copy to `server` (polyglotic-hq 512,
+    run on GitHub's Mac): the roots this copy trusts (`tls.roots`), the
+    server's `/health` over `tls.urlopen`, and sign-in's own path with a
+    code that's no one's (`NOT_ANYONES`), expecting the server's answer
+    that it isn't valid - not a network failure. Nothing is saved; no
+    token can come back. Writes what was found to `report` as JSON; 0 if
+    both reached the server."""
+    import urllib.request
+
+    from polyglotic_desktop.connection import sign_in, tls
+    from polyglotic_desktop.core.shared.client import USER_AGENT
+
+    found: dict[str, object] = {"server": server, "roots": tls.roots()}
+    health = urllib.request.Request(
+        f"{server}/health", headers={"User-Agent": USER_AGENT}
+    )
+    try:
+        with tls.urlopen(health, sign_in.TIMEOUT_SEC) as response:
+            found["health"] = response.status
+    except Exception as e:  # noqa: BLE001 - reported by type: it's the point
+        found["health"] = f"{type(e).__name__}: {e}"
+    answer = sign_in.redeem(server, NOT_ANYONES, _NoCredentials(), app)
+    found["sign_in"] = type(answer).__name__
+    if isinstance(answer, sign_in.RedeemFailed):
+        found["sign_in_failed"] = {
+            "why": answer.why,
+            "unreachable": str(answer.unreachable),
+        }
+    found["ok"] = found["health"] == 200 and isinstance(answer, sign_in.InviteNotValid)
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps(found, indent=2), encoding="utf-8")
+    return 0 if found["ok"] else 1
+
+
 PACK_CHECKED = {
     "unpacked": True,
     "opened": True,
@@ -6394,6 +6786,9 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--check-capture", type=Path, help=argparse.SUPPRESS)
     # GitHub's Mac only (polyglotic-hq 428): refused off a Mac
     parser.add_argument("--check-parity", type=Path, help=argparse.SUPPRESS)
+    # GitHub's Mac (polyglotic-hq 512): secure connections to --server, and
+    # sign-in's path with a code that's no one's
+    parser.add_argument("--check-tls", type=Path, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -6435,7 +6830,7 @@ def this_copy(argv: list[str] | None = None) -> FirstCopy | None:
     if any(a.startswith(VELOPACK_HOOK) for a in [*given, *sys.argv[1:]]):
         return None
     args = arguments(argv)
-    if args.check_install or args.check_capture or args.check_parity:
+    if args.check_install or args.check_capture or args.check_parity or args.check_tls:
         return None
     try:
         system = os_adapters()
@@ -6475,6 +6870,23 @@ def windows_deleted() -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
+    """The app, from its start to its quit - Python's garbage collector held
+    off until the main window's first paint (decision 0233): the start makes
+    tens of thousands of objects (30,000 words met each make two), which set
+    off collections that went through every object the imports had made, 26-32
+    ms of the start on the second PC (polyglotic-hq 509). It's on again once
+    the window has painted, and whichever way the start ends."""
+    collecting = gc.isenabled()
+    gc.disable()
+    try:
+        _start_and_run(argv, gc.enable if collecting else lambda: None)
+    finally:
+        if collecting:
+            gc.enable()
+
+
+def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
+    """`main`'s start and run; `shown` is called once the window has painted."""
     # the start's parts, by name, from here to the first paint: each
     # `done` ends one (`perf.start_parts`, polyglotic-hq 314)
     start_parts.begin()
@@ -6499,6 +6911,9 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(check_capture(args.check_capture, system.os_name(), to_capture))
     if args.check_parity:
         sys.exit(check_parity(args.check_parity, system, system.os_name()))
+    if args.check_tls:
+        about = AppInfo.this_app(system.os_name(), system.os_version())
+        sys.exit(check_tls(args.check_tls, args.server, about))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
@@ -6553,6 +6968,9 @@ def main(argv: list[str] | None = None) -> None:
     watchdog.start()
     start_parts.done("application")
     store = JsonSettingsStore(data / "settings.json")
+    # the caption faces downloaded before: added with the bundled ones, by the
+    # first caption layout (polyglotic-hq 482)
+    caption_faces.downloaded = fonts_folder(data)
     # its translators are the app's children; its fonts once they're read
     start_interface_language(app, store, fonts_listed=False)
     # the meanings language of the packs and of English's dictionary: the
@@ -6703,6 +7121,7 @@ def main(argv: list[str] | None = None) -> None:
     app.processEvents()  # its first paint
     start_parts.done("first_paint")
     start_parts.end()
+    shown()  # the garbage collector on again (decision 0233)
     show_whats_new(  # after an update: once per version (polyglotic-hq 345)
         hub,
         desktop.settings,
@@ -6723,6 +7142,7 @@ def main(argv: list[str] | None = None) -> None:
     from polyglotic_desktop.connection.problem_reports import ProblemReportSender
     from polyglotic_desktop.platform.speech_detection import (
         MIC_GAIN_MAX,
+        ModelOnDemand,
         SpeechDetector,
         load_model,
     )
@@ -6777,17 +7197,18 @@ def main(argv: list[str] | None = None) -> None:
         max_wait=value.max_wait_for_text,
     )
     # the speech-detection model (onnxruntime; 0.1-0.2 s) loads on a thread
-    # of its own; each source's detector is made from it on that source's
-    # capture thread, at its first audio - never here (polyglotic-hq 136)
-    loader = ThreadPoolExecutor(1, thread_name_prefix="speech-model")
-    model = loader.submit(load_model)
-    loader.shutdown(wait=False)
+    # of its own once a source is first captioned - not at the start, so an
+    # app with nothing captioned holds neither (polyglotic-hq 513); each
+    # source's detector is made from it on that source's capture thread, at
+    # its first audio - never here (polyglotic-hq 136)
+    model = ModelOnDemand(load_model)
     pipeline = SpeechPipeline(
         lambda: SpeechDetector(model.result()),
         timing,
         on_ready=speech_ready,
         outputs_playing=system.outputs_playing,
         new_mic_detector=lambda: SpeechDetector(model.result(), MIC_GAIN_MAX),
+        preparing=model.start,
     )
     # the install's milestones (usage statistics, with consent): a PC that
     # has never connected is a new install (polyglotic-hq project 134)
@@ -6879,9 +7300,7 @@ def main(argv: list[str] | None = None) -> None:
                 names[str(part.source_id)] = mic_name()
         log_text = read_log(data / "logs")
         values = desktop.settings.value.to_stored()
-        facts = report_facts(
-            app_info, release.channel, speech, per_app.line, system.sound_devices
-        )
+        facts = report_facts(app_info, release.channel, speech, per_app.line)
         dialog = ProblemReportDialog(
             problem_report_parts(
                 log_text, values, facts, captions, speech, names, check_result
@@ -7127,6 +7546,14 @@ def main(argv: list[str] | None = None) -> None:
 
     recordings = Recordings()  # a pack's recorded words (decision 0133)
     speaker = system.speaker(recordings) if system.speaker is not None else None
+    # a word or selection said in a basic voice says a better one can be
+    # added, until "Don't show again" for its language (polyglotic-hq 518)
+    better = BetterVoice(
+        lambda: desktop.settings.value.better_voice_quiet,
+        lambda language: desktop.settings.update(
+            better_voice_quiet=(*desktop.settings.value.better_voice_quiet, language)
+        ),
+    )
     if windows.card is not None and speaker is not None:
         windows.card.use_speech(
             WordSpeech(
@@ -7135,13 +7562,40 @@ def main(argv: list[str] | None = None) -> None:
                 parent=desktop,
                 recorded=recordings.has,
                 recorded_voices=recordings.voices,
+                better=better,
             )
         )
+    # a selection read aloud from its card or the transcript's menu, in the
+    # same voices - hushed in the captions a sentence at a time, never while
+    # dictation has the mic (polyglotic-hq 495, decision 0229)
+    dictation_held = [False]
+    say_it: SelectionReading | None = None
+    if speaker is not None:
+        say_it = SelectionReading(
+            speaker,
+            hush=pipeline.hush,
+            blocked=lambda: dictation_held[0],
+            first=lambda: (
+                RowKind.TRANSLATION
+                if desktop.settings.value.say_it_translation_first
+                else RowKind.ORIGINAL
+            ),
+            remember=lambda kind: desktop.settings.update(  # once a change
+                say_it_translation_first=kind is RowKind.TRANSLATION
+            ),
+            parent=desktop,
+            better=better,
+        )
+        windows.use_say_it(say_it)
+        transcripts.use_say_it(say_it)
     if speaker is not None:  # the voices listed once the app has started
         QTimer.singleShot(VOICES_AFTER_START_MS, speaker.look_for_voices)
     # the pages not on show in the window's stylesheet once the start is
     # done, so a first click on one doesn't wait for it (decision 0158)
     QTimer.singleShot(PAGES_STYLED_AFTER_START_MS, hub.window.style_ahead)
+    # our curriculum's set filled once the start is done: it looks through
+    # every word heard (polyglotic-hq 509)
+    QTimer.singleShot(CURRICULUM_AFTER_START_MS, desktop.fill_curriculum)
     # dictionary packs (decision 0122): opened, and their downloads' thread
     # started, after the first paint; a newer version looked for later
     packs = PackDelivery(
@@ -7166,9 +7620,27 @@ def main(argv: list[str] | None = None) -> None:
     if windows.card is not None and isinstance(windows.card.model.offer, LearningOffer):
         windows.card.model.offer.packs = packs  # "Learn it too" says its size
 
+    # caption faces (polyglotic-hq 482): a captioned language's default, and
+    # any face chosen in Look, downloaded from the same list
+    faces = FontDelivery(
+        fonts_folder(data),
+        pack_reader(app_info.app_version),
+        interface.panels.downloads,
+        *pack_storage(args.packs_from, args.packs_key, installed()),
+        metered=system.metered,
+        open_url=_open_pack_url,
+        parent=desktop,
+    )
+
+    def faces_follow() -> None:
+        faces.follow(captioned(interface.panels.languages.value))
+
     def start_packs() -> None:
         packs.start()
         hub.show_learning()
+        faces.start()
+        faces_follow()
+        interface.panels.languages.subscribe(faces_follow)
 
     QTimer.singleShot(PACKS_AFTER_START_MS, start_packs)
     pack_updates = QTimer(desktop, interval=PACK_UPDATES_EVERY_MS)
@@ -7245,8 +7717,11 @@ def main(argv: list[str] | None = None) -> None:
         """While dictation has the mic, the mic's captions hear silence: what's
         dictated is never also a "You" line (polyglotic-hq 299)."""
         now = time.perf_counter()  # the captures' clock
+        dictation_held[0] = held
         if held:
             pipeline.dictation_holds(now)
+            if say_it is not None:  # dictation starting stops a reading (495)
+                say_it.stop()
         else:
             pipeline.dictation_lets_go(now + tail)
 

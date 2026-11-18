@@ -34,7 +34,7 @@ from typing import Any
 
 from polyglotic_desktop.platform.macos import cf, objc
 from polyglotic_desktop.platform.speaking import Clip
-from polyglotic_desktop.ports.speaker import Voice
+from polyglotic_desktop.ports.speaker import Quality, Voice
 
 SYNTHESIS_TIMEOUT_SEC = 5.0
 """A word not made by then fails: the speaker isn't held by macOS."""
@@ -73,7 +73,7 @@ def ordered(found: Iterable[Listed], usual: Iterable[str]) -> tuple[Voice, ...]:
 
 def av_rate(rate: float) -> float:
     """The port's pace (1.0 the voice's own, under 1 slower) on macOS's
-    scale, whose own pace is 0.5: 0.7 (`views.speech.SLOWER`) is 0.35."""
+    scale, whose own pace is 0.5: 0.7 is 0.35."""
     return min(1.0, max(0.0, OWN_PACE * rate))
 
 
@@ -317,16 +317,26 @@ def av_voice(voice: Voice) -> int | None:
     return int(usual) if usual else None
 
 
+def quality_of(av: int) -> Quality:
+    """The port's `Quality` for macOS's (1 default, 2 enhanced, 3 premium):
+    a default voice is a compact one, which Manage Voices can replace with
+    an enhanced or premium voice of its language (polyglotic-hq 518). A
+    number macOS adds later counts as good."""
+    return Quality(av) if av in {q.value for q in Quality} else Quality.GOOD
+
+
 def _listed(voice: int) -> Listed:
     send = objc.send
     traits = send(voice, "voiceTraits", restype=ctypes.c_ulong)  # macOS 14+
+    quality = int(send(voice, "quality", restype=ctypes.c_long))
     return Listed(
         Voice(
             objc.text(send(voice, "identifier")) or "",
             objc.text(send(voice, "name")) or "",
             objc.text(send(voice, "language")) or "",
+            quality_of(quality),
         ),
-        int(send(voice, "quality", restype=ctypes.c_long)),
+        quality,
         int(traits),
     )
 

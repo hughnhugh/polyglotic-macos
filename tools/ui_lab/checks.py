@@ -29,7 +29,10 @@ would (polyglotic-hq project 108's design, section 5; built in project 119).
 - **contrast:** text against what is behind it at least 4.5:1, or 3:1 for
   large text (24 px, or 18.7 px bold) and icons (an icon font's glyph, or a
   symbol with no letter: "×", "⚙"); disabled controls and colour emoji
-  aside (WCAG 2.2, 1.4.3 and 1.4.11).
+  aside (WCAG 2.2, 1.4.3 and 1.4.11). A widget (or a parent) with a
+  `contrast_floor` property is held to that instead: a caption window the
+  learner turned soft (Contrast, polyglotic-hq 481), whose text is kept at
+  3.7:1 as it's worked out and 3:1 as it's drawn.
 - **accessible_name:** every control has a name a screen reader can say -
   not empty, not an icon font's glyph.
 - **keyboard:** in a window that takes the keyboard, Tab reaches every
@@ -736,6 +739,17 @@ def _scrolls(widget: QWidget) -> bool:
     return False
 
 
+def _contrast_floor(widget: QWidget | None) -> float | None:
+    """The contrast a widget's text is held to in place of WCAG's - its own
+    `contrast_floor` property or its nearest parent's (481) - or None."""
+    while widget is not None:
+        found = widget.property("contrast_floor")
+        if isinstance(found, int | float):
+            return float(found)
+        widget = widget.parentWidget()
+    return None
+
+
 def where(widget: QWidget) -> str:
     """The widget, by its object name - or its class, after its nearest
     named parent."""
@@ -804,6 +818,9 @@ def _text_findings(pieces: list[TextPiece], photo: QImage) -> list[Finding]:
             or (piece.bold and piece.px >= LARGE_BOLD_PX)
             else CONTRAST
         )
+        floor = _contrast_floor(piece.widget)
+        if floor is not None:
+            needed = min(needed, floor)
         ratio = contrast(text, background)
         if ratio < needed - 0.005:
             key = (name, text.name(), background.name(), needed)

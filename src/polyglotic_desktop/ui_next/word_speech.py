@@ -3,8 +3,9 @@ card's speaker button over the `Speaker` port, on the interface thread.
 
 `main` hands it the PC's speaker and the speech pipeline's `hush`, so the
 word the app says is never captioned. One word at a time: a click says the
-card's word (its own pace, then slower on the next click - `views.speech`),
-a click while it speaks stops it, and the card closing stops it too. The
+card's word at its own pace, every time (`views.speech`); a click while
+it speaks stops it, and the card closing stops it too. A word played in a
+basic voice brings the card's better-voice notice (`notice`, 518). The
 speaker's thread is never waited for: what it says comes back as a queued
 signal. Nothing is sent anywhere.
 
@@ -20,9 +21,10 @@ from polyglotic_desktop.ports.speaker import RECORDED, Sounding, Speaker, Voice
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.speech import (
     MAC_SPEECH_SETTINGS,
+    NORMAL,
     SPEECH_SETTINGS,
+    BetterVoice,
     Say,
-    pace,
     voice_for,
 )
 
@@ -49,6 +51,7 @@ class WordSpeech(QObject):
         parent: QObject | None = None,
         recorded: Callable[[Voice, str], bool] = lambda _voice, _word: False,
         recorded_voices: Callable[[], tuple[Voice, ...]] | None = None,
+        better: BetterVoice | None = None,
     ) -> None:
         """`hush`: told when the app's own sound plays (the speech
         pipeline's), from the speaker's thread; `open_url`: opens Windows'
@@ -57,7 +60,8 @@ class WordSpeech(QObject):
         recorded voices now (`Recordings.voices`) - asked each time, so a
         pack's recordings that arrive while the app runs are said from the
         next card, not once the speaker's list of voices (kept a few seconds)
-        is looked at again (polyglotic-hq 453). None: the speaker's list."""
+        is looked at again (polyglotic-hq 453). None: the speaker's list.
+        `better`: when a better voice is worth adding (518); None: never."""
         super().__init__(parent)
         self.speaker = speaker
         self._recorded = recorded
@@ -68,8 +72,10 @@ class WordSpeech(QObject):
         self._serial = 0
         self.speaking: str | None = None
         """The key (`key`) of the word being said, if any."""
-        self._said: tuple[str, int] = ("", 0)
-        """The last word said on this card, and how many times."""
+        self._better = better
+        self.notice: str | None = None
+        """The key (`key`) of the word last played in a basic voice, while
+        the card says a better one can be added (polyglotic-hq 518)."""
         self._seen: tuple[Voice, ...] = ()
         self._recheck = QTimer(self, singleShot=True, interval=RECHECK_MS)
         self._recheck.timeout.connect(self._look_again)
@@ -121,11 +127,6 @@ class WordSpeech(QObject):
             return Say.NO_VOICE
         return Say.SPEAKING if self.speaking == self.key(text, language) else Say.READY
 
-    def times_said(self, text: str, language: str) -> int:
-        """How many times this word has been said on this card."""
-        key = self.key(text, language)
-        return self._said[1] if self._said[0] == key else 0
-
     def toggle(self, text: str, language: str, recorded_as: Sequence[str] = ()) -> None:
         """A click on the button (or its key): says the word, or stops it.
         A recording kept under one of `recorded_as` is played (`voice`)."""
@@ -137,15 +138,15 @@ class WordSpeech(QObject):
         if chosen is None:
             return
         voice, said = chosen
-        times = self.times_said(text, language)
-        self._said = (key, times + 1)
+        due = self._better is not None and self._better.due(voice, language)
+        self.notice = key if due else None
         self._serial += 1
         serial = self._serial
         self.speaking = key
         self.speaker.say(
             said,
             voice,
-            pace(times),
+            NORMAL,
             self._sounding,
             lambda heard: self._ended.emit(serial, heard),
         )
@@ -158,10 +159,21 @@ class WordSpeech(QObject):
             self.changed.emit()
 
     def forget(self) -> None:
-        """The card closed, or shows another word: it stops, and the next
-        word starts at its own pace."""
+        """The card closed, or shows another word: it stops, and its notice
+        goes."""
         self.stop()
-        self._said = ("", 0)
+        self.notice = None
+
+    def dismiss(self, never_again: bool) -> None:
+        """The notice's Dismiss: it goes - for good in the word's language
+        with "Don't show again" ticked."""
+        if self.notice is None:
+            return
+        if never_again and self._better is not None:
+            language = self.notice.partition("\n")[0]  # as `key` puts it
+            self._better.silence(language)
+        self.notice = None
+        self.changed.emit()
 
     def add_voice(self) -> None:
         """Windows' speech settings, where Add voices is; a Mac's Spoken

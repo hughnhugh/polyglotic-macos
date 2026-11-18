@@ -47,7 +47,10 @@ ONNX Runtime is imported when the model is loaded, not with this module
 (about 70 ms; the app's window shows first - polyglotic-hq project 110).
 """
 
+import threading
 from collections import deque
+from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
@@ -122,6 +125,39 @@ def load_model(path: Path | None = None) -> "ort.InferenceSession":
         sess_options=options,
         providers=["CPUExecutionProvider"],
     )
+
+
+class ModelOnDemand:
+    """The speech-detection model, loaded once - on a thread of its own -
+    when a source is first captioned, not at every start: an app waiting in
+    the tray with nothing captioned (started with Windows) holds neither
+    onnxruntime nor the model, about 19 MB of private memory and 30 MB of
+    working set (polyglotic-hq 513, measured on the main PC). `start` begins
+    the load (as a source is added, so it loads while the capture starts);
+    `result` waits for it, from the capture's thread at its first audio."""
+
+    def __init__(self, load: Callable[[], "ort.InferenceSession"] = load_model) -> None:
+        self._load = load
+        self._lock = threading.Lock()
+        self._loading: Future[ort.InferenceSession] | None = None
+
+    @property
+    def started(self) -> bool:
+        return self._loading is not None
+
+    def start(self) -> None:
+        """Begins loading the model, once; returns at once."""
+        with self._lock:
+            if self._loading is None:
+                loader = ThreadPoolExecutor(1, thread_name_prefix="speech-model")
+                self._loading = loader.submit(self._load)
+                loader.shutdown(wait=False)
+
+    def result(self) -> "ort.InferenceSession":
+        """The model, loading it first if nothing has started it."""
+        self.start()
+        assert self._loading is not None
+        return self._loading.result()
 
 
 class DetectionGain:

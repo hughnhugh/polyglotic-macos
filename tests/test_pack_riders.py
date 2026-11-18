@@ -26,6 +26,7 @@ from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Step
 from polyglotic_desktop.core.lexicon.packs import (
     FROM_SOURCE,
     BuiltIn,
+    FontOffer,
     PackOffer,
     Reader,
     Rider,
@@ -124,7 +125,9 @@ class Seen:
     def on_installed(self, offer: PackOffer, path: Path) -> None:
         self.installed.append(path)
 
-    def on_rider(self, offer: PackOffer | BuiltIn, rider: Rider, path: Path) -> None:
+    def on_rider(
+        self, offer: PackOffer | BuiltIn | FontOffer, rider: Rider, path: Path
+    ) -> None:
         self.riders.append((rider, path))
 
 

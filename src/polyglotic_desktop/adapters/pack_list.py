@@ -36,11 +36,13 @@ from polyglotic_desktop.adapters.signed_feed import FeedNotTrusted, fetch, verif
 from polyglotic_desktop.core.lexicon.packs import (
     LIST_FORMAT,
     BuiltIn,
+    FontOffer,
     PackListError,
     PackOffer,
     Rider,
     list_serial,
     read_built_in,
+    read_fonts,
     read_pack_list,
 )
 
@@ -86,6 +88,12 @@ def split_signed_list(whole: bytes) -> tuple[bytes, bytes]:
     return signature, data
 
 
+def signed_data(whole: bytes) -> bytes:
+    """A signed list file's list, its signature set aside: only for one
+    `PackList._checked` has passed."""
+    return split_signed_list(whole)[1]
+
+
 def storage_address(base: str) -> str:
     """`base` if packs may come from it - `https://`, or a loopback
     `http://` stand-in - with a trailing slash. ValueError otherwise."""
@@ -117,6 +125,8 @@ class PackList:
         self.built_in: tuple[BuiltIn, ...] = ()
         """The built-in dictionaries' riders (decision 0197) of the list
         last fetched or kept (`fetch`, `kept`)."""
+        self.fonts: tuple[FontOffer, ...] = ()
+        """The caption faces it offers (polyglotic-hq 482), the same way."""
 
     @property
     def address(self) -> str:
@@ -142,15 +152,16 @@ class PackList:
         part.write_bytes(whole)
         part.replace(self._kept / LIST_NAME)  # one file, one rename: never half
         self.built_in = built_in
+        self.fonts = read_fonts(signed_data(whole))
         return offers
 
     def kept(self) -> tuple[PackOffer, ...] | None:
         """The list as last fetched, checked again - None if there's none,
         or it doesn't pass now (a key retired since, a file changed)."""
         try:
-            offers, _, self.built_in = self._checked(
-                (self._kept / LIST_NAME).read_bytes()
-            )
+            whole = (self._kept / LIST_NAME).read_bytes()
+            offers, _, self.built_in = self._checked(whole)
+            self.fonts = read_fonts(signed_data(whole))
             return offers
         except (OSError, PackListNotTrusted) as e:
             if not isinstance(e, FileNotFoundError):

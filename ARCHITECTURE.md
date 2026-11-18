@@ -33,12 +33,14 @@ src/polyglotic_desktop/
       held_back.py     live updates held back (waited their turn here, or refused by the server): the learner told once in a while, the log's one line a minute (decision 0097)
       pending.py       speech waiting to be sent, latest wins
       hidden.py        a caption window the learner hid: its own timer, paused past the learner's limit (5, 15 or 60 minutes, or never), captioning while hidden, speech starting in it (polyglotic-hq 335, decision 0128)
-      captions.py      caption updates from the server: live, finished, withdrawn; clauses, translations, word links
+      captions.py      caption updates from the server: live, finished, withdrawn; clauses, translations, word links; the language each translation is written in, the server's word for it first (decision 0231)
       history.py       caption history: updates applied in place, joins, withdrawals, stable keys, never blank
+      established.py   established text: the start of a live caption the server says two live updates agreed on, drawn as final; a quiet correction when an update changes it (decision 0228; server decision 0095)
       settling.py      settled text: what a caption has shown for 3 s (or the shorter time the learner chose: decision 0099), or above its last two clauses, never changes; only what follows is taken from an update (decisions 0088, 0091); a row of settled words keeps the update's word links for the words both have (polyglotic-hq 340)
       display.py       caption display rules: clause rows, second language, word links drawn, one-way layout, a word's counterpart for the card (decision 0125)
       caption_model.py one model of a caption (polyglotic-hq 340, decision 0132; docs/caption-model.md): places, the units a line never breaks inside, links numbered across the caption, where both sides can be cut - built once per caption version, an unchanged clause kept; the pour's word cutter and matching cuts are its (the layouts move onto it step by step)
       selection.py     a selection in a caption window (polyglotic-hq 358, decision 0150): two places, the words they hold now across clauses, sides and captions, and their text to copy
+      read_aloud.py    a selection's side in its spoken form, to read aloud (polyglotic-hq 495, decision 0229): mended only at caption cuts, fillers out, years read as years, a sentence at a time, each character knowing where it was shown
       transcript.py    the transcript written out as text, SRT or CSV
       settings.py      the user's listening settings: spoken language (each source's own, or Detect), targets (each source's own, or none),
                        spelling hints
@@ -57,7 +59,11 @@ src/polyglotic_desktop/
       first_known.py   "mark the first N words known" as a move of the known line, with Undo and Reset back to the line before (polyglotic-hq 342, decision 0134)
       levels.py        the level as a known line in words and the learning window past it, any size or unlimited (decisions 0114, 0144); statuses.py: statuses estimated or set, with a source
       knowledge.py     what the learner knows: one answer per word (status, confidence, reason) from the evidence, strongest first, with the line read as a frequency rank; word links ask it (decision 0163)
+      known_chance.py  how well each word is known (polyglotic-hq 489, decision 0226): a chance 0-1 from what knowledge.py says - the line as a smooth curve - moved by days heard, saves and lookups; red under 0.15, green from 0.85; Learning load's colours read it
+      known_map.py     the whole language at a glance (489, 0226): the tally of red, between and green words and the share heard green (by 1 / place); the same a week ago, rebuilt from the histories
       load.py          the learning load (a Lab mode, polyglotic-hq 324, decision 0117): a fixed number of the next words by frequency, each moving red, orange, yellow, green by its meetings, checked with one click, graduated and replaced; fed by hand, its size changed at any time; kept word by word, on this PC
+      curriculum.py    our curriculum, 0.1.8's (polyglotic-hq 477, decision 0219): an active set of 50 words past the line, heard-first (2+ captions, in the learning window, never everyday talk) then by the load's order, filled between sittings, retired after 3 separate days met; the conversation's words entering mid-sitting at its updates, resting when no longer said (polyglotic-hq 491, decision 0227) and retiring once known (489's chance green; 496, decision 0230); and the quiet view's chosen words (curriculum, load, saved, words at your edge - 496) kept as a named word set, words at your edge aside (a rule, not a list)
+      theme.py         the conversation's words (polyglotic-hq 491, decision 0227): each source's last 10 minutes of finished captions, in memory only; an update every 2 minutes of its talk; stretch words past the learning window, then theme words by keyness; never everyday talk; look-alikes; the theme's name
       saved_words.py   saved words, categories, finding them in a line
       sentences.py     saved sentences (polyglotic-hq 459, decision 0216): what the learner selected across clauses, captions and speakers, kept with its translation and word links in a category shared with saved words, on this PC only; found again by most of a query's words (each Chinese character a word) over both sides
       highlights.py    unfamiliar words, as the learner's word introductions say (Off, a few per caption under the cap, every new word)
@@ -67,14 +73,15 @@ src/polyglotic_desktop/
       listening_time.py listening time per day and source category, from the gaps between finished captions (on this PC, never sent)
       bands.py         the words met by frequency band (top 1,000 ... 10,000, rarer) or level: known / in the deck / new / not heard yet
       anki.py          saved words as a CSV Anki imports
-    lexicon/         dictionary entries, word split, readings, reverse lookup, meanings
-      packs.py         the dictionary packs' list: which pack this app reads for a language (format, word split, oldest app), and whether the one on this PC is older (decision 0122)
+    lexicon/         dictionary entries, word split, readings, reverse lookup, meanings; names a dictionary lacks (a foreign name's pieces, a word its translation writes by its sound: polyglotic-hq 496, decision 0230)
+      packs.py         the dictionary packs' list: which pack this app reads for a language (format, word split, oldest app), and whether the one on this PC is older (decision 0122); its riders (0133), a built-in dictionary's (0197) and the caption faces' entries (`fonts`, polyglotic-hq 482)
       pack_download.py a pack's download as the learner sees it: its steps, each way it stands still, when it's tried again, an honest time left (decision 0122)
       compounds.py     a word a basic pack hasn't got, cut into words it has: at hyphens, and German's closed compounds (decision 0174)
       vietnamese.py    Vietnamese's word split: a caption's syllables joined into a pack's words, fewest then commonest (decision 0121)
       thai.py          Thai's word split: a line written without spaces cut into a pack's words at the least cost, never inside a letter's cluster (decision 0173)
       han.py           the word split `han` (Cantonese): a run of Chinese characters cut into a pack's words, fewest, most even, then commonest (decision 0160)
       jyutping.py      Jyutping over Cantonese for the reading line: each word of the han split as its pack entry reads it (decision 0160)
+      spoken.py        everyday talk (polyglotic-hq 491, decision 0227): Mandarin's and English's words ranked by speech where the packs rank them rarer in writing (spoken_ranks.py, written by tools/spoken_ranks.py from OpenSubtitles 2018's counts), and their fillers; carried in EntryFacts
       scripts.py       a word's language by its script where its row's says otherwise: Chinese characters in an English row, Latin letters in a Chinese one, Cyrillic in either (decision 0129)
       traditional.py   Simplified Chinese to Traditional, one character for one, the longest phrase first (OpenCC's table in Taiwan's forms): "Show Mandarin in: Traditional" (polyglotic-hq 375, decision 0164)
     releases/        app version, update channel, feature flags from `welcome`
@@ -90,8 +97,8 @@ src/polyglotic_desktop/
     replay.py            audio files played into the app through the capture port: headless runs, CI, the benchmark's load
     dictation_mic.py     the mic while the dictation key is held (`ports.capture.HeldMic`): opened at the press, closed 0.2 s after the release, a long hold cut at its quiet moment, each piece handed on as Ogg Opus in order; in memory only (polyglotic-hq 283, decision 0073)
     sample.py            Home's sample when nothing is playing: a FLEURS recording in the language learned (data/samples/, CC BY 4.0), played aloud (`SoundOut`, the OS's) and captioned as a source of its own (176)
-    speaking.py          the `Speaker` port on a thread of its own over an OS's voices and output: voices listed in the background, a word made, its silence trimmed and played, the last click winning (polyglotic-hq 286, decision 0077)
-    recorded_voices.py   recorded words beside the OS's voices: a language's recordings as a voice of its own, the OS's voice for a word not recorded or asked slower (decision 0133)
+    speaking.py          the `Speaker` and `Reader` ports on a thread of its own over an OS's voices and output: voices listed in the background, a word made, its silence trimmed and played, the last click winning (polyglotic-hq 286, decision 0077); a reading a sentence at a time, each hushed on its own, each word told as it sounds, the last readings' sound kept in memory (495, decision 0229)
+    recorded_voices.py   recorded words beside the OS's voices: a language's recordings as a voice of its own, the OS's voice for a word not recorded (decision 0133; one pace, decision 0241)
     timeline.py          keeping a capture's audio continuous on the app's clock (gaps become silence, overlaps dropped) and which device it follows: shared by every OS's capture (411)
     windows/         per-app capture, system audio, the mic (decision 0006); only main's os_adapters imports it (decision 0038)
       capture.py       WASAPI capture: one app, everything else (all but one app), the whole system, the mic; one app tried on Windows 10 2004+, with a trial that gives up on a PC where it fails (0076)
@@ -145,7 +152,7 @@ src/polyglotic_desktop/
     problem_reports.py alpha testers' problem reports: built, kept and sent to `POST /v1/problem-reports` on a thread of their own (275, 0067)
     session.py         a session: hello, settings, speech out, captions in, keepalive (decision 0012); or a sync session
     reconnect.py       after a session ends: back off and retry, or stop - by close code
-    tls.py             every secure connection the app makes: a failure on a certificate's dates tried once more with everything else checked, the leaf's end held against when the app was built; each failure logged once (polyglotic-hq 313, decision 0104)
+    tls.py             every secure connection the app makes: a failure on a certificate's dates tried once more with everything else checked, the leaf's end held against when the app was built; each failure logged once (polyglotic-hq 313, decision 0104); on a Mac, macOS's own roots trusted (polyglotic-hq 512, decision 0236)
     failures.py        why a try to open a session failed, from what the network said (a name not found, refused, a tunnel's 502/530, a proxy's page, TLS), and why the server closed one (1001, 1011) (polyglotic-hq 251)
     unanswered.py      finished speech not yet answered: kept in memory, sent again after a reconnect
     exchange.py        learning data, consent, usage, exposures: kept until `received`, sent on any session; consent rules (decision 0013); a sync cursor per language; a deletion made on any device applied, and what's done after it kept whatever the clock (decision 0023); a consent choice dated after the one it replaces, sent again at most once a day (decision 0102)
@@ -185,10 +192,10 @@ src/polyglotic_desktop/
       caption_window.py a caption window's own choices, kept by source; joined or separate, and the joined window's place; the session's look; the notice line
       migration.py     today's caption settings moved to each window's own, once: the first target language, my speech, the text size, the place (by source, not language); today's keys left as they are
       transcript.py    a transcript's own state: its app's finished captions (and "You"'s while its window shows them), how far back its list goes (334), search, following or scrolled back; its text size and rail kept per app; where it opens (109's section 3)
-      sentences.py     a selection in a caption window or a transcript as a sentence to save: the side dragged across as selected, the other whole, links inside both, each line's speaker; whether it's more than a word (polyglotic-hq 459)
+      sentences.py     a selection in a caption window or a transcript as a sentence to save: the side dragged across as selected, the other whole, links inside both, each line's speaker; whether it's more than a word (polyglotic-hq 459); each side to read aloud, with where its text is shown (495)
       links.py         which of a caption's word links show, by what the learner chose for each row's language: every word, words past what they know, key links only where no dictionary ranks them, or none (decision 0115)
       lookup.py        W3, the lookup: what its card shows (hover, pinned, parts and Back, not in the dictionary, Chinese for it), its Learning commands, where it goes (109's section 6)
-      speech.py        hearing a looked-up word: the language it's said in (the word's, never the interface's), the voice that says it, its own pace then slower (polyglotic-hq 286)
+      speech.py        hearing a looked-up word: the language it's said in (the word's, never the interface's), the voice that says it, at its own pace every time; when a better voice is worth adding (`BetterVoice`, decision 0241) (polyglotic-hq 286, 518)
       home.py          Home's views: the state line's rules, and the app picker - the captioned apps' rows (at most 3), everything else beside one app (DECISIONS.md #59), the apps that could be added, everything the PC plays (109's sections 5 and 7)
       panels.py        the three shared panels' views - Languages (the session's; one window's in a transcript's rail), Timing, Look: one value each, every panel bound to it told of a change (109's section 4)
       lab.py           Settings > Captions > Lab's experimental values, one `CaptionLab` in the shared look, saved as one setting, each slider's measured range (polyglotic-hq 284)
@@ -198,6 +205,9 @@ src/polyglotic_desktop/
       picking.py       words picked together in a list: Shift for a range, Ctrl for one more, the keyboard both, kept through a refresh (polyglotic-hq 342)
       pacing.py        captions arriving together let into a window the Lab's gap apart, in order, none dropped, none waiting past the longest wait for text (polyglotic-hq 284)
       presets.py       the ten colour presets (polyglotic-hq 248's section 6), which one a look's colours are, exact colours as typed, WCAG's contrast - and a label colour made readable on any panel
+      known_map.py     what Learning's map shows (489): each word's place, entry and chance in order, the tallies now and a week ago
+      known_colours.py Learning load's colours (489): red to green or orange to blue by a word's chance, dark to light on a dark panel (light to dark on a light one), readable at 4.5:1
+      tone.py          contrast and vibrance (481): a line's ink soft to crisp, never under the floor (3.7:1); a colour's chroma muted to vivid in OKLCH, greys left grey
       reveal.py        a new caption's lines shown one at a time, the Lab's gap apart, oldest first, none waiting past the longest wait for text; all at once under the mouse, on a resize, scrolled back (polyglotic-hq 309)
       words.py         Words' rows: a word's text from the dictionary or what was saved, looked up only when its row shows; a search; the level in words (109's section 7)
     caption_layout.py  the caption layout engine: lines laid out per caption x width x text size, painted directly, marks at paint time
@@ -211,17 +221,20 @@ src/polyglotic_desktop/
     caption_windows.py the caption windows, one per app captioned (at most 3): captions to each, their choices saved, what they ask of the session; joined and separated
     caption_selection.py a caption window's selection (358, decision 0150): the captions as shown, the place under the mouse, where the held words are drawn; kept until a click elsewhere or Esc, copied by a right-click or Ctrl+C, never taking the keyboard
     sentence_card.py   "Save sentence to" and the categories, under a caption window's selection of more than a word; never takes focus (polyglotic-hq 459)
-    caption_marks.py   what a caption window marks at paint time: saved words, unfamiliar words and words in the deck (Learning), word links; a lookup's action forgets only the lines holding its entry
+    caption_marks.py   what a caption window marks at paint time: saved words, unfamiliar words and words in the deck (Learning), word links; a lookup's action forgets only the lines holding its entry; the quiet view's chosen words alone, in blue (polyglotic-hq 477)
     lookup_card.py     W3, the lookup card: one painted card for every caption window - hover after the mouse rests, pinned by a click, the actions, parts and Back, the context line, the speaker that says the word, its text selected by a drag and copied; never takes the focus (109's section 6)
     word_speech.py     the card's "say it" over the `Speaker` port: says or stops the word, its state, no voice and Windows' speech settings; the app's own sound handed to the captions' hush (polyglotic-hq 286)
+    selection_reading.py Say it on a selection over the `Reader` port, app-wide: a side's spoken form read, Stop, the word being said told to the window that lights it, the side used last first, never while dictation holds the mic (polyglotic-hq 495, decision 0229)
     style.py           the window theme's colours as tokens (today's `ui.theme`, handed over by `main`) and a stylesheet scoped to one window - never the app's; the text size, Windows' times the app's own (`text_scale`, `px`: decisions 0033 and 0084)
     controls.py        small standard controls: a card, a setting's row, a row of choices, a switch, a colour choice, a status dot; every label's words can be copied (`copying.Text`); rows made again keep the keyboard on the same control, so the page doesn't scroll to the next one (`focus_kept`, polyglotic-hq 480)
     copying.py         copying any text a learner can see: a label selected with the mouse (from its first hover), Ctrl+C and its right-click menu - Copy, Select all; painted text selected by a drag (`TextSelection`, the lookup card's); a right-click copy on a window that never takes the keyboard (`copy_quietly`: the card's, and for the caption windows) (polyglotic-hq 343)
     caption_preview.py Settings > Captions > Look's live preview: two made-up captions over the app's own painted still, drawn by the caption windows' engine in the look now - never a screen capture
     lab_panel.py       Settings > Captions > Lab: the experimental controls, a preview of their own and Reset the lab - a card in its own file (polyglotic-hq 284)
-    colour_controls.py the look's colour controls: the presets as tiles (as many to a row as fit) and one colour exactly - its swatches, a hex field and Pick... (the colour dialog)
+    colour_controls.py the look's colour controls: the presets as tiles (as many to a row as fit) and one colour exactly - its swatches, a hex field and Pick... (the colour dialog); contrast and vibrance's two sliders (481)
     glyphs.py          the caption windows' icons - lock, settings, close, more, the mic - drawn with QPainter in the manner of Windows' icon font, which other OSes lack (polyglotic-hq 179); and Settings' sections' and cards' marks (470)
-    fonts.py           each OS's own fonts, after Windows' in every font list (none on Windows: its lists are as they were)
+    fonts.py           each OS's own fonts, after Windows' in every font list (none on Windows: its lists are as they were); a caption's faces by its language - the learner's choice, its script's default, the OS's own, the Latin ones - which are never slanted (Arabic) and how much larger a script is drawn (polyglotic-hq 482, decision 0223)
+    face_rows.py       Settings > Captions > Look's Fonts card: a row per captioned language, its list grouped Sans / Serif / Handwritten / This PC's own / Any font on this PC (the PC's fonts listed when first opened); the single Font row's place (polyglotic-hq 482)
+    caption_faces.py   the captions' faces the app carries (`fonts.BUNDLED`, in `ui/assets/fonts`) and those downloaded before, added to Qt's fonts by the first caption layout before it lays anything out; a face that lands later added at once, every caption layout laying its rows out again (`generation`); whether a face has a weight of its own (readings' SemiBold) (482)
     first_window.py    Windows' first-time work for a process's first window (about 0.1 s) done ahead of the main window, by a hidden widget given its window and deleted, in `main`'s wait for the fonts (322, decision 0113)
     fonts_ahead.py     Windows' fonts read ahead of the first window on a thread of their own, by the OS adapters' call that doesn't hold the interpreter; `main` waits for it before the first font is used (322, decision 0112)
     home.py            Home: the state line, the app picker, the caption windows' commands, feedback - in a centred column at most 720 px wide (Languages and Timing moved to Settings > Captions, polyglotic-hq 261)
@@ -231,11 +244,11 @@ src/polyglotic_desktop/
     words_page.py      Words (today's Vocabulary, renamed): a section per language learned (`LanguageSection`; one today, simply open; several fold under a heading with the count, left as the learner left them - `OpenLanguages`, polyglotic-hq 250), each that language's words (`LanguageWords`): the level, what you've heard (`heard_card`: words met, coverage of the last 7 days, listening time, and the bands - `word_bands`; the summary line under the title), words you keep hearing, your words, saved words and their categories, the Anki export; a word pins the caption windows' lookup card
     saved_sentences.py Words' Saved sentences: searched in either language by most of the query's words, filtered by category or saved word; moved, removed (polyglotic-hq 459)
     word_table.py      a list of words as a painted table as tall as its rows (the page scrolls): a row's text looked up when it first shows, its actions as buttons, the keyboard's too
-    learning_page.py   Learning: a card per language being learned (its dictionary's tier and what that gives, its level, make it the main language, stop), Learn another language, Word introductions (Off · A few per caption · Every new word, with a caption drawn with the marks), Words and Anki, the dictionaries on this PC (decision 0122), Account's "Delete learning data…" (polyglotic-hq 262)
+    learning_page.py   Learning: a card per language being learned (its dictionary's tier and what that gives, its level, make it the main language, stop), Learn another language, Word introductions (Off · A few per caption · Every new word, with a caption drawn with the marks), the map of the language in use (known_map_card.py: its 20,000 commonest words by how well they're known, 489), Words and Anki, the dictionaries on this PC (decision 0122), Account's "Delete learning data…" (polyglotic-hq 262)
     load_card.py       Learning's card for the learning load while the Lab's mode is on: the stages in a bar, the four lists with the one-click check, "Add the next" words, and the load's rules (polyglotic-hq 324)
     pack_row.py        a language's dictionary pack on its Learning card: what it's doing in words, a flat bar that never moves by itself, and Download, Cancel, Retry, Download anyway, Get it now (decision 0122)
     account_page.py    Account: sign in or out and the account ID, what's shared, deleting learning data, feedback - today's commands, wired by `main`
-    settings_page.py   Settings: eight sections at its top, each named for what a learner comes to change, every setting one click away (polyglotic-hq 304, 470; before it 248, 261) - Look (the look, Reset), Word links (and the way to Learning), Readings (pinyin, Jyutping), Timing (timing and Behaviour), Speech, Dictation, App (text size, appearance, the hotkeys, updates, About and the third-party notices) and the experimental Lab; the title and tabs pinned while it scrolls, the card scrolled into named under them, the tabs a dropdown where they don't fit on one line, the app's language under the title (decision 0218); a caption window's "All caption settings..." opens it on Look, the tray's "More languages…" on Dictation
+    settings_page.py   Settings: eight sections at its top, each named for what a learner comes to change, every setting one click away (polyglotic-hq 304, 470; before it 248, 261) - Look (the look, Reset), Word links (and the way to Learning; the quiet view's card beside it, 477), Readings (pinyin, Jyutping), Timing (timing and Behaviour), Speech, Dictation, App (text size, appearance, the hotkeys, updates, About and the third-party notices) and the experimental Lab; the title and tabs pinned while it scrolls, the card scrolled into named under them, the tabs a dropdown where they don't fit on one line, the app's language under the title (decision 0218); a caption window's "All caption settings..." opens it on Look, the tray's "More languages…" on Dictation
     settings_marks.py  Settings' cards marked: a card's title beside its mark in a soft square, and the pinned name of the card scrolled into (polyglotic-hq 470)
     help_page.py       Help: the live "no captions?" check, set-up and questions in the new interface's words, a report with the check's result
     languages.py       languages by name, for the language chip and the language spoken; the languages to pick; dictation's - every one the speech model takes, Chinese with the characters it types (283); the spoken languages' own names, their order and how Detect and a named language are said (317)
@@ -273,7 +286,7 @@ src/polyglotic_desktop/
     app_log.py            the app's log as a report attaches it: the newest part, the user's folder hidden
     signed_feed.py        the update feed checked against our signature, for its channel, before Velopack reads it (decisions 0019, 0020; off until main.FEED_KEYS is set)
     pack_list.py          the dictionary packs' list checked against the feed's keys, with a prefix of its own, and its last good copy kept (decision 0122)
-    pack_downloads.py     the packs on this PC (each read by its own info) and their downloads, one at a time on a thread of their own: carried on, paused on a metered connection, retried, checked whole, opened, then renamed; each step in the log, content-free (decision 0122)
+    pack_downloads.py     the packs on this PC (each read by its own info) and their downloads, one at a time on a thread of their own: carried on, paused on a metered connection, retried, checked whole, opened, then renamed; each step in the log, content-free (decision 0122); a caption face's files as one download (`font`, polyglotic-hq 482)
   ports/             the interfaces core needs from outside, and the plain types that cross them
     capture.py         AppList, AudioCapture, SourceCategory, AppCaptureSupport and AppCaptureTrial (0076) - what capture needs from the OS; HeldMic, MicPiece - the mic while the dictation key is held (283)
     mic_bleed.py       MicBleedCheck - the mic's audio vs what the PC played
@@ -290,7 +303,7 @@ src/polyglotic_desktop/
     system.py          OnTop, ForegroundWatch, Hotkeys, HoldKey, TypeText, KeyboardWindow, KeyState, LightTaskbar, TaskbarIdentity, StorePackage, OsVersion, DataFolder, ErrorBox, LaunchClock, Translocation - what the app needs from the OS beyond audio (decision 0038; Translocation, 0205)
     startup.py         StartWithWindows - the app in the tray at sign-in, once the learner says yes (176); `IN_TRAY`, the switch it starts the app with
     one_copy.py        CopyLock, LetToFront - one copy per user and data folder: the lock the copy that runs holds, and its window let to the front (decision 0101)
-    speaker.py         Speaker, Voice - a word said aloud in one of the PC's voices, and when the app's own sound plays (286, decision 0077)
+    speaker.py         Speaker, Reader, Voice - a word said aloud in one of the PC's voices, a selection read a sentence at a time with each word told as it sounds, and when the app's own sound plays (286, decision 0077; 495, decision 0229)
   main.py            the one place that wires everything together (the connection, the outbox and the first-run screens too); `os_adapters` picks the OS's adapters, imported only there (decision 0038)
   harness.py         a developer's command line: capture, sign in, listen to a server and print captions (no UI); consent, learn, sync, delete
 docs/
@@ -301,6 +314,7 @@ tools/
     registry/        the entry IDs that aren't their key's hash (decision 0007)
   protocol_examples.py  copies and checks polyglotic-server's protocol examples (decision 0011)
   rule_cases.py      writes and checks docs/rule-cases/ from the rules (decision 0022)
+  caption_fonts.py   how the captions' bundled faces in `ui/assets/fonts` were made, from pinned sources: Medium instances, Noto Sans SC's cut and readings' SemiBold, the line boxes (polyglotic-hq 482, decision 0223); not part of the build
   mypy_platforms.py  mypy as macOS and Linux see the code: only Windows' own modules may fail (decision 0038)
   linux_qt_libs.sh   Qt's system libraries for the Linux runner, unpacked without root (decision 0038)
   app_tour.py        the app from source on this OS's real windows, signed in to a stand-in server, captioning the app's own FLEURS sample fed straight in: checks and each window's grab() - Home, a caption window, the card, Words, Settings, the transcript (the macOS job, decision 0186)
@@ -493,5 +507,7 @@ switch-over (decision 0032, 2026-11-07) it is the app:
 - [0175 A pack language learned keeps its own learning data, in its own file](docs/decisions/0175-a-pack-language-learned-keeps-its-own-learning-data.md)
 - [0204 Translations into Chinese are written in the script chosen for Mandarin, as a second language too](docs/decisions/0204-translations-into-chinese-follow-the-mandarin-script.md)
 - [0217 The first caption window sets itself up; new windows start like the last, its spoken language only when asked](docs/decisions/0217-the-first-caption-window-sets-itself-up.md)
+- [0229 A selection is read aloud a sentence at a time, behind a `Reader` port, in its spoken form](docs/decisions/0229-a-selection-read-aloud-a-sentence-at-a-time-behind-a-reader-port.md)
+- [0231 A translation line is in the language the server says it is written in](docs/decisions/0231-a-translation-line-is-in-the-language-the-server-says.md)
 - Protocol version 1, with the app deciding live-update timing:
   polyglotic-server's decision 0003 (the server owns the protocol).

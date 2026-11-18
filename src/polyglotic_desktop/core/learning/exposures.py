@@ -17,6 +17,16 @@ played (`first_heard`, for "new in the last 7 days"): set when its count
 goes from 0 to 1, cleared if a withdrawal takes it back to 0, and unknown
 (None) for a word heard before the app kept it (polyglotic-hq 163).
 
+And the separate days it was heard on from what the PC played
+(`days_heard`) and the last of them (`last_heard`) - the learner's own
+days, the PC's, as our curriculum's (polyglotic-hq 489: how well a word
+is known rises with the days it was heard on, `known_chance`). A day
+counts when its first caption with the word finishes; a withdrawal that
+takes the count back to 0 clears both, and any other leaves them (the
+day may have had other captions with the word). Before version 11 of the
+learning file only the last 8 weeks' days were kept (`daily_exposures`):
+the days then are counted from those, and at least 1 for a word heard.
+
 The counts stay on this PC; daily counts per entry go to the server only
 if the learner opts in to sharing them (D3b sends them).
 """
@@ -43,6 +53,8 @@ class ExposureCount(NamedTuple):
     heard_by_you: int = 0  # captions from the user's own mic
     heard_in_deck: int = 0  # from what the PC played, since it went into the deck
     first_heard: date | None = None  # UTC day; None: not heard, or before it was kept
+    days_heard: int = 0  # separate days heard from what the PC played (489)
+    last_heard: date | None = None  # the last of them, the learner's day
 
 
 @dataclass(frozen=True)
@@ -127,20 +139,32 @@ def in_learned_language(caption_language: str | None, learning: str) -> bool:
     return caption_language.lower().split("-")[0] == learning
 
 
-def apply(count: ExposureCount, change: ExposureChange, in_deck: bool) -> ExposureCount:
+def apply(
+    count: ExposureCount,
+    change: ExposureChange,
+    in_deck: bool,
+    today: date | None = None,
+) -> ExposureCount:
     """`count` after `change`; `in_deck` says whether the word is in the
-    deck now. Never below zero."""
+    deck now, `today` is the learner's day (the PC's; None: the caption's
+    UTC day). Never below zero."""
+    today = change.day if today is None else today
     if change.by_you:
         return count._replace(heard_by_you=max(0, count.heard_by_you + change.delta))
     heard = max(0, count.heard + change.delta)
     first = count.first_heard
+    days, last = count.days_heard, count.last_heard
     if heard == 0:
-        first = None
+        first, days, last = None, 0, None
     elif count.heard == 0:
         first = change.day
+    if change.delta > 0 and last != today:
+        days, last = days + 1, today
     return ExposureCount(
         heard,
         count.heard_by_you,
         max(0, count.heard_in_deck + change.delta) if in_deck else count.heard_in_deck,
         first,
+        days,
+        last,
     )

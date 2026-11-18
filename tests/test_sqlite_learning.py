@@ -7,6 +7,7 @@ import sys
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any
 
 import pytest
 from tests.learning.fakes import Clock, words_of
@@ -49,6 +50,49 @@ def test_a_new_store_is_empty(tmp_path: Path) -> None:
     assert not (snapshot.statuses or snapshot.categories or snapshot.saved_words)
     assert not snapshot.exposures
     store.close()
+
+
+def test_a_new_store_is_made_in_one_commit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Every migration of a new store in one transaction - one write to the
+    disk, not one per migration (polyglotic-hq 509: the interface waits
+    for a pack language's new learning data as its pack opens) - and none
+    for a store that's up to date."""
+    said: list[str] = []
+    connect = sqlite3.connect
+
+    def traced(*args: Any, **kwargs: Any) -> sqlite3.Connection:
+        db = connect(*args, **kwargs)
+        db.set_trace_callback(said.append)
+        return db
+
+    monkeypatch.setattr(sqlite_learning.sqlite3, "connect", traced)
+    path = tmp_path / "learning.sqlite"
+    SqliteLearningStore(path).close()
+    assert [s for s in said if s == "COMMIT"] == ["COMMIT"]
+    said.clear()
+    SqliteLearningStore(path).close()
+    assert "COMMIT" not in said
+    db = connect(path)
+    assert db.execute("PRAGMA user_version").fetchone() == (VERSION,)
+    db.close()
+
+
+def test_a_migration_that_fails_leaves_the_file_as_it_was(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The migrations are applied whole or not at all: a file isn't left
+    part way between two versions."""
+    broken = (*sqlite_learning._MIGRATIONS[:-1], ("CREATE TABLE broken (",))
+    monkeypatch.setattr(sqlite_learning, "_MIGRATIONS", broken)
+    path = tmp_path / "learning.sqlite"
+    with pytest.raises(sqlite3.OperationalError):
+        SqliteLearningStore(path)
+    db = sqlite3.connect(path)
+    assert db.execute("PRAGMA user_version").fetchone() == (0,)
+    assert db.execute("SELECT name FROM sqlite_master").fetchall() == []
+    db.close()
 
 
 def test_everything_survives_reopening(tmp_path: Path) -> None:
@@ -366,6 +410,10 @@ def test_a_version_1_file_gains_the_deck_tables(tmp_path: Path) -> None:
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 1")
     db.close()
     store = SqliteLearningStore(path)
@@ -406,6 +454,10 @@ def test_a_version_2_file_gains_the_coverage_table_and_keeps_its_data(
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 2")
     db.close()
     store = SqliteLearningStore(path)
@@ -446,6 +498,10 @@ def test_a_version_3_file_gains_the_listening_table(tmp_path: Path) -> None:
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 3")
     db.close()
     store = SqliteLearningStore(path)
@@ -485,15 +541,23 @@ def test_a_version_4_file_gains_first_heard_and_keeps_its_counts(
     db.execute("DROP TABLE load_words")
     db.execute("DROP TABLE handed_over_days")
     db.execute("ALTER TABLE exposures DROP COLUMN first_heard")
-    db.execute("INSERT INTO exposures VALUES ('a', 3, 0, 1)")
+    db.execute(
+        "INSERT INTO exposures (entry_id, heard, heard_by_you, heard_in_deck)"
+        " VALUES ('a', 3, 0, 1)"
+    )
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 4")
     db.commit()
     db.close()
     store = SqliteLearningStore(path)
-    assert store.load().exposures == [StoredExposures("a", 3, 0, 1, None)]
+    # heard: at least one day (489's version 11), the last unknown
+    assert store.load().exposures == [StoredExposures("a", 3, 0, 1, None, 1, None)]
 
 
 def test_the_exposure_counts_are_read_with_one_call_a_word_met(tmp_path: Path) -> None:
@@ -565,17 +629,65 @@ def test_a_version_5_file_gains_the_load_table_and_keeps_its_data(
     SqliteLearningStore(path).close()
     db = sqlite3.connect(path)
     db.execute("DROP TABLE load_words")
-    db.execute("INSERT INTO exposures VALUES ('a', 3, 0, 1, NULL)")
+    db.execute(
+        "INSERT INTO exposures (entry_id, heard, heard_by_you, heard_in_deck,"
+        " first_heard) VALUES ('a', 3, 0, 1, NULL)"
+    )
     db.execute("DROP TABLE anki_csv_exports")  # version 7's
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 5")
     db.commit()
     db.close()
     store = SqliteLearningStore(path)
     data = store.load()
-    assert data.exposures == [StoredExposures("a", 3, 0, 1, None)]
+    assert data.exposures == [StoredExposures("a", 3, 0, 1, None, 1, None)]
     assert data.load_words == []
+    store.close()
+
+
+def test_a_version_10_file_counts_the_days_its_words_were_heard_on(
+    tmp_path: Path,
+) -> None:
+    """489's version 11: the separate days a word was heard on, counted
+    from the daily counts still kept (8 weeks), and at least one for a
+    word heard - its last day the latest of them, or its first heard."""
+    path = tmp_path / "learning.sqlite"
+    SqliteLearningStore(path).close()
+    db = sqlite3.connect(path)
+    for column in ("days_heard", "last_heard"):
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
+    db.executemany(
+        "INSERT INTO exposures VALUES (?, ?, ?, ?, ?)",
+        [
+            ("days", 9, 0, 0, "2026-11-01"),
+            ("old", 4, 0, 0, None),  # heard before any day was kept
+            ("mic", 0, 2, 0, None),  # only the learner's own speech
+        ],
+    )
+    db.executemany(
+        "INSERT INTO daily_exposures VALUES (?, ?, ?)",
+        [
+            ("2026-11-01", "days", 4),
+            ("2026-11-03", "days", 2),
+            ("2026-11-09", "days", 3),
+            ("2026-11-10", "days", 0),  # a caption taken back: not a day
+        ],
+    )
+    db.execute("PRAGMA user_version = 10")
+    db.commit()
+    db.close()
+    store = SqliteLearningStore(path)
+    found = {e.entry_id: (e.days_heard, e.last_heard) for e in store.load().exposures}
+    assert found == {
+        "days": (3, date(2026, 11, 9)),
+        "old": (1, None),
+        "mic": (0, None),
+    }
     store.close()
 
 
@@ -606,6 +718,10 @@ def test_a_version_6_files_exports_are_remembered_by_both_kinds(
     db.execute("DROP TABLE anki_csv_exports")
     db.execute("DROP TABLE lookups")  # version 8's
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("INSERT INTO anki_exports VALUES ('a', ?)", (AT.isoformat(),))
     db.execute("PRAGMA user_version = 6")
     db.commit()
@@ -650,6 +766,10 @@ def test_a_version_7_file_keeps_its_pinned_lookups_as_lookups(tmp_path: Path) ->
     db = sqlite3.connect(path)
     db.execute("DROP TABLE lookups")
     db.execute("DROP TABLE saved_sentences")  # version 9's
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     rows = [
         ("looked", "new", "estimated"),
         ("said-new", "new", "learner"),
@@ -668,22 +788,22 @@ def test_a_version_7_file_keeps_its_pinned_lookups_as_lookups(tmp_path: Path) ->
     assert data.lookups == [StoredLookups("looked", 1, 0, AT, 0)]
     assert len(data.statuses) == 3
     store.close()
-    assert VERSION == 9
 
 
-def test_an_app_from_before_version_9_refuses_the_file(
+def test_an_app_from_before_version_11_refuses_the_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """What 0.1.6 (version 6), a build with 368's #706 (version 7) and
-    0.1.7 (version 8) do with a file this version opened: refuse it as a
-    newer app's, with nothing written - the rule every version kept
-    (decision 0010)."""
+    0.1.7 (version 8), a build with 459's saved sentences (version 9) and
+    one with 477's curriculum (version 10) do with a file this version
+    opened: refuse it as a newer app's, with nothing written - the rule
+    every version kept (decision 0010)."""
     path = tmp_path / "learning.sqlite"
     SqliteLearningStore(path).close()
-    for older in (6, 7, 8):
+    for older in (6, 7, 8, 9, 10):
         monkeypatch.setattr(sqlite_learning, "VERSION", older)
-        with pytest.raises(LearningStoreFormatError, match="version 9"):
+        with pytest.raises(LearningStoreFormatError, match="version 11"):
             SqliteLearningStore(path)
     db = sqlite3.connect(path)
-    assert db.execute("PRAGMA user_version").fetchone() == (9,)
+    assert db.execute("PRAGMA user_version").fetchone() == (VERSION,)
     db.close()

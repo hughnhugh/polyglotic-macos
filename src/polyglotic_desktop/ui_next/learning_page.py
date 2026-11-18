@@ -98,6 +98,7 @@ from polyglotic_desktop.ui_next.controls import (
     right_row,
 )
 from polyglotic_desktop.ui_next.home import OneClick, Page
+from polyglotic_desktop.ui_next.known_map_card import KnownMapCard
 from polyglotic_desktop.ui_next.languages import learned_name, target_languages
 from polyglotic_desktop.ui_next.load_card import LoadCard
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
@@ -828,6 +829,12 @@ class LearningPage(Page):
         mode is on (polyglotic-hq 324); `main` fills it."""
         self.load.hide()
         self.content.addWidget(self.load)
+
+        self.known_map = KnownMapCard()
+        """The map of the language in use: every common word by how well
+        it's known (polyglotic-hq 489); `main` fills it."""
+        self.known_map.hide()
+        self.content.addWidget(self.known_map)
 
         another = Card(_tr("Learn another language"))
         row = Flow()  # the button under the list where it's narrow (354)

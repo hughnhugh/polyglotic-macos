@@ -15,6 +15,7 @@ from dataclasses import asdict, replace
 
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
+from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem, Step
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionMode
@@ -23,6 +24,7 @@ from polyglotic_desktop.ui import theme as todays_theme
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.face_rows import FacesPanel
 from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
     LanguagesPanel,
@@ -34,6 +36,8 @@ from polyglotic_desktop.ui_next.panels import (
 from polyglotic_desktop.ui_next.transcript_window import SettingsRail
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.panels import (
+    DownloadsView,
+    FaceDownloads,
     LanguagesView,
     LookView,
     SessionLanguages,
@@ -180,6 +184,72 @@ def look_rail(lab: Lab) -> QWidget:
     return rail
 
 
+def fonts_card(lab: Lab) -> QWidget:
+    """Settings > Look's Fonts card (polyglotic-hq 482): a row for each
+    language captioned - Chinese spoken, Thai and Arabic heard lately, the
+    windows in English and Hindi, Russian a second language - each on its
+    default, Chinese's chosen from this PC's own."""
+    look = LookView(CaptionLook(faces=(("zh", "Microsoft YaHei UI"),)))
+    languages = LanguagesView(
+        SessionLanguages(
+            spoken="zh",
+            recent_spoken=("th", "ar"),
+            in_use=("en", "hi"),
+            second_languages={"en": "ru"},
+        )
+    )
+    panel = FacesPanel(look, languages, notes=True)
+    shown = page(lab, style.px(HALF + 120), panel)
+    lab.time(
+        "face",
+        lambda: look.set_face(
+            "th", None if dict(look.value.faces).get("th") else "Leelawadee UI"
+        ),
+        repeat=6,
+        budget=budgets.CLICK,
+    )
+    look.set_face("th", None)
+    lab.pump()
+    shown.keep = (look, languages)  # type: ignore[attr-defined]
+    return shown
+
+
+def fonts_downloading(lab: Lab) -> QWidget:
+    """The Fonts card while faces come down (polyglotic-hq 482): Mandarin in
+    Traditional characters, its default Noto Sans TC downloading; Japanese on
+    Klee One, chosen, paused on a metered connection; Cantonese on its
+    default, here; the others' sizes in their lists."""
+    look = LookView(CaptionLook(faces=(("ja", "Klee One Captions"),)))
+    languages = LanguagesView(
+        SessionLanguages(
+            spoken="zh", in_use=("ja", "yue"), mandarin_script="traditional"
+        )
+    )
+    sizes = {"notosanstc": 3_120_000, "kleeone": 3_500_000, "notoseriftc": 4_080_000}
+    downloads = DownloadsView(
+        FaceDownloads(
+            sizes=sizes,
+            here=frozenset({"notosanshk"}),
+            progress={
+                "notosanstc": PackProgress(
+                    "font:notosanstc", Step.DOWNLOADING, 1_400_000, 3_120_000
+                ),
+                "kleeone": PackProgress(
+                    "font:kleeone",
+                    Step.DOWNLOADING,
+                    0,
+                    3_500_000,
+                    problem=Problem.METERED,
+                ),
+            },
+        )
+    )
+    panel = FacesPanel(look, languages, downloads, notes=True)
+    shown = page(lab, style.px(HALF + 120), panel)
+    shown.keep = (look, languages, downloads)  # type: ignore[attr-defined]
+    return shown
+
+
 def change_everywhere(lab: Lab) -> QWidget:
     """Home's Look panel and a rail's, bound to one view that three caption
     windows follow: a change in one panel, timed until the other panel and
@@ -228,14 +298,16 @@ def change_everywhere(lab: Lab) -> QWidget:
     )
     lab.time(
         "font",
-        lambda: view.set_font(None if view.value.font else "Segoe UI"),
+        lambda: view.set_face(
+            "zh", None if dict(view.value.faces).get("zh") else "Microsoft YaHei UI"
+        ),
         repeat=4,
         budget=budgets.DISPLAY_CHANGE,
     )
     assert rail_links.word_links.value() == view.value.word_links
     assert rail.original.isChecked() == view.value.show_original
     assert all(w.look == view.value for w in windows.windows.values())
-    view.change(replace(view.value, show_original=True, font=None))
+    view.change(replace(view.value, show_original=True, faces=()))
     lab.pump()
     return shown
 
@@ -253,5 +325,7 @@ STATES = [
         ("timing_live_slower", timing(CaptionMode.LIVE, Timing(CaptionMode.LIVE, 6.0))),
         ("look_rail", look_rail),
         ("change_everywhere", change_everywhere),
+        ("fonts", fonts_card),
+        ("fonts_downloading", fonts_downloading),
     )
 ]

@@ -99,6 +99,55 @@ at weight 600 (and optical size 24 for the two serifs) and cut to Latin
 letters and punctuation, with fontTools 4.60.1 (`tools/heading_fonts.sh`).
 They remain under the OFL.
 
+## Fonts: the captions' faces
+
+The faces captions are drawn in, by language, in
+`_internal/polyglotic_desktop/ui/assets/fonts/`, each beside its licence
+text (`*-OFL.txt`, also in `licenses/Fonts/`). All are under the SIL Open
+Font License, Version 1.1:
+
+- Noto Sans SC (as "Noto Sans SC Captions") - Copyright 2014-2021 Adobe
+  (<http://www.adobe.com/>), with Reserved Font Name 'Source'
+  (<https://github.com/notofonts/noto-cjk>)
+- Noto Sans Thai Looped - Copyright 2022 The Noto Project Authors
+  (<https://github.com/notofonts/thai>)
+- Noto Naskh Arabic (as "Noto Naskh Arabic Captions") - Copyright 2022
+  The Noto Project Authors (<https://github.com/notofonts/arabic>)
+- Noto Sans Devanagari - Copyright 2022 The Noto Project Authors
+  (<https://github.com/notofonts/devanagari>)
+- Be Vietnam Pro - Copyright 2021 The Be Vietnam Pro Project Authors
+  (<https://github.com/bettergui/BeVietnamPro>)
+- PT Sans - Copyright (c) 2010, ParaType Ltd.
+  (<http://www.paratype.com/public>), with Reserved Font Names "PT Sans"
+  and "ParaType"
+- IBM Plex Sans - Copyright © 2017 IBM Corp., with Reserved Font Name
+  "Plex" (<https://github.com/IBM/plex>)
+
+PT Sans, IBM Plex Sans and Be Vietnam Pro are as their makers publish
+them, unmodified (Google Fonts' `PT_Sans-Web-*.ttf` and
+`BeVietnamPro-Medium*.ttf`; IBM's `IBMPlexSans-Medium*.ttf` from
+`@ibm/plex-sans` 1.1.0). The four Noto faces are modified versions, as the
+OFL allows, none of them under a Reserved Font Name: Google Fonts'
+variable fonts (<https://github.com/google/fonts>, commit
+`7af0d90b4d532ffa4b041937b560c6df4e7b1e95`) fixed at weight 500 (Medium);
+Noto Sans SC cut to the 8,105 characters of the Table of General Standard
+Chinese Characters and GB2312's, with a weight 600 (SemiBold) copy of the
+letters readings use, and both, and Noto Naskh Arabic, given a shorter
+line box - with fontTools 4.60.1 (`tools/caption_fonts.py`). They remain
+under the OFL.
+
+Other caption faces are downloaded when a learner captions a language
+whose default they are (Noto Sans TC, Noto Sans HK, Noto Sans JP,
+Pretendard) or chooses one in Settings > Captions > Look: each comes with
+its licence text beside it, in the `fonts` folder of Polyglotic's data, and
+is credited in the list it comes from. All are under the SIL Open Font
+License, Version 1.1. Those with a Reserved Font Name come as their makers
+publish them (Pretendard, Smiley Sans, PT Serif, IBM Plex Sans Thai Looped
+and IBM Plex Sans Arabic); LXGW WenKai, cut to the Simplified characters
+above, comes as "Polyglotic Kai", as its Reserved Font Names ask; the rest
+are cut or fixed at Medium as the bundled Noto faces are, named
+"... Captions".
+
 ## The dictionaries
 
 `cedict.sqlite`, `ecdict.sqlite` and `ecdict-en.sqlite` ship as separate, unlocked files beside
@@ -133,6 +182,21 @@ http://www.opensubtitles.org/): we counted its words, and the pack holds
 those counts only, as each word's rank, never a line of the subtitles'
 text. OPUS states no licence for that text. Each pack is shared under
 CC BY-SA 4.0.
+
+## Everyday talk: FrequencyWords (OpenSubtitles 2018)
+
+`core/lexicon/spoken_ranks.py` holds a rank in speech for about 3,600
+Mandarin and 3,600 English words - where the dictionaries' written ranks
+place them rarer - made by `tools/spoken_ranks.py` from FrequencyWords'
+50,000-word lists (commit 525f9b560de45753a5ea01069454e72e9aa541c6,
+`content/2018/zh_cn/zh_cn_50k.txt` and `content/2018/en/en_50k.txt`; the
+same source and pin as the Russian pack's ranks). FrequencyWords by Hermit
+Dave (https://github.com/hermitdave/FrequencyWords; content CC BY-SA 4.0,
+code MIT), word counts from OPUS OpenSubtitles 2018 (P. Lison, J.
+Tiedemann and M. Kouylekov, LREC 2018, https://opus.nlpl.eu/), whose
+subtitles come from http://www.opensubtitles.org/. The ranks are an
+adaptation shared under CC BY-SA 4.0
+(https://creativecommons.org/licenses/by-sa/4.0/).
 
 ## Silero VAD
 

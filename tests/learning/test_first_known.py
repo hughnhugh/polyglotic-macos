@@ -186,7 +186,7 @@ def test_the_learning_file_changes_only_its_level_row(tmp_path: Path) -> None:
     s.vocab.set_known_words(1000)
     store.close()
     first = _rows(path)
-    assert first["version"] == [(VERSION,)] and VERSION == 9
+    assert first["version"] == [(VERSION,)] and VERSION == 11
 
     store = SqliteLearningStore(path)
     s = Learner(store)

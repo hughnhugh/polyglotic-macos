@@ -328,9 +328,16 @@ def test_one_app_alone_is_promised_tried_or_not_by_build(
 
 
 def test_this_pc_is_as_before() -> None:
-    """Windows 11 here (build 26200): promised, so no trial is ever made."""
-    assert sys.getwindowsversion().build >= 22000
-    assert capture.app_capture_support() is AppCaptureSupport.YES
+    """CI's two Windows PCs: the user's (Windows 11, build 26200) is promised
+    one app's capture, so no trial is ever made there; the second PC's
+    (Windows 10 22H2, build 19045; polyglotic-hq 504, decision 0232) tries
+    it. A build older than the trial's means a new machine: say which."""
+    build = sys.getwindowsversion().build
+    if build >= 22000:
+        assert capture.app_capture_support() is AppCaptureSupport.YES
+    else:
+        assert build >= capture.APP_CAPTURE_TRY_BUILD, f"build {build}: a new machine"
+        assert capture.app_capture_support() is AppCaptureSupport.TRY
 
 
 def test_a_refusal_is_windows_code_never_the_errors_text() -> None:

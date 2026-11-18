@@ -79,7 +79,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next import fonts, style
 from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_surface import CaptionSurface
 from tools.ui_lab import checks
@@ -117,10 +117,14 @@ FAMILIES = frozenset(
         *checks.ICON_FONTS,
         *LATIN_FAMILIES,
         *(face for faces in CJK_FAMILIES.values() for face in faces),
+        *(face.family for face in (*fonts.BUNDLED, *fonts.PACKED)),
+        *(face for faces in fonts.WINDOWS.values() for face in faces),
+        *(face for faces in fonts.WEIGHT_FACES.values() for face in faces),
     }
 )
 """The families the interface names first (its fonts' lists, the captions'
-and the lookup card's by script)."""
+and the lookup card's by script; the captions' faces by language, 482; and
+a caption weight's own face: 481)."""
 RADII = (2, 3, 6, 8, 9, 10, 12)
 """Corner radii in px: the stylesheet's."""
 MOST_RADII = 5

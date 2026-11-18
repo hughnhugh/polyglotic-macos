@@ -220,7 +220,7 @@ def _shown_with_links(shown: str, update: Clause) -> Clause:
                 kept.append(replace(link, original=(start + moved, end + moved)))
         if kept:
             links[language] = tuple(kept)
-    return Clause(shown, update.translations, links)
+    return Clause(shown, update.translations, links, update.written_in)
 
 
 def _with_links(shown: Clause, again: Clause | None) -> Clause:

@@ -115,26 +115,6 @@ on:
         description: With pack or release, the app updating itself, rehearsed (0.0.1 to 0.0.2 from a feed in a folder)
         type: boolean
         default: true
-      qa515:
-        description: 515's probe of the caption windows (resizing, what's in front)
-        type: boolean
-        default: false
-      voices515:
-        description: 515's Chinese voices
-        type: boolean
-        default: false
-      sweep515:
-        description: 515's sweep of every setting (about 10 minutes)
-        type: boolean
-        default: false
-      probe515:
-        description: 515's probe of the caption windows
-        type: boolean
-        default: true
-      old_tree:
-        description: A public snapshot to run 515's probe on too (e.g. 0.1.8's)
-        type: string
-        default: ""
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -209,43 +189,18 @@ jobs:
       # The pinned sources are checked against their SHA-256 either way
       # (tools/dictionaries/sources.py); the cache only saves downloading.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release || inputs.qa515) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
         with:
           path: build/dictionary-sources
           key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
 
       - name: The dictionaries, from their pinned sources (the card and the app need them)
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release || inputs.qa515) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
         run: uv run --no-sync python -m tools.dictionaries.build
 
       - name: The app on macOS's windows, captioning a replayed recording
         if: ${{ !cancelled() && inputs.tour }}
         run: uv run --no-sync python -m tools.app_tour "$OUT/tour" --limit 300
-
-      - name: 515's probe (this tree)
-        if: ${{ !cancelled() && inputs.qa515 && inputs.probe515 }}
-        run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
-
-      - name: 515's Chinese voices (what the Mac says)
-        if: ${{ !cancelled() && inputs.qa515 && inputs.voices515 }}
-        continue-on-error: true
-        timeout-minutes: 8
-        run: uv run --no-sync python -m tools.macos_audio515 "$OUT/qa515/audio"
-
-      - name: 515's sweep of every setting
-        if: ${{ !cancelled() && inputs.qa515 && inputs.sweep515 }}
-        continue-on-error: true
-        timeout-minutes: 15
-        run: uv run --no-sync python -m tools.macos_sweep515 "$OUT/qa515/sweep" --limit 600
-
-      - name: 515's probe (an older public snapshot's app)
-        if: ${{ !cancelled() && inputs.qa515 && inputs.old_tree != '' }}
-        continue-on-error: true
-        env:
-          OLD: ${{ inputs.old_tree }}
-        run: |
-          git worktree add -f "$RUNNER_TEMP/old" "$OLD"
-          PYTHONPATH="$RUNNER_TEMP/old/src" uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/old" --limit 300
 
       # The certificate is only ever in this keychain and, for a moment, the
       # runner's temp folder; nothing prints it or its password.
@@ -293,6 +248,31 @@ jobs:
             codesign --verify --deep --strict dist/Polyglotic.app
             codesign --display --verbose=2 dist/Polyglotic.app 2>&1 | grep -E '^(Identifier|Authority|Signature|TeamIdentifier)=' || true
           fi
+          exit "$status"
+
+      # polyglotic-hq 512: the packed app's own secure connections to the
+      # live server - its /health, and sign-in's path with a code that's no
+      # one's (the server's "not valid" expected, never a network failure).
+      # On a failure, once more with macOS's root list named by hand (the
+      # tester's bridge), for the record. As on a learner's Mac, without
+      # python.org's Python: this machine has it, and the packed app's
+      # OpenSSL reads its root list (its default place) - hidden meanwhile.
+      - name: The packed app reaches the live server securely
+        if: ${{ !cancelled() && (inputs.pack || inputs.release) }}
+        run: |
+          app=dist/Polyglotic.app/Contents/MacOS/Polyglotic
+          pythons=/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl
+          if [ -e "$pythons" ]; then sudo mv "$pythons" "$pythons.512"; fi
+          /usr/bin/openssl version -d || true  # macOS's own: its roots are /etc/ssl/cert.pem
+          mkdir -p "$OUT/pack"
+          status=0
+          "$app" --check-tls "$OUT/pack/tls.json" || status=$?
+          cat "$OUT/pack/tls.json" || true
+          if [ "$status" != 0 ]; then
+            SSL_CERT_FILE=/etc/ssl/cert.pem "$app" --check-tls "$OUT/pack/tls-cert-file.json" || true
+            echo "with SSL_CERT_FILE=/etc/ssl/cert.pem:"; cat "$OUT/pack/tls-cert-file.json" || true
+          fi
+          if [ -e "$pythons.512" ]; then sudo mv "$pythons.512" "$pythons"; fi
           exit "$status"
 
       # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
@@ -418,10 +398,6 @@ jobs:
             ${{ env.OUT }}/capture/
             ${{ env.OUT }}/parity/
             ${{ env.OUT }}/updates/
-            ${{ env.OUT }}/qa515/**/*.png
-            ${{ env.OUT }}/qa515/**/*.json
-            ${{ env.OUT }}/qa515/**/*.wav
-            ${{ env.OUT }}/qa515/**/*.txt
           retention-days: 1
           if-no-files-found: ignore
 

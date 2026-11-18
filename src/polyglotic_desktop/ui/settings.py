@@ -25,6 +25,10 @@ from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 
+from polyglotic_desktop.core.learning.curriculum import DEFAULT_SIZE as CURRICULUM_SIZE
+from polyglotic_desktop.core.learning.curriculum import MAX_SIZE as CURRICULUM_MAX
+from polyglotic_desktop.core.learning.curriculum import MIN_SIZE as CURRICULUM_MIN
+from polyglotic_desktop.core.learning.curriculum import ChosenWords
 from polyglotic_desktop.core.learning.first_known import Before
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.learning.languages import FULL, LearningLanguages
@@ -58,6 +62,7 @@ from polyglotic_desktop.core.listening.settling import (
 )
 from polyglotic_desktop.core.listening.sources import colors_for
 from polyglotic_desktop.core.listening.timing import (
+    LIVE_UPDATE_INTERVAL_SEC,
     MAX_WAIT_FOR_TEXT_SEC,
     MAX_WAIT_RANGE,
     CaptionMode,
@@ -108,14 +113,24 @@ FOLLOW_DEFAULT = (
     "show_hidden_on_speech",
     "reading_past",
     "whole_system",
+    "quiet_words",
+    "live_update_interval",
+    "reading_lines",
 )
-"""The switches that follow the app's default until changed on this PC
+"""The settings that follow the app's default until changed on this PC
 (`AppSettings.changed`) - turned on for a new learner by polyglotic-hq 478
 (the user, 2026-11-18: "Default all functional features as on") and 484
 (everything the PC plays: "Make the first time launch easier, everything
-the PC plays should be [the default]"). Another setting is kept as stored,
-as before. A name added here later follows its new default only where the
-record began before it was changed."""
+the PC plays should be [the default]"); the quiet view's blue words, words
+at your edge ticked for a new learner (496, 503); the live-update
+interval, 1.0 s since polyglotic-hq 494 (DECISIONS.md #211; 1.5 before:
+`OLD_LIVE_DEFAULT`, never counted as changed); and the reading lines, on
+over every language but the learner's own (the user, 2026-11-18: "default
+pinyin/script assistance on for next release"; polyglotic-hq 511) - in a
+file from before the record too, where none were on (`[]`, what an
+untouched file holds; `from_stored`). Another setting is
+kept as stored, as before. A name added here later follows its new default
+only where the record began before it was changed."""
 
 
 @dataclass(frozen=True)
@@ -163,7 +178,10 @@ class AppSettings:
     pause_hidden_after: int | None = PAUSE_AFTER_MIN
     show_hidden_on_speech: bool = True  # on for a new learner (478)
     # the languages with a reading line over their text ("zh": pinyin above
-    # Chinese), and its size (core.listening.display; polyglotic-hq 369)
+    # Chinese), and its size (core.listening.display; polyglotic-hq 369).
+    # Until changed (`FOLLOW_DEFAULT`) every language with one but the
+    # learner's own (`main.readings_by_default`; polyglotic-hq 511): () here
+    # is "not chosen", not "none"
     reading_lines: tuple[str, ...] = ()
     reading_size: str = ReadingSize.SMALL.value
     # only over the words past what the learner knows: off - readings over
@@ -174,6 +192,22 @@ class AppSettings:
     reading_system: str = ReadingSystem.PINYIN.value  # or zhuyin (395)
     reading_colour: str = ReadingColour.LINK.value  # its word link's (446)
     reading_custom_color: str = "#9ad0ff"
+    # the quiet view (polyglotic-hq 477): on or off, which words it shows in
+    # blue (core.learning.curriculum.ChosenWords' values: "curriculum",
+    # "edge", "load", "saved") and how many words our curriculum's set
+    # holds. Words at your edge are on for a new learner (496); the words
+    # follow the default until changed (`FOLLOW_DEFAULT`, 503), and a file
+    # from before the record that holds the key keeps its choice
+    quiet_view: bool = False
+    quiet_words: tuple[str, ...] = ("curriculum", "edge")
+    curriculum_size: int = CURRICULUM_SIZE
+    # how strongly captions stand out, soft to crisp, and how vivid their
+    # colours are, muted to vivid: -100 to 100 each, 0 the look as it was
+    # (ui_next.views.tone; polyglotic-hq 481)
+    caption_contrast: int = 0
+    caption_vibrance: int = 0
+    caption_weight: int = 500  # the captions' font weight: Medium, as always
+    caption_edge: str = "none"  # around the letters: "none", "shadow", "outline"
     said_in_link_colours: bool = True  # what was said's linked words (431, 446)
     translation_in_link_colours: bool = True  # the translation's (431, 446)
     # Settings > Captions > Lab's experimental values (the new interface's
@@ -186,7 +220,9 @@ class AppSettings:
     # DECISIONS.md #107), which can change for everyone who hasn't chosen. Saved
     # as `caption_timing` too, the key versions before 176 read
     caption_mode_chosen: str | None = None
-    live_update_interval: float = 1.5  # seconds, with Live updates
+    # seconds, with Live updates; follows the default until changed
+    # (`FOLLOW_DEFAULT`; 1.5 until polyglotic-hq 494)
+    live_update_interval: float = LIVE_UPDATE_INTERVAL_SEC
     # the longest wait for text, in every caption mode: speech never runs
     # longer than this many seconds without a line on screen (2 to 6;
     # core.listening.timing's `max_wait`, polyglotic-hq 277)
@@ -221,6 +257,9 @@ class AppSettings:
     # the display: the captions' font and colours, the panel behind them,
     # where the overlays go and how wide (project 054)
     caption_font: str | None = None  # a font family; None: the app's own
+    # each captioned language's face, by its code: a family, "" its default;
+    # a language not named takes `caption_font` (polyglotic-hq 482)
+    caption_faces: dict[str, str] = field(default_factory=dict)
     original_color: str = ORIGINAL_COLOR  # what was said
     translation_color: str = TRANSLATION_COLOR
     background_color: str = BACKGROUND_COLOR  # the panel, at `opacity`
@@ -242,6 +281,12 @@ class AppSettings:
     # with three hours or the whole session kept; "Don't ask again" turns it
     # off, Settings > App > Transcripts back on (polyglotic-hq 334)
     transcript_ask_at_quit: bool = True
+    # Say it reads a selection's translation first, not what was said: the
+    # side used last, remembered app-wide (polyglotic-hq 495)
+    say_it_translation_first: bool = False
+    # languages whose "a better voice can be added" notice was ticked
+    # "Don't show again" (polyglotic-hq 518)
+    better_voice_quiet: tuple[str, ...] = ()
     # the tray said once that closing the main window keeps the app running
     # there (polyglotic-hq 135, finding 10): never again on this PC
     tray_note_shown: bool = False
@@ -354,9 +399,15 @@ class AppSettings:
         """The learning load's rules for the language `code` - the
         defaults where nothing was chosen - or None while the Lab's mode is
         off (polyglotic-hq 324)."""
-        if self.caption_lab.get("load") is not True:
+        if self.caption_lab.get("load") is not True and not self.load_chosen:
             return None
         return load_rules_from(self.learning_load.get(code))
+
+    @property
+    def load_chosen(self) -> bool:
+        """The quiet view shows the learning load's words in blue (477): the
+        load is kept up, as with the Lab's mode on, without its colours."""
+        return ChosenWords.LOAD.value in self.quiet_words
 
     @property
     def word_introductions(self) -> WordIntroductions:
@@ -374,8 +425,10 @@ class AppSettings:
         values["spelling_hints"] = list(self.spelling_hints)
         values["apps"] = list(self.apps)
         values["reading_lines"] = list(self.reading_lines)
+        values["quiet_words"] = list(self.quiet_words)
         values["also_learning"] = list(self.also_learning)
         values["not_now_learning"] = list(self.not_now_learning)
+        values["better_voice_quiet"] = list(self.better_voice_quiet)
         values["changed"] = list(self.changed)
         # what versions before 176 read: the mode followed, chosen or not
         values[OLD_CAPTION_TIMING] = self.caption_mode.value
@@ -413,11 +466,20 @@ class AppSettings:
             }
         # a switch nobody changed follows today's default (478); settings
         # without the record (0.1.7 and before, or not valid) can't say
-        # which were changed, so each valid one they hold counts as changed
+        # which were changed, so each valid one they hold counts as changed -
+        # but no reading lines (`[]`), which every untouched file holds: they
+        # were never on by default, so they follow it now (polyglotic-hq 511,
+        # the user, 2026-11-18: "default pinyin/script assistance on"). A
+        # learner who turned them on and off again before can't be told apart
         changed = found.get("changed")
         if changed is None:
             changed = tuple(
-                f.name for f in fields(cls) if f.name in as_filed and f.name in found
+                f.name
+                for f in fields(cls)
+                if f.name in as_filed
+                and f.name in found
+                and not _at_old_default(f.name, as_filed)
+                and not (f.name == "reading_lines" and not found[f.name])
             )
             found["changed"] = changed
         for name in FOLLOW_DEFAULT:
@@ -540,9 +602,20 @@ _TUPLES = (  # stored as lists
     "apps",
     "also_learning",
     "not_now_learning",
+    "better_voice_quiet",
     "reading_lines",
+    "quiet_words",
     "changed",
 )
+
+
+def _at_old_default(name: str, as_filed: Mapping[str, object]) -> bool:
+    """A setting a file without the record of changes holds at a default
+    that can't have been a choice: the live-update interval at 1.5 s, which
+    every version before the record saved, chosen or not
+    (`_mode_from_interval`) - so it follows today's (1.0 s, polyglotic-hq
+    494)."""
+    return name == "live_update_interval" and as_filed.get(name) == OLD_LIVE_DEFAULT
 
 
 OLD_LINK_WORDS = "link_words_coloured"
@@ -614,6 +687,13 @@ def _valid(name: str, value: object, default: object) -> object:
     if isinstance(default, bool):
         return value if isinstance(value, bool) else _INVALID
     return _INVALID
+
+
+def _whole_in(value: object, low: int, high: int) -> bool:
+    """A whole number from `low` to `high` (not True or False)."""
+    return (
+        isinstance(value, int) and not isinstance(value, bool) and low <= value <= high
+    )
 
 
 def _number_in(
@@ -738,6 +818,7 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
     "learning": lambda v: v is None or v in FULL,
     "also_learning": lambda v: _codes(v),
     "not_now_learning": lambda v: _codes(v),
+    "better_voice_quiet": lambda v: _codes(v),
     "interface_language": lambda v: (
         v is None or (isinstance(v, str) and bool(_LANGUAGE_CODE.fullmatch(v)))
     ),
@@ -768,6 +849,20 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
         isinstance(v, list | tuple) and all(x in READING_LANGUAGES for x in v)
     ),
     "reading_size": lambda v: v in {s.value for s in ReadingSize},
+    "quiet_words": lambda v: (
+        isinstance(v, list | tuple) and all(isinstance(x, str) for x in v)
+    ),  # what this app doesn't know is left out where it's read (`chosen_from`)
+    "caption_contrast": lambda v: _whole_in(v, -100, 100),
+    "caption_vibrance": lambda v: _whole_in(v, -100, 100),
+    "caption_edge": lambda v: v in ("none", "shadow", "outline"),
+    "caption_weight": lambda v: (
+        v in (300, 400, 500, 600, 700) and _whole_in(v, 300, 700)
+    ),
+    "curriculum_size": lambda v: (
+        isinstance(v, int)
+        and not isinstance(v, bool)
+        and CURRICULUM_MIN <= v <= CURRICULUM_MAX
+    ),
     "reading_colour": lambda v: v in {c.value for c in ReadingColour},
     "reading_system": lambda v: v in {s.value for s in ReadingSystem},
     "reading_custom_color": lambda v: isinstance(v, str) and bool(_COLOR.fullmatch(v)),
@@ -780,6 +875,11 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
     "text_settles_after": _number_in(*SETTLE_RANGE),
     "overlay_geometry": _geometry,
     "caption_font": lambda v: v is None or (isinstance(v, str) and 0 < len(v) <= 100),
+    "caption_faces": lambda v: (
+        _text_map(v, lambda family: len(family) <= 100)
+        and isinstance(v, dict)
+        and all(0 < len(code) <= 10 for code in v)
+    ),
     "original_color": lambda v: isinstance(v, str) and bool(_COLOR.fullmatch(v)),
     "translation_color": lambda v: isinstance(v, str) and bool(_COLOR.fullmatch(v)),
     "background_color": lambda v: isinstance(v, str) and bool(_COLOR.fullmatch(v)),

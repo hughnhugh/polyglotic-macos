@@ -12,22 +12,24 @@ it, and what its button shows.
   language; within one, Windows' own order.
 - **The button:** ready, speaking, or no voice for the language - never a
   dead button: no voice says so, and how Windows adds one.
-- **The pace:** the voice's own the first time a word is said; a second
-  click, once it has finished, says it slower (`SLOWER`), and so on in
-  turn - the learner hears it as spoken, then slowly.
+- **The pace:** the voice's own, every time - a word sounds the same at
+  each press (polyglotic-hq 518: the slower second press, in the OS's
+  voice where the word is recorded, sounded robotic to the user).
+- **A better voice:** each time something plays in a basic voice (a Mac's
+  compact one, `Quality.BASIC`) - never a recording - the learner is told
+  a better one of the language can be added, until they tick "Don't show
+  again" for that language (`BetterVoice`, 518).
 """
 
+from collections.abc import Callable, Collection
 from enum import StrEnum
 
 from polyglotic_desktop.core.lexicon.chinese import has_han
-from polyglotic_desktop.ports.speaker import Voice
+from polyglotic_desktop.ports.speaker import RECORDED, Quality, Voice
 from polyglotic_desktop.ui_next.views.lookup import Card
 
 NORMAL = 1.0
-"""The voice's own pace."""
-SLOWER = 0.7
-"""A learner's pace: a word takes about 40% longer (Windows' voices,
-2026-11-11)."""
+"""The voice's own pace: every word and selection is said at it."""
 SPEECH_SETTINGS = "ms-settings:speech"
 """Windows' Settings > Time & language > Speech, where Manage voices > Add
 voices adds a language's voices (Microsoft's ms-settings list, read
@@ -97,7 +99,40 @@ def voice_for(voices: tuple[Voice, ...], language: str) -> Voice | None:
     return next((v for t, v in by_tag if t.split("-")[0] == primary), None)
 
 
-def pace(times_said: int) -> float:
-    """The pace for a word said `times_said` times already on this card:
-    its own, then slower, in turn."""
-    return SLOWER if times_said % 2 else NORMAL
+def notice_language(language: str) -> str:
+    """The language a better-voice notice is about, as the settings keep it
+    ("zh" for "zh-hant" and "zh-CN")."""
+    return language.split("-")[0].lower()
+
+
+class BetterVoice:
+    """When to say a better voice can be added (polyglotic-hq 518; the user,
+    2026-11-18: "It should pop up everytime you play something that is not
+    the ideal voice pack available until you select a don't show again
+    checkbox"): each time a word or a selection plays in a basic voice -
+    never a recording - unless its language was silenced.
+
+    `quiet`: the languages silenced now (the settings'); `silence`: keeps
+    one silenced from now on."""
+
+    def __init__(
+        self,
+        quiet: Callable[[], Collection[str]],
+        silence: Callable[[str], None],
+    ) -> None:
+        self._quiet = quiet
+        self._silence = silence
+
+    def due(self, voice: Voice, language: str) -> bool:
+        """Whether playing in `voice` brings the notice."""
+        return (
+            voice.quality is Quality.BASIC
+            and not voice.id.startswith(RECORDED)
+            and notice_language(language) not in self._quiet()
+        )
+
+    def silence(self, language: str) -> None:
+        """ "Don't show again" ticked: never for `language` again."""
+        code = notice_language(language)
+        if code not in self._quiet():
+            self._silence(code)

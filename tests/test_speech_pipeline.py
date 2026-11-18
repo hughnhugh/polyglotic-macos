@@ -364,6 +364,24 @@ def test_the_detector_is_made_on_the_captures_thread_at_its_first_audio() -> Non
     assert any(isinstance(d, TranscriptionRequest) for d, _ in drain(pipeline))
 
 
+def test_adding_a_source_prepares_the_speech_model_before_its_first_audio() -> None:
+    """The speech model loads once something is captioned, not at the app's
+    start (polyglotic-hq 513): adding a source starts it loading, so it's
+    loading while the capture starts; nothing before that asks for it."""
+    calls: list[str] = []
+    pipeline = SpeechPipeline(
+        lambda: calls.append("detector") or LoudnessDetector(),  # type: ignore[func-returns-value]
+        CaptionTiming(),
+        preparing=lambda: calls.append("preparing"),
+    )
+    assert calls == []
+    capture = LaterCapture(pattern((0.5, False), (2.0, True), (1.5, False)))
+    pipeline.add_source(APP, capture)
+    assert calls == ["preparing"]
+    capture.deliver()
+    assert calls == ["preparing", "detector"]
+
+
 def test_speech_is_encoded_with_the_lock_free(monkeypatch: object) -> None:
     """Encoding takes tens of milliseconds a time; nothing that takes the
     lock (the interface's pause, another source's frames, the connection's

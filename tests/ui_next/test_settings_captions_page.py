@@ -122,20 +122,22 @@ def cards_in(page: SettingsPage, key: str) -> list[QWidget]:
 def test_each_caption_group_is_in_the_section_it_is_come_to_for(
     qapp: QApplication,
 ) -> None:
-    """In 248's order within each: Look holds the look and Reset; Word links
-    and Readings (369: pinyin; 450: Jyutping too) are sections of their own
-    (470: Look was 2,557 px with no landmark); Timing the timing and
-    Behaviour (when captions come and go); Speech what's heard; the Lab,
+    """In 248's order within each: Look holds the look, its Fonts (482)
+    and Reset; Word links and Readings (369: pinyin; 450: Jyutping too) are
+    sections of their own (470: Look was 2,557 px with no landmark), the
+    quiet view (477) beside word links; Timing the timing and Behaviour
+    (when captions come and go); Speech what's heard; the Lab,
     experimental, is last on its own."""
     page = page_with()
-    groups: list[Card] = [page.look, page.word_links, page.reading, page.timing]
-    groups += [page.behaviour, page.speech, page.reset]
+    groups: list[Card] = [page.look, page.word_links, page.quiet, page.reading]
+    groups += [page.timing, page.behaviour, page.speech, page.reset]
     titles = [g.title.text() if g.title else "" for g in groups]
     assert titles == [
-        "Look", "Word links", "Readings", "Timing", "Behaviour", "Speech", "Reset",
+        "Look", "Word links", "Quiet view", "Readings", "Timing", "Behaviour",
+        "Speech", "Reset",
     ]  # fmt: skip
-    assert cards_in(page, "look") == [page.look, page.reset]
-    assert cards_in(page, "links") == [page.word_links]
+    assert cards_in(page, "look") == [page.look, page.faces, page.reset]
+    assert cards_in(page, "links") == [page.word_links, page.quiet]
     assert cards_in(page, "readings") == [page.reading]
     assert cards_in(page, "timing") == [page.timing, page.behaviour]
     assert cards_in(page, "speech") == [page.speech]
@@ -146,13 +148,14 @@ def test_each_caption_group_is_in_the_section_it_is_come_to_for(
 SETTINGS = {
     "look": (
         "look.preset.classic", "look.original_colour", "look.translation_colour",
-        "look.background_colour", "look.background", "look.font",
+        "look.background_colour", "look.background", "look.face_en",
         "look.show_original", "look.show_language", "look.show_source",
-        "look.reset",
+        "look.reset", "look.caption_text",
     ),
     "links": (
         "look.word_links", "look.link_line", "look.link_gap", "look.link_detail",
-        "look.to_learning",
+        "look.to_learning", "look.quiet", "look.quiet_curriculum", "look.quiet_edge",
+        "look.quiet_load", "look.quiet_saved", "look.curriculum_size",
     ),
     "readings": ("look.reading_zh", "look.reading_yue", "look.reading_size"),
     "timing": (
@@ -172,7 +175,7 @@ SETTINGS = {
     "lab": (
         "lab.new_for", "lab.new_fade", "lab.older", "lab.unfinished", "lab.loading",
         "lab.link_px", "lab.row_gap", "lab.caption_gap", "lab.arrival_gap",
-        "lab.reset",
+        "lab.reset", "lab.load_colours",
     ),
 }  # fmt: skip
 """Every setting on the page (304's list), by the object name its control

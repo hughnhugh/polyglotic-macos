@@ -147,12 +147,12 @@ def test_a_simplified_word_and_an_unrecorded_one_are_as_before(
     assert said(card, "電腦") == "電腦 zh-tw-1"  # not recorded: Taiwan's voice
 
 
-def test_slower_a_traditional_learners_recording_falls_to_the_mainlands_voice(
+def test_a_second_click_plays_a_traditional_learners_recording_again(
     card: LookupCard,
 ) -> None:
-    """The recorded voice is the mainland's (zh-CN), so a second click asks
-    its voice for the Simplified form it holds - `RecordedVoices` then has
-    the PC's zh-CN voice say it, or plays the recording."""
+    """The recorded voice is the mainland's (zh-CN): every click asks it for
+    the Simplified form it holds, at its own pace - the recording again,
+    never the PC's voice slower (polyglotic-hq 518)."""
     speaker = Speaker((OURS, HUIHUI, HANHAN))
     speech = WordSpeech(speaker, recorded=Recorded("电脑"), parent=card)
     card.use_speech(speech)
@@ -162,7 +162,7 @@ def test_slower_a_traditional_learners_recording_falls_to_the_mainlands_voice(
     speaker.ended(True)
     QApplication.processEvents()
     card.do("say")
-    assert speaker.said == [("电脑", OURS.id, 1.0), ("电脑", OURS.id, 0.7)]
+    assert speaker.said == [("电脑", OURS.id, 1.0), ("电脑", OURS.id, 1.0)]
 
 
 @pytest.mark.parametrize("card", [False], indirect=True, ids=["simplified"])

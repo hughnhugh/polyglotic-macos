@@ -44,10 +44,10 @@ theme.
 """
 
 from collections.abc import Callable
+from functools import partial
 from typing import Any
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -58,7 +58,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.learning.curriculum import SIZES as CURRICULUM_SIZES
+from polyglotic_desktop.core.learning.curriculum import ChosenWords
 from polyglotic_desktop.core.listening.display import (
+    READING_LANGUAGES,
     LinkDetail,
     LinkGap,
     LinkLine,
@@ -73,7 +76,11 @@ from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_preview import CaptionPreview
 from polyglotic_desktop.ui_next.caption_window import timing_tip
-from polyglotic_desktop.ui_next.colour_controls import ExactColour, PresetTiles
+from polyglotic_desktop.ui_next.colour_controls import (
+    CaptionTextSliders,
+    ExactColour,
+    PresetTiles,
+)
 from polyglotic_desktop.ui_next.controls import (
     INSET,
     Card,
@@ -646,40 +653,6 @@ class TimingPanel(Panel):
 # -- Look ------------------------------------------------------------------------------
 
 
-class FontBox(Combo):
-    """The fonts on this PC - listed only when first opened (there can be
-    hundreds), so the panel opens at once."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.addItem(_tr("Polyglotic (Default)"), None)
-        self._listed = False
-
-    def show_family(self, family: str | None) -> None:
-        index = 0 if family is None else self.findData(family)
-        if index < 0 and family is not None:  # not listed yet, or not on this PC
-            self.addItem(family, family)
-            index = self.count() - 1
-        if index != self.currentIndex():
-            blocked = self.blockSignals(True)
-            self.setCurrentIndex(index)
-            self.blockSignals(blocked)
-
-    def showPopup(self) -> None:
-        if not self._listed:
-            self._listed = True
-            chosen = self.currentData()
-            blocked = self.blockSignals(True)
-            self.clear()
-            self.addItem(_tr("Polyglotic (Default)"), None)
-            for family in QFontDatabase.families():
-                if not family.startswith("@"):  # Windows' sideways copies
-                    self.addItem(family, family)
-            self.blockSignals(blocked)
-            self.show_family(chosen)
-        super().showPopup()
-
-
 class _LookGroup(Panel):
     """A group of the look's settings, bound to the one `LookView`.
     `notes`: each setting's line under its name (Settings > Captions, F18);
@@ -716,9 +689,9 @@ class _LookGroup(Panel):
 
 
 class LookPanel(_LookGroup):
-    """How every caption window looks: the colours, the panel, the font and
-    what's shown above and in each caption (248's Settings > Captions >
-    Look)."""
+    """How every caption window looks: the colours, the panel and what's
+    shown above and in each caption (248's Settings > Captions > Look);
+    each language's font is the Fonts card's (`face_rows`, 482)."""
 
     def __init__(
         self,
@@ -747,6 +720,25 @@ class LookPanel(_LookGroup):
                 "then change any colour."
             ),
             self.presets,
+        )
+        self.text = CaptionTextSliders()  # the caption text (polyglotic-hq 481)
+        self.text.setObjectName("look.caption_text")
+        self.text.show_text(
+            value.contrast, value.vibrance, value.thickness, value.edge.value
+        )
+        self.text.contrast_moved.connect(view.set_contrast)
+        self.text.edge_chosen.connect(view.set_edge)
+        self.text.vibrance_moved.connect(view.set_vibrance)
+        self.text.thickness_moved.connect(view.set_thickness)
+        self._row(
+            _tr("Caption text"),
+            _tr(
+                "How strongly captions stand out, how vivid their colours are "
+                "and how thick their letters are, in every caption window - "
+                "contrast and colour in transcripts too. In the middle: as "
+                "they were."
+            ),
+            self.text,
         )
         self.colours: dict[str, ExactColour] = {}
         for which, title, note in (
@@ -802,28 +794,6 @@ class LookPanel(_LookGroup):
             background,
         )
 
-        self.font_box = FontBox()
-        self.font_box.setObjectName("look.font")
-        self.font_box.setAccessibleName(_tr("Font"))
-        self.font_box.setMinimumWidth(style.px(160))
-        self.font_box.currentIndexChanged.connect(
-            lambda _: view.set_font(self.font_box.currentData())
-        )
-        self._row(
-            _tr("Font"),
-            pc_or_mac(
-                _tr(
-                    "Any font on this PC. Chinese and Japanese fall back to a font "
-                    "that has them if yours doesn't."
-                ),
-                _tr(
-                    "Any font on this Mac. Chinese and Japanese fall back to a font "
-                    "that has them if yours doesn't."
-                ),
-            ),
-            _left(self.font_box),
-        )
-
         self.original = self._switch(
             "show_original",
             _tr("Show the original above the translation"),
@@ -863,7 +833,9 @@ class LookPanel(_LookGroup):
             self.background.setValue(percent)
             self.background.blockSignals(blocked)
         self.background_shown.setText(f"{percent}%")
-        self.font_box.show_family(value.font)
+        self.text.show_text(
+            value.contrast, value.vibrance, value.thickness, value.edge.value
+        )
         self.presets.show_preset(
             preset_of(value),
             (value.original, value.translation, value.background),
@@ -1013,6 +985,88 @@ class WordLinksPanel(_LookGroup):
         self.said_in_link_colours.setEnabled(linked)
         self.translation_in_link_colours.set_quietly(value.translation_in_link_colours)
         self.translation_in_link_colours.setEnabled(linked)
+
+
+def _set_quiet_word(view: LookView, which: ChosenWords, on: bool) -> None:
+    view.set_quiet_word(which, on)
+
+
+class QuietViewPanel(_LookGroup):
+    """The quiet view (polyglotic-hq 477): on or off - the quiet button on a
+    caption window does the same - and which words it shows in blue, the
+    union of what's ticked, with our curriculum's size."""
+
+    def __init__(
+        self, view: LookView, notes: bool = False, parent: QWidget | None = None
+    ) -> None:
+        super().__init__(_tr("Quiet view"), view, notes, parent=parent)
+        value = view.value
+        self.quiet = self._switch(
+            "quiet",
+            _tr("Quiet view"),
+            _tr(
+                "Captions in quiet grey and gold, a little bigger, with pinyin over "
+                "every word and only your chosen words in blue - no underlines or "
+                "arrows. Point at a word to see its partner. Turns word links off."
+            ),
+            lambda on: view.set_quiet(on, READING_LANGUAGES),
+        )
+        self.words: dict[ChosenWords, SwitchButton] = {}
+        for which, title, line in (
+            (
+                ChosenWords.CURRICULUM,
+                _tr("Our curriculum"),
+                _tr(
+                    "A few words just past what you know: the ones the talk is "
+                    "about, then the ones you hear most. A word the talk brought "
+                    "moves on once you know it; the others after three days met."
+                ),
+            ),
+            (
+                ChosenWords.EDGE,
+                _tr("Words at your edge"),
+                _tr(
+                    "Any word in your learning window, each time it's said - "
+                    "never names, numbers or everyday talk."
+                ),
+            ),
+            (
+                ChosenWords.LOAD,
+                _tr("Learning load"),
+                _tr("Every word of your learning load, as in the Lab."),
+            ),
+            (
+                ChosenWords.SAVED,
+                _tr("Saved words"),
+                _tr("Words you saved, whatever their category."),
+            ),
+        ):
+            self.words[which] = self._switch(
+                f"quiet_{which.value}",
+                title,
+                line,
+                partial(_set_quiet_word, view, which),
+            )
+        self.curriculum_size = Segmented(
+            [(size, str(size)) for size in CURRICULUM_SIZES], value.curriculum_size
+        )
+        self.curriculum_size.setObjectName("look.curriculum_size")
+        self.curriculum_size.changed.connect(lambda v: view.set_curriculum_size(int(v)))
+        self._row(
+            _tr("Curriculum words"),
+            _tr("How many words our curriculum holds at a time."),
+            self.curriculum_size,
+        )
+        self.bind(view)
+        self.refresh()
+
+    def refresh(self) -> None:
+        value = self.view.value
+        self.quiet.set_quietly(value.quiet)
+        for which, switch in self.words.items():
+            switch.set_quietly(which in value.quiet_words)
+        self.curriculum_size.set_value(value.curriculum_size)
+        self.curriculum_size.setEnabled(ChosenWords.CURRICULUM in value.quiet_words)
 
 
 class ReadingLinesPanel(_LookGroup):

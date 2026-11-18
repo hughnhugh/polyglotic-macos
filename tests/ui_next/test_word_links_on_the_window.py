@@ -23,7 +23,10 @@ from polyglotic_desktop.ui_next.views.panels import LookView
 def test_the_strip_has_word_links_and_no_text_size() -> None:
     # "report" only shows for an alpha tester (polyglotic-hq 275)
     # filled lines and parts lined up beside word links (polyglotic-hq 372)
-    assert STRIP == ("links", "fill", "aligned", "lock", "report", "settings", "stop")
+    # and the quiet view beside them (polyglotic-hq 477)
+    assert STRIP == (
+        "links", "quiet", "fill", "aligned", "lock", "report", "settings", "stop",
+    )  # fmt: skip
 
 
 def test_the_button_shows_and_asks_for_word_links(qapp: QApplication) -> None:

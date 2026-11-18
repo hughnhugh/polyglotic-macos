@@ -15,11 +15,8 @@ from tools.ui_lab import lab
 from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import CaptionRow, RowKind
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.caption_layout import (
-    CJK_FAMILIES,
-    LATIN_FAMILIES,
-    CaptionLayout,
-)
+from polyglotic_desktop.ui_next.caption_layout import CaptionLayout
+from polyglotic_desktop.ui_next.fonts import caption_families
 
 YAHEI, JHENGHEI = "Microsoft YaHei UI", "Microsoft JhengHei UI"
 
@@ -63,22 +60,23 @@ def _row(text: str, language: str | None) -> CaptionRow:
 
 
 @pytest.mark.parametrize(
-    ("text", "language", "fonts"),
+    ("text", "language", "drawn_as"),
     [
-        ("日本語のテキストです", None, CJK_FAMILIES["ja"]),  # kana: Japanese
-        ("我们这么说汉字", None, CJK_FAMILIES["zh"]),
-        ("日本語", "ja", CJK_FAMILIES["ja"]),  # its language says so
-        ("hello there", None, ()),
+        ("日本語のテキストです", None, "ja"),  # kana: Japanese
+        ("我们这么说汉字", None, "zh"),
+        ("日本語", "ja", "ja"),  # its language says so
+        ("hello there", None, None),
     ],
 )
 def test_a_lines_fonts_come_by_its_script_when_its_language_isnt_known(
-    qapp: QApplication, text: str, language: str | None, fonts: tuple[str, ...]
+    qapp: QApplication, text: str, language: str | None, drawn_as: str | None
 ) -> None:
     """A caption line whose language the server didn't say: Japanese (it
     has kana) in a Japanese face, not the Chinese one every Chinese-looking
-    line had (YaHei, China's glyph shapes)."""
+    line had (YaHei, China's glyph shapes) - in its language's caption
+    faces since 482 (`fonts.caption_families`)."""
     font = CaptionLayout()._font(_row(text, language), 1.0, False)
-    assert font.families() == [*fonts, *LATIN_FAMILIES]
+    assert font.families() == list(caption_families(drawn_as))
 
 
 _DRAWN = """

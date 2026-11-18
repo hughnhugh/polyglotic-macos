@@ -1,8 +1,9 @@
-"""The learning load's stage colours and the marks under words sit on the
-right words when captions fill the width (polyglotic-hq 309 with 324 and
-323): a poured row keeps its own text and layout, so a mark - by row and
-character - is drawn where the pour put those characters, on whichever
-line. Offscreen, a made-up line, painted into an image and read back."""
+"""Learning load's colours and the marks under words sit on the right
+words when captions fill the width (polyglotic-hq 309 with 324 and 323,
+then 489's colours): a poured row keeps its own text and layout, so a
+mark - by row and character - is drawn where the pour put those
+characters, on whichever line. Offscreen, a made-up line, painted into
+an image and read back."""
 
 from collections import Counter
 
@@ -10,10 +11,12 @@ import pytest
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QColor, QFont, QImage, QPainter, QTextCharFormat, QTextLayout
 from PySide6.QtWidgets import QApplication
-from tests.ui.test_learning_load_view import SPANS, hear, learner, on, shown
+from tests.ui.test_learning_load_view import SPANS, entry, learner, on, shown
 
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.listening.display import WordLinks
+from polyglotic_desktop.core.shared import WordStatus
+from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui_next.caption_layout import (
     CaptionLayout,
     CaptionStyle,
@@ -22,7 +25,8 @@ from polyglotic_desktop.ui_next.caption_layout import (
     drawn_whole,
     span_rects,
 )
-from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS, CaptionMarks
+from polyglotic_desktop.ui_next.caption_marks import CaptionMarks
+from polyglotic_desktop.ui_next.views.known_colours import known_colour
 from polyglotic_desktop.ui_next.views.lab import Fill
 
 AT = QPointF(10.0, 10.0)
@@ -30,6 +34,22 @@ SHARE = 0.6
 """The window's width as a share of the line's, as its own font draws it:
 its words go over two poured lines whatever the font (Linux's draws it
 narrower than a fixed width that wrapped it on Windows)."""
+
+
+def told_apart(tools: LearningTools) -> dict[str, QColor]:
+    """Three words set apart - said new, just past the line, said known -
+    each in its colour on Classic's panel; the two commonest are as known."""
+    tools.vocabulary.set_status(entry(tools, "研究"), WordStatus.NEW)
+    tools.vocabulary.set_status(entry(tools, "电脑"), WordStatus.KNOWN)
+    panel = on()
+    found = {}
+    for word in ("研究", "游戏", "电脑"):
+        chance = tools.vocabulary.chances.of(tools.words_in(word)[0].entry)
+        assert chance is not None
+        found[word] = QColor(
+            known_colour(chance.chance, panel.palette, panel.background)
+        )
+    return found
 
 
 def narrow(engine: CaptionLayout) -> int:
@@ -88,20 +108,17 @@ def seen(image: QImage, rects: list[QRectF], top: float) -> str:
 
 
 @pytest.mark.parametrize("fill", [Fill.STACKED, Fill.PAIRED])
-def test_a_stages_colour_is_on_its_word_wherever_the_pour_put_it(
+def test_a_words_colour_is_on_it_wherever_the_pour_put_it(
     qapp: QApplication, fill: Fill
 ) -> None:
     tools = learner()
-    hear(tools, "电脑 电脑 电脑")  # orange
-    hear(tools, " ".join(["游戏"] * 6))  # yellow
+    wanted = told_apart(tools)
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
     image, laid = painted(CaptionLayout(CaptionStyle(fill=fill)), marks)
     assert laid.poured
     row = next(row for row in laid.rows if row.index == 0)
     assert row.layout.lineCount() > 1  # the row is over more than one poured line
-    red, orange, yellow, _ = (QColor(colour) for colour in STAGE_COLOURS)
-    wanted = {"研究": red, "电脑": orange, "游戏": yellow}
     tops: set[int] = set()
     for word, colour in wanted.items():
         rects = span_rects(row.layout, *SPANS[word])
@@ -114,13 +131,13 @@ def test_a_stages_colour_is_on_its_word_wherever_the_pour_put_it(
             [(start, end) for start, end, _ in marks(shown(), 0)],
         )
         for other_word, other in wanted.items():
-            if other_word != word:  # and no other stage's colour on it
+            if other_word != word:  # and no other word's colour on it
                 assert count(image, rects, row.top, other) == 0, (word, other_word)
     assert len(tops) > 1  # the coloured words aren't all on one line
-    for word in ("这个", "人"):  # known: plain, on whichever line
+    for word in ("这个", "人"):  # as known as 电脑: in its colour, on any line
         rects = span_rects(row.layout, *SPANS[word])
-        assert count(image, rects, row.top, QColor("#ffffff")) > 5
-        assert not any(count(image, rects, row.top, c) for c in wanted.values())
+        assert count(image, rects, row.top, wanted["电脑"]) > 5
+        assert not count(image, rects, row.top, wanted["研究"])
 
 
 def test_the_marks_are_the_same_poured_or_in_rows(qapp: QApplication) -> None:
@@ -152,11 +169,9 @@ def test_the_word_after_one_split_over_two_lines_keeps_its_colour(
     Windows at some widths and on GitHub's Mac (电脑 itself there). Every
     width that splits 电脑 with 游戏 whole on the next line is tried."""
     tools = learner()
-    hear(tools, "电脑 电脑 电脑")  # orange
-    hear(tools, " ".join(["游戏"] * 6))  # yellow
+    yellow = told_apart(tools)["游戏"]
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
-    _, _, yellow, _ = (QColor(colour) for colour in STAGE_COLOURS)
     engine = CaptionLayout(CaptionStyle(fill=Fill.STACKED))
     widest = int(
         engine.laid(shown(), 4000, 1.0).rows[0].layout.lineAt(0).naturalTextWidth()

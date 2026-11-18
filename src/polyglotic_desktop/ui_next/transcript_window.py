@@ -102,6 +102,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QFileDialog,
     QHBoxLayout,
     QLabel,
@@ -121,6 +122,7 @@ from PySide6.QtWidgets import (
 from polyglotic_desktop.core.learning.lookups import LookupContext, lookup_context
 from polyglotic_desktop.core.learning.saved_words import Category, SavedSpan
 from polyglotic_desktop.core.learning.vocabulary import Changed
+from polyglotic_desktop.core.listening.caption_model import Words
 from polyglotic_desktop.core.listening.display import RowKind, clause_versions
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceLabel
@@ -143,6 +145,7 @@ from polyglotic_desktop.ui_next.caption_layout import (
     span_rects,
 )
 from polyglotic_desktop.ui_next.caption_marks import Learner
+from polyglotic_desktop.ui_next.caption_selection import word_rects
 from polyglotic_desktop.ui_next.caption_window import (
     Marked,
     notice_text,
@@ -161,10 +164,22 @@ from polyglotic_desktop.ui_next.languages import (
     spoken_names,
     target_languages,
 )
-from polyglotic_desktop.ui_next.lookup_card import LookupCard
+from polyglotic_desktop.ui_next.lookup_card import (
+    LookupCard,
+    better_voice_steps,
+    dismiss_text,
+    never_again_text,
+    no_voice_steps,
+)
 from polyglotic_desktop.ui_next.os_words import hotkeys_here
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
-from polyglotic_desktop.ui_next.sentence_card import save_to_text, saved_to_text
+from polyglotic_desktop.ui_next.selection_reading import SAID_NOW, SelectionReading
+from polyglotic_desktop.ui_next.sentence_card import (
+    save_to_text,
+    saved_to_text,
+    say_it_text,
+    side_text,
+)
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
@@ -177,9 +192,13 @@ from polyglotic_desktop.ui_next.views.placement import Rect
 from polyglotic_desktop.ui_next.views.scroll import Anchor, Placed
 from polyglotic_desktop.ui_next.views.sentences import (
     Selected,
+    SideAloud,
     selected_sentence,
+    sides_aloud,
     worth_saving,
 )
+from polyglotic_desktop.ui_next.views.speech import Say
+from polyglotic_desktop.ui_next.views.tone import vibrant
 from polyglotic_desktop.ui_next.views.transcript import (
     MIN_SIZE,
     RAIL_WIDTH,
@@ -371,6 +390,8 @@ class TranscriptList(QWidget):
         self.colors = colors
         self.learner = learner
         self.you = you or SourceLabel("You", YOU)
+        self.tone = (0, 0)
+        """The caption windows' contrast and vibrance (`set_tone`; 481)."""
         self.zone: tzinfo | None = None  # None: this PC's time zone
         self.engine = CaptionLayout(STYLE, lines_kept=LINES_LAID_OUT)
         self._readings = reading_lines.source_of(learner) if learner else None
@@ -383,6 +404,10 @@ class TranscriptList(QWidget):
         """The lines the last paint drew: their rows, and where they start."""
         self.card: LookupCard | None = None
         """The lookup card every caption window and transcript shares."""
+        self.say_it: SelectionReading | None = None
+        """Reads the selection aloud from its menu (polyglotic-hq 495)."""
+        self.said_now: dict[int, list[Words]] = {}
+        """The word being read aloud, by line key: lit behind it."""
         self.hovered: Marked | None = None
         """The word under the mouse: drawn softly behind, looked up."""
         self.anchor: Spot | None = None
@@ -517,9 +542,17 @@ class TranscriptList(QWidget):
                 category = vocabulary.category(saved.category_id) if saved else None
                 if category is not None:
                     marks[index].append(
-                        (span.start, span.end, self._format("saved", category.color))
+                        (
+                            span.start,
+                            span.end,
+                            self._format("saved", self._vivid(category.color)),
+                        )
                     )
         return marks
+
+    def _vivid(self, color: str) -> str:
+        """`color` at the caption windows' vibrance (481)."""
+        return vibrant(color, self.tone[1])
 
     def _format(self, kind: str, color: str) -> QTextCharFormat:
         found = self._formats.get((kind, color))
@@ -559,6 +592,16 @@ class TranscriptList(QWidget):
         )
         if style != self.engine.style:
             self._lay_out_again(style)
+
+    def set_tone(self, look: CaptionLook) -> None:
+        """The caption windows' contrast and vibrance, here too (481): the
+        rows' ink soft or crisp on the window's background, saved words and
+        "You" in their colours at the vibrance."""
+        tone = (look.contrast, look.vibrance)
+        if tone != self.tone:
+            self.tone = tone
+            self._formats.clear()
+            self.update()
 
     def dictionary_ready(self) -> None:
         """The dictionary's word split is read: lines laid out before it
@@ -603,7 +646,14 @@ class TranscriptList(QWidget):
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         painter.save()
         painter.setClipRect(QRectF(0, PAD, self.width(), self._view_height()))
-        ink = Ink(QColor(colors.text), QColor(colors.dim), QColor(colors.faint), 1.0)
+        ink = Ink(
+            QColor(colors.text),
+            QColor(colors.dim),
+            QColor(colors.faint),
+            1.0,
+            panel=colors.background,
+            contrast=self.tone[0],
+        )
         width = self._width()
         self.placed, self.drawn = [], []
         for item in placed:
@@ -620,6 +670,7 @@ class TranscriptList(QWidget):
             if self.hovered is not None and self.hovered.key == line.key:
                 self._paint_hovered(painter, laid, at, self.hovered)
             self._paint_selected(painter, line, laid, at)
+            self._paint_said_now(painter, line, laid, at)
             self.engine.paint(painter, line, laid, at, ink, self.marks)
             self.drawn.append((line, laid, at))
             self.placed.append(
@@ -636,7 +687,7 @@ class TranscriptList(QWidget):
     def _heading_marks(self, heading: _Heading) -> list[QTextLayout.FormatRange]:
         found = []
         for span, color, bold in (
-            (heading.you, self.colors.readable(self.you.color), True),
+            (heading.you, self.colors.readable(self._vivid(self.you.color)), True),
             (heading.checked, QColor(self.colors.success), False),
         ):
             if span is None:
@@ -671,6 +722,18 @@ class TranscriptList(QWidget):
                 continue
             for rect in span_rects(row.layout, begin, end):
                 painter.drawRect(rect.translated(at.x(), at.y() + row.top))
+
+    def _paint_said_now(
+        self, painter: QPainter, line: Line, laid: LaidLine, at: QPointF
+    ) -> None:
+        """Behind the word being read aloud, if it's in `line` (495)."""
+        words = self.said_now.get(line.key)
+        if not words:
+            return
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(SAID_NOW)
+        for box in word_rects(laid, words):
+            painter.drawRoundedRect(box.translated(at), 6, 6)
 
     def _paint_hovered(
         self, painter: QPainter, laid: LaidLine, at: QPointF, marked: Marked
@@ -772,7 +835,15 @@ class TranscriptList(QWidget):
     def keyPressEvent(self, event: QKeyEvent) -> None:
         page = self._view_height() - 40
         key = event.key()
-        if event.matches(QKeySequence.StandardKey.Copy) and self.hasSelectedText():
+        reading = self.say_it
+        if (
+            key == Qt.Key.Key_Escape
+            and reading is not None
+            and reading.reading is not None
+            and reading.reading[0] is self
+        ):
+            reading.stop()  # Esc stops it reading (495)
+        elif event.matches(QKeySequence.StandardKey.Copy) and self.hasSelectedText():
             self.copy_selection()
         elif event.matches(QKeySequence.StandardKey.SelectAll):
             self.select_all()
@@ -840,6 +911,8 @@ class TranscriptList(QWidget):
             return
         self._press, self._dragging = pos, False
         self.anchor = self.head = spot
+        if self.say_it is not None:  # a new selection: no more reading it
+            self.say_it.stop_for(self)
         self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -964,6 +1037,67 @@ class TranscriptList(QWidget):
 
             into.addAction(category.name, save)
 
+    def use_say_it(self, reading: SelectionReading | None) -> None:
+        """The selection menu's Say it reads through `reading`; the word it
+        says lights here (polyglotic-hq 495)."""
+        if self.say_it is not None:
+            self.say_it.lit.disconnect(self._said_now)
+        self.say_it = reading
+        if reading is not None:
+            reading.lit.connect(self._said_now)
+
+    def _said_now(self, owner: object, words: dict[int, list[Words]]) -> None:
+        if owner is self and words != self.said_now:
+            self.said_now = words
+            self.update()
+
+    def _add_say_it(self, menu: QMenu) -> None:
+        """The selection menu's "Say it": a language each - what was said,
+        its translation - or Stop while one is read (495)."""
+        reading = self.say_it
+        if reading is None or self.anchor is None or self.head is None:
+            return
+        pieces = selected_pieces(self.transcript.lines, self.anchor, self.head)
+        sides = sides_aloud(pieces)
+        if not sides:
+            return
+        into = menu.addMenu(say_it_text())
+        for side in reading.ordered(sides):
+            state = reading.state(self, side)
+
+            def say(_: bool = False, chosen: SideAloud = side) -> None:
+                reading.toggle(self, chosen)
+                language = reading.notice_for(self)
+                if language is not None:
+                    self.better_voice(reading, language)
+
+            action = into.addAction(side_text(state, side.language), say)
+            if state is Say.NO_VOICE:
+                action.setToolTip(no_voice_steps(side.language))
+        into.setToolTipsVisible(True)
+
+    def better_voice(self, reading: SelectionReading, language: str) -> QMessageBox:
+        """Read in a basic voice (polyglotic-hq 518): how to add a better
+        one, "Don't show again" for the language and Dismiss - a box over
+        the transcript, which has the keyboard already (no caption window's
+        to keep)."""
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle(say_it_text())
+        box.setText(better_voice_steps(language))
+        box.setCheckBox(QCheckBox(never_again_text(language), box))
+        box.addButton(dismiss_text(), QMessageBox.ButtonRole.AcceptRole)
+        box.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+
+        def done(_result: int) -> None:
+            ticked = box.checkBox().isChecked()
+            if reading.notice_for(self) is not None:
+                reading.dismiss(ticked)
+
+        box.finished.connect(done)
+        box.open()
+        return box
+
     def select_all(self) -> None:
         """Every line listed (a search's matches while searching)."""
         lines = self.transcript.lines
@@ -1087,6 +1221,7 @@ class TranscriptList(QWidget):
         if self.hasSelectedText():
             menu = selection_menu(self, self._copy_chosen, self.select_all)
             self._add_save_sentence(menu)
+            self._add_say_it(menu)
             return menu
         line = self.line_at(y)
         return self.line_menu(line) if line is not None else None

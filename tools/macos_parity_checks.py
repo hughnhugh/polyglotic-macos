@@ -312,15 +312,23 @@ class Checks:
 
         found = self.in_thread(lambda: MacVoices().found(), 30)
         languages = sorted({v.language for v in found})
-        self.facts["voices"] = [f"{v.language} {v.name}" for v in found]
+        self.facts["voices"] = [
+            f"{v.language} {v.name} {v.quality.name}" for v in found
+        ]
         english = [v for v in found if v.language.startswith("en")]
         outcome = PASS if english else FAIL
+        # each language's first voice is the one used, and its quality what
+        # brings the better-voice notice (polyglotic-hq 518)
+        first = {v.language: v for v in reversed(found)}
+        basic = sorted(t for t, v in first.items() if v.quality.name == "BASIC")
         self.add(
             "voices_listed",
             outcome,
             f"{len(found)} voices in {len(languages)} languages; first English:"
-            f" {english[0].name if english else None}",
+            f" {english[0].name if english else None}; {len(basic)} languages"
+            " said in a basic voice",
             languages=languages,
+            basic=basic,
         )
 
     def voice_made(self) -> None:

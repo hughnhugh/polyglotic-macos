@@ -6,7 +6,10 @@ user's F11 and F16; built by 261):
   a "Custom" tile, chosen, while the colours are no preset's;
 - **`ExactColour`** - one colour: its swatch with a few that read well
   (`controls.ColourChoice`), its exact value as a hex field ("#ffd76e"),
-  and "Pick..." - the colour dialog (`pick_colour`).
+  and "Pick..." - the colour dialog (`pick_colour`);
+- **`CaptionTextSliders`** - the caption text (`views.tone`; polyglotic-hq
+  481): contrast, soft to crisp; vibrance, muted to vivid; thickness,
+  Light to Bold - today's look in the middle of each.
 
 They draw what they're told (`show`) and say what the learner chose
 (`chosen`); the look's panel binds them to its view.
@@ -24,16 +27,24 @@ from PySide6.QtWidgets import (
     QLayout,
     QLineEdit,
     QPushButton,
+    QSlider,
     QWidget,
 )
 
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.controls import ColourChoice
+from polyglotic_desktop.ui_next.controls import ColourChoice, Segmented, label
+from polyglotic_desktop.ui_next.views.caption_window import TextEdge
 from polyglotic_desktop.ui_next.views.presets import (
     BY_KEY,
     PRESETS,
     ColourPreset,
     hex_colour,
+)
+from polyglotic_desktop.ui_next.views.tone import (
+    CONTRAST_RANGE,
+    THICKNESS,
+    THICKNESSES,
+    VIBRANCE_RANGE,
 )
 
 TILE = (112, 60)
@@ -342,3 +353,164 @@ class ExactColour(QWidget):
         )
         if picked is not None and picked != self.colour:
             self.chosen.emit(picked)
+
+
+def thickness_name(weight: int) -> str:
+    """A thickness by its weight's name (`views.tone.THICKNESSES`)."""
+    return {
+        300: _tr("Light"),
+        400: _tr("Regular"),
+        500: _tr("Medium"),
+        600: _tr("Semibold"),
+        700: _tr("Bold"),
+    }[weight]
+
+
+class CaptionTextSliders(QWidget):
+    """Caption text (481): contrast, vibrance and thickness - a slider each,
+    its name above it and its two ends named beside it (Soft and Crisp,
+    Muted and Vivid, Light and Bold), today's look in the middle;
+    thickness's step by name in its tip. The names over the sliders and
+    the ends in columns as wide as their longest, so a language with long
+    words still fits a transcript's rail (polyglotic-hq 503). Each says where it moved to as it moves
+    (`contrast_moved`, `vibrance_moved`, `thickness_moved`: a weight), so
+    the windows follow the drag; the arrow keys move it a step, Page Up
+    and Page Down a bigger one, Home and End to an end."""
+
+    contrast_moved = Signal(int)
+    vibrance_moved = Signal(int)
+    thickness_moved = Signal(int)
+    edge_chosen = Signal(str)
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        grid = QGridLayout(self)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(style.px(8))
+        self.contrast = self._slider(
+            grid,
+            0,
+            "look.contrast",
+            _tr("Contrast"),
+            (_tr("Soft"), _tr("Crisp")),
+            CONTRAST_RANGE,
+            _tr(
+                "How strongly captions stand out from their panel. Soft is as "
+                "faint as Quick preview's line, and never too faint to read; "
+                "crisp draws every line at full strength."
+            ),
+        )
+        self.vibrance = self._slider(
+            grid,
+            1,
+            "look.vibrance",
+            _tr("Vibrance"),
+            (_tr("Muted"), _tr("Vivid")),
+            VIBRANCE_RANGE,
+            _tr(
+                "How vivid captions' colours are. Dull colours change most; "
+                "white and grey stay as they are, and word links keep their "
+                "colours so you can tell them apart."
+            ),
+        )
+        self.thickness = self._slider(
+            grid,
+            2,
+            "look.thickness",
+            _tr("Thickness"),
+            (_tr("Light"), _tr("Bold")),
+            (0, len(THICKNESSES) - 1),
+            _tr(
+                "How thick captions' letters are, and their pinyin a step "
+                "thicker. A font without a weight draws the nearest it has."
+            ),
+        )
+        self.thickness.setSingleStep(1)
+        self.thickness.setPageStep(1)
+        self.thickness.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.thickness.setTickInterval(1)
+        self.thickness.setValue(THICKNESSES.index(THICKNESS))
+        self._thickness_tip = self.thickness.toolTip()
+        self._name_thickness(THICKNESS)
+        self.edge = Segmented(
+            [
+                (TextEdge.NONE.value, _tr("None")),
+                (TextEdge.SHADOW.value, _tr("Soft shadow")),
+                (TextEdge.OUTLINE.value, _tr("Outline")),
+            ],
+            TextEdge.NONE.value,
+        )
+        self.edge.setObjectName("look.edge")
+        self.edge.setToolTip(
+            _tr(
+                "What's drawn around captions' letters, to read over a busy "
+                "video. The panel behind them has its own slider, below."
+            )
+        )
+        self.edge.changed.connect(lambda v: self.edge_chosen.emit(str(v)))
+        grid.addWidget(label(_tr("Visibility")), 6, 0, 1, 3)
+        grid.addWidget(self.edge, 7, 0, 1, 3, Qt.AlignmentFlag.AlignLeft)
+        grid.setColumnStretch(1, 1)
+        self.contrast.valueChanged.connect(self.contrast_moved)
+        self.vibrance.valueChanged.connect(self.vibrance_moved)
+        self.thickness.valueChanged.connect(self._thickness_moved)
+
+    def _thickness_moved(self, step: int) -> None:
+        weight = THICKNESSES[step]
+        self._name_thickness(weight)
+        self.thickness_moved.emit(weight)
+
+    def _name_thickness(self, weight: int) -> None:
+        """The step by name - in its tip and to a screen reader - rather
+        than beside it, where a narrow Look (the rail's) cut it off."""
+        name = thickness_name(weight)
+        self.thickness.setToolTip(f"{name}. {self._thickness_tip}")
+        self.thickness.setAccessibleDescription(name)
+
+    def thickness_now(self) -> str:
+        """The step chosen, by name ("Medium")."""
+        return thickness_name(THICKNESSES[self.thickness.value()])
+
+    def _slider(
+        self,
+        grid: QGridLayout,
+        at: int,
+        name: str,
+        title: str,
+        ends: tuple[str, str],
+        bounds: tuple[int, int],
+        tip: str,
+    ) -> QSlider:
+        slider = QSlider(Qt.Orientation.Horizontal, self)
+        slider.setObjectName(name)
+        slider.setAccessibleName(title)
+        slider.setAccessibleDescription(tip)
+        slider.setToolTip(tip)
+        slider.setRange(*bounds)
+        slider.setSingleStep(5)
+        slider.setPageStep(25)
+        slider.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        slider.setMinimumWidth(style.px(100))
+        grid.addWidget(label(title), 2 * at, 0, 1, 3)
+        low, high = (label(end, "Dim") for end in ends)
+        grid.addWidget(low, 2 * at + 1, 0, Qt.AlignmentFlag.AlignRight)
+        grid.addWidget(slider, 2 * at + 1, 1)
+        grid.addWidget(high, 2 * at + 1, 2)
+        return slider
+
+    def show_text(
+        self, contrast: int, vibrance: int, thickness: int, edge: str = "none"
+    ) -> None:
+        """Where the four are now - as told, not as moved: no signal."""
+        self.edge.set_value(edge)
+        step = THICKNESSES.index(thickness) if thickness in THICKNESSES else 2
+        for slider, value in (
+            (self.contrast, contrast),
+            (self.vibrance, vibrance),
+            (self.thickness, step),
+        ):
+            if slider.value() != value:
+                blocked = slider.blockSignals(True)
+                slider.setValue(value)
+                slider.blockSignals(blocked)
+        self._name_thickness(THICKNESSES[step])

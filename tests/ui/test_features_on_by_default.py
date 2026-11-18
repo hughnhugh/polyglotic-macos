@@ -50,7 +50,8 @@ def test_settings_from_before_keep_every_switch() -> None:
     assert not kept.dictation and kept.word_links == "off"
     assert not kept.show_hidden_on_speech and not kept.reading_past
     assert not kept.whole_system
-    assert set(FOLLOW_DEFAULT) <= set(kept.changed)
+    assert set(OFF_BEFORE) <= set(kept.changed)  # what 0.1.7 had of FOLLOW_DEFAULT
+    assert set(OFF_BEFORE) < set(FOLLOW_DEFAULT)  # the quiet view's words: 0.1.8's
 
 
 def test_a_switch_missing_from_before_takes_the_default() -> None:

@@ -213,9 +213,9 @@ def test_the_wheel_over_a_list_scrolls_settings(
     page = built.hub.settings
     page.show_section("look")  # long enough to scroll on any grouping (304, 470)
     qapp.processEvents()
-    box = page.look.font_box
+    box = page.faces.boxes["en"]  # the Font row, in Look's Fonts card (482)
     bar = page.verticalScrollBar()
-    page.ensureWidgetVisible(box, 0, 200)
+    page.ensureWidgetVisible(box, 0, 40)  # Reset below it: room to scroll on
     qapp.processEvents()
     index, top = box.currentIndex(), bar.value()
     assert top < bar.maximum()  # room to scroll down

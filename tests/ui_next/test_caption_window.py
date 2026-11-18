@@ -1258,6 +1258,7 @@ def test_the_strips_buttons_have_names_a_screen_reader_can_say(
     }
     assert said == {
         "links": "Word links",
+        "quiet": "Quiet view",
         "fill": "Fill the width",
         "aligned": "Line up the parts",
         "lock": "Lock all windows",

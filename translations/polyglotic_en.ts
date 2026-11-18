@@ -62,6 +62,41 @@
     </message>
 </context>
 <context>
+    <name>KnownMap</name>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>Heard on %n day(s).</source>
+        <translation>
+            <numerusform>Heard on %n day.</numerusform>
+            <numerusform>Heard on %n days.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) green</source>
+        <translation>
+            <numerusform>%Ln word green</numerusform>
+            <numerusform>%Ln words green</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) between</source>
+        <translation>
+            <numerusform>%Ln word between</numerusform>
+            <numerusform>%Ln words between</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
+        <source>%Ln word(s) red</source>
+        <translation>
+            <numerusform>%Ln word red</numerusform>
+            <numerusform>%Ln words red</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Lab</name>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>

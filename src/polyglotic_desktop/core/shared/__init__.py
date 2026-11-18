@@ -61,7 +61,15 @@ class EntryFacts:
     doesn't say - Learning places the word by it and its rank
     (`core.learning.levels.place`). `is_number`: a number written as a
     word made of numerals (二十, 十五) - known once its numerals are, not
-    a word to point out (polyglotic-hq 360)."""
+    a word to point out (polyglotic-hq 360). `spoken_rank`: its rank in
+    speech where the pack ranks it rarer in writing (谢谢: 6,361st written,
+    82nd said), None otherwise; `is_filler`: a hesitation sound or
+    interjection (嗯, "um") - everyday talk, which Learning's conversation
+    words never light (polyglotic-hq 491); `spells_a_number`: a number
+    spelled out in letters (fourteen, thousand) - a word to learn, but
+    never what a conversation is about (491); `names_capitalised`: its
+    language writes a word with a capital inside a sentence only for a
+    name (English: "Julia" - not German, whose nouns all have one)."""
 
     entry_id: EntryId
     level: int | None
@@ -69,6 +77,10 @@ class EntryFacts:
     is_name: bool
     level_words: int | None = None
     is_number: bool = False
+    spoken_rank: int | None = None
+    is_filler: bool = False
+    spells_a_number: bool = False
+    names_capitalised: bool = False
 
 
 @dataclass(frozen=True, slots=True)

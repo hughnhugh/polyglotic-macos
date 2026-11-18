@@ -21,10 +21,12 @@ to the file they chose.
 
 Each translation goes under the language it is written in: a caption
 already in a target is translated into the target's second language, which
-the server keeps under the target (`captions.written_in`; `seconds`, each
-target's second language) - so an English caption's Chinese line, in a
-window into English with Chinese its second, is saved as Chinese, not as
-English (polyglotic-hq 432).
+the server keeps under the target (`captions.line_language`: the server's
+word for each line, else worked out from the caption's language with
+`seconds`, each target's second language) - so an English caption's
+Chinese line, in a window into English with Chinese its second, is saved
+as Chinese, not as English (polyglotic-hq 432), and so is an English
+clause's Chinese line in a Mandarin caption (497).
 
 The interface passes its own time zone and source names, so what's saved
 reads as the screen did (polyglotic-hq project 062).
@@ -37,7 +39,7 @@ import io
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timedelta, tzinfo
 
-from polyglotic_desktop.core.listening.captions import Language, written_in
+from polyglotic_desktop.core.listening.captions import Language, line_language
 from polyglotic_desktop.core.listening.history import Caption, join_text
 from polyglotic_desktop.core.listening.sources import SourceId
 
@@ -59,11 +61,11 @@ def _translations(
     """The caption's translation into each language, clause by clause - a
     clause with none in it gives its original; "" where no clause was
     translated into it (it was already in that language). A line is in the
-    language it is written in (`written_in`), whatever its key."""
+    language it is written in (`line_language`), whatever its key."""
     seconds = seconds or {}
     written = [
         {
-            written_in(key, caption.language, seconds.get(key)): text
+            line_language(clause, key, caption.language, seconds.get(key)): text
             for key, text in clause.translations.items()
         }
         for clause in caption.clauses

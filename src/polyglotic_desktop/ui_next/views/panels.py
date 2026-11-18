@@ -33,6 +33,8 @@ import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 
+from polyglotic_desktop.core.learning.curriculum import ChosenWords
+from polyglotic_desktop.core.lexicon.pack_download import PackProgress
 from polyglotic_desktop.core.listening.display import (
     LinkDetail,
     LinkGap,
@@ -46,14 +48,24 @@ from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
 from polyglotic_desktop.core.listening.timing import (
     BREATH_CUTS,
     GROWING_OFFSETS_SEC,
+    LIVE_UPDATE_INTERVAL_SEC,
     MAX_WAIT_FOR_TEXT_SEC,
     PREVIEW_AFTER_SEC,
     CaptionMode,
 )
 from polyglotic_desktop.ui_next.views.arrivals import Arrival
-from polyglotic_desktop.ui_next.views.caption_window import ORIGINAL_ONLY, CaptionLook
+from polyglotic_desktop.ui_next.views.caption_window import (
+    ORIGINAL_ONLY,
+    CaptionLook,
+    TextEdge,
+)
 from polyglotic_desktop.ui_next.views.lab import CaptionLab
 from polyglotic_desktop.ui_next.views.presets import BY_KEY, hex_colour, preset_of
+from polyglotic_desktop.ui_next.views.tone import (
+    CONTRAST_RANGE,
+    THICKNESSES,
+    VIBRANCE_RANGE,
+)
 
 MAX_HINTS = 100
 """Names and slang at most (protocol.md's limit on spelling hints)."""
@@ -170,6 +182,26 @@ def hints_from(text: str) -> tuple[str, ...]:
     return tuple(found)[:MAX_HINTS]
 
 
+def captioned(languages: SessionLanguages) -> tuple[str, ...]:
+    """The languages captions are in, each once, for Look's face rows
+    (polyglotic-hq 482): what's spoken - as chosen, or heard lately - then
+    each window's language and the second ones. Mandarin shown in
+    Traditional characters is "zh-hant", the faces it's drawn in."""
+    found = (
+        languages.spoken,
+        *languages.recent_spoken,
+        *languages.in_use,
+        *languages.second_languages.values(),
+    )
+    traditional = languages.traditional
+    shown = (
+        "zh-hant" if code == "zh" and traditional else code
+        for code in found
+        if code and code != ORIGINAL_ONLY
+    )
+    return tuple(dict.fromkeys(shown))
+
+
 class LanguagesView(Shared[SessionLanguages]):
     def set_spoken(self, code: str | None) -> None:
         self.change(replace(self.value, spoken=code or None))
@@ -229,7 +261,7 @@ class Timing:
     change (`settle_after`, seconds; core.listening.settling, 309)."""
 
     mode: CaptionMode = CaptionMode.STEADY
-    live_interval: float = 1.5
+    live_interval: float = LIVE_UPDATE_INTERVAL_SEC
     max_wait: float = MAX_WAIT_FOR_TEXT_SEC
     settle_after: float = SETTLE_AFTER_SEC
 
@@ -294,13 +326,16 @@ def look_defaults(now: CaptionLook, first: CaptionLook | None = None) -> Caption
     (`main`'s; 478: word links on), or the plain look - but Quick
     preview's line is the timing's, so it stays as it is, and the Lab has
     its own reset; what happens to a hidden window isn't the look
-    (polyglotic-hq 335)."""
+    (polyglotic-hq 335), nor which words are learned in the quiet view
+    (477)."""
     return replace(
         first if first is not None else CaptionLook(),
         preview=now.preview,
         lab=now.lab,
         pause_hidden_after=now.pause_hidden_after,
         show_on_speech=now.show_on_speech,
+        quiet_words=now.quiet_words,
+        curriculum_size=now.curriculum_size,
     )
 
 
@@ -354,6 +389,57 @@ def learning_view(
     )
 
 
+@dataclass(frozen=True)
+class FaceDownloads:
+    """The downloaded caption faces as Look's Fonts card shows them
+    (polyglotic-hq 482): what each one offered comes to for this app, by
+    its pack's name (none until the list is read), the packs on this PC,
+    and each download under way or stopped."""
+
+    sizes: Mapping[str, int] = field(default_factory=dict)
+    here: frozenset[str] = frozenset()
+    progress: Mapping[str, PackProgress] = field(default_factory=dict)
+
+
+class DownloadsView(Shared[FaceDownloads]):
+    """The downloaded faces, and the way to ask for one (`main`'s)."""
+
+    def __init__(
+        self,
+        value: FaceDownloads | None = None,
+        want: Callable[[str, bool], None] = lambda _pack, _anyway: None,
+        refresh: Callable[[], None] = lambda: None,
+    ) -> None:
+        super().__init__(value or FaceDownloads())
+        self.want = want
+        """A face's pack downloaded (`anyway`: on a metered connection too)."""
+        self.refresh = refresh
+        """The list read again, for the sizes (the card shown)."""
+
+
+def quiet_view(
+    look: CaptionLook,
+    on: bool,
+    readings: tuple[str, ...] = (),
+    before: CaptionLook | None = None,
+) -> CaptionLook:
+    """The look with the quiet view on (polyglotic-hq 477) - word links
+    off, and the reading lines of the window clicked on (`readings`: "zh"
+    for a Chinese window: a reading over every word) - or off again, the
+    reading lines back as they were in `before` (the look when it was
+    turned on; not known: as they are)."""
+    if on:
+        return replace(
+            look,
+            quiet=True,
+            word_links=WordLinks.OFF,
+            reading_lines=tuple(sorted({*look.reading_lines, *readings})),
+        )
+    if before is None:
+        return replace(look, quiet=False)
+    return replace(look, quiet=False, reading_lines=before.reading_lines)
+
+
 class LookView(Shared[CaptionLook]):
     """How every caption window looks."""
 
@@ -380,6 +466,10 @@ class LookView(Shared[CaptionLook]):
         """The look as it was when a caption window's word links button
         turned the learning view on (446), while the app runs: off puts it
         back (`learning_view`)."""
+        self.unquieted: CaptionLook | None = None
+        """The look as it was when a caption window's quiet button turned
+        the quiet view on (477), while the app runs: off puts its reading
+        lines back."""
         self.started_from: str | None = None
         """The colour preset the look's colours last were (`presets`), while
         the app runs: custom colours are "Custom, from" it."""
@@ -420,8 +510,33 @@ class LookView(Shared[CaptionLook]):
     def set_opacity(self, opacity: float) -> None:
         self.change(replace(self.value, opacity=round(min(1.0, max(0.0, opacity)), 2)))
 
-    def set_font(self, family: str | None) -> None:
-        self.change(replace(self.value, font=family or None))
+    def set_contrast(self, value: int) -> None:
+        """How strongly captions stand out (`views.tone`; 481): soft to crisp."""
+        low, high = CONTRAST_RANGE
+        self.change(replace(self.value, contrast=max(low, min(high, value))))
+
+    def set_vibrance(self, value: int) -> None:
+        """How vivid captions' colours are (481): muted to vivid."""
+        low, high = VIBRANCE_RANGE
+        self.change(replace(self.value, vibrance=max(low, min(high, value))))
+
+    def set_thickness(self, weight: int) -> None:
+        """The captions' font weight (481): one of `THICKNESSES`."""
+        if weight not in THICKNESSES:
+            raise ValueError(weight)
+        self.change(replace(self.value, thickness=weight))
+
+    def set_edge(self, edge: str) -> None:
+        """What's drawn around captions' letters (an `TextEdge`'s value; 481)."""
+        self.change(replace(self.value, edge=TextEdge(edge)))
+
+    def set_face(self, language: str, family: str | None) -> None:
+        """`language`'s captions in `family` (None: its default) - Look's
+        row for it (polyglotic-hq 482). The one font chosen for every
+        language before 482 stays the others'."""
+        faces = dict(self.value.faces)
+        faces[language] = family or ""
+        self.change(replace(self.value, faces=tuple(sorted(faces.items()))))
 
     def set_colour(self, which: str, colour: str) -> None:
         """`which`: "original", "translation" or "background"; `colour`: any
@@ -441,7 +556,36 @@ class LookView(Shared[CaptionLook]):
         self.change(replace(self.value, show_source=on))
 
     def set_word_links(self, links: WordLinks) -> None:
-        self.change(replace(self.value, word_links=links))
+        """Word links shown some way turn the quiet view off (477)."""
+        quiet = self.value.quiet and links is WordLinks.OFF
+        self.change(replace(self.value, word_links=links, quiet=quiet))
+
+    def set_quiet(self, on: bool, readings: tuple[str, ...] = ()) -> None:
+        """A caption window's quiet button, or Settings' (477): the quiet
+        view on - word links off, as their button turns them off, and
+        `readings`, the reading lines of the window clicked - or off,
+        its reading lines back as they were."""
+        if on == self.value.quiet:
+            return
+        look = self.value
+        if on:
+            if look.word_links is not WordLinks.OFF:  # as their own button would
+                look = learning_view(look, False, self.links_when_on, (), self.unlinked)
+                self.unlinked = None
+            self.unquieted = look
+        self.change(quiet_view(look, on, readings, self.unquieted))
+        if not on:
+            self.unquieted = None
+
+    def set_quiet_word(self, which: ChosenWords, on: bool) -> None:
+        """One of the quiet view's chosen words - our curriculum, the
+        learning load, saved words - ticked or not."""
+        now = set(self.value.quiet_words)
+        now = now | {which} if on else now - {which}
+        self.change(replace(self.value, quiet_words=frozenset(now)))
+
+    def set_curriculum_size(self, size: int) -> None:
+        self.change(replace(self.value, curriculum_size=size))
 
     def set_links_shown(self, on: bool, readings: tuple[str, ...] = ()) -> None:
         """A caption window's word links button (249, F9): the whole
@@ -451,10 +595,14 @@ class LookView(Shared[CaptionLook]):
         back to how it was before."""
         if on == (self.value.word_links is not WordLinks.OFF):
             return
+        look = self.value
         if on:
-            self.unlinked = self.value
+            if look.quiet:  # the quiet view off first, as its own button would
+                look = quiet_view(look, False, (), self.unquieted)
+                self.unquieted = None
+            self.unlinked = look
         self.change(
-            learning_view(self.value, on, self.links_when_on, readings, self.unlinked)
+            learning_view(look, on, self.links_when_on, readings, self.unlinked)
         )
         if not on:
             self.unlinked = None

@@ -91,6 +91,7 @@ CHECKED = {
     "caption_update.live",
     "caption_update.finished",
     "caption_update.finished.joined",
+    "caption_update.finished.mixed",
     "caption_update.withdrawn",
     "recheck_result",
     "recheck_result.no_words",
@@ -687,6 +688,28 @@ def test_a_finished_caption_and_a_joined_one() -> None:
     assert first.caption_id == second.caption_id == CAPTION
     assert first.replaces == () and second.replaces == (EARLIER,)
     assert len(second.clauses[0].links[Language("en")]) == 4
+    # an older server's clauses say nothing of what their lines are written in
+    assert first.clauses[0].written_in == {}
+
+
+def test_a_mixed_caption_says_what_each_line_is_written_in() -> None:
+    """Server decision 0097 (polyglotic-hq 497): a caption labelled
+    Mandarin, its English clause's line under English in Chinese."""
+    message = decoded("caption_update.finished.mixed")
+    assert isinstance(message, protocol.CaptionUpdate)
+    first, second = listening.caption_update(message).clauses
+    en, zh = Language("en"), Language("zh")
+    assert first.written_in == {en: zh} and second.written_in == {en: en}
+    assert first.translations[en] == "这与我最初的预期不同。"
+    (link, *_) = first.links[en]
+    assert first.original[slice(*link.original)] == "I"
+    assert first.translations[en][slice(*link.translation)] == "我"
+    # null, as an optional field may be: nothing said
+    data = example("caption_update.finished.mixed")
+    data["clauses"][0]["written_in"] = None
+    nulled = protocol.decode(json.dumps(data))
+    assert isinstance(nulled, protocol.CaptionUpdate)
+    assert listening.caption_update(nulled).clauses[0].written_in == {}
 
 
 def test_a_withdrawn_caption() -> None:

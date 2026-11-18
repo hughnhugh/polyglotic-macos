@@ -12,6 +12,14 @@ starts (`sounding`) and when it's over (`ended`). One word at a time: a new
 `say` stops the one before, and a `say` made while another word was still
 being made replaces it before it's heard - ten fast clicks say the last.
 
+A reading (`read`, the `Reader` port - polyglotic-hq 495, decision 0229) is
+the same, a chunk at a time: each chunk (a sentence) made, played and
+hushed on its own (`sounding` per chunk: a reading stopped half-way leaves
+the captions hushed no longer than the chunk it was in), the next made
+while one plays, a short pause between; and each word told as it sounds
+(`spoken`), from the voice's own word times. Readings and words share the
+one speaker: either stops the other.
+
 Holds the words it says only while saying them: never logged.
 """
 
@@ -21,11 +29,12 @@ import threading
 import time
 import wave
 from array import array
-from collections.abc import Callable
+from collections import OrderedDict
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
-from polyglotic_desktop.ports.speaker import Ended, Sounding, Voice
+from polyglotic_desktop.ports.speaker import Ended, Sounding, Spoken, Voice
 
 log = logging.getLogger(__name__)
 
@@ -45,16 +54,36 @@ SILENT = 330
 OVERRUN_SEC = 2.0
 """A word whose output never says it's done is stopped this long after its
 length: a device that stops answering doesn't hold the speaker."""
+CHUNK_PAUSE_SEC = 0.15
+"""Silence between a reading's chunks, beside the `TAIL_SEC` and `LEAD_SEC`
+kept: about a sentence's pause (polyglotic-hq 488 used 0.25 s in all)."""
+KEPT_BYTES = 10_000_000
+"""The readings' sound kept in memory to play again without making it again
+- about the last 20 readings (488: 7 s each at 16 kHz is about 0.22 MB a
+voice that keeps 16-bit mono; more for a voice at 24 kHz or 48 kHz).
+Memory only: never written anywhere, gone when the app closes."""
+
+
+@dataclass(frozen=True)
+class WordTime:
+    """A word of the text said: characters `[start, end)` of the text the
+    voice was given, sounding from `at` seconds into the clip."""
+
+    start: int
+    end: int
+    at: float
 
 
 @dataclass(frozen=True)
 class Clip:
     """A word's sound: 16-bit little-endian PCM, `rate` per second,
-    `channels` interleaved."""
+    `channels` interleaved; `words`: when each word of its text sounds, if
+    the voice says (Windows' do, decision 0229) - else none."""
 
     pcm: bytes
     rate: int
     channels: int = 1
+    words: tuple[WordTime, ...] = ()
 
     @property
     def frames(self) -> int:
@@ -79,7 +108,8 @@ def clip_of_wav(data: bytes) -> Clip:
 
 def trimmed(clip: Clip) -> Clip:
     """`clip` with its silence before the first sound cut to `LEAD_SEC` and
-    after the last to `TAIL_SEC`; a silent clip as it is."""
+    after the last to `TAIL_SEC` - its word times moved with it; a silent
+    clip as it is."""
     samples = array("h")
     samples.frombytes(clip.pcm[: clip.frames * 2 * clip.channels])
     count = len(samples)
@@ -91,7 +121,9 @@ def trimmed(clip: Clip) -> Clip:
     first = max(0, start // step - round(LEAD_SEC * clip.rate))
     last = min(clip.frames, end // step + 1 + round(TAIL_SEC * clip.rate))
     width = 2 * step
-    return Clip(clip.pcm[first * width : last * width], clip.rate, clip.channels)
+    cut = first / clip.rate  # the word times move with the start
+    words = tuple(WordTime(w.start, w.end, max(0.0, w.at - cut)) for w in clip.words)
+    return Clip(clip.pcm[first * width : last * width], clip.rate, clip.channels, words)
 
 
 class Voices(Protocol):
@@ -125,16 +157,17 @@ class Output(Protocol):
 
 @dataclass
 class _Said:
-    text: str
+    chunks: tuple[str, ...]
     voice: Voice
     rate: float
     sounding: Sounding
     ended: Ended
+    spoken: Spoken | None = None
 
 
 class SpeakerThread:
-    """The `Speaker` port: `voices`, `say`, `stop` from any thread; the work
-    on the speaker's own. `close` ends it."""
+    """The `Speaker` and `Reader` ports: `voices`, `say`, `read`, `stop`
+    from any thread; the work on the speaker's own. `close` ends it."""
 
     def __init__(
         self,
@@ -154,6 +187,9 @@ class SpeakerThread:
         self._interrupt = False
         self._to_end: list[_Said] = []
         self._closing = False
+        self._kept: OrderedDict[tuple[str, float, str], Clip] = OrderedDict()
+        """Readings' chunks made lately, newest last (`KEPT_BYTES`): only
+        the speaker's thread uses it."""
         self._thread = threading.Thread(target=self._run, name="speaker", daemon=True)
         self._thread.start()
 
@@ -185,10 +221,24 @@ class SpeakerThread:
         sounding: Sounding,
         ended: Ended,
     ) -> None:
+        self._want(_Said((text,), voice, rate, sounding, ended))
+
+    def read(
+        self,
+        chunks: Sequence[str],
+        voice: Voice,
+        rate: float,
+        sounding: Sounding,
+        ended: Ended,
+        spoken: Spoken,
+    ) -> None:
+        self._want(_Said(tuple(chunks), voice, rate, sounding, ended, spoken))
+
+    def _want(self, said: _Said) -> None:
         with self._cond:
             if self._wanted is not None:
                 self._to_end.append(self._wanted)  # replaced before it was heard
-            self._wanted = _Said(text, voice, rate, sounding, ended)
+            self._wanted = said
             self._interrupt = self._current is not None
             self._cond.notify_all()
 
@@ -239,6 +289,7 @@ class SpeakerThread:
             for done in ends:
                 _tell(done.ended, False)
             if closing:
+                self._kept.clear()
                 return
             if relist:
                 self._list()
@@ -263,29 +314,72 @@ class SpeakerThread:
             return self._interrupt or self._closing
 
     def _say(self, said: _Said) -> bool:
-        """Says it; whether it was heard to its end."""
+        """Says it, a chunk at a time; whether it was heard to its end."""
+        clip = self._made(said, 0)
+        for index in range(len(said.chunks)):
+            if clip is None or self._interrupted() or not clip.frames:
+                return False
+            if index and not self._pause(CHUNK_PAUSE_SEC):
+                return False
+            output = self._new_output()
+            try:
+                start = self._clock()
+                if not output.start(clip):
+                    log.warning("couldn't play a word: no output device")
+                    return False
+                _tell(said.sounding, start, clip.seconds)
+                if said.spoken is not None and not clip.words:
+                    _tell(said.spoken, index, 0, len(said.chunks[index]))
+                playing = clip
+                last = index == len(said.chunks) - 1
+                clip = None if last else self._made(said, index + 1)  # while it plays
+                if not self._wait(output, start, playing, said, index):
+                    return False
+            finally:
+                output.stop()
+        return True
+
+    def _made(self, said: _Said, index: int) -> Clip | None:
+        """Chunk `index`'s sound, its silence trimmed - a reading's from
+        those kept if it was made lately; None if it can't be made."""
+        text = said.chunks[index]
+        key = (said.voice.id, said.rate, text)
+        if said.spoken is not None and key in self._kept:
+            self._kept.move_to_end(key)
+            return self._kept[key]
         try:
-            clip = trimmed(self._source.synthesize(said.text, said.voice, said.rate))
+            made = trimmed(self._source.synthesize(text, said.voice, said.rate))
         except (OSError, ValueError) as error:  # never the word itself
             log.warning("couldn't say a word in %s: %s", said.voice.language, error)
-            return False
-        if self._interrupted() or not clip.frames:
-            return False
-        output = self._new_output()
-        try:
-            start = self._clock()
-            if not output.start(clip):
-                log.warning("couldn't play a word: no output device")
-                return False
-            _tell(said.sounding, start, clip.seconds)
-            return self._wait(output, start + clip.seconds + OVERRUN_SEC)
-        finally:
-            output.stop()
+            return None
+        if said.spoken is not None:  # a reading's (a word's may become recorded)
+            self._keep(key, made)
+        return made
 
-    def _wait(self, output: Output, give_up: float) -> bool:
+    def _keep(self, key: tuple[str, float, str], clip: Clip) -> None:
+        self._kept[key] = clip
+        while sum(len(c.pcm) for c in self._kept.values()) > KEPT_BYTES:
+            self._kept.popitem(last=False)
+
+    def _pause(self, seconds: float) -> bool:
+        """Waits `seconds`; False if stopped or replaced meanwhile."""
+        with self._cond:
+            self._cond.wait_for(lambda: self._interrupt or self._closing, seconds)
+            return not (self._interrupt or self._closing)
+
+    def _wait(
+        self, output: Output, start: float, clip: Clip, said: _Said, index: int
+    ) -> bool:
         """Until the clip has played (True), it's stopped or replaced
-        (False), or it overruns (False)."""
+        (False), or it overruns (False) - telling each word as it sounds."""
+        give_up = start + clip.seconds + OVERRUN_SEC
+        words = list(clip.words)
         while True:
+            now = self._clock()
+            while words and start + words[0].at <= now:
+                word = words.pop(0)
+                if said.spoken is not None:
+                    _tell(said.spoken, index, word.start, word.end)
             with self._cond:
                 self._cond.wait_for(
                     lambda: self._interrupt or self._closing, timeout=POLL_SEC

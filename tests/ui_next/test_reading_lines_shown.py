@@ -36,7 +36,7 @@ from polyglotic_desktop.core.listening.display import (
 )
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.core.shared import WordStatus
-from polyglotic_desktop.main import caption_look, look_settings
+from polyglotic_desktop.main import caption_look, look_changes, look_settings
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui.recorded_captions import (
     APP,
@@ -256,6 +256,44 @@ def test_a_second_language_translation_into_chinese_carries_its_reading(
     assert drawn(window, RowKind.ORIGINAL) == 0
 
 
+@pytest.mark.parametrize("lab", list(LABS))
+def test_a_chinese_line_of_an_english_clause_carries_its_reading(
+    qapp: QApplication, lab: str
+) -> None:
+    """polyglotic-hq 497 (490's picture `e2e-2-after-pr329.png`): a
+    caption labelled Mandarin, its English clause translated into Chinese,
+    English's second language, the line kept under English - the server
+    says it is Chinese (`written_in`), so it has its pinyin, in every
+    layout. Read from the caption's label, it was English: none."""
+    window = english_clauses_window(qapp, LABS[lab], {EN: ZH})
+    assert drawn(window, RowKind.TRANSLATION) >= 3  # the sample's 我, at least
+    assert drawn(window, RowKind.ORIGINAL) == 0  # English: nothing to read
+
+
+def test_an_older_servers_line_is_read_as_the_captions_label_says(
+    qapp: QApplication,
+) -> None:
+    """Without the server's word the line is taken for English, as before."""
+    window = english_clauses_window(qapp, LABS["today"], {})
+    assert drawn(window) == 0
+
+
+def english_clauses_window(
+    qapp: QApplication, lab: CaptionLab, written_in: dict[Language, Language]
+) -> CaptionWindow:
+    window = read_window(qapp, lab, 0, translate_into=EN)
+    window.set_second_languages({EN: ZH})
+    said = "It's not what I expected in the beginning,"
+    for n in range(3):
+        kept = clause(said, "这与我最初的预期不同。", (("expected", "预期"),), into=EN)
+        window.view.apply(
+            finished(f"m{n}", replace(kept, written_in=written_in), language=ZH)
+        )
+    window.apply_changed(new_caption=True)
+    window.canvas.repaint()
+    return window
+
+
 def test_without_chinese_learned_no_empty_band_over_a_translation(
     qapp: QApplication,
 ) -> None:
@@ -364,8 +402,12 @@ def test_pinyin_is_off_until_switched_on_and_saved() -> None:
         assert panel.reading_size.isEnabled()
         view.set_reading_size(ReadingSize.MEDIUM)
         assert caption_style(view.value).reading_lines == frozenset({"zh"})
-        # saved, and read back as it was
-        stored = {**AppSettings().to_stored(), **look_settings(view.value)}
+        # saved as the app saves it - a choice now, not the default (511) -
+        # and read back as it was
+        stored = {
+            **AppSettings().to_stored(),
+            **look_changes(AppSettings(), view.value),
+        }
         back = caption_look(AppSettings.from_stored(stored))
         assert (back.reading_lines, back.reading_size) == (("zh",), ReadingSize.MEDIUM)
         view.set_reading_line("zh", False)

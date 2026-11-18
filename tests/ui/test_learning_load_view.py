@@ -1,22 +1,21 @@
-"""The learning load's viewing mode in a caption window (polyglotic-hq
-324): with the Lab's switch on, a finished caption's words that are in
-the load are in their stage's colour over their stage's line; known words
-are plain; new-word dots, deck dashes and word links' colours aren't
-drawn; and off, nothing changes. Made-up captions, the sample dictionary
-with made-up ranks."""
+"""Learning load's viewing mode in a caption window (polyglotic-hq 324,
+then 489): with the Lab's switch on, every word of a finished caption in
+a language being learned is in a colour by how well the learner knows it
+- red to green, or orange to blue - readable on every preset and in
+order of lightness; new-word dots, deck dashes and saved words' colours
+aren't drawn, word links are; and off, nothing changes. Made-up
+captions, the sample dictionary with made-up ranks."""
 
 from dataclasses import replace
 
 import pytest
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCharFormat
 from PySide6.QtWidgets import QApplication
 from tests.lexicon.sample import chinese_sample
 from tests.ui.fakes import Built, MemorySettingsStore, tools_for
 from tests.ui.test_caption_marks import colours, dashed, dotted, saved_in
 
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
-from polyglotic_desktop.core.learning.load import Counting, LoadRules, Stage
+from polyglotic_desktop.core.learning.load import Counting, LoadRules
 from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.listening.captions import Language
@@ -26,19 +25,14 @@ from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, clause, finished, live
 from polyglotic_desktop.ui.settings import load_rules_changes, load_rules_from
 from polyglotic_desktop.ui_next.caption_layout import LINK_MARK
-from polyglotic_desktop.ui_next.caption_marks import (
-    RARE_ALPHA,
-    STAGE_COLOURS,
-    STAGE_LINES,
-    CaptionMarks,
-    Panel,
-)
+from polyglotic_desktop.ui_next.caption_marks import CaptionMarks, Panel
 from polyglotic_desktop.ui_next.views.captions import CaptionLines, Line
-from polyglotic_desktop.ui_next.views.lab import CaptionLab, LoadRare
+from polyglotic_desktop.ui_next.views.known_colours import Palette, known_colour
+from polyglotic_desktop.ui_next.views.lab import CaptionLab
 from polyglotic_desktop.ui_next.views.presets import (
     PRESETS,
-    colour_difference,
     contrast,
+    luminance,
 )
 
 EN = Language("en")
@@ -79,24 +73,21 @@ def shown(text: str = LINE) -> Line:
     return view.lines[0]
 
 
-def on(key: str = "classic", dim_rare: bool = False) -> Panel:
+def on(key: str = "classic", palette: Palette = Palette.RED_GREEN) -> Panel:
     preset = next(p for p in PRESETS if p.key == key)
     return Panel(
         preset.background,
         preset.original,
         preset.translation,
         load=True,
-        dim_rare=dim_rare,
+        palette=palette,
     )
 
 
-def lines_under(marks: object) -> dict[tuple[int, int], QTextCharFormat.UnderlineStyle]:
-    assert isinstance(marks, list | tuple)
-    return {
-        (start, end): format_.underlineStyle()
-        for start, end, format_ in marks
-        if format_.underlineStyle() is not QTextCharFormat.UnderlineStyle.NoUnderline
-    }
+def chance_of(tools: LearningTools, word: str) -> float:
+    found = tools.vocabulary.chances.of(tools.words_in(word)[0].entry)
+    assert found is not None
+    return found.chance
 
 
 def test_the_sample_line_splits_as_the_tests_say(qapp: QApplication) -> None:
@@ -106,88 +97,66 @@ def test_the_sample_line_splits_as_the_tests_say(qapp: QApplication) -> None:
     } == SPANS
 
 
-def test_words_in_the_load_are_in_their_stages_colour_over_its_line(
+def test_every_word_is_in_the_colour_of_how_well_it_is_known(
     qapp: QApplication,
 ) -> None:
     tools = learner()
-    hear(tools, "电脑 电脑 电脑")  # orange
-    hear(tools, " ".join(["游戏"] * 6))  # yellow
+    marks = CaptionMarks(tools)
+    panel = on()
+    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, panel)
+    found = {(s, e): colour for s, e, colour, _ in colours(marks(shown(), 0))}
+    assert set(found) == set(SPANS.values())  # every word, known ones too
+    for word, span in SPANS.items():
+        expected = known_colour(
+            chance_of(tools, word), Palette.RED_GREEN, panel.background
+        )
+        assert found[span] == expected, word
+    # the commonest the lightest, the rarest the darkest: 人 (5th) to 足球
+    order = ["人", "这个", "电脑", "游戏", "研究", "足球"]
+    shades = [luminance(found[SPANS[w]]) for w in order]
+    assert shades == sorted(shades, reverse=True)
+    assert found[SPANS["人"]] != found[SPANS["足球"]]
+
+
+def test_a_word_heard_today_keeps_its_colour_until_tomorrow(
+    qapp: QApplication,
+) -> None:
+    """Every word of a caption was just heard: today's hearing counts from
+    tomorrow (decision 0226), so the rarest stays red while it is read."""
+    tools = learner()
+    rarest = entry(tools, "足球")
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
-    found = marks(shown(), 0)
-    red, orange, yellow, _green = STAGE_COLOURS
-    assert colours(found) == [
-        (*SPANS["研究"], red, None),
-        (*SPANS["电脑"], orange, None),
-        (*SPANS["游戏"], yellow, None),
-    ]
-    # the line under each fills in as the word is learned: never hue alone
-    assert lines_under(found) == {
-        SPANS["研究"]: STAGE_LINES[Stage.RED],
-        SPANS["电脑"]: STAGE_LINES[Stage.ORANGE],
-        SPANS["游戏"]: STAGE_LINES[Stage.YELLOW],
-    }
-    assert len(set(STAGE_LINES)) == 5  # a shape for each stage, and for ready
+    before = chance_of(tools, "足球")
+    hear(tools, "足球")
+    assert tools.vocabulary.exposures(rarest).days_heard == 1
+    assert chance_of(tools, "足球") == before
+    found = {(s, e): c for s, e, c, _ in colours(marks(shown(), 0))}
+    assert found[SPANS["足球"]] == known_colour(
+        before, Palette.RED_GREEN, on().background
+    )
 
 
-def test_green_then_ready_to_check_then_plain_once_known(qapp: QApplication) -> None:
+def test_a_word_set_known_turns_green_at_once(qapp: QApplication) -> None:
     tools = learner()
-    computer = entry(tools, "电脑")
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
     line = shown()
-    green = STAGE_COLOURS[Stage.GREEN]
-
-    hear(tools, " ".join(["电脑"] * 9))
-    marks.load_changed(None)
-    assert (*SPANS["电脑"], green, None) in colours(marks(line, 0))
-    assert lines_under(marks(line, 0))[SPANS["电脑"]] is STAGE_LINES[Stage.GREEN]
-
-    hear(tools, " ".join(["电脑"] * 3))
-    marks.load_changed(None)
-    assert tools.vocabulary.load.stage(computer) is Stage.READY
-    assert (*SPANS["电脑"], green, None) in colours(marks(line, 0))
-    assert lines_under(marks(line, 0))[SPANS["电脑"]] is STAGE_LINES[Stage.READY]
-
-    tools.vocabulary.check_word(computer, knows=True)  # graduated: plain text
-    marks.load_changed(None)
-    assert SPANS["电脑"] not in {(s, e) for s, e, *_ in colours(marks(line, 0))}
-    assert SPANS["电脑"] not in lines_under(marks(line, 0))
-    # and the next word by frequency took its place, in red
-    assert (*SPANS["足球"], STAGE_COLOURS[Stage.RED], None) in colours(marks(line, 0))
+    marks(line, 0)
+    tools.vocabulary.set_status(entry(tools, "足球"), WordStatus.KNOWN)
+    assert marks.learning_changed(Changed.STATUSES.value)  # the window repaints
+    found = {(s, e): c for s, e, c, _ in colours(marks(line, 0))}
+    assert found[SPANS["足球"]] == known_colour(
+        0.98, Palette.RED_GREEN, on().background
+    )
 
 
-def test_known_words_and_words_outside_the_load_are_plain(qapp: QApplication) -> None:
-    tools = learner()
-    marks = CaptionMarks(tools)
-    marks.set_look(WordLinks.OFF, WordIntroductions.EVERY, on())
-    marked = {(s, e) for s, e, _ in marks(shown(), 0)}
-    assert marked == {SPANS["研究"], SPANS["电脑"], SPANS["游戏"]}
-
-
-def test_words_outside_the_load_can_be_dimmed_but_known_ones_never(
-    qapp: QApplication,
-) -> None:
-    tools = learner()
-    marks = CaptionMarks(tools)
-    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on(dim_rare=True))
-    dimmed = [
-        (start, end, format_.foreground().color())
-        for start, end, format_ in marks(shown(), 0)
-        if format_.foreground().style() is not Qt.BrushStyle.NoBrush
-        and format_.foreground().color().alphaF() < 1.0
-    ]
-    assert [(s, e) for s, e, _ in dimmed] == [SPANS["足球"]]  # not 这个, 人
-    colour = dimmed[0][2]
-    assert colour.name() == "#ffffff"  # its row's own colour
-    assert abs(colour.alphaF() - RARE_ALPHA) < 0.01
-
-
-def test_the_mode_replaces_the_dots_and_the_dashes_and_keeps_word_links(
+def test_the_mode_replaces_dots_dashes_and_saved_words_and_keeps_word_links(
     qapp: QApplication,
 ) -> None:
     tools = learner()
     tools.vocabulary.set_status(entry(tools, "足球"), WordStatus.LEARNING)
+    saved_in(tools, "电脑")
     view = CaptionLines(
         (APP,), EN, keep=10, options=DisplayOptions(word_links=WordLinks.COLOURS)
     )
@@ -199,17 +168,13 @@ def test_the_mode_replaces_the_dots_and_the_dashes_and_keeps_word_links(
     before = [m for row in range(len(line.rows)) for m in marks(line, row)]
     assert dotted(marks(line, 0)) and dashed(marks(line, 0))  # as it always was
     assert any(f.hasProperty(LINK_MARK) for _, _, f in before)  # links underlined
-    assert not colours(marks(line, 0))  # nothing in a stage's colour
 
     marks.set_look(WordLinks.COLOURS, WordIntroductions.EVERY, on())
-    stages = {(s, e) for s, e, *_ in colours(marks(line, 0))}
-    assert stages == {SPANS["研究"], SPANS["电脑"], SPANS["游戏"]}
-    # only the load's own lines under words: no dot under a new word that
-    # isn't in it, no dash under the deck's 足球
-    assert set(lines_under(marks(line, 0))) == stages
-    # word links as ever (340; the user, 2026-11-15: "Word links stop
-    # working with learning load"): 电脑 is in the load and linked - its
-    # stage's colour and line, and its link's bar - and so is its counterpart
+    assert not dotted(marks(line, 0)) and not dashed(marks(line, 0))
+    coloured = colours(marks(line, 0))
+    assert {(s, e) for s, e, *_ in coloured} == set(SPANS.values())
+    assert all(tint is None for *_, tint in coloured)  # no saved word's tint
+    # word links as ever (340): 电脑 in its colour, and its link's bar
     linked = [
         [(s, e) for s, e, f in marks(line, row) if f.hasProperty(LINK_MARK)]
         for row in range(len(line.rows))
@@ -217,21 +182,34 @@ def test_the_mode_replaces_the_dots_and_the_dashes_and_keeps_word_links(
     assert linked == [[SPANS["电脑"]], [(0, len("Computer"))]]
 
 
-def test_a_saved_word_in_the_load_shows_its_stage_and_one_outside_its_category(
-    qapp: QApplication,
-) -> None:
+def test_in_the_mode_a_linked_word_keeps_its_known_colour(qapp: QApplication) -> None:
+    """On real captions (346, a learner of 1,000 words) a linked word was
+    drawn in its link's colour, over the colour of how well it's known -
+    the words past the line, the ones the mode is for. In the mode a link
+    is its bar under the word; off, the look's choice as ever."""
+    from polyglotic_desktop.ui_next.caption_layout import Ink
+    from polyglotic_desktop.ui_next.caption_window import look_ink
+    from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
+
+    look = CaptionLook()
+    assert look.said_in_link_colours and look.translation_in_link_colours
+    off = look_ink(Ink(), look)
+    assert off.said_in_link_colours and off.translation_in_link_colours
+    on = look_ink(Ink(), replace(look, lab=CaptionLab(load=True)))
+    assert not on.said_in_link_colours and not on.translation_in_link_colours
+
+
+def test_ignored_words_keep_the_rows_colour(qapp: QApplication) -> None:
     tools = learner()
-    saved_in(tools, "电脑")
-    blue = saved_in(tools, "足球")
+    tools.vocabulary.set_status(entry(tools, "游戏"), WordStatus.IGNORED)
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
-    found = colours(marks(shown(), 0))
-    assert (*SPANS["电脑"], STAGE_COLOURS[Stage.RED], None) in found
-    assert (*SPANS["足球"], blue, None) in found
-    assert len(found) == 4
+    spans = {(s, e) for s, e, *_ in colours(marks(shown(), 0))}
+    assert SPANS["游戏"] not in spans
+    assert len(spans) == len(SPANS) - 1
 
 
-def test_a_live_caption_shows_no_stage(qapp: QApplication) -> None:
+def test_a_live_caption_shows_no_colours(qapp: QApplication) -> None:
     tools = learner()
     view = CaptionLines((APP,), EN, keep=10)
     view.apply(live("b", clause(LINE)))
@@ -240,73 +218,42 @@ def test_a_live_caption_shows_no_stage(qapp: QApplication) -> None:
     assert marks(view.lines[-1], 0) == []
 
 
+@pytest.mark.parametrize("palette", list(Palette))
 @pytest.mark.parametrize("preset", [p.key for p in PRESETS])
-def test_the_four_stages_read_on_every_preset(qapp: QApplication, preset: str) -> None:
-    """As text on the panel (4.5:1), apart from each other, and with a tint
-    behind where a stage's colour is the row's own (Classic's yellow
-    translation and the yellow stage)."""
-    tools = learner(size=4)
-    hear(tools, "电脑 电脑 电脑")
-    hear(tools, " ".join(["游戏"] * 6))
-    hear(tools, " ".join(["足球"] * 9))
-    panel = on(preset)
-    marks = CaptionMarks(tools)
-    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, panel)
-    found = colours(marks(shown(), 0))
-    assert len(found) == 4
-    shades = [colour for _, _, colour, _ in found]
-    assert all(contrast(colour, panel.background) >= 4.5 for colour in shades)
-    apart = [
-        colour_difference(a, b) for i, a in enumerate(shades) for b in shades[i + 1 :]
-    ]
-    assert min(apart) >= 30
-    assert all(tint is None for *_, tint in found)  # white or dark "said" rows
-    # the same words in a translation row, in the translation's colour
+def test_the_colours_read_on_every_preset_in_order_of_lightness(
+    qapp: QApplication, preset: str, palette: Palette
+) -> None:
+    """As text on the panel (4.5:1), and from the least known to the best
+    known in one direction of lightness: away from the panel."""
+    panel = on(preset, palette)
+    shades = [known_colour(n / 20, palette, panel.background) for n in range(21)]
+    assert all(contrast(c, panel.background) >= 4.5 for c in shades)
+    light = [luminance(c) for c in shades]
+    if luminance(panel.background) >= 0.4:  # Paper: darker as better known
+        assert light == sorted(light, reverse=True)
+    else:
+        assert light == sorted(light)
+    assert len(set(shades)) == len(shades)
+    # and a translation row in a learned language is coloured as well
+    tools = learner()
     zh = Language("zh")
     view = CaptionLines((APP,), zh, keep=10)
     view.apply(finished("a", clause("Computer games.", LINE, into=zh), language=EN))
-    for _, _, colour, tint in colours(marks(view.lines[0], 1)):
-        near = colour_difference(colour, panel.translation) < 30
-        assert (tint is not None) == near
+    marks = CaptionMarks(tools)
+    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, panel)
+    coloured = {(s, e) for s, e, *_ in colours(marks(view.lines[0], 1))}
+    assert coloured == set(SPANS.values())
 
 
-def test_only_the_lines_holding_a_word_that_changed_stage_are_marked_again(
+def test_the_learning_loads_stages_no_longer_redraw_its_lines(
     qapp: QApplication,
 ) -> None:
     tools = learner()
-    view = CaptionLines((APP,), EN, keep=10)
-    view.apply(finished("a", clause("这个人研究电脑", "This person studies computers")))
-    view.apply(finished("b", clause("这个人打游戏", "This person plays games")))
-    first, second = view.lines
     marks = CaptionMarks(tools)
     marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
-    marks(first, 0), marks(second, 0)
-    assert not marks.learning_changed(Changed.LOAD.value)  # `load_changed` says
-    assert marks.load_changed(frozenset()) == set()  # meetings only: nothing
-    assert marks.load_changed(frozenset({entry(tools, "电脑")})) == {first.key}
-    assert marks.load_changed(None) is None  # any word: every line
-    off = CaptionMarks(tools)
-    off(first, 0)
-    assert off.load_changed(None) == set()  # the mode off: nothing to redraw
-
-
-def test_a_word_that_moves_a_stage_is_recoloured_where_it_already_shows(
-    qapp: QApplication,
-) -> None:
-    tools = learner()
-    changed: list[object] = []
-    tools.load_changed.connect(changed.append)
-    marks = CaptionMarks(tools)
-    marks.set_look(WordLinks.OFF, WordIntroductions.A_FEW, on())
-    line = shown()
-    red, orange, *_ = STAGE_COLOURS
-    assert (*SPANS["电脑"], red, None) in colours(marks(line, 0))
-    hear(tools, "电脑 电脑")
-    assert changed == [frozenset()]  # two meetings: no stage moved
-    hear(tools, "电脑")
-    assert changed[-1] == frozenset({entry(tools, "电脑")})
-    assert marks.load_changed(changed[-1]) == {line.key}
-    assert (*SPANS["电脑"], orange, None) in colours(marks(line, 0))
+    marks(shown(), 0)
+    assert not marks.learning_changed(Changed.LOAD.value)
+    assert marks.load_changed(None) == set()  # the colours don't follow stages
 
 
 # -- the Lab's switch, the settings and the app ----------------------------------
@@ -314,10 +261,14 @@ def test_a_word_that_moves_a_stage_is_recoloured_where_it_already_shows(
 
 def test_the_lab_keeps_the_mode_and_reads_it_leniently() -> None:
     assert CaptionLab().load is False  # off until the learner turns it on
-    lab = CaptionLab(load=True, load_rare=LoadRare.DIMMED)
-    assert lab.to_stored() == {"load": True, "load_rare": "dimmed"}
+    assert CaptionLab().load_colours is Palette.RED_GREEN  # the user's
+    lab = CaptionLab(load=True, load_colours=Palette.ORANGE_BLUE)
+    assert lab.to_stored() == {"load": True, "load_colours": "orange_blue"}
     assert CaptionLab.from_stored(lab.to_stored()) == lab
-    assert CaptionLab.from_stored({"load": "yes", "load_rare": 3}) == CaptionLab()
+    assert CaptionLab.from_stored({"load": "yes", "load_colours": 3}) == CaptionLab()
+    # 324's dimming, kept by an older app, is read as nothing
+    older = {"load": True, "load_rare": "dimmed"}
+    assert CaptionLab.from_stored(older) == CaptionLab(load=True)
 
 
 def test_a_languages_rules_are_kept_and_read_leniently() -> None:
@@ -380,9 +331,7 @@ def test_words_added_by_hand_raise_the_size_the_settings_keep(
         built.close()
 
 
-def test_the_lab_card_has_the_switch_and_the_choice_for_words_outside(
-    qapp: QApplication,
-) -> None:
+def test_the_lab_card_has_the_switch_and_the_colours(qapp: QApplication) -> None:
     from polyglotic_desktop.ui_next.lab_panel import LabPanel
 
     built = Built()
@@ -391,41 +340,32 @@ def test_the_lab_card_has_the_switch_and_the_choice_for_words_outside(
         assert not panel.load.switch.isChecked()
         panel.load.switch.click()
         assert built.panels.look.value.lab.load
-        panel.load_rare.choose(LoadRare.DIMMED)
-        assert built.panels.look.value.lab.load_rare is LoadRare.DIMMED
+        panel.load_colours.choose(Palette.ORANGE_BLUE)
+        assert built.panels.look.value.lab.load_colours is Palette.ORANGE_BLUE
         built.panels.look.reset_lab()
         assert not panel.load.switch.isChecked()
+        assert panel.load_colours.value() is Palette.RED_GREEN
     finally:
         panel.deleteLater()
         built.close()
 
 
-def test_dimming_the_words_outside_the_load_turns_the_load_on(
-    qapp: QApplication,
-) -> None:
-    """365: a choice greyed out until another row's switch was on - now it
-    can be chosen, and brings the switch with it."""
+def test_choosing_the_colours_turns_learning_load_on(qapp: QApplication) -> None:
+    """365: a choice is never greyed out; it brings the switch with it."""
     from polyglotic_desktop.ui_next.lab_panel import LabPanel
 
     built = Built()
     look = built.panels.look
     panel = LabPanel(look)
     try:
-        assert panel.load_rare.isEnabled()
-        panel.load_rare.choose(LoadRare.DIMMED)
-        assert look.value.lab.load and look.value.lab.load_rare is LoadRare.DIMMED
+        panel.load_colours.choose(Palette.ORANGE_BLUE)
+        assert look.value.lab.load
+        assert look.value.lab.load_colours is Palette.ORANGE_BLUE
         assert panel.load.switch.isChecked()
-        # off again: the load goes, the choice is kept for when it's back
+        # off again: the colours are kept for when it's back
         panel.load.switch.click()
         assert not look.value.lab.load
-        assert look.value.lab.load_rare is LoadRare.DIMMED
-        assert panel.load_rare.value() is LoadRare.NORMAL  # nothing dimmed now
-        panel.load.switch.click()
-        assert panel.load_rare.value() is LoadRare.DIMMED
-        # As now changes nothing else
-        panel.load.switch.click()
-        panel.load_rare.choose(LoadRare.NORMAL)
-        assert not look.value.lab.load
+        assert panel.load_colours.value() is Palette.ORANGE_BLUE
     finally:
         panel.deleteLater()
         built.close()

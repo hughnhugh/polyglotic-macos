@@ -10,15 +10,19 @@ from polyglotic_desktop.ports.learning import (
     StoredAnkiExport,
     StoredCategory,
     StoredCoverage,
+    StoredCurriculumWord,
     StoredDeckWord,
     StoredExposures,
     StoredLevel,
+    StoredLineChange,
     StoredListening,
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
     StoredSentence,
+    StoredSetWord,
     StoredStatus,
+    StoredStatusChange,
 )
 
 
@@ -41,6 +45,10 @@ class MemoryLearningStore:
         self.load_words: dict[str, StoredLoadWord] = {}
         self.lookups: dict[str, StoredLookups] = {}
         self.sentences: dict[str, StoredSentence] = {}
+        self.curriculum: dict[str, StoredCurriculumWord] = {}
+        self.status_history: list[StoredStatusChange] = []
+        self.line_history: list[StoredLineChange] = []
+        self.set_words: dict[tuple[str, str], StoredSetWord] = {}
 
     def load(self) -> LearningSnapshot:
         return LearningSnapshot(
@@ -55,6 +63,8 @@ class MemoryLearningStore:
             [StoredListening(d, c, s) for (d, c), s in sorted(self.listening.items())],
             list(self.load_words.values()),
             list(self.lookups.values()),
+            list(self.curriculum.values()),
+            list(self.set_words.values()),
         )
 
     def save_level(self, level: StoredLevel) -> None:
@@ -114,7 +124,38 @@ class MemoryLearningStore:
     def save_lookups(self, lookups: StoredLookups) -> None:
         self.lookups[lookups.entry_id] = lookups
 
+    def save_curriculum_words(self, words: Sequence[StoredCurriculumWord]) -> None:
+        for word in words:
+            self.curriculum[word.entry_id] = word
+
+    def delete_curriculum_words(self, entry_ids: Sequence[str]) -> None:
+        for entry_id in entry_ids:
+            self.curriculum.pop(entry_id, None)
+
+    def add_status_changes(self, changes: Sequence[StoredStatusChange]) -> None:
+        self.status_history.extend(changes)
+
+    def add_line_change(self, change: StoredLineChange) -> None:
+        self.line_history.append(change)
+
+    def status_changes(self) -> Sequence[StoredStatusChange]:
+        return list(self.status_history)
+
+    def line_changes(self) -> Sequence[StoredLineChange]:
+        return list(self.line_history)
+
+    def save_set_words(self, words: Sequence[StoredSetWord]) -> None:
+        for word in words:
+            self.set_words[(word.name, word.entry_id)] = word
+
+    def delete_set_words(self, name: str, entry_ids: Sequence[str]) -> None:
+        for entry_id in entry_ids:
+            self.set_words.pop((name, entry_id), None)
+
     def forget_entry(self, entry_id: str) -> None:
+        self.curriculum.pop(entry_id, None)
+        for key in [k for k in self.set_words if k[1] == entry_id]:
+            del self.set_words[key]
         self.lookups.pop(entry_id, None)
         self.load_words.pop(entry_id, None)
         self.deck_words.pop(entry_id, None)
@@ -176,6 +217,10 @@ class MemoryLearningStore:
         self.handed_over.clear()
         self.load_words.clear()
         self.lookups.clear()
+        self.curriculum.clear()
+        self.status_history.clear()
+        self.line_history.clear()
+        self.set_words.clear()
 
 
 def facts(

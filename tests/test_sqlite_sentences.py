@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from polyglotic_desktop.adapters.sqlite_learning import SqliteLearningStore
+from polyglotic_desktop.adapters.sqlite_learning import VERSION, SqliteLearningStore
 from polyglotic_desktop.ports.learning import (
     StoredCategory,
     StoredSentence,
@@ -118,6 +118,10 @@ def test_a_version_8_file_gains_saved_sentences_and_keeps_its_data(
     store.close()
     db = sqlite3.connect(path)
     db.execute("DROP TABLE saved_sentences")
+    for table in ("curriculum_words", "status_history", "line_history", "set_words"):
+        db.execute(f"DROP TABLE {table}")  # version 10's
+    for column in ("days_heard", "last_heard"):  # version 11's
+        db.execute(f"ALTER TABLE exposures DROP COLUMN {column}")
     db.execute("PRAGMA user_version = 8")
     db.commit()
     db.close()
@@ -129,7 +133,7 @@ def test_a_version_8_file_gains_saved_sentences_and_keeps_its_data(
     assert len(store.saved_sentences()) == 1
     store.close()
     db = sqlite3.connect(path)
-    assert db.execute("PRAGMA user_version").fetchone() == (9,)
+    assert db.execute("PRAGMA user_version").fetchone() == (VERSION,)
     db.close()
 
 

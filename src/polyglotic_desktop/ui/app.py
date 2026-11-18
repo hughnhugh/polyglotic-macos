@@ -80,6 +80,7 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QAction, QCursor, QGuiApplication, QIcon, QKeySequence
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
+from polyglotic_desktop.core.learning.curriculum import chosen_from
 from polyglotic_desktop.core.listening.captions import CaptionUpdate
 from polyglotic_desktop.core.listening.check import Facts, SourceActivity, Ticked
 from polyglotic_desktop.core.listening.failing import FailingCaptions
@@ -261,6 +262,10 @@ class DesktopApp(QObject):
             # and its learning load's rules, while the Lab's mode is on (324)
             self._follow_load_rules()
             self.settings.changed.connect(self._follow_load_rules)
+            # and the quiet view's chosen words, our curriculum's set (477) -
+            # the set filled once the window is up (`fill_curriculum`, 509)
+            self._follow_chosen_words(fill=False)
+            self.settings.changed.connect(self._follow_chosen_words)
             tools.load_rules_raised.connect(self._keep_load_rules)
         self.history = history or CaptionHistory(your_sources=your_sources)
         self.feed = CaptionFeed(self.history, tools, self)
@@ -942,6 +947,24 @@ class DesktopApp(QObject):
             self.tools.set_load_rules(
                 self.settings.value.load_rules_for(self.tools.language)
             )
+
+    def _follow_chosen_words(self, fill: bool = True) -> None:
+        """The learner's vocabulary keeps up the quiet view's chosen words
+        - our curriculum's set while it's chosen, at its size - as the
+        settings keep them (polyglotic-hq 477). `fill` False at the start:
+        the set fills at `fill_curriculum`."""
+        if self.tools is not None:
+            value = self.settings.value
+            self.tools.vocabulary.set_chosen(
+                chosen_from(value.quiet_words), value.curriculum_size, fill
+            )
+
+    def fill_curriculum(self) -> None:
+        """Our curriculum's set filled, after the start (`main`): it looks
+        through every word heard - 31 ms at 30,000 words met on the main
+        PC, which the start's budget had no room for (polyglotic-hq 509)."""
+        if self.tools is not None:
+            self.tools.vocabulary.fill_curriculum()
 
     def _keep_load_rules(self) -> None:
         """Words added to the load by hand raised its size: the settings

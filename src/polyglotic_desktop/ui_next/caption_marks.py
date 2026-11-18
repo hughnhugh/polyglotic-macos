@@ -28,24 +28,24 @@ overlay shows them.
   finished caption comes (the user, 2026-11-14: "they don't get
   immediately highlight. Only subsequent or future ones"; polyglotic-hq
   305). Nothing else there: it keeps changing.
-- **The learning load** (the Lab's viewing mode, polyglotic-hq 324;
-  `Panel.load`): an alternate view of the Learning marks. While it is on, a
-  finished caption's words that are in the load are in their stage's
-  colour, each with a line under it that fills in as the word is learned,
-  so the stage never rests on the colour alone: red over dots, orange
-  over dashes, yellow over a dash-dot line, green over a solid line, and a
-  word ready to check in green over a wavy line. A known word is plain
-  text (a graduated one too: "consolidated"). New-word dots and deck
-  dashes aren't drawn (the load replaces them). Word links are drawn as
-  ever (polyglotic-hq 340; the user, 2026-11-15: "Word links stop working
-  with learning load"): a link's bar is below the font's descent, under
-  the stage's line, so a word of the load that is linked shows both - its
-  stage in its colour and the line under it, its link in the bar below
-  that. Saved words keep their category's colour
-  unless they are in the load, on live captions too. Words outside the
-  load that aren't known yet are as usual, or dimmed (`Panel.dim_rare`).
-  A word that changes stage is drawn again wherever it shows
-  (`load_changed`); a meeting that moves no word redraws nothing.
+- **Learning load** (the Lab's viewing mode, polyglotic-hq 324, then
+  489; `Panel.load`): an alternate view of the Learning marks. While it
+  is on, every word of a finished caption in the language in use (the
+  main tools', as the load's) is in a colour by how well the learner
+  knows it (`Vocabulary.chances`, decision 0226): red (unknown) through
+  the colours between (exposure, partial knowledge) to green (mastered) -
+  or orange to blue (`Panel.palette`, `views.known_colours`). A row in
+  another learned language beside it is drawn as with the mode off, by
+  its own learning data (306). The colours run dark to light (light to dark on a light
+  panel), so they read in greyscale too. Names and words the learner
+  ignores keep the row's colour. New-word dots, deck dashes and saved
+  words' colours aren't drawn (the colours replace them); word links are
+  drawn as ever (polyglotic-hq 340), their bar below the word. Live
+  captions show saved words only, as with the mode off. A line keeps the
+  colours it was first drawn with, as it keeps its marks: a word heard on
+  another day, or looked up, takes its new colour in the captions after;
+  what the learner says about a word (Known, Add to deck...) recolours it
+  at once.
 
 A line's marks are worked out once, when it is first painted, and kept
 while its rows stay the same. A Learning action on one entry (the lookup's
@@ -54,6 +54,15 @@ Add to deck, Known, Save to, Remove) forgets only the lines holding it
 (the level, the Words page, another device) forgets them all. Exposures,
 which change with every finished caption, don't: a caption keeps the
 highlights it was shown with (as today).
+
+- **The quiet view** (polyglotic-hq 477; `Panel.quiet`): in place of all
+  of the above, only the chosen words in blue (`QUIET_BLUE`) - our
+  curriculum's set, the learning load's words, saved words, words at your
+  edge (496), as ticked
+  (`Panel.quiet_words`) - on every line, live ones too (the view is
+  grey throughout, so nothing else marks them): no dots, no dashes, no
+  stage colours, no category colours, no link colours. Each row by its
+  own language's learning data, as above.
 
 Links "On hover" are the caption window's: the hovered word and its
 counterpart, tinted. Not yet: the curves between rows for "Arrows" -
@@ -66,23 +75,31 @@ from dataclasses import dataclass
 
 from PySide6.QtGui import QColor, QTextCharFormat
 
+from polyglotic_desktop.core.learning.curriculum import DEFAULT_CHOSEN, ChosenWords
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.learning.levels import LinkChoice
-from polyglotic_desktop.core.learning.load import Stage
 from polyglotic_desktop.core.learning.saved_words import SavedSpan
 from polyglotic_desktop.core.learning.vocabulary import Changed
+from polyglotic_desktop.core.lexicon.english import inside_sentence, is_capitalised
 from polyglotic_desktop.core.listening.display import LIVE_TRAIL, RowKind, WordLinks
-from polyglotic_desktop.core.shared import EntryId
+from polyglotic_desktop.core.shared import EntryId, WordInLine
 from polyglotic_desktop.ui_next.caption_layout import LINK_MARK, Mark
 from polyglotic_desktop.ui_next.views.captions import Line
+from polyglotic_desktop.ui_next.views.known_colours import (
+    STEPS,
+    Palette,
+    known_colour,
+    step,
+)
 from polyglotic_desktop.ui_next.views.links import RowLinks, hidden_links
 from polyglotic_desktop.ui_next.views.lookup import Learner
 from polyglotic_desktop.ui_next.views.presets import (
     AA_TEXT,
     colour_difference,
-    luminance,
     readable_on,
+    readable_through,
 )
+from polyglotic_desktop.ui_next.views.tone import vibrant
 
 LINK_COLORS = (
     "#ff9f43",
@@ -102,7 +119,9 @@ hue. Every two at least 13 apart in CIEDE2000 as drawn, on every preset's
 panel, as lines and as words (`tests/ui_next/test_link_colours_told_apart`;
 polyglotic-hq 446: the user found orange and the brown that was last, 11
 apart, "not that distinguishable"). 446 changed three: the brown to an
-olive, the lime to a green and the magenta a little pinker."""
+olive, the lime to a green and the magenta a little pinker. The vibrance
+slider (481) leaves them as they are: muted or made vivid, two pairs fell
+under 13 (`tests/ui_next/test_tone_on_captions.py`)."""
 UNFAMILIAR = "#ffd27a"
 """Dots under a word new to the learner."""
 IN_DECK = "#7ee0a8"
@@ -127,31 +146,24 @@ STAGE_COLOURS = ("#ff6b5e", "#ffa033", "#f5e050", "#35d6a4")
 """The learning load's four stages on a dark panel - red, orange, yellow,
 green (324): a vermilion red and a bluish green, the pair that stays
 apart for red-green colour blindness (Okabe and Ito's), each lighter than
-the one before up to yellow. 5.9:1 or more on every dark preset's panel,
-and at least 39 apart from each other (`colour_difference`)."""
+the one before up to yellow. Its card on Learning and the lookup's line
+show them; captions no longer do (489: every word by how well it's known,
+`views.known_colours`)."""
 STAGE_COLOURS_LIGHT = ("#c62828", "#a65100", "#7d6a00", "#0f7b5f")
-"""And on a light panel (Paper's cream), where those four made readable
-turn to three browns: 4.6:1 or more there, at least 32 apart."""
-LIGHT_PANEL = 0.4
-"""A panel at least this light (`luminance`) takes the light ramp."""
-STAGE_LINES = (
-    QTextCharFormat.UnderlineStyle.DotLine,
-    QTextCharFormat.UnderlineStyle.DashUnderline,
-    QTextCharFormat.UnderlineStyle.DashDotLine,
-    QTextCharFormat.UnderlineStyle.SingleUnderline,
-    QTextCharFormat.UnderlineStyle.WaveUnderline,
-)
-"""The line under a word of the load, by stage (ready to check last): it
-fills in as the word is learned - dots, dashes, dash-dot, solid - and
-waves when the word is ready to check. A shape for each, so a colour-blind
-learner tells them apart."""
-RARE_ALPHA = 0.55
-"""A word outside the load, dimmed: this much of its row's ink - still
-3:1 as large text on every preset's panel."""
+"""And on a light panel (Paper's cream)."""
+QUIET_BLUE = "#6fc3ff"
+"""The quiet view's chosen words: the blue saved words had ("Saved"'s, the
+first category's) - the one colour that isn't the view's grey or gold
+(the user, 2026-11-18: "the blue font currently saved words as the
+polarising focal points"); made readable on the panel (Paper's cream)."""
+QUIET_CONTRAST = 5.5
+"""The blue's contrast with the panel: 4.5 (`AA_TEXT`) and a margin - its
+reading is drawn a little fainter (`reading_lines.ALPHA`), and over
+Paper's panel seen through, 5.0 measured 4.1 there in the UI lab."""
 MANY = 40
-"""More words than this changing stage at once (the load filled, its
-size changed): every line's marks are worked out again rather than each
-word looked for."""
+"""More words than this changing at once in the learning load (it filled,
+its size changed): every line's marks are worked out again rather than
+each word looked for."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,14 +175,49 @@ class Panel:
     original: str = "#ffffff"
     translation: str = "#ffd76e"
     load: bool = False
-    """The Lab's learning load mode is on (324): words in the load in
-    their stage's colour, in place of new-word dots, deck dashes and word
-    links' colours."""
-    dim_rare: bool = False
-    """And the words outside it that aren't known yet are dimmed."""
+    """Learning load's mode is on (324, 489): every word in a colour by
+    how well it is known, in place of new-word dots, deck dashes and saved
+    words' colours."""
+    palette: Palette = Palette.RED_GREEN
+    """Its colours."""
+    quiet: bool = False
+    """The quiet view is on (477): only the chosen words, in blue."""
+    opacity: float = 1.0
+    """How solid the panel is: the blue is made readable on it seen over a
+    light or a black video too (`readable_through`, as links' colours)."""
+    quiet_words: frozenset[ChosenWords] = DEFAULT_CHOSEN
+    """Which words are chosen: our curriculum's set, the load's words,
+    saved words, words at your edge (the learner's vocabulary says which a
+    word is: `Vocabulary.chosen`)."""
+    vibrance: int = 0
+    """The vibrance slider (`views.tone.vibrant`; 481): saved words'
+    categories' colours, the quiet view's blue, Learning load's colours,
+    the dots and dashes at it - not word links' (`LINK_COLORS`)."""
 
     def own(self, kind: RowKind) -> str:
         return self.original if kind is RowKind.ORIGINAL else self.translation
+
+
+def _said(line: Line, index: int) -> list[tuple[int, int, str]]:
+    """What the line's translation says for each linked word of its row
+    `index` (an original's): the word's span and the words of its link in
+    the translation rows - a word written there by its sound is a name
+    (polyglotic-hq 496)."""
+    row = line.rows[index]
+    if row.kind is not RowKind.ORIGINAL or not row.links:
+        return []
+    meant: dict[int, list[str]] = {}
+    for other in line.rows:
+        if other.kind is RowKind.TRANSLATION and other.clause == row.clause:
+            for linked in other.links:
+                meant.setdefault(linked.link, []).append(
+                    other.text[linked.start : linked.end]
+                )
+    return [
+        (linked.start, linked.end, " ".join(meant[linked.link]))
+        for linked in row.links
+        if linked.link in meant
+    ]
 
 
 @dataclass(frozen=True, slots=True)
@@ -224,11 +271,14 @@ class CaptionMarks:
         return True
 
     def load_changed(self, entries: frozenset[EntryId] | None) -> set[int] | None:
-        """Words of the learning load changed stage: the marks of the
-        lines holding them are worked out again when next painted - their
-        keys. None: every line's (any word may have changed, or too many
-        did to look for each). Nothing while the mode is off."""
-        if not self.panel.load or entries == frozenset():
+        """Words of the learning load changed: the marks of the lines
+        holding them are worked out again when next painted - their keys.
+        None: every line's (any word may have changed, or too many did to
+        look for each). Nothing unless the quiet view shows the load's
+        words in blue: Learning load's colours don't follow its stages
+        (489)."""
+        loads = self.panel.quiet and ChosenWords.LOAD in self.panel.quiet_words
+        if not loads or entries == frozenset():
             return set()
         if entries is None or len(entries) > MANY:
             self._kept.clear()
@@ -271,6 +321,10 @@ class CaptionMarks:
         text = "\n".join(row.text for row in line.rows)
         learner = self.learner
         entries: set[EntryId] = set()
+        if self.panel.quiet:  # the chosen words alone, in blue (477)
+            if learner is not None and learner.ready:
+                self._quiet(line, learner, marks, entries)
+            return _Kept(line.rows, marks, frozenset(entries), text)
         if learner is not None and learner.ready:  # else: no Learning marks yet
             self._learning(line, learner, marks, entries)
         if self.word_links in (WordLinks.COLOURS, WordLinks.ARROWS):
@@ -356,7 +410,10 @@ class CaptionMarks:
             text if ours.learns(row.language) else ""
             for text, ours, row in zip(texts, each, line.rows, strict=True)
         ]
-        words = [ours.words_in(text) for ours, text in zip(each, texts, strict=True)]
+        words = [
+            ours.words_in(text, said=_said(line, n))
+            for n, (ours, text) in enumerate(zip(each, texts, strict=True))
+        ]
         entries.update(w.entry.entry_id for found in words for w in found)
 
         def saved(index: int, spans: Sequence[SavedSpan]) -> None:
@@ -375,46 +432,30 @@ class CaptionMarks:
             for index, (text, found) in enumerate(zip(texts, words, strict=True)):
                 saved(index, each[index].vocabulary.saved_spans(text, found))
             return
-        in_load: set[int] = set()
-        if self.panel.load:  # the learning load's view, instead (324)
+        coloured: set[int] = set()
+        if self.panel.load:  # every word by how well it's known (489)
             # the load is the language in use's (the main tools'): a row in
-            # another language open beside it is drawn as with the mode off,
-            # below, by its own learning data (306)
-            vocabulary = learner.vocabulary
-            stage_of = vocabulary.load.stage
-            for index, (text, found) in enumerate(zip(texts, words, strict=True)):
+            # another learned language open beside it is drawn as with the
+            # mode off, below, by its own learning data (306, 324)
+            chances = learner.vocabulary.chances
+            for index, found in enumerate(words):
                 if each[index] is not learner:
                     continue
-                in_load.add(index)
-                kind = line.rows[index].kind
-                staged = set()
-                for word in found:
-                    stage = stage_of(word.entry.entry_id)
-                    if stage is not None:
-                        staged.add(word.entry.entry_id)
-                        marks[index].extend(
-                            (word.start, word.end, format_)
-                            for format_ in self._stage(stage, kind)
+                coloured.add(index)
+                for word, chance in zip(
+                    found, chances.each([w.entry for w in found]), strict=True
+                ):
+                    if chance is not None:
+                        marks[index].append(
+                            (word.start, word.end, self._known(chance.chance))
                         )
-                    elif self.panel.dim_rare and vocabulary.could_be_in_load(
-                        word.entry
-                    ):
-                        marks[index].append((word.start, word.end, self._rare(kind)))
-                saved(
-                    index,
-                    [
-                        span
-                        for span in vocabulary.saved_spans(text, found)
-                        if span.entry_id not in staged
-                    ],
-                )
         learners: list[Learner] = []
         for ours in each:
             if not any(ours is seen for seen in learners):
                 learners.append(ours)
         for ours in learners:  # each language's rows together, as one caption
             rows = [
-                n for n, other in enumerate(each) if other is ours and n not in in_load
+                n for n, other in enumerate(each) if other is ours and n not in coloured
             ]
             if not rows:
                 continue
@@ -434,51 +475,93 @@ class CaptionMarks:
                     )
                 saved(index, highlights.saved)
 
-    def _stage(self, stage: Stage, row: RowKind) -> list[QTextCharFormat]:
-        """A word of the load's formats: its stage's colour, readable on
-        the panel (with a tint behind where that is too near its row's own:
-        Classic's yellow translation and the yellow stage), and its
-        stage's line under it. The dots and the dashes are a format of
-        their own: the layout draws those below where an underline goes."""
-        key = ("stage", row.value, int(stage))
-        found = self._formats.get(key)
-        if found is None:
-            light = luminance(self.panel.background) >= LIGHT_PANEL
-            ramp = STAGE_COLOURS_LIGHT if light else STAGE_COLOURS
-            colour = readable_on(
-                ramp[min(stage, Stage.GREEN)], self.panel.background, AA_TEXT
-            )
-            found = QTextCharFormat()
-            found.setForeground(QColor(colour))
-            if colour_difference(colour, self.panel.own(row)) < NEAR:
-                tint = QColor(colour)
-                tint.setAlphaF(TINT_ALPHA)
-                found.setBackground(tint)
-            line = STAGE_LINES[stage]
-            if stage >= Stage.YELLOW:  # Qt's own underline, with the text
-                found.setUnderlineStyle(line)
-                found.setUnderlineColor(QColor(colour))
-            else:
-                under = QTextCharFormat()
-                under.setUnderlineStyle(line)
-                under.setUnderlineColor(QColor(colour))
-                self._formats[("stage line", row.value, int(stage))] = under
-            self._formats[key] = found
-        under_key = ("stage line", row.value, int(stage))
-        if under_key in self._formats:
-            return [found, self._formats[under_key]]
-        return [found]
+    def _quiet(
+        self,
+        line: Line,
+        learner: Learner,
+        marks: list[list[Mark]],
+        entries: set[EntryId],
+    ) -> None:
+        """The quiet view's marks: each row's chosen words in blue, by its
+        own language's learning data - on every line, live ones too. Words
+        at your edge are told the caption's words together - its rows of
+        one kind in one language - as `Vocabulary.lit` takes them (496)."""
+        saved = ChosenWords.SAVED in self.panel.quiet_words
+        found: dict[int, tuple[Learner, str, list[WordInLine]]] = {}
+        for index, row in enumerate(line.rows):
+            ours = learner.of(row.language)
+            if not ours.learns(row.language):
+                continue
+            text = row.text.removesuffix(LIVE_TRAIL)
+            words = ours.words_in(text, said=_said(line, index))
+            entries.update(w.entry.entry_id for w in words)
+            found[index] = (ours, text, words)
+        lit: dict[int, set[tuple[int, int]]] = {}
+        groups: dict[tuple[int, RowKind], list[int]] = {}
+        for index, (ours, _, _) in found.items():
+            groups.setdefault((id(ours), line.rows[index].kind), []).append(index)
+        for rows in groups.values():
+            ours = found[rows[0]][0]
+            each = [(n, w) for n in rows for w in found[n][2]]
+            capitalised = {
+                at
+                for at, (n, w) in enumerate(each)
+                if is_capitalised(found[n][1][w.start : w.end])
+                and inside_sentence(found[n][1], w.start)
+            }
+            shown = ours.vocabulary.lit([w.entry for _, w in each], capitalised)
+            for at, (n, w) in enumerate(each):
+                if at in shown:
+                    lit.setdefault(n, set()).add((w.start, w.end))
+        for index, (ours, text, words) in found.items():
+            spans = lit.get(index, set())
+            if saved:
+                for span in ours.vocabulary.saved_spans(text, words):
+                    entries.add(span.entry_id)
+                    spans.add((span.start, span.end))
+            blue = self._blue()
+            done = 0
+            for start, end in sorted(spans):  # apart: a saved phrase over a word
+                if start >= done:
+                    marks[index].append((start, end, blue))
+                    done = end
 
-    def _rare(self, row: RowKind) -> QTextCharFormat:
-        """A word outside the load that isn't known yet, dimmed: its row's
-        own colour at `RARE_ALPHA`."""
-        key = ("rare", row.value, 0)
+    def _blue(self) -> QTextCharFormat:
+        key = ("quiet", QUIET_BLUE, 0)
         found = self._formats.get(key)
         if found is None:
-            colour = QColor(self.panel.own(row))
-            colour.setAlphaF(RARE_ALPHA)
             found = QTextCharFormat()
-            found.setForeground(colour)
+            panel = self.panel
+            found.setForeground(
+                QColor(
+                    readable_through(
+                        vibrant(QUIET_BLUE, panel.vibrance),
+                        panel.background,
+                        panel.opacity,
+                        1.0,
+                        QUIET_CONTRAST,
+                    )
+                )
+            )
+            self._formats[key] = found
+        return found
+
+    def _known(self, chance: float) -> QTextCharFormat:
+        """A word's format in Learning load: the colour of how well it is
+        known, readable on the panel (`views.known_colours`)."""
+        at = step(chance)
+        key = ("known", self.panel.palette.value, at)
+        found = self._formats.get(key)
+        if found is None:
+            panel = self.panel
+            found = QTextCharFormat()
+            found.setForeground(
+                QColor(
+                    known_colour(
+                        at / STEPS, panel.palette, panel.background, panel.vibrance
+                    )
+                )
+            )
             self._formats[key] = found
         return found
 
@@ -489,7 +572,9 @@ class CaptionMarks:
         key = ("saved", f"{color}/{row.value}", 0)
         found = self._formats.get(key)
         if found is None:
-            readable = readable_on(color, self.panel.background, AA_TEXT)
+            readable = readable_on(
+                vibrant(color, self.panel.vibrance), self.panel.background, AA_TEXT
+            )
             found = QTextCharFormat()
             found.setForeground(QColor(readable))
             if colour_difference(readable, self.panel.own(row)) < NEAR:
@@ -515,8 +600,9 @@ class CaptionMarks:
                 }.get(kind, QTextCharFormat.UnderlineStyle.SingleUnderline)
             )
             # readable on the panel: the dots' colours are picked for dark ones
+            vivid = vibrant(color, self.panel.vibrance)
             format_.setUnderlineColor(
-                QColor(readable_on(color, self.panel.background, MARK_CONTRAST))
+                QColor(readable_on(vivid, self.panel.background, MARK_CONTRAST))
             )
         self._formats[(kind, color, link)] = format_
         return format_

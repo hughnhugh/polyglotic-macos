@@ -26,6 +26,44 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
+- The app tells you when a better voice can be installed: on a Mac,
+  each time a word or sentence is said in macOS's basic voice for its
+  language, it says where to add a more natural one for free, with
+  "Don't show again" for that language.
+- Learning load (Settings > Lab) now colours every word of a
+  caption by how well you know it: red for words you've never met or
+  that are far past what you know, the colours between for words
+  you've heard or partly know, and green for words you've mastered.
+  Hearing a word on more days, saving it, or keeping it after a lookup
+  moves it along; a fresh lookup moves it back. Choose red to green, or
+  orange to blue if red and green look alike to you.
+- Learning shows the whole language at a glance: its 20,000 most common
+  words, one square each, in the colour of how well you know it. See how
+  many are red and green, how much of what you hear is green, and how
+  that moved in the last week. Point at a square to see its word and why.
+- The quiet view: one button on a caption window shows every caption in
+  quiet grey and gold, a little bigger, with pinyin over every word and
+  only the words you're learning in blue - no underlines or arrows. Point
+  at a word to see its partner. Choose which words are blue in the
+  window's settings or in Settings > Word links: our curriculum (a few words just past
+  what you know, the ones you hear most first), your learning load, your
+  saved words.
+- Caption text: three sliders in Settings, under Look, beside the colour
+  presets. Contrast takes captions from soft - as faint as Quick
+  preview's line, never too faint to read - to crisp, every line at full
+  strength. Vibrance takes their colours from muted to vivid; white and
+  grey stay as they are, and word links keep their colours so you can
+  tell them apart. Thickness takes their letters from Light to Bold, with
+  pinyin a step thicker. Visibility draws a soft shadow or an outline
+  around the letters, for busy videos. Transcripts follow the contrast
+  and colours. In the middle, and with no outline, as before.
+- More faces for captions, downloaded when you choose one: Kai, Song and FangSong for Chinese, Mincho and textbook handwriting for Japanese, Hong Kong's own forms for Cantonese, and serif faces for every language. Traditional Chinese, Cantonese, Japanese and Korean get their new default faces the same way, once you caption them.
+- Settings > Look has a Fonts card: a row for each language your captions are in ("Chinese (Simplified) captions in: Noto Sans SC"), each with its own list of faces, this PC's own fonts and any font on it.
+- Say it: the card that saves a selection reads it aloud too, in the
+  language it was spoken in or its translation, in your PC's own voice -
+  each word lights as it's said. It reads the words as they'd be said,
+  not as the captions cut them, and years as years. Click again or press
+  Esc to stop. In a transcript, right-click a selection and choose Say it.
 - Save sentences: drag across more than a word in a caption window - across lines, captions and speakers - and save it into a category, with its translation and word links; in a transcript, right-click a selection and choose Save sentence to. Saved sentences stay on your PC.
 - An English word's card explains it in English: short everyday
   definitions, the commonest meaning first, each with its part of speech
@@ -60,6 +98,22 @@ the app's What's new, the website's What's new and the Discord post.
   microphone then; if it's refused, the switch goes off and says where to
   allow it. If you've used Polyglotic before, your settings stay as they
   are.
+- The quiet view follows the conversation: every couple of minutes our
+  curriculum lights the words the talk is about - just past what you
+  know, and its own key words a step further (业主 in a residents'
+  meeting, "rubber" in a design meeting) - a few to a screen, never
+  sounds like 嗯 or "um". Words that stop being said give their place
+  back. Point at the window to see what it's about now.
+- In the quiet view a word the talk is about stays blue until you know
+  it, not just for three days: a series' own words keep lighting episode
+  after episode.
+- The quiet view's "Words at your edge", on from the start: any word in
+  your learning window lights blue as it's said - a couple a caption at
+  most, never names, numbers or everyday talk - so a Mandarin talk shows
+  a few blue words on most screens, not one in six. The learning window
+  you chose on Learning counts.
+- Names in Chinese captions stay names: 杜瓦尔, or the 万里 of 黄万里, are
+  neither blue in the quiet view nor coloured as words to learn.
 
 - Cantonese is a language of its own to learn. Its dictionary reads a
   Cantonese line's words in Jyutping with Cantonese meanings (係 is
@@ -71,9 +125,23 @@ the app's What's new, the website's What's new and the Discord post.
   same size, words and colour choices as pinyin, which are now under
   Readings.
 ### Better
+- A word plays in the same voice every time you press its
+  speaker - its recording, or the best voice for its language - at its
+  natural pace. The second press no longer says it slower in another,
+  robotic voice.
+- Pinyin and other readings are on from the start: pinyin over Chinese
+  and Jyutping over Cantonese, over every word - unless the app or your
+  translations are in that language. Turn any of them off in Settings >
+  Readings; your choice is kept.
 - Thai captions' word links are cut at Thai words, as the word card
   splits them, instead of underlining a whole phrase; particles such as
   ครับ, ค่ะ and นะ aren't linked.
+- Live updates: words the server has heard the same way twice are drawn
+  as final, in full colour, while the rest of the line is still dim; if
+  a later hearing changes them, the new words glow warm for a moment.
+- Live updates come every second by default, not every 1.5 seconds, so
+  more of what was said can be shown as final sooner. An interval you
+  chose yourself stays.
 
 - A quicker first start: once you've signed in, everything your PC plays
   is captioned straight away, in one window called "Everything the PC
@@ -86,6 +154,7 @@ the app's What's new, the website's What's new and the Discord post.
   sections of their own now, out of Look, and the app's language is set
   in one place, under the title. In a narrow window the tabs become a
   list.
+- Captions in a face chosen for each language: Chinese in Noto Sans SC, Thai in Noto Sans Thai Looped, Vietnamese in Be Vietnam Pro, Arabic in Noto Naskh Arabic (always upright, a little larger), Hindi in Noto Sans Devanagari, Russian in PT Sans and the Latin languages in IBM Plex Sans, with real italics; pinyin in a true semi-bold.
 
 ### Fixed
 
@@ -93,10 +162,6 @@ the app's What's new, the website's What's new and the Discord post.
   deer), "am" on be, and lower-case "north", "i", "i'm" and "mr" are
   found. A few dozen rarer forms (ruined, panicked, scrolling) open on
   their own verb.
-- On a Mac, a caption window shows its buttons, marks the word under the
-  mouse and opens a word's card when you rest on it while you're in
-  another app, as it does on Windows: before, nothing came until you
-  clicked Polyglotic itself.
 - An English word's Chinese meanings start with the everyday one: can is
   能, 可以 (not 装罐, "to can"), will 将, may 可能, well 很好地, good 好的
   and give 给. "tv", "ok", "uk" and a few dozen other abbreviations are
@@ -108,14 +173,24 @@ the app's What's new, the website's What's new and the Discord post.
   or marked as new. "a bit" opens bit (一点, not bite), "later" opens
   later (以后), and "training", "meeting", "interesting" and a dozen more
   open their own meaning first and count as their own word.
-- On a Mac, Report a problem (for alpha testers) opens, from a
-  caption window's strip and from Help: it stopped before its window
-  came up.
 - Changing a setting on Learning - a learning window, word links, where
   links start, Mark known - no longer jumps the page down to its middle:
   it stays where you were, with the keyboard on the same control. The same
   for removing a dictionary there, and for renaming or recolouring a
   category on Words.
+- When someone mixes Mandarin and English, the Chinese translation of an
+  English sentence has its pinyin, is written in Traditional if that's
+  your choice, and is saved as Chinese in the transcript. It was taken
+  for English. (Needs the server update that comes with this version.)
+
+## 0.1.8 - 2026-11-18
+
+### Fixed
+
+- The Mac app couldn't sign in: every try said "Something on this network
+  is in the way" whatever the network, and never reached our server. It
+  now trusts the certificates macOS itself trusts, so signing in, live
+  captions, updates and dictionary downloads connect.
 
 ## 0.1.7 - 2026-11-17
 

@@ -3,7 +3,7 @@ hover and pinned, its parts and Back, the not-in-the-dictionary cards,
 "Chinese for it", the Learning commands, and where the card goes. Plain
 Python: the sample dictionary and a learner in memory, no Qt."""
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, replace
 
 from tests.learning.fakes import Clock, MemoryLearningStore
@@ -74,7 +74,12 @@ class Learner:
     ) -> str | None:
         return None  # by the row (337's fallbacks: test_dictionaries_together)
 
-    def words_in(self, line: str, language: str | None = None) -> list[WordInLine]:
+    def words_in(
+        self,
+        line: str,
+        language: str | None = None,
+        said: Iterable[tuple[int, int, str]] = (),
+    ) -> list[WordInLine]:
         tools = self.of(language)
         return tools.dictionary.words_in(line, tools.vocabulary.scheme)
 

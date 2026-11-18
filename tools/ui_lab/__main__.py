@@ -40,6 +40,7 @@ from tools.ui_lab import (
     home,
     joined_window,
     judge,
+    known,
     lab,
     lookup,
     new_parts,
@@ -59,6 +60,7 @@ COMMANDS = ("approve", "prune", "judge", "seen", "languages", "design")
 def new_states() -> list[lab.State]:
     """Every state of the new interface (`ui_next`)."""
     new = new_parts.STATES + caption_window.STATES + lookup.STATES
+    new += known.STATES + known.MAP_STATES
     new += joined_window.STATES + transcript.STATES
     new += panels.STATES + presets.STATES
     new += home.STATES + pages.STATES + qt_parts.STATES + first_run.STATES

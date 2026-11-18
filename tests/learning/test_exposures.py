@@ -63,7 +63,12 @@ def test_the_mic_is_counted_separately_and_in_deck_only_when_in_the_deck() -> No
     count = apply(count, ExposureChange(cat, 1, False, DAY), in_deck=True)
     count = apply(count, ExposureChange(cat, 1, True, DAY), in_deck=True)
     assert count == ExposureCount(
-        heard=2, heard_by_you=1, heard_in_deck=1, first_heard=DAY
+        heard=2,
+        heard_by_you=1,
+        heard_in_deck=1,
+        first_heard=DAY,
+        days_heard=1,
+        last_heard=DAY,
     )
     count = apply(count, ExposureChange(cat, -5, True, DAY), in_deck=True)
     assert count.heard_by_you == 0  # never below zero

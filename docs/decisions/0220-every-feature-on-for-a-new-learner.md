@@ -53,6 +53,12 @@ caption mode (`caption_mode_chosen`, 176).
   version running, so the next change of default reaches whoever never
   touched it. A file without the record counts every valid key it holds as
   changed.
+- **The live-update interval follows the default too** (polyglotic-hq 494,
+  DECISIONS.md #211: 1.0 s, from 1.5 s; put on this record by 506 rather
+  than a key of its own). Every version before the record saved 1.5 s
+  whether chosen or not (`_mode_from_interval` reads it the same way), so
+  a file without the record holding 1.5 s doesn't count it as changed: it
+  moves to 1.0 s once, and any other interval stays.
 
 Left off, and why (polyglotic-hq 478's report has the whole table): which
 apps are captioned (the learner's choice; nothing is captured until then,

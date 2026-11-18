@@ -55,7 +55,7 @@ Holds caption text (the context): never log it.
 
 import re
 import unicodedata
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
 from typing import Protocol
@@ -180,7 +180,16 @@ class Learner(Protocol):
         (polyglotic-hq 337)."""
         ...
 
-    def words_in(self, line: str, language: str | None = None) -> list[WordInLine]: ...
+    def words_in(
+        self,
+        line: str,
+        language: str | None = None,
+        said: Iterable[tuple[int, int, str]] = (),
+    ) -> list[WordInLine]:
+        """The words of a line in `language`; `said`: what a translation
+        says for words of it - a word it writes by its sound is a name
+        (polyglotic-hq 496)."""
+        ...
 
     def has_dictionary(self, language: str | None) -> bool:
         """Whether a word in `language` can be looked up here: its full

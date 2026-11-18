@@ -499,6 +499,9 @@ class Clause(Message):
     original: str = Field(repr=False)
     translations: dict[str, str] = Field(default={}, repr=False)
     links: dict[str, tuple[Link, ...]] = {}
+    # each translation's own language, keyed as `translations` (server
+    # decision 0097; optional, additive - an older server sends none)
+    written_in: dict[str, str] | None = None
 
 
 class CaptionUpdate(Message):
@@ -514,6 +517,9 @@ class CaptionUpdate(Message):
     clauses: tuple[Clause, ...] | None = None
     replaces: tuple[str, ...] | None = None
     processing_ms: int | None = None
+    established: int | None = None
+    """Live updates: characters of the clauses' originals, counted in order,
+    the server says are established (polyglotic-server decision 0095)."""
 
 
 class RecheckResult(Message):

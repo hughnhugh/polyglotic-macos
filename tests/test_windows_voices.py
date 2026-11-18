@@ -53,6 +53,29 @@ def test_a_word_is_made_into_sound_and_slower_is_longer(
     assert can_play(cut)  # a format query: nothing opened, nothing played
 
 
+def test_each_word_says_when_it_sounds(
+    voices: WindowsVoices, found: tuple[Voice, ...]
+) -> None:
+    """WinRT's word boundaries (polyglotic-hq 495): each word of the text
+    given, in order, with when it starts inside the clip - what lights the
+    word being read."""
+    voice = found[0]
+    text = {
+        "zh": "亚马逊河也是地球上最宽的河流。",
+        "vi": "Sông Amazon là con sông rộng nhất.",
+    }.get(voice.language[:2], "The Amazon is the widest river on Earth.")
+    clip = voices.synthesize(text, voice, 1.0)
+    assert len(clip.words) >= 4
+    for word in clip.words:
+        assert 0 <= word.start < word.end <= len(text)
+        assert text[word.start : word.end].strip() == text[word.start : word.end]
+        assert 0.0 <= word.at < clip.seconds
+    assert [w.at for w in clip.words] == sorted(w.at for w in clip.words)
+    assert [w.start for w in clip.words] == sorted(w.start for w in clip.words)
+    cut = trimmed(clip)  # the silence before it cut: the times move with it
+    assert cut.words[0].at < clip.words[0].at
+
+
 def test_a_voice_that_isnt_installed_fails_as_an_os_error(
     voices: WindowsVoices,
 ) -> None:

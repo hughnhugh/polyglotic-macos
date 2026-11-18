@@ -63,6 +63,7 @@ from polyglotic_desktop.ui_next.caption_window import work_areas
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.panels import LanguagesPanel, LookPanel, TimingPanel
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
+from polyglotic_desktop.ui_next.selection_reading import SelectionReading
 from polyglotic_desktop.ui_next.transcript_window import YOU, TranscriptWindow
 from polyglotic_desktop.ui_next.views.caption_window import Notice
 from polyglotic_desktop.ui_next.views.panels import (
@@ -216,6 +217,8 @@ class Transcripts(QObject):
         transcript outlives its window (Quit's question names it)."""
         self.shown: dict[str, TranscriptWindow] = {}
         """The transcript windows opened, by app (closed ones kept, hidden)."""
+        self.say_it: SelectionReading | None = None
+        """Reads a selection aloud from its menu (polyglotic-hq 495)."""
         self._store = store
         self._areas = areas
         self._read: dict[str, object] = store.load() if store else {}
@@ -337,9 +340,11 @@ class Transcripts(QObject):
 
     def _follow_look(self) -> None:
         """The caption windows' look changed: each transcript's reading
-        lines follow it - pinyin above Chinese there too (369)."""
+        lines follow it - pinyin above Chinese there too (369) - and its
+        contrast and vibrance (481)."""
         for shown in self.shown.values():
             shown.list.set_reading(self.windows.look)
+            shown.list.set_tone(self.windows.look)
 
     def dictionary_ready(self) -> None:
         """The dictionary's word-split data is read (`CaptionFeed`): saved
@@ -445,7 +450,16 @@ class Transcripts(QObject):
         shown.timing_wanted.connect(self.timing_wanted)
         shown.set_notice(self._notice())
         shown.list.set_reading(self.windows.look)
+        shown.list.set_tone(self.windows.look)
+        shown.list.use_say_it(self.say_it)
         return shown
+
+    def use_say_it(self, reading: SelectionReading) -> None:
+        """Each transcript's selection menu says it aloud through `reading`
+        (`main`'s: the PC's voices, polyglotic-hq 495)."""
+        self.say_it = reading
+        for shown in self.shown.values():
+            shown.list.use_say_it(reading)
 
     def _language(self, key: str, code: str) -> None:
         """A transcript's language is its caption window's: set there."""

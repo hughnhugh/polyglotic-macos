@@ -4,12 +4,11 @@ interface's; Taiwan's voice for a traditional form, the mainland's for a
 simplified one, never Hong Kong's (Cantonese) for Mandarin; the usual
 region first; any region of a language otherwise. Plain Python."""
 
-from polyglotic_desktop.ports.speaker import Voice
+from polyglotic_desktop.ports.speaker import RECORDED, Quality, Voice
+from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.views.lookup import Card, Shows
 from polyglotic_desktop.ui_next.views.speech import (
-    NORMAL,
-    SLOWER,
-    pace,
+    BetterVoice,
     voice_for,
     word_language,
 )
@@ -60,6 +59,32 @@ def test_the_usual_region_first_then_any_of_the_language() -> None:
     assert voice_for((), "en") is None
 
 
-def test_the_voices_own_pace_then_slower_in_turn() -> None:
-    assert [pace(n) for n in range(4)] == [NORMAL, SLOWER, NORMAL, SLOWER]
-    assert SLOWER < NORMAL
+def test_a_better_voice_is_due_for_a_basic_voice_until_silenced() -> None:
+    """518: each time a basic (a Mac's compact) voice plays - never a good
+    one, never a recording - until "Don't show again" for its language."""
+    quiet: list[str] = []
+    better = BetterVoice(lambda: quiet, quiet.append)
+    tingting = Voice(
+        "com.apple.voice.compact.zh-CN.Tingting", "Tingting", "zh-CN", Quality.BASIC
+    )
+    enhanced = Voice(
+        "com.apple.voice.enhanced.zh-CN.Tingting", "Tingting", "zh-CN", Quality.GOOD
+    )
+    recorded = Voice(f"{RECORDED}zh", "Kokoro", "zh-CN", Quality.BASIC)
+    assert better.due(tingting, "zh") and better.due(tingting, "zh-hant")
+    assert better.due(tingting, "zh")  # every time, not once
+    assert not better.due(enhanced, "zh") and not better.due(recorded, "zh")
+    assert not better.due(Voice("w", "Microsoft Huihui", "zh-CN"), "zh")  # Windows'
+    better.silence("zh-hant")
+    better.silence("zh")
+    assert quiet == ["zh"]  # kept once, as the settings' language
+    assert not better.due(tingting, "zh") and not better.due(tingting, "zh-hant")
+
+
+def test_the_languages_silenced_are_kept_in_the_settings() -> None:
+    """518: "Don't show again" lasts - kept as a list of languages, and a
+    value not valid is dropped, not the file."""
+    kept = AppSettings(better_voice_quiet=("zh", "ja")).to_stored()
+    assert kept["better_voice_quiet"] == ["zh", "ja"]
+    assert AppSettings.from_stored(kept).better_voice_quiet == ("zh", "ja")
+    assert AppSettings.from_stored({"better_voice_quiet": [3]}).better_voice_quiet == ()

@@ -31,6 +31,7 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetricsF,
+    QGlyphRun,
     QPainter,
     QTextCharFormat,
     QTextLayout,
@@ -42,6 +43,7 @@ from polyglotic_desktop.core.lexicon.jyutping import JyutpingReader
 from polyglotic_desktop.core.lexicon.readings import Reading, Readings
 from polyglotic_desktop.core.listening.display import READING_LANGUAGES, ReadingSize
 from polyglotic_desktop.core.shared import EntryFacts
+from polyglotic_desktop.ui_next import caption_faces, fonts
 from polyglotic_desktop.ui_next.views.lookup import Learner
 
 SHARE = 0.5
@@ -199,7 +201,15 @@ characters come again and again."""
 WIDTHS_KEPT = 6000
 
 
+_measured_in = [caption_faces.generation]
+"""The faces' generation `_WIDTHS` was measured in: a face added since
+measures them again."""
+
+
 def _measure(font: QFont) -> tuple[dict[str, float], QFontMetricsF]:
+    if _measured_in[0] != caption_faces.generation:
+        _measured_in[0] = caption_faces.generation
+        _WIDTHS.clear()
     key = font.key()
     kept = _WIDTHS.get(key)
     if kept is None:
@@ -211,18 +221,34 @@ def _measure(font: QFont) -> tuple[dict[str, float], QFontMetricsF]:
     return kept, QFontMetricsF(font)
 
 
-def reading_font(font: QFont, share: float = SHARE) -> QFont:
+def reading_font(
+    font: QFont, share: float = SHARE, weight: QFont.Weight = QFont.Weight.DemiBold
+) -> QFont:
     """The font a reading over text in `font` is drawn in: `share` of its
-    size, upright, a little bold."""
+    size, upright, a little bold - `weight`, a step above the text's
+    (polyglotic-hq 481) - in its face's own weight or heavier, never one Qt
+    makes up (479: a made-up bold drew some letters of the same pinyin
+    lighter than others); in the text's weight if the face has none; and
+    not in a face holding the text's weight alone (`fonts.WEIGHT_FACES`):
+    asked for another, it would be made up."""
     small = QFont(font)
     small.setItalic(False)
     small.setPixelSize(max(SMALLEST_PX, round(font.pixelSize() * share)))
-    small.setWeight(QFont.Weight.DemiBold)
+    single = {face for faces in fonts.WEIGHT_FACES.values() for face in faces}
+    if single.intersection(small.families()):
+        small.setFamilies([f for f in small.families() if f not in single])
+    families = small.families()
+    if not families or caption_faces.has_weight(families[0], int(weight.value)):
+        small.setWeight(weight)
     return small
 
 
 def ruby(
-    text: str, readings: Sequence[Reading], font: QFont, share: float = SHARE
+    text: str,
+    readings: Sequence[Reading],
+    font: QFont,
+    share: float = SHARE,
+    weight: QFont.Weight = QFont.Weight.DemiBold,
 ) -> Ruby:
     """`readings` over `text` drawn in `font`, at `share` of its size.
     With none, the band alone: a language's lines are one height whether
@@ -234,7 +260,7 @@ def ruby(
     character (zhāng over 张 reaches over 的's room, de being narrower
     than 的): `after` a character is that room, less the next one's own
     `before` - which a line starting at it needs whole."""
-    small = reading_font(font, share)
+    small = reading_font(font, share, weight)
     px = small.pixelSize()
     (kept, metrics), (base_kept, base_metrics) = _measure(small), _measure(font)
     count = len(text)
@@ -432,6 +458,17 @@ def draw(
             painter.setPen(faint if own is None else _faint(own))
             layout.lineAt(i).draw(painter, at)
     painter.restore()
+
+
+def glyphs(readings: Sequence[Placed], font: QFont) -> list[QGlyphRun]:
+    """`readings`' glyphs as `draw` places them: a caption's edge drawn
+    under them (Visibility; polyglotic-hq 481)."""
+    return _drawn(readings, font).glyphRuns()
+
+
+def faint(colour: QColor) -> QColor:
+    """`colour` as a reading is drawn: a little fainter than its text."""
+    return _faint(colour)
 
 
 def _faint(colour: QColor) -> QColor:

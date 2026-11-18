@@ -330,6 +330,7 @@ def test_a_caption_windows_marks_follow_its_look(qapp: QApplication) -> None:
                 background=paper.background,
                 original=paper.original,
                 translation=paper.translation,
+                opacity=paper.opacity,
             )
         )
         assert window.marks.panel == panel_of("paper")
@@ -340,4 +341,6 @@ def test_a_caption_windows_marks_follow_its_look(qapp: QApplication) -> None:
 
 def panel_of(key: str) -> Panel:
     preset = BY_KEY[key]
-    return Panel(preset.background, preset.original, preset.translation)
+    return Panel(
+        preset.background, preset.original, preset.translation, opacity=preset.opacity
+    )

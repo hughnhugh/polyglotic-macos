@@ -20,7 +20,7 @@ whichever is main. Their changes reach the main one's `changed` and
 
 import bisect
 import threading
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, Signal, Slot
@@ -44,7 +44,11 @@ from polyglotic_desktop.core.learning.vocabulary import (
 )
 from polyglotic_desktop.core.lexicon import compounds
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary, absent
-from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary, has_han
+from polyglotic_desktop.core.lexicon.chinese import (
+    ChineseDictionary,
+    as_names,
+    has_han,
+)
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.english import word_at as english_word_at
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
@@ -598,6 +602,9 @@ class LearningTools(QObject):
         (`changed`). Each other full language open beside these (`also`)
         gets its own, so its lines follow its window and links (306)."""
         by_language = {**(learned or {}), self.language: choices}
+        # our curriculum and the quiet view's words at your edge follow the
+        # window's size the learner chose (polyglotic-hq 496)
+        self.vocabulary.set_window_size(choices.window_size)
         if (choices, by_language) != (self.choices, self._choices_by_language):
             self.choices, self._choices_by_language = choices, by_language
             self.changed.emit(Changed.LEVEL.value)
@@ -626,15 +633,27 @@ class LearningTools(QObject):
             )
         return self._band_sizes[1], self._band_sizes[2]
 
-    def words_in(self, line: str, language: str | None = None) -> list[WordInLine]:
+    def words_in(
+        self,
+        line: str,
+        language: str | None = None,
+        said: Iterable[tuple[int, int, str]] = (),
+    ) -> list[WordInLine]:
         """The words of a line in `language` (None: the main language's), by
         the word split of its own language's tools (`of`) - or, for a
         pack's language not learned, of its pack, with its ranks (word
-        links, 338)."""
+        links, 338). `said`: what a translation says for words of the line
+        (start, end, its word link's words): a Chinese word it writes by
+        its sound is a name (`ChineseDictionary.named_by_sound`: 万里 of
+        黄万里, "Huang Wanli"; polyglotic-hq 496)."""
         if language is not None and self.is_basic(language):
             return self.basic[language].words_in(line, self.vocabulary.scheme)
         tools = self.of(language)
-        return tools.dictionary.words_in(line, tools.vocabulary.scheme)
+        found = tools.dictionary.words_in(line, tools.vocabulary.scheme)
+        dictionary = tools.dictionary
+        if not isinstance(dictionary, ChineseDictionary):
+            return found
+        return as_names(found, dictionary.named_by_sound(line, said))
 
     def is_basic(self, language: str | None) -> bool:
         """Whether a row in `language` is looked up in a pack only - no

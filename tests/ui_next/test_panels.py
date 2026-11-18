@@ -249,15 +249,6 @@ def test_live_updates_say_when_the_longest_wait_comes_first(
         _gone(panel)
 
 
-def test_the_fonts_are_listed_only_when_opened(qapp: QApplication) -> None:
-    view = LookView(CaptionLook(font="Not On This PC"))
-    panel = LookPanel(view)
-    assert panel.font_box.count() == 2  # its own, and the one chosen, kept
-    assert panel.font_box.currentData() == "Not On This PC"
-    panel.font_box.setCurrentIndex(0)
-    assert view.value.font is None
-
-
 def test_reset_from_its_card(qapp: QApplication) -> None:
     view = LookView(CaptionLook(opacity=0.2))
     panel, reset = LookPanel(view), ResetCard(view)

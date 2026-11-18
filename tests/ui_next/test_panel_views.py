@@ -113,11 +113,11 @@ def test_look_changes() -> None:
     view.set_opacity(1.7)
     assert view.value.opacity == 1.0
     view.set_colour("translation", "#7fe3ff")
-    view.set_font("")
+    view.set_face("zh", "")
     view.set_word_links(WordLinks.HOVER)
     view.set_fade_after(None)
     value = view.value
-    assert value.translation == "#7fe3ff" and value.font is None
+    assert value.translation == "#7fe3ff" and value.faces == (("zh", ""),)
     assert value.word_links is WordLinks.HOVER and value.fade_after is None
     try:
         view.set_colour("opacity", "#000000")

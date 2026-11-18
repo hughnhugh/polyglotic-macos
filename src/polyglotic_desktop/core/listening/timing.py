@@ -84,8 +84,13 @@ MIN_SPEECH_SEC = 0.4
 # little for the speech model to place the language.
 LIVE_MIN_AUDIO_SEC = 1.0
 # Seconds between live updates, by default (the user can choose 0.5 to 20,
-# or off).
-LIVE_UPDATE_INTERVAL_SEC = 1.5
+# or off). 1.0 since polyglotic-hq 494 (DECISIONS.md #211, the user,
+# 2026-11-18: "two agree" every 1.0 s): the server says what two live updates
+# in a row agree on is established (its decision 0095), and 1.0 s apart
+# establishes about half the words 2.6 s before the finished caption - 37 %
+# at the old 1.5 s (polyglotic-hq 487, live's speech model). About 3.2 times
+# Steady's audio on the speech model, against 2.4 times at 1.5 s.
+LIVE_UPDATE_INTERVAL_SEC = 1.0
 # A live caption grows in sections: once the current one passes this long,
 # its text is kept as it stands and live updates carry on in a new section
 # from there, so each live update is at most ~1s of the model's work. (The

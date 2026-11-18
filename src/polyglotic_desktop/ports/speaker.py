@@ -16,8 +16,9 @@ Times are on the app's clock (`time.perf_counter`, the captures' clock too):
 out (`SpeechPipeline.hush`).
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from enum import IntEnum
 from typing import Protocol
 
 RECORDED = "recorded:"
@@ -30,21 +31,42 @@ Sounding = Callable[[float, float], None]
 """Told as a word's sound starts: when (`time.perf_counter`) and for how many
 seconds. From the speaker's own thread."""
 
+Spoken = Callable[[int, int, int], None]
+"""Told as a reading's words sound (`Reader.read`): the chunk, and the
+characters `[start, end)` of its text now said - a word, when the voice says
+when each sounds; the whole chunk as it starts when it doesn't. From the
+speaker's own thread."""
+
 Ended = Callable[[bool], None]
 """Told once when a `say` is over: True if it was heard to its end; False if
 it was stopped, replaced by another, or couldn't be said (no output device,
 the voice gone). From the speaker's own thread."""
 
 
+class Quality(IntEnum):
+    """How good a voice sounds, as its OS ranks it (polyglotic-hq 518): a
+    Mac's `AVSpeechSynthesisVoiceQuality`, whose numbers these are."""
+
+    BASIC = 1
+    """A compact voice, where the OS offers a better one of its language to
+    add for free: a Mac's default quality (Tingting as macOS ships it)."""
+    GOOD = 2
+    """The best kind the OS lets an app use - every Windows voice (Narrator's
+    natural voices aren't open to apps) - or a Mac's enhanced."""
+    PREMIUM = 3
+    """A Mac's premium."""
+
+
 @dataclass(frozen=True)
 class Voice:
     """A voice the PC can speak in: the speaker's own id for it, its name as
-    the OS shows it ("Microsoft Huihui"), and its language as a BCP 47 tag
-    ("zh-CN", "zh-TW", "zh-HK", "en-US")."""
+    the OS shows it ("Microsoft Huihui"), its language as a BCP 47 tag
+    ("zh-CN", "zh-TW", "zh-HK", "en-US"), and how good it sounds."""
 
     id: str
     name: str
     language: str
+    quality: Quality = Quality.GOOD
 
 
 class Speaker(Protocol):
@@ -71,4 +93,35 @@ class Speaker(Protocol):
 
     def stop(self) -> None:
         """Stops what it says now, if anything (its `ended` is told False)."""
+        ...
+
+
+class Reader(Protocol):
+    """Reads a selection aloud (polyglotic-hq 495, decision 0229): the same
+    voices as `Speaker`, one thing at a time across both - a reading stops
+    a word being said, and a word stops a reading."""
+
+    def voices(self) -> tuple[Voice, ...]:
+        """As `Speaker.voices`."""
+        ...
+
+    def read(
+        self,
+        chunks: Sequence[str],
+        voice: Voice,
+        rate: float,
+        sounding: Sounding,
+        ended: Ended,
+        spoken: Spoken,
+    ) -> None:
+        """Starts reading `chunks` in turn (a selection's sentences), each a
+        sound of its own - `sounding` told as each starts, so the captions'
+        hush covers what is heard and no more once it's stopped - and
+        `spoken` as each word sounds. Stops anything said now. Returns at
+        once; `ended` is told True when the last chunk was heard to its
+        end."""
+        ...
+
+    def stop(self) -> None:
+        """As `Speaker.stop`."""
         ...

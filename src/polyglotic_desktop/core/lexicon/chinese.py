@@ -16,9 +16,12 @@ import itertools
 import math
 import re
 import threading
+import unicodedata
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import replace
 
+from polyglotic_desktop.core.lexicon import spoken
 from polyglotic_desktop.core.lexicon.entries import (
     SCHEMES,
     DictionaryEntry,
@@ -120,6 +123,8 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
         frequency_rank=record.frequency_rank,
         levels=record.levels,
         is_name=_is_name(record),
+        spoken_rank=spoken.MANDARIN.rank(record.headword),
+        is_filler=spoken.MANDARIN.is_filler(record.headword),
     )
 
 
@@ -133,6 +138,8 @@ def facts_from_record(record: EntryRecord, scheme_id: str) -> EntryFacts:
         _is_name(record),
         scheme_id,
         is_number_word(record.headword, record.levels),
+        spoken.MANDARIN.rank(record.headword),
+        spoken.MANDARIN.is_filler(record.headword),
     )
 
 
@@ -303,6 +310,93 @@ transliteration tables. A name made only of them has no words inside it -
 its pieces (萨斯, 巴马, 西亚) are other words that happen to sound alike.
 Hand-picked; a name it misses still shows its pieces, as before."""
 
+NAME_PIECE_RANK = 2000
+"""A lone character of a run of `SOUND_CHARACTERS` rarer than this as a
+word by itself marks the run a name (勒 of 米勒 is the 4,201st word, 尔 of
+杜瓦尔 the 2,242nd): a commoner one (米 154th, 马 360th) is as often a word
+of its own, and 班, 1,831st, made 班里 and 本班 names in 485's meetings
+(polyglotic-hq 496)."""
+
+SOUNDS_KEPT = 5000
+"""Characters' and words' readings kept for `named_by_sound`."""
+
+
+SPELLINGS_MOST = 512
+"""A word with more ways to say it than this (many characters of many
+readings) isn't checked: a name is a few characters."""
+
+
+def names_spelt_by_sound(text: str, words: Sequence[WordInLine]) -> list[WordInLine]:
+    """`words` - a line's, in order - with each piece of a foreign name the
+    dictionary hasn't got taken for a name (`EntryFacts.is_name`): a run of
+    words side by side, each made only of `SOUND_CHARACTERS` and either one
+    character or a name, two characters or more, not one character said
+    again (查查, "have a look"), and with a lone character rarer than
+    `NAME_PIECE_RANK` as a word by itself. 杜瓦尔 is split 杜|瓦|尔 and
+    米勒 米|勒: each piece is a name, not a word to learn (polyglotic-hq
+    496: of the 33 runs it found in 491's live Mandarin, 100 FLEURS
+    sentences and 485's 10,540 meeting lines, 31 were names)."""
+    out = list(words)
+    i = 0
+    while i < len(out):
+        j = i
+        while j < len(out) and _sound_piece(text, out[j]):
+            if j > i and out[j - 1].end != out[j].start:
+                break
+            j += 1
+        if j == i:
+            i += 1
+            continue
+        run = text[out[i].start : out[j - 1].end]
+        if (
+            len(run) >= 2
+            and len(set(run)) > 1
+            and any(
+                w.end - w.start == 1
+                and (
+                    w.entry.frequency_rank is None
+                    or w.entry.frequency_rank > NAME_PIECE_RANK
+                )
+                for w in out[i:j]
+            )
+        ):
+            for k in range(i, j):
+                if not out[k].entry.is_name:
+                    out[k] = replace(out[k], entry=replace(out[k].entry, is_name=True))
+        i = j
+    return out
+
+
+def as_names(
+    words: Sequence[WordInLine], spans: Iterable[tuple[int, int]]
+) -> list[WordInLine]:
+    """`words` with each one inside a span of `spans` taken for a name: a
+    word link joins a name's pieces (礼凡 of 张礼凡, split 礼|凡, is one
+    link to "Lifan"), so a name found by its link holds them all."""
+    found = list(spans)
+    if not found:
+        return list(words)
+    return [
+        replace(w, entry=replace(w.entry, is_name=True))
+        if not w.entry.is_name and any(a <= w.start and w.end <= b for a, b in found)
+        else w
+        for w in words
+    ]
+
+
+def _sound_piece(text: str, word: WordInLine) -> bool:
+    piece = text[word.start : word.end]
+    return all(c in SOUND_CHARACTERS for c in piece) and (
+        len(piece) == 1 or word.entry.is_name
+    )
+
+
+def _unaccented(text: str) -> str:
+    """`text` without its accents (Lǚ, Zé)."""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
+    )
+
 
 def _cuts(start: int, end: int, span: tuple[int, int]) -> bool:
     """Whether the piece `[start, end)` cuts into `span` - overlaps it
@@ -385,6 +479,8 @@ class ChineseDictionary:
         """Words read for a reading line (`_syllables`)."""
         self._syllabus: dict[str, tuple[list[tuple[int, int, str]], set[str]]] = {}
         """Each level scheme's words by place, once read (`_leveled`)."""
+        self._form_sounds: dict[str, set[str]] = {}
+        """Characters' and words' readings without tones (`_sounds`)."""
         self._simplified_of: Mapping[str, str] = {}
         """Traditional characters -> the Simplified ones they were converted
         from (`read_traditional`); {} while Traditional isn't shown."""
@@ -631,7 +727,9 @@ class ChineseDictionary:
         """The dictionary words in `text`, by the word split, each with the
         facts Learning needs for a learner in `scheme_id` - for highlights
         and exposures. A word counts for its everyday reading's entry (还
-        for hái). Characters the dictionary hasn't got are left out."""
+        for hái). Characters the dictionary hasn't got are left out. The
+        pieces of a foreign name it hasn't got count as a name
+        (`names_spelt_by_sound`: 杜|瓦|尔)."""
         found = []
         for start, end in self.split(text):
             word = text[start:end]
@@ -640,7 +738,7 @@ class ChineseDictionary:
             entries = self.lookup(word)
             if entries:
                 found.append(WordInLine(start, end, entries[0].facts(scheme_id)))
-        return found
+        return names_spelt_by_sound(text, found)
 
     def word_at(self, text: str, index: int) -> tuple[int, int] | None:
         """(start, end) of the dictionary word the character at `index`
@@ -693,6 +791,71 @@ class ChineseDictionary:
             for start, end in units
             if end - start > 2 and all(c in SOUND_CHARACTERS for c in word[start:end])
         ]
+
+    def named_by_sound(
+        self, text: str, said: Iterable[tuple[int, int, str]]
+    ) -> set[tuple[int, int]]:
+        """The words of `text` its translation writes by their sound, as a
+        name: of each (start, end, what the translation says for that word -
+        its word link's words), those whose translation, capitalised, spells
+        the word's own pinyin, tones and spaces aside (Wanli for 万里 of
+        黄万里, Nai for 乃 of 张乃, Lifan for 立凡 of 张立凡). A word translated
+        by its meaning isn't one (党, "Party"; 时代, "Era"; 空军, "Air
+        Force"), nor one not capitalised (元, "yuan"). Polyglotic-hq 496:
+        every word it found in 491's 282 live clauses was a name or a
+        place."""
+        found: set[tuple[int, int]] = set()
+        for start, end, meant in said:
+            word = text[start:end]
+            if has_han(word) and self._spelt(word, meant):
+                found.add((start, end))
+        return found
+
+    def _spelt(self, word: str, meant: str) -> bool:
+        """Whether `meant` - a translation's words - holds, from a capitalised
+        word on, `word`'s pinyin: one of each character's readings, run
+        together without tones (Zhang Nai holds 乃's nai)."""
+        tokens = re.findall(r"[A-Za-z]+", _unaccented(meant))
+        if not tokens:
+            return False
+        sounds = {""}
+        for char in word:
+            each = self._sounds(char)
+            sounds = {a + b for a in sounds for b in each}
+            if not sounds or len(sounds) > SPELLINGS_MOST:
+                sounds = set()
+                break
+        sounds |= self._sounds(word)  # the word's own readings, as a whole
+        for first in range(len(tokens)):
+            if not tokens[first][:1].isupper():
+                continue
+            joined = ""
+            for token in tokens[first:]:
+                joined += token.lower()
+                if joined in sounds:
+                    return True
+                if len(joined) > 6 * len(word):
+                    break
+        return False
+
+    def _sounds(self, form: str) -> set[str]:
+        """Every reading the dictionary gives `form` (a character, or a word
+        as a whole), run together without its tones (ü as u or v, as
+        translations write it: Lü, Lu, Lv)."""
+        found = self._form_sounds.get(form)
+        if found is None:
+            found = set()
+            for record in self._file.records(form):
+                syllables = record.reading.split()
+                if len(syllables) != len(form):
+                    continue
+                bare = re.sub(r"[^a-z:]", "", record.reading.lower())
+                found |= {bare.replace("u:", "u"), bare.replace("u:", "v")}
+            found.discard("")
+            if len(self._form_sounds) >= SOUNDS_KEPT:
+                self._form_sounds.clear()
+            self._form_sounds[form] = found
+        return found
 
     def pinyin_of(self, text: str) -> str:
         """Best-guess pinyin for any Chinese text: each word's everyday

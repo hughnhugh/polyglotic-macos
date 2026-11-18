@@ -573,7 +573,9 @@ class LanguageWords(QWidget):
         """Learning changed (`LearningTools.changed`): shown again while the
         page shows - at once (once for a run of changes), or for words heard
         while listening, at most once every `HEARD_EVERY_MS` - else when it
-        next shows."""
+        next shows. Our curriculum's set isn't shown here (477)."""
+        if what == "curriculum":
+            return
         self._dirty = True
         self.count_dirty = True
         if what in ("", "saved_words"):

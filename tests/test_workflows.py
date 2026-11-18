@@ -54,6 +54,22 @@ def test_the_tests_run_on_linux_too() -> None:
     assert (WORKFLOWS.parents[1] / "tools" / "linux_qt_libs.sh").is_file()
 
 
+def test_checks_on_windows_run_on_any_runner_labelled_checks() -> None:
+    """Decision 0232 (polyglotic-hq 504): the second PC's runner carries only
+    labels of its own (`gpubox`, `checks`), never `self-hosted` or
+    `windows`, so it takes Checks (Windows) once it has `checks` and no
+    other job: the UI lab's goldens and timings, and the release's secrets,
+    stay on the user's PC by its labels alone. Its pytest took 16 minutes
+    there (12-13 on the user's PC), so the job has 30."""
+    windows = yaml.safe_load((WORKFLOWS / "windows.yml").read_text(encoding="utf-8"))
+    release = yaml.safe_load((WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+    assert windows["jobs"]["checks"]["runs-on"] == ["checks"]
+    assert windows["jobs"]["checks"]["timeout-minutes"] >= 30
+    on_this_pc = ["self-hosted", "windows"]
+    assert windows["jobs"]["ui-lab"]["runs-on"] == on_this_pc
+    assert release["jobs"]["release"]["runs-on"] == on_this_pc
+
+
 def test_the_linux_tests_draw_chinese_with_a_real_font() -> None:
     """polyglotic-hq 386: with DejaVu alone the runner drew Chinese as empty
     boxes, and timed every Chinese layout through Qt's search for a font
@@ -425,11 +441,20 @@ def test_the_linux_tests_say_their_memory_against_the_cap() -> None:
     2,200 MB, 2026-11-15); a kill for memory names the step and what it
     reached (`tools/ci_memory.py`, 344)."""
     steps = workflow("ci.yml")["jobs"]["linux"]["steps"]
-    tests = next(s for s in steps if str(s.get("name", "")).startswith("Tests"))
-    assert tests["run"].startswith(
-        'uv run --no-sync python -m tools.ci_memory --step "'
+    tests = [s for s in steps if str(s.get("name", "")).startswith("Tests")]
+    # in two processes since 2026-11-18 (one grew past the cap at 98 %):
+    # all but tests/ui_next, then tests/ui_next - together, the whole suite
+    assert len(tests) == 2
+    for step in tests:
+        assert step["run"].startswith(
+            'uv run --no-sync python -m tools.ci_memory --step "'
+        )
+    assert tests[0]["run"].endswith(
+        "-- uv run --no-sync pytest -p no:cacheprovider --ignore=tests/ui_next"
     )
-    assert tests["run"].endswith("-- uv run --no-sync pytest -p no:cacheprovider")
+    assert tests[1]["run"].endswith(
+        "-- uv run --no-sync pytest -p no:cacheprovider tests/ui_next"
+    )
 
 
 def test_the_macos_job_runs_only_by_hand_on_githubs_mac_and_keeps_a_day() -> None:

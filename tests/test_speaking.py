@@ -2,8 +2,10 @@
 286): the voices listed in the background and looked for again when old, a
 word made and played with its silence trimmed, `sounding` told as its sound
 starts, `ended` told once - heard to its end, stopped, replaced, or failed -
-and ten fast clicks saying only the last. Stand-ins for the OS's voices and
-output: nothing is played."""
+and ten fast clicks saying only the last. A reading (polyglotic-hq 495): a
+chunk at a time, each hushed on its own, each word told as it sounds, and
+stopped by a word or a stop. Stand-ins for the OS's voices and output:
+nothing is played."""
 
 import io
 import struct
@@ -14,12 +16,14 @@ import wave
 import pytest
 
 from polyglotic_desktop.platform.speaking import (
+    CHUNK_PAUSE_SEC,
     LEAD_SEC,
     SILENT,
     TAIL_SEC,
     VOICES_STALE_SEC,
     Clip,
     SpeakerThread,
+    WordTime,
     clip_of_wav,
     trimmed,
 )
@@ -315,3 +319,156 @@ def test_a_wav_is_read_as_16_bit_pcm() -> None:
     assert (read.rate, read.channels, read.frames) == (RATE, 1, 1600)
     with pytest.raises(ValueError):
         clip_of_wav(b"not a wav")
+
+
+# -- a reading (polyglotic-hq 495) ---------------------------------------------------------
+
+
+class Timed(Voices):
+    """Voices that say when each word sounds: a word every 0.1 s, from the
+    0.15 s of silence the voice puts first."""
+
+    def synthesize(self, text: str, voice: Voice, rate: float) -> Clip:
+        made = super().synthesize(text, voice, rate)
+        starts = [
+            i for i, c in enumerate(text) if c != " " and (not i or text[i - 1] == " ")
+        ]
+        words = tuple(
+            WordTime(a, text.find(" ", a) % (len(text) + 1), 0.15 + 0.1 * n)
+            for n, a in enumerate(starts)
+        )
+        return Clip(made.pcm, made.rate, made.channels, words)
+
+
+class Read:
+    """What a reading told: sounding, spoken and ended, with the times."""
+
+    def __init__(self) -> None:
+        self.sounding: list[tuple[float, float]] = []
+        self.spoken: list[tuple[int, int, int, float]] = []
+        self.ended: list[bool] = []
+        self.done = threading.Event()
+
+    def read(self, speaker: SpeakerThread, *chunks: str) -> None:
+        def ended(heard: bool) -> None:
+            self.ended.append(heard)
+            self.done.set()
+
+        speaker.read(
+            chunks,
+            HUIHUI,
+            1.0,
+            lambda start, seconds: self.sounding.append((start, seconds)),
+            ended,
+            lambda c, a, b: self.spoken.append((c, a, b, time.perf_counter())),
+        )
+
+
+def test_a_reading_is_said_a_chunk_at_a_time_each_hushed_on_its_own(
+    outputs: list[Output],
+) -> None:
+    voices = Voices(length=0.2)
+    speaker = speaker_with(voices, outputs)
+    read = Read()
+    try:
+        read.read(speaker, "一七六七年。", "第一条全铁轨道问世。", "完。")
+        assert read.done.wait(3)
+        assert [m[0] for m in voices.made] == [
+            "一七六七年。",
+            "第一条全铁轨道问世。",
+            "完。",
+        ]
+        assert read.ended == [True]
+        assert len(read.sounding) == 3 and len(outputs) == 3
+        for (start, seconds), (after, _) in zip(
+            read.sounding, read.sounding[1:], strict=False
+        ):
+            assert after >= start + seconds + CHUNK_PAUSE_SEC  # one after another
+        # no word times: each chunk lit whole as it starts
+        assert [s[:3] for s in read.spoken] == [(0, 0, 6), (1, 0, 10), (2, 0, 2)]
+    finally:
+        speaker.close()
+
+
+def test_each_word_is_told_as_it_sounds(outputs: list[Output]) -> None:
+    speaker = speaker_with(Timed(length=0.5), outputs)
+    read = Read()
+    try:
+        read.read(speaker, "the giant turtle", "eats")
+        assert read.done.wait(3)
+        assert [s[:3] for s in read.spoken] == [
+            (0, 0, 3), (0, 4, 9), (0, 10, 16), (1, 0, 4)
+        ]  # fmt: skip
+        [(first, _), (second, _)] = read.sounding
+        # the voice's 0.15 s of silence trimmed to LEAD: its words move with it
+        for (_, _, _, at), due in zip(
+            read.spoken, (first, first + 0.1, first + 0.2, second), strict=True
+        ):
+            assert due + LEAD_SEC - 0.01 <= at <= due + LEAD_SEC + 0.08
+    finally:
+        speaker.close()
+
+
+def test_a_reading_stopped_half_way_hushes_no_more(outputs: list[Output]) -> None:
+    voices = Voices(length=1.0)
+    speaker = speaker_with(voices, outputs)
+    read = Read()
+    try:
+        read.read(speaker, "one.", "two.", "three.")
+        wait_until(lambda: read.sounding)
+        speaker.stop()
+        assert read.done.wait(2)
+        assert read.ended == [False]
+        assert len(read.sounding) == 1  # the next chunk was never heard
+        assert "three." not in [m[0] for m in voices.made]
+    finally:
+        speaker.close()
+
+
+def test_a_word_stops_a_reading_and_a_reading_stops_a_word(
+    outputs: list[Output],
+) -> None:
+    speaker = speaker_with(Voices(length=2.0), outputs)
+    read, heard = Read(), Heard()
+    try:
+        read.read(speaker, "one.", "two.")
+        wait_until(lambda: read.sounding)
+        heard.say(speaker, "你好")  # the lookup card's "say it"
+        assert read.done.wait(2) and read.ended == [False]
+        wait_until(lambda: heard.sounding)
+        again = Read()
+        again.read(speaker, "three.")
+        assert heard.done.wait(2) and heard.ended == [("你好", False)]
+        speaker.stop()
+        assert again.done.wait(2)
+    finally:
+        speaker.close()
+
+
+def test_word_times_move_with_the_trimmed_start() -> None:
+    made = clip(0.15, 0.4, 0.3)
+    timed = Clip(made.pcm, made.rate, words=(WordTime(0, 2, 0.15), WordTime(3, 5, 0.4)))
+    cut = trimmed(timed)
+    assert [(w.start, w.end) for w in cut.words] == [(0, 2), (3, 5)]
+    assert [w.at for w in cut.words] == pytest.approx(
+        [LEAD_SEC, 0.25 + LEAD_SEC], abs=0.001
+    )
+
+
+def test_a_reading_said_again_is_played_from_memory(outputs: list[Output]) -> None:
+    voices = Voices(length=0.05)
+    speaker = speaker_with(voices, outputs)
+    try:
+        for _ in range(2):
+            read = Read()
+            read.read(speaker, "one.", "two.")
+            assert read.done.wait(2) and read.ended == [True]
+        assert [m[0] for m in voices.made] == ["one.", "two."]  # made once
+        heard = Heard()
+        for _ in range(2):  # a word is made each time: its recording may arrive
+            heard.done.clear()
+            heard.say(speaker, "one.")
+            assert heard.done.wait(2)
+        assert [m[0] for m in voices.made] == ["one.", "two.", "one.", "one."]
+    finally:
+        speaker.close()

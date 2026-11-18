@@ -32,6 +32,7 @@ from polyglotic_desktop.connection.reconnect import StopReason
 from polyglotic_desktop.connection.session import SessionState, Timings
 from polyglotic_desktop.core.listening.sources import Capture, CaptureMode
 from polyglotic_desktop.core.listening.summary import SessionAction
+from polyglotic_desktop.core.listening.timing import LIVE_UPDATE_INTERVAL_SEC
 from polyglotic_desktop.core.shared import (
     EntryId,
     LearningEvent,
@@ -309,7 +310,7 @@ def test_a_listening_session_leaves_a_summary_only_with_consent(
         assert (props["captions"], props["source_category"]) == (1, "video")
         assert props["speech_minutes"] == round(2 / 60, 2)
         assert props["dropped"] == 0 and props["reconnects"] == 0
-        assert props["live_interval_seconds"] == 1.5
+        assert props["live_interval_seconds"] == LIVE_UPDATE_INTERVAL_SEC
         assert props["platform"] == "windows"  # content-free (051)
     app.connection.close()
 

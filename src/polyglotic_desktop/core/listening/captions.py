@@ -55,11 +55,15 @@ class Clause:
     """A sentence, or a long-enough piece ending at a comma: the unit of
     translation and an overlay row. `translations` and `links` are by
     target language; a target can be missing (a translation still on its
-    way, or the clause already in that language)."""
+    way, or the clause already in that language). `written_in`, by the
+    same key: the language each translation is written in, as the server
+    says (server decision 0097) - missing from an older server's
+    (`line_language`)."""
 
     original: str
     translations: Mapping[Language, str] = field(default_factory=dict)
     links: Mapping[Language, tuple[WordLink, ...]] = field(default_factory=dict)
+    written_in: Mapping[Language, Language] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,7 +88,10 @@ class CaptionUpdate:
     server gave one this app doesn't know. `replaces` lists the captions
     this one takes the place of (a joined caption). `processing_ms` is the
     server's time for this update. `times`: its speech's times, added by
-    the session when it sent that speech itself (None otherwise)."""
+    the session when it sent that speech itself (None otherwise).
+    `established`: a live update's established text - characters of its
+    clauses' originals counted in order (`established`; 0: none, as from a
+    server before it)."""
 
     caption_id: CaptionId
     source_id: SourceId
@@ -96,6 +103,7 @@ class CaptionUpdate:
     reason: WithdrawalReason | None = None
     processing_ms: int | None = None
     times: SpeechTimes | None = None
+    established: int = 0
 
 
 HAN_NOT_MANDARIN = frozenset({"ja", "yue"})
@@ -121,6 +129,19 @@ def written_in(
     return second if second is not None and said_in == key else key
 
 
+def line_language(
+    clause: Clause, key: Language, said_in: Language | None, second: Language | None
+) -> Language:
+    """The language `clause`'s translation kept under `key` is written in:
+    the server's word for it (`Clause.written_in`), else as the caption's
+    language says (`written_in`). The server's is the line's own: a
+    caption's clauses can go different ways, so an English clause of a
+    caption said in Mandarin, `key` English and Chinese its second, has a
+    Chinese line under `key` (server decision 0096; polyglotic-hq 497 -
+    read as English, it had no pinyin and no Traditional)."""
+    return clause.written_in.get(key) or written_in(key, said_in, second)
+
+
 def mandarin_written(
     update: CaptionUpdate,
     write: Callable[[str], str],
@@ -131,7 +152,7 @@ def mandarin_written(
     375 and 432; decision 0164) - each clause's original, unless the
     caption is Japanese or Cantonese (`HAN_NOT_MANDARIN`), and each
     translation written in Mandarin: one into Chinese, or a second-language
-    line in Chinese (`written_in`, with `seconds`: each target's second
+    line in Chinese (`line_language`, with `seconds`: each target's second
     language). `write` keeps each character one character, so word links'
     spans still mark the same words."""
     if not update.clauses:
@@ -139,8 +160,8 @@ def mandarin_written(
     seconds = seconds or {}
     said_in = update.language
 
-    def mandarin(key: Language) -> bool:
-        return written_in(key, said_in, seconds.get(key)) == MANDARIN
+    def mandarin(clause: Clause, key: Language) -> bool:
+        return line_language(clause, key, said_in, seconds.get(key)) == MANDARIN
 
     originals = said_in not in HAN_NOT_MANDARIN
     clauses = tuple(
@@ -148,7 +169,7 @@ def mandarin_written(
             c,
             original=write(c.original) if originals else c.original,
             translations={
-                key: write(text) if mandarin(key) else text
+                key: write(text) if mandarin(c, key) else text
                 for key, text in c.translations.items()
             },
         )

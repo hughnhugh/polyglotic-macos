@@ -2,8 +2,9 @@
 
 The learner's level, the word statuses they set (and those Learning
 estimated from a lookup), saved words with their categories and source
-sentences, saved sentences, exposure counts, each day's coverage and listening time, and
-the learning load's words.
+sentences, saved sentences, exposure counts, each day's coverage and listening time, the
+learning load's words, our curriculum's active set, the histories of
+statuses and of the known line, and named word sets.
 Core's Learning reads it all once at start
 and writes each change through this port; it gives the values their
 meaning (statuses, sources, the known line).
@@ -159,6 +160,11 @@ class StoredExposures(NamedTuple):
     first_heard: date | None = None
     """The UTC day it was first heard from what the PC played; None if not,
     or before the app kept it."""
+    days_heard: int = 0
+    """The separate days it was heard on from what the PC played - the
+    learner's own days (polyglotic-hq 489, version 11)."""
+    last_heard: date | None = None
+    """The last of them, the learner's day; None if not heard."""
 
 
 @dataclass(frozen=True)
@@ -207,6 +213,64 @@ class StoredLoadWord(NamedTuple):
     graduated_at: datetime | None = None
 
 
+class StoredCurriculumWord(NamedTuple):
+    """A word our curriculum's active set keeps (polyglotic-hq 477;
+    `core.learning.curriculum`): whether it is in the set or retired
+    (`standing`: `in`, `retired`), why it came in (`came`: `heard`,
+    `order`), when it entered (UTC), the separate days it has been met on
+    since and the last of them (the learner's day), the sittings begun
+    while it was in, and when it retired. Never sent anywhere."""
+
+    entry_id: str
+    standing: str
+    came: str
+    entered_at: datetime
+    days_met: int = 0
+    last_day: date | None = None
+    sittings: int = 0
+    retired_at: datetime | None = None
+
+
+@dataclass(frozen=True)
+class StoredStatusChange:
+    """One change of a word's status, as it happened (polyglotic-hq 474's
+    store hooks): what it was before (estimated or set) and after, who set
+    it (`source`: `learner`, `estimated`, `imported`, `server`) and when
+    (UTC). Kept in order, never changed; never sent anywhere."""
+
+    entry_id: str
+    before: str
+    after: str
+    source: str
+    at: datetime
+
+
+@dataclass(frozen=True)
+class StoredLineChange:
+    """One move of the known line (474): where it went (`scheme` and
+    `midpoint`, as `StoredLevel`; both None: no line set any more), how
+    (`source`: `picked`, `words`, `first_known`, `restored`) and when
+    (UTC). Kept in order, never changed; never sent anywhere."""
+
+    scheme: str | None
+    midpoint: float | None
+    source: str
+    at: datetime
+
+
+@dataclass(frozen=True)
+class StoredSetWord:
+    """A word of a named word set (474: the quiet view's chosen words,
+    `quiet`, so a later learning mode reads the same set), with where it
+    came from (`sources`: `curriculum`, `load`, `saved`) and when it was
+    added (UTC). Never sent anywhere."""
+
+    name: str
+    entry_id: str
+    sources: tuple[str, ...]
+    added_at: datetime
+
+
 @dataclass(frozen=True)
 class LearningSnapshot:
     """Everything stored, as read at start. `level` is None until the
@@ -223,6 +287,8 @@ class LearningSnapshot:
     listening: Sequence[StoredListening] = ()
     load_words: Sequence[StoredLoadWord] = ()
     lookups: Sequence[StoredLookups] = ()
+    curriculum_words: Sequence[StoredCurriculumWord] = ()
+    set_words: Sequence[StoredSetWord] = ()
 
 
 class LearningDataProblem(StrEnum):
@@ -319,14 +385,49 @@ class LearningStore(Protocol):
         """Deletes these words of the learning load."""
         ...
 
+    def save_curriculum_words(self, words: Sequence[StoredCurriculumWord]) -> None:
+        """Adds or replaces these words of our curriculum's set, together."""
+        ...
+
+    def delete_curriculum_words(self, entry_ids: Sequence[str]) -> None:
+        """Deletes these words of our curriculum's set."""
+        ...
+
+    def add_status_changes(self, changes: Sequence[StoredStatusChange]) -> None:
+        """Adds to the history of statuses, in order; never changes it."""
+        ...
+
+    def add_line_change(self, change: StoredLineChange) -> None:
+        """Adds to the history of the known line; never changes it."""
+        ...
+
+    def status_changes(self) -> Sequence[StoredStatusChange]:
+        """The history of statuses, in the order it was kept (polyglotic-hq
+        489: the map a week ago); rows that can't be read left out."""
+        ...
+
+    def line_changes(self) -> Sequence[StoredLineChange]:
+        """The history of the known line, in order (489); rows that can't
+        be read left out."""
+        ...
+
+    def save_set_words(self, words: Sequence[StoredSetWord]) -> None:
+        """Adds or replaces these words of their named sets, together."""
+        ...
+
+    def delete_set_words(self, name: str, entry_ids: Sequence[str]) -> None:
+        """Takes these words out of the set `name`."""
+        ...
+
     def save_lookups(self, lookups: StoredLookups) -> None:
         """Adds or replaces a word's lookups (polyglotic-hq 373)."""
         ...
 
     def forget_entry(self, entry_id: str) -> None:
         """Deletes the entry's status, saved word, deck word, export time,
-        exposure counts, lookups and its place in the learning load (not
-        its daily counts) - for an entry merged into another, once its data
+        exposure counts, lookups, its place in the learning load and in our
+        curriculum's set and in named word sets (not its daily counts or
+        the histories) - for an entry merged into another, once its data
         has been saved under the new ID."""
         ...
 
@@ -374,8 +475,9 @@ class LearningStore(Protocol):
     def delete_learning_data(self) -> None:
         """Deletes every status, saved word, saved sentence, deck word,
         export time, exposure count, daily count, day's coverage and
-        listening, lookup count, and the learning load's words - the learner
-        deleted their learning data. The level and the categories stay.
+        listening, lookup count, the learning load's words, our curriculum's
+        set, the histories of statuses and of the known line and the named
+        word sets - the learner deleted their learning data. The level and the categories stay.
         None of what's deleted stays readable in the store's files, and any
         copy of the store set aside after damage (`SetAsideLearningData`) is
         deleted whole: it holds the same data (polyglotic-hq 207)."""

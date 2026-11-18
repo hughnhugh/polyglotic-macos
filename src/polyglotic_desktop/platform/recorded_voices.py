@@ -7,10 +7,9 @@ voices (`speaking.Voices`) over both:
 
 - each language with recordings is a voice of its own (its id starts
   `ports.speaker.RECORDED`), listed before the OS's;
-- asked for a word in a recorded voice, it plays the recording - at the
-  word's own pace only: asked slower, an OS voice of the language says it
-  if the PC has one (a recording slowed would drop in pitch), else the
-  recording as it is;
+- asked for a word in a recorded voice, it plays the recording, as it is
+  at any pace asked (polyglotic-hq 518: a word sounds the same at every
+  press - an OS voice for the slower press sounded robotic);
 - a word that isn't recorded is said by an OS voice of the language, or
   not at all (OSError, as a voice that has gone).
 
@@ -127,11 +126,9 @@ class RecordedVoices:
         if not voice.id.startswith(RECORDED):
             return self._os.synthesize(text, voice, rate)
         data = self._recordings.clip(voice, text)
-        if data is not None and rate >= 1.0:
+        if data is not None:
             return self._decode(data)
         instead = self._os_voice(voice.language)
-        if instead is not None:
-            return self._os.synthesize(text, instead, rate)
-        if data is None:
+        if instead is None:
             raise OSError("not recorded, and no voice of the language")
-        return self._decode(data)
+        return self._os.synthesize(text, instead, rate)

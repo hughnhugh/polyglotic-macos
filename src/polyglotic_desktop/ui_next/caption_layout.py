@@ -47,6 +47,7 @@ from polyglotic_desktop.core.lexicon.readings import Readings
 from polyglotic_desktop.core.lexicon.zhuyin import zhuyin
 from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import (
+    LIVE_TRAIL,
     CaptionRow,
     LinkGap,
     LinkLine,
@@ -54,9 +55,16 @@ from polyglotic_desktop.core.listening.display import (
     ReadingSystem,
     RowKind,
 )
-from polyglotic_desktop.ui_next import fonts, reading_lines, style
+from polyglotic_desktop.ui_next import (
+    caption_faces,
+    fonts,
+    languages,
+    reading_lines,
+    style,
+)
 from polyglotic_desktop.ui_next.reading_lines import SHARE as READING_SHARE
 from polyglotic_desktop.ui_next.reading_lines import Placed, Ruby
+from polyglotic_desktop.ui_next.views.caption_window import TextEdge
 from polyglotic_desktop.ui_next.views.captions import (
     CAPTION_TEXT_SIZES,
     CAPTION_WINDOW_LINES,
@@ -81,17 +89,21 @@ from polyglotic_desktop.ui_next.views.pour import (
     pour_stacked,
 )
 from polyglotic_desktop.ui_next.views.presets import readable_through
+from polyglotic_desktop.ui_next.views.tone import (
+    EDGE_PASSES,
+    edge_colour,
+    floor_alpha,
+    floored,
+    ratio,
+    strength,
+    vibrant,
+)
 
-LATIN_FAMILIES = ("Segoe UI Variable Display", "Segoe UI", *fonts.also("latin"))
-CJK_FAMILIES = {  # Windows' first; then another OS's own (`fonts`)
-    "zh": ("Microsoft YaHei UI", "Microsoft YaHei", *fonts.also("zh")),
-    "zh-hant": ("Microsoft JhengHei UI", "Microsoft JhengHei", *fonts.also("zh-hant")),
-    "yue": ("Microsoft JhengHei UI", "Microsoft JhengHei", *fonts.also("yue")),
-    "ja": ("Yu Gothic UI", "Meiryo UI", *fonts.also("ja")),
-}
-CJK_SCALE = 1.05
-"""Chinese and Japanese a touch larger than Latin text at the same pixel
-size: their denser strokes read as easily (today's overlay's)."""
+LATIN_FAMILIES = fonts.own("latin")
+CJK_FAMILIES = {script: fonts.own(script) for script in ("zh", "zh-hant", "yue", "ja")}
+"""The OS's own faces - Windows' first, then another OS's (`fonts`) - for
+what isn't a caption: a lookup card's words, Learning's. Captions are in
+their language's faces (`fonts.caption_families`)."""
 
 
 RUBIES_KEPT = 600
@@ -112,6 +124,18 @@ overlay had 18 and 28 in all, before 151 retired Arrows; polyglotic-hq
 249 brought them back, F7)."""
 ARROW_PX = 1.7
 """A curve's width at 21 px text."""
+QUIET_SCALE = 1.1
+"""The quiet view's text, a size step (`TEXT_STEP`, 10 % of 100 %) bigger
+than the same window's without it (polyglotic-hq 477; the user, 2026-11-18:
+"the quick preview font should be longer giving the opportunity to look at
+the printography")."""
+QUIET_TRANSLATION = 1.1
+"""And its translation a step bigger again than what was said, the larger
+of the two, as in the user's picture of the look (477)."""
+QUIET_ALPHA = 0.6
+"""The quiet view's grey and gold: every line drawn as Quick preview's dim
+line is (`Ink.provisional_alpha`'s default) - what was said grey, its
+translation a warm gold (477)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,11 +147,17 @@ class CaptionStyle:
     row_gap: float = 2.0
     clause_gap: float = 8.0
     weight: QFont.Weight = QFont.Weight.Medium
+    reading_weight: QFont.Weight = QFont.Weight.DemiBold
+    """A reading's: one step above the text's (`views.tone.reading_weight`;
+    polyglotic-hq 481) - today's 600 over 500, a transcript's too."""
     label_px: float = 13.0
     label_gap: float = 3.0
     family: str | None = None
-    """The learner's font for the captions (the Look panel's); None: the
-    app's own. Qt falls back from it per character."""
+    """The learner's font for every language's captions (before 482's
+    rows); None: each language's own. Qt falls back from it per character."""
+    faces: tuple[tuple[str, str], ...] = ()
+    """Each language's face as Look's rows chose it ("" its default):
+    before `family` (`views.caption_window.face_chosen`)."""
     link_px: float = LINK_PX[LinkLine.MEDIUM]
     link_gap: float = LINK_GAP_PX[LinkGap.MEDIUM]
     """A word link's underline: how thick, and how far below the font's
@@ -145,6 +175,8 @@ class CaptionStyle:
     italic_live: bool = False
     """Text still being spoken in italic: a provisional line (today's), a
     live caption (the Lab's Text still being spoken, 284)."""
+    italic_all: bool = False
+    """Every line in italic, finished or not: the quiet view's (477)."""
     translation_size: float = 1.0
     """A translation row's text, as a share of what was said's (a caption
     window's own Translation size, polyglotic-hq 305): 1.0, the same. Kept
@@ -214,6 +246,9 @@ class Ink:
     said_in_link_colours: bool = False
     """Linked words in what was said drawn in their link's colour (395;
     on its own since 431)."""
+    correction: QColor | None = None
+    """A quiet correction's words (`CaptionRow.corrected`) drawn in this
+    colour now - None: as the rest (polyglotic-hq 494, decision 0228)."""
     translation_in_link_colours: bool = False
     """Linked words in the translation drawn in their link's colour (395;
     on its own since 431: the user, 2026-11-17, "toggleable
@@ -225,6 +260,22 @@ class Ink:
     panel_opacity: float = 1.0
     """How solid the panel is: below 1, a link's colour is made readable
     on it seen over a light or a black video too (431)."""
+    quiet: bool = False
+    """The quiet view (polyglotic-hq 477): every line as faint as Quick
+    preview's (`QUIET_ALPHA`) - live, provisional and finished alike - and
+    every reading in the translation's gold, but those over a word its
+    marks colour (the chosen words' blue), which take that colour."""
+    contrast: int = 0
+    """The contrast slider (`views.tone`, polyglotic-hq 481): every line's
+    ink soft or crisp (`drawn_ink`), and the ratios its colours are moved
+    to reach with it; 0, today's."""
+    vibrance: int = 0
+    """The vibrance slider (481): the colours this ink was given are the
+    look's at it already (`caption_window.look_ink`); a line's own label
+    colour (your own speech's) is moved to it here."""
+    edge: TextEdge = TextEdge.NONE
+    """What's drawn around the letters - and their readings - (Visibility,
+    `views.tone.TextEdge`; 481): nothing, a soft shadow or an outline."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -348,7 +399,10 @@ class CaptionLayout:
         each kept line holds its rows' `QTextLayout`s, about 15 KB of Qt's
         memory, and 2,500 kept per surface grew the app 0.5 MB a minute
         over an evening)."""
+        caption_faces.load()  # the faces the app carries, before any row is laid out
+        self._generation = caption_faces.generation
         self.style = style or CaptionStyle()
+        self._chosen = dict(self.style.faces)
         self.lines_kept = lines_kept
         self.laid_out = 0  # rows laid out since made: what tests count
         self._kept: OrderedDict[int, _Kept] = OrderedDict()
@@ -381,7 +435,9 @@ class CaptionLayout:
         chinese = language.split("-")[0] == "zh"  # Cantonese's is Jyutping
         if chinese and self.style.reading_system is ReadingSystem.ZHUYIN:
             read = [replace(r, text=zhuyin(r.text)) for r in read]
-        found = reading_lines.ruby(row.text, read, font, self.style.reading_share)
+        found = reading_lines.ruby(
+            row.text, read, font, self.style.reading_share, self.style.reading_weight
+        )
         self._rubies[key] = found
         if len(self._rubies) > RUBIES_KEPT:
             self._rubies.popitem(last=False)
@@ -399,6 +455,15 @@ class CaptionLayout:
         row = CaptionRow(text, side, language, 0, True)
         found = self._ruby(row, self._font(row, text_size, italic))
         return Above(found.before, found.after, found.band) if found else None
+
+    def _fresh(self) -> None:
+        """A face came since the rows were laid out (`caption_faces`): every
+        row is laid out again, in it."""
+        self._generation = caption_faces.generation
+        self._kept.clear()
+        self._fonts.clear()
+        self._flows.clear()
+        self._rubies.clear()
 
     @property
     def held(self) -> int:
@@ -437,6 +502,8 @@ class CaptionLayout:
         return self._composed(self._keeping(line), line, width, text_size, entry).open
 
     def _keeping(self, line: Line) -> _Kept:
+        if self._generation != caption_faces.generation:
+            self._fresh()
         kept = self._kept.get(line.key)
         if kept is None or not kept.holds(line):
             kept = self._kept[line.key] = _Kept(line)
@@ -482,20 +549,25 @@ class CaptionLayout:
         marks: Marks | None = None,
     ) -> None:
         """Draws `laid` (the layout of `line`) with its top left at `at`."""
-        alpha = ink.alpha * (
-            ink.provisional_alpha
+        today = ink.alpha * (
+            QUIET_ALPHA
+            if ink.quiet
+            else ink.provisional_alpha
             if line.provisional
             else ink.live_alpha
             if line.live
             else 1.0
         )
+        alpha = strength(today, ink.contrast)  # dots, lines, arrows: as faint
         own = self.style if line.by_you else None
         if own is not None and (own.own_tint or own.own_bar):
             _own_marks(painter, line, laid, at, ink, own)
         if laid.label is not None:
-            label = QColor(line.label_color) if line.label_color else QColor(ink.label)
-            label.setAlphaF(
-                min(1.0, label.alphaF() * ink.alpha * ink.translation_alpha * 0.9)
+            label = drawn_ink(
+                _label_colour(line, ink),
+                min(1.0, ink.alpha * ink.translation_alpha * 0.9),
+                ink,
+                shaded=False,
             )
             where = at
             if own is not None and own.own_label is OwnLabel.BADGE:
@@ -518,29 +590,61 @@ class CaptionLayout:
                 # box, and a row under the hover band leaked them into the gap
             original = row.row.kind is RowKind.ORIGINAL
             color = QColor(ink.original if original else ink.translation)
-            if ink.unfinished is not None and (line.live or line.provisional):
+            # established text, drawn as final (decision 0228): as the row
+            # would be on a finished caption - its line's ink, and the tone
+            # it's drawn in (481), without the dimming of text being spoken
+            done = ink.alpha * (QUIET_ALPHA if ink.quiet else 1.0)
+            done = done if original else min(1.0, done * ink.translation_alpha)
+            final = drawn_ink(color, done, ink)
+            unfinished = line.live or line.provisional
+            if ink.unfinished is not None and unfinished:
                 color = QColor(ink.unfinished)
-            row_alpha = alpha if original else min(1.0, alpha * ink.translation_alpha)
-            if row_alpha < 1.0:
-                color.setAlphaF(color.alphaF() * row_alpha)
+            row_today = today if original else min(1.0, today * ink.translation_alpha)
+            color = drawn_ink(color, row_today, ink)  # the quiet view's: readable
+            established = row.row.established if unfinished else None
+            if established and established >= len(
+                row.row.text.removesuffix(LIVE_TRAIL)
+            ):
+                color, established = final, None  # all of it
+            if ink.edge is not TextEdge.NONE:
+                _edge(painter, row, top_left, color, ink.edge)
             painter.setPen(color)
             selections, dotted, links = split_marks(
                 marks(line, row.index) if marks else ()
             )
+            if established:
+                selections.insert(0, _coloured_range(0, established, final))
             coloured = (
                 ink.said_in_link_colours
                 if original
                 else ink.translation_in_link_colours
             )
             words = _coloured_words(links, ink, color) if coloured and links else []
-            if words and not selections:
+            correcting = ink.correction is not None and original and row.row.corrected
+            if words and not selections and not correcting:
                 in_colours(painter, row.layout, top_left, color, words)
                 painter.setPen(color)
             else:  # beside other marks (the load, saved words): Qt's ranges
                 selections += [_format_range(word) for word in words]
+                if ink.correction is not None and original:  # over the rest
+                    selections += [
+                        _coloured_range(start, end, ink.correction)
+                        for start, end in row.row.corrected
+                    ]
                 drawn_whole(selections)
                 row.layout.draw(painter, top_left, selections)
-            if row.above and row.above_font is not None:
+            if row.above and row.above_font is not None and ink.quiet:
+                faint = min(1.0, today * ink.translation_alpha)
+                gold = drawn_ink(ink.translation, faint, ink, reading_lines.ALPHA)
+                reading_lines.draw(
+                    painter,
+                    row.above,
+                    row.above_font,
+                    top_left,
+                    gold,
+                    _coloured_readings(row.above, selections),
+                )
+            elif row.above and row.above_font is not None:
                 reading_lines.draw(
                     painter,
                     row.above,
@@ -607,9 +711,7 @@ class CaptionLayout:
                 if style.arrows:  # every pair: a row doesn't jump as links come
                     gap += ARROW_CLAUSE_GAP if row.starts_clause else ARROW_ROW_GAP
                 y += gap * text_size
-            italic = (
-                style.italic_provisional if line.provisional else style.italic_live
-            ) and (line.provisional or line.live)
+            italic = _italic(line, style)
             font = self._font(row, text_size, italic)
             ruby = self._ruby(row, font)
             layout, height = _laid_text(row.text, font, width, right, ruby)
@@ -774,9 +876,7 @@ class CaptionLayout:
         pinyin over a translation into Chinese, Translation below or Line
         by line without the New layout, had none)."""
         style = self.style
-        italic = (
-            style.italic_provisional if line.provisional else style.italic_live
-        ) and (line.provisional or line.live)
+        italic = _italic(line, style)
         fonts_ = [self._font(row, text_size, italic) for row in line.rows]
         rubies = [
             self._ruby(row, font) for row, font in zip(line.rows, fonts_, strict=True)
@@ -939,19 +1039,24 @@ class CaptionLayout:
         self, row: CaptionRow, text_size: float, italic: bool, own_size: bool = True
     ) -> QFont:
         """`row`'s font at `text_size` - a translation's at its share of it
-        (`own_size`), kept within CAPTION_TEXT_SIZES."""
-        script = row.language if row.language is not None else _script(row.text)
-        cjk = script in CJK_FAMILIES
+        (`own_size`), kept within CAPTION_TEXT_SIZES - in its language's
+        faces (`fonts.caption_families`; 482), at its script's size, and
+        upright whatever is asked if its script or face is never slanted
+        (Arabic's: 479)."""
+        language = caption_language(row)
         share = self.style.translation_size
         if own_size and row.kind is RowKind.TRANSLATION and share != 1.0:
             low, high = CAPTION_TEXT_SIZES
             text_size = min(high, max(low, text_size * share))
-        families = LATIN_FAMILIES
-        if script is not None and cjk:
-            families = (*CJK_FAMILIES[script], *LATIN_FAMILIES)
-        if self.style.family:
-            families = (self.style.family, *families)
-        px = max(8, round(self.style.text_px * text_size * (CJK_SCALE if cjk else 1.0)))
+        chosen = self._chosen.get(language or "", self.style.family or "")
+        families = fonts.caption_families(language, chosen or None)
+        # a weight's own faces before the OS's Latin ones they're cut from (481)
+        faces = fonts.WEIGHT_FACES.get(self.style.weight.value, ())
+        if faces and LATIN_FAMILIES and LATIN_FAMILIES[0] in families:
+            at = families.index(LATIN_FAMILIES[0])
+            families = (*families[:at], *faces, *families[at:])
+        italic = italic and not fonts.upright(language, families[0])
+        px = max(8, round(self.style.text_px * text_size * fonts.size(language)))
         key = (families, px, italic)
         font = self._fonts.get(key)
         if font is None:
@@ -1044,16 +1149,24 @@ def link_ink(colour: QColor, ink: Ink, row: QColor, faint: float = 1.0) -> QColo
     its `row`'s text (and `faint` again: a reading's), and readable so on
     the panel (`Ink.panel`), solid and seen through at its opacity
     (`Ink.panel_opacity`) - moved towards white on a dark panel, black on
-    a light one, only as far as it needs (395, 431)."""
+    a light one, only as far as it needs (395, 431). With the contrast
+    slider soft (481) it reads at less (`views.tone.ratio`), and as faint
+    as its row only while its own colour still reaches the floor there:
+    washed towards white, ten link colours ran together (red and pink 4.8
+    apart on Classic)."""
     alpha = row.alphaF()
     found = QColor(colour)
     if ink.panel is not None:
+        if ink.contrast < 0:  # the floor reached by its ink, not by washing it out
+            least = floor_alpha(colour.name(), ink.panel, ink.panel_opacity) / faint
+            alpha = min(1.0, max(alpha, least))
         found = QColor(
-            _link_shade(
+            _shade(
                 colour.name(),
                 ink.panel,
                 ink.panel_opacity,
                 alpha * faint,
+                ratio(LINK_CONTRAST, ink.contrast),
             )
         )
     found.setAlphaF(alpha)
@@ -1061,10 +1174,92 @@ def link_ink(colour: QColor, ink: Ink, row: QColor, faint: float = 1.0) -> QColo
 
 
 @lru_cache(maxsize=4096)
-def _link_shade(colour: str, panel: str, opacity: float, alpha: float) -> str:
+def _shade(colour: str, panel: str, opacity: float, alpha: float, ratio_: float) -> str:
     """`readable_through`, kept: each linked word of each row is drawn in
-    one at every paint, and a link colour's shade is the same each time."""
-    return readable_through(colour, panel, opacity, alpha, LINK_CONTRAST)
+    one at every paint, and a link colour's shade is the same each time -
+    and the quiet view's grey and gold (`drawn_ink`)."""
+    return readable_through(colour, panel, opacity, alpha, ratio_)
+
+
+def drawn_ink(
+    colour: QColor, today: float, ink: Ink, faint: float = 1.0, shaded: bool = True
+) -> QColor:
+    """`colour` - a row's, its label's, the quiet view's reading's - as
+    drawn: at `today`'s ink as the contrast slider moves it (`Ink.contrast`,
+    `views.tone.strength`; 481), raised where that falls under the floor
+    on the panel (`views.tone.floored`) - and with the vibrance moved,
+    whose colours read a little less in places (a vivid brown on Paper's
+    cream), to the floor whatever today's was. The quiet view's (477) moved
+    towards white on a dark panel, black on a light one, only as far as
+    text needs to read on the panel at that ink (and `faint` again: a
+    reading's) - `LINK_CONTRAST` at today's look, so the grey and gold stay
+    quiet without falling under what can be read (4.5:1, `AA_TEXT`, and a
+    margin: on the panel seen at its opacity, and in italic's thin
+    strokes, 4.5 measured as low as 4.3 in the UI lab) - and down to the
+    floor with the slider (`views.tone.ratio`). Not a label's (`shaded`)."""
+    alpha = strength(today, ink.contrast)
+    found = QColor(colour)
+    if ink.panel is not None:
+        name = colour.name()
+        if ink.quiet and shaded:
+            name = _shade(
+                name,
+                ink.panel,
+                ink.panel_opacity,
+                alpha * faint,
+                ratio(LINK_CONTRAST, ink.contrast),
+            )
+            found = QColor(name)
+        if ink.contrast < 0 or ink.vibrance:
+            # today's look already under the floor stays so - unless the
+            # colour itself moved (vibrance): then its ink rises as it needs
+            cap = today if not ink.vibrance else 1.0
+            low = floored(alpha * faint, cap * faint, name, *_backdrop(ink))
+            alpha = low / faint
+    if alpha < 1.0:
+        found.setAlphaF(found.alphaF() * alpha)
+    return found
+
+
+def _backdrop(ink: Ink) -> tuple[str, float]:
+    assert ink.panel is not None
+    return ink.panel, ink.panel_opacity
+
+
+def _edge(
+    painter: QPainter, row: LaidRow, at: QPointF, colour: QColor, edge: TextEdge
+) -> None:
+    """`row`'s text and its readings drawn again under it, in black around
+    light text and white around dark (`views.tone.edge_colour`), as
+    `edge` says - offset by its passes, grown with the text, as faint as
+    the text is (481). By their glyphs, as a linked word's colour is
+    (`in_colours`): an edge isn't text to read."""
+    halo = QColor(edge_colour(colour.name()))
+    scale = max(1.0, row.layout.font().pixelSize() / 21.0)
+    glyphs = row.layout.glyphRuns()
+    readings = (
+        reading_lines.glyphs(row.above, row.above_font)
+        if row.above and row.above_font is not None
+        else []
+    )
+    for dx, dy, share in EDGE_PASSES[edge]:
+        where = QPointF(at.x() + dx * scale, at.y() + dy * scale)
+        halo.setAlphaF(share * colour.alphaF())
+        painter.setPen(halo)
+        for run in glyphs:
+            painter.drawGlyphRun(where, run)
+        if readings:
+            painter.setPen(reading_lines.faint(halo))
+            for run in readings:
+                painter.drawGlyphRun(where, run)
+
+
+def _label_colour(line: Line, ink: Ink) -> QColor:
+    """A line's label's colour: its own (your own speech's) at the
+    vibrance chosen (481), or the ink's."""
+    if not line.label_color:
+        return QColor(ink.label)
+    return QColor(vibrant(line.label_color, ink.vibrance))
 
 
 Coloured = tuple[int, int, QColor]
@@ -1079,6 +1274,15 @@ def _coloured_words(links: Sequence[Linked], ink: Ink, row: QColor) -> list[Colo
         (start, end, link_ink(colour, ink, row)) for start, end, colour, _ in links
     ]
     return sorted(found, key=lambda word: word[:2])
+
+
+def _coloured_range(start: int, end: int, colour: QColor) -> QTextLayout.FormatRange:
+    """Characters `[start, end)` of a row drawn in `colour`."""
+    part = QTextLayout.FormatRange()
+    part.start, part.length = start, max(0, end - start)
+    part.format = QTextCharFormat()
+    part.format.setForeground(colour)
+    return part
 
 
 def _format_range(word: Coloured) -> QTextLayout.FormatRange:
@@ -1173,6 +1377,26 @@ def _reading_colours(
             None if colour is None else link_ink(colour, ink, row, reading_lines.ALPHA)
         )
     return found
+
+
+def _coloured_readings(
+    readings: Sequence[reading_lines.Placed],
+    selections: Sequence[QTextLayout.FormatRange],
+) -> list[QColor | None]:
+    """Each reading's own colour in the quiet view (477): the text colour
+    of a mark over its character - a chosen word's blue, so a blue word's
+    reading is blue too (真的 / zhēn de) - or None, its row's."""
+    coloured = [
+        (s.start, s.start + s.length, s.format.foreground().color())
+        for s in selections
+        if s.format.hasProperty(_FOREGROUND)
+    ]
+    if not coloured:
+        return []
+    return [
+        next((c for start, end, c in coloured if start <= r.start < end), None)
+        for r in readings
+    ]
 
 
 def cursor_x(line: QTextLine, index: int) -> float:
@@ -1503,7 +1727,7 @@ def _own_marks(
     """The user's own speech's tint and bar (the Lab's, 305), in its
     label's colour: the tint behind the whole line, the bar at the side
     its text lines up on."""
-    colour = QColor(line.label_color) if line.label_color else QColor(ink.label)
+    colour = _label_colour(line, ink)
     painter.save()
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     painter.setPen(Qt.PenStyle.NoPen)
@@ -1607,15 +1831,36 @@ def _cjk_share(text: str) -> float:
     return cjk / len(text)
 
 
+def caption_language(row: CaptionRow) -> str | None:
+    """The language whose faces `row` is drawn in: its own, else its
+    script's (`_script`) - Traditional Chinese's for Mandarin shown in
+    Traditional characters, which Simplified's face, cut to Simplified's
+    characters, would draw only some of (482)."""
+    language = row.language if row.language is not None else _script(row.text)
+    if language == "zh" and languages.mandarin_in_traditional():
+        return "zh-hant"
+    return language
+
+
+_SCRIPT_RANGES = (("ar", "؀", "ۿ"), ("th", "฀", "๿"), ("hi", "ऀ", "ॿ"))
+"""Scripts told by their letters when a row's language isn't known, and a
+language written in each (its faces are the script's: `fonts.SCRIPTS`)."""
+
+
 def _script(text: str) -> str | None:
     """The fonts for text in a language not known, by its script: "ja" with
-    kana, "zh" for other Chinese characters, None for neither. Han
-    characters are one script in Chinese and Japanese; only the kana say
-    it's Japanese (polyglotic-hq 215: such a line was in YaHei, a Chinese
-    face, with China's glyph shapes)."""
-    if _cjk_share(text) <= 0.3:
-        return None
-    return "ja" if any(_is_kana(c) for c in text) else "zh"
+    kana, "zh" for other Chinese characters; Arabic's, Thai's or
+    Devanagari's for a line mostly in one (482); None for none of them.
+    Han characters are one script in Chinese and Japanese; only the kana
+    say it's Japanese (polyglotic-hq 215: such a line was in YaHei, a
+    Chinese face, with China's glyph shapes)."""
+    if _cjk_share(text) > 0.3:
+        return "ja" if any(_is_kana(c) for c in text) else "zh"
+    letters = [c for c in text if c.isalpha()]
+    for language, low, high in _SCRIPT_RANGES:
+        if letters and sum(low <= c <= high for c in letters) > len(letters) / 2:
+            return language
+    return None
 
 
 def _is_kana(c: str) -> bool:
@@ -1625,7 +1870,9 @@ def _is_kana(c: str) -> bool:
 
 def _italic(line: Line, style: CaptionStyle) -> bool:
     """Whether `line`'s text is drawn italic: still being spoken, and the
-    style says so for it."""
+    style says so for it - or every line (the quiet view's)."""
+    if style.italic_all:
+        return True
     return (style.italic_provisional if line.provisional else style.italic_live) and (
         line.provisional or line.live
     )

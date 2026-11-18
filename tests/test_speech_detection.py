@@ -20,6 +20,7 @@ from polyglotic_desktop.platform.speech_detection import (
     MODEL_SHA256,
     SILENCE_RESET_SEC,
     DetectionGain,
+    ModelOnDemand,
     SpeechDetector,
     load_model,
     model_path,
@@ -35,6 +36,36 @@ def detector() -> SpeechDetector:
 
 def test_the_model_is_the_pinned_file() -> None:
     assert hashlib.sha256(model_path().read_bytes()).hexdigest() == MODEL_SHA256
+
+
+def test_the_model_on_demand_loads_nothing_until_wanted_then_once() -> None:
+    """polyglotic-hq 513: the app's start makes the loader, and an app with
+    nothing captioned never loads the model; `start` loads it on a thread of
+    its own, once, however often it's called; `result` waits for it."""
+    import threading
+
+    loads: list[str] = []
+    release = threading.Event()
+
+    def load() -> object:
+        loads.append(threading.current_thread().name)
+        release.wait(5)
+        return "the model"
+
+    model = ModelOnDemand(load)
+    assert not model.started and loads == []
+    model.start()
+    model.start()
+    release.set()
+    assert model.result() == "the model"
+    assert model.result() == "the model"
+    assert len(loads) == 1 and loads[0].startswith("speech-model")
+
+
+def test_the_model_on_demand_loads_at_its_first_result_if_not_started() -> None:
+    model = ModelOnDemand(lambda: "the model")
+    assert model.result() == "the model"
+    assert model.started
 
 
 def test_silence_and_noise_are_not_speech(detector: SpeechDetector) -> None:

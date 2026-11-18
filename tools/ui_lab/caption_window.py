@@ -28,7 +28,11 @@ from PySide6.QtCore import QPoint, QPointF
 from PySide6.QtGui import QPainter, QPaintEvent, QRegion
 from PySide6.QtWidgets import QWidget
 
-from polyglotic_desktop.core.listening.captions import CaptionKind, CaptionUpdate
+from polyglotic_desktop.core.listening.captions import (
+    CaptionKind,
+    CaptionUpdate,
+    Language,
+)
 from polyglotic_desktop.core.listening.display import RowKind, WordLinks
 from polyglotic_desktop.core.listening.selection import Place, Selection
 from polyglotic_desktop.core.listening.sources import (
@@ -38,7 +42,7 @@ from polyglotic_desktop.core.listening.sources import (
 )
 from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.perf import budgets
-from polyglotic_desktop.ui.recorded_captions import APP, MIC
+from polyglotic_desktop.ui.recorded_captions import APP, MIC, clause
 from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next.caption_window import (
     MIN_PANEL,
@@ -55,8 +59,9 @@ from polyglotic_desktop.ui_next.views.caption_window import (
     Notices,
     WindowChoices,
 )
-from polyglotic_desktop.ui_next.views.lab import CaptionLab, Fill, Placing
+from polyglotic_desktop.ui_next.views.lab import CaptionLab, Fill, Placing, Unfinished
 from polyglotic_desktop.ui_next.views.placement import Edge, Rect
+from polyglotic_desktop.ui_next.views.presets import BY_KEY
 from tools.ui_lab.lab import Lab, State
 from tools.ui_lab.new_parts import CAPTIONS, finished
 
@@ -639,6 +644,105 @@ def preview_line(lab: Lab) -> QWidget:
     return shown
 
 
+FACES = (
+    (
+        "zh",
+        "我们周末一起去打游戏吧，好不好？",
+        "Let's play games together this weekend, okay?",
+    ),
+    ("th", "สุดสัปดาห์นี้เราไปเล่นเกมด้วยกันไหม", "Shall we go and play games this weekend?"),
+    (
+        "vi",
+        "Cuối tuần này mình cùng chơi game nhé?",
+        "Shall we play games together this weekend?",
+    ),
+    (
+        "ar",
+        "هل نلعب الألعاب معًا في عطلة نهاية الأسبوع؟",
+        "Shall we play games this weekend?",
+    ),
+    (
+        "hi",
+        "क्या हम इस सप्ताहांत साथ में गेम खेलें?",
+        "Shall we play games together this weekend?",
+    ),
+    (
+        "ru",
+        "Давай поиграем вместе в эти выходные?",
+        "Shall we play together this weekend?",
+    ),
+    (
+        "es",
+        "¿Jugamos juntos este fin de semana, vale?",
+        "Shall we play together this weekend, okay?",
+    ),
+)
+"""One caption in each default face (polyglotic-hq 482): what was said in
+Chinese, Thai, Vietnamese, Arabic, Hindi, Russian and Spanish, each over
+its English."""
+
+
+def _in_every_face(
+    updates_kind: CaptionKind = CaptionKind.FINISHED,
+) -> list[CaptionUpdate]:
+    found = []
+    for n, (language, said, meant) in enumerate(FACES):
+        update = CaptionUpdate(
+            CaptionId(f"face-{n}"),
+            APP,
+            CaptionKind.FINISHED,
+            (clause(said, meant),),
+            Language(language),
+            (Language(language),),
+            processing_ms=400,
+        )
+        found.append(update)
+    if updates_kind is CaptionKind.LIVE:  # the last, Arabic's, still being spoken
+        arabic = next(u for u in found if u.language == "ar")
+        found = [u for u in found if u is not arabic]
+        found.append(
+            replace(arabic, caption_id=CaptionId("live"), kind=CaptionKind.LIVE)
+        )
+    return found
+
+
+def faces(lab: Lab, look: CaptionLook | None = None, still: bool = False) -> QWidget:
+    """Captions in each language's default face (482): Noto Sans SC, Noto
+    Sans Thai Looped, Be Vietnam Pro, Noto Naskh Arabic, Noto Sans
+    Devanagari, PT Sans and IBM Plex Sans - with `still`, Arabic's line
+    still being spoken in italic, which Arabic never is."""
+    shown = window(lab, captions=0)
+    if look is not None:  # as a learner changes it (the presets' states do)
+        shown.set_look(look)
+    kind = CaptionKind.LIVE if still else CaptionKind.FINISHED
+    for update in _in_every_face(kind):
+        shown.view.apply(update)
+    shown.apply_changed(new_caption=True)
+    shown.resize(720, 640)
+    lab.pump()
+    return shown
+
+
+def faces_light(lab: Lab) -> QWidget:
+    paper = BY_KEY["paper"]
+    look = CaptionLook(
+        original=paper.original,
+        translation=paper.translation,
+        background=paper.background,
+        opacity=paper.opacity,
+        # its labels are 3.7-3.9:1 on paper, under the 4.5:1 the checks ask:
+        # not the faces' (482 reports it); the preset states scroll theirs away
+        show_language=False,
+        show_source=False,
+    )
+    return faces(lab, look)
+
+
+def faces_still_spoken(lab: Lab) -> QWidget:
+    look = CaptionLook(lab=CaptionLab(unfinished=Unfinished.ITALIC))
+    return faces(lab, look, still=True)
+
+
 class _Screen(QWidget):
     """The work area at a quarter of its size, with the windows on it."""
 
@@ -818,6 +922,9 @@ STATES = [
         ("preview_line", preview_line, True),
         ("three_windows", three_windows, True),
         ("spoken_question", spoken_question, True),
+        ("faces", faces, True),
+        ("faces_light", faces_light, True),
+        ("faces_still_spoken", faces_still_spoken, True),
         ("set_up", set_up, False),
         ("set_up_spoken", set_up_spoken, False),
         ("first_heard", first_heard, False),

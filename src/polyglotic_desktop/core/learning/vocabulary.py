@@ -18,8 +18,12 @@ dictionary.
 Every change is published to listeners: learning data for the server
 (`core.shared`'s `LearningEvent`s - entry IDs and times only) and
 `VocabularyChanged` for views to redraw. The learning load (`load`: a Lab
-viewing mode, polyglotic-hq 324) is told of finished captions, statuses
-and the line here, and changed through here. What comes back from the server -
+viewing mode, polyglotic-hq 324) and our curriculum's active set
+(`curriculum`, polyglotic-hq 477) are told of finished captions, statuses
+and the line here, and changed through here. The quiet view's chosen
+words (`set_chosen`, `chosen`) are kept as the named word set `quiet`,
+and every change of a status and of the known line is kept in order
+(474's store hooks) - on this PC only. What comes back from the server -
 statuses and saved words set on another PC - is applied by
 `apply_from_server` without being published again; `delete_learning_data`
 empties the learner's data on this PC. Finished days' exposure counts are
@@ -30,7 +34,7 @@ thread (the UI's).
 """
 
 import uuid
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
@@ -50,6 +54,12 @@ from polyglotic_desktop.core.learning.coverage import (
     CoverageCounter,
     coverage_of,
 )
+from polyglotic_desktop.core.learning.curriculum import (
+    EDGE_PER_CAPTION,
+    ChosenWords,
+    Curriculum,
+    CurriculumStore,
+)
 from polyglotic_desktop.core.learning.deck_words import DeckWord
 from polyglotic_desktop.core.learning.exposures import (
     ExposureChange,
@@ -61,6 +71,17 @@ from polyglotic_desktop.core.learning.highlights import (
     unfamiliar_words,
 )
 from polyglotic_desktop.core.learning.knowledge import Knowledge
+from polyglotic_desktop.core.learning.known_chance import (
+    NO_EVIDENCE,
+    Band,
+    Evidence,
+    KnownChances,
+)
+from polyglotic_desktop.core.learning.known_map import (
+    evidence_then,
+    line_then,
+    statuses_then,
+)
 from polyglotic_desktop.core.learning.levels import (
     KnownLine,
     LearningWindow,
@@ -100,6 +121,7 @@ from polyglotic_desktop.core.learning.statuses import (
     estimated_status,
     status_of,
 )
+from polyglotic_desktop.core.learning.theme import everyday, known_by_speech
 from polyglotic_desktop.core.shared import (
     EntryFacts,
     EntryId,
@@ -121,17 +143,38 @@ from polyglotic_desktop.ports.learning import (
     StoredDeckWord,
     StoredExposures,
     StoredLevel,
+    StoredLineChange,
     StoredListening,
     StoredLookups,
     StoredSavedWord,
     StoredSentence,
     StoredSentencePart,
+    StoredSetWord,
     StoredStatus,
+    StoredStatusChange,
 )
 
 KEEP_DAILY_WEEKS = 8
 """Daily counts per entry are kept on this PC this long, then deleted
 (decision 0041; polyglotic-hq DECISIONS.md #64 may change it)."""
+
+QUIET_SET = "quiet"
+"""The named word set the quiet view's chosen words are kept as (474's
+store hooks): what a later learning mode reads."""
+
+FROM_SERVER = "server"
+"""A status change's source in the history when it came from the server
+(set on another PC, or this one before)."""
+
+
+class LineSource(StrEnum):
+    """How the known line moved, in its history (474)."""
+
+    PICKED = "picked"  # a level picked
+    WORDS = "words"  # "I know about N words"
+    FIRST_KNOWN = "first_known"  # "Mark the first N words known" (342)
+    RESTORED = "restored"  # Undo or Reset after a quick mark
+
 
 KEEP_HEARING_MIN = 2
 """A word is in "words you keep hearing" once heard in this many captions
@@ -171,6 +214,7 @@ class Changed(StrEnum):
     EXPOSURES = "exposures"  # exposures, or the days' coverage or listening
     LOAD = "load"  # the learning load: its words, their stages, its rules
     SENTENCES = "sentences"  # saved sentences (459)
+    CURRICULUM = "curriculum"  # our curriculum's set, or the chosen words (477)
 
 
 @dataclass(frozen=True)
@@ -395,6 +439,11 @@ class Vocabulary:
         theirs (None: the scheme's middle level, `KnownLine.starting`) - a
         number of words for a language with no levels (decision 0175)."""
         self._store = store
+        self._day_of = day_of
+        self._level_words = level_words
+        self._window_size: WindowSize | None = None
+        """The learning window's size the learner chose for this language
+        (`set_window_size`); None: the default."""
         self._starting = starting or KnownLine.starting(default_scheme)
         self._facts = facts
         self._default_scheme = default_scheme
@@ -443,7 +492,12 @@ class Vocabulary:
         }
         self._exposures = {
             EntryId(e.entry_id): ExposureCount(
-                e.heard, e.heard_by_you, e.heard_in_deck, e.first_heard
+                e.heard,
+                e.heard_by_you,
+                e.heard_in_deck,
+                e.first_heard,
+                e.days_heard,
+                e.last_heard,
             )
             for e in data.exposures
         }
@@ -500,6 +554,9 @@ class Vocabulary:
             e for e, own in self._statuses.items() if self._one_click(e, own)
         ]:
             del self._statuses[entry_id]  # kept in the file; not evidence (397)
+        self.chances = KnownChances(self.knowledge, self._evidence, clock, day_of)
+        """How well the learner knows each word, 0 to 1 (polyglotic-hq 489,
+        decision 0226): Learning colours' captions and the map."""
         self.load = LearningLoad(
             data.load_words,
             LoadStore(store.save_load_words, store.delete_load_words),
@@ -512,6 +569,28 @@ class Vocabulary:
         """The learning load (polyglotic-hq 324): read it here; change it
         through `set_load_rules`, `check_word`, `add_to_load`,
         `add_next_to_load` and `set_aside_from_load`."""
+        self.curriculum = Curriculum(
+            data.curriculum_words,
+            CurriculumStore(store.save_curriculum_words, store.delete_curriculum_words),
+            self._facts_of,
+            self.could_be_in_load,
+            lambda: ((e, c.heard) for e, c in self._exposures.items()),
+            lambda after, limit: placed(after, limit, self.scheme) if placed else (),
+            lambda: 0 if self._estimating.by_level else self._estimating.known,
+            day_of,
+            reaches=lambda facts: self.learning_window.reaches(facts),
+            known_words=self._known_words,
+            known=self._knows,
+        )
+        """Our curriculum's active set (polyglotic-hq 477): on while the
+        quiet view's chosen words include it (`set_chosen`); the
+        conversation's words light in it (491), and retire once known
+        (496)."""
+        self._chosen: frozenset[ChosenWords] = frozenset()
+        self._quiet_set: dict[EntryId, StoredSetWord] = {
+            EntryId(w.entry_id): w for w in data.set_words if w.name == QUIET_SET
+        }
+        """The quiet view's chosen words as kept (`QUIET_SET`)."""
 
     def subscribe(self, listener: Listener) -> None:
         self._listeners.append(listener)
@@ -556,31 +635,64 @@ class Vocabulary:
         words (None: the default size), or every word past it."""
         return self._estimating.window(size)
 
+    @property
+    def learning_window(self) -> LearningWindow:
+        """The learning window at the size the learner chose for this
+        language (`set_window_size`): our curriculum's and the quiet view's
+        words at your edge (polyglotic-hq 496; 491 used the default)."""
+        return self.window(self._window_size)
+
+    def set_window_size(self, size: WindowSize | None) -> None:
+        """The learning window's size the learner chose for this language
+        (a setting, `LanguageChoices.window_size`; None: the default).
+        Words already in our curriculum's set stay; what enters next, and
+        which words are at your edge, follow it."""
+        self._window_size = size
+
+    def _known_words(self) -> int:
+        """About how many words the learner knows (0 if their line says
+        no number)."""
+        return self._estimating.words_known(self._level_words) or 0
+
     def set_level(self, level: Level) -> None:
         """The level picker's choice: words at or below `level` count as
         known from now on, unless the learner set them otherwise."""
-        self._set_line(KnownLine.picked(level))
+        self._set_line(KnownLine.picked(level), LineSource.PICKED)
 
-    def set_known_words(self, known: int) -> None:
+    def set_known_words(
+        self, known: int, source: LineSource = LineSource.WORDS
+    ) -> None:
         """ "I know about the `known` most common words": they count as
-        known from now on, unless the learner set them otherwise."""
-        self._set_line(KnownLine.words(known))
+        known from now on, unless the learner set them otherwise.
+        `source`: how, for the line's history."""
+        self._set_line(KnownLine.words(known), source)
 
     def restore_line(self, line: KnownLine | None) -> None:
         """The line as it was before a quick mark (`first_known`: Undo or
         Reset): `line`, or None - none set, words estimated at the
         starting level again. Statuses set by hand are kept, as always."""
-        self._set_line(line)
+        self._set_line(line, LineSource.RESTORED)
 
-    def _set_line(self, line: KnownLine | None) -> None:
+    def _set_line(self, line: KnownLine | None, source: LineSource) -> None:
         self._line = line
+        now = self._clock()
         if line is None:
             self._store.clear_level()
         else:
             self._store.save_level(StoredLevel(line.scale, line.midpoint))
+        self._store.add_line_change(
+            StoredLineChange(
+                line.scale if line else None,
+                line.midpoint if line else None,
+                source.value,
+                now,
+            )
+        )
         moved = self.load.line_moved()
-        if self.load.refill(self._clock()) or moved:
+        if self.load.refill(now) or moved:
             self._load_changed()
+        if self.curriculum.line_moved(now):
+            self._curriculum_changed()
         self._publish(VocabularyChanged(Changed.LEVEL))
 
     # -- statuses -------------------------------------------------------------------
@@ -628,17 +740,23 @@ class Vocabulary:
         the server as its own, but views hear of it once and the learning
         load refills once."""
         at = self._clock()
-        left = False
+        left = gone = False
+        history: list[StoredStatusChange] = []
         for entry_id in dict.fromkeys(entry_ids):
-            self._set_one(entry_id, status, source, at)
+            history.append(self._set_one(entry_id, status, source, at))
             left = self.load.status_set(entry_id, status, at) or left
+            gone = self.curriculum.status_set(entry_id, _leaves(status)) or gone
+        self._store.add_status_changes(history)
         self._publish(VocabularyChanged(Changed.STATUSES))
         if self.load.refill(at) or left:
             self._load_changed()
+        if gone:
+            self._curriculum_changed()
 
     def _set_one(
         self, entry_id: EntryId, status: WordStatus, source: StatusSource, at: datetime
-    ) -> None:
+    ) -> StoredStatusChange:
+        """Sets one word's status; what it changed, for the history."""
         before = self.status_of_entry(entry_id).status
         self._statuses[entry_id] = StatusRecord(status, source, at)
         self._store.save_status(StoredStatus(entry_id, status.value, source.value, at))
@@ -653,11 +771,162 @@ class Vocabulary:
             self._keep_lookups(entry_id, looked.said())  # the check starts again
         if source is not StatusSource.ESTIMATED:
             self._publish(WordStatusChanged(entry_id, status, at))
+        return StoredStatusChange(
+            entry_id, before.value, status.value, source.value, at
+        )
 
     # -- the learning load (polyglotic-hq 324) -------------------------------------
 
     def _load_changed(self) -> None:
-        self._publish(VocabularyChanged(Changed.LOAD, self.load.take_touched()))
+        touched = self.load.take_touched()
+        self._publish(VocabularyChanged(Changed.LOAD, touched))
+        if touched != frozenset() and ChosenWords.LOAD in self._chosen:
+            self._keep_chosen()
+
+    # -- the quiet view's chosen words, our curriculum (polyglotic-hq 477) -----------
+
+    def set_chosen(
+        self, chosen: frozenset[ChosenWords], curriculum_size: int, fill: bool = True
+    ) -> None:
+        """Which words the quiet view shows in blue - our curriculum's set,
+        the learning load's words, saved words - and the set's size. Our
+        curriculum is kept up only while it is chosen (the load's own
+        rules turn it on: `set_load_rules`). `fill` False: a set turned on
+        here fills at `fill_curriculum` - the app's start leaves that until
+        its window is up (polyglotic-hq 509)."""
+        size = curriculum_size if ChosenWords.CURRICULUM in chosen else None
+        moved = self.curriculum.set_size(size, self._clock(), fill)
+        if chosen == self._chosen and not moved:
+            return
+        self._chosen = chosen
+        self._curriculum_changed()
+
+    def fill_curriculum(self) -> None:
+        """Our curriculum's set brought up to its size now, if it's on: the
+        words heard most first, then the load's order (`Curriculum.fill`).
+        It looks through every word heard - 30,000 met took 31 ms on the
+        main PC at the start (polyglotic-hq 509) - so the app does this
+        after its window is up, not as it starts."""
+        if self.curriculum.fill(self._clock()):
+            self._curriculum_changed()
+
+    @property
+    def chosen_words(self) -> frozenset[ChosenWords]:
+        return self._chosen
+
+    def chosen(self, word: EntryFacts) -> bool:
+        """Whether the word is among the quiet view's chosen words: in what's
+        chosen of our curriculum's set, the load, saved words and words at
+        your edge (saved words are found in a line by `saved_spans`, by
+        their forms too). A caption shows them as `lit` says."""
+        return self._chosen_set(word) or (
+            ChosenWords.EDGE in self._chosen and self.at_edge(word)
+        )
+
+    def lit(
+        self, words: Sequence[EntryFacts], capitalised: Collection[int] = ()
+    ) -> set[int]:
+        """Which of a caption's words (in order) the quiet view shows in
+        blue, by their places in `words`: every word of our curriculum's
+        set, the load and saved words that's chosen; and words at your edge
+        while the caption has fewer than `EDGE_PER_CAPTION` blue words, the
+        commonest first (polyglotic-hq 496). `capitalised`: the places of
+        words written with a capital inside their sentence - in a language
+        whose capitals there mark only names (`names_capitalised`: "Agency"
+        of the Central Intelligence Agency) such a word is part of a name,
+        never lit as at your edge. A word said as a name here (`is_name`:
+        万里 of 黄万里) is never blue, whatever set holds the word."""
+        blue = {
+            n
+            for n, word in enumerate(words)
+            if not word.is_name and self._chosen_set(word)
+        }
+        if ChosenWords.EDGE not in self._chosen:
+            return blue
+        edge = sorted(
+            (
+                n
+                for n, word in enumerate(words)
+                if n not in blue
+                and not (n in capitalised and word.names_capitalised)
+                and self.at_edge(word)
+            ),
+            key=lambda n: (place(words[n]) is None, place(words[n]) or 0, n),
+        )
+        for n in edge:
+            if len(blue) >= EDGE_PER_CAPTION:
+                break
+            blue.add(n)
+        return blue
+
+    def _chosen_set(self, word: EntryFacts) -> bool:
+        """In what's chosen of the three sets: our curriculum's, the load's
+        and saved words."""
+        chosen = self._chosen
+        entry_id = word.entry_id
+        return (
+            (ChosenWords.CURRICULUM in chosen and self.curriculum.active(entry_id))
+            or (ChosenWords.LOAD in chosen and self.load.stage(entry_id) is not None)
+            or (ChosenWords.SAVED in chosen and entry_id in self._saved)
+        )
+
+    def at_edge(self, word: EntryFacts) -> bool:
+        """Whether the word is at the learner's edge (polyglotic-hq 496):
+        in their learning window (`learning_window` reaches it) and new or
+        in the deck - never a name, a number (in numerals or spelled out),
+        everyday talk or a filler (`theme.everyday`), or a word heard so
+        often they know it (`theme.known_by_speech`): 491's filters."""
+        if word.is_name or word.is_number or word.spells_a_number:
+            return False
+        if everyday(word) or known_by_speech(word, self._known_words()):
+            return False
+        return self.learning_window.reaches(word) and self.could_be_in_load(word)
+
+    def _knows(self, word: EntryFacts) -> bool:
+        """Whether the learner knows the word now: its chance is green
+        (polyglotic-hq 489's `KnownChances`, 0.85 or more)."""
+        found = self.chances.of(word)
+        return found is not None and found.band is Band.MASTERED
+
+    def _curriculum_changed(self) -> None:
+        self._publish(VocabularyChanged(Changed.CURRICULUM))
+        self._keep_chosen()
+
+    def _chosen_now(self) -> dict[EntryId, tuple[str, ...]]:
+        """The chosen words now, each with where it came from."""
+        found: dict[EntryId, list[str]] = {}
+        chosen = self._chosen
+        if ChosenWords.CURRICULUM in chosen and self.curriculum.on:
+            for word in self.curriculum.members():
+                found.setdefault(word.entry_id, []).append(ChosenWords.CURRICULUM)
+        if ChosenWords.LOAD in chosen and self.load.on:
+            for loaded in self.load.members():
+                found.setdefault(loaded.entry_id, []).append(ChosenWords.LOAD)
+        if ChosenWords.SAVED in chosen:
+            for entry_id in self._saved:
+                found.setdefault(entry_id, []).append(ChosenWords.SAVED)
+        return {e: tuple(sources) for e, sources in found.items()}
+
+    def _keep_chosen(self) -> None:
+        """The named word set `QUIET_SET` brought into step with the chosen
+        words: only what changed is written."""
+        now_ = self._chosen_now()
+        kept = self._quiet_set
+        gone = [e for e in kept if e not in now_]
+        at = self._clock()
+        changed = [
+            StoredSetWord(QUIET_SET, e, sources, kept[e].added_at if e in kept else at)
+            for e, sources in now_.items()
+            if e not in kept or kept[e].sources != sources
+        ]
+        for entry_id in gone:
+            del kept[entry_id]
+        for word in changed:
+            kept[EntryId(word.entry_id)] = word
+        if gone:
+            self._store.delete_set_words(QUIET_SET, gone)
+        if changed:
+            self._store.save_set_words(changed)
 
     def could_be_in_load(self, facts: EntryFacts) -> bool:
         """Whether a word may be in the load: not a name, and new or in
@@ -1054,6 +1323,7 @@ class Vocabulary:
             for what in (Changed.STATUSES, Changed.SAVED_WORDS, Changed.EXPOSURES):
                 self._publish(VocabularyChanged(what))
             self._load_changed()
+            self._curriculum_changed()
         return moved
 
     def _move(self, old_id: EntryId, new_id: EntryId) -> None:
@@ -1105,6 +1375,12 @@ class Vocabulary:
                             (d for d in (into.first_heard, count.first_heard) if d),
                             default=None,
                         ),
+                        # the days of each may be the same: the more of the two
+                        max(into.days_heard, count.days_heard),
+                        max(
+                            (d for d in (into.last_heard, count.last_heard) if d),
+                            default=None,
+                        ),
                     )
                 },
                 [],
@@ -1113,6 +1389,8 @@ class Vocabulary:
         if looked is not None:
             self._keep_lookups(new_id, looked.joined(self.lookups(new_id)))
         self.load.moved(old_id, new_id)
+        self.curriculum.moved(old_id, new_id)
+        self._quiet_set.pop(old_id, None)  # brought into step below
         self._store.forget_entry(old_id)
 
     # -- learning data from the server, and deleting it --------------------------------
@@ -1150,14 +1428,22 @@ class Vocabulary:
                     event.entry_id, event.status, event.at
                 ):
                     changed.add(Changed.LOAD)
+                if isinstance(event, WordStatusChanged) and self.curriculum.status_set(
+                    event.entry_id, _leaves(event.status)
+                ):
+                    changed.add(Changed.CURRICULUM)
         if Changed.STATUSES in changed and self.load.refill(self._clock()):
             changed.add(Changed.LOAD)
         if Changed.SAVED_WORDS in changed:
             self._matcher = SavedWordMatcher(self._saved.values())
-        for what in sorted(changed - {Changed.LOAD}):
+        for what in sorted(changed - {Changed.LOAD, Changed.CURRICULUM}):
             self._publish(VocabularyChanged(what))
         if Changed.LOAD in changed:
             self._load_changed()
+        if Changed.CURRICULUM in changed:
+            self._curriculum_changed()
+        elif Changed.SAVED_WORDS in changed:
+            self._keep_chosen()
         return count
 
     def _status_from_server(self, event: WordStatusChanged) -> bool:
@@ -1169,6 +1455,18 @@ class Vocabulary:
         ):
             return False
         source = StatusSource.LEARNER
+        before = self.status_of_entry(event.entry_id).status
+        self._store.add_status_changes(
+            [
+                StoredStatusChange(
+                    event.entry_id,
+                    before.value,
+                    event.status.value,
+                    FROM_SERVER,
+                    event.at,
+                )
+            ]
+        )
         self._statuses[event.entry_id] = StatusRecord(event.status, source, event.at)
         if event.status is not WordStatus.LEARNING:
             self._leave_deck(event.entry_id)
@@ -1251,6 +1549,8 @@ class Vocabulary:
         self._saved_sentences = SentenceSearch()
         self.load.clear()
         self.load.refill(self._clock())  # the mode still on: a new load
+        self._quiet_set.clear()
+        self.curriculum.clear(self._clock())  # chosen still: a new set
         for what in (
             Changed.STATUSES,
             Changed.SAVED_WORDS,
@@ -1259,6 +1559,7 @@ class Vocabulary:
         ):
             self._publish(VocabularyChanged(what))
         self._load_changed()
+        self._curriculum_changed()
 
     def take_finished_exposure_days(self, today: date) -> dict[date, Mapping[str, int]]:
         """The daily counts of every UTC day before `today` not handed over
@@ -1368,12 +1669,19 @@ class Vocabulary:
         return self._matcher.spans(line, words)
 
     def caption_finished(
-        self, caption_id: str, words: Sequence[WordInLine], by_you: bool
+        self,
+        caption_id: str,
+        words: Sequence[WordInLine],
+        by_you: bool,
+        source: str = "",
+        forms: Sequence[str] = (),
     ) -> None:
         """Counts a finished caption's words as exposures and towards the
         day's coverage (by their statuses now), once per caption (a join
         finishing it again counts only the difference). `by_you`: from the
-        user's own mic - no coverage."""
+        user's own mic - no coverage. `source`: the source it came from,
+        `forms`: each word as said - for our curriculum's conversation
+        words (polyglotic-hq 491)."""
         now = self._clock()
         day = now.date()
         covered = Coverage() if by_you else coverage_of(words, self._status_now)
@@ -1385,8 +1693,13 @@ class Vocabulary:
         # again as the user's own speech takes back what it counted
         if self.load.caption_finished(caption_id, () if by_you else words, now):
             self._load_changed()
+        if not by_you and self.curriculum.caption_finished(
+            words, now, caption_id, source, forms
+        ):
+            self._curriculum_changed()
 
     def caption_withdrawn(self, caption_id: str) -> None:
+        self.curriculum.caption_withdrawn(caption_id)
         self._counted(
             self._covering.withdrawn(caption_id), self._counter.withdrawn(caption_id)
         )
@@ -1449,12 +1762,15 @@ class Vocabulary:
         if not changes:
             return
         counts: dict[EntryId, ExposureCount] = {}
+        today = self._day_of(self._clock())
         for change in changes:
             count = counts.get(change.entry_id) or self.exposures(change.entry_id)
             in_deck = (
                 self.status_of_entry(change.entry_id).status is WordStatus.LEARNING
             )
-            counts[change.entry_id] = exposure_rules.apply(count, change, in_deck)
+            counts[change.entry_id] = exposure_rules.apply(
+                count, change, in_deck, today
+            )
         self._save_counts(counts, [c for c in changes if not c.by_you])
 
     def _save_counts(
@@ -1468,11 +1784,60 @@ class Vocabulary:
         self._store.save_exposures(
             [
                 StoredExposures(
-                    e, c.heard, c.heard_by_you, c.heard_in_deck, c.first_heard
+                    e,
+                    c.heard,
+                    c.heard_by_you,
+                    c.heard_in_deck,
+                    c.first_heard,
+                    c.days_heard,
+                    c.last_heard,
                 )
                 for e, c in counts.items()
             ],
             daily,
+        )
+
+    def _evidence(self, entry_id: EntryId) -> Evidence:
+        """What the learner did with a word, for `chances`."""
+        heard = self._exposures.get(entry_id)
+        looked = self._lookups.get(entry_id)
+        saved = self._saved.get(entry_id)
+        if heard is None and looked is None and saved is None:
+            return NO_EVIDENCE
+        return Evidence(
+            heard.days_heard if heard else 0,
+            heard.last_heard if heard else None,
+            looked,
+            saved is not None,
+            saved.saved_at if saved else None,
+        )
+
+    def chances_as_of(self, at: datetime) -> KnownChances:
+        """How well each word was known at `at` - a week ago, for the map's
+        "this week" (polyglotic-hq 489): the statuses and the line rebuilt
+        from their histories, the days heard less those with a daily count
+        since, lookups and saves made since left out (`known_map`)."""
+        today = self._clock().date()
+        heard_since: dict[EntryId, int] = {}
+        day = at.date()  # the UTC days from `at`'s on: this week's
+        while day <= today:
+            for entry_id, count in self._store.daily_exposures(day).items():
+                if count > 0:
+                    key = EntryId(entry_id)
+                    heard_since[key] = heard_since.get(key, 0) + 1
+            day += timedelta(days=1)
+        line = line_then(self._line, self._store.line_changes(), at)
+        knowledge = Knowledge(
+            statuses_then(self._statuses, self._store.status_changes(), at),
+            lambda: line,
+            self._starting,
+            self._level_words,
+        )
+        return KnownChances(
+            knowledge,
+            evidence_then(self._evidence, heard_since, at, self._day_of(at)),
+            lambda: at,
+            self._day_of,
         )
 
     def exposures(self, entry_id: EntryId) -> ExposureCount:
@@ -1598,6 +1963,11 @@ class Vocabulary:
         if own is not None:
             return own.status
         return estimated_status(facts, self._estimating) if facts else WordStatus.NEW
+
+
+def _leaves(status: WordStatus) -> bool:
+    """A status that takes a word out of our curriculum's set."""
+    return status in (WordStatus.KNOWN, WordStatus.IGNORED)
 
 
 def _latest_first(found: tuple[datetime | None, EntryId]) -> tuple[float, str]:

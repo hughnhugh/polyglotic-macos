@@ -42,15 +42,19 @@ from polyglotic_desktop.ports.learning import (
     StoredAnkiExport,
     StoredCategory,
     StoredCoverage,
+    StoredCurriculumWord,
     StoredDeckWord,
     StoredExposures,
     StoredLevel,
+    StoredLineChange,
     StoredListening,
     StoredLoadWord,
     StoredLookups,
     StoredSavedWord,
     StoredSentence,
+    StoredSetWord,
     StoredStatus,
+    StoredStatusChange,
 )
 
 log = logging.getLogger(__name__)
@@ -118,6 +122,12 @@ class BackgroundLearningStore:
     def exposure_days(self) -> Sequence[date]:
         return self._read(self._store.exposure_days, [])
 
+    def status_changes(self) -> Sequence[StoredStatusChange]:
+        return self._read(self._store.status_changes, [])
+
+    def line_changes(self) -> Sequence[StoredLineChange]:
+        return self._read(self._store.line_changes, [])
+
     def days_to_hand_over(self) -> Sequence[date]:
         return self._read(self._store.days_to_hand_over, [])
 
@@ -183,6 +193,24 @@ class BackgroundLearningStore:
 
     def delete_load_words(self, entry_ids: Sequence[str]) -> None:
         self._write(self._store.delete_load_words, tuple(entry_ids))
+
+    def save_curriculum_words(self, words: Sequence[StoredCurriculumWord]) -> None:
+        self._write(self._store.save_curriculum_words, tuple(words))
+
+    def delete_curriculum_words(self, entry_ids: Sequence[str]) -> None:
+        self._write(self._store.delete_curriculum_words, tuple(entry_ids))
+
+    def add_status_changes(self, changes: Sequence[StoredStatusChange]) -> None:
+        self._write(self._store.add_status_changes, tuple(changes))
+
+    def add_line_change(self, change: StoredLineChange) -> None:
+        self._write(self._store.add_line_change, change)
+
+    def save_set_words(self, words: Sequence[StoredSetWord]) -> None:
+        self._write(self._store.save_set_words, tuple(words))
+
+    def delete_set_words(self, name: str, entry_ids: Sequence[str]) -> None:
+        self._write(self._store.delete_set_words, name, tuple(entry_ids))
 
     def save_lookups(self, lookups: StoredLookups) -> None:
         self._write(self._store.save_lookups, lookups)

@@ -43,9 +43,9 @@ from polyglotic_desktop.ui_next.views.lab import (
     Fill,
     Join,
     Loading,
-    LoadRare,
     NewFade,
     OwnLabel,
+    Palette,
     Placing,
     Unfinished,
 )
@@ -536,16 +536,15 @@ class LabPanel(Panel):
         )
 
     def _learning_load(self) -> None:
-        """The learning load's viewing mode (324): on or off, and how the
-        words outside the load look. Its words and its rules are on
-        Learning."""
+        """Learning load's viewing mode (324, 489): on or off, and its
+        colours. The load's words and its rules are on Learning."""
         self.load = SwitchRow(
             _tr("Learning load"),
             _tr(
-                "A set number of the next words past what you know, each "
-                "coloured by how often you have heard it since: red, orange, "
-                "yellow, green, then ready to check. In place of the marks under "
-                "new words. Its words and settings are on Learning."
+                "Every word in a colour by how well you know it: red, never "
+                "met or far past what you know; the colours between, words you "
+                "have heard or partly know; green, mastered. In place of the "
+                "marks under new words."
             ),
             "lab.load",
         )
@@ -562,23 +561,23 @@ class LabPanel(Panel):
         self.to_load.setContentsMargins(INSET, 0, 0, 0)
         self.to_load.linkActivated.connect(lambda _: self.load_wanted.emit())
         self.add(self.to_load)
-        self.load_rare = Segmented(
+        self.load_colours = Segmented(
             [
-                (LoadRare.NORMAL, _tr("As now")),
-                (LoadRare.DIMMED, _tr("Dimmed")),
+                (Palette.RED_GREEN, _tr("Red to green")),
+                (Palette.ORANGE_BLUE, _tr("Orange to blue")),
             ]
         )
-        self.load_rare.setObjectName("lab.load_rare")
-        self.load_rare.changed.connect(lambda v: self._set(load_rare=LoadRare(v)))
+        self.load_colours.setObjectName("lab.load_colours")
+        self.load_colours.changed.connect(lambda v: self._set(load_colours=Palette(v)))
         self.add(
             Row(
-                _tr("Words outside the load"),
+                _tr("Its colours"),
                 _tr(
-                    "Rarer words you don't know yet, in Learning load: as now, or "
-                    "dimmed so the load's words stand out. Dimmed turns Learning "
-                    "load on."
+                    "Red to green, or orange to blue if red and green look alike "
+                    "to you. Both go from darker to lighter as you know a word "
+                    "better. Choosing one turns Learning load on."
                 ),
-                _left(self.load_rare),
+                _left(self.load_colours),
             )
         )
 
@@ -625,7 +624,7 @@ class LabPanel(Panel):
         # as the switches above: Packed where New layout is off (its value kept)
         self.placing.set_value(lab.placing if lab.flow else Placing.PACKED)
         self.load.switch.set_quietly(lab.load)
-        self.load_rare.set_value(lab.load_rare if lab.load else LoadRare.NORMAL)
+        self.load_colours.set_value(lab.load_colours)
         self.to_load.setVisible(lab.load)
         self.arrival_gap.show_value(
             lab.arrival_gap,

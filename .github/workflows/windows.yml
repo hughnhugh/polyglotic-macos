@@ -1,6 +1,6 @@
 # The two Windows jobs, Checks (Windows) and UI lab (Windows): the heavy
-# part of CI, on the PC's two Windows runners (decision 0025), about 20-30
-# minutes each. Called, not run on its own (decision 0167, polyglotic-hq
+# part of CI, on the self-hosted Windows runners (decision 0025), about 20-30
+# minutes each; Checks on any runner labelled `checks` (decision 0232). Called, not run on its own (decision 0167, polyglotic-hq
 # 379, the release train):
 # - by ci.yml on a push to main, on a pull request labelled `train` (Claude's
 #   train branch, which combines ready pull requests), and when run by hand
@@ -24,8 +24,12 @@ jobs:
     # On the user's PC, as the runner's own standard Windows account, not
     # the user (a self-hosted runner: polyglotic-hq project 069, decision
     # 0025 and its 2026-11-06 amendments). Never for outside contributors.
-    runs-on: [self-hosted, windows]
-    timeout-minutes: 20
+    # On any runner labelled `checks` (decision 0232): the user's PC's
+    # today, and the second PC's (polyglotic-hq 504), which carries only
+    # labels of its own - never self-hosted or windows - so it takes no
+    # other job. 30 minutes: its pytest took 16 there, 12-13 here.
+    runs-on: [checks]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

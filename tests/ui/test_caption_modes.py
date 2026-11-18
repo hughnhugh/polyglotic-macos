@@ -6,16 +6,18 @@ versions), and in what the speech pipeline follows (the Timing panel:
 tests/ui_next)."""
 
 import pytest
+from tests.ui.fakes import MemorySettingsStore
 
 from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
 from polyglotic_desktop.core.listening.timing import (
+    LIVE_UPDATE_INTERVAL_SEC,
     MAX_WAIT_FOR_TEXT_SEC,
     PREVIEW_AFTER_SEC,
     CaptionMode,
     CaptionTiming,
 )
 from polyglotic_desktop.platform.speech_pipeline import SpeechPipeline
-from polyglotic_desktop.ui.settings import AppSettings
+from polyglotic_desktop.ui.settings import FOLLOW_DEFAULT, AppSettings, Settings
 
 
 def test_a_new_install_has_steady() -> None:
@@ -81,16 +83,17 @@ def test_settings_before_176_keep_only_a_mode_that_was_chosen(
 @pytest.mark.parametrize(
     ("stored", "chosen", "interval"),
     [
-        # never changed: the old default interval wasn't a choice
-        ({"live_update_interval": 1.5}, None, 1.5),
+        # never changed: the old default interval wasn't a choice - today's
+        # default (1.0 s since polyglotic-hq 494)
+        ({"live_update_interval": 1.5}, None, LIVE_UPDATE_INTERVAL_SEC),
         # Off - finished captions only - was: Steady is the nearest mode
-        ({"live_update_interval": None}, CaptionMode.STEADY, 1.5),
+        ({"live_update_interval": None}, CaptionMode.STEADY, LIVE_UPDATE_INTERVAL_SEC),
         # another interval was chosen: it stays, with Live updates
         ({"live_update_interval": 0.5}, CaptionMode.LIVE, 0.5),
         ({"live_update_interval": 10.0}, CaptionMode.LIVE, 10.0),
         # nothing valid to go on: the default
-        ({"live_update_interval": "fast"}, None, 1.5),
-        ({"live_update_interval": 99.0}, None, 1.5),
+        ({"live_update_interval": "fast"}, None, LIVE_UPDATE_INTERVAL_SEC),
+        ({"live_update_interval": 99.0}, None, LIVE_UPDATE_INTERVAL_SEC),
     ],
 )
 def test_settings_from_before_modes_keep_only_an_interval_that_was_chosen(
@@ -180,3 +183,65 @@ def test_how_long_text_may_still_change_is_3s_and_kept_within_0_to_3s() -> None:
     for wrong in (-1.0, 3.5, "1", None):
         stored = {"text_settles_after": wrong}
         assert AppSettings.from_stored(stored).text_settles_after == 3.0
+
+
+# -- Live updates every 1.0 s (polyglotic-hq 494, DECISIONS.md #211) ---------------
+
+
+def test_live_updates_come_every_second_by_default() -> None:
+    assert LIVE_UPDATE_INTERVAL_SEC == 1.0
+    assert AppSettings().live_update_interval == 1.0
+    assert (
+        CaptionMode.LIVE.live_update_interval(AppSettings().live_update_interval) == 1.0
+    )
+
+
+@pytest.mark.parametrize(
+    ("stored", "interval"),
+    [
+        # saved before 494, at the old default: it follows today's
+        ({"caption_mode_chosen": "live", "live_update_interval": 1.5}, 1.0),
+        # saved before 494, chosen: it stays
+        ({"caption_mode_chosen": "live", "live_update_interval": 2.0}, 2.0),
+        ({"caption_mode_chosen": "live", "live_update_interval": 0.5}, 0.5),
+        # saved since, with the record of changes (478): 1.5 changed on this
+        # PC is a choice and stays
+        (
+            {
+                "caption_mode_chosen": "live",
+                "live_update_interval": 1.5,
+                "changed": ["caption_mode_chosen", "live_update_interval"],
+            },
+            1.5,
+        ),
+        # never changed, saved under some other default: today's
+        (
+            {
+                "caption_mode_chosen": "live",
+                "live_update_interval": 0.75,
+                "changed": ["caption_mode_chosen"],
+            },
+            1.0,
+        ),
+    ],
+)
+def test_an_interval_left_at_its_default_follows_todays(
+    stored: dict[str, object], interval: float
+) -> None:
+    value = AppSettings.from_stored({"learning": "zh", **stored})
+    assert value.live_update_interval == interval
+    assert value.caption_mode_chosen == "live"
+
+
+def test_an_interval_follows_the_default_until_changed() -> None:
+    """On the record of changes, as the switches that follow the default
+    (`FOLLOW_DEFAULT`, decision 0220; 506)."""
+    assert "live_update_interval" in FOLLOW_DEFAULT
+    store = MemorySettingsStore({})
+    settings = Settings(store)
+    settings.update(opacity=0.6)
+    untouched = {**store.values, "live_update_interval": 0.75}  # a later default
+    assert AppSettings.from_stored(untouched).live_update_interval == 1.0
+    settings.update(live_update_interval=1.5)
+    assert store.values["changed"] == ["opacity", "live_update_interval"]
+    assert AppSettings.from_stored(store.values).live_update_interval == 1.5

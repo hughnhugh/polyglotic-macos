@@ -27,10 +27,15 @@ Learning have them.
 import logging
 import time
 from collections import deque
+from collections.abc import Sequence
 
 from PySide6.QtCore import QObject, Qt, Signal, Slot
 
-from polyglotic_desktop.core.listening.captions import CaptionKind, CaptionUpdate
+from polyglotic_desktop.core.listening.captions import (
+    CaptionKind,
+    CaptionUpdate,
+    Clause,
+)
 from polyglotic_desktop.core.listening.delays import (
     CAPTION_LOG,
     delay,
@@ -111,10 +116,10 @@ class CaptionFeed(QObject):
                 if other is not ours or not ours.learns(caption.language):
                     other.vocabulary.caption_withdrawn(caption_id)
             if ours.learns(caption.language):
-                words: list[WordInLine] = []
-                for clause in caption.clauses:
-                    words += ours.words_in(clause.original)
-                ours.vocabulary.caption_finished(caption_id, words, caption.by_you)
+                words, forms = _words_said(ours, caption.clauses)
+                ours.vocabulary.caption_finished(
+                    caption_id, words, caption.by_you, caption.source_id, forms
+                )
         self.changed.emit()
         self.checked.emit(caption_id, result)
 
@@ -187,9 +192,39 @@ class CaptionFeed(QObject):
                 each.vocabulary.caption_withdrawn(update.caption_id)
         if not heard:
             return
-        words: list[WordInLine] = []
-        for clause in update.clauses:
-            words += ours.words_in(clause.original)
+        words, forms = _words_said(ours, update.clauses)
         ours.vocabulary.caption_finished(
-            update.caption_id, words, self.history.is_yours(update.source_id)
+            update.caption_id,
+            words,
+            self.history.is_yours(update.source_id),
+            update.source_id,
+            forms,
         )
+
+
+def _said(clause: Clause) -> list[tuple[int, int, str]]:
+    """What the clause's translations say for its linked words: each
+    linked word's span and the words it is linked to."""
+    found: list[tuple[int, int, str]] = []
+    for target, links in clause.links.items():
+        meant = clause.translations.get(target)
+        if meant:
+            for link in links:
+                start, end = link.translation
+                found.append((*link.original, meant[start:end]))
+    return found
+
+
+def _words_said(
+    tools: LearningTools, clauses: Sequence[Clause]
+) -> tuple[list[WordInLine], list[str]]:
+    """A caption's dictionary words, clause by clause, and each as it was
+    said (our curriculum's look-alikes, polyglotic-hq 491). A word its
+    translation writes by its sound is a name (496)."""
+    words: list[WordInLine] = []
+    forms: list[str] = []
+    for clause in clauses:
+        found = tools.words_in(clause.original, said=_said(clause))
+        words += found
+        forms += [clause.original[w.start : w.end] for w in found]
+    return words, forms

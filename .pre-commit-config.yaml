@@ -8,8 +8,9 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files
-        # The speech-detection model, committed on purpose (decision 0003).
-        exclude: ^src/polyglotic_desktop/platform/data/silero_vad_16k_op15\.onnx$
+        # The speech-detection model (decision 0003) and Simplified Chinese's
+        # caption face (decision 0223), committed on purpose.
+        exclude: ^src/polyglotic_desktop/(platform/data/silero_vad_16k_op15\.onnx|ui/assets/fonts/NotoSansSC-Medium\.ttf)$
       - id: check-merge-conflict
       - id: check-json
       - id: check-toml

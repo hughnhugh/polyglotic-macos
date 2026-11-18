@@ -129,11 +129,12 @@ def test_a_recorded_word_is_played_and_the_rest_fall_to_the_pcs_voice(
     assert recordings.has(ours, "homme") and not recordings.has(ours, "femme")
     # recorded: played, the PC's voice not asked
     assert voices.synthesize("homme", ours, 1.0).rate == RATE and not os_voices.asked
-    # slower: the PC's French voice says it (a recording slowed drops in pitch)
-    voices.synthesize("homme", ours, 0.7)
+    # at any pace: the recording, never the PC's voice (518: the same sound
+    # at every press)
+    assert voices.synthesize("homme", ours, 0.7).rate == RATE and not os_voices.asked
     # not recorded: the PC's French voice
     voices.synthesize("femme", ours, 1.0)
-    assert os_voices.asked == [("homme", "os-fr", 0.7), ("femme", "os-fr", 1.0)]
+    assert os_voices.asked == [("femme", "os-fr", 1.0)]
     # a PC with no French voice: the recording at its own pace; nothing for the rest
     alone = RecordedVoices(OsVoices(ZIRA), recordings)
     assert alone.synthesize("homme", ours, 0.7).rate == RATE

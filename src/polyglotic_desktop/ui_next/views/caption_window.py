@@ -42,6 +42,8 @@ from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
 
+from polyglotic_desktop.core.learning.curriculum import DEFAULT_CHOSEN, ChosenWords
+from polyglotic_desktop.core.learning.curriculum import DEFAULT_SIZE as CURRICULUM_SIZE
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import (
@@ -425,6 +427,18 @@ def rect_from(value: object) -> Rect | None:
     return None
 
 
+class TextEdge(StrEnum):
+    """What's drawn around captions' letters (Visibility; polyglotic-hq
+    481): `views.tone.EDGE_PASSES` says how."""
+
+    NONE = "none"
+    """Nothing: the panel alone keeps them readable (today's)."""
+    SHADOW = "shadow"
+    """A soft shadow down and to the right."""
+    OUTLINE = "outline"
+    """An outline all round: the most readable over a busy, bright video."""
+
+
 @dataclass(frozen=True, slots=True)
 class CaptionLook:
     """How every caption window looks (the Look panel; today's Captions
@@ -437,6 +451,12 @@ class CaptionLook:
     original: str = "#ffffff"
     translation: str = "#ffd76e"
     font: str | None = None
+    """The learner's font for every language's captions before 482 (one
+    Font row): still each language's without a face of its own (`faces`)."""
+    faces: tuple[tuple[str, str], ...] = ()
+    """Each captioned language's face, by its code ("zh", "zh-hant" for
+    Mandarin shown in Traditional): a family, or "" for the language's
+    default (Look's rows, polyglotic-hq 482; `face_chosen`)."""
     show_original: bool = True
     show_language: bool = True
     show_source: bool = True
@@ -485,6 +505,20 @@ class CaptionLook:
     said_in_link_colours: bool = True
     """Linked words in what was said take their link's colour, as their
     underline has (395)."""
+    quiet: bool = False
+    """The quiet view (polyglotic-hq 477; the user, 2026-11-18: "the quiet
+    alternative of all word links and underlines removed"): every caption
+    mode in Quick preview's grey and gold, italic and a size step bigger,
+    a reading over every word, and only the chosen words (`quiet_words`)
+    in blue - no underlines, no link colours, no arrows; a word's partner
+    shows on hover. On with word links off, and the reverse
+    (`views.panels.quiet_view`)."""
+    quiet_words: frozenset[ChosenWords] = DEFAULT_CHOSEN
+    """Which words the quiet view shows in blue: the union of what's
+    ticked - our curriculum (the default), the learning load, saved words
+    (DECISIONS #201)."""
+    curriculum_size: int = CURRICULUM_SIZE
+    """How many words our curriculum's active set holds (473: 50)."""
     translation_in_link_colours: bool = True
     """Linked words in the translation take their link's colour - each on
     its own (431: the user, 2026-11-17, "toggleable separately"). With
@@ -492,6 +526,26 @@ class CaptionLook:
     translation all match. Both on by default (the user, 2026-11-17, 446:
     "default this setting to be on"): with word links off they change
     nothing."""
+    contrast: int = 0
+    """How strongly captions stand out from their panel: soft (-100,
+    towards Quick preview's faintness) to crisp (100, every line at full
+    ink); 0 is the look as it was (`views.tone`; polyglotic-hq 481)."""
+    vibrance: int = 0
+    """How vivid captions' colours are: muted (-100) to vivid (100); 0 is
+    the look as it was (`views.tone.vibrant`; 481)."""
+    thickness: int = 500
+    """The captions' font weight (`views.tone.THICKNESSES`): Medium, 500,
+    as they've always asked for (481)."""
+    edge: TextEdge = TextEdge.NONE
+    """What's drawn around the letters (Visibility, `views.tone.TextEdge`):
+    nothing, as always (481)."""
+
+
+def face_chosen(look: CaptionLook, language: str) -> str | None:
+    """The face the learner chose for `language`'s captions: its own row's
+    (`faces`), else the one font chosen for every language before 482;
+    None for the language's default."""
+    return dict(look.faces).get(language, look.font or "") or None
 
 
 INTRO_SEC = 8.0

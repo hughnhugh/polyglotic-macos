@@ -57,6 +57,7 @@ from polyglotic_desktop.core.lexicon.pack_download import (
 from polyglotic_desktop.core.lexicon.packs import (
     RIDER_SUFFIXES,
     BuiltIn,
+    FontOffer,
     InstalledPack,
     PackOffer,
     Reader,
@@ -219,7 +220,8 @@ class PackFolder:
             return []
         return sorted(
             path
-            for suffix in RIDER_SUFFIXES.values()
+            for suffixes in RIDER_SUFFIXES.values()
+            for suffix in suffixes
             for path in self.folder.glob(f"{dictionary}-*{suffix}")
         )
 
@@ -229,7 +231,7 @@ class PackFolder:
         a pack's update brought new ones."""
         newest: dict[tuple[str, str], tuple[tuple[int, ...], Path]] = {}
         every: list[tuple[tuple[str, str], Path]] = []
-        for suffix in RIDER_SUFFIXES.values():
+        for suffix in (s for suffixes in RIDER_SUFFIXES.values() for s in suffixes):
             for path in (
                 sorted(self.folder.glob(f"*{suffix}")) if self.folder.is_dir() else ()
             ):
@@ -269,6 +271,9 @@ class Wanted:
     built_in: str = ""
     """A dictionary built into the app (`cedict`): its riders, not a pack
     (decision 0197) - always quietly, as an update is."""
+    font: str = ""
+    """A caption face (`notosanstc`): its riders, not a pack (polyglotic-hq
+    482) - each step said, as a pack's are."""
 
 
 class PackDeliveries:
@@ -290,7 +295,7 @@ class PackDeliveries:
             [tuple[PackOffer, ...] | None, Problem | None], None
         ] = lambda _o, _p: None,
         on_rider: Callable[
-            [PackOffer | BuiltIn, Rider, Path], None
+            [PackOffer | BuiltIn | FontOffer, Rider, Path], None
         ] = lambda _o, _r, _p: None,
         metered: Callable[[], bool] = lambda: False,
         open_url: OpenUrl | None = None,
@@ -331,6 +336,11 @@ class PackDeliveries:
         )
         self._thread.start()
 
+    @property
+    def fonts(self) -> tuple[FontOffer, ...]:
+        """The caption faces the list last read offers (polyglotic-hq 482)."""
+        return self._packs.fonts
+
     # -- asked from any thread ------------------------------------------------
 
     def refresh(self) -> None:
@@ -344,9 +354,12 @@ class PackDeliveries:
         metered_ok: bool = False,
         update: bool = False,
         built_in: str = "",
+        font: str = "",
     ) -> None:
         """`language`'s pack in `meanings`; with `built_in` (a dictionary's
-        name), that built-in dictionary's riders instead, quietly."""
+        name), that built-in dictionary's riders instead, quietly; with
+        `font` (a caption face's name), its files, `language` naming the
+        download (`font_download`)."""
         update = update or bool(built_in)
         with self._lock:
             self._cancelled.discard(language)
@@ -366,7 +379,7 @@ class PackDeliveries:
             # (329's QA: "Waiting for another dictionary" with none ahead)
             step = Step.WAITING if ahead else Step.LIST
             self._progress(PackProgress(language, step))
-        self._queue.put(Wanted(language, meanings, metered_ok, update, built_in))
+        self._queue.put(Wanted(language, meanings, metered_ok, update, built_in, font))
 
     def cancel(self, language: str) -> None:
         """Stops it, and deletes what was downloaded."""
@@ -547,6 +560,9 @@ class PackDeliveries:
             return language not in self._cancelled
 
     def _try(self, wanted: Wanted, progress: PackProgress) -> None:
+        if wanted.font:
+            self._font(wanted, progress)
+            return
         if wanted.built_in:  # no pack: the list's entry for it (decision 0197)
             self._list()
             for entry in self._packs.built_in:
@@ -670,6 +686,48 @@ class PackDeliveries:
             )
             self._rider(offer, rider, path)
 
+    def _font(self, wanted: Wanted, progress: PackProgress) -> None:
+        """A caption face's files (its riders) this app reads and hasn't
+        got, downloaded and checked as a pack's are, one after another, each
+        step said as one download's (polyglotic-hq 482); then done."""
+        self._report(progress, force=True)
+        self._list()
+        offer = next((f for f in self._packs.fonts if f.font == wanted.font), None)
+        if offer is None:
+            raise PackFailed(Problem.NOT_OFFERED)
+        riders = riders_wanted(offer, self.reader)
+        if not riders:
+            raise PackFailed(Problem.NEEDS_NEWER_APP)
+        language, total = wanted.language, sum(r.gz_size for r in riders)
+        progress = replace(progress, total=total)
+        done = 0
+        self.folder.folder.mkdir(parents=True, exist_ok=True)
+        for rider in riders:
+            path = self.folder.folder / rider.file
+            if not (path.is_file() and path.stat().st_size == rider.size):
+                if not wanted.metered_ok and not self._go_on and self._metered():
+                    self._last[language] = replace(
+                        progress, step=Step.DOWNLOADING, done=done
+                    )
+                    raise PackFailed(Problem.METERED)
+                part = self.folder.part(rider)
+                self._parts[language] = part
+                have = part.stat().st_size if part.is_file() else 0
+                if self._free(self.folder.folder) < rider.gz_size + rider.size:
+                    self._last[language] = replace(
+                        progress, needed=rider.gz_size + rider.size
+                    )
+                    raise PackFailed(Problem.NO_ROOM)
+                self._download(wanted, rider, part, have, progress, offset=done)
+                unpacked = self._checked(rider, part, progress, language)
+                os.replace(unpacked, path)
+                log.info("caption face %s: %s is in", offer.font, rider.file)
+                self._rider(offer, rider, path)
+            done += rider.gz_size
+        self._progress(
+            PackProgress(language, Step.DONE, total, total, update=wanted.update)
+        )
+
     def _download(
         self,
         wanted: Wanted,
@@ -677,7 +735,11 @@ class PackDeliveries:
         part: Path,
         have: int,
         progress: PackProgress,
+        offset: int = 0,
     ) -> None:
+        """`offer`'s file into `part` from byte `have`; said as `progress`,
+        `offset` bytes of it done before this file (a caption face's
+        files are one download)."""
         language = wanted.language
         rate = Rate()
         started = self._clock()
@@ -690,7 +752,12 @@ class PackDeliveries:
             offer.gz_size,
             progress.tries,
         )
-        state = replace(progress, step=Step.DOWNLOADING, done=have)
+        state = replace(progress, step=Step.DOWNLOADING, done=offset + have)
+        total = (
+            progress.total
+            if offset or progress.total > offer.gz_size
+            else offer.gz_size
+        )
         self._report(state, force=True)
 
         def on_block(done: int) -> bool:
@@ -700,7 +767,9 @@ class PackDeliveries:
             now = self._clock()
             rate.add(now, done)
             state = replace(
-                state, done=done, seconds_left=rate.seconds_left(offer.gz_size)
+                state,
+                done=offset + done,
+                seconds_left=rate.seconds_left(total - offset),
             )
             self._report(state)
             if done >= next_metered:

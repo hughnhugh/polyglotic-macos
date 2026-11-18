@@ -37,6 +37,12 @@ From the proof of concept's `ui/overlay.py` (`caption_lines`,
   (polyglotic-hq 268, DECISIONS.md #101), but no word links (the overlay
   also draws it dim and italic, with no marks) - until its finished
   caption replaces it.
+- **Established text** (polyglotic-hq 494, decision 0228;
+  `core.listening.established`): a live caption's rows say how much of
+  their start is established - drawn as a finished caption's, the rest as
+  text still being spoken; a translation row only when its clause is
+  established to its end. A row also says which of its words a quiet
+  correction recolours (`CaptionRow.corrected`).
 - **The listening mark** (every caption timing: polyglotic-hq 260):
   shown from the moment a source's speech is under way until its
   finished caption arrives - a live update, Quick preview's line among
@@ -55,7 +61,12 @@ from polyglotic_desktop.core.listening.captions import (
     Clause,
     Language,
     WordLink,
-    written_in,
+    line_language,
+)
+from polyglotic_desktop.core.listening.established import (
+    Span,
+    per_clause,
+    spans_per_clause,
 )
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
@@ -174,7 +185,10 @@ class CaptionRow:
     `language` is the row's language (for its font and reading line), None
     if unknown. `target`: a translation row's target - what its clause
     keeps its line and links under (`translation_shown`); None: its
-    `language`."""
+    `language`. `established`: on a live caption, how many characters at
+    its start are established - drawn as final (decision 0228); None on a
+    finished caption, all of whose text is. `corrected`: its words a quiet
+    correction recolours, `[start, end)` - what was said only."""
 
     text: str
     kind: RowKind
@@ -183,6 +197,8 @@ class CaptionRow:
     starts_clause: bool
     links: tuple[LinkedWords, ...] = ()
     target: Language | None = None
+    established: int | None = None
+    corrected: tuple[Span, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,19 +219,24 @@ def translation_shown(
     second: Language | None,
 ) -> TranslationShown | None:
     """The translation a window into `target` shows for `clause`, of a
-    caption said in `said_in` - None for none. A caption already in the
+    caption said in `said_in` - None for none. A clause already in the
     target is translated into its `second` language, kept under the target
-    - so its language is the second's (`written_in`; polyglotic-hq 427:
-    read as English, an English caption's Chinese line had no pinyin over
-    it). A line kept under the second language itself (a second target
-    too) is shown where the target has none."""
+    - so its language is the second's (`line_language`: the server says
+    which, clause by clause; polyglotic-hq 427 and 497: read as English, a
+    Chinese line had no pinyin over it). A line kept under the second
+    language itself (a second target too) is shown where the target has
+    none."""
     text = clause.translations.get(target)
     if text:
-        return TranslationShown(text, written_in(target, said_in, second), target)
+        return TranslationShown(
+            text, line_language(clause, target, said_in, second), target
+        )
     if second is not None and second != target:
         text = clause.translations.get(second)
         if text:
-            return TranslationShown(text, second, second)
+            return TranslationShown(
+                text, clause.written_in.get(second) or second, second
+            )
     return None
 
 
@@ -236,7 +257,10 @@ def caption_rows(
     rows: list[CaptionRow] = []
     last = len(caption.clauses) - 1
     numbered = 0  # links numbered in the clauses before: the next one's first
+    established = per_clause(caption.clauses, caption.established)
+    corrected = spans_per_clause(caption.clauses, caption.corrected)
     for n, clause in enumerate(caption.clauses):
+        final = established[n] if caption.live else None
         shown = translation_shown(clause, caption.language, target, second)
         translation = shown.text if shown is not None else None
         settled = not (caption.live and n == last)
@@ -264,6 +288,8 @@ def caption_rows(
                     n,
                     starts,
                     original_links,
+                    established=final,
+                    corrected=corrected[n],
                 )
             )
             starts = False
@@ -277,6 +303,11 @@ def caption_rows(
                     starts,
                     translation_links,
                     shown.target,
+                    established=None
+                    if final is None
+                    else len(shown.text)
+                    if clause.original and final == len(clause.original)
+                    else 0,
                 )
             )
     if caption.live and rows:

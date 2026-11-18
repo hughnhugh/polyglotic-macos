@@ -119,6 +119,7 @@ from polyglotic_desktop.ui_next.controls import (
     right_row,
 )
 from polyglotic_desktop.ui_next.dictation_key import KeyBox, key_words, refusal_words
+from polyglotic_desktop.ui_next.face_rows import FacesPanel
 from polyglotic_desktop.ui_next.glyphs import Glyph
 from polyglotic_desktop.ui_next.home import MARGIN, Page
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
@@ -128,6 +129,7 @@ from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
     LanguagesPanel,
     LookPanel,
+    QuietViewPanel,
     ReadingLinesPanel,
     ResetCard,
     TimingPanel,
@@ -135,7 +137,12 @@ from polyglotic_desktop.ui_next.panels import (
 )
 from polyglotic_desktop.ui_next.settings_marks import PinnedCard, mark_card
 from polyglotic_desktop.ui_next.sound_card import SoundCard
-from polyglotic_desktop.ui_next.views.panels import LanguagesView, LookView, TimingView
+from polyglotic_desktop.ui_next.views.panels import (
+    DownloadsView,
+    LanguagesView,
+    LookView,
+    TimingView,
+)
 from polyglotic_desktop.ui_next.views.sound import SoundView
 
 SECTIONS = (
@@ -271,6 +278,7 @@ class SettingsPage(Page):
         timing: TimingView,
         speech: LanguagesView,
         sound: SoundView | None = None,
+        downloads: DownloadsView | None = None,
     ) -> None:
         """`themes`: each window theme's key and name; `hotkeys`: today's
         hotkeys' commands, by their letter (Ctrl+Alt+ L, P, H, W);
@@ -280,6 +288,7 @@ class SettingsPage(Page):
         Sound, shown again in Speech (polyglotic-hq 372)."""
         super().__init__(_tr("Settings"))
         self._sound = sound
+        self._downloads = downloads
         self._hotkeys = hotkeys
         self.typing_allowed: Callable[[], bool] | None = None
         """Whether the OS lets the app type, where it asks (a Mac's
@@ -975,8 +984,11 @@ class SettingsPage(Page):
         """Every caption window's settings, in 248's order (section 2.2),
         each group in the section a learner comes to it for (304)."""
         self.look = LookPanel(look, notes=True, preview=True, languages=speech)
+        # a row per language, its faces downloaded on choice (482)
+        self.faces = FacesPanel(look, speech, self._downloads, notes=True)
         self.word_links = WordLinksPanel(look, notes=True, learning=True)
         self.word_links.learning_wanted.connect(self.learning_wanted)
+        self.quiet = QuietViewPanel(look, notes=True)  # beside word links (477)
         self.reading = ReadingLinesPanel(look, notes=True)
         self.timing = TimingPanel(timing, languages=speech)
         self.behaviour = BehaviourPanel(look, notes=True, hidden_windows=True)
@@ -989,10 +1001,12 @@ class SettingsPage(Page):
         # experimental: a section of its own, last (284)
         self.lab = LabPanel(look, languages=speech)
         placed: dict[str, tuple[QWidget, ...]] = {
-            "look": (self.look, self.reset),
+            "look": (self.look, self.faces, self.reset),
             # Look was 2,557 px with no landmark: links and readings are
-            # sections of their own (449's design 4A, 470)
-            "links": (self.word_links,),
+            # sections of their own (449's design 4A, 470); the quiet view,
+            # word links' other way of showing words (it turns them off),
+            # beside them (477)
+            "links": (self.word_links, self.quiet),
             "readings": (self.reading,),
             "timing": (self.timing, self.behaviour),
             # the speakers and the mic first, as Home's Sound (372): one view
@@ -1003,7 +1017,9 @@ class SettingsPage(Page):
         }
         marks: dict[QWidget, Glyph] = {
             self.look: Glyph.LOOK,
+            self.faces: Glyph.FONTS,
             self.word_links: Glyph.LINKS,
+            self.quiet: Glyph.QUIET,
             self.reading: Glyph.READINGS,
             self.reset: Glyph.RESET,
             self.timing: Glyph.TIMING,

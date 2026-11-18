@@ -62,6 +62,9 @@ class Glyph(StrEnum):
     ALIGNED = "aligned"
     """Parts lined up (372): two lines whose parts start at the same
     places, a tick at each start."""
+    QUIET = "quiet"
+    """The quiet view (polyglotic-hq 477): two lines of text, one word in
+    the first filled in - the one word that stands out."""
 
     # Settings' sections and cards (polyglotic-hq 470, 449's design 4A):
     # always beside their words, never alone (NN/g's icon usability)
@@ -81,6 +84,9 @@ class Glyph(StrEnum):
     """Timing's Behaviour: lines arriving, an arrow down beside them."""
     RESET = "reset"
     """Look's Reset: an arrow going round."""
+    FONTS = "fonts"
+    """Look's Fonts: a capital A and a small a - a face (polyglotic-hq 482,
+    marked as its cards are by 506)."""
     TEXT_SIZE = "text_size"
     """App's Text size: a small A and a large one."""
     THEME = "theme"
@@ -163,6 +169,14 @@ def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
             lines.lineTo(ends[1], y)
         for x in (1.75, 8.75):
             dots.addEllipse(QPointF(x, 8), 0.7, 0.7)
+    elif glyph is Glyph.QUIET:  # text, one word of it filled: the chosen word
+        lines.moveTo(1.75, 5.5)
+        lines.lineTo(4.25, 5.5)
+        lines.moveTo(11.75, 5.5)
+        lines.lineTo(14.25, 5.5)
+        lines.moveTo(1.75, 10.5)
+        lines.lineTo(14.25, 10.5)
+        dots.addRoundedRect(QRectF(6.0, 4.0, 4.0, 3.0), 1.5, 1.5)
     elif glyph is Glyph.MIC:
         lines.addRoundedRect(QRectF(5.5, 0.75, 5, 9.5), 2.5, 2.5)
         lines.moveTo(3, 7.25)
@@ -261,6 +275,15 @@ def _settings_outline(glyph: Glyph, lines: QPainterPath, dots: QPainterPath) -> 
         lines.moveTo(12.25, 1.5)
         lines.lineTo(11.75, 4.75)
         lines.lineTo(8.5, 4.25)
+    elif glyph is Glyph.FONTS:  # a capital A and a small a: a face
+        lines.moveTo(1.25, 13.5)
+        lines.lineTo(5, 2.75)
+        lines.lineTo(8.75, 13.5)
+        lines.moveTo(2.55, 9.75)
+        lines.lineTo(7.45, 9.75)
+        lines.addEllipse(QPointF(11.9, 11.1), 2.4, 2.4)
+        lines.moveTo(14.3, 8.5)
+        lines.lineTo(14.3, 13.5)
     elif glyph is Glyph.TEXT_SIZE:  # a small A and a large one
         lines.moveTo(1.25, 13.5)
         lines.lineTo(3.75, 7.5)

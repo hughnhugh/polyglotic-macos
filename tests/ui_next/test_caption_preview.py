@@ -76,8 +76,8 @@ def test_it_shows_what_the_look_shows(qapp: QApplication) -> None:
     kinds = {row.kind for line in preview.lines.lines for row in line.rows}
     assert kinds == {RowKind.TRANSLATION}
     assert preview.panel_rect().height() < tall  # the panel fits its captions
-    view.set_font("Segoe UI")
-    assert preview.surface.engine.style.family == "Segoe UI"
+    view.set_face("zh", "Segoe UI")
+    assert preview.surface.engine.style.faces == (("zh", "Segoe UI"),)
     view.set_word_links(WordLinks.ARROWS)
     view.set_show_original(True)
     assert preview.surface.engine.style.arrows  # room for the curves
