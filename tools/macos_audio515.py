@@ -37,9 +37,11 @@ def main() -> int:
     import threading
     import time
 
-    from PySide6.QtCore import QCoreApplication
+    from PySide6.QtGui import QGuiApplication
 
-    app = QCoreApplication.instance() or QCoreApplication(["audio515"])
+    # a GUI application: its event loop is macOS's own run loop, which hands
+    # the buffers over (a QCoreApplication's isn't: run 5 timed out again)
+    app = QGuiApplication.instance() or QGuiApplication(["audio515"])
     done: list[int] = []
 
     def work() -> None:

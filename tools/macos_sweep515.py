@@ -226,9 +226,10 @@ def popover_rows(captions: Any, popover: Any, where: str, reopen: Any) -> kit.St
             "copy_all",
         ):
             continue
+        found = [row, *row.findChildren(QPushButton)]  # a switch row is its button
         buttons = [
-            b for b in row.findChildren(QPushButton)
-            if b.isVisible() and b.isEnabled()
+            b for b in found
+            if isinstance(b, QPushButton) and b.isVisible() and b.isEnabled()
         ]  # fmt: skip
         for i, button in enumerate(buttons):
             if not alive(popover) or not alive(button):

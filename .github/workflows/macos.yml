@@ -122,7 +122,7 @@ on:
       sweep515:
         description: 515's sweep of every setting (about 10 minutes)
         type: boolean
-        default: false
+        default: true
       probe515:
         description: 515's probe of the caption windows
         type: boolean

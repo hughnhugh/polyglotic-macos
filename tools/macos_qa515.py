@@ -581,6 +581,67 @@ def menus(captions: Any) -> kit.Step:
     yield kit.pause(0.5)
 
 
+def report_dialog(captions: Any) -> kit.Step:
+    """A tester's strip: Report a problem pressed with the real mouse while
+    TextEdit is in front - where does its dialog come up?"""
+    from PySide6.QtWidgets import QDialog
+
+    from polyglotic_desktop.platform.macos import window_list
+
+    windows = kit.STATE["interface"].windows
+    if hasattr(windows, "set_reporting"):
+        windows.set_reporting(True)
+    captions.setGeometry(START)
+    yield from textedit_in_front()
+    g = captions.frameGeometry()
+    moving = cliclick(f"m:{g.center().x()},{g.center().y() + 30}")
+    yield kit.wait(lambda: done(moving), 10, "cliclick")
+    yield kit.pause(0.8)
+    button = captions.buttons.get("report")
+    if button is None or not button.isVisible():
+        kit.check("report: the strip's Report a problem shows", False, "not shown")
+        return
+    at = button.mapToGlobal(button.rect().center())
+    clicking = cliclick(f"c:{at.x()},{at.y()}")
+
+    def opened() -> Any:
+        return QApplication.activeModalWidget() or next(
+            (w for w in QApplication.topLevelWidgets()
+             if isinstance(w, QDialog) and w.isVisible()), None)  # fmt: skip
+
+    yield kit.wait(lambda: opened() is not None, 8, "")
+    yield kit.pause(1.0)
+    dialog = opened()
+    if dialog is None:
+        kit.check("report: a dialog opened", False, "none")
+        return
+    listed = window_list.on_screen()
+    numbers = [w.number for w in listed]
+    textedit = [i for i, w in enumerate(listed) if w.pid == _textedit_pid()]
+    facts = ns_facts(dialog)
+    mine = numbers.index(facts["number"]) if facts.get("number") in numbers else None
+    ahead = mine is not None and (not textedit or mine < min(textedit))
+    order = listed_order({"it": dialog, "captions": captions})
+    picture_of_screen("report-dialog", dialog.frameGeometry().united(g))
+    result = {"type": type(dialog).__name__, "dialog": facts, "index": mine,
+              "textedit_indexes": textedit[:3], "app_active": app_active(),
+              "front_pid_is_textedit": window_list.front_pid() == _textedit_pid(),
+              "vs_captions": order}  # fmt: skip
+    FINDINGS["order"].append({"name": "report-dialog", **result})
+    kit.check("report: its dialog comes up in front of the app in front", ahead, result)
+    kit.check("report: its dialog in front of its caption window",
+              in_front(order, "it", "captions") is True, order)  # fmt: skip
+    dialog.close()
+    yield kit.pause(0.5)
+    _ = done(clicking)
+
+
+def _textedit_pid() -> int:
+    found = subprocess.run(["pgrep", "-x", "TextEdit"], check=False,
+                           capture_output=True, text=True).stdout.split()  # fmt: skip
+    return int(found[0]) if found else 0
+
+
 def interface_card() -> Any:
     return kit.STATE["interface"].windows.card
 
@@ -641,6 +702,7 @@ def qa() -> kit.Step:
             yield from textedit_in_front()
     yield from guarded("qt resize", resize("active", captions, "qt"))
     yield from guarded("menus", menus(captions))
+    yield from guarded("report dialog", report_dialog(captions))
     # locked and unlocked once (Qt sets ignoresMouseEvents NO then)
     captions.set_locked(True)
     yield kit.pause(0.6)
