@@ -250,6 +250,25 @@ jobs:
           fi
           exit "$status"
 
+      # polyglotic-hq 512: the packed app's own secure connections to the
+      # live server - its /health, and sign-in's path with a code that's no
+      # one's (the server's "not valid" expected, never a network failure).
+      # On a failure, once more with macOS's root list named by hand (the
+      # tester's bridge), for the record.
+      - name: The packed app reaches the live server securely
+        if: ${{ !cancelled() && (inputs.pack || inputs.release) }}
+        run: |
+          app=dist/Polyglotic.app/Contents/MacOS/Polyglotic
+          mkdir -p "$OUT/pack"
+          status=0
+          "$app" --check-tls "$OUT/pack/tls.json" || status=$?
+          cat "$OUT/pack/tls.json" || true
+          if [ "$status" != 0 ]; then
+            SSL_CERT_FILE=/etc/ssl/cert.pem "$app" --check-tls "$OUT/pack/tls-cert-file.json" || true
+            echo "with SSL_CERT_FILE=/etc/ssl/cert.pem:"; cat "$OUT/pack/tls-cert-file.json" || true
+          fi
+          exit "$status"
+
       # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         if: ${{ !cancelled() && (inputs.release || (inputs.pack && inputs.updates)) }}

@@ -95,6 +95,23 @@ def trusted() -> ssl.SSLContext:
     return ssl.create_default_context()
 
 
+def roots() -> dict[str, object]:
+    """Where this copy's secure connections find the roots they trust, and
+    how many they have - OpenSSL's default places and `trusted()`'s store
+    counts (`--check-tls`, polyglotic-hq 512). Names and counts only."""
+    paths = ssl.get_default_verify_paths()
+    return {
+        "openssl": ssl.OPENSSL_VERSION,
+        "default_paths": {
+            "cafile": paths.cafile,
+            "capath": paths.capath,
+            "openssl_cafile": paths.openssl_cafile,
+            "openssl_capath": paths.openssl_capath,
+        },
+        "store": trusted().cert_store_stats(),
+    }
+
+
 class Let(StrEnum):
     """Why a leaf outside its dates at this PC's time - or inside them,
     with another certificate in the path out - was let through."""

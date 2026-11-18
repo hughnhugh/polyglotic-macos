@@ -6063,6 +6063,62 @@ def check_parity(report: Path, system: OsAdapters, os_name: str) -> int:
     return 0 if ok else 1
 
 
+NOT_ANYONES = "0000-0000-0000-0000"
+"""An invite code of the right shape that is no one's: `--check-tls` signs
+in with it to hear the server's own "that code isn't valid"."""
+
+
+class _NoCredentials:
+    """`--check-tls`'s credential store: nothing kept, nothing saved."""
+
+    def load(self) -> None:
+        return None
+
+    def install_id(self) -> None:
+        return None
+
+    def save(self, credentials: object) -> None:
+        pass
+
+    def forget(self) -> None:
+        pass
+
+
+def check_tls(report: Path, server: str, app: AppInfo) -> int:
+    """Secure connections from this copy to `server` (polyglotic-hq 512,
+    run on GitHub's Mac): the roots this copy trusts (`tls.roots`), the
+    server's `/health` over `tls.urlopen`, and sign-in's own path with a
+    code that's no one's (`NOT_ANYONES`), expecting the server's answer
+    that it isn't valid - not a network failure. Nothing is saved; no
+    token can come back. Writes what was found to `report` as JSON; 0 if
+    both reached the server."""
+    import urllib.request
+
+    from polyglotic_desktop.connection import sign_in, tls
+    from polyglotic_desktop.core.shared.client import USER_AGENT
+
+    found: dict[str, object] = {"server": server, "roots": tls.roots()}
+    health = urllib.request.Request(
+        f"{server}/health", headers={"User-Agent": USER_AGENT}
+    )
+    try:
+        with tls.urlopen(health, sign_in.TIMEOUT_SEC) as response:
+            found["health"] = response.status
+    except Exception as e:  # noqa: BLE001 - reported by type: it's the point
+        found["health"] = f"{type(e).__name__}: {e}"
+    answer = sign_in.redeem(server, NOT_ANYONES, _NoCredentials(), app)
+    found["sign_in"] = type(answer).__name__
+    if isinstance(answer, sign_in.RedeemFailed):
+        found["sign_in_failed"] = {
+            "why": answer.why,
+            "unreachable": str(answer.unreachable),
+        }
+    found["ok"] = found["health"] == 200 and isinstance(answer, sign_in.InviteNotValid)
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(json.dumps(found, indent=2), encoding="utf-8")
+    return 0 if found["ok"] else 1
+
+
 PACK_CHECKED = {
     "unpacked": True,
     "opened": True,
@@ -6241,6 +6297,9 @@ def arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--check-capture", type=Path, help=argparse.SUPPRESS)
     # GitHub's Mac only (polyglotic-hq 428): refused off a Mac
     parser.add_argument("--check-parity", type=Path, help=argparse.SUPPRESS)
+    # GitHub's Mac (polyglotic-hq 512): secure connections to --server, and
+    # sign-in's path with a code that's no one's
+    parser.add_argument("--check-tls", type=Path, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -6282,7 +6341,7 @@ def this_copy(argv: list[str] | None = None) -> FirstCopy | None:
     if any(a.startswith(VELOPACK_HOOK) for a in [*given, *sys.argv[1:]]):
         return None
     args = arguments(argv)
-    if args.check_install or args.check_capture or args.check_parity:
+    if args.check_install or args.check_capture or args.check_parity or args.check_tls:
         return None
     try:
         system = os_adapters()
@@ -6346,6 +6405,9 @@ def main(argv: list[str] | None = None) -> None:
         sys.exit(check_capture(args.check_capture, system.os_name(), to_capture))
     if args.check_parity:
         sys.exit(check_parity(args.check_parity, system, system.os_name()))
+    if args.check_tls:
+        app = AppInfo.this_app(system.os_name(), system.os_version())
+        sys.exit(check_tls(args.check_tls, args.server, app))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
