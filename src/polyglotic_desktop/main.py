@@ -6406,8 +6406,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.check_parity:
         sys.exit(check_parity(args.check_parity, system, system.os_name()))
     if args.check_tls:
-        app = AppInfo.this_app(system.os_name(), system.os_version())
-        sys.exit(check_tls(args.check_tls, args.server, app))
+        about = AppInfo.this_app(system.os_name(), system.os_version())
+        sys.exit(check_tls(args.check_tls, args.server, about))
     start_parts.done("arguments")
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()

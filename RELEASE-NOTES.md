@@ -30,6 +30,11 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Fixed
 
+- The Mac app couldn't sign in: every try said "Something on this network
+  is in the way" whatever the network, and never reached our server. It
+  now trusts the certificates macOS itself trusts, so signing in, live
+  captions, updates and dictionary downloads connect.
+
 ## 0.1.7 - 2026-11-17
 
 ### New

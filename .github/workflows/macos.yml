@@ -263,6 +263,7 @@ jobs:
           app=dist/Polyglotic.app/Contents/MacOS/Polyglotic
           pythons=/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl
           if [ -e "$pythons" ]; then sudo mv "$pythons" "$pythons.512"; fi
+          /usr/bin/openssl version -d || true  # macOS's own: its roots are /etc/ssl/cert.pem
           mkdir -p "$OUT/pack"
           status=0
           "$app" --check-tls "$OUT/pack/tls.json" || status=$?
