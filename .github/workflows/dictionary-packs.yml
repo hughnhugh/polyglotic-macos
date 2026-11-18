@@ -107,6 +107,14 @@ permissions:
 jobs:
   packs:
     name: Build the packs and probe their coverage (Windows)
+    # Not on an ordinary pull request (decision 0167, polyglotic-hq
+    # 2026-11-18): the train's pull request, the weekly run or by hand.
+    # Agents' branches held both Windows runners and about 6 GB of the
+    # PC's memory for 30 minutes at a time, ahead of the trains.
+    if: >-
+      ${{ github.event_name != 'pull_request' || (
+      contains(github.event.pull_request.labels.*.name, 'train')
+      && !github.event.pull_request.draft) }}
     # On the user's PC, as the runner's own account (decision 0025)
     runs-on: [self-hosted, windows]
     timeout-minutes: 45  # 17-26 min on 2026-11-16 as the pack rules grew; 30 cut two runs under load

@@ -781,7 +781,7 @@ class Run:
         self.to_front()
         window = self.window
         window.set_locked(False)
-        window.setGeometry(200, 200, 600, 160)
+        window.setGeometry(100, 100, 600, 160)  # where the later checks expect it
         window.show()
         self.on_top.put_on_top([int(window.winId())])
         watch = PointerWatch(lambda: [window], window)

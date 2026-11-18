@@ -4701,11 +4701,15 @@ def report_facts(
     channel: str,
     speech: Sequence[SpeechPart],
     apps_one_by_one: str | None = None,
+    devices: Callable[[], SoundDevices] | None = None,
 ) -> dict[str, object]:
-    """The app, Windows and the audio devices, for a problem report: no
+    """The app, the OS and the audio devices, for a problem report: no
     caption text, no app's name - each source by its id and category.
     `apps_one_by_one`: the log's line on capturing apps one by one - the
-    build, whether it was tried, how it went (decision 0076)."""
+    build, whether it was tried, how it went (decision 0076); `devices`:
+    the OS's own list of speakers and mics (`OsAdapters.sound_devices`).
+    The OS's part keeps its "windows" key on a Mac too (the reports read
+    so far)."""
     screens = [
         {
             "scale": screen.devicePixelRatio(),
@@ -4732,23 +4736,34 @@ def report_facts(
             {"id": part.source_id, "category": part.category.value} for part in speech
         ],
     }
-    try:
-        from polyglotic_desktop.platform.windows.devices import (
-            Flow,
-            active_devices,
-            default_device,
-        )
-
-        facts["audio_devices"] = {
-            flow.name.lower(): {
-                "default": getattr(default_device(flow), "name", None),
-                "active": [d.name for d in active_devices(flow)],
-            }
-            for flow in Flow
-        }
-    except (ImportError, OSError) as problem:  # no Core Audio here
-        facts["audio_devices"] = {"unavailable": type(problem).__name__}
+    facts["audio_devices"] = device_facts(devices)
     return facts
+
+
+def device_facts(devices: Callable[[], SoundDevices] | None) -> dict[str, object]:
+    """The speakers and mics, and the OS's defaults, by name - from the OS's
+    own adapter, so a Mac's come from Core Audio. Main imported Windows'
+    own devices here, which on a Mac fails while the module loads
+    (AttributeError: ctypes has no WinDLL): a tester's Report a problem
+    never opened (GitHub's Mac, polyglotic-hq 515). Nothing listed stops
+    no report."""
+    if devices is None:
+        return {"unavailable": "not asked"}
+    try:
+        found = devices()
+    except Exception as problem:  # noqa: BLE001 - a report goes without them
+        return {"unavailable": type(problem).__name__}
+    names = {d.id: d.name for d in (*found.speakers, *found.mics)}
+    return {
+        "output": {
+            "default": names.get(found.default_speaker or ""),
+            "active": [d.name for d in found.speakers],
+        },
+        "input": {
+            "default": names.get(found.default_mic or ""),
+            "active": [d.name for d in found.mics],
+        },
+    }
 
 
 def _json_size(value: object) -> int:
@@ -6864,7 +6879,9 @@ def main(argv: list[str] | None = None) -> None:
                 names[str(part.source_id)] = mic_name()
         log_text = read_log(data / "logs")
         values = desktop.settings.value.to_stored()
-        facts = report_facts(app_info, release.channel, speech, per_app.line)
+        facts = report_facts(
+            app_info, release.channel, speech, per_app.line, system.sound_devices
+        )
         dialog = ProblemReportDialog(
             problem_report_parts(
                 log_text, values, facts, captions, speech, names, check_result

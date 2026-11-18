@@ -8,9 +8,10 @@ state stand in."""
 from collections.abc import Iterator
 
 import pytest
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication
-from tests.ui_next.test_caption_window import window_of
+from tests.ui_next.test_caption_window import _mouse, window_of
 
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -121,3 +122,33 @@ def test_the_caption_windows_watch_the_mouse_only_when_asked(
     finally:
         asked.close()
         plain.close()
+
+
+def test_a_lost_release_never_lets_a_move_resize_the_window(
+    window: CaptionWindow,
+) -> None:
+    """A corner pressed and dragged, then a move with no button held - the
+    release lost (GitHub's Mac lost one, 515's run 7, and the pointer watch's
+    next move resized the window by the whole way from the old press): the
+    drag ends there, as its release would have, and the size it reached is
+    kept."""
+    window.setGeometry(100, 100, 600, 200)
+    corner = QPointF(window.width() - 2, window.height() - 2)
+    _mouse(window, "press", corner)
+    _mouse(window, "move", corner + QPointF(30, 20))
+    grown = window.geometry()
+    assert grown.width() > 600 and grown.height() > 200
+    far = QPointF(-400, -150)  # where the mouse went after the lost release
+    nothing_held = QMouseEvent(
+        QMouseEvent.Type.MouseMove, far, window.mapToGlobal(far),
+        Qt.MouseButton.NoButton, Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier,
+    )  # fmt: skip
+    window.mouseMoveEvent(nothing_held)
+    assert window.geometry() == grown  # not resized by the move
+    assert window._drag is None
+    kept = window.choices.geometry
+    assert kept is not None and (kept.width, kept.height) == (
+        grown.width(),
+        grown.height(),
+    )

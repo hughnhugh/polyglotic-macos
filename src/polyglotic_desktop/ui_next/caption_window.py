@@ -3948,6 +3948,13 @@ class CaptionWindow(QWidget):
         self._drag = _Drag(edges, event.globalPosition(), self._place())
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if not event.buttons() & Qt.MouseButton.LeftButton and self._pressed():
+            # a press whose release never came (macOS can lose it - GitHub's
+            # Mac, polyglotic-hq 515): ended as its release would end it,
+            # never resized or moved by a move with no button held (the
+            # pointer watch's, while the app is in the background)
+            self.mouseReleaseEvent(event)
+            return
         if not self.hovered and self._drag is None:  # its arrival lost (272)
             if self.host is None:
                 self.came_over()
@@ -3975,6 +3982,15 @@ class CaptionWindow(QWidget):
                 self.resize_by(drag, dx, dy)
             else:
                 self.move_by(drag, dx, dy)
+
+    def _pressed(self) -> bool:
+        """A press of its own under way: a drag (resizing or moving), a
+        selection, or its joined window's drag."""
+        return (
+            self._drag is not None
+            or self._selecting is not None
+            or (self.host is not None and self.host.dragging)
+        )
 
     def resize_by(self, drag: _Drag, dx: int, dy: int) -> None:
         """A resize step: the dragged edges moved, re-laid out in this frame."""

@@ -108,6 +108,9 @@ the app's What's new, the website's What's new and the Discord post.
   or marked as new. "a bit" opens bit (一点, not bite), "later" opens
   later (以后), and "training", "meeting", "interesting" and a dozen more
   open their own meaning first and count as their own word.
+- On a Mac, Report a problem (for alpha testers) opens, from a
+  caption window's strip and from Help: it stopped before its window
+  came up.
 - Changing a setting on Learning - a learning window, word links, where
   links start, Mark known - no longer jumps the page down to its middle:
   it stays where you were, with the keyboard on the same control. The same

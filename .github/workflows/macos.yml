@@ -118,11 +118,15 @@ on:
       qa515:
         description: 515's probe of the caption windows (resizing, what's in front)
         type: boolean
+        default: true
+      voices515:
+        description: 515's Chinese voices
+        type: boolean
         default: false
       sweep515:
         description: 515's sweep of every setting (about 10 minutes)
         type: boolean
-        default: true
+        default: false
       probe515:
         description: 515's probe of the caption windows
         type: boolean
@@ -223,7 +227,7 @@ jobs:
         run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
 
       - name: 515's Chinese voices (what the Mac says)
-        if: ${{ !cancelled() && inputs.qa515 }}
+        if: ${{ !cancelled() && inputs.qa515 && inputs.voices515 }}
         continue-on-error: true
         timeout-minutes: 8
         run: uv run --no-sync python -m tools.macos_audio515 "$OUT/qa515/audio"
