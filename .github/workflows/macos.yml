@@ -118,7 +118,7 @@ on:
       qa515:
         description: 515's probe of the caption windows (resizing, what's in front)
         type: boolean
-        default: true
+        default: false
       voices515:
         description: 515's Chinese voices
         type: boolean

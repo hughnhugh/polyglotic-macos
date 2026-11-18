@@ -984,8 +984,17 @@ class Run:
                 "click_elsewhere", UNKNOWN, f"TextEdit's window not found: {box[:200]}"
             )
             return
-        target = (x + w * 3 // 4, y + h * 3 // 4)
-        inside = popover is not None and popover.frameGeometry().contains(*target)
+        # a point of TextEdit's window the popover doesn't cover: placed
+        # beside its button, it can cover the window's lower right (515)
+        frame = popover.frameGeometry() if popover is not None else None
+        spots = [
+            (x + w * a // 4, y + h * b // 4)
+            for a, b in ((3, 3), (1, 3), (3, 1), (1, 1))
+        ]
+        target = next(
+            (s for s in spots if frame is None or not frame.contains(*s)), spots[0]
+        )
+        inside = frame is not None and frame.contains(*target)
         before = QCursor.pos()
         # a real click (cliclick, from Homebrew): System Events' `click at`
         # moves no cursor and no mouse event reaches other apps' monitors
