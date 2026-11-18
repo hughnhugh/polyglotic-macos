@@ -38,6 +38,9 @@ from tools import app_tour as kit
 from tools import macos_qa515 as probe
 
 SWEEP: dict[str, Any] = {"changes": [], "notes": []}
+NATIVE_WORDS = ("pick a colour",)
+"""Buttons that open macOS's own panel (the colour panel), whose modal loop
+nothing here can close: said, not pressed (run 3 waited on it for ever)."""
 SKIP_WORDS = (
     "sign out", "delete", "quit", "reset", "remove", "export", "send",
     "report", "feedback", "uninstall", "stop captioning", "log out",
@@ -409,6 +412,13 @@ def settings_sections(captions: Any) -> kit.Step:
             elif isinstance(control, QAbstractButton):
                 lowered = label.lower()
                 if not control.isCheckable():
+                    if sys.platform == "darwin" and any(
+                        word in lowered for word in NATIVE_WORDS
+                    ):
+                        SWEEP["notes"].append(
+                            f"{key}: macOS's own panel, not pressed: {label}"
+                        )
+                        continue
                     if any(word in lowered for word in SKIP_WORDS):
                         SWEEP["notes"].append(f"{key}: not pressed: {label}")
                         continue
