@@ -9,6 +9,9 @@ app reads (decision 0122). A dry run unless told to upload.
     # a built-in dictionary's recorded words (decision 0197): no pack
     uv run python -m tools.package.publish_packs --built-in cedict \\
         --audio FOLDER                                         # dry run
+    # English's meanings in learners' languages (decision 0234)
+    uv run python -m tools.package.publish_packs --built-in ecdict \\
+        --meanings FOLDER                                      # dry run
 
 What it does, in order:
 1. takes each language's built pack (`tools.dictionaries.packs` writes
@@ -47,6 +50,13 @@ What it does, in order:
    app has its recorded words put in the list's `built_in` entry for it
    (decision 0197), `cedict-<version>.audio`. The entries the list has
    already are kept, but one for the same dictionary is replaced;
+   with `--meanings FOLDER`: each named dictionary's meanings files there
+   (`<dictionary>-<language>.meanings`, built by
+   `tools.dictionaries.english_pairs`) go up as riders the same way, one
+   per language, `<dictionary>-<language>-<version>.meanings`, from app
+   `--meanings-min-app` (decision 0234). Give `--audio` and `--meanings`
+   together to keep both kinds: an entry published again carries only the
+   riders given;
 6. with `--fonts DIR` (`tools.caption_fonts --packs` writes it): each
    caption face's files go up as riders (kind `font`, `--font-min-app`)
    of its entry in the list's `fonts` (polyglotic-hq 482, decision 0223),
@@ -82,6 +92,11 @@ from nacl.signing import SigningKey, VerifyKey
 
 from polyglotic_desktop.adapters.audio_file import SUFFIX as AUDIO_SUFFIX
 from polyglotic_desktop.adapters.audio_file import NotAnAudioFile, SqliteAudio
+from polyglotic_desktop.adapters.meanings_file import SUFFIX as MEANINGS_SUFFIX
+from polyglotic_desktop.adapters.meanings_file import (
+    NotAMeaningsFile,
+    SqliteMeanings,
+)
 from polyglotic_desktop.adapters.pack_list import (
     FILES,
     FOLDER,
@@ -93,6 +108,7 @@ from polyglotic_desktop.adapters.pack_list import (
 from polyglotic_desktop.adapters.signed_feed import public_keys, verify
 from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary, add_info
 from polyglotic_desktop.core.lexicon.packs import (
+    CODE,
     LIST_FORMAT,
     BuiltIn,
     FontOffer,
@@ -116,13 +132,16 @@ RIDER_MIN_APP = "0.1.7"
 """The first app version that plays a pack's recorded words: the default
 `min_app` of a rider (decision 0192; 0.1.7 on the user's word of
 2026-11-16 ~23:00)."""
+MEANINGS_MIN_APP = "0.1.9"
+"""The first app version that reads a dictionary's meanings files: the
+default `min_app` of a meanings rider (decision 0234)."""
+BUILT_IN = {"cedict": "zh", "ecdict": "en"}
+"""The dictionaries built into the app that may have riders, and the
+language each is learned for (main.BUILT_IN_RIDERS)."""
 FONT_MIN_APP = "0.1.8"
 """The first app version that downloads caption faces (polyglotic-hq 482)."""
 FONT_FORMAT = "1"
 """A caption face's file: a TrueType or OpenType font, or its licence text."""
-BUILT_IN = {"cedict": "zh"}
-"""The dictionaries built into the app that may have recorded words, and
-the language each is learned for (main.BUILT_IN_RECORDED)."""
 SPLITS = {
     "fr": "elided",
     "it": "elided",
@@ -323,6 +342,59 @@ def stamp_audio(
     return rider, packed, info
 
 
+def stamp_meanings(
+    built: Path, dictionary: str, out_files: Path, version: str, min_app: str
+) -> list[tuple[Rider, Path]]:
+    """`dictionary`'s meanings files (`<dictionary>-<language>.meanings` in
+    `built`), each stamped with the version under its published name in
+    `out_files` and gzipped beside it: the riders the list names and the
+    downloads' paths, by language. SystemExit if one isn't the meanings
+    file its name says."""
+    found = []
+    for source in sorted(built.glob(f"{dictionary}-*{MEANINGS_SUFFIX}")):
+        language = source.name[len(dictionary) + 1 : -len(MEANINGS_SUFFIX)]
+        if not CODE.fullmatch(language):
+            continue  # another dictionary's (`ecdict-en...`), or a stamped one
+        try:
+            file = SqliteMeanings(source)
+        except (OSError, NotAMeaningsFile) as e:
+            raise SystemExit(
+                f"{source}: no meanings file ({type(e).__name__})"
+            ) from None
+        info = dict(file.info)
+        file.close()
+        if (info.get("dictionary"), info.get("meanings_language")) != (
+            dictionary,
+            language,
+        ):
+            raise SystemExit(f"{source} isn't {dictionary}'s meanings in {language}")
+        name = f"{dictionary}-{language}-{version}{MEANINGS_SUFFIX}"
+        target = out_files / name
+        shutil.copyfile(source, target)
+        add_info(target, {"version": version})
+        packed = target.with_name(name + ".gz")
+        with (
+            target.open("rb") as raw,
+            packed.open("wb") as out,
+            gzip.GzipFile(filename="", mode="wb", fileobj=out, mtime=0) as squeezed,
+        ):
+            shutil.copyfileobj(raw, squeezed, 1 << 20)
+        rider = Rider(
+            kind="meanings",
+            format=info["format"],
+            min_app=min_app,
+            file=name,
+            size=target.stat().st_size,
+            sha256=sha256_of(target),
+            gz_size=packed.stat().st_size,
+            gz_sha256=sha256_of(packed),
+            meanings=language,
+        )
+        target.unlink()  # only the download goes up
+        found.append((rider, packed))
+    return found
+
+
 def still_needed(previous: PackOffer, new: PackOffer) -> bool:
     """Whether an app that reads `previous` might not read `new`: another
     format or word split, or a newer `min_app`."""
@@ -372,15 +444,26 @@ def list_bytes(
     whole: dict[str, object] = {
         "list": LIST_FORMAT,
         "serial": serial,
-        "packs": [asdict(o) for o in offers],
+        "packs": [_listed(asdict(o)) for o in offers],
     }
     if built_in:
-        whole["built_in"] = [asdict(b) for b in built_in]
+        whole["built_in"] = [_listed(asdict(b)) for b in built_in]
     if fonts:
-        whole["fonts"] = [asdict(f) for f in fonts]
+        whole["fonts"] = [_listed(asdict(f)) for f in fonts]
     return (
         json.dumps(whole, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
     ).encode("utf-8")
+
+
+def _listed(entry: dict[str, object]) -> dict[str, object]:
+    """An entry as the list writes it: a rider's `meanings` only where it
+    has one (a meanings rider's), so the other riders read as before."""
+    riders = entry.get("riders")
+    if isinstance(riders, (list, tuple)):  # `asdict` keeps a tuple a tuple
+        entry["riders"] = [
+            {k: v for k, v in r.items() if k != "meanings" or v} for r in riders
+        ]
+    return entry
 
 
 def sign_list(data: bytes, key: SigningKey) -> bytes:
@@ -531,7 +614,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=[],
         choices=sorted(BUILT_IN),
         help="a dictionary built into the app whose recorded words (in --audio) "
-        "go up as its riders",
+        "and meanings files (in --meanings) go up as its riders",
     )
     parser.add_argument(
         "--packs", type=Path, default=REPO / "build" / "dictionaries" / "packs"
@@ -551,6 +634,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "goes up as its pack's rider",
     )
     parser.add_argument("--rider-min-app", default=RIDER_MIN_APP)
+    parser.add_argument(
+        "--meanings",
+        type=Path,
+        help="a folder of meanings files (<dictionary>-<language>.meanings): "
+        "each goes up as its dictionary's rider (decision 0234)",
+    )
+    parser.add_argument("--meanings-min-app", default=MEANINGS_MIN_APP)
     parser.add_argument(
         "--fonts",
         type=Path,
@@ -575,20 +665,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
-    if any(
-        version_key(v) is None
-        for v in (args.version, args.min_app, args.rider_min_app, args.font_min_app)
-    ):
+    mins = (args.min_app, args.rider_min_app, args.meanings_min_app, args.font_min_app)
+    if any(version_key(v) is None for v in (args.version, *mins)):
         print("--version and the min apps are dotted numbers", file=sys.stderr)
         return 2
-    if args.riders_only and (args.audio is None or args.build):
-        print("--riders-only needs --audio, and builds no pack", file=sys.stderr)
+    no_riders = args.audio is None and args.meanings is None
+    if args.riders_only and (no_riders or args.build):
+        print(
+            "--riders-only needs --audio or --meanings, and builds no pack",
+            file=sys.stderr,
+        )
         return 2
     if not args.languages and not args.built_in and args.fonts is None:
         print("name the packs to publish, or --built-in, or --fonts", file=sys.stderr)
         return 2
-    if args.built_in and args.audio is None:
-        print("--built-in needs --audio", file=sys.stderr)
+    if args.built_in and no_riders:
+        print("--built-in needs --audio or --meanings", file=sys.stderr)
         return 2
 
     if args.build:
@@ -632,6 +724,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             riders = (rider,)
             new_files.append(path)
+        if args.meanings is not None:
+            for rider, path in stamp_meanings(
+                args.meanings, pack.name, out_files, args.version, args.meanings_min_app
+            ):
+                riders += (rider,)
+                new_files.append(path)
         if args.riders_only:
             published = [
                 o
@@ -656,11 +754,31 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     new_built_in: list[BuiltIn] = []
     for dictionary in dict.fromkeys(args.built_in):
-        rider, path, said_by[dictionary] = stamp_audio(
-            args.audio, dictionary, out_files, args.version, args.rider_min_app
-        )
-        new_built_in.append(BuiltIn(dictionary, BUILT_IN[dictionary], (rider,)))
-        new_files.append(path)
+        found: list[tuple[Rider, Path]] = []
+        if (
+            args.audio is not None
+            and (args.audio / f"{dictionary}{AUDIO_SUFFIX}").is_file()
+        ):
+            rider, path, said_by[dictionary] = stamp_audio(
+                args.audio, dictionary, out_files, args.version, args.rider_min_app
+            )
+            found.append((rider, path))
+        if args.meanings is not None:
+            found += stamp_meanings(
+                args.meanings,
+                dictionary,
+                out_files,
+                args.version,
+                args.meanings_min_app,
+            )
+        if not found:
+            print(
+                f"no riders for {dictionary} in --audio or --meanings", file=sys.stderr
+            )
+            return 1
+        riders = tuple(rider for rider, _ in found)
+        new_built_in.append(BuiltIn(dictionary, BUILT_IN[dictionary], riders))
+        new_files += [path for _, path in found]
     clash_built_in = [
         r.file
         for old in built_in
@@ -733,7 +851,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         for r in o.riders:
             print(
-                f"         with {r.kind} format {r.format} from app {r.min_app}: "
+                f"         with {r.kind}{' ' + r.meanings if r.meanings else ''} "
+                f"format {r.format} from app {r.min_app}: "
                 f"{r.download} {r.gz_size / 1e6:.1f} MB ({r.size / 1e6:.1f} MB "
                 f"unpacked) sha256 {r.gz_sha256[:12]}"
             )
@@ -742,7 +861,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         for r in entry.riders:
             print(
                 f"  {mark:4} built-in {entry.dictionary} ({entry.language}): "
-                f"{r.kind} format {r.format} from app {r.min_app}: {r.download} "
+                f"{r.kind}{' ' + r.meanings if r.meanings else ''} "
+                f"format {r.format} from app {r.min_app}: {r.download} "
                 f"{r.gz_size / 1e6:.1f} MB ({r.size / 1e6:.1f} MB unpacked) "
                 f"sha256 {r.gz_sha256[:12]}"
             )

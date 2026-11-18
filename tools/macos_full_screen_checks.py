@@ -27,10 +27,18 @@ and owner, front to back (`platform.macos.window_list`): never a picture.
 - sign: the dictation sign shown over the full-screen app (the interface
   never hands it over): shown although the app isn't active, and set by
   the watch's call too, above TextEdit.
+- popover_in_front: the caption window's settings popover opened over
+  it: in front of it in the window list as it opens, after the windows are
+  put on top again (what a caption's arrival does) and a moment later
+  (polyglotic-hq 515: it went behind).
 - click: unlocked, a click on it (System Events' `click at`): TextEdit
   stays in front and full-screen.
 - typed: dictation's `type_text` types "héllo 你好 😀" into TextEdit, read
   back through Accessibility; `keyboard_window` is TextEdit's window.
+- hover_in_background: TextEdit in front, the real mouse (cliclick) moved
+  over the caption window with the app's `PointerWatch` on: the window
+  hears it and shows its strip (polyglotic-hq 515: Qt drops the mouse of an
+  app that isn't active, so the strip never showed).
 - key_combination: dictation's key Control+Command+D registered through
   Carbon; System Events presses it: down, then up, and TextEdit gets no
   "d"; whether the same combination is refused a second time (a fact).
@@ -45,6 +53,11 @@ and owner, front to back (`platform.macos.window_list`): never a picture.
   the Mac's); cliclick (Homebrew's) clicks in TextEdit's window - a real
   mouse event, which System Events' `click at` isn't: the popover closes
   (438).
+- resize_by_mouse: the caption window's bottom-right corner dragged 40 x 30
+  by cliclick from 2 px inside its edge: it grows, through the app's own
+  resizing - the window's remembered place follows (polyglotic-hq 515:
+  macOS resized it itself, past the app's least size, and nothing was
+  remembered).
 - accessibility_settings: Settings > Dictation's "Open System Settings"
   (`text_input.Permission.open_settings`): System Settings opens (438).
 
@@ -601,10 +614,11 @@ class Run:
         def level() -> int:
             return int(objc.send(ns, "level", restype=ctypes.c_long))
 
-        self.until(lambda: level() == on_top.LEVEL, 3)
+        # the caption windows' level, or above them (515: `on_top.ABOVE`)
+        self.until(lambda: level() >= on_top.LEVEL, 3)
         number = int(objc.send(ns, "windowNumber", restype=ctypes.c_long))
         shown, is_above = above(window_list.on_screen(), number, self.textedit)
-        ok = level() == on_top.LEVEL and shown and is_above
+        ok = level() >= on_top.LEVEL and shown and is_above
         self.add(
             "sign",
             PASS if ok else FAIL,
@@ -615,6 +629,82 @@ class Run:
         )
         sign.hide()
         sign.deleteLater()
+
+    def popover_in_front(self) -> None:
+        """A caption window's settings popover open over it: in front of its
+        window in macOS's window list as it opens, after the caption windows
+        are put on top again (what a caption's arrival does, at most once a
+        second) and a moment later (polyglotic-hq 515: Qt made the popover
+        at its window's level, and ordering the window to the front put it
+        behind)."""
+        from polyglotic_desktop.platform.macos import objc, on_top, window_list
+
+        self.full_screen(False)
+        self.window.set_locked(False)
+        self.window.setGeometry(100, 100, 600, 160)
+        self.window.show()
+        self.on_top.put_on_top([int(self.window.winId())])
+        self.wait(0.5)
+        self.window.toggle_settings()
+        popover = self.window.popover
+        self.until(lambda: popover is not None and popover.isVisible(), 2)
+        if popover is None or not popover.isVisible():
+            self.add("popover_in_front", UNKNOWN, "the popover didn't open")
+            return
+
+        def number(widget: Any) -> int:
+            ns = on_top.window_of(int(widget.winId()))
+            return int(objc.send(ns, "windowNumber", restype=ctypes.c_long))
+
+        def order() -> dict[str, Any]:
+            listed = [w.number for w in window_list.on_screen()]
+            mine, theirs = number(self.window), number(popover)
+            return {
+                "window": listed.index(mine) if mine in listed else None,
+                "popover": listed.index(theirs) if theirs in listed else None,
+            }
+
+        self.wait(0.5)
+        rows = {"opened": order()}
+        self.on_top.put_on_top([int(self.window.winId())])
+        self.wait(0.3)
+        rows["put on top"] = order()
+        self.wait(1.5)
+        rows["after"] = order()
+        front = all(
+            r["popover"] is not None and r["window"] is not None
+            and r["popover"] < r["window"]
+            for r in rows.values()
+        )  # fmt: skip
+        overlaps = popover.frameGeometry().intersects(self.window.frameGeometry())
+        self.add(
+            "popover_in_front",
+            PASS if front else FAIL,
+            "the popover stayed in front of its caption window"
+            if front
+            else "the popover went behind its caption window",
+            rows=rows,
+            overlaps=overlaps,
+            popover=self.window_facts_of(popover),
+        )
+        popover.close()
+        # as the checks after it expect: their own popover (with the key
+        # watch they hand the window), TextEdit full-screen again
+        self.window.popover = None
+        popover.deleteLater()
+        self.full_screen(True)
+        self.wait(0.3)
+
+    def window_facts_of(self, widget: Any) -> dict[str, Any]:
+        from polyglotic_desktop.platform.macos import objc, on_top
+
+        ns = on_top.window_of(int(widget.winId()))
+        if not ns:
+            return {}
+        return {
+            "level": int(objc.send(ns, "level", restype=ctypes.c_long)),
+            "style_mask": int(objc.send(ns, "styleMask", restype=ctypes.c_ulong)),
+        }
 
     def click(self) -> None:
         facts = self.window_facts()
@@ -678,6 +768,53 @@ class Run:
             keyboard_window=window,
             textedit_window=expected,
         )
+
+    def hover_in_background(self) -> None:
+        from polyglotic_desktop.platform.macos import objc
+        from polyglotic_desktop.ui_next.pointer_watch import PointerWatch
+
+        clicker = _cliclick()
+        if clicker is None:
+            self.add("hover_in_background", UNKNOWN, "no cliclick on this machine")
+            return
+        self.full_screen(False)
+        self.to_front()
+        window = self.window
+        window.set_locked(False)
+        window.setGeometry(100, 100, 600, 160)  # where the later checks expect it
+        window.show()
+        self.on_top.put_on_top([int(window.winId())])
+        watch = PointerWatch(lambda: [window], window)
+        watch.start()
+        self.wait(0.6)
+        g = window.frameGeometry()
+        self.run_quietly(
+            [clicker, "-w", "60", f"m:{g.x() + 20},{g.y() - 80}",
+             f"m:{g.center().x()},{g.center().y()}"]
+        )  # fmt: skip
+        self.until(lambda: bool(window.hovered), 2)
+        app = objc.send(objc.cls("NSApplication"), "sharedApplication")
+        active = bool(objc.send(app, "isActive", restype=ctypes.c_bool))
+        facts = {
+            "hovered": bool(window.hovered),
+            "watching": watch.timer.isActive(),
+            "app_active": active,
+        }
+        watch.timer.stop()
+        watch.deleteLater()
+        self.run_quietly([clicker, f"m:{g.x() + 20},{g.y() - 80}"])
+        self.wait(0.6)
+        if active:
+            self.add("hover_in_background", UNKNOWN, "the app was active", **facts)
+        else:
+            self.add(
+                "hover_in_background",
+                PASS if facts["hovered"] else FAIL,
+                "the window heard the mouse with TextEdit in front"
+                if facts["hovered"]
+                else "nothing heard with TextEdit in front",
+                **facts,
+            )
 
     def key_combination(self) -> None:
         from polyglotic_desktop.platform.macos.hold_key import MacHoldKey
@@ -847,8 +984,17 @@ class Run:
                 "click_elsewhere", UNKNOWN, f"TextEdit's window not found: {box[:200]}"
             )
             return
-        target = (x + w * 3 // 4, y + h * 3 // 4)
-        inside = popover is not None and popover.frameGeometry().contains(*target)
+        # a point of TextEdit's window the popover doesn't cover: placed
+        # beside its button, it can cover the window's lower right (515)
+        frame = popover.frameGeometry() if popover is not None else None
+        spots = [
+            (x + w * a // 4, y + h * b // 4)
+            for a, b in ((3, 3), (1, 3), (3, 1), (1, 1))
+        ]
+        target = next(
+            (s for s in spots if frame is None or not frame.contains(*s)), spots[0]
+        )
+        inside = frame is not None and frame.contains(*target)
         before = QCursor.pos()
         # a real click (cliclick, from Homebrew): System Events' `click at`
         # moves no cursor and no mouse event reaches other apps' monitors
@@ -899,6 +1045,55 @@ class Run:
         if popover is not None and popover.isVisible():
             popover.close()
 
+    def resize_by_mouse(self) -> None:
+        """The bottom-right corner dragged with the real mouse from 2 px
+        inside: grown by the app's own resizing, and remembered."""
+        clicker = _cliclick()
+        if clicker is None:
+            self.add("resize_by_mouse", UNKNOWN, "no cliclick on this machine")
+            return
+        self.full_screen(False)
+        window = self.window
+        window.set_locked(False)
+        window.setGeometry(200, 200, 600, 160)
+        window.show()
+        self.on_top.put_on_top([int(window.winId())])
+        self.wait(0.6)
+        before = window.frameGeometry()
+        x, y = before.x() + before.width() - 3, before.y() + before.height() - 3
+        dragged, said = self.run_quietly(
+            [clicker, "-w", "60", f"m:{x},{y}", f"dd:{x},{y}",
+             f"dm:{x + 20},{y + 15}", f"dm:{x + 40},{y + 30}", f"du:{x + 40},{y + 30}"]
+        )  # fmt: skip
+        self.wait(0.8)
+        after = window.frameGeometry()
+        kept = window.choices.geometry
+        grew = (
+            after.width() - before.width() >= 20
+            and after.height() - before.height() >= 15
+        )
+        remembered = kept is not None and (kept.width, kept.height) == (
+            after.width(),
+            after.height(),
+        )
+        facts = {
+            "before": before.getRect(),
+            "after": after.getRect(),
+            "remembered": (kept.x, kept.y, kept.width, kept.height) if kept else None,
+            "style_mask": self.window_facts().get("style_mask"),
+        }
+        if not dragged:
+            self.add("resize_by_mouse", UNKNOWN, f"cliclick: {said[:200]}", **facts)
+            return
+        self.add(
+            "resize_by_mouse",
+            PASS if grew and remembered else FAIL,
+            "grown by the app, and remembered"
+            if grew and remembered
+            else ("grown, but not by the app: not remembered" if grew else "not grown"),
+            **facts,
+        )
+
     def accessibility_settings(self) -> None:
         from polyglotic_desktop.platform.macos import text_input
 
@@ -928,12 +1123,15 @@ class Run:
         self.guarded("shown_after_full_screen", self.shown_after_full_screen)
         self.guarded("locked", self.locked)
         self.guarded("sign", self.sign)
+        self.guarded("popover_in_front", self.popover_in_front)
         self.guarded("click", self.click)
         self.guarded("typed", self.typed)
+        self.guarded("hover_in_background", self.hover_in_background)
         self.guarded("key_combination", self.key_combination)
         self.guarded("key_alone", self.key_alone)
         self.guarded("escape_cancels", self.escape_cancels)
         self.guarded("click_elsewhere", self.click_elsewhere)
+        self.guarded("resize_by_mouse", self.resize_by_mouse)
         self.guarded("accessibility_settings", self.accessibility_settings)
         return self.finish()
 

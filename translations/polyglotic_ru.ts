@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">Фуригана над японским: включите её в Настройках, в разделе Чтение</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">Пиньинь над китайским: включите его в Настройках, в разделе Чтение</translation>
     </message>
@@ -2548,8 +2553,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">«Стабильно», по умолчанию: каждая фраза появляется один раз, целиком и с переводом, примерно через полсекунды после её конца; пока она в пути, под субтитрами движется полоска, а если говорящий продолжает, бледная строка показывает слова до этого момента. «Превью»: бледная первая строка примерно через 2 секунды, затем готовый субтитр и перевод, когда фраза закончится. «Вживую»: слова появляются по мере речи и переписываются до конца фразы. Выберите режим в Настройки &gt; Тайминг или в настройках окна субтитров. В любом режиме никто не говорит дольше «Максимального ожидания текста» (3 секунды, если не менять), прежде чем вы увидите текст.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">«Превью», по умолчанию: бледная первая строка примерно через 2 секунды, затем готовый субтитр и перевод, когда фраза закончится. «Стабильно»: каждая фраза появляется один раз, целиком и с переводом, примерно через полсекунды после её конца; пока она в пути, под субтитрами движется полоска, а если говорящий продолжает, бледная строка показывает слова до этого момента. «Вживую»: слова появляются по мере речи и переписываются до конца фразы. Выберите режим в Настройки &gt; Тайминг или в настройках окна субтитров. В любом режиме никто не говорит дольше «Максимального ожидания текста» (3 секунды, если не менять), прежде чем вы увидите текст.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6296,7 +6301,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">Чтение</translation>
     </message>
     <message>
@@ -6341,6 +6346,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">Фуригана над японским</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">Маленькая кана над иероглифами каждого слова, в сказанном и в переводах на японский, из японского словаря — когда вы учите японский и его словарь уже здесь.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">Ударения над русским</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">Знак ударения над ударной гласной каждого русского слова (молоко́), из русского словаря — нет там, где словарь даёт слову два ударения (ру́ки, руки́): его карточка показывает оба. Когда вы учите русский и его словарь уже здесь.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">Латиница над корейским</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Каждое корейское слово в новой романизации, официальной системе, записанное так, как оно звучит (한국어: hangugeo, 국물: gungmul) — по правилам, без словаря.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">Латиница над хинди</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Каждое слово хинди латиницей, как его пишут словари (किताब: kitāb), без непроизносимых a — по правилам, без словаря.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">Все слова</translation>
     </message>
@@ -6358,6 +6403,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">За пределами знакомого: только над словами за вашей границей знакомых слов в Обучении — теми, на которые указывают связи слов. Чем больше выучено, тем меньше читать.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">Произношение над английским</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">Как звучит каждое английское слово, простыми буквами, ударная часть заглавными (KAY-oss, ri-SEET) — для 10 000 самых частых слов, в сказанном и в переводах на английский, когда вы учите английский.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">Произношение над</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">Дальше того, что вы знаете: только над английскими словами за вашей границей известных слов в Обучении, чтобы знакомые слова читались без него.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

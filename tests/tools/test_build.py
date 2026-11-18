@@ -52,6 +52,14 @@ ECDICT_CSV = "\n".join(
 
 
 # Centibels below 1 -> words: "run" is 10^-2.5 of all words, "ran" 10^-3...
+# CMUdict, cut down: the words the wordfreq sample ranks (polyglotic-hq 511)
+CMUDICT_SAMPLE = """english IH1 NG G L IH0 SH
+left L EH1 F T
+procrastinate P R OW0 K R AE1 S T AH0 N EY2 T
+run R AH1 N
+running R AH1 N IH0 NG
+runs R AH1 N Z
+"""
 WORDFREQ_BUCKETS = {
     250: ["run", "english"],
     300: ["ran", "running", "leave"],
@@ -132,6 +140,7 @@ def fixture_sources(folder: Path) -> dict[str, sources.Source]:
     (folder / "oewn.xml.gz").write_bytes(gzip.compress(OEWN_XML.encode("utf-8")))
     for ewt in treebanks.of("en"):
         (folder / f"{ewt.name}.conllu").write_text(EWT, encoding="utf-8")
+    (folder / "cmudict.dict").write_text(CMUDICT_SAMPLE, encoding="utf-8")
     pinned = {}
     for real, name in (
         (sources.CEDICT, "cedict.txt.gz"),
@@ -140,6 +149,7 @@ def fixture_sources(folder: Path) -> dict[str, sources.Source]:
         (sources.ECDICT, "ecdict.csv"),
         (sources.WORDFREQ, "wordfreq.whl"),
         (sources.OEWN, "oewn.xml.gz"),
+        (sources.CMUDICT, "cmudict.dict"),
         *((ewt, f"{ewt.name}.conllu") for ewt in treebanks.of("en")),
     ):
         path = folder / name
@@ -259,6 +269,24 @@ def test_the_english_dictionary_in_english_has_the_same_entries_in_english(
     finally:
         chinese.close()
         file.close()
+
+
+def test_the_english_dictionaries_respell_the_commonest_words(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """511: the reading line over English reads how a word sounds (471's
+    respelling, KAY-oss) as the English dictionary's form reading - in
+    both English files; a word CMUdict hasn't got has none."""
+    out = built(tmp_path, monkeypatch)
+    for name in ("ecdict.sqlite", "ecdict-en.sqlite"):
+        file = SqliteDictionary(out / name)
+        try:
+            assert file.form_reading("procrastinate") == "proh-KRAS-tuh-nayt"
+            assert file.form_reading("running") == "RUN-ing"
+            assert file.form_reading("runs") == "RUNZ"  # a form wordfreq lacks
+            assert file.form_reading("ran") == ""  # not in CMUdict
+        finally:
+            file.close()
 
 
 def test_credits_name_every_source_with_its_licence(

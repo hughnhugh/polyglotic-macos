@@ -11,6 +11,16 @@ A name is an entry written capitalised (`entry_from_record`). Where a name
 is also a word ("Bill"), the dictionary has the word first: a sentence's
 first word is looked up as the word, a capitalised one inside a sentence
 as the name (`names_first`).
+
+Where a meanings file in the learner's language is beside ECDICT
+(`explain_in`; decision 0234), an entry it has is shown with those
+meanings; one it hasn't keeps the dictionary's own (English, or Chinese).
+
+How a word sounds, respelled for learners (KAY-oss, ri-SEET: stressed
+syllable in capitals), is the dictionary's form reading of it - the
+10,000 commonest words, from CMUdict by 471's rules (DECISIONS #200: TYME,
+uu, ee) - read by the reading line over English (`readings`; polyglotic-hq
+511). A heteronym shows its commoner sense (record: REK-erd).
 """
 
 import re
@@ -18,9 +28,18 @@ import unicodedata
 from collections.abc import Mapping, Sequence
 
 from polyglotic_desktop.core.lexicon import spoken
-from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, words_in_runs
+from polyglotic_desktop.core.lexicon.entries import (
+    DictionaryEntry,
+    explained,
+    words_in_runs,
+)
+from polyglotic_desktop.core.lexicon.readings import Reading
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordInLine
-from polyglotic_desktop.ports.dictionary import DictionaryFile, EntryRecord
+from polyglotic_desktop.ports.dictionary import (
+    DictionaryFile,
+    EntryRecord,
+    MeaningsFile,
+)
 
 # A word in a spaced language: letters, it's, well-known. Chinese
 # characters aren't its letters: in 用iPhone打 the word is iPhone (133).
@@ -186,6 +205,12 @@ class EnglishDictionary:
 
     def __init__(self, file: DictionaryFile) -> None:
         self._file = file
+        self._meanings: MeaningsFile | None = None
+
+    def explain_in(self, meanings: MeaningsFile | None) -> None:
+        """Entries are shown with `meanings`' meanings from now on, where it
+        has them (None: the dictionary's own; decision 0234)."""
+        self._meanings = meanings
 
     @property
     def ready(self) -> bool:
@@ -231,7 +256,10 @@ class EnglishDictionary:
                 *(self._file.records(lemma) if lemma else ()),
                 *self._file.records(form),
             ]:
-                found.setdefault(record.entry_id, entry_from_record(record))
+                found.setdefault(
+                    record.entry_id,
+                    explained(entry_from_record(record), self._meanings),
+                )
             if found:
                 break
         return found
@@ -259,7 +287,9 @@ class EnglishDictionary:
     def entry(self, entry_id: EntryId) -> DictionaryEntry | None:
         """The entry with this ID - or the one it was merged into."""
         record = self._file.record(entry_id)
-        return entry_from_record(record) if record else None
+        if record is None:
+            return None
+        return explained(entry_from_record(record), self._meanings)
 
     def facts(self, entry_id: EntryId, scheme_id: str) -> EntryFacts | None:
         """`entry(entry_id).facts(scheme_id)`: what Learning asks for every
@@ -302,3 +332,28 @@ class EnglishDictionary:
         """The entry IDs merged into other entries (decision 0007): what
         `Vocabulary.follow_merged_entries` checks at start."""
         return [EntryId(old) for old in self._file.merged_ids()]
+
+    def respelling(self, word: str) -> str:
+        """How `word` sounds, respelled for learners ("chaos": KAY-oss) -
+        "" where the dictionary hasn't it (a rarer word, or a dictionary
+        built before 511)."""
+        return self._file.form_reading(word.replace("’", "'").lower())
+
+    def readings(self, text: str) -> list[Reading]:
+        """The reading line over English `text`: each word's respelling
+        over it, where the dictionary has one - a hyphenated word it
+        hasn't whole, each part's over that part (well-known)."""
+        found = []
+        for start, end in words(text):
+            word = text[start:end]
+            said = self.respelling(word)
+            if said or "-" not in word:
+                found += [Reading(start, end, said)] if said else []
+                continue
+            at = start
+            for part in word.split("-"):
+                said = self.respelling(part) if part else ""
+                if said:
+                    found.append(Reading(at, at + len(part), said))
+                at += len(part) + 1
+        return found

@@ -10,6 +10,7 @@ from polyglotic_desktop.core.lexicon.english import (
     word_at,
     words,
 )
+from polyglotic_desktop.core.shared import EntryId
 from polyglotic_desktop.ports.dictionary import EntryRecord
 
 
@@ -311,3 +312,30 @@ def test_a_form_listed_with_its_own_entry_first_counts_for_it() -> None:
     assert [e.headword for e in d.lookup("bit")] == ["bit", "bite"]
     assert d.entry_for_word("bit") == d.lookup("bit")[0]
     assert d.entry_for_word("Bit") == d.lookup("bit")[0]
+
+
+class SpanishMeanings:
+    """A stand-in meanings file: ECDICT's meanings in Spanish (decision 0234)."""
+
+    def __init__(self, rows: dict[str, tuple[str, ...]]) -> None:
+        self.rows = rows
+
+    def meanings(self, entry_id: str) -> tuple[str, ...] | None:
+        return self.rows.get(entry_id)
+
+
+def test_an_entry_the_learners_meanings_file_has_is_shown_in_their_language() -> None:
+    """Decision 0234: the card's meanings are the learner's language's where
+    the file has the entry - its form ("ran") too, through its lemma - and
+    the dictionary's own where it hasn't; the entry is still the same one,
+    so statuses don't change."""
+    english = dictionary()
+    english.explain_in(SpanishMeanings({"ecdict:run": ("(verb) correr",)}))
+    (run,) = english.lookup("ran")
+    assert run.meanings == ("(verb) correr",)
+    assert (run.entry_id, run.frequency_rank) == ("ecdict:run", 202)
+    assert english.lookup("leave")[0].meanings == ("v. 离开",)  # not in the file
+    entry = english.entry(EntryId("ecdict:run"))
+    assert entry is not None and entry.meanings == ("(verb) correr",)
+    english.explain_in(None)
+    assert english.lookup("run")[0].meanings == ("v. 跑",)

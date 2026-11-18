@@ -262,7 +262,7 @@ def test_a_drag_across_a_phrase_within_its_row_pins_the_phrase(
 ) -> None:
     shown, shared = window(windows), card(windows)
     _, start = find(shown, "画")
-    _, end = find(shown, "漂亮")
+    _, end = find(shown, "很漂亮")  # under 4: no sentence (522)
     mouse(shown, "press", start)
     mouse(shown, "move", QPointF(end.x() + 4, end.y()))
     assert shown.canvas.selection is not None

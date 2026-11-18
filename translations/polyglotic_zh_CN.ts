@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">日语上方的假名注音：在“设置”的“读音”中打开</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">汉字上方的拼音：在“设置”的“读音”中打开</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">“稳定”（默认）：每句话只出现一次，完整并附译文，在说完后约半秒出现；字幕生成期间，字幕下方会有一条小进度条在移动；如果说话人一直说下去，会先出现一行较暗的文字，显示目前说到的内容。“快速预览”：约 2 秒后先出现一行较暗的初步识别，句子说完时再显示完整字幕和译文。“实时更新”：边说边出字，直到句子说完前都会不断改写。可在“设置” &gt; “时机”里选择，或在字幕窗口的设置里选择。无论哪一种，说话人说话超过“出字前最长等待”（默认 3 秒，可以更改），你就会看到文字。</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">“快速预览”（默认）：约 2 秒后先出现一行较暗的初步识别，句子说完时再显示完整字幕和译文。“稳定”：每句话只出现一次，完整并附译文，在说完后约半秒出现；字幕生成期间，字幕下方会有一条小进度条在移动；如果说话人一直说下去，会先出现一行较暗的文字，显示目前说到的内容。“实时更新”：边说边出字，直到句子说完前都会不断改写。可在“设置” &gt; “时机”里选择，或在字幕窗口的设置里选择。无论哪一种，说话人说话超过“出字前最长等待”（默认 3 秒，可以更改），你就会看到文字。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">读音</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">日语上方显示假名注音</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">在每个词的汉字上方显示小假名，所说的话和译成日语的译文里都有，来自日语词典——学习日语并且它的词典已在本机时显示。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">俄语上方的重音符号</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">在每个俄语单词的重读元音上方标一个重音符号（молоко́），来自俄语词典——词典里有两种重音的词（ру́ки、руки́）不标：它的卡片会显示两种。学习俄语并且它的词典已在本机时显示。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">韩语上方的罗马字</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">每个韩语单词用官方的“国语罗马字表记法”，照实际读音写出（한국어: hangugeo，국물: gungmul）——按规则转写，不需要词典。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">印地语上方的拉丁字母</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">每个印地语单词用拉丁字母，照词典的写法（किताब: kitāb），不读的 a 省去——按规则转写，不需要词典。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">每个词</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">超出已认识的：只标在“学习”里你已认识范围之外的词上，也就是词语连线指出的那些。学得越多，要看的越少。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">英语上方的发音拼写</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">每个英语单词怎么读，用普通字母拼出，重读部分大写（KAY-oss、ri-SEET）——适用于最常用的 10,000 个词，所说的话和译成英语的译文里都有，学习英语时显示。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">发音拼写标在</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">超出已知的词：只标在“学习”里已知线之外的英语单词上方，认识的词照常阅读。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

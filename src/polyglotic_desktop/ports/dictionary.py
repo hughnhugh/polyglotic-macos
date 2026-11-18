@@ -5,6 +5,9 @@ ECDICT for English learners), built by `tools/dictionaries`. Core's Lexicon
 reads entries through this port and gives them their meaning: pinyin tone
 marks, names, levels.
 
+`MeaningsFile`: one dictionary's meanings in the learner's language, beside
+it (decision 0234): where it has an entry, the card shows those instead.
+
 A file that can't be read never stops the app (polyglotic-hq 199): the
 learner's dictionary is then *out* - every query answers nothing, so
 captions run without word marks or counting, and lookups say why
@@ -126,4 +129,16 @@ class DictionaryFile(Protocol):
         """How many headwords the level scheme `scheme` puts at each level,
         by the entries' own levels - none for a scheme of frequency
         cut-offs, which entries don't carry."""
+        ...
+
+
+class MeaningsFile(Protocol):
+    """One dictionary's meanings in one more language, by entry ID: a small
+    file beside the dictionary (a rider, decision 0133), so a dictionary is
+    built once and explained in each learner's language (decision 0234)."""
+
+    def meanings(self, entry_id: str) -> tuple[str, ...] | None:
+        """The entry's meanings in this file's language, one per line of the
+        card, as people wrote them; None: it has none for the entry (the
+        dictionary's own are shown)."""
         ...

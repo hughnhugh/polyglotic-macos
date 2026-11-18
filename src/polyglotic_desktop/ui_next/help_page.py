@@ -921,16 +921,16 @@ def questions() -> list[tuple[str, str]]:
             ),
         ),
         (
-            # the caption timings, the default first (polyglotic-hq 260,
-            # DECISIONS.md #107), each as its line in Settings > Timing says it
+            # the caption timings, the default first (desktop decision 0242,
+            # polyglotic-hq 522), each as its line in Settings > Timing says it
             _tr("When do captions appear?"),
             _tr(
-                "Steady, the default: each sentence appears once, finished and "
+                "Quick preview, the default: a dim first line after about 2 "
+                "seconds, then the finished caption and its translation when the "
+                "sentence ends. Steady: each sentence appears once, finished and "
                 "translated, about half a second after it ends; a small bar moves "
                 "under the captions while it's on its way, and if the speaker "
-                "talks on, a dim line shows the words so far. Quick preview: a dim "
-                "first line after about 2 seconds, then the finished caption and "
-                "its translation when the sentence ends. Live updates: words "
+                "talks on, a dim line shows the words so far. Live updates: words "
                 "appear as they're "
                 "said and rewrite themselves until the sentence ends. Choose one "
                 "in Settings > Timing, or in a caption window's "

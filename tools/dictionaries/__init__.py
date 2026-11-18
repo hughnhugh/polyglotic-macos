@@ -8,6 +8,9 @@
   meanings in English for `ecdict-en.sqlite` - Open English WordNet's,
   ordered by UD English-EWT's counts, and our own (decision 0211);
   `english_check` measures them on FLEURS and wordfreq's commonest.
+- `english_pairs`: English's meanings in each learner's language, as
+  ECDICT's meanings files (`ecdict-<language>.meanings`, decision 0234) -
+  Wiktionary's translation tables and each language's own Wiktionary.
 - `wordfreq_ranks`: frequency ranks from wordfreq's data.
 - `frequency`: a pack's frequency lists - wordfreq's, or counts from
   subtitles - and averaging them (decision 0120).

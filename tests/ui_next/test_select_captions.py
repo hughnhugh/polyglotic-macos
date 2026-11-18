@@ -147,7 +147,7 @@ def test_a_drag_within_the_clause_still_pins_the_phrase_and_holds_it(
 ) -> None:
     shown_, shared = window(windows), card(windows)
     _, start = find(shown_, "画")
-    _, end = find(shown_, "漂亮")
+    _, end = find(shown_, "很漂亮")  # under 4: no sentence (522)
     drag(shown_, start, QPointF(end.x() + 4, end.y()))
     assert shared.pinned and shared.model.word.startswith("画面")
     held = shown_.held.selection
@@ -295,7 +295,7 @@ def test_with_a_phrase_pinned_ctrl_c_is_the_cards(windows: CaptionWindows) -> No
     the phrase."""
     shown_ = window(windows)
     _, start = find(shown_, "画")
-    _, end = find(shown_, "漂亮")
+    _, end = find(shown_, "很漂亮")  # under 4: no sentence (522)
     drag(shown_, start, QPointF(end.x() + 4, end.y()))
     assert shown_.held.copy_is_cards()
 

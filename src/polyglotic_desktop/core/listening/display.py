@@ -146,11 +146,14 @@ class ReadingSystem(StrEnum):
     """Bopomofo (注音), from the same pinyin (`core.lexicon.zhuyin`)."""
 
 
-READING_LANGUAGES = ("zh", "yue")
+READING_LANGUAGES = ("zh", "yue", "ja", "en", "ru", "ko", "hi")
 """The languages a reading line can be put over (decision 0155): Chinese,
-read in pinyin (or zhuyin), and Cantonese, read in Jyutping (decision 0160;
-the user, 2026-11-17: "the same level as pinyin and zhuyin"). Furigana for
-Japanese would come next."""
+read in pinyin (or zhuyin), Cantonese, read in Jyutping (decision 0160;
+the user, 2026-11-17: "the same level as pinyin and zhuyin"), Japanese,
+in furigana, English, respelled as it sounds (KAY-oss; polyglotic-hq
+511, DECISIONS #200), Russian, its stress marked (молоко́), Korean, in
+Revised Romanization (hangugeo), and Hindi, in Latin letters (kitāb; all
+511)."""
 
 
 @dataclass(frozen=True, slots=True)

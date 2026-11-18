@@ -494,6 +494,9 @@ class CaptionLook:
     reading_past: bool = False
     """Readings only over the words past what the learner knows (the
     words word links "past what I know" would link, decision 0130)."""
+    respelling_past: bool = True
+    """English's respelling the same way - its own choice, on at first
+    (polyglotic-hq 511, DECISIONS #200: "only over new words")."""
     reading_system: ReadingSystem = ReadingSystem.PINYIN
     """Chinese's reading line in pinyin or zhuyin (395)."""
     reading_colour: ReadingColour = ReadingColour.LINK

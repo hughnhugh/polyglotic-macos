@@ -3,8 +3,10 @@
 
 When the learner lets go of a drag across more than a word - across lines,
 clauses, captions and speakers (`views.sentences.worth_saving`) - this card
-shows under the caption the selection ends in, never over its translation
-(above it with no room below):
+shows at the mouse, where the drag let go (the user, 2026-11-18: "should
+appear on mouse"; under the caption the selection ended in until 522), and
+alone: no lookup card opens for the selection beside it (522: the two
+overlapped, and covered Say it):
 "Save sentence to" and a button per category, in its colour - the saved
 words' categories, shared. A click saves it in the learning data of the
 language it was spoken in and says "Saved to Tricky"; the card goes a
@@ -62,7 +64,7 @@ TEXT, DIM, SURFACE, LINE = "#e9ecf2", "#a0a8b6", "#191d24", "#2a303b"
 SAVED_MS = 1400
 """How long "Saved to ..." shows before the card goes."""
 GAP = 6
-"""Between the selection and the card."""
+"""Between the mouse and the card."""
 
 
 def _tr(text: str) -> str:
@@ -139,15 +141,15 @@ QCheckBox::indicator:checked {{ background: {DIM}; }}
 """
 
 
-def placed(anchor: QRect, size: tuple[int, int], area: QRect) -> QPoint:
-    """Where the card goes: under `anchor` (the selection's last line, on
-    the screen), its left edge with the line's - above it when there's no
-    room below; moved in to stay on `area` (the work area)."""
+def placed(at: QPoint, size: tuple[int, int], area: QRect) -> QPoint:
+    """Where the card goes: just under `at` (the mouse, on the screen),
+    its left edge there - above it when there's no room below; moved in
+    to stay on `area` (the work area)."""
     width, height = size
-    x = anchor.left()
-    y = anchor.bottom() + 1 + GAP
+    x = at.x()
+    y = at.y() + GAP
     if y + height > area.bottom() + 1:
-        y = anchor.top() - GAP - height
+        y = at.y() - GAP - height
     x = max(area.left(), min(x, area.right() + 1 - width))
     y = max(area.top(), min(y, area.bottom() + 1 - height))
     return QPoint(x, y)
@@ -234,11 +236,11 @@ class SentenceCard(QWidget):
         self,
         categories: Sequence[Category],
         save: Callable[[CategoryId], str],
-        anchor: QRect,
+        at: QPoint,
         area: QRect,
         sides: Sequence[SideAloud] = (),
     ) -> None:
-        """Shows the card by `anchor` (on the screen): a button per
+        """Shows the card at `at` (the mouse, on the screen): a button per
         category; a click calls `save` with its ID, which returns the
         category's name it went into ("" if it couldn't be saved). `sides`:
         what can be read aloud (with `reading`); none, no Say it row."""
@@ -261,7 +263,7 @@ class SentenceCard(QWidget):
             self.buttons.append(button)
         self._offer_sides(sides)
         self.adjustSize()
-        self.move(placed(anchor, (self.width(), self.height()), area))
+        self.move(placed(at, (self.width(), self.height()), area))
         self.show()
 
     def _offer_sides(self, sides: Sequence[SideAloud]) -> None:

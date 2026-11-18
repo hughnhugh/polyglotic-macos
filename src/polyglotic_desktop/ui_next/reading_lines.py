@@ -1,6 +1,9 @@
 """Reading lines over caption text: pinyin above Chinese (polyglotic-hq
-364 and 369, decision 0155), and Jyutping above Cantonese (polyglotic-hq
-450, decision 0160).
+364 and 369, decision 0155), Jyutping above Cantonese (polyglotic-hq
+450, decision 0160), furigana above Japanese, a respelling above
+English (KAY-oss: polyglotic-hq 511, DECISIONS #200), stress marks
+over Russian (молоко́), Korean in Revised Romanization and Hindi in Latin
+letters (511).
 
 A reading (`core.lexicon.readings.Reading`) is drawn small above the
 characters it reads, centred on them. Where it is wider than they are,
@@ -17,7 +20,11 @@ room (`WORD_GAP`), so the words show in a script written without spaces.
 Which languages have their line on is the caption style's
 (`CaptionStyle.reading_lines`); where readings come from is the caption
 layout's `readings` - the Chinese dictionary's word split and everyday
-readings, or the Cantonese pack's (`core.lexicon.jyutping`), on this PC:
+readings, the Cantonese pack's (`core.lexicon.jyutping`), the Japanese
+pack's word split (`core.lexicon.furigana`), the English dictionary's
+respellings (`EnglishDictionary.readings`), or the Russian pack's
+stressed forms (`core.lexicon.stress`) - or, for Korean and Hindi, rules
+with no dictionary (`core.lexicon.korean`, `.hindi`) - on this PC:
 nothing is sent anywhere for it.
 
 Holds caption text's sound in what it lays out: never log it.
@@ -25,6 +32,7 @@ Holds caption text's sound in what it lays out: never log it.
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from typing import Protocol
 
 from PySide6.QtCore import QPointF
 from PySide6.QtGui import (
@@ -39,8 +47,13 @@ from PySide6.QtGui import (
 
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
+from polyglotic_desktop.core.lexicon.english import EnglishDictionary
+from polyglotic_desktop.core.lexicon.furigana import FuriganaReader
+from polyglotic_desktop.core.lexicon.hindi import HindiReader
 from polyglotic_desktop.core.lexicon.jyutping import JyutpingReader
+from polyglotic_desktop.core.lexicon.korean import KoreanReader
 from polyglotic_desktop.core.lexicon.readings import Reading, Readings
+from polyglotic_desktop.core.lexicon.stress import StressReader
 from polyglotic_desktop.core.listening.display import READING_LANGUAGES, ReadingSize
 from polyglotic_desktop.core.shared import EntryFacts
 from polyglotic_desktop.ui_next import caption_faces, fonts
@@ -63,6 +76,26 @@ LIFT = 0.05
 text size: a CJK font's own room above its glyphs is nearly enough."""
 ALPHA = 0.92
 """A reading is drawn this much fainter than its text: the text leads."""
+KANA_REACH = 0.5
+"""How far a reading may reach over the kana written after its kanji, as
+a share of that kana's width - as Japanese typesetting lets furigana
+overhang (必ずしも, not 必 ずしも; polyglotic-hq 511)."""
+
+
+ONE_CLICK = ("zh", "yue")
+"""The reading lines word links' one click turns on with the links, for a
+window in their language (446): pinyin and Jyutping. The others come on
+only by their own switch in Settings > Readings (polyglotic-hq 511)."""
+
+
+MARKED = ("ru",)
+"""The languages whose reading line is marks on their letters (Russian's
+stress: `Reading.mark`): their rows keep no band above them."""
+
+
+def marked(language: str | None) -> bool:
+    """Whether `language`'s readings are marks on its letters (`MARKED`)."""
+    return language is not None and language.split("-")[0] in MARKED
 
 
 def language_of(language: str | None) -> str | None:
@@ -74,7 +107,9 @@ def language_of(language: str | None) -> str | None:
     return first if first in READING_LANGUAGES else None
 
 
-def source_of(learner: Learner, past: bool = False) -> Readings:
+def source_of(
+    learner: Learner, past: bool = False, respelling_past: bool = True
+) -> Readings:
     """Where a caption window's readings come from: pinyin from the
     Chinese dictionary on this PC (a learner's, `Learner.of`), Jyutping
     from the Cantonese pack (`reader`), once its word split's data is
@@ -83,7 +118,9 @@ def source_of(learner: Learner, past: bool = False) -> Readings:
     line; None, too, without its dictionary open (Chinese or Cantonese not
     learned): ask again.
     `past`: only over the words past what the learner knows - the words
-    word links "past what I know" link (decision 0130; `past_only`)."""
+    word links "past what I know" link (decision 0130; `past_only`);
+    `respelling_past`: the same, for English's respelling, which has its
+    own choice (polyglotic-hq 511: past what you know at first)."""
 
     def read(text: str, language: str | None) -> Sequence[Reading] | None:
         if language_of(language) is None:
@@ -97,9 +134,25 @@ def source_of(learner: Learner, past: bool = False) -> Readings:
         if not dictionary.ready:
             return None
         found = dictionary.readings(text)
-        return past_only(learner, text, language, found) if past and found else found
+        only = respelling_past if language_of(language) == "en" else past
+        return past_only(learner, text, language, found) if only and found else found
 
     return read
+
+
+def sources(learner: Learner) -> Callable[[bool, bool], Readings]:
+    """A window's sources of readings by how their words are chosen - the
+    scripts' readings past what the learner knows or over every word, and
+    English's respelling the same way (`source_of`) - each made once."""
+    made: dict[tuple[bool, bool], Readings] = {}
+
+    def of(past: bool, respelling_past: bool) -> Readings:
+        key = (past, respelling_past)
+        if key not in made:
+            made[key] = source_of(learner, past, respelling_past)
+        return made[key]
+
+    return of
 
 
 def past_only(
@@ -141,13 +194,33 @@ def knows(
     return lambda facts: ours.vocabulary.needs_no_link(facts, links_from)
 
 
-def reader(
-    learner: Learner, language: str | None
-) -> ChineseDictionary | JyutpingReader | None:
+class Reader(Protocol):
+    """What reads one language's text for its reading line."""
+
+    @property
+    def ready(self) -> bool:
+        """Whether it can answer now: its data read."""
+        ...
+
+    def readings(self, text: str) -> Sequence[Reading]:
+        """The readings of `text`."""
+        ...
+
+
+KOREAN = KoreanReader()
+HINDI = HindiReader()
+"""Korean's and Hindi's readers: rules alone, the same for every learner."""
+
+
+def reader(learner: Learner, language: str | None) -> Reader | None:
     """What reads a row in `language` on this PC, if anything does: the
     learner's Chinese dictionary, for Chinese; for Cantonese, the Cantonese
     pack once Cantonese is learned and its pack here (its own tools,
-    `Learner.of`; decision 0175) - as pinyin needs Chinese learned."""
+    `Learner.of`; decision 0175) - as pinyin needs Chinese learned; for
+    Japanese, the Japanese pack's word split, the same way, and for
+    Russian its pack's stressed forms; for English, the English dictionary
+    once English is learned. Korean's and Hindi's need no dictionary: their
+    rules, for anyone who turns them on."""
     code = language_of(language)
     if code == "zh":
         dictionary = learner.of(language).dictionary
@@ -156,6 +229,21 @@ def reader(
         pack = learner.of(language).dictionary
         if isinstance(pack, BasicDictionary) and pack.language == "yue":
             return _jyutping(pack)
+    if code == "ja":
+        pack = learner.of(language).dictionary
+        if isinstance(pack, BasicDictionary) and pack.language == "ja":
+            return FuriganaReader(pack)  # keeps nothing: rubies are kept
+    if code == "ru":
+        pack = learner.of(language).dictionary
+        if isinstance(pack, BasicDictionary) and pack.language == "ru":
+            return _stress(pack)
+    if code == "ko":
+        return KOREAN
+    if code == "hi":
+        return HINDI
+    if code == "en":
+        english = learner.of(language).dictionary
+        return english if isinstance(english, EnglishDictionary) else None
     return None
 
 
@@ -168,6 +256,17 @@ def _jyutping(pack: BasicDictionary) -> JyutpingReader:
     if not _READERS or _READERS[0].dictionary is not pack:
         _READERS[:] = [JyutpingReader(pack)]
     return _READERS[0]
+
+
+_STRESSES: list[StressReader] = []
+"""The Russian pack's reader, kept while the pack is the same: it keeps
+the words it has read."""
+
+
+def _stress(pack: BasicDictionary) -> StressReader:
+    if not _STRESSES or _STRESSES[0].dictionary is not pack:
+        _STRESSES[:] = [StressReader(pack)]
+    return _STRESSES[0]
 
 
 @dataclass(frozen=True, slots=True)
@@ -190,6 +289,8 @@ class Ruby:
     spacing: tuple[tuple[int, int, float], ...]
     """The room as Qt is given it (`spaced`): Qt's index of a character,
     its length there, and the room after it."""
+    text_font: QFont
+    """The text's own font: a mark (`Reading.mark`) is drawn in it."""
 
     def room(self, start: int, end: int) -> float:
         return sum(self.before[start:end]) + sum(self.after[start:end])
@@ -249,6 +350,7 @@ def ruby(
     font: QFont,
     share: float = SHARE,
     weight: QFont.Weight = QFont.Weight.DemiBold,
+    band: bool = True,
 ) -> Ruby:
     """`readings` over `text` drawn in `font`, at `share` of its size.
     With none, the band alone: a language's lines are one height whether
@@ -259,7 +361,10 @@ def ruby(
     take together, less what one's narrower reading leaves free over its
     character (zhāng over 张 reaches over 的's room, de being narrower
     than 的): `after` a character is that room, less the next one's own
-    `before` - which a line starting at it needs whole."""
+    `before` - which a line starting at it needs whole.
+
+    A mark (`Reading.mark`) takes no room and is measured in `font`;
+    `band` False: no band - a language whose readings are all marks."""
     small = reading_font(font, share, weight)
     px = small.pixelSize()
     (kept, metrics), (base_kept, base_metrics) = _measure(small), _measure(font)
@@ -270,13 +375,17 @@ def ruby(
     """By a reading's first character: half of how much wider than its
     characters it is (less than 0: narrower), and the reading."""
     for reading in readings:
-        wide = kept.get(reading.text)
-        if wide is None:
-            wide = kept[reading.text] = metrics.horizontalAdvance(reading.text)
         read = text[reading.start : reading.end]
         under = base_kept.get(read)
         if under is None:
             under = base_kept[read] = base_metrics.horizontalAdvance(read)
+        if reading.mark:  # on its letter, in the text's size: no room
+            widths.append(base_metrics.horizontalAdvance(reading.text))
+            base.append(under)
+            continue
+        wide = kept.get(reading.text)
+        if wide is None:
+            wide = kept[reading.text] = metrics.horizontalAdvance(reading.text)
         widths.append(wide)
         base.append(under)
         over[reading.start] = ((wide - under) / 2, reading)
@@ -284,8 +393,12 @@ def ruby(
     for half, reading in over.values():
         last = reading.end - 1
         then = over.get(reading.end)
-        if then is None:  # no reading next: room for its own reach alone
-            after[last] = max(0.0, half)
+        if then is None:  # no reading next: room for its own reach alone,
+            # less what it may reach over kana written after it (`KANA_REACH`)
+            reach = 0.0
+            if reading.end < count and _is_kana(text[reading.end]):
+                reach = KANA_REACH * base_metrics.horizontalAdvance(text[reading.end])
+            after[last] = max(0.0, half - reach)
             continue
         room = max(0.0, half + PAD * px + then[0])
         if reading.ends_word:
@@ -308,13 +421,19 @@ def ruby(
         tuple(readings),
         tuple(before),
         tuple(after),
-        metrics.ascent() + drop,
+        metrics.ascent() + drop if band else 0.0,
         small,
         tuple(widths),
         tuple(base),
         drop,
         tuple(spacing),
+        QFont(font),
     )
+
+
+def _is_kana(char: str) -> bool:
+    """Hiragana or katakana: what furigana may reach over."""
+    return "\u3041" <= char <= "\u30ff"
 
 
 def _unit(text: str, index: int) -> int:
@@ -377,6 +496,9 @@ class Placed:
     text: str
     start: int = -1
     """The first character it reads, in its row's text."""
+    font: QFont | None = None
+    """A mark's font, the text's own (`Reading.mark`); None: a reading's,
+    the line's (`Ruby.font`)."""
 
 
 def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]:
@@ -400,6 +522,16 @@ def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]
             y = line.y() - readings.drop
         at: object = line.cursorToX(unit)  # (x, index) in PySide6
         x = at[0] if isinstance(at, tuple) else at
+        if reading.mark:  # at the text's baseline, as an accent on the letter
+            base_y = line.y() + line.ascent()
+            if text[reading.start].isupper():  # over a capital: its height
+                metrics = QFontMetricsF(readings.text_font)
+                base_y -= metrics.capHeight() - metrics.xHeight()
+            left = x + (under - wide) / 2  # type: ignore[operator]
+            found.append(
+                Placed(left, base_y, reading.text, reading.start, readings.text_font)
+            )
+            continue
         found.append(Placed(x + (under - wide) / 2, y, reading.text, reading.start))  # type: ignore[operator]
     return tuple(found)
 
@@ -447,6 +579,10 @@ def draw(
     `colour`), as fainter (395: pinyin in its word link's colour)."""
     painter.save()
     faint = _faint(colour)
+    if any(reading.font is not None for reading in readings):
+        _marks(painter, readings, at, faint, colours)
+        painter.restore()
+        return
     painter.setPen(faint)
     layout = _drawn(readings, font)
     if not any(own is not None for own in colours):
@@ -460,9 +596,29 @@ def draw(
     painter.restore()
 
 
+def _marks(
+    painter: QPainter,
+    readings: Sequence[Placed],
+    at: QPointF,
+    faint: QColor,
+    colours: Sequence[QColor | None],
+) -> None:
+    """Marks on their letters (`Placed.font`), each in its colour - a
+    language's readings are all marks or none (`MARKED`)."""
+    for i, reading in enumerate(readings):
+        own = colours[i] if i < len(colours) else None
+        painter.setPen(faint if own is None else _faint(own))
+        if reading.font is not None:
+            painter.setFont(reading.font)
+        painter.drawText(QPointF(at.x() + reading.x, at.y() + reading.y), reading.text)
+
+
 def glyphs(readings: Sequence[Placed], font: QFont) -> list[QGlyphRun]:
     """`readings`' glyphs as `draw` places them: a caption's edge drawn
-    under them (Visibility; polyglotic-hq 481)."""
+    under them (Visibility; polyglotic-hq 481) - none for marks on their
+    letters (`MARKED`), drawn in the text's own font."""
+    if any(reading.font is not None for reading in readings):
+        return []
     return _drawn(readings, font).glyphRuns()
 
 

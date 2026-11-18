@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">Furigana trên tiếng Nhật: bật trong Cài đặt, mục Cách đọc</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">Pinyin trên tiếng Trung: bật trong Cài đặt, mục Cách đọc</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">Ổn định, mặc định: mỗi câu hiện một lần, hoàn chỉnh và đã dịch, khoảng nửa giây sau khi kết thúc; một thanh nhỏ chạy dưới phụ đề trong lúc chờ, và nếu người nói tiếp tục, một dòng mờ hiện những từ đến lúc đó. Xem trước: một dòng mờ đầu tiên sau khoảng 2 giây, rồi phụ đề hoàn chỉnh và bản dịch khi câu kết thúc. Trực tiếp: từ hiện ra khi được nói và tự viết lại cho đến hết câu. Chọn trong Cài đặt &gt; Thời điểm, hoặc trong cài đặt của cửa sổ phụ đề. Ở chế độ nào cũng vậy, không ai nói lâu hơn Thời gian chờ chữ tối đa (3 giây, trừ khi bạn đổi) mà bạn chưa thấy chữ.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">Xem trước, mặc định: một dòng mờ đầu tiên sau khoảng 2 giây, rồi phụ đề hoàn chỉnh và bản dịch khi câu kết thúc. Ổn định: mỗi câu hiện một lần, hoàn chỉnh và đã dịch, khoảng nửa giây sau khi kết thúc; một thanh nhỏ chạy dưới phụ đề trong lúc chờ, và nếu người nói tiếp tục, một dòng mờ hiện những từ đến lúc đó. Trực tiếp: từ hiện ra khi được nói và tự viết lại cho đến hết câu. Chọn trong Cài đặt &gt; Thời điểm, hoặc trong cài đặt của cửa sổ phụ đề. Ở chế độ nào cũng vậy, không ai nói lâu hơn Thời gian chờ chữ tối đa (3 giây, trừ khi bạn đổi) mà bạn chưa thấy chữ.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">Cách đọc</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">Furigana trên tiếng Nhật</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">Kana nhỏ trên chữ Hán của mỗi từ, trong lời nói và trong bản dịch sang tiếng Nhật, từ từ điển tiếng Nhật - khi bạn học tiếng Nhật và từ điển của nó đã có ở đây.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">Dấu trọng âm trên tiếng Nga</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">Một dấu trên nguyên âm được nhấn của mỗi từ tiếng Nga (молоко́), từ từ điển tiếng Nga - không có ở từ mà từ điển nhấn theo hai cách (ру́ки, руки́): thẻ của từ đó hiện cả hai. Khi bạn học tiếng Nga và từ điển của nó đã có ở đây.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">Chữ La-tinh trên tiếng Hàn</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Mỗi từ tiếng Hàn theo Latinh hóa Sửa đổi, hệ thống chính thức, viết theo cách đọc (한국어: hangugeo, 국물: gungmul) - theo quy tắc, không cần từ điển.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">Chữ La-tinh trên tiếng Hindi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Mỗi từ tiếng Hindi bằng chữ La-tinh, như từ điển viết (किताब: kitāb), bỏ các a không đọc - theo quy tắc, không cần từ điển.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">Mọi từ</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">Ngoài những gì bạn biết: chỉ trên những từ vượt quá mốc từ đã biết của bạn trong Học, những từ mà liên kết từ chỉ ra. Càng học, càng ít phải đọc.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">Cách phát âm trên tiếng Anh</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">Mỗi từ tiếng Anh nghe thế nào, bằng chữ đơn giản, phần nhấn mạnh viết hoa (KAY-oss, ri-SEET) - cho 10.000 từ phổ biến nhất, trong lời nói và trong bản dịch sang tiếng Anh, khi bạn học tiếng Anh.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">Cách phát âm trên</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">Vượt quá những gì bạn biết: chỉ trên các từ tiếng Anh vượt quá mốc từ đã biết của bạn trong Học, để các từ bạn biết đọc bình thường.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

@@ -25,7 +25,10 @@ class SplitWord:
     (simplemma: "vengo" -> vengar, though it's mostly venir): looked up
     only when the dictionary knows nothing better. Neither repeats the
     word. `content` is False for a particle, an auxiliary or a symbol -
-    words a probe of the dictionary's coverage doesn't count.
+    words a probe of the dictionary's coverage doesn't count. `kana` is how
+    the analyser read the word in its line, in katakana, where it says
+    (Japanese: 食べ in 食べました -> タベ; furigana, polyglotic-hq 511) -
+    "" where it doesn't.
     """
 
     start: int
@@ -33,6 +36,7 @@ class SplitWord:
     lemmas: tuple[str, ...] = ()
     guesses: tuple[str, ...] = ()
     content: bool = True
+    kana: str = ""
 
 
 class WordSplit(Protocol):

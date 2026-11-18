@@ -99,6 +99,7 @@ def test_turned_on_in_settings_off_turns_only_the_links_off() -> None:
 
 def test_a_chinese_window_asks_for_pinyin(qapp: QApplication) -> None:
     asked: list[tuple[bool, tuple[str, ...]]] = []
+    # furigana comes on by its own switch only, not with the links (511)
     for spoken, readings in (("zh", ("zh",)), ("ja", ())):
         window = window_of(qapp, captions=0, spoken_language=spoken)
         try:

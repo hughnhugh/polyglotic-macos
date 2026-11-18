@@ -1070,16 +1070,21 @@ class QuietViewPanel(_LookGroup):
 
 
 class ReadingLinesPanel(_LookGroup):
-    """Pinyin above Chinese (polyglotic-hq 369, decision 0155) and Jyutping
-    above Cantonese (polyglotic-hq 450, decision 0160): a small syllable
-    over each character, on whichever row is in that language - what was
-    said or its translation - each with its own switch; over which words,
-    how big and in what colour, for both."""
+    """Pinyin above Chinese (polyglotic-hq 369, decision 0155), Jyutping
+    above Cantonese (polyglotic-hq 450, decision 0160) and furigana above
+    Japanese (polyglotic-hq 511): a small reading over the characters, on
+    whichever row is in that language - what was said or its translation -
+    each with its own switch; over which words, how big and in what
+    colour, for all - and Russian's stress marks (молоко́), Korean in
+    Revised Romanization and Hindi in Latin letters (511). And
+    English respelled as it sounds (KAY-oss, 511):
+    its own switch and its own choice of words, past what you know at
+    first."""
 
     def __init__(
         self, view: LookView, notes: bool = False, parent: QWidget | None = None
     ) -> None:
-        #: Settings > Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese
+        #: Settings > Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English
         super().__init__(_tr("Readings"), view, notes, parent=parent)
         value = view.value
         self.chinese = self._switch(
@@ -1121,6 +1126,47 @@ class ReadingLinesPanel(_LookGroup):
             ),
             lambda on: view.set_reading_line("yue", on),
         )
+        self.japanese = self._switch(
+            "reading_ja",
+            _tr("Furigana above Japanese"),
+            _tr(
+                "Small kana over each word's kanji, in what was said and in "
+                "translations into Japanese, from the Japanese dictionary - once "
+                "you learn Japanese and its dictionary is here."
+            ),
+            lambda on: view.set_reading_line("ja", on),
+        )
+        self.russian = self._switch(
+            "reading_ru",
+            _tr("Stress marks over Russian"),
+            _tr(
+                "An accent over the stressed vowel of each Russian word (молоко́), "
+                "from the Russian dictionary - none where the dictionary has a word "
+                "stressed two ways (ру́ки, руки́): its card shows both. Once you "
+                "learn Russian and its dictionary is here."
+            ),
+            lambda on: view.set_reading_line("ru", on),
+        )
+        self.korean = self._switch(
+            "reading_ko",
+            _tr("Romanization above Korean"),
+            _tr(
+                "Each Korean word in Revised Romanization, the official system, "
+                "written as it's said (한국어: hangugeo, 국물: gungmul) - by rule, "
+                "no dictionary needed."
+            ),
+            lambda on: view.set_reading_line("ko", on),
+        )
+        self.hindi = self._switch(
+            "reading_hi",
+            _tr("Latin letters above Hindi"),
+            _tr(
+                "Each Hindi word in Latin letters, as dictionaries write it "
+                "(किताब: kitāb), the a's that aren't said left out - by rule, no "
+                "dictionary needed."
+            ),
+            lambda on: view.set_reading_line("hi", on),
+        )
         self.reading_over = Segmented(
             [(False, _tr("Every word")), (True, _tr("Past what you know"))],
             value.reading_past,
@@ -1134,6 +1180,33 @@ class ReadingLinesPanel(_LookGroup):
                 "on Learning, the ones word links point out. Less to read as you learn."
             ),
             self.reading_over,
+        )
+        self.english = self._switch(
+            "reading_en",
+            _tr("Respelling above English"),
+            _tr(
+                "How each English word sounds, in plain letters, its stressed part "
+                "in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, "
+                "in what was said and in translations into English, once you "
+                "learn English."
+            ),
+            lambda on: view.set_reading_line("en", on),
+        )
+        self.respelling_over = Segmented(
+            [(False, _tr("Every word")), (True, _tr("Past what you know"))],
+            value.respelling_past,
+        )
+        self.respelling_over.setObjectName("look.respelling_past")
+        self.respelling_over.changed.connect(
+            lambda v: view.set_respelling_past(bool(v))
+        )
+        self._row(
+            _tr("Respelling over"),
+            _tr(
+                "Past what you know: only over the English words past your known "
+                "line on Learning, so the words you know read plainly."
+            ),
+            self.respelling_over,
         )
         self.reading_size = Segmented(
             [
@@ -1195,11 +1268,20 @@ class ReadingLinesPanel(_LookGroup):
         chinese = "zh" in value.reading_lines
         self.chinese.set_quietly(chinese)
         self.cantonese.set_quietly("yue" in value.reading_lines)
+        self.japanese.set_quietly("ja" in value.reading_lines)
+        self.russian.set_quietly("ru" in value.reading_lines)
+        self.korean.set_quietly("ko" in value.reading_lines)
+        self.hindi.set_quietly("hi" in value.reading_lines)
+        english = "en" in value.reading_lines
+        self.english.set_quietly(english)
+        self.respelling_over.set_value(value.respelling_past)
+        self.respelling_over.setEnabled(english)
         on = bool(value.reading_lines)  # the rest are both's
         self.reading_size.set_value(value.reading_size)
         self.reading_size.setEnabled(on)
         self.reading_over.set_value(value.reading_past)
-        self.reading_over.setEnabled(on)
+        # the scripts' readings: English's respelling has its own choice
+        self.reading_over.setEnabled(any(code != "en" for code in value.reading_lines))
         self.reading_system.set_value(value.reading_system)
         self.reading_system.setEnabled(chinese)
         self.reading_colour.set_value(value.reading_colour)

@@ -161,6 +161,11 @@ including SUBTLEX, Google Books Ngram and OpenSubtitles data).
 0211): Open English WordNet's (CC BY 4.0, from Princeton WordNet under the
 WordNet License, whose notice `CREDITS.md` carries), ordered with counts
 from UD English-EWT (CC BY-SA 4.0; counts only), and Polyglotic's own.
+Both English files carry respellings of the commonest words (KAY-oss),
+made by Polyglotic's own rules from the CMU Pronouncing Dictionary
+(Copyright (C) 1993-2015 Carnegie Mellon University; its BSD-style
+licence, in full in `CREDITS.md`), the usual pronunciation picked with
+Wiktionary's help (CC BY-SA 4.0).
 All three files are shared under CC BY-SA 4.0: anyone may reuse them
 under that licence.
 

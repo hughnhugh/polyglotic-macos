@@ -215,6 +215,18 @@ class CaptionStyle:
     lays the rows out again."""
     """A reading's text size as a share of its row's (the size chosen,
     `reading_lines.SHARES`)."""
+    respelling_past: bool = True
+    """English's respelling only over the words past what the learner
+    knows - its own choice (polyglotic-hq 511)."""
+
+    @property
+    def follows_known(self) -> bool:
+        """Whether a word known now, or new again, changes its reading
+        lines: some of them only over the words past what's known."""
+        return any(
+            self.respelling_past if language == "en" else self.reading_past
+            for language in self.reading_lines
+        )
 
 
 @dataclass(frozen=True)
@@ -436,7 +448,12 @@ class CaptionLayout:
         if chinese and self.style.reading_system is ReadingSystem.ZHUYIN:
             read = [replace(r, text=zhuyin(r.text)) for r in read]
         found = reading_lines.ruby(
-            row.text, read, font, self.style.reading_share, self.style.reading_weight
+            row.text,
+            read,
+            font,
+            self.style.reading_share,
+            self.style.reading_weight,
+            band=not reading_lines.marked(language),
         )
         self._rubies[key] = found
         if len(self._rubies) > RUBIES_KEPT:

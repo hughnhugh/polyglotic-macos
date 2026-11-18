@@ -602,7 +602,7 @@ def test_a_built_in_dictionarys_recordings_come_for_its_learner_and_are_said(
                 stand_in.base,
                 (PUBLIC,),
                 recordings=recordings,
-                built_in=main.BUILT_IN_RECORDED,
+                built_in=main.BUILT_IN_RIDERS,
                 built_in_folder=installer,
                 learning=lambda: tuple(learned),
             )
@@ -644,7 +644,7 @@ def test_a_built_in_dictionarys_recordings_come_for_its_learner_and_are_said(
         "http://127.0.0.1:9/",
         (PUBLIC,),
         recordings=others,
-        built_in=main.BUILT_IN_RECORDED,
+        built_in=main.BUILT_IN_RIDERS,
         built_in_folder=installer,
     )
     packs.start()

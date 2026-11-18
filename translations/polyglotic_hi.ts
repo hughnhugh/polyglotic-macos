@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">जापानी के ऊपर फ़ुरिगाना: इसे सेटिंग में, उच्चारण के अंतर्गत चालू करें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">चीनी के ऊपर पिनयिन: इसे सेटिंग में, उच्चारण के अंतर्गत चालू करें</translation>
     </message>
@@ -2544,8 +2549,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">स्थिर, डिफ़ॉल्ट: हर वाक्य एक बार आता है, पूरा और अनुवाद के साथ, उसके खत्म होने के लगभग आधे सेकंड बाद; रास्ते में होने पर कैप्शन के नीचे एक छोटी पट्टी चलती है, और अगर बोलने वाला बोलता रहे, तो एक धुंधली पंक्ति अब तक के शब्द दिखाती है। झलक: लगभग 2 सेकंड बाद एक धुंधली पहली पंक्ति, फिर वाक्य खत्म होने पर पूरा कैप्शन और उसका अनुवाद। लाइव: शब्द बोलते ही आते हैं और वाक्य खत्म होने तक खुद को फिर से लिखते हैं। सेटिंग &gt; टाइमिंग में, या कैप्शन विंडो की सेटिंग में एक चुनें। हर एक में, टेक्स्ट दिखने से पहले कोई भी टेक्स्ट के लिए सबसे लंबा इंतज़ार (3 सेकंड, जब तक आप न बदलें) से ज़्यादा देर नहीं बोलता।</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">झलक, डिफ़ॉल्ट: लगभग 2 सेकंड बाद एक धुंधली पहली पंक्ति, फिर वाक्य खत्म होने पर पूरा कैप्शन और उसका अनुवाद। स्थिर: हर वाक्य एक बार आता है, पूरा और अनुवाद के साथ, उसके खत्म होने के लगभग आधे सेकंड बाद; रास्ते में होने पर कैप्शन के नीचे एक छोटी पट्टी चलती है, और अगर बोलने वाला बोलता रहे, तो एक धुंधली पंक्ति अब तक के शब्द दिखाती है। लाइव: शब्द बोलते ही आते हैं और वाक्य खत्म होने तक खुद को फिर से लिखते हैं। सेटिंग &gt; टाइमिंग में, या कैप्शन विंडो की सेटिंग में एक चुनें। हर एक में, टेक्स्ट दिखने से पहले कोई भी टेक्स्ट के लिए सबसे लंबा इंतज़ार (3 सेकंड, जब तक आप न बदलें) से ज़्यादा देर नहीं बोलता।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6278,7 +6283,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">उच्चारण</translation>
     </message>
     <message>
@@ -6323,6 +6328,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">जापानी के ऊपर फ़ुरिगाना</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">हर शब्द के कांजी के ऊपर छोटे काना, कही गई बात में और जापानी में अनुवादों में, जापानी शब्दकोश से - जब आप जापानी सीखते हों और उसका शब्दकोश यहाँ हो।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">रूसी के ऊपर बलाघात चिह्न</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">हर रूसी शब्द के बलाघात वाले स्वर के ऊपर एक चिह्न (молоко́), रूसी शब्दकोश से - जहाँ शब्दकोश किसी शब्द पर दो तरह से बल देता है (ру́ки, руки́) वहाँ कोई नहीं: उसका कार्ड दोनों दिखाता है। जब आप रूसी सीखते हों और उसका शब्दकोश यहाँ हो।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">कोरियाई के ऊपर रोमन लिपि</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">हर कोरियाई शब्द रिवाइज़्ड रोमनाइज़ेशन में, जो आधिकारिक प्रणाली है, जैसा बोला जाता है वैसा लिखा (한국어: hangugeo, 국물: gungmul) - नियमों से, शब्दकोश की ज़रूरत नहीं।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">हिंदी के ऊपर रोमन अक्षर</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">हर हिंदी शब्द रोमन अक्षरों में, जैसा शब्दकोश लिखते हैं (किताब: kitāb), बिना बोले गए अ के - नियमों से, शब्दकोश की ज़रूरत नहीं।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">हर शब्द</translation>
     </message>
@@ -6340,6 +6385,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">जो आप जानते हैं उसके आगे: सिर्फ़ उन शब्दों के ऊपर जो सीखना में आपकी जानी-पहचानी सीमा से आगे हैं, जिन्हें शब्द-लिंक दिखाते हैं। जितना सीखें, पढ़ने को उतना कम।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">अंग्रेज़ी के ऊपर उच्चारण-लेखन</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">हर अंग्रेज़ी शब्द कैसे बोला जाता है, सादे अक्षरों में, ज़ोर वाला हिस्सा बड़े अक्षरों में (KAY-oss, ri-SEET) - 10,000 सबसे आम शब्दों के लिए, कही गई बात में और अंग्रेज़ी में अनुवादों में, जब आप अंग्रेज़ी सीखते हों।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">उच्चारण-लेखन किसके ऊपर</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">जो आप जानते हैं उससे आगे: सिर्फ़ उन अंग्रेज़ी शब्दों के ऊपर जो सीखना में आपकी जानी हुई सीमा से आगे हैं, ताकि जो शब्द आप जानते हैं वे सादे पढ़े जाएँ।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

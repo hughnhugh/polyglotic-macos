@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import cast
 
-from PySide6.QtCore import QPoint, QRect
+from PySide6.QtCore import QPoint, QPointF, QRect
 from PySide6.QtWidgets import QApplication, QMenu
 from tests.ui_next import test_lookup_card as cards
 from tests.ui_next.test_copy_from_the_transcript import drag as transcript_drag
@@ -31,12 +31,13 @@ from polyglotic_desktop.core.listening.display import CaptionRow, LinkedWords
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.sentence_card import placed
+from polyglotic_desktop.ui_next.sentence_card import GAP, placed
 from polyglotic_desktop.ui_next.transcripts import Transcripts
 from polyglotic_desktop.ui_next.views.captions import Line
 from polyglotic_desktop.ui_next.views.sentences import (
     Selected,
     selected_sentence,
+    sides_aloud,
     worth_saving,
 )
 
@@ -132,11 +133,13 @@ def test_more_than_a_word_is_worth_saving() -> None:
     assert not worth_saving(None)
 
 
-def test_the_card_goes_under_the_line_or_above_it_and_stays_on_the_screen() -> None:
+def test_the_card_goes_at_the_mouse_or_above_it_and_stays_on_the_screen() -> None:
+    """At the mouse, where the drag let go (522: the user, 2026-11-18, "too
+    low from selection, should appear on mouse")."""
     area = QRect(0, 0, 1000, 800)
-    assert placed(QRect(100, 100, 300, 30), (200, 40), area) == QPoint(100, 136)
-    assert placed(QRect(100, 750, 300, 30), (200, 40), area) == QPoint(100, 704)
-    assert placed(QRect(900, 100, 300, 30), (200, 40), area) == QPoint(800, 136)
+    assert placed(QPoint(100, 100), (200, 40), area) == QPoint(100, 106)
+    assert placed(QPoint(100, 780), (200, 40), area) == QPoint(100, 734)
+    assert placed(QPoint(900, 100), (200, 40), area) == QPoint(800, 106)
 
 
 # -- in a caption window ---------------------------------------------------------
@@ -147,16 +150,14 @@ def test_a_drag_across_captions_offers_it_and_a_category_saves_it(
 ) -> None:
     shown_ = window(windows)
     first, second = last_two(shown_)
-    drag(shown_, point(shown_, first.key, SAID, 0), point(shown_, second.key, SAID, 2))
+    end = point(shown_, second.key, SAID, 2)
+    drag(shown_, point(shown_, first.key, SAID, 0), end)
     offered = shown_.sentence_card
     assert offered is not None and offered.isVisible()
     assert not offered.isActiveWindow()  # never takes the keyboard
-    # under the caption the selection ends in: its translation not covered
-    ends_in = next(
-        rect for line, _, rect in shown_.canvas.placed if line.key == second.key
-    )
-    caption_bottom = shown_.mapToGlobal(ends_in.bottomLeft().toPoint()).y()
-    assert offered.y() > caption_bottom or offered.geometry().bottom() < caption_bottom
+    # at the mouse, where the drag let go - not under the caption (522)
+    let_go = shown_.mapToGlobal(end.toPoint())
+    assert offered.geometry().adjusted(-GAP, -GAP, GAP, GAP).contains(let_go)
     vocabulary = cards.tools(windows).vocabulary
     assert vocabulary.sentences == []
     tricky = next(b for b in offered.buttons if b.objectName().endswith("tricky"))
@@ -177,6 +178,24 @@ def test_a_single_word_or_a_double_click_offers_nothing(
     _, second = last_two(shown_)
     drag(shown_, point(shown_, second.key, SAID, 0), point(shown_, second.key, SAID, 1))
     assert shown_.sentence_card is None or not shown_.sentence_card.isVisible()
+
+
+def test_more_than_a_word_in_one_clause_gets_the_card_alone(
+    windows: CaptionWindows,
+) -> None:
+    """A drag within a clause across more than a word: the sentence card,
+    and no lookup card over it (522: the user, 2026-11-18, "both modals
+    overlapping each other, can't see play sentence"). Three characters
+    or fewer still pin their lookup (test_lookup_card)."""
+    shown_, shared = window(windows), cards.card(windows)
+    _, start = cards.find(shown_, "画")
+    _, end = cards.find(shown_, "漂亮")
+    drag(shown_, start, QPointF(end.x() + 4, end.y()))  # 画面很漂: four
+    offered = shown_.sentence_card
+    assert offered is not None and offered.isVisible()
+    assert not shared.isVisible()
+    assert shown_.held.selection is not None  # held: a right-click copies it
+    offered.hide()
 
 
 def test_esc_lets_go_of_the_selection_and_the_card(windows: CaptionWindows) -> None:
@@ -244,3 +263,32 @@ def test_the_captions_own_links_are_kept_even_where_the_window_shows_none() -> N
     # without the caption: what the rows show - none here
     alone = selected_sentence([(shown, shown.rows[0], 2, 7)], speaker)
     assert alone is not None and alone.parts[0].links == ()
+
+
+def test_say_it_reads_each_language_from_whichever_row_is_in_it() -> None:
+    """The user, 2026-11-18: dragging across a Chinese caption (English
+    under it) and an English one (Chinese under it), "Say it in Chinese"
+    read the first row of each - Chinese then English. Each side is now a
+    language: its row from every clause, said or translated."""
+    zh_first = line(
+        1,
+        False,
+        CaptionRow("我今天去超市。", SAID, Language("zh"), 0, True),
+        CaptionRow("I went to the supermarket today.", MEANT, Language("en"), 0, False),
+    )
+    en_first = line(
+        2,
+        False,
+        CaptionRow("What am I doing?", SAID, Language("en"), 0, True),
+        CaptionRow("我在干嘛？", MEANT, Language("zh"), 0, False),
+    )
+    pieces = [(zh_first, zh_first.rows[0], 0, 7), (en_first, en_first.rows[0], 0, 16)]
+    sides = sides_aloud(pieces)
+    assert [s.language for s in sides] == ["zh", "en"]
+    zh, en = sides
+    assert [st.text for st in zh.stretches] == ["我今天去超市。", "我在干嘛？"]
+    assert [st.text for st in en.stretches] == [
+        "I went to the supermarket today.",
+        "What am I doing?",
+    ]
+    assert [w.side for _, w in zh.shown] == [SAID, MEANT]  # each lit where it is

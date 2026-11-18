@@ -24,7 +24,8 @@ CHINESE_LEARNER_OF_ENGLISH = AppSettings(interface_language="zh_CN", targets=("z
 def test_an_english_speaker_sees_pinyin_over_chinese_from_the_start() -> None:
     look = caption_look(ENGLISH_LEARNER_OF_CHINESE)
     assert "zh" in look.reading_lines and "en" not in look.reading_lines
-    assert look.reading_lines == tuple(sorted(READING_LANGUAGES))  # yue's too
+    # every other one too (yue, ja, ru, ko, hi): all but English, its own
+    assert look.reading_lines == tuple(sorted(set(READING_LANGUAGES) - {"en"}))
     assert not look.reading_past  # over every word (DECISIONS #206)
 
 

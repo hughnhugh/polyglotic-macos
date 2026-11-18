@@ -23,6 +23,10 @@ class Reading:
     end: int
     text: str
     ends_word: bool = True
+    mark: bool = False
+    """A mark on its character rather than a reading above it - Russian's
+    stress, an accent over the vowel (polyglotic-hq 511): drawn in the
+    text's own size, where an accent on that letter would be."""
 
 
 Readings = Callable[[str, str | None], Sequence[Reading] | None]

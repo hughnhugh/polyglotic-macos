@@ -179,3 +179,21 @@ def test_a_pack_that_is_not_here_finds_nothing() -> None:
     assert gone.words_past(0, 10, "en-frequency") == []
     assert gone.words_in_ranks([(1, 1000)]) == [0]
     assert gone.merged_ids() == [] and gone.form_reading("casa") == ""
+
+
+class FrenchMeanings:
+    """A stand-in meanings file: a pack's meanings in French (decision 0234)."""
+
+    def meanings(self, entry_id: str) -> tuple[str, ...] | None:
+        return {"wiktes:casa": ("(noun) maison",)}.get(entry_id)
+
+
+def test_a_packs_entry_in_the_learners_meanings_file_is_shown_in_their_language() -> (
+    None
+):
+    spanish = BasicDictionary(SPANISH, FakeSplit(), "es")
+    spanish.explain_in(FrenchMeanings())
+    assert spanish.lookup("casa")[0].meanings == ("(noun) maison",)
+    assert spanish.lookup("supe")[0].meanings == ("to know",)  # not in the file
+    entry = spanish.entry(EntryId("wiktes:casa"))
+    assert entry is not None and entry.meanings == ("(noun) maison",)

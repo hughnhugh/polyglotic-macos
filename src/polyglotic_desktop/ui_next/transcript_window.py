@@ -394,10 +394,9 @@ class TranscriptList(QWidget):
         """The caption windows' contrast and vibrance (`set_tone`; 481)."""
         self.zone: tzinfo | None = None  # None: this PC's time zone
         self.engine = CaptionLayout(STYLE, lines_kept=LINES_LAID_OUT)
-        self._readings = reading_lines.source_of(learner) if learner else None
-        """Where its rows' reading lines come from (369): every word's."""
-        self._past = reading_lines.source_of(learner, past=True) if learner else None
-        """Only those past what the learner knows."""
+        self._readings = reading_lines.sources(learner) if learner else None
+        """Where its rows' reading lines come from (369): every word's, or
+        only those past what the learner knows."""
         self.placed: list[tuple[Line, QRectF]] = []
         """The lines the last paint drew, and where (heading and rows)."""
         self.drawn: list[tuple[Line, LaidLine, QPointF]] = []
@@ -575,7 +574,7 @@ class TranscriptList(QWidget):
             self.update()
         style = self.engine.style
         if what in (Changed.STATUSES.value, Changed.LEVEL.value) and (
-            style.reading_lines and style.reading_past
+            style.follows_known
         ):
             self._lay_out_again(style)
 
@@ -588,6 +587,7 @@ class TranscriptList(QWidget):
             reading_lines=frozenset(look.reading_lines),
             reading_share=reading_lines.SHARES[look.reading_size],
             reading_past=look.reading_past,
+            respelling_past=look.respelling_past,
             reading_system=look.reading_system,
         )
         if style != self.engine.style:
@@ -610,7 +610,11 @@ class TranscriptList(QWidget):
             self._lay_out_again(self.engine.style)
 
     def _lay_out_again(self, style: CaptionStyle) -> None:
-        readings = self._past if style.reading_past else self._readings
+        readings = (
+            self._readings(style.reading_past, style.respelling_past)
+            if self._readings
+            else None
+        )
         self.engine = CaptionLayout(style, lines_kept=LINES_LAID_OUT, readings=readings)
         self.update()
 

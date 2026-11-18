@@ -187,6 +187,9 @@ class AppSettings:
     # only over the words past what the learner knows: off - readings over
     # every word, as the user's picture shows (2026-11-18, DECISIONS #206)
     reading_past: bool = False
+    # English's respelling only over the words past what the learner knows:
+    # its own choice, on at first (polyglotic-hq 511, DECISIONS #200)
+    respelling_past: bool = True
     # the reading line's colour: its line's, its word link's or one picked
     # (`reading_custom_color`); and linked words in their link's colour (395)
     reading_system: str = ReadingSystem.PINYIN.value  # or zhuyin (395)
@@ -216,8 +219,8 @@ class AppSettings:
     caption_lab: dict[str, object] = field(default_factory=dict)
     # the caption mode the learner chose - Steady, Quick preview or Live
     # updates (a core.listening.timing.CaptionMode's value). None until they
-    # choose: the default (`default_caption_mode`, Steady: polyglotic-hq
-    # DECISIONS.md #107), which can change for everyone who hasn't chosen. Saved
+    # choose: the default (`default_caption_mode`, Quick preview: desktop
+    # decision 0242), which can change for everyone who hasn't chosen. Saved
     # as `caption_timing` too, the key versions before 176 read
     caption_mode_chosen: str | None = None
     # seconds, with Live updates; follows the default until changed

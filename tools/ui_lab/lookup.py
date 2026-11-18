@@ -53,6 +53,7 @@ from polyglotic_desktop.ui import recorded_captions as recorded
 from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, EN, MIC, ZH, clause
 from polyglotic_desktop.ui.settings import Settings
+from polyglotic_desktop.ui_next.caption_selection import held_rects
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, Marked
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.selection_reading import SelectionReading
@@ -886,10 +887,19 @@ def _tools(
     return LearningTools(vocabulary, dictionary)
 
 
+def _let_go(shown: CaptionWindow) -> QPoint:
+    """Where a drag across the held selection lets go, on the screen: the
+    end of its last line (the sentence card opens there, 522)."""
+    chosen = shown.held.selection
+    assert chosen is not None
+    last = max(held_rects(shown.canvas.placed, chosen), key=lambda r: r.bottom())
+    return shown.mapToGlobal(QPoint(round(last.right()), round(last.center().y())))
+
+
 def _sentence_offered(lab: Lab) -> CaptionWindow:
     """Words selected across the newest captions in view (up to three),
     from part way through the first: the card that saves them as a
-    sentence, under the selection's last line (polyglotic-hq 459)."""
+    sentence, at the mouse (polyglotic-hq 459, 522)."""
     shown = window_of(windows(lab))
     lines = [line for line, _, _ in shown.canvas.placed]
     first, last = lines[-min(3, len(lines))], lines[-1]
@@ -899,7 +909,10 @@ def _sentence_offered(lab: Lab) -> CaptionWindow:
             Place(last.key, 0, 4, RowKind.ORIGINAL),
         )
     )
-    lab.time("sentence_offered", shown._offer_sentence, budget=budgets.CLICK)
+    at = _let_go(shown)
+    lab.time(
+        "sentence_offered", lambda: shown._offer_sentence(at), budget=budgets.CLICK
+    )
     lab.pump()
     return shown
 
@@ -930,7 +943,7 @@ def _say_it_offered(
             Place(last.key, 0, 4, RowKind.ORIGINAL),
         )
     )
-    shown._offer_sentence()
+    shown._offer_sentence(_let_go(shown))
     lab.pump()
     return shown
 

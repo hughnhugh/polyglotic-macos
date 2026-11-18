@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">Furigana sa ibabaw ng Japanese: i-on ito sa Settings, sa Basa</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">Pinyin sa ibabaw ng Chinese: i-on ito sa Settings, sa Basa</translation>
     </message>
@@ -2544,8 +2549,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">Matatag, ang default: lumalabas ang bawat pangungusap nang isang beses, tapos at nakasalin, mga kalahating segundo matapos itong matapos; may maliit na bar na gumagalaw sa ilalim ng mga caption habang paparating ito, at kung tuloy ang nagsasalita, may malabong linya na nagpapakita ng mga salita hanggang ngayon. Silip: malabong unang linya pagkalipas ng mga 2 segundo, saka ang tapos na caption at salin nito kapag tapos ang pangungusap. Live: lumalabas ang mga salita habang sinasabi at isinusulat ulit hanggang matapos ang pangungusap. Pumili sa Settings &gt; Timing, o sa settings ng window ng caption. Sa lahat, walang nagsasalita nang mas matagal kaysa Pinakamatagal na hintay sa teksto (3 segundo, maliban kung babaguhin mo) bago ka makakita ng teksto.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">Silip, ang default: malabong unang linya pagkalipas ng mga 2 segundo, saka ang tapos na caption at salin nito kapag tapos ang pangungusap. Matatag: lumalabas ang bawat pangungusap nang isang beses, tapos at nakasalin, mga kalahating segundo matapos itong matapos; may maliit na bar na gumagalaw sa ilalim ng mga caption habang paparating ito, at kung tuloy ang nagsasalita, may malabong linya na nagpapakita ng mga salita hanggang ngayon. Live: lumalabas ang mga salita habang sinasabi at isinusulat ulit hanggang matapos ang pangungusap. Pumili sa Settings &gt; Timing, o sa settings ng window ng caption. Sa lahat, walang nagsasalita nang mas matagal kaysa Pinakamatagal na hintay sa teksto (3 segundo, maliban kung babaguhin mo) bago ka makakita ng teksto.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6278,7 +6283,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">Basa</translation>
     </message>
     <message>
@@ -6323,6 +6328,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">Furigana sa ibabaw ng Japanese</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">Maliliit na kana sa ibabaw ng kanji ng bawat salita, sa sinabi at sa mga pagsasalin sa Japanese, mula sa diksyunaryo ng Japanese - kapag nag-aaral ka na ng Japanese at narito na ang diksyunaryo nito.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">Mga marka ng diin sa ibabaw ng Russian</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">Isang tuldik sa ibabaw ng may-diing patinig ng bawat salitang Russian (молоко́), mula sa diksyunaryo ng Russian - wala kung saan may dalawang paraan ng pagdidiin ang diksyunaryo (ру́ки, руки́): ipinapakita ng card nito ang dalawa. Kapag nag-aaral ka na ng Russian at narito na ang diksyunaryo nito.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">Romanisasyon sa ibabaw ng Korean</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Bawat salitang Korean sa Revised Romanization, ang opisyal na sistema, isinulat ayon sa bigkas (한국어: hangugeo, 국물: gungmul) - ayon sa tuntunin, walang diksyunaryong kailangan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">Letrang Latin sa ibabaw ng Hindi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Bawat salitang Hindi sa letrang Latin, gaya ng pagsulat ng mga diksyunaryo (किताब: kitāb), wala ang mga a na hindi binibigkas - ayon sa tuntunin, walang diksyunaryong kailangan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">Bawat salita</translation>
     </message>
@@ -6340,6 +6385,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">Lampas sa alam mo: sa ibabaw lang ng mga salitang lampas sa linya ng alam mo sa Pag-aaral, ang mga itinuturo ng word links. Mas kaunti ang babasahin habang natututo ka.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">Bigkas sa ibabaw ng English</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">Kung paano tumunog ang bawat salitang English, sa simpleng titik, ang may diin ay naka-capital (KAY-oss, ri-SEET) - para sa 10,000 pinakakaraniwang salita, sa sinabi at sa mga pagsasalin sa English, kapag nag-aaral ka na ng English.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">Bigkas sa ibabaw ng</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">Lampas sa alam mo: sa ibabaw lang ng mga salitang English na lampas sa linya ng alam mo sa Pag-aaral, para mabasa nang payak ang mga salitang alam mo na.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

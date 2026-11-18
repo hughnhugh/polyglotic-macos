@@ -258,28 +258,49 @@ class SideAloud:
 
 
 def sides_aloud(pieces: Sequence[Piece]) -> tuple[SideAloud, ...]:
-    """The sides of a selection that can be read aloud, what was said
-    first: as `selected_sentence` keeps them - the side dragged across as
-    selected, the other side of each clause it touches whole. A side with
-    no text, or whose language isn't known, is left out."""
-    found = []
-    clauses = _clauses(pieces)
-    for kind in (RowKind.ORIGINAL, RowKind.TRANSLATION):
-        language: str | None = None
-        stretches: list[Stretch] = []
-        shown: list[tuple[int, Words]] = []
-        for held in clauses:
+    """The sides of a selection that can be read aloud, one a language, in
+    the order each first appears (what was said first in a clause): each
+    clause gives a side the row that is in its language - what was said,
+    or the translation - so a selection across both directions (Chinese
+    said and translated into English, English said and translated into
+    Chinese) reads all its Chinese in Chinese and all its English in
+    English, not a mixture (the user, 2026-11-18). As `selected_sentence`
+    keeps them: the side dragged across as selected, the other side of each
+    clause it touches whole. A row with no text, or whose language isn't
+    known, is left out; a clause gives a language once (what was said
+    first)."""
+    order: list[str] = []
+    kinds: dict[str, RowKind] = {}
+    stretches: dict[str, list[Stretch]] = {}
+    shown: dict[str, list[tuple[int, Words]]] = {}
+    for held in _clauses(pieces):
+        given: set[str] = set()
+        for kind in (RowKind.ORIGINAL, RowKind.TRANSLATION):
             row = held.rows.get(kind)
-            if row is None or not held.texts[kind]:
+            if row is None or not held.texts[kind] or not row.language:
                 continue
-            if language is None:
-                language = row.language
+            language = str(row.language)
+            if language in given:
+                continue
+            given.add(language)
+            if language not in kinds:
+                order.append(language)
+                kinds[language] = kind
+                stretches[language], shown[language] = [], []
             start, end = held.clips[kind]
-            stretches.append(Stretch(held.texts[kind], held.line.key))
-            shown.append((held.line.key, Words(kind, held.clause, start, end)))
-        if language and stretches:
-            found.append(SideAloud(kind, language, tuple(stretches), tuple(shown)))
-    return tuple(found)
+            stretches[language].append(Stretch(held.texts[kind], held.line.key))
+            shown[language].append(
+                (held.line.key, Words(kind, held.clause, start, end))
+            )
+    return tuple(
+        SideAloud(
+            kinds[language],
+            language,
+            tuple(stretches[language]),
+            tuple(shown[language]),
+        )
+        for language in order
+    )
 
 
 def worth_saving(selected: Selected | None) -> bool:

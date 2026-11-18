@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">ฟุริงานะเหนือภาษาญี่ปุ่น: เปิดได้ในการตั้งค่า ใต้คำอ่าน</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">พินอินเหนือภาษาจีน: เปิดได้ในการตั้งค่า ใต้คำอ่าน</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">คงที่ ค่าเริ่มต้น: แต่ละประโยคขึ้นครั้งเดียว สมบูรณ์และแปลแล้ว ราวครึ่งวินาทีหลังจบ มีแถบเล็กเคลื่อนใต้คำบรรยายระหว่างรอ และถ้าผู้พูดพูดต่อ บรรทัดจางจะแสดงคำที่พูดถึงตอนนั้น พรีวิว: บรรทัดแรกจางๆ หลังราว 2 วินาที แล้วคำบรรยายฉบับสมบูรณ์และคำแปลเมื่อจบประโยค สด: คำขึ้นตามที่พูดและเขียนใหม่จนจบประโยค เลือกได้ใน การตั้งค่า &gt; จังหวะ หรือในการตั้งค่าหน้าต่างคำบรรยาย ทุกแบบจะไม่มีใครพูดนานเกิน เวลารอข้อความนานสุด (3 วินาที ถ้าไม่เปลี่ยน) โดยที่คุณยังไม่เห็นข้อความ</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">พรีวิว ค่าเริ่มต้น: บรรทัดแรกจางๆ หลังราว 2 วินาที แล้วคำบรรยายฉบับสมบูรณ์และคำแปลเมื่อจบประโยค คงที่: แต่ละประโยคขึ้นครั้งเดียว สมบูรณ์และแปลแล้ว ราวครึ่งวินาทีหลังจบ มีแถบเล็กเคลื่อนใต้คำบรรยายระหว่างรอ และถ้าผู้พูดพูดต่อ บรรทัดจางจะแสดงคำที่พูดถึงตอนนั้น สด: คำขึ้นตามที่พูดและเขียนใหม่จนจบประโยค เลือกได้ใน การตั้งค่า &gt; จังหวะ หรือในการตั้งค่าหน้าต่างคำบรรยาย ทุกแบบจะไม่มีใครพูดนานเกิน เวลารอข้อความนานสุด (3 วินาที ถ้าไม่เปลี่ยน) โดยที่คุณยังไม่เห็นข้อความ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">คำอ่าน</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">ฟุริงานะเหนือภาษาญี่ปุ่น</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">คานะตัวเล็กเหนือคันจิของแต่ละคำ ทั้งในสิ่งที่พูดและในคำแปลเป็นภาษาญี่ปุ่น จากพจนานุกรมภาษาญี่ปุ่น - เมื่อคุณเรียนภาษาญี่ปุ่นและมีพจนานุกรมของมันในเครื่องนี้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">เครื่องหมายเน้นเสียงเหนือภาษารัสเซีย</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">เครื่องหมายเหนือสระที่ลงเสียงหนักของแต่ละคำภาษารัสเซีย (молоко́) จากพจนานุกรมภาษารัสเซีย - ไม่มีในคำที่พจนานุกรมลงเสียงหนักได้สองแบบ (ру́ки, руки́): การ์ดของคำนั้นแสดงทั้งสองแบบ เมื่อคุณเรียนภาษารัสเซียและมีพจนานุกรมของมันในเครื่องนี้แล้ว</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">อักษรโรมันเหนือภาษาเกาหลี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">แต่ละคำภาษาเกาหลีในระบบถอดอักษรโรมันฉบับปรับปรุงซึ่งเป็นระบบทางการ เขียนตามเสียงที่พูด (한국어: hangugeo, 국물: gungmul) - ตามกฎ ไม่ต้องใช้พจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">อักษรละตินเหนือภาษาฮินดี</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">แต่ละคำภาษาฮินดีเป็นอักษรละตินตามที่พจนานุกรมเขียน (किताब: kitāb) ไม่มีเสียง a ที่ไม่ออกเสียง - ตามกฎ ไม่ต้องใช้พจนานุกรม</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">ทุกคำ</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">เกินจากที่คุณรู้: แสดงเฉพาะเหนือคำที่เกินเส้นคำที่รู้ในการเรียน คือคำที่ลิงก์คำชี้ไป ยิ่งเรียนมาก ยิ่งมีให้อ่านน้อยลง</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">คำอ่านเหนือภาษาอังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">แต่ละคำภาษาอังกฤษออกเสียงอย่างไร ด้วยตัวอักษรธรรมดา ส่วนที่ลงเสียงหนักเป็นตัวพิมพ์ใหญ่ (KAY-oss, ri-SEET) - สำหรับ 10,000 คำที่ใช้บ่อยที่สุด ทั้งในสิ่งที่พูดและในคำแปลเป็นภาษาอังกฤษ เมื่อคุณเรียนภาษาอังกฤษ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">คำอ่านภาษาอังกฤษเหนือ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">เกินสิ่งที่คุณรู้: เฉพาะเหนือคำภาษาอังกฤษที่เกินเส้นคำที่รู้ในการเรียนรู้ เพื่อให้คำที่คุณรู้อ่านได้เรียบๆ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

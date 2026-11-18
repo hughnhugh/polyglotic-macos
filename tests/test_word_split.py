@@ -29,7 +29,10 @@ def test_japanese_is_split_into_words_with_their_dictionary_forms() -> None:
     words = {line[w.start : w.end]: w for w in split.words(line)}
     assert words["食べ"].lemmas == ("食べる",)
     assert words["まし"].lemmas == ("ます",)
-    assert words["寿司"] == SplitWord(5, 7)  # its own dictionary form, content
+    assert words["寿司"] == SplitWord(
+        5, 7, kana="スシ"
+    )  # its own dictionary form, content
+    assert words["食べ"].kana == "タベ"  # read in its line, for furigana (511)
     assert not words["は"].content and not words["まし"].content  # particle, auxiliary
     assert words["食べ"].content and words["昨日"].content
 

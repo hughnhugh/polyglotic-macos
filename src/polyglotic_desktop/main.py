@@ -138,6 +138,7 @@ from polyglotic_desktop.adapters.json_settings import (
     JsonSettingsStore,
     ReadOnlySettings,
 )
+from polyglotic_desktop.adapters.meanings_file import MeaningsShelf
 from polyglotic_desktop.adapters.problem_report_files import ProblemReportFolder
 from polyglotic_desktop.adapters.spaced_split import SpacedSplit
 from polyglotic_desktop.adapters.sqlite_dictionary import FORMAT as DICTIONARY_FORMAT
@@ -1246,6 +1247,7 @@ def caption_look(value: AppSettings, own: Iterable[str] = ()) -> CaptionLook:
         reading_lines=reading_lines_of(value, own),
         reading_size=ReadingSize(value.reading_size),
         reading_past=value.reading_past,
+        respelling_past=value.respelling_past,
         reading_system=ReadingSystem(value.reading_system),
         reading_colour=ReadingColour(value.reading_colour),
         reading_custom=value.reading_custom_color,
@@ -1856,6 +1858,7 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "reading_lines": look.reading_lines,
         "reading_size": look.reading_size.value,
         "reading_past": look.reading_past,
+        "respelling_past": look.respelling_past,
         "reading_system": look.reading_system.value,
         "reading_colour": look.reading_colour.value,
         "reading_custom_color": look.reading_custom,
@@ -1892,6 +1895,23 @@ def timing_of(value: AppSettings) -> Timing:
     )
 
 
+def timing_changes(value: AppSettings, timing: Timing) -> dict[str, object]:
+    """The settings the Timing panel's `timing` changes, from `value`. Its
+    mode is kept as chosen only once the learner has chosen one - a mode
+    other than the one followed, or any after a first choice: a learner
+    who only moved the longest wait still follows the default (polyglotic-hq
+    522; it was saved as chosen with any change, so they kept the old
+    default when it changed)."""
+    changes: dict[str, object] = {
+        "live_update_interval": timing.live_interval,
+        "max_wait_for_text": timing.max_wait,
+        "text_settles_after": timing.settle_after,
+    }
+    if value.caption_mode_chosen is not None or timing.mode is not value.caption_mode:
+        changes["caption_mode_chosen"] = timing.mode.value
+    return changes
+
+
 class Panels:
     """The shared panels' views, in step with the settings: every panel
     showing them - Settings > Captions and the transcripts' rails - binds
@@ -1914,12 +1934,7 @@ class Panels:
         )
         self.timing = TimingView(
             timing_of(value),
-            lambda t: settings.update(
-                caption_mode_chosen=t.mode.value,
-                live_update_interval=t.live_interval,
-                max_wait_for_text=t.max_wait,
-                text_settles_after=t.settle_after,
-            ),
+            lambda t: settings.update(**timing_changes(settings.value, t)),
         )
         # Reset to defaults: the look a new learner starts with (478)
         self.look = LookView(
@@ -3202,11 +3217,13 @@ CURRICULUM_AFTER_START_MS = 1250
 opening, before the first caption usually arrives - which fills it anyway
 (polyglotic-hq 509)."""
 PACK_UPDATES_AFTER_START_MS = 120_000
-BUILT_IN_RECORDED = {"zh": "cedict"}
-"""The dictionaries built into the app whose commonest words are recorded,
-by the language they're learned for: CC-CEDICT's (polyglotic-hq 424). They
-come as riders of their own (decision 0197), only to a learner of the
-language - not in the installer, which every learner downloads.
+BUILT_IN_RIDERS = {"zh": "cedict", "en": "ecdict"}
+"""The dictionaries built into the app that may have riders, by the
+language they're learned for: CC-CEDICT's commonest words recorded
+(polyglotic-hq 424), and ECDICT's meanings in the learner's language
+(decision 0234). They come as riders of their own (decision 0197), only to
+a learner of the language - not in the installer, which every learner
+downloads.
 """
 PACK_UPDATES_EVERY_MS = 24 * 3600 * 1000
 """A newer version of a pack on this PC: looked for two minutes after the
@@ -3234,6 +3251,16 @@ def pack_meanings(interface: str) -> str:
     return "zh" if interface.lower().startswith("zh") else "en"
 
 
+def meanings_wanted(interface: str) -> str | None:
+    """The language a dictionary's meanings file is looked for in
+    (decision 0234): the interface's, as the files name it - `pt` for
+    Brazilian Portuguese; None for English and Chinese, which the
+    dictionaries have as their own (`pack_meanings`,
+    `learner_dictionary_file`)."""
+    code = interface.lower().replace("_", "-").split("-")[0]
+    return None if code in ("en", "zh") else code
+
+
 def pack_reader(version: str) -> Reader:
     """What this app reads: its dictionary format, the word splits it has -
     letters always (simplemma's guesses only where it's installed: decision
@@ -3256,9 +3283,12 @@ def pack_reader(version: str) -> Reader:
         for m in ("sudachipy", "sudachidict_small")
     ):
         splits.add("japanese")
-    from polyglotic_desktop.adapters import audio_file
+    from polyglotic_desktop.adapters import audio_file, meanings_file
 
-    riders = {(audio_file.KIND, audio_file.FORMAT)}  # decision 0133
+    riders = {  # decisions 0133 and 0234
+        (audio_file.KIND, audio_file.FORMAT),
+        (meanings_file.KIND, meanings_file.FORMAT),
+    }
     riders.add((FONTS_KIND, "1"))  # caption faces (polyglotic-hq 482)
     return Reader(
         frozenset({DICTIONARY_FORMAT}), frozenset(splits), version, frozenset(riders)
@@ -3472,12 +3502,19 @@ class PackDelivery(QObject):
         built_in: Mapping[str, str] | None = None,
         built_in_folder: Path | None = None,
         learning: Callable[[], Collection[str]] = tuple,
+        explained: MeaningsShelf | None = None,
+        explained_in: str | None = None,
     ) -> None:
         """`built_in`: each language whose dictionary is built into the
         app, and its name (`{"zh": "cedict"}`), in `built_in_folder`: its
-        recorded words come as riders of their own (decision 0197), for a
-        language `learning` names (the languages learned now)."""
+        riders come as riders of their own (decision 0197), for a language
+        `learning` names (the languages learned now). `explained_in`: the
+        learner's language (`meanings_wanted`), whose meanings files are
+        fetched with each dictionary and put on `explained`, which the
+        dictionaries read them through (decision 0234)."""
         super().__init__(parent)
+        self.explained = explained if explained is not None else MeaningsShelf()
+        self.explained_in = explained_in
         self.recordings = recordings
         """Where each open pack's recorded words go, for the speaker."""
         self.built_in = dict(built_in or {})
@@ -3554,8 +3591,9 @@ class PackDelivery(QObject):
         removed = folder.remove(folder.outdated())
         if removed:
             log.info("dictionary packs: %d bytes of older versions deleted", removed)
-        for language in self.built_in:  # a built-in dictionary's recorded words
+        for language, dictionary in self.built_in.items():  # a built-in's riders
             self.record(language)
+            self.explain(dictionary)
         packs = PackList(
             self._address,
             public_keys(self._keys),
@@ -3572,6 +3610,7 @@ class PackDelivery(QObject):
             self._rider.emit,
             metered=self._metered,
             open_url=self._open_url,
+            explained_in=self.explained_in,
         )
         self.offers = self.deliveries.offers
         log.info(
@@ -3831,6 +3870,8 @@ class PackDelivery(QObject):
         self.basic[pack.language] = dictionary
         self._files[pack.language] = file
         self.here[pack.language] = (pack, path)
+        dictionary.explain_in(self.explained.view(pack.dictionary))
+        self.explain(pack.dictionary, pack.meanings)
         if old is not None:  # a lookup on another thread finishes on it first
             # a lambda, not `old.close`: PySide drops a timer's bound method
             # once nothing else holds its object, so the old file was never
@@ -3883,9 +3924,15 @@ class PackDelivery(QObject):
     @Slot(object, object, object)
     def _rider_in(self, offer: PackOffer | BuiltIn, rider: Rider, path: Path) -> None:
         """A pack's recordings arrived: said from the next click on the
-        card's speaker, and the file they replace deleted once it's closed."""
-        self.record(offer.language)
-        self.changed.emit()  # Learning says the pack's words are recorded
+        card's speaker; or its meanings in the learner's language: shown
+        from the next lookup (decision 0234). The file they replace is
+        deleted once it's closed."""
+        if rider.kind == "meanings":
+            own = offer.meanings if isinstance(offer, PackOffer) else None
+            self.explain(offer.dictionary, own)
+        else:
+            self.record(offer.language)
+            self.changed.emit()  # Learning says the pack's words are recorded
         if self.deliveries is not None:
             folder = self.deliveries.folder
             QTimer.singleShot(
@@ -3950,6 +3997,34 @@ class PackDelivery(QObject):
         if old is not None:  # a lambda, as a replaced pack's file (441)
             QTimer.singleShot(PACK_OLD_CLOSED_AFTER_MS, lambda f=old: f.close())
 
+    def explain(self, dictionary: str, own: str | None = None) -> None:
+        """`dictionary`'s meanings file in the learner's language, if one is
+        on this PC (decision 0234), put on the shelf its dictionary reads
+        through - as a pack opens (at the start, for a built-in one), and
+        again when a meanings file arrives. A dictionary whose `own`
+        meanings are in that language already needs none."""
+        from polyglotic_desktop.adapters.meanings_file import meanings_beside
+
+        wanted = self.explained_in
+        folders = (self.folder_path, *self.also)
+        if self._built_in_folder is not None:
+            folders += (self._built_in_folder,)  # one the installer brought
+        found = (
+            meanings_beside(folders, dictionary, wanted)
+            if wanted and wanted != own
+            else None
+        )
+        old = self.explained.put(dictionary, found)
+        if found is not None:
+            log.info(
+                "dictionary %s: meanings in %s (%s entries)",
+                dictionary,
+                wanted,
+                found.info.get("entries", "?"),
+            )
+        if old is not None:  # a lambda, as a replaced pack's file (441)
+            QTimer.singleShot(PACK_OLD_CLOSED_AFTER_MS, lambda f=old: f.close())
+
     def _tell(self, code: str, text: str) -> None:
         if not self.on_learning():
             self.notice.emit(text)
@@ -3966,6 +4041,7 @@ class PackDelivery(QObject):
             file.close()
         for recorded in self._recorded.values():
             recorded.close()
+        self.explained.close()
 
 
 def new_interface(
@@ -3993,6 +4069,9 @@ def new_interface(
         learner=tools,
         on_top=on_top,
         offer_set_up=True,  # the first window on a PC asks its languages (465)
+        # a Mac tells a background app's windows nothing of the mouse (515);
+        # not offscreen, where there's no mouse to watch
+        watch_pointer=QGuiApplication.platformName() == "cocoa",
     )
     found_apps = desktop.apps
     assert found_apps is not None  # the app is always given an app list
@@ -5018,11 +5097,15 @@ def report_facts(
     channel: str,
     speech: Sequence[SpeechPart],
     apps_one_by_one: str | None = None,
+    devices: Callable[[], SoundDevices] | None = None,
 ) -> dict[str, object]:
-    """The app, Windows and the audio devices, for a problem report: no
+    """The app, the OS and the audio devices, for a problem report: no
     caption text, no app's name - each source by its id and category.
     `apps_one_by_one`: the log's line on capturing apps one by one - the
-    build, whether it was tried, how it went (decision 0076)."""
+    build, whether it was tried, how it went (decision 0076); `devices`:
+    the OS's own list of speakers and mics (`OsAdapters.sound_devices`).
+    The OS's part keeps its "windows" key on a Mac too (the reports read
+    so far)."""
     screens = [
         {
             "scale": screen.devicePixelRatio(),
@@ -5049,23 +5132,34 @@ def report_facts(
             {"id": part.source_id, "category": part.category.value} for part in speech
         ],
     }
-    try:
-        from polyglotic_desktop.platform.windows.devices import (
-            Flow,
-            active_devices,
-            default_device,
-        )
-
-        facts["audio_devices"] = {
-            flow.name.lower(): {
-                "default": getattr(default_device(flow), "name", None),
-                "active": [d.name for d in active_devices(flow)],
-            }
-            for flow in Flow
-        }
-    except (ImportError, OSError) as problem:  # no Core Audio here
-        facts["audio_devices"] = {"unavailable": type(problem).__name__}
+    facts["audio_devices"] = device_facts(devices)
     return facts
+
+
+def device_facts(devices: Callable[[], SoundDevices] | None) -> dict[str, object]:
+    """The speakers and mics, and the OS's defaults, by name - from the OS's
+    own adapter, so a Mac's come from Core Audio. Main imported Windows'
+    own devices here, which on a Mac fails while the module loads
+    (AttributeError: ctypes has no WinDLL): a tester's Report a problem
+    never opened (GitHub's Mac, polyglotic-hq 515). Nothing listed stops
+    no report."""
+    if devices is None:
+        return {"unavailable": "not asked"}
+    try:
+        found = devices()
+    except Exception as problem:  # noqa: BLE001 - a report goes without them
+        return {"unavailable": type(problem).__name__}
+    names = {d.id: d.name for d in (*found.speakers, *found.mics)}
+    return {
+        "output": {
+            "default": names.get(found.default_speaker or ""),
+            "active": [d.name for d in found.speakers],
+        },
+        "input": {
+            "default": names.get(found.default_mic or ""),
+            "active": [d.name for d in found.mics],
+        },
+    }
 
 
 def _json_size(value: object) -> int:
@@ -5799,10 +5893,13 @@ def learner_tools(
     data: Path,
     basic: dict[str, BasicDictionary] | None = None,
     meanings: str = "en",
+    explained: MeaningsShelf | None = None,
 ) -> tuple[LearningTools, BackgroundLearningStore]:
     """The learner's vocabulary and dictionary: CC-CEDICT for a Chinese
     learner, ECDICT for an English one - its meanings in `meanings`, the
-    interface's (`learner_dictionary_file`). Each language keeps its own
+    interface's (`learner_dictionary_file`), or where `explained` has
+    ECDICT's meanings file in the learner's language, in that (decision
+    0234: `PackDelivery.explain` puts it there). Each language keeps its own
     learning data, so switching back finds it as it was. With it, the
     learning store, for closing at the end.
 
@@ -5822,6 +5919,8 @@ def learner_tools(
     dictionary: ChineseDictionary | EnglishDictionary = (
         EnglishDictionary(file) if english else ChineseDictionary(file)
     )
+    if isinstance(dictionary, EnglishDictionary) and explained is not None:
+        dictionary.explain_in(explained.view(learner_dictionary(english)))
     scheme = ENGLISH_FREQUENCY if english else DEFAULT_CHINESE_SCHEME
     tools, store = _learner(
         lambda: dictionary,
@@ -5976,6 +6075,7 @@ def tools_beside(
     own: str | None = None,
     packs_ready: Collection[str] | None = None,
     meanings: str = "en",
+    explained: MeaningsShelf | None = None,
 ) -> list[tuple[LearningTools, BackgroundLearningStore]]:
     """Every other full language learned (`open_beside`; until one is, every
     other full one but the learner's `own`) and every pack language learned
@@ -6003,7 +6103,7 @@ def tools_beside(
             # the same basic packs as the main tools' (327): one dict for all
             if tier_of(code) is Tier.FULL:
                 other, store = learner_tools(
-                    dictionaries, code == "en", data, tools.basic, meanings
+                    dictionaries, code == "en", data, tools.basic, meanings, explained
                 )
             else:
                 other, store = pack_learner_tools(code, data, tools.basic)
@@ -6976,6 +7076,15 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     # the meanings language of the packs and of English's dictionary: the
     # interface's, Chinese or English (decision 0211)
     meanings = args.basic_dictionaries or pack_meanings(interface_language.in_use(app))
+    # ...and where a meanings file has them, in the interface's own language
+    # (decision 0234): ECDICT's and the packs' meanings files, open on a shelf
+    # every learner's dictionary reads through, filled once the packs open
+    explained_in = (
+        None
+        if args.basic_dictionaries
+        else meanings_wanted(interface_language.in_use(app))
+    )
+    explained = MeaningsShelf()
     # the app's own text size (Settings > App), on Windows': every window from
     # the first run's on is built at it (polyglotic-hq 292, decision 0084)
     style.use_app_text_size(Settings(store).value.app_text_size)
@@ -7022,7 +7131,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     ) -> tuple[LearningTools, BackgroundLearningStore]:
         """The learner's tools, made while Windows' fonts are read; then the
         fonts, before the first run's first screen or the window."""
-        made = learner_tools(args.dictionaries, english, data, basic, meanings)
+        made = learner_tools(
+            args.dictionaries, english, data, basic, meanings, explained
+        )
         start_parts.done("learner")  # the dictionary opened, the data read
         # Windows' first-time work for a first window, in what would be a
         # wait for the fonts (polyglotic-hq 322, decision 0113)
@@ -7300,7 +7411,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
                 names[str(part.source_id)] = mic_name()
         log_text = read_log(data / "logs")
         values = desktop.settings.value.to_stored()
-        facts = report_facts(app_info, release.channel, speech, per_app.line)
+        facts = report_facts(
+            app_info, release.channel, speech, per_app.line, system.sound_devices
+        )
         dialog = ProblemReportDialog(
             problem_report_parts(
                 log_text, values, facts, captions, speech, names, check_result
@@ -7611,9 +7724,11 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         open_url=_open_pack_url,
         parent=desktop,
         recordings=recordings,
-        built_in=BUILT_IN_RECORDED,
+        built_in=BUILT_IN_RIDERS,
         built_in_folder=args.dictionaries,
         learning=lambda: desktop.settings.value.learning_languages.all,
+        explained=explained,
+        explained_in=explained_in,
     )
     hub.use_packs(packs)
     packs.notice.connect(desktop.home_notice)
@@ -8014,7 +8129,14 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             return
         tried.update(wanted)  # once each: one left closed isn't tried again
         for other, store in tools_beside(
-            tools, args.dictionaries, data, languages, own, packs.ready, meanings
+            tools,
+            args.dictionaries,
+            data,
+            languages,
+            own,
+            packs.ready,
+            meanings,
+            explained,
         ):
             beside.append(store)
             other.vocabulary.subscribe(to_server)

@@ -637,6 +637,11 @@ class LookView(Shared[CaptionLook]):
         learner knows."""
         self.change(replace(self.value, reading_past=past))
 
+    def set_respelling_past(self, past: bool) -> None:
+        """English's respelling over every word, or only over those past
+        what the learner knows (polyglotic-hq 511)."""
+        self.change(replace(self.value, respelling_past=past))
+
     def set_reading_system(self, system: ReadingSystem) -> None:
         """Chinese's readings in pinyin or zhuyin (395)."""
         self.change(replace(self.value, reading_system=system))

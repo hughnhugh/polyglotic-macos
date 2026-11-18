@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">Furigana di atas bahasa Jepang: aktifkan di Pengaturan, bagian Bacaan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">Pinyin di atas bahasa Mandarin: aktifkan di Pengaturan, bagian Bacaan</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">Stabil, bawaannya: tiap kalimat muncul sekali, utuh dan sudah diterjemahkan, sekitar setengah detik setelah selesai; sebuah bilah kecil bergerak di bawah subtitle selama dalam perjalanan, dan kalau pembicara terus bicara, baris redup menunjukkan kata-katanya sejauh ini. Pratinjau: baris pertama yang redup setelah sekitar 2 detik, lalu subtitle final dan terjemahannya saat kalimat selesai. Langsung: kata muncul saat diucapkan dan menulis ulang dirinya sampai kalimat selesai. Pilih salah satu di Pengaturan &gt; Waktu, atau di pengaturan jendela subtitle. Di semuanya, tidak ada yang bicara lebih lama dari Batas tunggu teks (3 detik, kecuali kamu mengubahnya) sebelum kamu melihat teks.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">Pratinjau, bawaannya: baris pertama yang redup setelah sekitar 2 detik, lalu subtitle final dan terjemahannya saat kalimat selesai. Stabil: tiap kalimat muncul sekali, utuh dan sudah diterjemahkan, sekitar setengah detik setelah selesai; sebuah bilah kecil bergerak di bawah subtitle selama dalam perjalanan, dan kalau pembicara terus bicara, baris redup menunjukkan kata-katanya sejauh ini. Langsung: kata muncul saat diucapkan dan menulis ulang dirinya sampai kalimat selesai. Pilih salah satu di Pengaturan &gt; Waktu, atau di pengaturan jendela subtitle. Di semuanya, tidak ada yang bicara lebih lama dari Batas tunggu teks (3 detik, kecuali kamu mengubahnya) sebelum kamu melihat teks.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">Bacaan</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">Furigana di atas bahasa Jepang</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">Kana kecil di atas kanji setiap kata, dalam yang diucapkan dan dalam terjemahan ke bahasa Jepang, dari kamus bahasa Jepang - begitu kamu belajar bahasa Jepang dan kamusnya sudah ada.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">Tanda tekanan di atas bahasa Rusia</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">Tanda aksen di atas vokal bertekanan setiap kata bahasa Rusia (молоко́), dari kamus bahasa Rusia - tidak ada jika kamus memberi tekanan dua cara pada sebuah kata (ру́ки, руки́): kartunya menunjukkan keduanya. Begitu kamu belajar bahasa Rusia dan kamusnya sudah ada.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">Romanisasi di atas bahasa Korea</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Setiap kata bahasa Korea dalam Romanisasi yang Direvisi, sistem resminya, ditulis seperti diucapkan (한국어: hangugeo, 국물: gungmul) - dengan aturan, tanpa kamus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">Huruf Latin di atas bahasa Hindi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Setiap kata bahasa Hindi dalam huruf Latin, seperti ditulis kamus (किताब: kitāb), tanpa a yang tidak diucapkan - dengan aturan, tanpa kamus.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">Semua kata</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">Di luar yang kamu kenal: hanya di atas kata-kata yang melewati batas kata yang kamu kenal di Belajar, yaitu yang ditunjukkan tautan kata. Makin banyak belajar, makin sedikit yang dibaca.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">Lafal di atas bahasa Inggris</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">Bagaimana setiap kata bahasa Inggris dibunyikan, dengan huruf biasa, bagian bertekanan dengan huruf kapital (KAY-oss, ri-SEET) - untuk 10.000 kata paling umum, dalam yang diucapkan dan dalam terjemahan ke bahasa Inggris, begitu kamu belajar bahasa Inggris.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">Lafal di atas</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">Melewati yang kamu tahu: hanya di atas kata bahasa Inggris yang melewati batas kata yang kamu kenal di Belajar, jadi kata yang kamu kenal terbaca polos.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

@@ -11,9 +11,10 @@ import bisect
 import re
 import unicodedata
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, Level
+from polyglotic_desktop.ports.dictionary import MeaningsFile
 
 _VARIANT = re.compile(r"^(old |archaic |unofficial |Japanese |erroneous )?variant of ")
 
@@ -229,3 +230,12 @@ def words_in_runs(ranks: Sequence[int], runs: Sequence[tuple[int, int]]) -> list
         bisect.bisect_right(ranks, last) - bisect.bisect_left(ranks, first)
         for first, last in runs
     ]
+
+
+def explained(entry: DictionaryEntry, meanings: MeaningsFile | None) -> DictionaryEntry:
+    """`entry` with its meanings in the learner's language where `meanings`
+    (the dictionary's meanings file in it, decision 0234) has them; else as
+    the dictionary has it. Only what's shown changes: its ID, rank, levels
+    and whether it's a name stay the dictionary's own."""
+    found = meanings.meanings(entry.entry_id) if meanings is not None else None
+    return replace(entry, meanings=found) if found else entry

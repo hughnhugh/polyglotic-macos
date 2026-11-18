@@ -215,7 +215,7 @@ class PackFolder:
 
     def riders(self, dictionary: str) -> list[Path]:
         """`dictionary`'s rider files in the folder (never `also`): its
-        recordings, of any version."""
+        recordings and its meanings files, of any version."""
         if not self.folder.is_dir():
             return []
         return sorted(
@@ -303,10 +303,14 @@ class PackDeliveries:
         free_space: Callable[[Path], int] = lambda p: shutil.disk_usage(p).free,
         stall_sec: float = STALL_SEC,
         retry: Callable[[int, Problem], float | None] = retry_after,
+        explained_in: str | None = None,
     ) -> None:
+        """`explained_in`: the learner's language, whose meanings riders
+        come with a pack (decision 0234; None: none)."""
         self._packs = packs
         self.folder = folder
         self.reader = reader
+        self.explained_in = explained_in
         self._progress = on_progress
         self._installed = on_installed
         self._listed = on_listed
@@ -652,7 +656,7 @@ class PackDeliveries:
         with the next day's check (or the next time its pack is asked for).
         On a metered connection none is fetched unless the learner said go on."""
         quiet = replace(progress, update=True)
-        for rider in riders_wanted(offer, self.reader):
+        for rider in riders_wanted(offer, self.reader, self.explained_in):
             path = self.folder.folder / rider.file
             if path.is_file() and path.stat().st_size == rider.size:
                 continue

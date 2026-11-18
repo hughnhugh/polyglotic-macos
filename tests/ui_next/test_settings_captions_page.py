@@ -297,7 +297,7 @@ def test_all_caption_settings_ends_every_windows_popover(qapp: QApplication) -> 
 
 def test_the_popovers_timing_is_one_line_a_shortcut(qapp: QApplication) -> None:
     """248's Q8 A: Timing lives in Settings > Captions; a caption window's
-    popover keeps it on one line - the timing now (Steady by default) on a
+    popover keeps it on one line - the timing now (Quick preview by default) on a
     chip, its three choices under it only while open."""
     from polyglotic_desktop.core.listening.timing import default_caption_mode
 
@@ -308,9 +308,9 @@ def test_the_popovers_timing_is_one_line_a_shortcut(qapp: QApplication) -> None:
     popover = window.popover
     assert popover is not None
     chip = popover.timing
-    assert default_caption_mode() is CaptionMode.STEADY
-    window.set_timing(CaptionMode.STEADY)
-    assert chip.text().startswith("Steady") and popover.timings.isHidden()
+    assert default_caption_mode() is CaptionMode.PREVIEW
+    window.set_timing(CaptionMode.PREVIEW)
+    assert chip.text().startswith("Quick preview") and popover.timings.isHidden()
     assert "Settings" in chip.toolTip()
     one_line = popover.rows["timing"].sizeHint().height()
     chip.click()

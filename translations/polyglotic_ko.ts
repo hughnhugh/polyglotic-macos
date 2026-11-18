@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">일본어 위에 후리가나: 설정의 읽기에서 켜세요</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">중국어 위에 병음: 설정의 읽기에서 켜세요</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">안정(기본): 문장마다 끝난 뒤 약 0.5초 후에 완성·번역된 형태로 한 번만 나타납니다. 오는 동안 자막 아래에서 작은 막대가 움직이고, 말이 계속되면 흐린 줄이 지금까지의 말을 보여 줍니다. 미리 보기: 약 2초 뒤 흐린 첫 줄이 나오고, 문장이 끝나면 확정 자막과 번역이 나옵니다. 실시간: 말하는 대로 단어가 나타나고 문장이 끝날 때까지 다시 쓰입니다. 설정 &gt; 타이밍이나 자막 창 설정에서 고르세요. 어느 것이든, &apos;글자 최대 대기 시간&apos;(바꾸지 않으면 3초)보다 오래 말해도 글자가 안 나오는 일은 없습니다.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">미리 보기(기본): 약 2초 뒤 흐린 첫 줄이 나오고, 문장이 끝나면 확정 자막과 번역이 나옵니다. 안정: 문장마다 끝난 뒤 약 0.5초 후에 완성·번역된 형태로 한 번만 나타납니다. 오는 동안 자막 아래에서 작은 막대가 움직이고, 말이 계속되면 흐린 줄이 지금까지의 말을 보여 줍니다. 실시간: 말하는 대로 단어가 나타나고 문장이 끝날 때까지 다시 쓰입니다. 설정 &gt; 타이밍이나 자막 창 설정에서 고르세요. 어느 것이든, &apos;글자 최대 대기 시간&apos;(바꾸지 않으면 3초)보다 오래 말해도 글자가 안 나오는 일은 없습니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">읽기</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">일본어 위에 후리가나</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">단어마다 한자 위에 작은 가나를 표시합니다. 말한 내용과 일본어 번역 모두에, 일본어 사전에서 가져옵니다. 일본어를 배우고 그 사전이 이 PC에 있을 때 나타납니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">러시아어 위에 강세 표시</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">러시아어 단어마다 강세 모음 위에 강세 기호를 표시합니다(молоко́). 러시아어 사전에서 가져오며, 사전에 강세가 두 가지인 단어(ру́ки, руки́)에는 표시하지 않습니다. 카드에 둘 다 나옵니다. 러시아어를 배우고 그 사전이 이 PC에 있을 때 나타납니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">한국어 위에 로마자</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">한국어 단어마다 공식 체계인 국어의 로마자 표기법으로, 소리 나는 대로 표시합니다(한국어: hangugeo, 국물: gungmul). 규칙으로 만들며 사전이 필요 없습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">힌디어 위에 로마자</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">힌디어 단어마다 사전에서 쓰는 대로 로마자로 표시합니다(किताब: kitāb). 발음하지 않는 a는 뺍니다. 규칙으로 만들며 사전이 필요 없습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">모든 단어</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">아는 범위 너머: 학습의 아는 단어 기준선 너머에 있는 단어, 즉 단어 연결이 가리키는 단어 위에만 표시합니다. 배울수록 읽을 것이 줄어듭니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">영어 위에 발음 표기</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">영어 단어가 어떻게 들리는지 쉬운 글자로, 강세 부분은 대문자로 표시합니다(KAY-oss, ri-SEET). 가장 흔한 10,000단어에 대해, 말한 내용과 영어 번역 모두에. 영어를 배울 때 나타납니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">발음 표기 표시</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">아는 단어 이후: 학습의 아는 선을 넘는 영어 단어 위에만 표시하므로, 아는 단어는 그대로 읽힙니다.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

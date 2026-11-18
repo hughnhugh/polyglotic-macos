@@ -71,21 +71,24 @@ def test_a_transcript_s_timing_menu_says_what_each_does(qapp: QApplication) -> N
 def test_the_default_timing_is_named_first_wherever_it_s_chosen(
     qapp: QApplication,
 ) -> None:
-    """polyglotic-hq 260 (DECISIONS.md #107): Steady is the default, and
-    it's the first choice on the Timing panel and in Help's "When do
-    captions appear?" - the other two after it, a line each, by the names
-    the app gives them."""
+    """Quick preview is the default (desktop decision 0242, polyglotic-hq
+    522; Steady from 260 to 522): Help's "When do captions appear?" names
+    it first, the other two after it, a line each, by the names the app
+    gives them. The Timing panel keeps them steadier to more live - Steady,
+    Quick preview, Live updates - the default between (the user,
+    2026-11-18: "an option to go steadier or more live")."""
     default = default_caption_mode()
-    assert default is CaptionMode.STEADY
+    assert default is CaptionMode.PREVIEW
+    spectrum = [CaptionMode.STEADY, CaptionMode.PREVIEW, CaptionMode.LIVE]
     panel = TimingPanel(TimingView(Timing(default, 1.5)))
-    assert panel.mode.buttons[0].text() == timing_name(default)
+    assert [b.text() for b in panel.mode.buttons] == [timing_name(m) for m in spectrum]
     [said] = [
         text
         for title, text in help_page.questions()
         if title == "When do captions appear?"
     ]
     assert said.startswith(f"{timing_name(default)}, the default:")
-    order = [CaptionMode.STEADY, CaptionMode.PREVIEW, CaptionMode.LIVE]
+    order = [CaptionMode.PREVIEW, CaptionMode.STEADY, CaptionMode.LIVE]
     places = [said.index(timing_name(mode)) for mode in order]
     assert places == sorted(places)
     assert "Settings > Timing" in said  # Home's panel went in 261, a section in 304

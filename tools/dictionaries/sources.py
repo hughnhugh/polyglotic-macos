@@ -204,8 +204,6 @@ OEWN = Source(
     ),
 )
 
-SOURCES = (CEDICT, JIEBA, HSK30, ECDICT, WORDFREQ, OEWN)
-
 CMUDICT = Source(
     name="cmudict",
     title="The CMU Pronouncing Dictionary (CMUdict)",
@@ -219,9 +217,15 @@ CMUDICT = Source(
     homepage="https://github.com/cmusphinx/cmudict",
     licence="BSD 2-clause style (CMUdict's own; its text is in the credits)",
     notice="Copyright (C) 1993-2015 Carnegie Mellon University. All rights reserved",
-    used_for="the English respelling: each word's American sounds and stress",
+    used_for=(
+        "the English dictionary's respellings (KAY-oss) of the commonest words, "
+        "for the reading line over English: each word's American sounds and stress"
+    ),
 )
-"""Not in SOURCES: only `respell` reads it (polyglotic-hq 471)."""
+"""`respell` reads it (polyglotic-hq 471), for the English dictionary's
+respellings (511)."""
+
+SOURCES = (CEDICT, JIEBA, HSK30, ECDICT, WORDFREQ, OEWN, CMUDICT)
 
 
 # -- the basic packs (polyglotic-hq project 164; nothing ships with the app) --
@@ -482,6 +486,124 @@ KAIKKI_ZH = Source(
         "Chinese meanings of Spanish, Japanese and Russian words, for Chinese speakers"
     ),
 )
+
+
+KAIKKI_EN = Source(
+    name="kaikki-en",
+    title="Wiktionary (English edition): English, as extracted by kaikki.org",
+    version="extracted 2026-10-30 from the enwiktionary dump of 2026-10-01",
+    url="https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz",
+    sha256="4d03b6cba283744756c57ff661c2c6cbfe34fcf8ff513a966576cf7d97e91a99",
+    filename="kaikki-English-20261030.jsonl.gz",
+    homepage="https://kaikki.org/dictionary/English/",
+    licence="CC BY-SA 4.0",
+    notice=WIKTIONARY_NOTICE,
+    used_for=("English words' meanings in learners' languages: the translation tables"),
+)
+
+
+def edition_source(code: str, language: str, sha256: str) -> Source:
+    """A language's own Wiktionary as kaikki.org extracted it on 2026-10-30:
+    its English words, defined in that language (`english_pairs`;
+    polyglotic-hq 510)."""
+    return Source(
+        name=f"kaikki-{code}-edition",
+        title=f"Wiktionary ({language} edition), as extracted by kaikki.org",
+        version=f"extracted 2026-10-30 ({code}-extract.jsonl.gz)",
+        url=f"https://kaikki.org/dictionary/downloads/{code}/{code}-extract.jsonl.gz",
+        sha256=sha256,
+        filename=f"kaikki-{code}-extract-20261030.jsonl.gz",
+        homepage="https://kaikki.org/dictionary/rawdata.html",
+        licence="CC BY-SA 4.0",
+        notice=WIKTIONARY_NOTICE.replace("en.wiktionary.org", f"{code}.wiktionary.org"),
+        used_for=f"English words' meanings in {language}",
+    )
+
+
+WIKTIONARY_EDITIONS = {
+    "es": edition_source(
+        "es",
+        "Spanish",
+        "0a7a02456ecf34dd3419e0d5adf4f18da5531487dde31829d126afe86eade861",
+    ),
+    "pt": edition_source(
+        "pt",
+        "Portuguese",
+        "26b244e5b25629e9a88cf926813e6987289fa61e8b8a2faa68aef78ed6efaaa6",
+    ),
+    "ja": edition_source(
+        "ja",
+        "Japanese",
+        "cf8d3f8e35b87d9c94fe61baa0dd9bf5abbe84a2bc4b656c9465a15538c3394d",
+    ),
+    "ko": edition_source(
+        "ko",
+        "Korean",
+        "7ce75eec9ac9d198a510eb9db57e1831810bba941099d3580ae59a7b026aaec1",
+    ),
+    "vi": edition_source(
+        "vi",
+        "Vietnamese",
+        "f2139c262f45cbe32dbc8e7478369fbc936ff6640deec0d2b6e7ad647d58f273",
+    ),
+    "id": edition_source(
+        "id",
+        "Indonesian",
+        "0c54402893e77610fa7a757cb5c56d0d1134047c0123079f84cee0f8d285dbc6",
+    ),
+    "tr": edition_source(
+        "tr",
+        "Turkish",
+        "09bc9e87b010dcee5e22c48ae1f8379cef3e4fefaefbb7c8e5453b8c0ea88f6d",
+    ),
+    "ru": edition_source(
+        "ru",
+        "Russian",
+        "fdcb978c76b660e0e43977bbf7487c812e6d42e965b0a73e3f5b4ba6981174c4",
+    ),
+    "fr": edition_source(
+        "fr",
+        "French",
+        "61d27bfc4bef9eb8f19d6e280ebf310adb07196da41d2f5777ff5942bef66a28",
+    ),
+    "de": edition_source(
+        "de",
+        "German",
+        "39ea559834e4cbcd2f1cc686037fc6ddc4590f29af94fd143292146ad9bf24c5",
+    ),
+    "it": edition_source(
+        "it",
+        "Italian",
+        "9f35d5ac30f2fbab4774eb3e81ec6394806bd2723f802b405e7e9901185d5229",
+    ),
+    "th": edition_source(
+        "th",
+        "Thai",
+        "62dba8c33491dcd78a37f0f3c34fbb4ffa2f5a79afbfb4fdc45a226dd73a13e9",
+    ),
+    "pl": edition_source(
+        "pl",
+        "Polish",
+        "c76fa8c844231ab2d27b79a88eb105b19ed6e873b2fdbc54826713fd8353db2c",
+    ),
+    "nl": edition_source(
+        "nl",
+        "Dutch",
+        "6eee5015514661292f5915c6c2fcc7da7ebff32714dd704217ea28ae37650801",
+    ),
+    "cs": edition_source(
+        "cs",
+        "Czech",
+        "bb7bde6f575d081ae8d3d19e68e8975c541b9102822c7651af401f0b04f98bb8",
+    ),
+    "ms": edition_source(
+        "ms",
+        "Malay",
+        "ecd4789b6518067369b51ae97ddaa39f6db1d70dd2956d13f9454d164082c64c",
+    ),
+}
+"""Each language whose own Wiktionary kaikki.org extracts (none for Hindi,
+Ukrainian or Filipino), for English's meanings in it."""
 
 FREQUENCYWORDS_RU = Source(
     name="frequencywords-ru",

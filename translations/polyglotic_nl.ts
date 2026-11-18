@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">Furigana boven Japans: zet het aan in Instellingen, onder Uitspraak</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">Pinyin boven Chinees: zet het aan in Instellingen, onder Uitspraak</translation>
     </message>
@@ -2544,8 +2549,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">Rustig, de standaard: elke zin verschijnt één keer, af en vertaald, ongeveer een halve seconde nadat hij eindigt; een balkje beweegt onder de ondertitels terwijl hij onderweg is, en praat de spreker door, dan toont een vage regel de woorden tot dan toe. Voorbeeld: na ongeveer 2 seconden een vage eerste regel, daarna de definitieve ondertitel en de vertaling als de zin eindigt. Live: woorden verschijnen terwijl ze worden gezegd en herschrijven zichzelf tot de zin eindigt. Kies er een bij Instellingen &gt; Timing, of in de instellingen van een ondertitelvenster. In elke modus praat niemand langer dan de Langste wachttijd voor tekst (3 seconden, tenzij je die wijzigt) voordat je tekst ziet.</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">Voorbeeld, de standaard: na ongeveer 2 seconden een vage eerste regel, daarna de definitieve ondertitel en de vertaling als de zin eindigt. Rustig: elke zin verschijnt één keer, af en vertaald, ongeveer een halve seconde nadat hij eindigt; een balkje beweegt onder de ondertitels terwijl hij onderweg is, en praat de spreker door, dan toont een vage regel de woorden tot dan toe. Live: woorden verschijnen terwijl ze worden gezegd en herschrijven zichzelf tot de zin eindigt. Kies er een bij Instellingen &gt; Timing, of in de instellingen van een ondertitelvenster. In elke modus praat niemand langer dan de Langste wachttijd voor tekst (3 seconden, tenzij je die wijzigt) voordat je tekst ziet.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6278,7 +6283,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">Uitspraak</translation>
     </message>
     <message>
@@ -6323,6 +6328,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">Furigana boven Japans</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">Kleine kana boven de kanji van elk woord, in wat er gezegd is en in vertalingen naar het Japans, uit het Japanse woordenboek - zodra je Japans leert en het woordenboek er is.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">Klemtoontekens boven Russisch</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">Een accent boven de beklemtoonde klinker van elk Russisch woord (молоко́), uit het Russische woordenboek - geen waar het woordenboek een woord op twee manieren beklemtoont (ру́ки, руки́): de kaart toont beide. Zodra je Russisch leert en het woordenboek er is.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">Romanisering boven Koreaans</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Elk Koreaans woord in de herziene romanisering, het officiële systeem, geschreven zoals het klinkt (한국어: hangugeo, 국물: gungmul) - volgens regels, zonder woordenboek.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">Latijnse letters boven Hindi</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">Elk Hindi-woord in Latijnse letters, zoals woordenboeken het schrijven (किताब: kitāb), zonder de a&apos;s die niet uitgesproken worden - volgens regels, zonder woordenboek.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">Elk woord</translation>
     </message>
@@ -6340,6 +6385,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">Voorbij wat je kent: alleen boven woorden voorbij je grens bij Leren, de woorden die woordkoppelingen aanwijzen. Hoe meer je leert, hoe minder te lezen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">Uitspraakspelling boven Engels</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">Hoe elk Engels woord klinkt, in gewone letters, het beklemtoonde deel in hoofdletters (KAY-oss, ri-SEET) - voor de 10.000 meest gebruikte woorden, in wat er gezegd is en in vertalingen naar het Engels, zodra je Engels leert.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">Uitspraakspelling boven</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">Voorbij wat je kent: alleen boven de Engelse woorden voorbij je grens van bekende woorden onder Leren, zodat de woorden die je kent gewoon leesbaar blijven.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

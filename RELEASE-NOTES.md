@@ -26,6 +26,14 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### New
 
+### Better
+
+### Fixed
+
+## 0.1.9 - 2026-11-18
+
+### New
+
 - The app tells you when a better voice can be installed: on a Mac,
   each time a word or sentence is said in macOS's basic voice for its
   language, it says where to add a more natural one for free, with
@@ -64,11 +72,15 @@ the app's What's new, the website's What's new and the Discord post.
   each word lights as it's said. It reads the words as they'd be said,
   not as the captions cut them, and years as years. Click again or press
   Esc to stop. In a transcript, right-click a selection and choose Say it.
-- Save sentences: drag across more than a word in a caption window - across lines, captions and speakers - and save it into a category, with its translation and word links; in a transcript, right-click a selection and choose Save sentence to. Saved sentences stay on your PC.
+- Save sentences: drag across more than a word in a caption window - across lines, captions and speakers - and the card at the mouse saves it into a category, with its translation and word links; in a transcript, right-click a selection and choose Save sentence to. Saved sentences stay on your PC.
 - An English word's card explains it in English: short everyday
   definitions, the commonest meaning first, each with its part of speech
   and the first with an example. The meanings are in Chinese only when
   the app's language is Chinese.
+- An English word's card can explain it in your own language: where the
+  app's language has the word in Wiktionary's translations, its meanings
+  are shown in that language (Spanish, Japanese, Vietnamese and more),
+  and in English where it hasn't.
 - Lab: Parts placed. With Fill the width or Line up the parts on, a line's
   parts can sit nearest the words they are linked to, so the word links
   and Arrows are short, or be spread evenly over the width. Packed, as
@@ -78,10 +90,10 @@ the app's What's new, the website's What's new and the Discord post.
   "hai⁶: to be", not Mandarin's "xì"), finds words like 佢哋 and 而家
   whole, and keeps your words as every other language does. The Chinese
   dictionary still answers a word it hasn't got, and the card says so.
-- Jyutping above Cantonese, as pinyin goes above Chinese: turn it on in
-  Settings > Readings once you learn Cantonese. It takes the
-  same size, words and colour choices as pinyin, which are now under
-  Readings.
+- Jyutping above Cantonese, as pinyin goes above Chinese: on from the
+  start once you learn Cantonese (turn it off in Settings > Readings). It
+  takes the same size, words and colour choices as pinyin, which are now
+  under Readings.
 - A caption window sets itself up when it opens: it asks what they
   speak, what to translate into, and what to do when they already speak
   that language - each already filled in. Choose Use as my default and
@@ -93,8 +105,8 @@ the app's What's new, the website's What's new and the Discord post.
   window captions what you say too, as "You" (its set-up shows the switch,
   to turn it off); word links show with their lines; dictation is on -
   hold Right Ctrl, speak, let go; a hidden caption window comes back when
-  its app starts speaking; and readings like pinyin, once turned on, go
-  over the words past what you know. On a Mac, macOS asks for the
+  its app starts speaking; and readings like pinyin are on, over every
+  word. On a Mac, macOS asks for the
   microphone then; if it's refused, the switch goes off and says where to
   allow it. If you've used Polyglotic before, your settings stay as they
   are.
@@ -114,17 +126,26 @@ the app's What's new, the website's What's new and the Discord post.
   you chose on Learning counts.
 - Names in Chinese captions stay names: 杜瓦尔, or the 万里 of 黄万里, are
   neither blue in the quiet view nor coloured as words to learn.
-
-- Cantonese is a language of its own to learn. Its dictionary reads a
-  Cantonese line's words in Jyutping with Cantonese meanings (係 is
-  "hai⁶: to be", not Mandarin's "xì"), finds words like 佢哋 and 而家
-  whole, and keeps your words as every other language does. The Chinese
-  dictionary still answers a word it hasn't got, and the card says so.
-- Jyutping above Cantonese, as pinyin goes above Chinese: turn it on in
-  Settings > Look > Readings once you learn Cantonese. It takes the
-  same size, words and colour choices as pinyin, which are now under
+- Furigana above Japanese: small kana over each word's kanji, in what
+  was said and in translations into Japanese - on from the start once you
+  learn Japanese, with pinyin's size, words and colour choices.
+- Respelling above English: how each English word sounds, in plain
+  letters with the stressed part in capitals (KAY-oss, ri-SEET, TYME), for
+  the commonest words - on from the start once you learn English, at first
+  only over the words past what you know.
+- Stress marks over Russian: an accent over the stressed vowel of each
+  Russian word (молоко́), from the Russian dictionary - on from the start
+  once you learn Russian. A word the dictionary stresses two ways (ру́ки,
+  руки́) gets none, and its card shows both.
+- Romanization above Korean (한국어: hangugeo, in the official Revised
+  Romanization, as it's said) and Latin letters above Hindi (किताब: kitāb),
+  on from the start. Each reading has its own switch in Settings >
   Readings.
 ### Better
+- Quick preview is the caption timing from the start: a dim first line
+  about 2 seconds into a sentence, then the finished caption and its
+  translation when it ends - between Steady (each sentence once, finished)
+  and Live updates. A timing you chose yourself stays.
 - A word plays in the same voice every time you press its
   speaker - its recording, or the best voice for its language - at its
   natural pace. The second press no longer says it slower in another,
@@ -158,10 +179,17 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Fixed
 
+- On a Mac, a caption window's settings and its language chip's choices
+  stay in front of the window: they went behind it within a second of
+  opening.
 - English cards open on the right word more often: "does" on do (not a
   deer), "am" on be, and lower-case "north", "i", "i'm" and "mr" are
   found. A few dozen rarer forms (ruined, panicked, scrolling) open on
   their own verb.
+- On a Mac, a caption window shows its buttons, marks the word under the
+  mouse and opens a word's card when you rest on it while you're in
+  another app, as it does on Windows: before, nothing came until you
+  clicked Polyglotic itself.
 - An English word's Chinese meanings start with the everyday one: can is
   能, 可以 (not 装罐, "to can"), will 将, may 可能, well 很好地, good 好的
   and give 给. "tv", "ok", "uk" and a few dozen other abbreviations are
@@ -173,6 +201,9 @@ the app's What's new, the website's What's new and the Discord post.
   or marked as new. "a bit" opens bit (一点, not bite), "later" opens
   later (以后), and "training", "meeting", "interesting" and a dozen more
   open their own meaning first and count as their own word.
+- On a Mac, Report a problem (for alpha testers) opens, from a
+  caption window's strip and from Help: it stopped before its window
+  came up.
 - Changing a setting on Learning - a learning window, word links, where
   links start, Mark known - no longer jumps the page down to its middle:
   it stays where you were, with the keyboard on the same control. The same
@@ -191,6 +222,9 @@ the app's What's new, the website's What's new and the Discord post.
   is in the way" whatever the network, and never reached our server. It
   now trusts the certificates macOS itself trusts, so signing in, live
   captions, updates and dictionary downloads connect.
+- On a Mac, a caption window resized by its edge or corner keeps its new
+  size, and never shrinks past its smallest: macOS resized it itself, so
+  the size wasn't remembered and the window could become a sliver.
 
 ## 0.1.7 - 2026-11-17
 

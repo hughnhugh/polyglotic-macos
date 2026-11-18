@@ -232,6 +232,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Furigana above Japanese: turn it on in Settings, under Readings</source>
+        <translation type="unfinished">日本語の上にふりがな：設定の［読み］でオンにできます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Pinyin above Chinese: turn it on in Settings, under Readings</source>
         <translation type="unfinished">中国語の上にピンイン：設定の［読み］でオンにできます</translation>
     </message>
@@ -2540,8 +2545,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Steady, the default: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Quick preview: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">安定（既定）：各文は話し終わってから約0.5秒後に、完成・翻訳済みの形で一度だけ表示されます。届くまでは字幕の下で小さなバーが動き、話が続く場合はそこまでの言葉が薄い行で表示されます。プレビュー：約2秒後に薄い1行目が出て、文が終わると確定した字幕と翻訳が表示されます。ライブ：話すそばから単語が表示され、文が終わるまで書き換わります。設定 &gt; タイミング、または字幕ウィンドウの設定で選べます。どれでも、「テキストの最大待ち時間」（変更しない限り3秒）より長く話しても文字が出ないことはありません。</translation>
+        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
+        <translation type="unfinished">プレビュー（既定）：約2秒後に薄い1行目が出て、文が終わると確定した字幕と翻訳が表示されます。安定：各文は話し終わってから約0.5秒後に、完成・翻訳済みの形で一度だけ表示されます。届くまでは字幕の下で小さなバーが動き、話が続く場合はそこまでの言葉が薄い行で表示されます。ライブ：話すそばから単語が表示され、文が終わるまで書き換わります。設定 &gt; タイミング、または字幕ウィンドウの設定で選べます。どれでも、「テキストの最大待ち時間」（変更しない限り3秒）より長く話しても文字が出ないことはありません。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -6260,7 +6265,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
-        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
+        <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
         <translation type="unfinished">読み</translation>
     </message>
     <message>
@@ -6305,6 +6310,46 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Furigana above Japanese</source>
+        <translation type="unfinished">日本語の上にふりがな</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Small kana over each word&apos;s kanji, in what was said and in translations into Japanese, from the Japanese dictionary - once you learn Japanese and its dictionary is here.</source>
+        <translation type="unfinished">各語の漢字の上に小さなかなを表示します。話された内容にも日本語への翻訳にも、日本語の辞書から。日本語を学習していて、その辞書がこのPCにあるときに表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Stress marks over Russian</source>
+        <translation type="unfinished">ロシア語の上に強勢記号</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>An accent over the stressed vowel of each Russian word (молоко́), from the Russian dictionary - none where the dictionary has a word stressed two ways (ру́ки, руки́): its card shows both. Once you learn Russian and its dictionary is here.</source>
+        <translation type="unfinished">ロシア語の各単語で強く読む母音の上にアクセント記号を表示します（молоко́）。ロシア語の辞書から。辞書で強勢が2通りある単語（ру́ки、руки́）には表示しません。カードに両方が表示されます。ロシア語を学習していて、その辞書がこのPCにあるときに表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Romanization above Korean</source>
+        <translation type="unfinished">韓国語の上にローマ字</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Korean word in Revised Romanization, the official system, written as it&apos;s said (한국어: hangugeo, 국물: gungmul) - by rule, no dictionary needed.</source>
+        <translation type="unfinished">韓国語の各単語を公式の改訂ローマ字表記で、発音どおりに表示します（한국어: hangugeo、국물: gungmul）。規則による変換で、辞書は不要です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Latin letters above Hindi</source>
+        <translation type="unfinished">ヒンディー語の上にラテン文字</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Each Hindi word in Latin letters, as dictionaries write it (किताब: kitāb), the a&apos;s that aren&apos;t said left out - by rule, no dictionary needed.</source>
+        <translation type="unfinished">ヒンディー語の各単語を、辞書の表記どおりラテン文字で表示します（किताब: kitāb）。発音しない a は省きます。規則による変換で、辞書は不要です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every word</source>
         <translation type="unfinished">すべての単語</translation>
     </message>
@@ -6322,6 +6367,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word links point out. Less to read as you learn.</source>
         <translation type="unfinished">知っている範囲より先：［学習］の既知ラインより先の単語、つまり単語リンクが示す単語の上だけに表示します。学ぶほど読む量が減ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling above English</source>
+        <translation type="unfinished">英語の上に発音のつづり</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">英単語がどう聞こえるかを、ふつうの文字で、強く読む部分を大文字で表示します（KAY-oss、ri-SEET）。よく使われる10,000語について、話された内容にも英語への翻訳にも。英語を学習しているときに表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Respelling over</source>
+        <translation type="unfinished">発音のつづりを表示する単語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Past what you know: only over the English words past your known line on Learning, so the words you know read plainly.</source>
+        <translation type="unfinished">知っている単語より先：［学習］の既知ラインより先の英単語の上だけに表示するので、知っている単語はそのまま読めます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>

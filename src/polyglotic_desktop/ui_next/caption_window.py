@@ -55,8 +55,10 @@ window, 2026-11-07), and shown without activating. Its parts:
   under the mouse - by the word split - is drawn softly behind, with its
   word links (links "On hover"); resting on it shows its lookup; a press
   on it looks it up (pinned), and a drag from it within its clause and
-  side selects a phrase (pinned, and held as a selection) - a press on a
-  word never moves the window (109's 10.3).
+  side selects a phrase (pinned, and held as a selection; one worth saving
+  as a sentence gets the sentence card at the mouse instead of a lookup:
+  `sentence_card`, 522) - a press on a word never moves the window (109's
+  10.3).
 
 Every edge and corner resizes, anchored to the opposite one (centred
 presets symmetric); a drag anywhere else moves it, snapping to the
@@ -693,6 +695,7 @@ def caption_style(
         reading_lines=frozenset(look.reading_lines),
         reading_share=reading_lines.SHARES[look.reading_size],
         reading_past=look.reading_past,
+        respelling_past=look.respelling_past,
         reading_system=look.reading_system,
     )
     if look.quiet:  # every line italic, a size step bigger, a reading over each
@@ -838,11 +841,17 @@ def spoken_in(heard: Sequence[str]) -> str:
     return spoken_names(str(language) for language in heard)
 
 
-def reading_hint() -> str:
-    """Said once, on a finished caption with Chinese in it, to a learner
-    with Chinese's dictionary and pinyin off (369, decision 0155) - under
-    Readings, its own section since 470."""
+def reading_hint(language: str = "zh") -> str:
+    """Said once, on a finished caption with Chinese or Japanese in it, to
+    a learner with its dictionary and its reading line off (369, decision
+    0155; 511) - under Readings, its own section since 470."""
+    if language == "ja":
+        return _tr("Furigana above Japanese: turn it on in Settings, under Readings")
     return _tr("Pinyin above Chinese: turn it on in Settings, under Readings")
+
+
+HINTED_LINES = ("zh", "ja")
+"""The reading lines the one-time hint tells of (`reading_hint`)."""
 
 
 READING_HINT_SEC = 10.0
@@ -2345,10 +2354,9 @@ class CaptionWindow(QWidget):
         )
         """What's selected across its captions, and kept (358)."""
         self.canvas = Canvas(self, view)
-        self._readings = reading_lines.source_of(learner) if learner else None
-        """Where its rows' reading lines come from (369): every word's."""
-        self._past = reading_lines.source_of(learner, past=True) if learner else None
-        """Only those past what the learner knows."""
+        self._readings = reading_lines.sources(learner) if learner else None
+        """Where its rows' reading lines come from (369): every word's, or
+        only those past what the learner knows."""
         self.canvas.engine = self._engine(
             caption_style(self.look, choices.translation_size, self._mine_only())
         )
@@ -2437,15 +2445,16 @@ class CaptionWindow(QWidget):
         return (self.source,)
 
     def readings(self) -> tuple[str, ...]:
-        """The reading lines its languages can have - "zh" for a Chinese
-        window: its spoken language chosen, heard in what it shows, its
-        translation's or its second language's (446: the one click puts
-        pinyin over a Chinese window's words)."""
+        """The reading lines the one click turns on for its languages - "zh"
+        for a Chinese window: its spoken language chosen, heard in what it
+        shows, its translation's or its second language's (446: the one
+        click puts pinyin over a Chinese window's words) - only those it
+        turns on (`reading_lines.ONE_CLICK`; 511)."""
         choices = self.choices
         named = (choices.spoken_language, choices.target, self._second())
         heard = (each for line in self.canvas.lines_in_view() for each in line.heard)
         found = {reading_lines.language_of(each) for each in (*named, *heard)}
-        return tuple(sorted(each for each in found if each is not None))
+        return tuple(sorted(each for each in found if each in reading_lines.ONE_CLICK))
 
     def _second(self) -> Language | None:
         target = self.choices.target
@@ -2792,7 +2801,11 @@ class CaptionWindow(QWidget):
     def _engine(self, style: CaptionStyle) -> CaptionLayout:
         """A caption layout for `style`, its reading lines from the
         learner's dictionary (369)."""
-        readings = self._past if style.reading_past else self._readings
+        readings = (
+            self._readings(style.reading_past, style.respelling_past)
+            if self._readings
+            else None
+        )
         return CaptionLayout(style, lines_kept=self.view.keep, readings=readings)
 
     def reads(self, language: str | None) -> bool:
@@ -2878,7 +2891,7 @@ class CaptionWindow(QWidget):
         marks showing are drawn again - nothing is laid out."""
         if self.marks.learning_changed(what):
             style = self.canvas.engine.style
-            if style.reading_lines and style.reading_past:
+            if style.follows_known:
                 # a word known now or new again: its pinyin goes or comes
                 self.canvas.engine = self._engine(style)
                 self._refresh()
@@ -4203,6 +4216,13 @@ class CaptionWindow(QWidget):
         self._drag = _Drag(edges, event.globalPosition(), self._place())
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if not event.buttons() & Qt.MouseButton.LeftButton and self._pressed():
+            # a press whose release never came (macOS can lose it - GitHub's
+            # Mac, polyglotic-hq 515): ended as its release would end it,
+            # never resized or moved by a move with no button held (the
+            # pointer watch's, while the app is in the background)
+            self.mouseReleaseEvent(event)
+            return
         if not self.hovered and self._drag is None:  # its arrival lost (272)
             if self.host is None:
                 self.came_over()
@@ -4230,6 +4250,15 @@ class CaptionWindow(QWidget):
                 self.resize_by(drag, dx, dy)
             else:
                 self.move_by(drag, dx, dy)
+
+    def _pressed(self) -> bool:
+        """A press of its own under way: a drag (resizing or moving), a
+        selection, or its joined window's drag."""
+        return (
+            self._drag is not None
+            or self._selecting is not None
+            or (self.host is not None and self.host.dragging)
+        )
 
     def resize_by(self, drag: _Drag, dx: int, dy: int) -> None:
         """A resize step: the dragged edges moved, re-laid out in this frame."""
@@ -4282,7 +4311,7 @@ class CaptionWindow(QWidget):
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         if self._selecting is not None:
-            self._pin_selected()
+            self._pin_selected(event.globalPosition().toPoint())
             return
         if self.host is not None:
             self.host.release()
@@ -4515,19 +4544,18 @@ class CaptionWindow(QWidget):
         if self.held.selection is None and self.sentence_card is not None:
             self.sentence_card.withdraw()
 
-    def _offer_sentence(self) -> None:
+    def _offer_sentence(self, at: QPoint) -> bool:
         """The selection just let go of, if more than a word: offered to
-        save as a sentence (polyglotic-hq 459), by a card under the caption
-        it ends in - into the learning data of the language it was spoken
-        in."""
+        save as a sentence (polyglotic-hq 459), by a card at `at` (the
+        mouse, on the screen, where the drag let go: 522) - into the
+        learning data of the language it was spoken in. Whether it was."""
         chosen, learner = self.held.selection, self.learner
         if chosen is None or learner is None:
-            return
+            return False
         pieces = held_pieces(self.view.lines, chosen)
         found = selected_sentence(pieces, self._speaker, self.view.caption)
-        rects = held_rects(self.canvas.placed, chosen)
-        if found is None or not worth_saving(found) or not rects:
-            return
+        if found is None or not worth_saving(found):
+            return False
         vocabulary = learner.of(found.language).vocabulary
         sentence = found
 
@@ -4545,17 +4573,6 @@ class CaptionWindow(QWidget):
             category = vocabulary.category(category_id)
             return category.name if category is not None else ""
 
-        last = max(rects, key=lambda r: (r.bottom(), r.right()))
-        # under the whole caption the selection ends in - never over its
-        # translation, which the learner is saving too
-        caption = next(
-            (where for _, _, where in self.canvas.placed if where.intersects(last)),
-            last,
-        ).toRect()
-        anchor = QRect(
-            self.mapToGlobal(QPoint(last.toRect().left(), caption.top())),
-            QSize(last.toRect().width(), caption.height()),
-        )
         area = self._area()
         if self.sentence_card is None:
             self.sentence_card = SentenceCard(self)
@@ -4564,10 +4581,11 @@ class CaptionWindow(QWidget):
         self.sentence_card.offer(
             vocabulary.categories,
             save,
-            anchor,
+            at,
             QRect(area.x, area.y, area.width, area.height),
             sides_aloud(pieces),
         )
+        return True
 
     def _speaker(self, line: Line) -> str:
         """Who said `line`, as its label names them: "You", or its app."""
@@ -4642,17 +4660,19 @@ class CaptionWindow(QWidget):
             self.setCursor(Qt.CursorShape.IBeamCursor)
             self.canvas.update()
 
-    def _pin_selected(self) -> None:
+    def _pin_selected(self, at: QPoint) -> None:
         """The phrase dragged across - trimmed of spaces and punctuation at
         its ends - or, after a plain click, the word: pinned. A phrase is
         held as a selection too, exactly as dragged (395): copied, it's
-        what was highlighted."""
+        what was highlighted. One worth saving as a sentence gets the
+        sentence card at `at` (the mouse, on the screen) and no lookup -
+        never both, overlapping (522)."""
         selecting, self._selecting = self._selecting, None
         assert selecting is not None
         if selecting.across:  # a selection: held, no lookup
             self.held.hold()
             self.setCursor(Qt.CursorShape.PointingHandCursor)
-            self._offer_sentence()
+            self._offer_sentence(at)
             return
         selection, self.canvas.selection = self.canvas.selection, None
         marked = selecting.word
@@ -4667,7 +4687,9 @@ class CaptionWindow(QWidget):
                         Place(selection.key, clause, selection.end, kind),
                     )
                 )
-                self._offer_sentence()  # more than a word: a sentence too
+                if self._offer_sentence(at):  # more than a word: a sentence
+                    self.canvas.update()
+                    return
             start, end = selection.start, selection.end
             while start < end and not _wordlike(text[start]):
                 start += 1

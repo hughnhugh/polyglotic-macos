@@ -11,7 +11,9 @@ alone, from its own sources - CI's start gate builds only CC-CEDICT):
 - `ecdict.sqlite` - ECDICT cut to the commonest words, for English
   learners, with inflections and frequency ranks (from wordfreq, or with
   `--english-frequency ecdict` from ECDICT's own columns), the commonest
-  words' Chinese meanings everyday first (`ecdict_order`);
+  words' Chinese meanings everyday first (`ecdict_order`), and the
+  10,000 commonest words respelled (KAY-oss: `respell`, CMUdict) as their
+  form readings, for the reading line over English (polyglotic-hq 511);
 - `ecdict-en.sqlite` - the same entries with their meanings in English
   (`english_meanings`: Open English WordNet and our own), for an English
   learner whose app isn't in Chinese (decision 0211);
@@ -48,12 +50,14 @@ from tools.dictionaries import (
     ecdict_order,
     english_meanings,
     oewn,
+    respell,
     treebanks,
     wordfreq_ranks,
 )
 from tools.dictionaries.entry_ids import Registry, assign_ids
 from tools.dictionaries.sources import (
     CEDICT,
+    CMUDICT,
     ECDICT,
     HSK30,
     JIEBA,
@@ -218,10 +222,12 @@ def build_english(
     if frequency == "wordfreq":
         words = [row.word for row in kept]
         ranks = wordfreq_ranks.frequency_ranks(paths["wordfreq"], words, lemmas)
-        used, licence = [ECDICT, WORDFREQ, *TREEBANKS], "CC BY-SA 4.0"
-    else:
+        used, licence = [ECDICT, WORDFREQ, CMUDICT, *TREEBANKS], "CC BY-SA 4.0"
+        respelt = respellings(paths, lemmas)
+    else:  # no respellings: their words are wordfreq's commonest
         ranks = ecdict.frequency_ranks(kept)
         used, licence = [ECDICT, *TREEBANKS], ECDICT.licence
+        respelt = {}
     uses = treebanks.uses([paths[s.name] for s in TREEBANKS])
     first = ecdict_order.read_first()
     records = [
@@ -277,7 +283,9 @@ def build_english(
             ids[name.name],
         ]
     merged = registry.resolved_merges()
-    write_dictionary(out, about, records, forms, lemmas=lemmas, merged=merged)
+    write_dictionary(
+        out, about, records, forms, lemmas=lemmas, merged=merged, form_readings=respelt
+    )
     names = {  # a name's first line in English: "a man's name"
         r.entry_id: "; ".join(kinds)
         for r in records
@@ -298,6 +306,7 @@ def build_english(
         forms,
         lemmas=lemmas,
         merged=merged,
+        form_readings=respelt,
     )
     return {
         "entries": len(records),
@@ -308,7 +317,45 @@ def build_english(
         "names ECDICT writes in lower case": len(written),
         "names of our own": len(given),
         "with English meanings": sum(1 for r in english if r.meanings),
+        "respelled": len(respelt),
     }
+
+
+def respellings(paths: Mapping[str, Path], lemmas: Mapping[str, str]) -> dict[str, str]:
+    """How the commonest English words sound, respelled for learners - word
+    to respelling, KAY-oss (`respell`, polyglotic-hq 471; DECISIONS #200):
+    the English dictionary's form readings, read by the reading line over
+    English (511). A heteronym's commoner sense only (record: REK-erd).
+
+    And their inflected forms the 10,000 lack (`lemmas`: form to lemma,
+    ECDICT's): passions, coordinating - a word past what the learner knows
+    is often a common word's rarer form. CMUdict's first pronunciation; 511
+    judged 38 of 40 sampled right, the two misses heteronyms' forms
+    (transports), so a heteronym's forms are left out."""
+    cmudict = respell.read_cmudict(paths["cmudict"].read_text(encoding="utf-8"))
+    frequencies = wordfreq_ranks.frequencies(paths["wordfreq"])
+    picks = respell.read_picks(respell.PICKS.read_text(encoding="utf-8"))
+    rows = respell.table(respell.commonest(frequencies, RESPELLED), cmudict, picks)
+    found = {row.word: row.respelling for row in rows}
+    heteronyms = {row.word for row in rows if any("(" in a for a in row.alternates)}
+    forms = sorted(
+        form
+        for form, lemma in lemmas.items()
+        if lemma in found
+        and lemma not in heteronyms
+        and form not in found
+        and respell.WORD.fullmatch(form)
+    )
+    found.update(
+        (row.word, row.respelling) for row in respell.table(forms, cmudict, picks)
+    )
+    return found
+
+
+RESPELLED = 10_000
+"""How many of the commonest English words are respelled: the 10,000 471
+picked pronunciations for and checked (99.5 % right, weighted by use) -
+with their inflected forms (`respellings`)."""
 
 
 ENGLISH_MEANINGS = "ecdict-en.sqlite"
@@ -412,6 +459,19 @@ def credits() -> str:
         "  each (counts only), and Polyglotic's own definitions of the commonest",
         "  words WordNet lacks (the, of, you...). It is shared under",
         "  **CC BY-SA 4.0**, as `ecdict.sqlite` is.",
+        "- `ecdict-<language>.meanings`, downloaded beside them for an English",
+        "  learner whose app is in that language, holds English words' meanings",
+        "  in it: the words English Wiktionary's translation tables give for",
+        "  each sense, and the definitions of that language's own Wiktionary,",
+        "  as kaikki.org extracted them (wiktextract, Tatu Ylonen) on",
+        "  2026-10-30 - Wiktionary's contributors (each page's history names",
+        "  them), CC BY-SA 4.0 and GFDL. Changes: chosen per sense and ordered,",
+        "  converted to SQLite by ECDICT's entry IDs. It is shared under",
+        "  **CC BY-SA 4.0**.",
+        "- Both English files carry respellings of the 10,000 commonest words",
+        "  (KAY-oss), made by Polyglotic's own rules from CMUdict's American",
+        "  pronunciations (its licence below), the usual one picked with",
+        "  Wiktionary's help (CC BY-SA 4.0).",
         "",
     ]
     for source in (*SOURCES, *TREEBANKS):
@@ -428,6 +488,8 @@ def credits() -> str:
         ]
         if source.licence == "MIT":
             lines += [f"{source.notice}", "", MIT, ""]
+        elif source.name == CMUDICT.name:
+            lines += [respell.CMUDICT_LICENCE, ""]
         elif source.name == OEWN.name:
             cc_by = "https://creativecommons.org/licenses/by/4.0/"
             lines += [f"{source.notice}. Licensed under CC BY 4.0: {cc_by}", ""]
@@ -444,6 +506,7 @@ NEEDS = {
         "ecdict",
         "wordfreq",
         "oewn",
+        "cmudict",
         *(source.name for source in TREEBANKS),
     ),
 }

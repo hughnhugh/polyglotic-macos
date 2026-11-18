@@ -6,8 +6,9 @@ picked the pronunciations).
 
 writes `respelling-en.tsv` (word, respelling, alternates) for the
 commonest English words (wordfreq; 10,000 by default) and `CREDITS.md`.
-Nothing reads it yet: the reading line and the card come later, through
-Settings' Readings section.
+The English dictionary's build (`build.respellings`) writes the same
+respellings into its files, for the reading line over English
+(polyglotic-hq 511); this command writes them as a table to read.
 
 **The shape** is the user's own examples (2026-11-17): syllables joined by
 hyphens, the stressed one in capitals - KAY-oss, ri-SEET, SUT-uhl,

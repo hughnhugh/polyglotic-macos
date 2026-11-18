@@ -1,12 +1,14 @@
 """Caption timing as the learner's choice (polyglotic-hq project 064;
-DECISIONS.md #4 and #107): Steady by default (project 260, the user,
-2026-11-09; Quick preview from 2026-11-07, project 176), Quick preview, or
+DECISIONS.md #4 and #107): Quick preview by default (desktop decision
+0242, polyglotic-hq 522, the user, 2026-11-18; Steady from 2026-11-09,
+project 260; Quick preview from 2026-11-07, project 176), Steady, or
 Live updates - in the settings (and for settings saved by earlier
 versions), and in what the speech pipeline follows (the Timing panel:
 tests/ui_next)."""
 
 import pytest
-from tests.ui.fakes import MemorySettingsStore
+from PySide6.QtWidgets import QApplication
+from tests.ui.fakes import Built, MemorySettingsStore
 
 from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
 from polyglotic_desktop.core.listening.timing import (
@@ -15,27 +17,29 @@ from polyglotic_desktop.core.listening.timing import (
     PREVIEW_AFTER_SEC,
     CaptionMode,
     CaptionTiming,
+    default_caption_mode,
 )
+from polyglotic_desktop.main import timing_of
 from polyglotic_desktop.platform.speech_pipeline import SpeechPipeline
 from polyglotic_desktop.ui.settings import FOLLOW_DEFAULT, AppSettings, Settings
 
 
-def test_a_new_install_has_steady() -> None:
+def test_a_new_install_has_quick_preview() -> None:
     value = AppSettings.from_stored({})
-    assert value.caption_mode is CaptionMode.STEADY
-    assert value.live_interval is None  # finished captions only
+    assert value.caption_mode is CaptionMode.PREVIEW
+    assert value.live_interval == PREVIEW_AFTER_SEC  # its dim first line
     assert value.caption_mode_chosen is None  # the default, not a choice
-    assert AppSettings().caption_mode is CaptionMode.STEADY
+    assert AppSettings().caption_mode is CaptionMode.PREVIEW
 
 
-def test_one_who_never_chose_moves_to_steady_and_a_choice_stays() -> None:
-    """Settings saved while Quick preview was the default (176 to 260):
-    the mode followed was Quick preview, but nothing was chosen - that
-    learner is on Steady now. One who chose Quick preview keeps it."""
-    never_chose = {"caption_mode_chosen": None, "caption_timing": "preview"}
-    assert AppSettings.from_stored(never_chose).caption_mode is CaptionMode.STEADY
-    chose = {"caption_mode_chosen": "preview", "caption_timing": "preview"}
-    assert AppSettings.from_stored(chose).caption_mode is CaptionMode.PREVIEW
+def test_one_who_never_chose_moves_to_quick_preview_and_a_choice_stays() -> None:
+    """Settings saved while Steady was the default (260 to 522): the mode
+    followed was Steady, but nothing was chosen - that learner is on Quick
+    preview now. One who chose Steady keeps it."""
+    never_chose = {"caption_mode_chosen": None, "caption_timing": "steady"}
+    assert AppSettings.from_stored(never_chose).caption_mode is CaptionMode.PREVIEW
+    chose = {"caption_mode_chosen": "steady", "caption_timing": "steady"}
+    assert AppSettings.from_stored(chose).caption_mode is CaptionMode.STEADY
     chose_live = {"caption_mode_chosen": "live", "caption_timing": "live"}
     assert AppSettings.from_stored(chose_live).caption_mode is CaptionMode.LIVE
 
@@ -51,9 +55,30 @@ def test_the_default_moves_everyone_who_hasnt_chosen(
     chosen = AppSettings.from_stored(
         AppSettings(caption_mode_chosen="steady").to_stored()
     )
-    monkeypatch.setattr(settings, "default_caption_mode", lambda: CaptionMode.PREVIEW)
-    assert unchosen.caption_mode is CaptionMode.PREVIEW
+    monkeypatch.setattr(settings, "default_caption_mode", lambda: CaptionMode.LIVE)
+    assert unchosen.caption_mode is CaptionMode.LIVE
     assert chosen.caption_mode is CaptionMode.STEADY
+
+
+def test_moving_the_longest_wait_isnt_choosing_a_mode(qapp: QApplication) -> None:
+    """Settings > Timing saved its mode as chosen with any change, so a
+    learner who only moved the longest wait kept Steady when the default
+    became Quick preview (polyglotic-hq 522). Choosing a mode is kept."""
+    built = Built()
+    try:
+        settings, timing = built.desktop.settings, built.panels.timing
+        timing.set_max_wait(5.0)
+        assert settings.value.max_wait_for_text == 5.0
+        assert settings.value.caption_mode_chosen is None  # still the default's
+        timing.set_mode(CaptionMode.STEADY)
+        assert settings.value.caption_mode_chosen == "steady"
+        timing.set_max_wait(4.0)
+        assert settings.value.caption_mode_chosen == "steady"  # kept
+        timing.set_mode(CaptionMode.PREVIEW)  # chosen, though the default
+        assert settings.value.caption_mode_chosen == "preview"
+        assert timing_of(settings.value).mode is CaptionMode.PREVIEW
+    finally:
+        built.close()
 
 
 @pytest.mark.parametrize(
@@ -77,7 +102,7 @@ def test_settings_before_176_keep_only_a_mode_that_was_chosen(
 ) -> None:
     value = AppSettings.from_stored({"learning": "zh", **stored})
     assert value.caption_mode_chosen == chosen
-    assert value.caption_mode is (chosen or CaptionMode.STEADY)
+    assert value.caption_mode is (chosen or default_caption_mode())
 
 
 @pytest.mark.parametrize(
@@ -122,7 +147,7 @@ def test_a_mode_once_chosen_is_kept_whatever_the_interval() -> None:
 def test_older_versions_read_the_mode_followed() -> None:
     """Versions before 176 read `caption_timing` (RELEASING.md section 5):
     it holds the mode the app follows, chosen or not."""
-    assert AppSettings().to_stored()["caption_timing"] == "steady"
+    assert AppSettings().to_stored()["caption_timing"] == "preview"
     chosen = AppSettings(caption_mode_chosen="steady").to_stored()
     assert (chosen["caption_timing"], chosen["caption_mode_chosen"]) == (
         "steady",

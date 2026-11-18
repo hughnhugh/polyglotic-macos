@@ -25,6 +25,11 @@ every part is (polyglotic-hq 390).
 Entries keep their pack's IDs (`jmdict:`, `wiktes:`), so statuses and
 lookups reach the server as they do for Chinese and English.
 
+A pack's meanings are in its own language (English). Where a meanings file
+in the learner's language is beside it (`explain_in`; decision 0234), an
+entry it has is shown with those meanings instead; one it hasn't keeps the
+pack's.
+
 A pack's language being learned keeps learning data of its own (decision
 0175; polyglotic-hq 391): the pack is then that learner's dictionary, as
 CC-CEDICT is a Chinese learner's - `facts`, `words_past`, `words_in_ranks`
@@ -38,9 +43,17 @@ from dataclasses import replace
 
 from polyglotic_desktop.core.lexicon import compounds
 from polyglotic_desktop.core.lexicon.english import entry_from_record as english_entry
-from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, words_in_runs
+from polyglotic_desktop.core.lexicon.entries import (
+    DictionaryEntry,
+    explained,
+    words_in_runs,
+)
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordInLine
-from polyglotic_desktop.ports.dictionary import DictionaryFile, EntryRecord
+from polyglotic_desktop.ports.dictionary import (
+    DictionaryFile,
+    EntryRecord,
+    MeaningsFile,
+)
 from polyglotic_desktop.ports.word_split import SplitWord, WordSplit
 
 NAME = "(name) "
@@ -79,6 +92,15 @@ class BasicDictionary:
         self._split = split
         self.language = language
         self._parts: dict[str, list[compounds.Part]] = {}
+        self._meanings: MeaningsFile | None = None
+
+    def explain_in(self, meanings: MeaningsFile | None) -> None:
+        """Entries are shown with `meanings`' meanings from now on, where it
+        has them (None: the pack's own; decision 0234)."""
+        self._meanings = meanings
+
+    def _entry(self, record: EntryRecord) -> DictionaryEntry:
+        return explained(entry_from_record(record), self._meanings)
 
     @property
     def ready(self) -> bool:
@@ -88,6 +110,12 @@ class BasicDictionary:
     def words(self, text: str) -> list[tuple[int, int]]:
         """(start, end) of each word in `text`, by the word split."""
         return [(w.start, w.end) for w in self._split.words(text)]
+
+    def split(self, text: str) -> Sequence[SplitWord]:
+        """Each word in `text` as the word split saw it in its line - with
+        its reading, where the split gives one (Japanese's furigana,
+        `furigana`)."""
+        return self._split.words(text)
 
     def word_at(self, text: str, index: int) -> tuple[int, int] | None:
         """(start, end) of the word at `index`, or None between words."""
@@ -113,7 +141,7 @@ class BasicDictionary:
 
         def add(records: Sequence[EntryRecord]) -> None:
             for record in records:
-                found.setdefault(record.entry_id, entry_from_record(record))
+                found.setdefault(record.entry_id, self._entry(record))
 
         for lemma in split.lemmas:
             add(self._file.records(lemma))
@@ -206,7 +234,7 @@ class BasicDictionary:
     def entry(self, entry_id: EntryId) -> DictionaryEntry | None:
         """The entry with this ID - or the one it was merged into."""
         record = self._file.record(entry_id)
-        return entry_from_record(record) if record else None
+        return self._entry(record) if record else None
 
     def facts(self, entry_id: EntryId, scheme_id: str) -> EntryFacts | None:
         """`entry(entry_id).facts(scheme_id)`: what Learning asks for every

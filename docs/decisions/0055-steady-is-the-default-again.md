@@ -1,6 +1,6 @@
 # 0055 Steady is the default again, for everyone who hasn't chosen
 
-- **Status:** accepted; replaces the default in [0037](0037-quick-preview-by-default.md) (its "a choice stays" rule is kept)
+- **Status:** default replaced by [0242](0242-quick-preview-is-the-default-again.md) (2026-11-18); replaced the default in [0037](0037-quick-preview-by-default.md) (its "a choice stays" rule is kept)
 - **Date:** 2026-11-09
 - **Decided by:** the user, after using the app on the real models
   (polyglotic-hq DECISIONS.md #107, 2026-11-09 ~01:58: "Okay go ahead");
