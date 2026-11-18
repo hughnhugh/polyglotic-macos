@@ -214,10 +214,11 @@ jobs:
         if: ${{ !cancelled() && inputs.qa515 }}
         run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
 
-      - name: 515's Chinese voices (what the Mac says)
+      - name: 515's sweep of every setting
         if: ${{ !cancelled() && inputs.qa515 }}
         continue-on-error: true
-        run: uv run --no-sync python -m tools.macos_audio515 "$OUT/qa515/audio"
+        timeout-minutes: 15
+        run: uv run --no-sync python -m tools.macos_sweep515 "$OUT/qa515/sweep" --limit 600
 
       - name: 515's probe (an older public snapshot's app)
         if: ${{ !cancelled() && inputs.qa515 && inputs.old_tree != '' }}

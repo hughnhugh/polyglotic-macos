@@ -104,11 +104,12 @@ def test_put_on_top_orders_the_windows_then_lifts_the_rest_above(
     monkeypatch.setattr(on_top, "window_of", lambda view: view + 100)
     monkeypatch.setattr(on_top, "_number", lambda window, _s: numbers[window])
     monkeypatch.setattr(on_top, "panels_showing", lambda: showing)
-    monkeypatch.setattr(
-        on_top,
-        "above_everything",
-        lambda window, level=LEVEL: done.append(("set", window, level)) or False,
-    )
+
+    def set_(window: int, level: int = LEVEL) -> bool:
+        done.append(("set", window, level))
+        return False
+
+    monkeypatch.setattr(on_top, "above_everything", set_)
     monkeypatch.setattr(
         on_top.objc,
         "send",

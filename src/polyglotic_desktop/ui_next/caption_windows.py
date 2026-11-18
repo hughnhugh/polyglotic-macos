@@ -124,6 +124,7 @@ from polyglotic_desktop.ui_next.caption_window import (
 from polyglotic_desktop.ui_next.joined_window import JoinedWindow
 from polyglotic_desktop.ui_next.languages import taken_off, target_languages
 from polyglotic_desktop.ui_next.lookup_card import Action, LookupCard
+from polyglotic_desktop.ui_next.pointer_watch import PointerWatch
 from polyglotic_desktop.ui_next.reading_lines import language_of
 from polyglotic_desktop.ui_next.settings_popover import KeyState
 from polyglotic_desktop.ui_next.views import placement
@@ -224,13 +225,16 @@ class CaptionWindows(QObject):
         learner: Learner | None = None,
         on_top: OnTop | None = None,
         offer_set_up: bool = False,
+        watch_pointer: bool = False,
     ) -> None:
         """`keys`: whether Esc or a mouse button is held anywhere (from
         `platform`, by way of `main`), for closing a settings popover;
         `learner`: the learning tools, for the windows' highlights and the
         lookup; `on_top`: Windows' always-on-top band (`keep_on_top`);
         `offer_set_up`: a window that opens asks its languages, until Use as
-        my default (465, 478)."""
+        my default (465, 478); `watch_pointer`: the windows told of the
+        mouse while the app is in the background, which a Mac doesn't do
+        (`pointer_watch`, 515)."""
         super().__init__(parent)
         self.offer_set_up = offer_set_up
         self.keys = keys
@@ -246,6 +250,11 @@ class CaptionWindows(QObject):
         )
         if self.card is not None:
             self.card.opened.connect(self._looked_up)
+        self.pointer_watch = (
+            PointerWatch(self.under_the_mouse, self) if watch_pointer else None
+        )
+        if self.pointer_watch is not None:
+            self.pointer_watch.start()
         self._acting = False
         self._read: dict[str, object] = store.load() if store else {}
         """The settings file as last read, for `save_now`."""
@@ -840,6 +849,25 @@ class CaptionWindows(QObject):
 
     def _listening(self, mark: ListeningMark, now: float) -> bool:
         return mark.showing(now)
+
+    # -- the mouse while the app is in the background (a Mac) ---------------------------
+
+    def under_the_mouse(self) -> list[QWidget]:
+        """What `pointer_watch` tells of the mouse, top-most first: the
+        windows' open popovers, the lookup card, the joined window, then the
+        windows of their own."""
+        found: list[QWidget] = []
+        for window in self.windows.values():
+            found += [p for p in (window.popover, window.languages) if p is not None]
+        joined = self.joined_window
+        if joined is not None and joined.popover is not None:
+            found.append(joined.popover)
+        if self.card is not None:
+            found.append(self.card)
+        if joined is not None:
+            found.append(joined)
+        found += [w for w in reversed(self.windows.values()) if w.isWindow()]
+        return found
 
     # -- above a game that is itself always on top ---------------------------------------
 

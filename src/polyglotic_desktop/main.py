@@ -3677,6 +3677,9 @@ def new_interface(
         learner=tools,
         on_top=on_top,
         offer_set_up=True,  # the first window on a PC asks its languages (465)
+        # a Mac tells a background app's windows nothing of the mouse (515);
+        # not offscreen, where there's no mouse to watch
+        watch_pointer=QGuiApplication.platformName() == "cocoa",
     )
     found_apps = desktop.apps
     assert found_apps is not None  # the app is always given an app list

@@ -33,6 +33,7 @@ import sys
 import tempfile
 import time
 import traceback
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -590,16 +591,6 @@ def qa() -> kit.Step:
         if state == "inactive":
             yield from textedit_in_front()
     yield from guarded("qt resize", resize("active", captions, "qt"))
-    # hover while another app is in front, with a tracking area always active
-    yield from textedit_in_front()
-    try:
-        FINDINGS["facts"]["track_always"] = track_always(captions)
-    except Exception:  # noqa: BLE001
-        FINDINGS["facts"]["track_always"] = traceback.format_exc()[-800:]
-    yield kit.pause(0.5)
-    yield from guarded("always hover", hover("inactive-always", captions))
-    yield from guarded("always resize", resize("inactive-always", captions, "mouse"))
-    yield from guarded("always popovers", popovers("inactive-always", captions))
     # locked and unlocked once (Qt sets ignoresMouseEvents NO then)
     captions.set_locked(True)
     yield kit.pause(0.6)
@@ -616,9 +607,9 @@ def guarded(what: str, steps: kit.Step) -> kit.Step:
 
 
 class Driver(kit.Driver):
-    def __init__(self, limit: float) -> None:
+    def __init__(self, limit: float, steps: Callable[[], kit.Step]) -> None:
         super().__init__(limit)
-        self.steps = qa()
+        self.steps = steps()
 
     def end(self) -> None:
         (kit.OUT / "findings.json").write_text(
@@ -628,13 +619,17 @@ class Driver(kit.Driver):
         super().end()
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(
+    argv: list[str] | None = None,
+    steps: Callable[[], kit.Step] | None = None,
+    anywhere: bool = False,
+) -> int:
     parser = argparse.ArgumentParser(prog="python -m tools.macos_qa515")
     parser.add_argument("out", type=Path)
     parser.add_argument("--dictionaries", default="build/dictionaries")
     parser.add_argument("--limit", type=float, default=300.0, help="seconds")
     args = parser.parse_args(argv)
-    if sys.platform != "darwin":
+    if sys.platform != "darwin" and not anywhere:
         print("only on GitHub's Mac")
         return 2
     kit.OUT = args.out
@@ -654,7 +649,7 @@ def main(argv: list[str] | None = None) -> int:
     audio = join([read_clip(sample)], gap=1.0)
     fake_server.caption_for = kit.caption_for
     server = fake_server.FakeServer()
-    driver = Driver(args.limit)
+    driver = Driver(args.limit, steps or qa)
 
     class Driven(QApplication):
         def __init__(self, qt_argv: list[str]) -> None:
@@ -666,12 +661,15 @@ def main(argv: list[str] | None = None) -> int:
 
     def os_adapters(system: str = sys.platform) -> Any:
         found = swapped(system)
+        if system != "darwin":
+            return found
         own = real(system)
         return dataclasses.replace(
             found,
             on_top=own.on_top,
             foreground_watch=own.foreground_watch,
             keys=own.keys,
+            speaker=own.speaker,  # the Mac's voices, and its player
         )
 
     real_interface = app.new_interface
