@@ -254,11 +254,15 @@ jobs:
       # live server - its /health, and sign-in's path with a code that's no
       # one's (the server's "not valid" expected, never a network failure).
       # On a failure, once more with macOS's root list named by hand (the
-      # tester's bridge), for the record.
+      # tester's bridge), for the record. As on a learner's Mac, without
+      # python.org's Python: this machine has it, and the packed app's
+      # OpenSSL reads its root list (its default place) - hidden meanwhile.
       - name: The packed app reaches the live server securely
         if: ${{ !cancelled() && (inputs.pack || inputs.release) }}
         run: |
           app=dist/Polyglotic.app/Contents/MacOS/Polyglotic
+          pythons=/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl
+          if [ -e "$pythons" ]; then sudo mv "$pythons" "$pythons.512"; fi
           mkdir -p "$OUT/pack"
           status=0
           "$app" --check-tls "$OUT/pack/tls.json" || status=$?
@@ -267,6 +271,7 @@ jobs:
             SSL_CERT_FILE=/etc/ssl/cert.pem "$app" --check-tls "$OUT/pack/tls-cert-file.json" || true
             echo "with SSL_CERT_FILE=/etc/ssl/cert.pem:"; cat "$OUT/pack/tls-cert-file.json" || true
           fi
+          if [ -e "$pythons.512" ]; then sudo mv "$pythons.512" "$pythons"; fi
           exit "$status"
 
       # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
