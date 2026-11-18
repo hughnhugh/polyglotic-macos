@@ -122,6 +122,10 @@ on:
       sweep515:
         description: 515's sweep of every setting (about 10 minutes)
         type: boolean
+        default: false
+      probe515:
+        description: 515's probe of the caption windows
+        type: boolean
         default: true
       old_tree:
         description: A public snapshot to run 515's probe on too (e.g. 0.1.8's)
@@ -215,7 +219,7 @@ jobs:
         run: uv run --no-sync python -m tools.app_tour "$OUT/tour" --limit 300
 
       - name: 515's probe (this tree)
-        if: ${{ !cancelled() && inputs.qa515 }}
+        if: ${{ !cancelled() && inputs.qa515 && inputs.probe515 }}
         run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
 
       - name: 515's Chinese voices (what the Mac says)

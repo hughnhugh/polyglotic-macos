@@ -21,8 +21,8 @@ the interface makes any caption window) when run from source.
   set so (`above_everything`), never hidden when the app isn't active,
   then ordered to the front without activating the app; and the app's
   other always-on-top panels showing - a caption window's settings
-  popover and its language chip's, a strip's tip, the dictation sign -
-  set so one level higher (`ABOVE`) and ordered
+  popover and its language chip's, a strip's tip, the copy tip, the
+  dictation sign, a menu - set so one level higher (`ABOVE`) and ordered
   to the front too: above the caption windows they came from
   (`lifted`). Qt makes a popover at its caption window's own level, and
   the caption windows are ordered to the front at every caption, so at the
@@ -71,13 +71,12 @@ POP_UP_MENU_LEVEL = 101
 ABOVE = LEVEL + 1
 """The app's other always-on-top panels showing (`lifted`): one level above
 the caption windows, so ordering those to the front never covers them."""
-LIFTED_FROM = frozenset({QT_ON_TOP_LEVEL, LEVEL, ABOVE})
-"""The levels an always-on-top panel of the caption windows' is at: Qt's
-own, the screen saver's (a window made with a caption window as its parent
-- a popover, a menu - since Qt starts a window at least at its parent's
-level; a tool tip's) - or already lifted. An ordinary window or a dialog
-(0), a plain tool window (the floating level, 3) and the main window's
-menus (`POP_UP_MENU_LEVEL`) are left where they are, as on Windows."""
+LIFTED_FROM = frozenset({QT_ON_TOP_LEVEL, POP_UP_MENU_LEVEL, LEVEL, ABOVE})
+"""The levels an always-on-top panel of Qt's is at: Qt's own, a pop-up's,
+the screen saver's (a tool tip's, and a window's made with a caption window
+as its parent: Qt starts a window at least at its parent's level) - or
+already lifted. An ordinary window or a dialog (0) and a plain tool window
+(the floating level, 3) are left where they are, as on Windows."""
 
 CAN_JOIN_ALL_SPACES = 1 << 0
 MOVE_TO_ACTIVE_SPACE = 1 << 1
@@ -298,8 +297,8 @@ def lifted(showing: Sequence[Panel], handed: Collection[int]) -> list[int]:
     """The panels showing that go above the caption windows: every one at an
     always-on-top level of Qt's (`LIFTED_FROM`) that isn't one `put_on_top`
     was handed (`handed`: window numbers) - a settings popover, a strip's
-    tip, the dictation sign. A dialog, a plain tool window and the main
-    window's menus stay where they are."""
+    tip, the dictation sign, a menu. A dialog or a plain tool window stays
+    where it is."""
     return [
         panel.window
         for panel in showing

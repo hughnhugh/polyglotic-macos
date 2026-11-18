@@ -543,6 +543,44 @@ def popovers(state: str, captions: Any) -> kit.Step:
         kit.check(f"{state}: a word to click", False, "none found")
 
 
+def menus(captions: Any) -> kit.Step:
+    """The menu-bar icon's menu, and a menu of the main window's, opened
+    over a caption window put at the top of the screen."""
+    from PySide6.QtWidgets import QMenu
+
+    activate()
+    captions.setGeometry(QRect(300, 30, 640, 220))
+    yield kit.pause(0.8)
+    desktop = kit.STATE.get("desktop")
+    tray = getattr(desktop, "tray", None)
+    if desktop is not None and tray is not None and hasattr(desktop, "show_tray_menu"):
+        icon = tray.geometry()
+        FINDINGS["facts"]["tray_icon"] = icon.getRect()
+        desktop.show_tray_menu()
+        menu = getattr(desktop, "tray_menu", None)
+        yield kit.pause(0.6)
+        FINDINGS["facts"]["tray_menu"] = menu.geometry().getRect() if menu else None
+        yield from order_check("tray-menu", menu, captions, "show_tray_menu()")
+        if menu is not None:
+            menu.close()
+        yield kit.pause(0.4)
+    window = kit.hub().window
+    window.show()
+    menu = QMenu(window)
+    for text in ("One", "Two", "Three"):
+        menu.addAction(text)
+    menu.popup(captions.frameGeometry().center())
+    yield kit.pause(0.6)
+    yield from order_check(
+        "main-window-menu", menu, captions, "a QMenu of the main window's"
+    )
+    menu.close()
+    menu.deleteLater()
+    window.hide()
+    captions.setGeometry(START)
+    yield kit.pause(0.5)
+
+
 def interface_card() -> Any:
     return kit.STATE["interface"].windows.card
 
@@ -602,6 +640,7 @@ def qa() -> kit.Step:
         if state == "inactive":
             yield from textedit_in_front()
     yield from guarded("qt resize", resize("active", captions, "qt"))
+    yield from guarded("menus", menus(captions))
     # locked and unlocked once (Qt sets ignoresMouseEvents NO then)
     captions.set_locked(True)
     yield kit.pause(0.6)

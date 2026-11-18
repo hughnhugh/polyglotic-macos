@@ -127,6 +127,29 @@ def made() -> int:
                         **level(clip.pcm),
                     }
                 )
+    # how much slower each pace is on a Mac (Windows' 0.7 takes 1.4 times as long)
+    paces: dict[str, dict[str, float]] = {}
+    found = mac.found()
+    for name, language, text in (
+        ("Tingting", "zh-CN", WORDS[5]),
+        ("Samantha", "en-US", "The weather is nice today; let's go for a walk."),
+    ):
+        voice = next(
+            (v for v in found if v.name == name and v.language == language), None
+        )
+        if voice is None:
+            continue
+        lengths: dict[str, float] = {}
+        for pace in (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2):
+            try:
+                lengths[str(pace)] = round(
+                    trimmed(mac.synthesize(text, voice, pace)).seconds, 3
+                )
+            except OSError as error:
+                lengths[str(pace)] = -1.0
+                print(name, pace, error)
+        paces[name] = lengths
+    facts["paces"] = paces
     facts["formats"] = sorted(mac.formats)
     (out / "facts.json").write_text(
         json.dumps(facts, ensure_ascii=False, indent=1), encoding="utf-8"
