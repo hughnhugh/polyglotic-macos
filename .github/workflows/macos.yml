@@ -119,6 +119,10 @@ on:
         description: 515's probe of the caption windows (resizing, what's in front)
         type: boolean
         default: true
+      sweep515:
+        description: 515's sweep of every setting (about 10 minutes)
+        type: boolean
+        default: true
       old_tree:
         description: A public snapshot to run 515's probe on too (e.g. 0.1.8's)
         type: string
@@ -214,8 +218,14 @@ jobs:
         if: ${{ !cancelled() && inputs.qa515 }}
         run: uv run --no-sync python -m tools.macos_qa515 "$OUT/qa515/now" --limit 420
 
-      - name: 515's sweep of every setting
+      - name: 515's Chinese voices (what the Mac says)
         if: ${{ !cancelled() && inputs.qa515 }}
+        continue-on-error: true
+        timeout-minutes: 8
+        run: uv run --no-sync python -m tools.macos_audio515 "$OUT/qa515/audio"
+
+      - name: 515's sweep of every setting
+        if: ${{ !cancelled() && inputs.qa515 && inputs.sweep515 }}
         continue-on-error: true
         timeout-minutes: 15
         run: uv run --no-sync python -m tools.macos_sweep515 "$OUT/qa515/sweep" --limit 600
@@ -403,6 +413,7 @@ jobs:
             ${{ env.OUT }}/qa515/**/*.png
             ${{ env.OUT }}/qa515/**/*.json
             ${{ env.OUT }}/qa515/**/*.wav
+            ${{ env.OUT }}/qa515/**/*.txt
           retention-days: 1
           if-no-files-found: ignore
 

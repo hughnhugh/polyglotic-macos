@@ -21,8 +21,8 @@ the interface makes any caption window) when run from source.
   set so (`above_everything`), never hidden when the app isn't active,
   then ordered to the front without activating the app; and the app's
   other always-on-top panels showing - a caption window's settings
-  popover and its language chip's, a strip's tip, the copy tip, the
-  dictation sign, a menu - set so one level higher (`ABOVE`) and ordered
+  popover and its language chip's, a strip's tip, the dictation sign -
+  set so one level higher (`ABOVE`) and ordered
   to the front too: above the caption windows they came from
   (`lifted`). Qt makes a popover at its caption window's own level, and
   the caption windows are ordered to the front at every caption, so at the
@@ -39,6 +39,10 @@ the interface makes any caption window) when run from source.
   app active, the Space changed, one of the app's own windows shown or
   hidden - each call `changed`, on the interface's thread (macOS posts
   them there).
+
+Every window `put_on_top` sets is also never resized by macOS itself
+(`RESIZABLE`, polyglotic-hq 515): the app's own edges and corners resize a
+caption window, as on Windows.
 
 Nothing here captures the screen or reads what is on it: only the app's
 own windows are asked and set.
@@ -67,12 +71,13 @@ POP_UP_MENU_LEVEL = 101
 ABOVE = LEVEL + 1
 """The app's other always-on-top panels showing (`lifted`): one level above
 the caption windows, so ordering those to the front never covers them."""
-LIFTED_FROM = frozenset({QT_ON_TOP_LEVEL, POP_UP_MENU_LEVEL, LEVEL, ABOVE})
-"""The levels an always-on-top panel of Qt's is at: Qt's own, a pop-up's,
-the screen saver's (a tool tip's, and a window's made with a caption window
-as its parent: Qt starts a window at least at its parent's level) - or
-already lifted. An ordinary window or a dialog (0) and a plain tool window
-(the floating level, 3) are left where they are, as on Windows."""
+LIFTED_FROM = frozenset({QT_ON_TOP_LEVEL, LEVEL, ABOVE})
+"""The levels an always-on-top panel of the caption windows' is at: Qt's
+own, the screen saver's (a window made with a caption window as its parent
+- a popover, a menu - since Qt starts a window at least at its parent's
+level; a tool tip's) - or already lifted. An ordinary window or a dialog
+(0), a plain tool window (the floating level, 3) and the main window's
+menus (`POP_UP_MENU_LEVEL`) are left where they are, as on Windows."""
 
 CAN_JOIN_ALL_SPACES = 1 << 0
 MOVE_TO_ACTIVE_SPACE = 1 << 1
@@ -90,6 +95,22 @@ CAN_JOIN_ALL_APPLICATIONS = 1 << 18
 NONACTIVATING_PANEL = 1 << 7
 """`NSWindowStyleMaskNonactivatingPanel`: a click on it doesn't activate
 the app (which would take a full-screen app out of its Space)."""
+RESIZABLE = 1 << 3
+"""`NSWindowStyleMaskResizable`, which Qt gives every window that isn't of
+a fixed size - a frameless one too. macOS then resized a caption window
+itself from a press a few pixels inside its edge, before the app heard of
+it: past the app's least size (to 1 px wide, GitHub's Mac, polyglotic-hq
+515's run 1), past the screen's edge, and never remembered - at the next
+start the window came back at its old size. Cleared, every press reaches
+the app's own edges and corners (`placement.edges_at`), as on Windows."""
+
+
+def style_mask(current: int, panel: bool) -> int:
+    """A window's style as `put_on_top` wants it: a panel non-activating,
+    and not resizable by macOS (the app resizes it)."""
+    wanted = current & ~RESIZABLE
+    return wanted | NONACTIVATING_PANEL if panel else wanted
+
 
 ACCESSORY = 1
 """`NSApplicationActivationPolicyAccessory`: no Dock icon, no menu bar of
@@ -179,11 +200,12 @@ def above_everything(window: int, level: int = LEVEL) -> bool:
         argtypes=[ctypes.c_void_p],
     )
     style = _number(window, "styleMask")
-    if panel and not style & NONACTIVATING_PANEL:  # a panel's alone
+    wanted_style = style_mask(style, bool(panel))
+    if wanted_style != style:
         objc.send(
             window,
             "setStyleMask:",
-            style | NONACTIVATING_PANEL,
+            wanted_style,
             restype=None,
             argtypes=[ctypes.c_ulong],
         )
@@ -276,8 +298,8 @@ def lifted(showing: Sequence[Panel], handed: Collection[int]) -> list[int]:
     """The panels showing that go above the caption windows: every one at an
     always-on-top level of Qt's (`LIFTED_FROM`) that isn't one `put_on_top`
     was handed (`handed`: window numbers) - a settings popover, a strip's
-    tip, the dictation sign, a menu. A dialog or a plain tool window stays
-    where it is."""
+    tip, the dictation sign. A dialog, a plain tool window and the main
+    window's menus stay where they are."""
     return [
         panel.window
         for panel in showing

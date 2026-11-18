@@ -89,17 +89,14 @@ the app's What's new, the website's What's new and the Discord post.
 
 ### Fixed
 
-- On a Mac, a caption window shows its buttons, marks the word under the
-  mouse and opens a word's card when you rest on it while you're in
-  another app, as it does on Windows: before, nothing came until you
-  clicked Polyglotic itself.
-- On a Mac, a caption window's settings and its language chip's choices
-  stay in front of the window: they went behind it within a second of
-  opening.
 - English cards open on the right word more often: "does" on do (not a
   deer), "am" on be, and lower-case "north", "i", "i'm" and "mr" are
   found. A few dozen rarer forms (ruined, panicked, scrolling) open on
   their own verb.
+- On a Mac, a caption window shows its buttons, marks the word under the
+  mouse and opens a word's card when you rest on it while you're in
+  another app, as it does on Windows: before, nothing came until you
+  clicked Polyglotic itself.
 - An English word's Chinese meanings start with the everyday one: can is
   能, 可以 (not 装罐, "to can"), will 将, may 可能, well 很好地, good 好的
   and give 给. "tv", "ok", "uk" and a few dozen other abbreviations are

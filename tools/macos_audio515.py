@@ -30,6 +30,42 @@ def level(pcm: bytes) -> dict[str, float]:
 
 
 def main() -> int:
+    """The words are made on a thread of their own while the main thread runs
+    Qt's event loop, as the app's speaker thread does beside the interface:
+    macOS hands a word's buffers over through the main thread's run loop
+    (run 2 made them on the main thread and every word timed out)."""
+    import threading
+    import time
+
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance() or QCoreApplication(["audio515"])
+    done: list[int] = []
+
+    def work() -> None:
+        try:
+            done.append(made())
+        except Exception:  # noqa: BLE001
+            import traceback
+
+            traceback.print_exc()
+            done.append(1)
+
+    worker = threading.Thread(target=work, daemon=True)
+    worker.start()
+    end = time.monotonic() + 600
+    while worker.is_alive() and time.monotonic() < end:
+        app.processEvents()
+        time.sleep(0.005)
+    return done[0] if done else 1
+
+
+TRIED = ("Tingting", "Meijia", "Eddy")
+"""Mandarin's own voice on this Mac, Taiwan's, and one of the Eloquence
+voices the card may also list."""
+
+
+def made() -> int:
     from polyglotic_desktop.platform.macos import objc, voices
     from polyglotic_desktop.platform.speaking import trimmed
 
@@ -59,7 +95,10 @@ def main() -> int:
         "all_voices": len(listed),
         "clips": [],
     }
-    tried = [v for v in ordered if v.language.lower() in ("zh-cn", "zh-tw", "zh-hk")]
+    tried = [
+        v for v in ordered
+        if v.name in TRIED and v.language.lower() in ("zh-cn", "zh-tw")
+    ][:4]  # fmt: skip
     for v in tried:
         for i, word in enumerate(WORDS):
             for rate in (1.0, 0.7):

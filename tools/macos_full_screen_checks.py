@@ -49,6 +49,11 @@ and owner, front to back (`platform.macos.window_list`): never a picture.
   the Mac's); cliclick (Homebrew's) clicks in TextEdit's window - a real
   mouse event, which System Events' `click at` isn't: the popover closes
   (438).
+- resize_by_mouse: the caption window's bottom-right corner dragged 40 x 30
+  by cliclick from 2 px inside its edge: it grows, through the app's own
+  resizing - the window's remembered place follows (polyglotic-hq 515:
+  macOS resized it itself, past the app's least size, and nothing was
+  remembered).
 - accessibility_settings: Settings > Dictation's "Open System Settings"
   (`text_input.Permission.open_settings`): System Settings opens (438).
 
@@ -679,6 +684,11 @@ class Run:
             popover=self.window_facts_of(popover),
         )
         popover.close()
+        # as the checks after it expect: their own popover (with the key
+        # watch they hand the window), TextEdit full-screen again
+        self.window.popover = None
+        popover.deleteLater()
+        self.full_screen(True)
         self.wait(0.3)
 
     def window_facts_of(self, widget: Any) -> dict[str, Any]:
@@ -975,6 +985,55 @@ class Run:
         if popover is not None and popover.isVisible():
             popover.close()
 
+    def resize_by_mouse(self) -> None:
+        """The bottom-right corner dragged with the real mouse from 2 px
+        inside: grown by the app's own resizing, and remembered."""
+        clicker = _cliclick()
+        if clicker is None:
+            self.add("resize_by_mouse", UNKNOWN, "no cliclick on this machine")
+            return
+        self.full_screen(False)
+        window = self.window
+        window.set_locked(False)
+        window.setGeometry(200, 200, 600, 160)
+        window.show()
+        self.on_top.put_on_top([int(window.winId())])
+        self.wait(0.6)
+        before = window.frameGeometry()
+        x, y = before.x() + before.width() - 3, before.y() + before.height() - 3
+        dragged, said = self.run_quietly(
+            [clicker, "-w", "60", f"m:{x},{y}", f"dd:{x},{y}",
+             f"dm:{x + 20},{y + 15}", f"dm:{x + 40},{y + 30}", f"du:{x + 40},{y + 30}"]
+        )  # fmt: skip
+        self.wait(0.8)
+        after = window.frameGeometry()
+        kept = window.choices.geometry
+        grew = (
+            after.width() - before.width() >= 20
+            and after.height() - before.height() >= 15
+        )
+        remembered = kept is not None and (kept.width, kept.height) == (
+            after.width(),
+            after.height(),
+        )
+        facts = {
+            "before": before.getRect(),
+            "after": after.getRect(),
+            "remembered": (kept.x, kept.y, kept.width, kept.height) if kept else None,
+            "style_mask": self.window_facts().get("style_mask"),
+        }
+        if not dragged:
+            self.add("resize_by_mouse", UNKNOWN, f"cliclick: {said[:200]}", **facts)
+            return
+        self.add(
+            "resize_by_mouse",
+            PASS if grew and remembered else FAIL,
+            "grown by the app, and remembered"
+            if grew and remembered
+            else ("grown, but not by the app: not remembered" if grew else "not grown"),
+            **facts,
+        )
+
     def accessibility_settings(self) -> None:
         from polyglotic_desktop.platform.macos import text_input
 
@@ -1011,6 +1070,7 @@ class Run:
         self.guarded("key_alone", self.key_alone)
         self.guarded("escape_cancels", self.escape_cancels)
         self.guarded("click_elsewhere", self.click_elsewhere)
+        self.guarded("resize_by_mouse", self.resize_by_mouse)
         self.guarded("accessibility_settings", self.accessibility_settings)
         return self.finish()
 

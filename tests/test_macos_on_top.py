@@ -72,14 +72,15 @@ def test_the_level_is_above_full_screen_apps() -> None:
     assert LEVEL == 1000
 
 
-def test_a_popover_tip_sign_or_menu_goes_above_the_caption_windows() -> None:
+def test_a_popover_tip_or_sign_goes_above_the_caption_windows() -> None:
     """Qt makes a caption window's settings popover at its window's level
     (the screen saver's), and the caption windows are ordered to the front
     at every caption: at the same level the popover went behind its window
     (the user, 2026-11-18: "caption settings modal is behind overlay /
     caption window"; 515). Every panel showing at an always-on-top level
     that isn't a caption window, the joined window or the card goes one
-    level higher; a dialog and a plain tool window stay where they are."""
+    level higher; a dialog, a plain tool window and the main window's menu
+    (a pop-up's level) stay where they are."""
     caption, card = Panel(1, 11, LEVEL), Panel(2, 12, LEVEL)
     popover = Panel(3, 13, LEVEL)  # made with its caption window as parent
     sign = Panel(4, 14, QT_ON_TOP_LEVEL)
@@ -87,7 +88,7 @@ def test_a_popover_tip_sign_or_menu_goes_above_the_caption_windows() -> None:
     dialog, floating = Panel(6, 16, 0), Panel(7, 17, 3)
     already = Panel(8, 18, ABOVE)
     showing = [caption, card, popover, sign, menu, dialog, floating, already]
-    assert lifted(showing, {11, 12}) == [3, 4, 5, 8]
+    assert lifted(showing, {11, 12}) == [3, 4, 8]  # the main window's menu stays
     assert ABOVE > LEVEL
 
 
@@ -193,3 +194,15 @@ def test_the_window_list_reads_numbers_levels_and_owners() -> None:
     listed = window_list.on_screen()
     assert all(isinstance(w.number, int) and isinstance(w.layer, int) for w in listed)
     assert all(w.pid >= 0 for w in listed)
+
+
+def test_macos_never_resizes_a_caption_window_itself() -> None:
+    """Qt makes a frameless window resizable: macOS then resized a caption
+    window from a press just inside its edge before the app heard of it -
+    to 1 px wide, and never remembered (GitHub's Mac, 515). Cleared, the
+    app's own edges resize it; a panel is non-activating as before."""
+    qt_made = 2 | 4 | on_top.RESIZABLE  # closable, miniaturizable, resizable: 14
+    assert on_top.style_mask(qt_made, panel=True) == 2 | 4 | on_top.NONACTIVATING_PANEL
+    assert on_top.style_mask(qt_made, panel=False) == 2 | 4
+    once = on_top.style_mask(qt_made | on_top.NONACTIVATING_PANEL, panel=True)
+    assert on_top.style_mask(once, panel=True) == once  # set once, left alone after

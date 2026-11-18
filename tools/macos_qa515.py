@@ -403,8 +403,19 @@ def resize(
             "inset": inset, "alpha_there": alpha, "before": g.getRect(),
             "after": after.getRect(), "app_active": app_active(),
             "cursor_there": cursor_there, "trace": list(TRACE),
+            "app_pressed": any(t[1] == "press" for t in TRACE),
+            "remembered": repr(getattr(captions.choices, "geometry", None)),
         }  # fmt: skip
         FINDINGS["resize"].append({**facts, "ok": ok})
+        if ok and how != "qt":
+            kept = getattr(captions.choices, "geometry", None)
+            same = kept is not None and (kept.width, kept.height) == (
+                after.width(),
+                after.height(),
+            )
+            kit.check(f"{state} {how} inset {inset}: {name} remembered", same,
+                      {"after": after.getRect(), "remembered": repr(kept),
+                       "app_pressed": facts["app_pressed"]})  # fmt: skip
         kit.check(f"{state} {how} inset {inset}: {name} resizes", ok,
                   {k: v for k, v in facts.items() if k != "trace"})  # fmt: skip
 

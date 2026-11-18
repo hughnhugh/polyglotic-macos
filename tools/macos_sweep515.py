@@ -118,6 +118,7 @@ class Change:
             "picture": picture,
         }
         SWEEP["changes"].append(row)
+        write()  # as it goes: a run cut off keeps what it saw
         return row
 
 
@@ -548,6 +549,10 @@ def words_and_transcript(captions: Any) -> kit.Step:
 
 
 def sweep() -> kit.Step:
+    import faulthandler
+
+    hangs = (kit.OUT / "stacks.txt").open("w", encoding="utf-8")
+    faulthandler.dump_traceback_later(90, repeat=True, file=hangs)
     logging.getLogger().addHandler(HEARD)
     yield from probe.first_run()
     window = kit.hub().window
