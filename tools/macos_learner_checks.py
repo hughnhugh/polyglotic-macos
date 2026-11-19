@@ -53,6 +53,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from collections.abc import Iterator
@@ -308,6 +309,7 @@ class Learner:
         self.results: list[Result] = []
         self.facts: dict[str, Any] = {}
         self.unpacked: Path | None = None
+        self.made: Path | None = None
         self.installed: Path | None = None
 
     def add(self, check: str, outcome: str, said: str, **facts: Any) -> None:
@@ -347,10 +349,12 @@ class Learner:
         if self.zipped is not None:
             return self.zipped
         assert self.app is not None
-        made = self.out / "work" / "Polyglotic-macos-arm64-alpha.zip"
-        made.parent.mkdir(parents=True, exist_ok=True)
+        # in the runner's own temporary folder, never OUT: the job keeps OUT
+        # as its artifact, and the zip is 90 MB
+        made = Path(tempfile.mkdtemp(prefix="polyglotic-523-")) / "learner.zip"
         done = sh(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent",
                    str(self.app), str(made)], 300)  # fmt: skip
+        self.made = made
         if done["code"] != 0:
             raise OSError(f"ditto: {done['out']}")
         return made
@@ -593,9 +597,11 @@ class Learner:
                      f" ({facts['tls']})", **facts)  # fmt: skip
 
     def tidy(self) -> None:
+        made = None if self.zipped is not None else self.made
         for place in (
             self.unpacked,
             Path.home() / "Downloads" / "Polyglotic-macos-arm64-alpha.zip",
+            made.parent if made is not None else None,
         ):
             if place is not None and place.exists():
                 if place.is_dir():

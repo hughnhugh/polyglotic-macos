@@ -17,7 +17,6 @@ from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.caption_layout import CaptionLayout, CaptionStyle
 from polyglotic_desktop.ui_next.caption_window import caption_style
 from polyglotic_desktop.ui_next.face_rows import FaceBox, FacesPanel
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
@@ -142,8 +141,7 @@ def test_a_rows_list_is_grouped_and_its_default_marked(
         for n in range(box.count())
         if not box.model().flags(box.model().index(n, 0)) & Qt.ItemFlag.ItemIsEnabled
     ]
-    assert headings[0] == "Sans"
-    assert headings[-1] == pc_or_mac("Any font on this PC", "Any font on this Mac")
+    assert headings[0] == "Sans" and headings[-1] == "Any font on this PC"
     assert box.currentText() == "Noto Sans SC (Default)"
 
 

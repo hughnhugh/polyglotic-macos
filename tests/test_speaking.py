@@ -9,7 +9,6 @@ nothing is played."""
 
 import io
 import struct
-import sys
 import threading
 import time
 import wave
@@ -391,15 +390,6 @@ def test_a_reading_is_said_a_chunk_at_a_time_each_hushed_on_its_own(
         speaker.close()
 
 
-@pytest.mark.xfail(
-    sys.platform == "darwin",
-    reason="polyglotic-hq 523: on GitHub's Mac a word is told 0.10-0.17 s late"
-    " (runs 44269898527, 44605554270) against 0.08 s allowed - the speaker's"
-    " 20 ms waits oversleep there; making the next chunk takes 0.5 ms, so it's"
-    " the runner's timers, not this code. Whether a learner's Mac is late too"
-    " is a proposed check.",
-    strict=False,
-)
 def test_each_word_is_told_as_it_sounds(outputs: list[Output]) -> None:
     speaker = speaker_with(Timed(length=0.5), outputs)
     read = Read()

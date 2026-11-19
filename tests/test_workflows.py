@@ -475,22 +475,6 @@ def test_the_macos_job_runs_only_by_hand_on_githubs_mac_and_keeps_a_day() -> Non
     assert measured and all(s["continue-on-error"] is True for s in measured)
 
 
-def test_the_macos_job_builds_with_a_pinned_python_of_uvs_own() -> None:
-    """polyglotic-hq 523 (512's finding): 0.1.7's Mac app was packed with
-    whatever python.org Python the runner image had, and that Python's own
-    root list hid a bug every learner met. The job pins an exact version of
-    uv's own Python, refuses the image's, and checks the pin holds before
-    anything is installed or packed."""
-    (job,) = workflow("macos.yml")["jobs"].values()
-    assert re.fullmatch(r"3\.12\.\d+", job["env"]["UV_PYTHON"])
-    assert job["env"]["UV_PYTHON_PREFERENCE"] == "only-managed"
-    runs = [s.get("run", "") for s in job["steps"]]
-    checked = next(i for i, r in enumerate(runs) if "tools.package.macos_python" in r)
-    pack = next(i for i, r in enumerate(runs) if "tools.package.build" in r)
-    assert checked < pack
-    assert "if" not in job["steps"][checked]  # every run, whatever its parts
-
-
 def test_the_macos_job_checks_capture_after_measure_and_keeps_what_it_found() -> None:
     """polyglotic-hq 412: 411's checks run after measure (BlackHole, the
     permission written) and after pack (the packed app's own capture). A

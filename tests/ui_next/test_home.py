@@ -459,12 +459,7 @@ def test_paused_home_says_how_to_resume(qapp: QApplication) -> None:
     page, _ = home(Picker())
     page.show_state(HomeState(ListeningState.LISTENING, chosen=True, paused=True))
     assert page.state.title_label.text() == "Paused"
-    assert page.state.detail.text() == keys(
-        pc_or_mac(
-            "resume with Ctrl+Alt+P, or from the tray",
-            "resume with Ctrl+Alt+P, or from the menu bar",
-        )
-    )
+    assert page.state.detail.text() == keys("resume with Ctrl+Alt+P, or from the tray")
 
 
 def test_the_banner_in_the_windows_words(qapp: QApplication) -> None:
@@ -679,8 +674,7 @@ def test_stopped_has_a_next_step(qapp: QApplication) -> None:
     card.show_state(HomeState(ListeningState.STOPPED, chosen=True))
     assert card.title_label.text() == "Stopped"
     assert card.detail.text() == (
-        pc_or_mac("quit from the tray", "quit from the menu bar")
-        + " and start Polyglotic again - if it keeps stopping, "
+        "quit from the tray and start Polyglotic again - if it keeps stopping, "
         "Help can check what's wrong"
     )
 
@@ -755,9 +749,7 @@ def test_home_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         page.state.detail.text(),
     ]
     assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in shown), shown
-    assert page.state.detail.text() == pc_or_mac(
-        "resume here or from the tray", "resume here or from the menu bar"
-    )
+    assert page.state.detail.text() == "resume here or from the tray"
     assert row.captions.toolTip() == "Hidden - turn off Hide all to show it"
 
     lock.setShortcut(QKeySequence("Ctrl+Alt+L"))  # one that works is named

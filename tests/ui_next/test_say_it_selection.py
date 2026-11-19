@@ -26,15 +26,10 @@ from polyglotic_desktop.core.listening.display import RowKind
 from polyglotic_desktop.ports.speaker import Ended, Quality, Sounding, Spoken, Voice
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.selection_reading import SelectionReading
 from polyglotic_desktop.ui_next.sentence_card import SentenceCard
 from polyglotic_desktop.ui_next.transcripts import Transcripts
-from polyglotic_desktop.ui_next.views.speech import (
-    MAC_SPEECH_SETTINGS,
-    SPEECH_SETTINGS,
-    BetterVoice,
-)
+from polyglotic_desktop.ui_next.views.speech import SPEECH_SETTINGS, BetterVoice
 
 windows = cards.windows  # a window of 40 made-up captions, Chinese into English
 keys = cards.keys
@@ -277,10 +272,9 @@ def test_with_no_voice_the_button_says_how_to_add_one(
     card = offered(windows, say_it)
     said = buttons(card)[0]
     assert said.text() == "+ Add a Chinese voice"
-    assert pc_or_mac("Add voices", "Manage Voices") in said.toolTip()
+    assert "Add voices" in said.toolTip()
     said.click()
-    opened = pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS)
-    assert settings.opened == [opened] and reader.read_ == []
+    assert settings.opened == [SPEECH_SETTINGS] and reader.read_ == []
     reader.installed = (HUIHUI, DAVID)  # added in Windows' settings
     QApplication.sendEvent(say_it._recheck, QEvent(QEvent.Type.Timer))
     say_it._look_again()

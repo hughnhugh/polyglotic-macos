@@ -21,7 +21,6 @@ from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next.caption_window import LOCKED_SEC, lock_tip, locked_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.unlock_spot import REST_LOOKS, UnlockSpot
 from polyglotic_desktop.ui_next.views.placement import Rect
 
@@ -37,11 +36,6 @@ APP_HOTKEYS = (
     else "Ctrl+Alt+L, Ctrl+Alt+P, Ctrl+Alt+H"
 )
 """The app's hotkeys as the log names them (Qt's portable text)."""
-LOCKED_SAID = pc_or_mac(
-    "Locked - unlock on Home or from the tray",
-    "Locked - unlock on Home or from the menu bar",
-)
-"""Where else a locked window unlocks: where the app's icon is, on each OS."""
 
 
 def test_on_locking_it_says_the_hotkey_then_stops(
@@ -66,7 +60,7 @@ def test_on_locking_it_says_the_hotkey_then_stops(
 
 
 def test_without_the_hotkey_it_says_where_else_to_unlock() -> None:
-    assert locked_text("") == LOCKED_SAID
+    assert locked_text("") == "Locked - unlock on Home or from the tray"
 
 
 def test_while_locked_its_corner_shows_the_hotkey(qapp: QApplication) -> None:
@@ -106,7 +100,7 @@ def test_the_windows_say_the_app_s_hotkey_and_none_once_taken(
     desktop.hotkeys_not_working(["L"])  # another app has it
     assert window.unlock_keys == ""
     desktop.lock_windows.setChecked(True)
-    assert window.notice.text() == LOCKED_SAID
+    assert window.notice.text() == "Locked - unlock on Home or from the tray"
 
 
 def test_a_shortcut_as_the_os_writes_it(qapp: QApplication) -> None:
@@ -140,7 +134,7 @@ def test_with_no_hotkey_the_windows_say_where_to_unlock_and_the_log_says_why(
     assert window.unlock_keys == ""
     assert "rest the mouse on the lock" in window.controls["lock"].toolTip()
     desktop.lock_windows.setChecked(True)
-    assert window.notice.text() == LOCKED_SAID
+    assert window.notice.text() == "Locked - unlock on Home or from the tray"
 
 
 def test_the_lock_button_s_tip_names_the_hotkey_while_it_works(

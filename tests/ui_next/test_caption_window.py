@@ -43,7 +43,6 @@ from polyglotic_desktop.ui_next.caption_window import (
 )
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.languages import not_offered_note
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import ROWS, beside
 from polyglotic_desktop.ui_next.views.caption_window import (
     STORED_KEY,
@@ -661,13 +660,6 @@ def test_its_first_caption_ends_the_waiting(
     new.close()
 
 
-STOPPED_SAID = pc_or_mac(
-    "Stopped - quit from the tray and start again",
-    "Stopped - quit from the menu bar and start again",
-)
-"""What a stopped caption window says: where the app's icon is, on each OS."""
-
-
 def test_each_notice_in_087s_words(window: CaptionWindow) -> None:
     """087 section 5.5's words (a busy time: slowed, as the server's pace
     hint does - not paused)."""
@@ -679,7 +671,7 @@ def test_each_notice_in_087s_words(window: CaptionWindow) -> None:
     assert said == {
         Notice.NOT_SIGNED_IN: "Not signed in - sign in on Home",
         Notice.UPDATE_NEEDED: "Update needed - captions paused; see Home",
-        Notice.STOPPED: STOPPED_SAID,
+        Notice.STOPPED: "Stopped - quit from the tray and start again",
     }
     window.set_minutes_used(True)
     window._tick()
@@ -704,12 +696,10 @@ def test_stopped_says_what_to_do_as_home_does(window: CaptionWindow) -> None:
 
     window.set_connection(Notice.STOPPED, None)
     window._tick()
-    assert window.notice.text() == STOPPED_SAID
+    assert window.notice.text() == "Stopped - quit from the tray and start again"
     home = StateCard(QAction("Pause captions"))
     home.show_state(HomeState(ListeningState.STOPPED, chosen=True))
-    assert home.detail.text().startswith(
-        pc_or_mac("quit from the tray and start ", "quit from the menu bar and start ")
-    )
+    assert home.detail.text().startswith("quit from the tray and start ")
     assert notice_text(Notice.STOPPED, None) == window.notice.text()
 
 
