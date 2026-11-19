@@ -475,6 +475,22 @@ def test_the_macos_job_runs_only_by_hand_on_githubs_mac_and_keeps_a_day() -> Non
     assert measured and all(s["continue-on-error"] is True for s in measured)
 
 
+def test_the_macos_job_builds_with_a_pinned_python_of_uvs_own() -> None:
+    """polyglotic-hq 523 (512's finding): 0.1.7's Mac app was packed with
+    whatever python.org Python the runner image had, and that Python's own
+    root list hid a bug every learner met. The job pins an exact version of
+    uv's own Python, refuses the image's, and checks the pin holds before
+    anything is installed or packed."""
+    (job,) = workflow("macos.yml")["jobs"].values()
+    assert re.fullmatch(r"3\.12\.\d+", job["env"]["UV_PYTHON"])
+    assert job["env"]["UV_PYTHON_PREFERENCE"] == "only-managed"
+    runs = [s.get("run", "") for s in job["steps"]]
+    checked = next(i for i, r in enumerate(runs) if "tools.package.macos_python" in r)
+    pack = next(i for i, r in enumerate(runs) if "tools.package.build" in r)
+    assert checked < pack
+    assert "if" not in job["steps"][checked]  # every run, whatever its parts
+
+
 def test_the_macos_job_checks_capture_after_measure_and_keeps_what_it_found() -> None:
     """polyglotic-hq 412: 411's checks run after measure (BlackHole, the
     permission written) and after pack (the packed app's own capture). A
@@ -535,3 +551,45 @@ def test_the_macos_job_signs_with_the_release_certificate_in_a_keychain_it_delet
     assert "inputs.release" in kept["if"]
     inputs = workflow("macos.yml")[True]["workflow_dispatch"]["inputs"]
     assert inputs["release"]["default"] is False and inputs["version"]["default"] == ""
+
+
+def test_the_macos_jobs_learner_part_runs_as_a_learners_mac() -> None:
+    """polyglotic-hq 523 (decision 0243): off by default (the mirror's
+    `--parts learner` turns it on). The settings sweep runs from source
+    before pack's sync takes the stand-in server's tools away; the packed
+    app's learner checks and the update from the published release after
+    pack and the rehearsal; what was hidden is put back whatever happened;
+    and every result is kept with the run. A fail fails the job: no
+    continue-on-error."""
+    macos = workflow("macos.yml")
+    inputs = macos[True]["workflow_dispatch"]["inputs"]
+    assert inputs["learner"]["default"] is False
+    (job,) = macos["jobs"].values()
+    steps = job["steps"]
+    runs = [s.get("run", "") for s in steps]
+
+    def at(text: str) -> int:
+        return next(i for i, r in enumerate(runs) if text in r)
+
+    sweep, pack = at("tools.macos_settings_sweep"), at("tools.package.build")
+    checks = at('macos_learner_checks "$OUT/learner" --app dist/Polyglotic.app')
+    shown = at('macos_learner_checks "$OUT/learner" --show')
+    published = at("tools/package/macos_update_from_release.sh")
+    rehearsal = at("tools/package/macos_update_rehearsal.sh")
+    assert at("tools.dictionaries.build") < sweep < pack < rehearsal < checks < shown
+    assert checks < published
+    for i in (sweep, checks, published):
+        assert "inputs.learner" in steps[i]["if"]
+        assert "continue-on-error" not in steps[i]
+    assert steps[shown]["if"] == "${{ always() && inputs.learner }}"
+    assert "${{" not in runs[published]  # the version reaches it through env
+    # 512's packed check: Homebrew and the developer tools away too
+    tls = at("--check-tls")
+    assert "--hide" in runs[tls] and "--show" in runs[tls]
+    (kept,) = [
+        s
+        for s in steps
+        if uses(s, "actions/upload-artifact@") and "measure.json" in s["with"]["path"]
+    ]
+    for part in ("learner/", "from-release/", "sweep/*.png", "sweep/*.json"):
+        assert "${{ env.OUT }}/" + part in kept["with"]["path"]

@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QApplication, QDialog, QWidget
 
 from polyglotic_desktop.ui import one_copy
 from polyglotic_desktop.ui.one_copy import SecondStarts, Start, ask_to_show, copy_name
+from polyglotic_desktop.ui.os_words import pc_or_mac
 
 ROOT = Path(__file__).resolve().parents[2]
 ASK = """
@@ -381,4 +382,5 @@ def test_a_user_the_os_wont_name_still_starts(monkeypatch: pytest.MonkeyPatch) -
 
 def test_the_not_responding_box_says_what_to_do() -> None:
     said = one_copy.not_answering()
-    assert "already open" in said and "Task Manager" in said
+    assert "already open" in said
+    assert pc_or_mac("Task Manager", "force quit Polyglotic (⌥⌘Esc)") in said

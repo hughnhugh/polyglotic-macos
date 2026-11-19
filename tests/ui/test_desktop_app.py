@@ -22,6 +22,7 @@ from polyglotic_desktop.ui.app import (
     tray_menu_place,
 )
 from polyglotic_desktop.ui.icons import TrayState
+from polyglotic_desktop.ui.os_words import pc_or_mac
 from polyglotic_desktop.ui.recorded_captions import clause, finished, live
 from polyglotic_desktop.ui.settings import AppSettings
 
@@ -378,7 +379,10 @@ def test_the_tray_follows_the_state(qapp: QApplication) -> None:
 
 STILL_CAPTIONING = (
     "Polyglotic is still captioning",
-    "It's in the tray. Quit from there.",
+    pc_or_mac(
+        "It's in the tray. Quit from there.",
+        "It's in the menu bar. Quit from there.",
+    ),
 )
 
 
@@ -406,7 +410,10 @@ def test_closing_the_main_window_the_first_time_the_tray_says_it_still_runs(
 
 def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     app = make_app(MemorySettingsStore({"apps": ["Video Player"]}))
-    quit_there = "It's in the tray. Quit from there."
+    quit_there = pc_or_mac(
+        "It's in the tray. Quit from there.",
+        "It's in the menu bar. Quit from there.",
+    )
     # not connected (or nothing picked): nothing is captioned
     assert app.tray_note() == ("Polyglotic is still running", quit_there)
     app.set_connection(ConnectionState.LISTENING)

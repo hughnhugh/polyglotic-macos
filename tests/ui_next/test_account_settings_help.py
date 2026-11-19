@@ -751,12 +751,13 @@ def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
     assert keys("Ctrl+Alt+L") in said() and keys("Ctrl+Alt+P") in said()
     page.show_hotkeys([])  # none works
     assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
-    assert "Lock all, on Home or in the tray menu, lets clicks pass" in said()
-    assert "Choose Resume on Home or in the tray menu." in said()
+    menu = pc_or_mac("the tray menu", "the menu bar's menu")
+    assert f"Lock all, on Home or in {menu}, lets clicks pass" in said()
+    assert f"Choose Resume on Home or in {menu}." in said()
     facts[0] = hidden
     page.check_again.click()
     assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
-    assert "Use Hide all on Home or the tray menu." in said()
+    assert f"Use Hide all on Home or {menu}." in said()
 
     page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
     assert keys("Ctrl+Alt+P") not in said()
@@ -852,6 +853,7 @@ def test_settings_dictation_says_a_macs_keys_and_menu_bar(
     Mac's keys (Right ⌘, ⌃⌘E, ⌃ ⌥ ⌘) and its menu bar, not Right Ctrl, Win
     or the tray; the example combination is one the app takes; Windows'
     text is unchanged."""
+    monkeypatch.setattr(os_words, "on_a_mac", lambda: False)  # Windows' first
     windows, _keys = settings_page()
     said = " ".join(texts(windows))
     assert "Right Ctrl, F9, Ctrl + Alt + D… A key on its own" in said

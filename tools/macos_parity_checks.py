@@ -30,6 +30,16 @@ main thread (cocoa), the speaker on its own:
 - voice_heard: the card's whole path - `SpeakerThread` over `MacVoices`
   and `AudioPlayer` - says a word on macOS's default output, BlackHole,
   and the mic on BlackHole hears it; `sounding` and `ended` are told.
+- said_recorded (polyglotic-hq 523): a recorded word as a learner hears
+  it - a stand-in recording (a tone, Ogg Opus at 24 kHz as the packs'
+  words) through `RecordedVoices`, its decoder, `SpeakerThread` and
+  `AudioPlayer`, out on BlackHole and heard back: not silent, not clipped,
+  loud enough, and as long and as high as it was made (a wrong rate moves
+  both).
+- said_by_macos (523): "Say it" in macOS's own voices - an English
+  sentence and a Chinese phrase - made into sound first to know its
+  length, then said on BlackHole and heard back: not silent, not clipped,
+  loud enough, and as long as it was made.
 - menu_bar: the menu bar has room for the icon, it is a template
   (`isMask`), shown; and a picture of it as macOS draws a template on a
   light and a dark menu bar (`menu-bar.png`, made here from the icon -
@@ -100,6 +110,14 @@ def plan(app: Path | None) -> list[str]:
             " AudioPlayer).say('Polyglotic') while MicCapture(BlackHole) listens"
         ),
         (
+            "said_recorded: RecordedVoices(a stand-in tone, Ogg Opus 24 kHz) said on"
+            " BlackHole and heard: length, pitch, level, clipping"
+        ),
+        (
+            "said_by_macos: MacVoices says an English sentence and a Chinese phrase"
+            " on BlackHole; heard against the made clip: length, level, clipping"
+        ),
+        (
             "menu_bar: QSystemTrayIcon(menu_bar_icon) shown; menu-bar.png; dark mode"
             " on and off by osascript, light_menu_bar() follows"
         ),
@@ -168,6 +186,131 @@ def clip_peak(pcm: bytes) -> int:
     samples = array("h")
     samples.frombytes(pcm)
     return max((abs(s) for s in samples), default=0)
+
+
+# -- sound out (polyglotic-hq 523): measuring what was heard, on any OS ----------------
+
+HEARD_RATE = 16_000
+"""What the mic hands on (`MicCapture`: the speech detector's rate)."""
+TONE_HZ, TONE_SEC = 880.0, 0.7
+"""The stand-in recording: a tone, so its pitch shows a wrong rate."""
+SAID = (
+    ("en", "Polyglotic says this sentence at its own pace."),
+    ("zh", "你好，我在学习中文。"),
+)
+"""What "Say it" says in macOS's voices: a sentence, and a Chinese phrase."""
+FRAME_SEC = 0.02
+CLIPPED = 0.999
+"""A sample this near full scale is clipped."""
+QUIET_DBFS = -45.0
+"""Quieter than this (the voiced part's RMS) and a learner hears too little."""
+LENGTH_WITHIN = {True: 0.12, False: 0.25}
+"""How far the heard length may be from the made one: a tone's (True) is
+exact; a voice's start and end are softer."""
+PITCH_WITHIN = 0.03
+
+
+def tone_ogg(
+    hz: float = TONE_HZ, seconds: float = TONE_SEC, rate: int = 24_000
+) -> bytes:
+    """The stand-in recorded word: a tone faded in and out, as Ogg Opus at
+    24 kHz - the packs' words' format (decoded by `clip_of_ogg`)."""
+    import io
+
+    import numpy as np
+    import soundfile
+
+    t = np.arange(int(seconds * rate)) / rate
+    fade = np.minimum(1.0, np.minimum(t, seconds - t) / 0.02)
+    out = io.BytesIO()
+    soundfile.write(out, 0.5 * fade * np.sin(2 * np.pi * hz * t), rate,
+                    format="OGG", subtype="OPUS")  # fmt: skip
+    return out.getvalue()
+
+
+def _made_trimmed(voices: Any, text: str, voice: Any, trimmed: Any) -> Any:
+    """`text` made into sound by `voices` and trimmed as the speaker trims it."""
+    return trimmed(voices.synthesize(text, voice, 1.0))
+
+
+class _OneClip:
+    """`WordClips` with one recording for every word."""
+
+    def __init__(self, data: bytes) -> None:
+        self.data = data
+
+    def clip(self, _word: str) -> bytes:
+        return self.data
+
+
+def listened(samples: Any, rate: int) -> dict[str, Any]:
+    """What a recording of something said shows: how long it is from its
+    first sound to its last (`voiced_sec`), its peak, how much of it is
+    clipped, its level (the voiced part's RMS, dBFS) and its strongest
+    pitch."""
+    import numpy as np
+
+    audio = np.asarray(samples, dtype=np.float64)
+    found: dict[str, Any] = {"heard_sec": round(len(audio) / rate, 3), "voiced_sec": 0.0,
+                             "peak": 0.0, "clipped": 0.0, "level_dbfs": None,
+                             "pitch_hz": None}  # fmt: skip
+    size = int(FRAME_SEC * rate)
+    if len(audio) < size:
+        return found
+    frames = audio[: len(audio) // size * size].reshape(-1, size)
+    loudness = np.sqrt(np.mean(frames**2, axis=1))
+    floor = max(1e-3, float(loudness.max()) * 10 ** (-30 / 20))
+    loud = np.flatnonzero(loudness > floor)
+    found["peak"] = round(float(np.max(np.abs(audio))), 4)
+    if len(loud) == 0:
+        return found
+    voiced = audio[loud[0] * size : (loud[-1] + 1) * size]
+    found["voiced_sec"] = round(len(voiced) / rate, 3)
+    found["clipped"] = round(float(np.mean(np.abs(voiced) >= CLIPPED)), 5)
+    rms = float(np.sqrt(np.mean(voiced**2)))
+    found["level_dbfs"] = round(float(20 * np.log10(max(rms, 1e-9))), 1)
+    padded = 1 << int(np.ceil(np.log2(len(voiced) * 4)))
+    spectrum = np.abs(np.fft.rfft(voiced * np.hanning(len(voiced)), padded))
+    found["pitch_hz"] = round(float(np.argmax(spectrum[1:]) + 1) * rate / padded, 1)
+    return found
+
+
+def voiced_seconds_of_clip(clip: Any) -> float:
+    """A made clip's length from its first sound to its last (`listened`)."""
+    import numpy as np
+
+    pcm = np.frombuffer(clip.pcm, dtype="<i2").astype(np.float64) / 32768.0
+    if clip.channels > 1:
+        pcm = pcm.reshape(-1, clip.channels).mean(axis=1)
+    return float(listened(pcm, clip.rate)["voiced_sec"])
+
+
+def sound_problems(
+    found: dict[str, Any], made_sec: float, made_hz: float | None
+) -> list[str]:
+    """What's wrong with what was heard, against what was made: silence,
+    clipping, too quiet, the wrong length (a wrong rate), the wrong pitch."""
+    if not found["voiced_sec"]:
+        return ["nothing heard: silent"]
+    problems = []
+    if found["clipped"] > 0.001:
+        problems.append(f"clipped: {found['clipped']:.2%} of it at full scale")
+    if found["level_dbfs"] is not None and found["level_dbfs"] < QUIET_DBFS:
+        problems.append(f"too quiet: {found['level_dbfs']} dBFS")
+    within = LENGTH_WITHIN[made_hz is not None]
+    if made_sec and abs(found["voiced_sec"] / made_sec - 1) > within:
+        problems.append(
+            f"{found['voiced_sec']} s heard of {made_sec:.3f} s made: the wrong speed"
+        )
+    if (
+        made_hz
+        and found["pitch_hz"]
+        and abs(found["pitch_hz"] / made_hz - 1) > PITCH_WITHIN
+    ):
+        problems.append(
+            f"{found['pitch_hz']} Hz heard of {made_hz} Hz made: the wrong rate"
+        )
+    return problems
 
 
 class Checks:
@@ -488,6 +631,144 @@ class Checks:
                 **facts,
             )
 
+    # -- sound out (polyglotic-hq 523): what the learner hears, measured
+    def _heard_saying(
+        self,
+        speaker: Any,
+        voice: Any,
+        text: str,
+        blackhole_uid: str,
+    ) -> tuple[Any, list[bool], str | None, list[str]]:
+        """`text` said by `speaker` in `voice` while the mic on BlackHole
+        listens: what was heard (16 kHz float), how it ended, the mic's
+        error and the speaker's warnings."""
+        import numpy as np
+
+        from polyglotic_desktop.platform.macos import capture
+
+        heard: list[bytes] = []
+        ended: list[bool] = []
+        mic = capture.MicCapture(blackhole_uid)
+        mic.start(lambda _start, samples: heard.append(samples))
+        with warnings_of("polyglotic_desktop.platform.speaking") as why:
+            try:
+                self.pump(lambda: False, 1.5)
+                speaker.say(text, voice, 1.0, lambda _at, _s: None, ended.append)
+                self.pump(lambda: bool(ended), 20)
+                self.pump(lambda: False, 1.0)
+            finally:
+                mic.stop()
+        return np.frombuffer(b"".join(heard), dtype="<f4"), ended, mic.error, why
+
+    def said_recorded(self, blackhole_uid: str | None) -> None:
+        """A recorded word as a learner hears it: a stand-in recording (a
+        tone of `TONE_HZ` for `TONE_SEC`, Ogg Opus at 24 kHz as the packs'
+        words are) through the card's whole path - `RecordedVoices`, its
+        decoder, `SpeakerThread`, `AudioPlayer` - out on BlackHole and heard
+        back. A wrong rate anywhere moves both its length and its pitch."""
+        from polyglotic_desktop.platform.macos.voices import AudioPlayer, MacVoices
+        from polyglotic_desktop.platform.recorded_voices import (
+            RecordedVoices,
+            Recordings,
+        )
+        from polyglotic_desktop.platform.speaking import SpeakerThread
+        from polyglotic_desktop.ports.speaker import RECORDED
+
+        if blackhole_uid is None:
+            self.add("said_recorded", UNKNOWN, "no BlackHole: nothing to hear it on")
+            return
+        recordings = Recordings()
+        recordings.use(
+            "zh", "zh-CN", "Recorded (a stand-in tone)", _OneClip(tone_ogg())
+        )
+        speaker = SpeakerThread(RecordedVoices(MacVoices(), recordings), AudioPlayer)
+        try:
+            speaker.look_for_voices()
+            self.pump(lambda: bool(speaker.voices()), 30)
+            voice = next(
+                (v for v in speaker.voices() if v.id.startswith(RECORDED)), None
+            )
+            if voice is None:
+                self.add("said_recorded", FAIL, "the recorded voice wasn't listed")
+                return
+            heard, ended, error, why = self._heard_saying(
+                speaker, voice, "你好", blackhole_uid
+            )
+        finally:
+            speaker.close()
+        if error:
+            self.add("said_recorded", UNKNOWN, f"the mic couldn't listen: {error}")
+            return
+        found = listened(heard, HEARD_RATE)
+        problems = sound_problems(found, TONE_SEC, TONE_HZ)
+        facts = {"heard": found, "ended": ended, "speaker_warned": why,
+                 "made_sec": TONE_SEC, "made_hz": TONE_HZ}  # fmt: skip
+        if ended != [True]:
+            problems.append(f"the speaker ended {ended}")
+        if problems:
+            self.add("said_recorded", FAIL, "; ".join(problems), **facts)
+        else:
+            self.add("said_recorded", PASS, f"heard {found['voiced_sec']} s at"
+                     f" {found['pitch_hz']} Hz, peak {found['peak']},"
+                     f" {found['level_dbfs']} dBFS", **facts)  # fmt: skip
+
+    def said_by_macos(self, blackhole_uid: str | None) -> None:
+        """ "Say it" in macOS's own voices, as a learner hears it: an English
+        sentence and a Chinese phrase, each made into sound first (to know
+        its length), then said through `SpeakerThread` on BlackHole and
+        heard back - not silent, not clipped, loud enough, and as long as
+        it was made (a wrong rate would stretch or squash it)."""
+        from polyglotic_desktop.platform.macos.voices import AudioPlayer, MacVoices
+        from polyglotic_desktop.platform.speaking import SpeakerThread, trimmed
+
+        if blackhole_uid is None:
+            self.add("said_by_macos", UNKNOWN, "no BlackHole: nothing to hear it on")
+            return
+        voices = MacVoices()
+        speaker = SpeakerThread(voices, AudioPlayer)
+        results: dict[str, Any] = {}
+        problems: list[str] = []
+        try:
+            speaker.look_for_voices()
+            self.pump(lambda: bool(speaker.voices()), 30)
+            for tag, text in SAID:
+                voice = next(
+                    (v for v in speaker.voices() if v.language.startswith(tag)), None
+                )
+                if voice is None:
+                    results[tag] = "no voice"
+                    continue
+                made = self.in_thread(
+                    partial(_made_trimmed, voices, text, voice, trimmed), 60
+                )
+                made_sec = voiced_seconds_of_clip(made)
+                heard, ended, error, why = self._heard_saying(
+                    speaker, voice, text, blackhole_uid
+                )
+                if error:
+                    results[tag] = f"the mic couldn't listen: {error}"
+                    continue
+                found = listened(heard, HEARD_RATE)
+                wrong = sound_problems(found, made_sec, None)
+                if ended != [True]:
+                    wrong.append(f"the speaker ended {ended}")
+                results[tag] = {"voice": voice.name, "made_sec": made_sec,
+                                "heard": found, "warned": why, "problems": wrong}  # fmt: skip
+                problems += [f"{tag}: {p}" for p in wrong]
+        finally:
+            speaker.close()
+        said = [t for t, r in results.items() if isinstance(r, dict)]
+        if problems:
+            self.add("said_by_macos", FAIL, "; ".join(problems), results=results)
+        elif not said:
+            self.add(
+                "said_by_macos", UNKNOWN, f"nothing said: {results}", results=results
+            )
+        else:
+            self.add("said_by_macos", PASS, "heard as made: " + ", ".join(
+                f"{t} {results[t]['heard']['voiced_sec']} s of"
+                f" {results[t]['made_sec']} s" for t in said), results=results)  # fmt: skip
+
     # -- the menu bar
     def menu_bar(self) -> None:
         from PySide6.QtWidgets import QSystemTrayIcon
@@ -640,7 +921,14 @@ def report(results: list[Result], facts: dict[str, Any]) -> dict[str, Any]:
     return {"summary": summary, "checks": [asdict(r) for r in results], "facts": facts}
 
 
-ISOLATED = ("voices_listed", "voice_made", "voice_moved", "voice_heard")
+ISOLATED = (
+    "voices_listed",
+    "voice_made",
+    "voice_moved",
+    "voice_heard",
+    "said_recorded",
+    "said_by_macos",
+)
 """AVFoundation's checks, each in a process of its own with faulthandler:
 a crash there (2026-11-17's first run: exit 139 making a word) names its
 line and leaves the other checks to run."""
@@ -705,6 +993,8 @@ def main(argv: list[str] | None = None) -> int:
         ("voice_made", checks.voice_made),
         ("voice_moved", checks.voice_moved),
         ("voice_heard", lambda: checks.voice_heard(blackhole)),
+        ("said_recorded", lambda: checks.said_recorded(blackhole)),
+        ("said_by_macos", lambda: checks.said_by_macos(blackhole)),
         ("menu_bar", checks.menu_bar),
         ("login_item", checks.login_item),
     ]

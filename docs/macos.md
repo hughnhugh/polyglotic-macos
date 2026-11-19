@@ -208,6 +208,23 @@ run):
   and an unsigned one is harder to open than the zip.
 - **Deltas**: off, as on Windows' signed feed (full packages only).
 
+## The build's Python (polyglotic-hq 523)
+
+**Done:** the macOS job pins its Python: `UV_PYTHON` (an exact version,
+3.12.15 from 2026-11-20) with `UV_PYTHON_PREFERENCE=only-managed`, so uv
+builds the venv - and PyInstaller packs - uv's own CPython
+(python-build-standalone). `tools/package/macos_python.py` checks the pin
+holds at the start of every run.
+
+**Why:** 0.1.7 was packed with the runner image's python.org 3.12.10,
+whatever version the image had that week. Its OpenSSL read roots only from
+python.org's own folder, which GitHub's Mac has and a learner's Mac doesn't:
+every learner's sign-in failed (polyglotic-hq 512, decision 0236).
+
+**Moving the pin:** by hand, with the lockfile's next refresh; the pack
+part's `--check-tls` (no python.org folder) and `--check-install` prove the
+new one.
+
 ## Intel Macs (polyglotic-hq 430)
 
 **Not built.** What it takes, found 2026-11-17:

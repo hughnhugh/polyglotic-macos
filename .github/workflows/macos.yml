@@ -51,7 +51,23 @@
 #   (tools/macos_parity_checks.py, polyglotic-hq 428) - ⌃⌘L, P and H
 #   pressed by AppleScript, a word said on BlackHole and heard, the packed
 #   app's `--check-parity`; about 4 minutes in all. On by default, so a
-#   mirror run that names only the older parts runs it too.
+#   mirror run that names only the older parts runs it too. Sound out (523):
+#   a recorded word and macOS's "Say it" heard back on BlackHole - not
+#   silent, not clipped, loud enough, as long (and as high) as made.
+# - learner (polyglotic-hq 523, decision 0243; off by default - the mirror's
+#   `--parts learner` turns it on with tests, pack, parity and updates): the
+#   Mac as a learner's Mac meets the app, every check failing the job on a
+#   fail. Every setting changed and put back, from source on the Mac's
+#   windows (tools/macos_settings_sweep.py); then on the packed app, with
+#   python.org's Python, Homebrew and the developer tools moved aside: what
+#   it links, the zip from ~/Downloads with Safari's quarantine through
+#   Archive Utility, Gatekeeper's verdict, the translocated start and its
+#   move to Applications, a fresh macOS user's --check-install and
+#   --check-tls (tools/macos_learner_checks.py); and the update from the
+#   release learners have now - the published zip installed, this build
+#   served from a feed in a folder as the next version, found, applied and
+#   restarted, with settings, the keychain item and the designated
+#   requirement kept (tools/package/macos_update_from_release.sh).
 #
 # How Claude runs it (gh, from a desktop worktree):
 #   gh workflow run macos.yml --ref <branch> [-f pack=false -f measure=false ...]
@@ -116,9 +132,9 @@ on:
         type: boolean
         default: true
       learner:
-        description: probe (523)
+        description: A learner's Mac (523) - every setting changed and put back; with pack, the download path, a fresh user and the update from the published release
         type: boolean
-        default: true
+        default: false
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -131,12 +147,20 @@ jobs:
   macos:
     name: macOS (Apple silicon)
     runs-on: macos-26
-    # minutes are paid for: a stuck run is cut off at about US$4.30
-    timeout-minutes: 70
+    # minutes are paid for here (free on the public copy): a stuck run is
+    # cut off at about US$5.60; the learner part adds about 20 minutes
+    timeout-minutes: 90
     env:
       TAG: v0.0.1
       CHANNEL: macos-arm64-alpha
       OUT: build/macos
+      # polyglotic-hq 523 (512's finding): the app is built with uv's own
+      # Python at this exact version - never whichever python.org or
+      # Homebrew Python the runner image has (0.1.7 was built with the
+      # image's python.org 3.12.10, whose root list hid 512's bug). Moved on
+      # purpose, with the lockfile's next refresh.
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -150,6 +174,11 @@ jobs:
 
       - name: Install for macOS (fails if uv.lock is out of date)
         run: uv sync --locked
+
+      # 523: the pin above holds - uv's own build, at its exact version - so
+      # the app packed here carries a Python a learner's Mac never had to have
+      - name: The pinned Python (uv's own build, not the runner image's)
+        run: uv run --no-sync python -m tools.package.macos_python
 
       - name: The machine
         run: |
@@ -167,10 +196,6 @@ jobs:
             echo "release needs version, e.g. 0.1.7 (got '$VERSION')"; exit 1
           fi
           echo "TAG=v$VERSION" >> "$GITHUB_ENV"
-
-      - name: Probe 523
-        if: ${{ inputs.learner }}
-        run: bash tools/macos_learner_probe.sh
 
       - name: The interface's translations (.qm)
         run: uv run --no-sync python -m tools.i18n build
@@ -197,18 +222,24 @@ jobs:
       # The pinned sources are checked against their SHA-256 either way
       # (tools/dictionaries/sources.py); the cache only saves downloading.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release || inputs.learner) }}
         with:
           path: build/dictionary-sources
           key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
 
       - name: The dictionaries, from their pinned sources (the card and the app need them)
-        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release) }}
+        if: ${{ !cancelled() && (inputs.tour || inputs.pack || inputs.release || inputs.learner) }}
         run: uv run --no-sync python -m tools.dictionaries.build
 
       - name: The app on macOS's windows, captioning a replayed recording
         if: ${{ !cancelled() && inputs.tour }}
         run: uv run --no-sync python -m tools.app_tour "$OUT/tour" --limit 300
+
+      # 523: from source with the dev tools (the stand-in server), so before
+      # pack's own sync; the Mac's own windows, keys and voices
+      - name: Every setting changed and put back, on the Mac's windows (learner)
+        if: ${{ !cancelled() && inputs.learner }}
+        run: uv run --no-sync python -m tools.macos_settings_sweep "$OUT/sweep" --limit 900
 
       # The certificate is only ever in this keychain and, for a moment, the
       # runner's temp folder; nothing prints it or its password.
@@ -271,6 +302,9 @@ jobs:
           app=dist/Polyglotic.app/Contents/MacOS/Polyglotic
           pythons=/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl
           if [ -e "$pythons" ]; then sudo mv "$pythons" "$pythons.512"; fi
+          # 523: Homebrew and the developer tools away too, as on a learner's
+          # Mac (python.org's whole Python stays when these tools run on it)
+          uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --hide
           /usr/bin/openssl version -d || true  # macOS's own: its roots are /etc/ssl/cert.pem
           mkdir -p "$OUT/pack"
           status=0
@@ -280,17 +314,18 @@ jobs:
             SSL_CERT_FILE=/etc/ssl/cert.pem "$app" --check-tls "$OUT/pack/tls-cert-file.json" || true
             echo "with SSL_CERT_FILE=/etc/ssl/cert.pem:"; cat "$OUT/pack/tls-cert-file.json" || true
           fi
+          uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --show
           if [ -e "$pythons.512" ]; then sudo mv "$pythons.512" "$pythons"; fi
           exit "$status"
 
       # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
-        if: ${{ !cancelled() && (inputs.release || (inputs.pack && inputs.updates)) }}
+        if: ${{ !cancelled() && (inputs.release || (inputs.pack && (inputs.updates || inputs.learner))) }}
         with:
           dotnet-version: "10.0.x"
 
       - name: Velopack's packing tool, at the version in .config/dotnet-tools.json
-        if: ${{ !cancelled() && (inputs.release || (inputs.pack && inputs.updates)) }}
+        if: ${{ !cancelled() && (inputs.release || (inputs.pack && (inputs.updates || inputs.learner))) }}
         run: dotnet tool restore
 
       # The feed is signed on the PC by publish-mac.sh (the key never comes
@@ -315,6 +350,32 @@ jobs:
         if: ${{ !cancelled() && (inputs.pack || inputs.release) && inputs.updates }}
         timeout-minutes: 20
         run: bash tools/package/macos_update_rehearsal.sh dist/Polyglotic.app "$OUT/updates"
+
+      # 523: the packed app as a learner's Mac meets it; the release's own
+      # portable zip when this run made one
+      - name: A learner's Mac - linkage, the download path, a fresh user (learner)
+        if: ${{ !cancelled() && inputs.learner && (inputs.pack || inputs.release) }}
+        timeout-minutes: 20
+        run: |
+          zip=()
+          portable=build/package/release/Polyglotic-$CHANNEL-Portable.zip
+          if [ -f "$portable" ]; then zip=(--zip "$portable"); fi
+          uv run --no-sync python -m tools.macos_learner_checks "$OUT/learner" --app dist/Polyglotic.app "${zip[@]}"
+
+      - name: What was hidden, put back
+        if: ${{ always() && inputs.learner }}
+        run: |
+          uv run --no-sync python -m tools.macos_learner_checks "$OUT/learner" --show
+          uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --show
+
+      # 523: from the release learners have now (polyglotic.io's zip) to this
+      # build, as the next version - or, in a release, as that version
+      - name: The update from the published release (learner)
+        if: ${{ !cancelled() && inputs.learner && (inputs.pack || inputs.release) }}
+        timeout-minutes: 20
+        env:
+          VERSION: ${{ inputs.release && inputs.version || '' }}
+        run: bash tools/package/macos_update_from_release.sh dist/Polyglotic.app "$OUT/from-release" "$VERSION"
 
       - name: What the machine allows for capture (measured, never failing)
         if: ${{ !cancelled() && inputs.measure }}
@@ -386,6 +447,16 @@ jobs:
               echo "### Over full-screen apps, dictation, Esc and clicks"
               uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/parity/full-screen.json"
             fi
+            for part in learner/learner.json sweep/sweep-checks.json; do
+              if [ -f "$OUT/$part" ]; then
+                echo "### Learner: ${part%%/*}"
+                uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said'][:400]}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/$part"
+              fi
+            done
+            if [ -f "$OUT/from-release/summary.txt" ]; then
+              echo "### Learner: the update from the published release"
+              sed 's/^/- /' "$OUT/from-release/summary.txt"
+            fi
             if [ -f "$OUT/capture/capture.json" ]; then
               echo "### Capture"
               uv run --no-sync python -c "import json,sys; [print(f\"- {c['outcome']} {c['check']}: {c['said']}\") for c in json.load(open(sys.argv[1]))['checks']]" "$OUT/capture/capture.json"
@@ -406,6 +477,11 @@ jobs:
             ${{ env.OUT }}/capture/
             ${{ env.OUT }}/parity/
             ${{ env.OUT }}/updates/
+            ${{ env.OUT }}/learner/
+            ${{ env.OUT }}/from-release/
+            ${{ env.OUT }}/sweep/*.png
+            ${{ env.OUT }}/sweep/*.json
+            !${{ env.OUT }}/sweep/data/
           retention-days: 1
           if-no-files-found: ignore
 
