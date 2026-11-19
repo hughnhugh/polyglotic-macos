@@ -154,3 +154,18 @@ def test_the_plan_runs_anywhere_and_the_checks_only_on_a_mac(
     # nothing hidden: nothing to put back
     assert learner.main([str(tmp_path), "--show"]) == 0
     assert "put back: nothing" in capsys.readouterr().out
+
+
+def test_a_path_that_cant_be_seen_yet_isnt_there(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """523's first run: mid-unpacking, Archive Utility's folders couldn't
+    be read, and `exists()` raised PermissionError instead of saying no."""
+    assert learner.there(tmp_path)
+    assert not learner.there(tmp_path / "missing")
+
+    def refused(_self: Path, **_kw: object) -> bool:
+        raise PermissionError(13, "Permission denied")
+
+    monkeypatch.setattr(Path, "exists", refused)
+    assert not learner.there(tmp_path)

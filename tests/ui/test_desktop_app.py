@@ -421,7 +421,10 @@ def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     app.pause.setChecked(True)
     assert app.tray_note() == (
         "Polyglotic is still running, with captions paused",
-        "It's in the tray. Resume or quit from there.",
+        pc_or_mac(
+            "It's in the tray. Resume or quit from there.",
+            "It's in the menu bar. Resume or quit from there.",
+        ),
     )
     app.close()
 

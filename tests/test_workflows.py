@@ -581,11 +581,11 @@ def test_the_macos_jobs_learner_part_runs_as_a_learners_mac() -> None:
     for i in (sweep, checks, published):
         assert "inputs.learner" in steps[i]["if"]
         assert "continue-on-error" not in steps[i]
-    assert steps[shown]["if"] == "${{ always() && inputs.learner }}"
+    assert steps[shown]["if"] == "${{ always() }}"
     assert "${{" not in runs[published]  # the version reaches it through env
     # 512's packed check: Homebrew and the developer tools away too
     tls = at("--check-tls")
-    assert "--hide" in runs[tls] and "--show" in runs[tls]
+    assert "--hide" in runs[tls] and "trap" in runs[tls] and "--show" in runs[tls]
     (kept,) = [
         s
         for s in steps

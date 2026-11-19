@@ -4,6 +4,8 @@ GitHub's Mac (the macOS job's learner part); here, made-up sweeps."""
 
 from typing import Any
 
+import pytest
+
 from tools import macos_settings_sweep as sweep
 
 RAN = [{"check": "sweep: settings ran", "ok": True, "detail": ""}]
@@ -91,9 +93,11 @@ def test_a_preset_put_back_by_a_later_change_passes() -> None:
     assert judged(found)["put_back"] == "pass"
 
 
-def test_a_control_known_not_to_put_back_is_a_note_until_fixed() -> None:
-    (known,) = sweep.KNOWN
-    where, what = known.split(" / ")
+def test_a_control_known_not_to_put_back_is_a_note_until_fixed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    where, what = "Settings > links", "toggle Quiet view"
+    monkeypatch.setattr(sweep, "KNOWN", {f"{where} / {what}": "being fixed"})
     found = sweep.verdict(
         swept(
             row(where, what, {"word_links": ["arrows", "off"]}),

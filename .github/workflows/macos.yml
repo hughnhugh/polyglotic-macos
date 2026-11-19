@@ -303,7 +303,13 @@ jobs:
           pythons=/Library/Frameworks/Python.framework/Versions/3.12/etc/openssl
           if [ -e "$pythons" ]; then sudo mv "$pythons" "$pythons.512"; fi
           # 523: Homebrew and the developer tools away too, as on a learner's
-          # Mac (python.org's whole Python stays when these tools run on it)
+          # Mac (python.org's whole Python stays when these tools run on it);
+          # all of it put back however the step ends, the folder last
+          back() {
+            uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --show
+            if [ -e "$pythons.512" ]; then sudo mv "$pythons.512" "$pythons"; fi
+          }
+          trap back EXIT
           uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --hide
           /usr/bin/openssl version -d || true  # macOS's own: its roots are /etc/ssl/cert.pem
           mkdir -p "$OUT/pack"
@@ -314,8 +320,6 @@ jobs:
             SSL_CERT_FILE=/etc/ssl/cert.pem "$app" --check-tls "$OUT/pack/tls-cert-file.json" || true
             echo "with SSL_CERT_FILE=/etc/ssl/cert.pem:"; cat "$OUT/pack/tls-cert-file.json" || true
           fi
-          uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --show
-          if [ -e "$pythons.512" ]; then sudo mv "$pythons.512" "$pythons"; fi
           exit "$status"
 
       # Velopack packs a Mac on a Mac only; the .NET SDK it needs, as package.yml
@@ -362,8 +366,9 @@ jobs:
           if [ -f "$portable" ]; then zip=(--zip "$portable"); fi
           uv run --no-sync python -m tools.macos_learner_checks "$OUT/learner" --app dist/Polyglotic.app "${zip[@]}"
 
+      # whatever happened above: nothing stays hidden for the steps after
       - name: What was hidden, put back
-        if: ${{ always() && inputs.learner }}
+        if: ${{ always() }}
         run: |
           uv run --no-sync python -m tools.macos_learner_checks "$OUT/learner" --show
           uv run --no-sync python -m tools.macos_learner_checks "$OUT/pack" --show

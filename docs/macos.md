@@ -425,3 +425,54 @@ Monitoring too):
   on a Mac, ⌃⌘L, P and H are refused as the app's own.
 - **Apps that ignore Unicode key events** (some games, remote desktops,
   terminals in raw mode) - as on Windows, they get nothing.
+
+## The Mac as a learner's Mac (polyglotic-hq 523, decision 0243)
+
+**Done:** the macOS job's `learner` part, run by `macos_mirror.sh <ref>
+--parts learner` (with tests, pack, parity and updates) and by
+`publish-mac.sh`'s release build on the release run itself. Each check fails
+the job on a fail; unknown is what the runner didn't let a script see.
+
+| Check | What it catches | Where |
+|---|---|---|
+| hidden | python.org's Python, Homebrew, the developer tools and Xcode moved aside while the packed app is checked (and around pack's `--check-tls`) | `tools/macos_learner_checks.py` |
+| linkage | a library loaded from outside the bundle and macOS (Homebrew's, python.org's, uv's) | same |
+| downloaded | the zip from `~/Downloads` with Safari's quarantine, through Archive Utility: the seal and the designated requirement survive; Gatekeeper's verdict | same |
+| opened_from_downloads | refused by Gatekeeper, Open Anyway, translocated, the move to Applications offered, moved, quarantine gone, opened again | same |
+| fresh_account | a new macOS user's `--check-install` and `--check-tls` (live's /health, sign-in, the session's `wss`) | same |
+| the update from the published release | polyglotic.io's zip installed, this build found, applied and restarted into; settings, keychain item and designated requirement kept | `tools/package/macos_update_from_release.sh` |
+| every setting changed and put back | a setting that doesn't come back, an error box, an error logged, a part that broke | `tools/macos_settings_sweep.py` |
+| sound out | a recorded word and "Say it" silent, clipped, too quiet, the wrong length or pitch | `tools/macos_parity_checks.py` (`said_recorded`, `said_by_macos`) |
+| over full-screen apps, the real mouse, hover, levels (515) | a popover behind its window, a resize macOS takes, no hover with another app in front | `tools/macos_full_screen_checks.py` |
+
+**Proven where:** GitHub's Mac (`macos-26`), through the public copy.
+
+**Known, said as notes until fixed:** Quiet view on and off again in
+Settings > Links leaves word links off and six languages' reading lines on
+(`LookView.set_quiet` on its own puts the lines back, so it's the switch's
+path); the sweep's `KNOWN` names it, and the fix takes it out. On GitHub's Mac a word
+of a reading is told 0.10-0.17 s late (`test_speaking.py`'s word-timing
+test, xfail there): its waits oversleep on the runner.
+
+**Not proven:** the full captioning session from the packed app to live
+(needs a validation invite on live for the public copy: DECISIONS #190 item
+2); a GUI session for the fresh user (the runner can't log one in); Gatekeeper
+as a learner meets it after Open Anyway in System Settings (emulated by the
+quarantine's approved flag).
+
+## What still needs a person (polyglotic-hq 523)
+
+What GitHub's Mac can't judge. Each is a two-minute item in a preview's
+what-to-try, not a test of everything:
+
+1. **The trackpad and the cursor:** drag a caption window's corner and each
+   edge with the trackpad, with a video in front. Does a resize cursor
+   show? Does the size stay after quitting and starting again?
+2. **Retina:** look at a caption window and the lookup card side by side
+   with another app's text. Is the text as sharp?
+3. **Real speakers and your ear:** press "Say it" on a common Chinese word,
+   then on a phrase, through the Mac's own speakers. Is it the word, at a
+   natural pace, not clipped or tinny?
+4. **A full-screen video app:** play a video full screen (Safari, YouTube
+   or IINA), open the caption window's settings and the language chip over
+   it. Do they stay in front, and does the video stay full screen?

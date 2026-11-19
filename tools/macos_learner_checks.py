@@ -368,18 +368,23 @@ class Learner:
         # quarantine to everything it unpacks
         by = "Archive Utility"
         sh(["open", "-a", "Archive Utility", str(target)], 30)
-        for _ in range(90):
-            if (unpacked / EXECUTABLE).exists():
+        # done when its app is there and Archive Utility has gone (523's
+        # first run: mid-unpacking, its folders can't be read yet)
+        for _ in range(120):
+            busy = sh(["pgrep", "-x", "Archive Utility"])["out"].strip()
+            if there(unpacked / EXECUTABLE) and not busy:
                 break
             time.sleep(1)
-        time.sleep(3)  # Archive Utility finishing its last files
-        if not (unpacked / EXECUTABLE).exists():
+        seen = sh(["ls", "-led@", str(unpacked), str(unpacked / "Contents"),
+                   str(unpacked / "Contents" / "MacOS")])["out"][-800:]  # fmt: skip
+        if not there(unpacked / EXECUTABLE):
             by = "ditto, the quarantine given by hand (Archive Utility didn't)"
+            sh(["chmod", "-R", "u+rwx", str(unpacked)])
             shutil.rmtree(unpacked, ignore_errors=True)
             sh(["ditto", "-x", "-k", str(target), str(downloads)], 300)
             sh(["xattr", "-r", "-w", "com.apple.quarantine", quarantine_value(),
                 str(unpacked)])  # fmt: skip
-        if not (unpacked / EXECUTABLE).exists():
+        if not there(unpacked / EXECUTABLE):
             self.add("downloaded", FAIL, f"no {APP_NAME} came out of the zip")
             return
         self.unpacked = unpacked
@@ -390,7 +395,7 @@ class Learner:
         spctl = sh(["spctl", "-a", "-vv", "-t", "exec", str(unpacked)])
         verdict = gatekeeper_said(spctl["out"])
         quarantined = sh(["xattr", "-p", "com.apple.quarantine", str(unpacked)])["out"]
-        facts = {"unpacked_by": by, "codesign": verified["out"][-600:],
+        facts = {"unpacked_by": by, "as_unpacked": seen, "codesign": verified["out"][-600:],
                  "requirement": came, "built_requirement": built,
                  "spctl": spctl["out"][-600:], "gatekeeper": verdict,
                  "quarantine": quarantined.strip()[:120]}  # fmt: skip
@@ -460,7 +465,7 @@ class Learner:
         moved_to: Path | None = None
         for _ in range(60):
             for place in (Path("/Applications"), Path.home() / "Applications"):
-                if (place / APP_NAME / EXECUTABLE).exists():
+                if there(place / APP_NAME / EXECUTABLE):
                     moved_to = place / APP_NAME
             again = [
                 p
@@ -549,8 +554,9 @@ class Learner:
         data = sh(
             ["sudo", "ls", "-la", f"{home}/Library/Application Support/Polyglotic"]
         )
+        had_home = home.exists()
         sh(["sudo", "sysadminctl", "-deleteUser", LEARNER], 120)
-        facts = {"home_existed": home.exists(), "runs": {k: v["out"][-400:] for k, v in runs.items()},
+        facts = {"home_existed": had_home, "runs": {k: v["out"][-400:] for k, v in runs.items()},
                  "install_ok": found["install.json"].get("ok"),
                  "tls_ok": found["tls.json"].get("ok"),
                  "tls": {k: found["tls.json"].get(k) for k in ("health", "sign_in", "roots")},
@@ -582,6 +588,15 @@ class Learner:
         ):
             end(pids_of(place))
             shutil.rmtree(place, ignore_errors=True)
+
+
+def there(path: Path) -> bool:
+    """Whether `path` exists and can be seen: False, not an error, while a
+    folder on the way can't be read yet."""
+    try:
+        return path.exists()
+    except OSError:
+        return False
 
 
 def _tail(log: Path, start: int) -> str:

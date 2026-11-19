@@ -6678,9 +6678,11 @@ def check_tls(report: Path, server: str, app: AppInfo) -> int:
     run on GitHub's Mac): the roots this copy trusts (`tls.roots`), the
     server's `/health` over `tls.urlopen`, and sign-in's own path with a
     code that's no one's (`NOT_ANYONES`), expecting the server's answer
-    that it isn't valid - not a network failure. Nothing is saved; no
-    token can come back. Writes what was found to `report` as JSON; 0 if
-    both reached the server."""
+    that it isn't valid - not a network failure - and the session's own
+    WebSocket opened over `wss://` (`session_reached`, polyglotic-hq 523:
+    the path captions take, through asyncio's handshake, not urllib's).
+    Nothing is saved; no token can come back. Writes what was found to
+    `report` as JSON; 0 if all three reached the server."""
     import urllib.request
 
     from polyglotic_desktop.connection import sign_in, tls
@@ -6702,10 +6704,49 @@ def check_tls(report: Path, server: str, app: AppInfo) -> int:
             "why": answer.why,
             "unreachable": str(answer.unreachable),
         }
-    found["ok"] = found["health"] == 200 and isinstance(answer, sign_in.InviteNotValid)
+    found["session"] = session_reached(server, sign_in.TIMEOUT_SEC)
+    found["ok"] = (
+        found["health"] == 200
+        and isinstance(answer, sign_in.InviteNotValid)
+        and found["session"] == "opened"
+    )
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps(found, indent=2), encoding="utf-8")
     return 0 if found["ok"] else 1
+
+
+def session_reached(server: str, seconds: float) -> str:
+    """The session's WebSocket (`session_url`) opened from this copy as a
+    listening session opens it - connection.tls's context, websockets'
+    handshake, the app's own name - and closed at once, before any `hello`
+    (polyglotic-hq 523): "opened", or why not, by the error's type. Nothing
+    is sent; the server sees a connection that ends unspoken."""
+    import asyncio
+
+    from websockets.asyncio.client import connect
+
+    from polyglotic_desktop.connection import tls
+    from polyglotic_desktop.connection.session import session_url
+    from polyglotic_desktop.core.shared.client import USER_AGENT
+
+    url = session_url(server)
+
+    async def opened() -> str:
+        secure = tls.context() if url.startswith("wss://") else None
+        async with connect(
+            url,
+            open_timeout=seconds,
+            ping_interval=None,
+            compression=None,
+            user_agent_header=USER_AGENT,
+            ssl=secure,
+        ):
+            return "opened"
+
+    try:
+        return asyncio.run(opened())
+    except Exception as e:  # noqa: BLE001 - reported by type: it's the point
+        return f"{type(e).__name__}: {e}"
 
 
 PACK_CHECKED = {
