@@ -115,6 +115,10 @@ on:
         description: With pack or release, the app updating itself, rehearsed (0.0.1 to 0.0.2 from a feed in a folder)
         type: boolean
         default: true
+      learner:
+        description: probe (523)
+        type: boolean
+        default: true
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -163,6 +167,10 @@ jobs:
             echo "release needs version, e.g. 0.1.7 (got '$VERSION')"; exit 1
           fi
           echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
+      - name: Probe 523
+        if: ${{ inputs.learner }}
+        run: bash tools/macos_learner_probe.sh
 
       - name: The interface's translations (.qm)
         run: uv run --no-sync python -m tools.i18n build
