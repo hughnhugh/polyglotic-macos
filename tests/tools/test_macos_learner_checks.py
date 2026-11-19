@@ -169,3 +169,15 @@ def test_a_path_that_cant_be_seen_yet_isnt_there(
 
     monkeypatch.setattr(Path, "exists", refused)
     assert not learner.there(tmp_path)
+
+
+def test_the_move_is_clicked_on_the_apps_own_offer() -> None:
+    """The app brought to the front by its PID, then its own button - the
+    label `ui.move_to_applications` gives it - else Return."""
+    from polyglotic_desktop.ui.move_to_applications import move_button
+
+    script = learner.press_move(4321)
+    assert "first process whose unix id is 4321" in script
+    assert "set frontmost of p to true" in script
+    assert f'click button "{move_button()}"' in script
+    assert "keystroke return" in script

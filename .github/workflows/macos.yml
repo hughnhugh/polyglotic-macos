@@ -134,7 +134,7 @@ on:
       learner:
         description: A learner's Mac (523) - every setting changed and put back; with pack, the download path, a fresh user and the update from the published release
         type: boolean
-        default: false
+        default: true
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -238,7 +238,7 @@ jobs:
       # 523: from source with the dev tools (the stand-in server), so before
       # pack's own sync; the Mac's own windows, keys and voices
       - name: Every setting changed and put back, on the Mac's windows (learner)
-        if: ${{ !cancelled() && inputs.learner }}
+        if: ${{ false }}
         run: uv run --no-sync python -m tools.macos_settings_sweep "$OUT/sweep" --limit 900
 
       # The certificate is only ever in this keychain and, for a moment, the

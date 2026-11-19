@@ -470,7 +470,9 @@ class Learner:
                      f" the move offered {offered}", **facts)  # fmt: skip
             return
         time.sleep(2)
-        sh(["osascript", "-e", 'tell application "System Events" to keystroke return'])
+        # the learner's choice: Move, its default button - the app brought
+        # to the front first (523's third run: a bare Return went elsewhere)
+        facts["pressed"] = sh(["osascript", "-e", press_move(running[0])], 30)["out"]
         moved_to: Path | None = None
         for _ in range(60):
             for place in (Path("/Applications"), Path.home() / "Applications"):
@@ -485,6 +487,7 @@ class Learner:
                 break
             time.sleep(1)
         facts["moved_to"] = str(moved_to)
+        facts["log_after"] = _tail(log, before)[-1500:]
         if moved_to is None:
             end(pids_of(self.unpacked))
             self.add("opened_from_downloads", FAIL, "Return on the offer didn't move it"
@@ -605,6 +608,28 @@ class Learner:
         ):
             end(pids_of(place))
             shutil.rmtree(place, ignore_errors=True)
+
+
+MOVE = "Move to Applications"
+"""The offer's default button (ui.move_to_applications.move_button)."""
+
+
+def press_move(pid: int) -> str:
+    """AppleScript for System Events: the process `pid` brought to the
+    front, its offer's Move button clicked - or, if the button can't be
+    found, Return pressed for the default one. Says which."""
+    return f"""tell application "System Events"
+  set p to first process whose unix id is {pid}
+  set frontmost of p to true
+  delay 1
+  try
+    click button "{MOVE}" of window 1 of p
+    return "clicked {MOVE}"
+  on error problem
+    keystroke return
+    return "pressed Return: " & problem
+  end try
+end tell"""
 
 
 def there(path: Path) -> bool:
