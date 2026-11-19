@@ -428,14 +428,23 @@ class Learner:
         # learner then chooses Open Anyway, which marks the download as
         # approved - done here by the same flag - and opens it again
         facts: dict[str, Any] = {}
-        running = self.open_and_wait(facts, "first")
+        running = self.open_and_wait(facts, "first", log, before)
         if running:
             facts["gatekeeper_refused"] = False
         else:
             facts["gatekeeper_refused"] = True
             approved = quarantine_value(APPROVED)
-            sh(["xattr", "-w", "com.apple.quarantine", approved, str(self.unpacked)])
-            running = self.open_and_wait(facts, "after_open_anyway")
+            sh(
+                [
+                    "xattr",
+                    "-r",
+                    "-w",
+                    "com.apple.quarantine",
+                    approved,
+                    str(self.unpacked),
+                ]
+            )
+            running = self.open_and_wait(facts, "after_open_anyway", log, before)
         if not running:
             policy = sh(["log", "show", "--last", "3m", "--style", "compact", "--predicate",
                          'process == "syspolicyd" AND eventMessage CONTAINS "Polyglotic"'],
@@ -494,24 +503,32 @@ class Learner:
             self.add("opened_from_downloads", PASS, "translocated, offered the move,"
                      f" moved to {moved_to.parent} and opened again from there", **facts)  # fmt: skip
 
-    def open_and_wait(self, facts: dict[str, Any], name: str) -> list[int]:
+    def open_and_wait(
+        self, facts: dict[str, Any], name: str, log: Path, before: int
+    ) -> list[int]:
         """The downloaded app opened as a double-click opens it; its PIDs
-        once it runs, or none in `OPEN_SEC` - Gatekeeper's dialog then
-        closed, as a learner closing it would."""
+        once it runs - its log has begun, since a process Gatekeeper holds
+        for its dialog exists but never starts (523's second run) - or none
+        in `OPEN_SEC`: then Gatekeeper's dialog is closed and the held
+        process ended, as a learner closing the dialog would."""
         assert self.unpacked is not None
         opened = sh(["open", str(self.unpacked)], OPEN_SEC)
-        running: list[int] = []
+        started = False
         for _ in range(OPEN_SEC):
-            running = pids_of(self.unpacked)
-            if running:
+            started = bool(_tail(log, before).strip())
+            if started:
                 break
             time.sleep(1)
+        running = pids_of(self.unpacked)
         facts[f"open_{name}"] = opened["out"][-300:]
-        if not running:
-            dialogs = sh(["pgrep", "-x", "CoreServicesUIAgent"])["out"].split()
-            facts[f"gatekeeper_dialog_{name}"] = bool(dialogs)
-            end([int(p) for p in dialogs if p.isdigit()])
-        return running
+        facts[f"held_{name}"] = bool(running) and not started
+        if started:
+            return running
+        dialogs = sh(["pgrep", "-x", "CoreServicesUIAgent"])["out"].split()
+        facts[f"gatekeeper_dialog_{name}"] = bool(dialogs)
+        end([int(p) for p in dialogs if p.isdigit()])
+        end(running)
+        return []
 
     # -- a fresh account
     def fresh_account(self) -> None:
