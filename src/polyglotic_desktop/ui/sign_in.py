@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.core.listening.unreachable import Side, Unreachable, side
 from polyglotic_desktop.ui.first_run import add_back
-from polyglotic_desktop.ui.os_words import pc_or_mac
+from polyglotic_desktop.ui.os_words import pc_mac_or_linux, pc_or_mac
 from polyglotic_desktop.ui.widgets import TextDialog
 
 
@@ -88,7 +88,7 @@ class SignInDialog(TextDialog):
         super().__init__(parent)
         self.setObjectName("SignInDialog")
         self.setWindowTitle(self.tr("Sign in"))
-        self.setMinimumWidth(440)
+        self.set_least_width(440)
         self._redeem = redeem
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 20, 24, 20)
@@ -238,7 +238,7 @@ class SignInDialog(TextDialog):
             today = QLocale().toString(
                 QDate.currentDate(), QLocale.FormatType.LongFormat
             )
-            return pc_or_mac(
+            return pc_mac_or_linux(
                 #: {date}: the date this PC's clock says, in its regional format
                 self.tr(
                     "This PC says it's {date}, which can't be right, and a secure "
@@ -251,6 +251,13 @@ class SignInDialog(TextDialog):
                     "This Mac says it's {date}, which can't be right, and a secure "
                     "connection needs the right date. Turn on Set time and date "
                     "automatically in System Settings, General, Date & Time."
+                ),
+                #: {date}: the date this PC's clock says, in its regional format.
+                #: Linux: GNOME's, KDE's and Xfce's settings each have Date & Time
+                self.tr(
+                    "This PC says it's {date}, which can't be right, and a secure "
+                    "connection needs the right date. Turn on automatic date and time "
+                    "in your desktop's settings, under Date & Time."
                 ),
             ).format(date=today)
         if why is Unreachable.OUT_OF_DATE:  # an out-of-date certificate (313)
@@ -303,13 +310,11 @@ def sign_out_question(
     )
     text = pc_or_mac(
         _tr(
-            "Captions stop until you sign in again - with the same invite code: "
-            "it works again on this PC. Your saved words and learning data stay, "
+            "Captions stop until you sign in again. Your saved words and learning data stay, "
             "on this PC and on our server."
         ),
         _tr(
-            "Captions stop until you sign in again - with the same invite code: it "
-            "works again on this Mac. Your saved words and learning data stay, on this "
+            "Captions stop until you sign in again. Your saved words and learning data stay, on this "
             "Mac and on our server."
         ),
     )

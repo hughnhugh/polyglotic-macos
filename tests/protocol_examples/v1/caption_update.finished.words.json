@@ -1,0 +1,138 @@
+{
+  "type": "caption_update",
+  "caption_id": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+  "source_id": "source-1",
+  "kind": "finished",
+  "language": "zh",
+  "languages_heard": [
+    "zh"
+  ],
+  "clauses": [
+    {
+      "original": "你好，今天天气很好。",
+      "translations": {
+        "en": "Hello, the weather is nice today."
+      },
+      "links": {
+        "en": [
+          {
+            "original": [
+              0,
+              2
+            ],
+            "translation": [
+              0,
+              5
+            ],
+            "key": true,
+            "confidence": 0.93
+          },
+          {
+            "original": [
+              3,
+              5
+            ],
+            "translation": [
+              27,
+              32
+            ],
+            "key": true,
+            "confidence": 0.88
+          },
+          {
+            "original": [
+              5,
+              7
+            ],
+            "translation": [
+              11,
+              18
+            ],
+            "key": true,
+            "confidence": 0.95
+          },
+          {
+            "original": [
+              7,
+              9
+            ],
+            "translation": [
+              22,
+              26
+            ],
+            "key": true,
+            "confidence": 0.81
+          }
+        ]
+      },
+      "words": [
+        {
+          "original": [
+            0,
+            1
+          ],
+          "start": 12.52,
+          "end": 12.68
+        },
+        {
+          "original": [
+            1,
+            2
+          ],
+          "start": 12.68,
+          "end": 12.92
+        },
+        {
+          "original": [
+            3,
+            4
+          ],
+          "start": 13.24,
+          "end": 13.4
+        },
+        {
+          "original": [
+            4,
+            5
+          ],
+          "start": 13.4,
+          "end": 13.56
+        },
+        {
+          "original": [
+            5,
+            6
+          ],
+          "start": 13.56,
+          "end": 13.72
+        },
+        {
+          "original": [
+            6,
+            7
+          ],
+          "start": 13.72,
+          "end": 13.96
+        },
+        {
+          "original": [
+            7,
+            8
+          ],
+          "start": 14.36,
+          "end": 14.52
+        },
+        {
+          "original": [
+            8,
+            9
+          ],
+          "start": 14.52,
+          "end": 14.84
+        }
+      ]
+    }
+  ],
+  "replaces": [],
+  "processing_ms": 412
+}

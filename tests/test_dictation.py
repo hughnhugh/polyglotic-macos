@@ -2,6 +2,7 @@
 pieces in order, what's typed and what the sign says."""
 
 import itertools
+from dataclasses import replace
 
 from polyglotic_desktop.core.listening.australian import australian_spelling
 from polyglotic_desktop.core.listening.captions import (
@@ -346,3 +347,22 @@ def test_dictation_never_makes_the_session_original_only() -> None:
     assert not chosen.original_only
     assert chosen.targets_of(DICTATION) == ()
     assert ListeningSettings(source_targets={MIC: (), DICTATION: ()}).original_only
+
+
+def test_continued_dictation_only_types_the_new_piece_in_its_window() -> None:
+    d = ids()
+    d.press(0.0)
+    d.release(1.0)
+    d.cut(0.0, 1.0, 1.0, WINDOW, last=True)
+    d.press(4.0)
+    d.release(5.0)
+    d.cut(4.0, 5.0, 5.0, WINDOW + 1, last=True)
+    # Even if the later answer arrives first, neither field receives the other's words.
+    second = replace(
+        finished("c2", "目前在上海。", language=ZH), continues=CaptionId("c1")
+    )
+    assert d.answer(second) == []
+    assert d.answer(finished("c1", "目前在。", language=ZH)) == [
+        ToType("目前在。", WINDOW),
+        ToType("上海。", WINDOW + 1),
+    ]

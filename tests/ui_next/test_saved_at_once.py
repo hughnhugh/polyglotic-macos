@@ -21,6 +21,7 @@ from PySide6.QtGui import QMouseEvent, QTextCharFormat
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import chinese_tools
 from tests.ui.test_caption_marks import EN, dashed, dotted
+from tests.ui_next.made_up import SEPARATE
 
 from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.listening.display import DisplayOptions
@@ -99,6 +100,7 @@ def showing(qapp: QApplication, look: CaptionLook, last: str = "") -> Shown:
     and with `last` "live", a live update holding it too."""
     tools = chinese_tools()
     windows = CaptionWindows(None, MIC, lambda: [AREA], learner=tools)
+    windows.stored.joined = SEPARATE  # on their own: windows start joined (554)
     tools.changed.connect(windows.learning_changed)
     transcripts = Transcripts(windows, None, learner=tools, areas=lambda: [AREA])
     tools.changed.connect(transcripts.learning_changed)

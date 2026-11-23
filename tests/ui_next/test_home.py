@@ -1,8 +1,9 @@
 """Home and the new main window as widgets, offscreen (project 109's
 sections 5, 7 and 10.5)."""
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 
+import pytest
 from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtTest import QTest
@@ -10,13 +11,14 @@ from PySide6.QtWidgets import QApplication, QLabel, QWidgetAction
 
 from polyglotic_desktop.core.listening.hidden import Sight
 from polyglotic_desktop.core.releases.updates import UpdateNow
+from polyglotic_desktop.ui import theme
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import label
 from polyglotic_desktop.ui_next.home import HomePage, StateCard
 from polyglotic_desktop.ui_next.languages import not_offered_note
-from polyglotic_desktop.ui_next.main_window import FLOOR, FRAME, MINIMUM, MainWindow
+from polyglotic_desktop.ui_next.main_window import FLOOR, FRAME, MainWindow
 from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import pc_mac_or_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.home import (
     AddableApp,
     AppRow,
@@ -31,6 +33,7 @@ from polyglotic_desktop.ui_next.views.home import (
     every_window_paused,
     state_line,
 )
+from polyglotic_desktop.ui_next.views.presets import AA_TEXT, contrast
 
 
 class Commands:
@@ -49,6 +52,13 @@ def _row(
     return AppRow(key, key.title(), "#4dd0e1", status, show_mic=show_mic)
 
 
+def own_keys(letter: str) -> str:
+    """The app's own hotkey with `letter`, as Qt reads it: Ctrl+Alt, and
+    Ctrl+Alt+Shift on Linux (polyglotic-hq 570)."""
+    modifiers = pc_mac_or_linux("Ctrl+Alt+", "Meta+Ctrl+", "Ctrl+Alt+Shift+")
+    return modifiers + letter
+
+
 def home(picker: Picker) -> tuple[HomePage, Commands]:
     commands = Commands()
     view = PickerView(picker, commands)  # type: ignore[arg-type]
@@ -56,7 +66,7 @@ def home(picker: Picker) -> tuple[HomePage, Commands]:
     for action in actions[1:]:
         action.setCheckable(True)
     for action, key in zip(actions, "PLH", strict=True):  # as `DesktopApp`'s
-        action.setShortcut(QKeySequence(f"Ctrl+Alt+{key}"))
+        action.setShortcut(QKeySequence(own_keys(key)))
     pause, lock, hide = actions
     page = HomePage(
         view,
@@ -242,17 +252,21 @@ def test_an_addable_app_says_playing_or_quiet_in_the_same_place(
     )
 
 
-def test_at_three_the_add_list_greys_with_the_reason(qapp: QApplication) -> None:
+@pytest.mark.parametrize("limit", [2, 3])
+def test_at_the_limit_the_add_list_greys_with_the_reason(
+    qapp: QApplication, limit: int
+) -> None:
     page, commands = home(
         Picker(
-            captioned=(_row("a"), _row("b"), _row("c")),
+            captioned=tuple(_row(str(index)) for index in range(limit)),
             available=(AddableApp("Spotify", "Spotify", True),),
+            limit=limit,
         )
     )
     card = page.picker_card
     page.resize(900, 700)
     page.show()
-    assert card.full.isVisible() and card.full.text().startswith("3 of 3")
+    assert card.full.isVisible() and card.full.text().startswith(f"{limit} of {limit}")
     assert not card.add_rows["Spotify"].isEnabled()
     card.add_rows["Spotify"].add.click()
     assert commands.asked == []
@@ -264,14 +278,16 @@ def test_my_speechs_label_is_on_home(qapp: QApplication) -> None:
     page, commands = home(Picker(you=you))
     page.show()
     card = page.picker_card
-    assert card.you.isVisible() and card.you.name.text() == "You"
+    assert not card.you.isVisible() and not card.you_label.isVisible()
     page.picker_card.view.value = Picker(
         captioned=(_row("discord", show_mic=True),), you=you
     )
     card.refresh()
+    assert card.you.isVisible() and card.you.name.text() == "You"
+    assert card.speech.isVisible() and card.you_label.isVisible()
     # the row above says the label; the summary doesn't say it again
     assert card.speech.text() == (
-        "My speech: shown in Discord - sent to the server only while a window shows it"
+        "My speech: shown in Discord - sent for your captions only while it's shown"
     )
     assert not card.you.chip.isVisible() and not card.you.stop.isVisible()
     # with an app captioned but the mic off: the row's microphone is there
@@ -283,7 +299,7 @@ def test_my_speechs_label_is_on_home(qapp: QApplication) -> None:
     # with nothing captioned there is no row to point at (135, 2026-11-07)
     page.picker_card.view.value = Picker(you=you)
     card.refresh()
-    assert card.speech.text().startswith("My speech: not shown - add an app first")
+    assert not card.speech.isVisible() and not card.you_label.isVisible()
     page.picker_card.view.value = Picker(
         captioned=(_row("discord", show_mic=True),), you=you
     )
@@ -296,11 +312,14 @@ def test_my_speechs_label_is_on_home(qapp: QApplication) -> None:
 
 
 def test_rename_inline(qapp: QApplication) -> None:
-    page, commands = home(Picker(captioned=(_row("discord"),)))
+    page, commands = home(
+        Picker(captioned=(replace(_row("discord"), label="Arts & News"),))
+    )
     row = page.picker_card.rows["discord"]
     page.show()
+    assert row.name.text() == "Arts && News"
     row.name.click()
-    assert row.edit.isVisible() and row.edit.text() == "Discord"
+    assert row.edit.isVisible() and row.edit.text() == "Arts & News"
     row.edit.setText("Chat")
     row.edit.editingFinished.emit()
     assert commands.asked == [("rename", ("discord", "Chat"))]
@@ -323,7 +342,7 @@ def test_everything_the_pc_plays_replaces_the_rows(qapp: QApplication) -> None:
     card = page.picker_card
     page.show()
     assert card.count.text() == ""  # its row says it
-    assert card.rows["system"].stop.isHidden()  # Apps | Everything switches it
+    assert card.rows["system"].stop.isVisible()
     said = card.everything_said
     assert said.isVisible() and "a call's voices too" in said.text()
     assert "one app instead" in said.text()
@@ -373,9 +392,18 @@ def test_nothing_captioned_says_so(qapp: QApplication) -> None:
         page.state.detail.text()
         == "nothing is captioned yet · your speech not captioned"
     )
+    assert page.state.pause.isHidden()
+    assert page.state.sign_in.isHidden() and page.state.get_plus.isHidden()
+    page.show_state(HomeState(ListeningState.NOT_CONNECTED, paused=True))
+    assert not page.state.pause.isHidden()
+    page.show_state(HomeState(ListeningState.LISTENING, chosen=True))
+    assert not page.state.pause.isHidden()
+    page.show_state(HomeState(ListeningState.NOT_CONNECTED))
+    assert page.state.pause.isHidden()
     page.show_state(HomeState(ListeningState.MOVED, chosen=True))
     assert page.moved.isVisible()
     page.close()
+    page.deleteLater()
 
 
 def test_signed_out_home_offers_sign_in_in_place_of_pause(
@@ -387,10 +415,7 @@ def test_signed_out_home_offers_sign_in_in_place_of_pause(
     page.show_state(HomeState(ListeningState.SIGN_IN_NEEDED))
     state = page.state
     assert state.title_label.text() == "Not signed in"
-    assert (
-        state.detail.text()
-        == "you need a code from us: an invite, or the one in your Plus email"
-    )
+    assert state.detail.text() == "sign in with your email to listen"
     assert not state.sign_in.isHidden() and state.pause.isHidden()
     state.sign_in.click()
     assert wanted == [True]
@@ -439,14 +464,13 @@ def test_every_window_paused_reads_paused_not_listening() -> None:
 
 
 def test_a_full_server_says_so_on_homes_state_line(qapp: QApplication) -> None:
-    """203's item 4: the server full read "Reconnecting", like the learner's
-    own connection. Now "The server is busy", counting down (208)."""
+    """The existing backoff retries quietly while Home shows the busy message."""
     now = [100.0]
     card = StateCard(QAction("Pause captions"), clock=lambda: now[0])
     card.show_state(HomeState(ListeningState.SERVER_BUSY, retry_at=124.0, chosen=True))
-    assert card.title_label.text() == "The server is busy"
-    assert card.detail.text().startswith("trying again in 24 s")
-    assert card._tick.isActive()
+    assert card.title_label.text() == "Polyglotic is busy — try again in a few minutes"
+    assert card.detail.text() == ""
+    assert not card._tick.isActive()
     assert (
         state_line(
             HomeState(ListeningState.SERVER_BUSY, retry_at=124.0, chosen=True), 100.0
@@ -459,7 +483,13 @@ def test_paused_home_says_how_to_resume(qapp: QApplication) -> None:
     page, _ = home(Picker())
     page.show_state(HomeState(ListeningState.LISTENING, chosen=True, paused=True))
     assert page.state.title_label.text() == "Paused"
-    assert page.state.detail.text() == keys("resume with Ctrl+Alt+P, or from the tray")
+    assert page.state.detail.text() == keys(
+        pc_mac_or_linux(
+            "resume with Ctrl+Alt+P, or from the tray",
+            "resume with Ctrl+Alt+P, or from the menu bar",
+            "resume with Ctrl+Alt+P, or here",  # no tray on GNOME (571)
+        )
+    )
 
 
 def test_the_banner_in_the_windows_words(qapp: QApplication) -> None:
@@ -495,7 +525,7 @@ def test_the_shell(qapp: QApplication) -> None:
     window.add_page("account", "Account", label("today's account page"), "top", 720)
     window.add_page("help", "Help", label("today's help"), "foot", 720)
     window.add_page("transcript", "Transcript", label("transcript"), None, 720)
-    assert (window.minimumWidth(), window.minimumHeight()) == MINIMUM
+    assert (window.minimumWidth(), window.minimumHeight()) == FLOOR  # 586
     window.go_to("home")
     window.nav_buttons["help"].click()
     assert window.current == "help"
@@ -673,10 +703,11 @@ def test_stopped_has_a_next_step(qapp: QApplication) -> None:
     card = StateCard(QAction("Pause captions"))
     card.show_state(HomeState(ListeningState.STOPPED, chosen=True))
     assert card.title_label.text() == "Stopped"
-    assert card.detail.text() == (
-        "quit from the tray and start Polyglotic again - if it keeps stopping, "
-        "Help can check what's wrong"
-    )
+    assert card.detail.text() == pc_mac_or_linux(
+        "quit from the tray and start Polyglotic again",
+        "quit from the menu bar and start Polyglotic again",
+        "quit Polyglotic and start it again",  # 571
+    ) + (" - if it keeps stopping, Help can check what's wrong")
 
 
 def test_homes_first_click_is_the_whole_row_and_a_caption_chip(
@@ -695,7 +726,7 @@ def test_homes_first_click_is_the_whole_row_and_a_caption_chip(
     assert commands.asked == [("add", ("Spotify",))]
     QTest.mouseClick(row, Qt.MouseButton.RightButton, pos=row.title.geometry().center())
     assert len(commands.asked) == 1  # a left click only
-    assert card.nothing.objectName() == "Dim"  # plain, not a warning
+    assert card.nothing.accessibleName() == "Not captioning yet"
 
 
 def test_home_says_one_thing_about_captions_failing(qapp: QApplication) -> None:
@@ -749,10 +780,83 @@ def test_home_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
         page.state.detail.text(),
     ]
     assert not any(keys("Ctrl+Alt+L")[:-1] in text for text in shown), shown
-    assert page.state.detail.text() == "resume here or from the tray"
+    assert page.state.detail.text() == pc_mac_or_linux(
+        "resume here or from the tray",
+        "resume here or from the menu bar",
+        "resume here",
+    )
     assert row.captions.toolTip() == "Hidden - turn off Hide all to show it"
 
-    lock.setShortcut(QKeySequence("Ctrl+Alt+L"))  # one that works is named
+    lock.setShortcut(QKeySequence(own_keys("L")))  # one that works is named
     assert page.lock.toolTip() == keys("Ctrl+Alt+L") and not page.hide_all.toolTip()
     page.close()
     page.deleteLater()
+
+
+def test_start_follows_the_last_app_to_begin_playing(qapp: QApplication) -> None:
+    discord = AddableApp("Discord.exe", "Discord", True)
+    player = AddableApp("player.exe", "Video Player", False)
+    page, commands = home(Picker(available=(discord, player)))
+    try:
+        page.show()
+        card = page.picker_card
+        assert card.nothing.isVisible() and card.property("captionIdle")
+        assert card.start.text() == "▶ Caption Discord"
+        assert card.add_rows[discord.name].suggestion.isVisible()
+        assert card.add_rows[discord.name].add.property("kind") == "primary"
+        assert not card.add_rows[player.name].suggestion.isVisible()
+        card.view.follow(Picker(available=(discord, replace(player, playing=True))))
+        qapp.processEvents()  # the new rows have been laid out
+        assert card.start.accessibleName() == "Caption Video Player"
+        assert card.add_rows[player.name].suggestion.isVisible()
+        card.start.click()
+        assert commands.asked == [("start_captioning", (player.name,))]
+        card.view.follow(Picker(captioned=(_row("discord"),)))
+        assert card.nothing.isHidden() and card.start.isHidden()
+        assert not card.property("captionIdle")
+        assert (
+            card.active.isVisible()
+            and card.active.accessibleName() == "Captioning Discord"
+        )
+        card.rows["discord"].stop.click()
+        assert commands.asked[-1] == ("remove", ("discord",))
+        card.view.follow(Picker(captioned=(_row("discord"),), listening=False))
+        assert card.active.isHidden()
+    finally:
+        page.close()
+        page.deleteLater()
+
+
+def test_quiet_sources_and_empty_list_offer_everything(qapp: QApplication) -> None:
+    quiet = AddableApp("discord.exe", "Discord", False)
+    for available in ((), (quiet,)):
+        page, commands = home(Picker(available=available))
+        try:
+            card = page.picker_card
+            assert card.start.accessibleName() == pc_or_mac(
+                "Caption everything the PC plays", "Caption everything the Mac plays"
+            )
+            card.start.click()
+            assert commands.asked == [("start_captioning", (None,))]
+        finally:
+            page.deleteLater()
+
+
+def test_caption_badges_meet_text_contrast_in_every_window_theme(
+    qapp: QApplication,
+) -> None:
+    page, _ = home(Picker())
+    try:
+        for look in theme.THEMES.values():
+            for palette in (look.dark, look.light):
+                page.setStyleSheet(style.stylesheet(style.Theme(asdict(palette))))
+                card = page.picker_card
+                for badge, background in (
+                    (card.nothing, palette.WARNING),
+                    (card.active, palette.SURFACE),
+                ):
+                    badge.ensurePolished()
+                    ink = badge.palette().color(badge.foregroundRole()).name()
+                    assert contrast(ink, background) >= AA_TEXT, (ink, background)
+    finally:
+        page.deleteLater()

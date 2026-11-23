@@ -1,0 +1,138 @@
+# Typing Chinese and Japanese on Linux, proved on GitHub's own
+# Ubuntu runners (polyglotic-hq 546 section 1.7, 571): only on the public
+# Linux copy (a snapshot of a branch pushed to its `linux-copy-571-typing`
+# branch by 571's mirror571.sh), where GitHub's runners are free - never in
+# this private repo, whose runners are the PC's: every job checks the repo
+# is public. Nothing here reaches the live server: no invite, no token.
+#
+# - typing: the app's Words page from source on X11, in a clean ubuntu:24.04
+#   container, each session as an ordinary user: Chinese (pinyin) and
+#   Japanese (Mozc) typed into its search box through IBus, then through
+#   Fcitx5 - the app asking for IBus, which Fcitx5's IBus frontend answers;
+#   Kubuntu's own setting (Fcitx's plugin, which the app doesn't carry) and
+#   no input method named at all, each as Qt leaves it and as the app sets
+#   it (platform/linux/input_method.py); and Fcitx5 with no IBus installed
+#   (tools/linux_typing_session.sh, tools/linux_typing_check.py);
+# - packed: the AppImage built as linux-package.yml builds it, its input
+#   method plugins checked by the build (tools/package/build.py's LINUX
+#   parts), and the packed app started on X11 with IBus, Qt saying which
+#   plugins it loaded.
+# What each found is kept a day as an artifact (reports and pictures only).
+name: Linux typing
+
+on:
+  push:
+    branches: ["linux-copy-571-typing"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-typing-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_PYTHON: "3.12.15"
+  UV_PYTHON_PREFERENCE: only-managed
+
+jobs:
+  typing:
+    name: Typing Chinese and Japanese (IBus, Fcitx5)
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      OUT: ${{ github.workspace }}/out
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+
+      # in a clean ubuntu:24.04 container: Ubuntu's own input methods, as a
+      # learner installs them
+      - name: Typed through IBus and Fcitx5
+        run: bash tools/linux_typing_session.sh "$OUT"
+
+      - name: What the typing found
+        if: ${{ always() }}
+        run: |
+          for found in "$OUT"/*-session/*/checks.json; do
+            [ -f "$found" ] || continue
+            echo "### $found" | tee -a "$GITHUB_STEP_SUMMARY"
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'], ensure_ascii=False)[:1500])" "$found" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+          cat "$OUT"/*-session/engines.txt 2>/dev/null || true
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-typing-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/versions.txt
+            ${{ env.OUT }}/*-session/*.txt
+            ${{ env.OUT }}/*-session/*.log
+            ${{ env.OUT }}/*-session/*/checks.json
+            ${{ env.OUT }}/*-session/*/*.png
+          retention-days: 1
+
+  packed:
+    name: The packed app's input methods
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      OUT: build/linux
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources
+        run: |
+          uv sync --locked
+          uv run --no-sync python -m tools.dictionaries.build
+
+      # the build's own check must pass but for its start budget, which
+      # GitHub's machines miss now and then (565: the train judges budgets)
+      - name: Built and packed in ubuntu:22.04 (its own check needs the input method plugins)
+        run: |
+          docker run --rm -v "$PWD:/w" -w /w ubuntu:22.04 \
+            bash tools/package/linux_build.sh v0.0.1 linux-x64-alpha "$OUT" 0.0.1 || true
+          python3 -c "import json,re,sys; p=json.load(open(sys.argv[1]))['problems']; left=[x for x in p if not re.search(r'over \d+ ms', x)]; print('budgets missed:', [x for x in p if x not in left]); sys.exit('the build check: ' + '; '.join(left) if left else 0)" "$OUT/summary.json"
+          mkdir -p "$OUT/reports"
+          {
+            echo "== Qt's input method plugins in the packed app"
+            ls -la "$OUT"/dist/Polyglotic/_internal/PySide6/Qt/plugins/platforminputcontexts/
+            ls -la "$OUT"/dist/Polyglotic/_internal/PySide6/Qt/lib/libQt6DBus.so* 2>&1
+            echo "== sizes"
+            du -sb "$OUT/dist/Polyglotic" "$OUT"/*.AppImage
+          } | tee "$OUT/reports/packed.txt"
+
+      - name: The packed app on X11 with IBus, Qt saying what it loads (a clean Ubuntu 24.04)
+        run: >-
+          docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w ubuntu:24.04
+          bash tools/package/linux_input_methods.sh "$OUT/dist/Polyglotic" "$OUT/reports"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-typing-packed-${{ github.run_id }}
+          path: ${{ env.OUT }}/reports
+          retention-days: 1

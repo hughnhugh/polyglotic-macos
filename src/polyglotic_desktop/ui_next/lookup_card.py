@@ -110,17 +110,18 @@ from PySide6.QtWidgets import (
 from polyglotic_desktop.core.learning.languages import Tier, tier_of
 from polyglotic_desktop.core.learning.load import Stage
 from polyglotic_desktop.core.lexicon.chinese import has_han
-from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
+from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, DictionarySense
 from polyglotic_desktop.core.shared import WordStatus
 from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ui_next import glyphs, style
+from polyglotic_desktop.ui_next.above_all import ABOVE_ALL, set_click_through
 from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_marks import STAGE_COLOURS
 from polyglotic_desktop.ui_next.copying import Painted, TextSelection, copy_quietly
-from polyglotic_desktop.ui_next.languages import learned_name
+from polyglotic_desktop.ui_next.languages import an_before, in_sentence, learned_name
 from polyglotic_desktop.ui_next.load_card import add_text, check_texts, stage_text
-from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.os_words import hotkeys_here, on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.settings_popover import KeyState
 from polyglotic_desktop.ui_next.views.lookup import (
     Card,
@@ -134,6 +135,7 @@ from polyglotic_desktop.ui_next.views.lookup import (
 )
 from polyglotic_desktop.ui_next.views.placement import Size
 from polyglotic_desktop.ui_next.views.speech import Say, notice_language, word_language
+from polyglotic_desktop.ui_next.word_classes import class_name
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 
 HOVER_MS = 100
@@ -157,6 +159,12 @@ HOVER_WIDTHS = (160, 320)
 """A hover card is as wide as its words, between these (at 100 %)."""
 PAD = 14
 GAP = 6
+SMALLEST_HEADWORD = 0.7
+"""A headword a little too long for its line shrinks, to this share of
+its size at most, to fit it (`fitted`); one longer still wraps at its own
+size, two lines of it as easy to read as one: either way it never runs
+under Say it and Close (polyglotic-hq 522's picture of a long selection's
+card, 533)."""
 SURFACE, LINE, TEXT, DIM, FAINT = "#191d24", "#2a303b", "#e9ecf2", "#a0a8b6", "#848c9c"
 """FAINT is the faintest text still 4.5:1 on SURFACE (5.0:1; the UI lab)."""
 ACCENT, ACCENT_TEXT = "#7c9cff", "#0d1220"
@@ -206,43 +214,100 @@ def _trn(text: str, n: int) -> str:
     return QApplication.translate("LookupCard", text, None, n)
 
 
-def no_voice_steps(language: str) -> str:
+def _sense_parts(sense: DictionarySense) -> tuple[str, str, str]:
+    if not sense.classes:
+        return sense.gloss, "", ""
+    labels = " / ".join(class_name(cls) for cls in sense.classes)
+    before, _, after = _tr("{classes} · {gloss}").partition("{classes}")
+    return before.format(gloss=sense.gloss), labels, after.format(gloss=sense.gloss)
+
+
+def _sense_text(sense: DictionarySense) -> str:
+    return "".join(_sense_parts(sense))
+
+
+def no_voice_steps(language: str, system_voice: bool = True) -> str:
     """No voice for `language` on this PC, and how Windows adds one - or a
     Mac's steps: the card's "say it", and the selection's Say it
-    (polyglotic-hq 495)."""
+    (polyglotic-hq 495). On Linux, why (591): speech-dispatcher, the
+    system's voice, missing or not starting (`system_voice` False: none of
+    the PC's own voices answer), or without the language."""
     name = learned_name("zh" if language == "zh-hant" else language)
-    return pc_or_mac(
-        _tr(
-            "No {language} voice on this PC yet. Windows adds one for free: "
-            "Settings > Time & language > Speech > Add voices, then "
-            "{language}."
+    if on_linux():
+        if not system_voice:
+            return in_sentence(
+                _tr(
+                    "No {language} voice yet: Polyglotic speaks with the "
+                    "system's speech-dispatcher, which isn't installed or didn't "
+                    "start. Install speech-dispatcher and "
+                    "speech-dispatcher-espeak-ng from your software manager."
+                ),
+                language=name,
+            )
+        return in_sentence(
+            _tr(
+                "No {language} voice yet: the system's speech-dispatcher has "
+                "none. speech-dispatcher-espeak-ng, from your software manager, "
+                "adds voices for over 100 languages."
+            ),
+            language=name,
+        )
+    return in_sentence(
+        pc_or_mac(
+            _tr(
+                "No {language} voice on this PC yet. Windows adds one for free: "
+                "Settings > Time & language > Speech > Add voices, then "
+                "{language}."
+            ),
+            _tr(
+                "No {language} voice on this Mac yet. macOS adds one for free: "
+                "System Settings > Accessibility > Spoken Content > System "
+                "voice > Manage Voices, then {language}."
+            ),
         ),
-        _tr(
-            "No {language} voice on this Mac yet. macOS adds one for free: "
-            "System Settings > Accessibility > Spoken Content > System "
-            "voice > Manage Voices, then {language}."
-        ),
-    ).format(language=name)
+        language=name,
+    )
 
 
 def better_voice_steps(language: str) -> str:
     """A word or selection was said in a basic voice: how to add a better
     one of its language (polyglotic-hq 518; Apple's steps, 428). Only a
     Mac's voices are basic (`ports.speaker.Quality`): Windows' natural
-    voices are Narrator's own."""
+    voices are Narrator's own. On Linux every voice is speech-dispatcher's
+    basic one, and none better is open to the app yet (591; DECISIONS #243
+    item 3): the notice says so, and that recorded words sound natural."""
     name = learned_name(notice_language(language))
-    return _tr(
-        "That was macOS's basic {language} voice. A more natural one is "
-        "free: System Settings > Accessibility > Spoken Content > System "
-        "voice > Manage Voices, then a {language} voice marked Enhanced or "
-        "Premium."
-    ).format(language=name)
+    if on_linux():
+        return in_sentence(
+            _tr(
+                "That was the system's basic {language} voice, from "
+                "speech-dispatcher. Polyglotic can't use a more natural one on "
+                "Linux yet; words with a recording play in a natural voice."
+            ),
+            language=name,
+        )
+    if an_before(name):  # "an English voice" (551)
+        #: "an" before a language name said with a vowel first ("an English voice"). Translate as the text with "then a {language} voice"
+        said = _tr(
+            "That was macOS's basic {language} voice. A more natural one is "
+            "free: System Settings > Accessibility > Spoken Content > System "
+            "voice > Manage Voices, then an {language} voice marked Enhanced "
+            "or Premium."
+        )
+    else:
+        said = _tr(
+            "That was macOS's basic {language} voice. A more natural one is "
+            "free: System Settings > Accessibility > Spoken Content > System "
+            "voice > Manage Voices, then a {language} voice marked Enhanced or "
+            "Premium."
+        )
+    return in_sentence(said, language=name)
 
 
 def never_again_text(language: str) -> str:
     """The better-voice notice's checkbox (518)."""
     name = learned_name(notice_language(language))
-    return _tr("Don't show again for {language}").format(language=name)
+    return in_sentence(_tr("Don't show again for {language}"), language=name)
 
 
 def dismiss_text() -> str:
@@ -276,7 +341,8 @@ def answered_by(language: str) -> str:
     """The card's line naming the dictionary that answered, when it isn't
     the row's language's (polyglotic-hq 337)."""
     #: the card's word was found in another language's dictionary than its caption line's, e.g. "From the English dictionary"
-    return _tr("From the {language} dictionary").format(language=learned_name(language))
+    said = _tr("From the {language} dictionary")
+    return in_sentence(said, language=learned_name(language))
 
 
 def _here_font(card: Card) -> QFont:
@@ -343,6 +409,20 @@ def _font(
     if bold:
         font.setWeight(QFont.Weight.DemiBold)
     return font
+
+
+def fitted(text: str, font: QFont, room: float) -> tuple[QFont, bool]:
+    """`font`, a pixel at a time smaller - down to `SMALLEST_HEADWORD` of
+    its size - till `text` fits `room` on one line; and whether it does."""
+    fitting = QFont(font)
+    size = fitting.pixelSize()
+    least = max(1, round(size * SMALLEST_HEADWORD))
+    while QFontMetricsF(fitting).horizontalAdvance(text) > room:
+        if size <= least:
+            return fitting, False
+        size -= 1
+        fitting.setPixelSize(size)
+    return fitting, True
 
 
 def _ui(px: float, bold: bool = False) -> QFont:
@@ -458,12 +538,25 @@ class _Painted:
         return self.width - PAD
 
     def row(self, pieces: Sequence[_Piece], gap: float = 8.0, right: float = 0) -> None:
-        """Pieces left to right on a shared baseline, wrapping when full."""
+        """Pieces left to right on a shared baseline, wrapping when full,
+        short of the right edge by `right` (the buttons beside the first
+        lines). Words too long for a line of their own - a long phrase's
+        headword or reading - are wrapped on lines of their own (533)."""
         line: list[tuple[_Piece, float, QFontMetricsF]] = []
         x = float(PAD)
         for piece in pieces:
             metrics = QFontMetricsF(piece.font)
             width = metrics.horizontalAdvance(piece.text) + (16 if piece.box else 0)
+            if (
+                piece.box is None
+                and piece.hit is None
+                and width > self.right - right - PAD
+            ):
+                if line:
+                    self._place(line)
+                    line, x = [], float(PAD)
+                self.text(piece.text, piece.font, piece.color, right=right)
+                continue
             if line and x + width > self.right - right:
                 self._place(line)
                 line, x = [], float(PAD)
@@ -506,10 +599,12 @@ class _Painted:
         color: str,
         x: float = PAD,
         formats: Sequence[tuple[int, int, QTextCharFormat]] = (),
+        right: float = 0,
+        fonts: Sequence[QTextLayout.FormatRange] = (),
     ) -> float:
-        """`text` wrapped from `x` to the right edge (it can be selected);
-        its height."""
-        layout, height = _laid(text, font, self.right - x)
+        """`text` wrapped from `x` to the right edge, short of it by `right`
+        (it can be selected); its height."""
+        layout, height = _laid(text, font, self.right - right - x, fonts)
         self.texts.append(Painted(text, layout, QPointF(x, self.y), self.new_line()))
         ranges = []
         for start, end, format_ in formats:
@@ -542,8 +637,15 @@ def _one_line(text: str, font: QFont) -> QTextLayout:
     return layout
 
 
-def _laid(text: str, font: QFont, width: float) -> tuple[QTextLayout, float]:
+def _laid(
+    text: str,
+    font: QFont,
+    width: float,
+    fonts: Sequence[QTextLayout.FormatRange] = (),
+) -> tuple[QTextLayout, float]:
     layout = QTextLayout(text, font)
+    if fonts:
+        layout.setFormats(fonts)
     option = QTextOption()
     option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
     layout.setTextOption(option)
@@ -581,7 +683,8 @@ class LookupCard(QWidget):
             | Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.WindowDoesNotAcceptFocus
-            | Qt.WindowType.WindowTransparentForInput,  # until pinned
+            | Qt.WindowType.WindowTransparentForInput  # until pinned
+            | ABOVE_ALL,
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
@@ -762,11 +865,8 @@ class LookupCard(QWidget):
                 return self.model.entry() if pinned else None
 
             self.act(shown)
-            transparent = not pinned
-            if bool(self.windowFlags() & Qt.WindowType.WindowTransparentForInput) != (
-                transparent
-            ):
-                self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, transparent)
+            # re-mapped, never live (550): shown below once it's drawn
+            set_click_through(self, not pinned, show=False)
             self._render()
             self.show()  # on top already, and never raise_()d: that activates
             self._watch(pinned)
@@ -801,7 +901,13 @@ class LookupCard(QWidget):
         self._hits = [(box.rect, box.hit) for box in painted.boxes if box.hit]
         # a screen reader: the word, and what its speaker does now
         self.setAccessibleName(card.word)
-        self.setAccessibleDescription(self._say_tip(card))
+        description = self._say_tip(card)
+        senses = [sense for reading in card.readings for sense in reading.definitions]
+        if any(sense.classes for sense in senses):
+            description = "\n".join(
+                line for line in (*map(_sense_text, senses), description) if line
+            )
+        self.setAccessibleDescription(description)
         rect, self.above = place(
             word.rect, word.row, Size(painted.width, painted.height()), word.area
         )
@@ -818,8 +924,8 @@ class LookupCard(QWidget):
             return high
         headline = QFontMetricsF(self._headword_font(card)).horizontalAdvance(card.word)
         sense = (
-            card.readings[0].senses[0]
-            if card.readings and card.readings[0].senses
+            _sense_text(card.readings[0].definitions[0])
+            if card.readings and card.readings[0].definitions
             else ""
         )
         reading = card.readings[0].reading if card.readings else card.guess
@@ -856,12 +962,14 @@ class LookupCard(QWidget):
     def _lay_out(self, card: Card, width: int) -> _Painted:
         painted = _Painted(width)
         saying = self._saying(card)
-        room = 26 + (style.px(22) + 4 if saying else 0)  # Close, and Say it
+        # Close, and Say it: each a button at the text size, and a gap
+        room = (style.px(22) + 4) * (2 if saying else 1)
         if card.pinned:
             self._top(painted, card, saying, room)
         self._headline(painted, card, room)
         if saying is not None and saying[1] is Say.NO_VOICE and self._voice_help:
-            self._no_voice(painted, saying[0])
+            system = self.speech is None or self.speech.system_voice()
+            self._no_voice(painted, saying[0], system)
         speech = self.speech
         if (
             saying is not None
@@ -872,6 +980,8 @@ class LookupCard(QWidget):
         if card.shows is Shows.ENTRY and card.pinned:
             self._chips(painted, card)
         if card.counterpart:
+            painted.space(3)
+            painted.text(class_name(card.word_class), _ui(12), FAINT)
             self._counterpart(painted, card)
         if card.answered_by:
             self._answered_by(painted, card)
@@ -887,15 +997,21 @@ class LookupCard(QWidget):
             painted.space(3)
             name = learned_name(card.language or "")
             painted.text(
-                _tr(
-                    "The {language} dictionary is used once you learn {language}. "
-                    "Captions and translation still work."
-                ).format(language=name)
+                in_sentence(
+                    _tr(
+                        "The {language} dictionary is used once you learn {language}. "
+                        "Captions and translation still work."
+                    ),
+                    language=name,
+                )
                 if tier_of(card.language or "") is Tier.FULL  # not learned (306)
-                else _tr(
-                    "No dictionary for {language} yet. Captions and translation "
-                    "still work."
-                ).format(language=name),
+                else in_sentence(
+                    _tr(
+                        "No dictionary for {language} yet. Captions and translation "
+                        "still work."
+                    ),
+                    language=name,
+                ),
                 _ui(13),
                 DIM,
             )
@@ -917,16 +1033,17 @@ class LookupCard(QWidget):
         if not card.offer:
             name = learned_name(card.added)
             painted.text(
-                _tr(
-                    "{language} is on your Learning page now, with its dictionary "
-                    "to download there ({size} MB)."
-                ).format(
+                in_sentence(
+                    _tr(
+                        "{language} is on your Learning page now, with its dictionary "
+                        "to download there ({size} MB)."
+                    ),
                     language=name,
                     size=QLocale().toString(card.added_pack / 1_000_000, "f", 1),
                 )
                 if card.added_pack
-                else _tr("{language} is on your Learning page now.").format(
-                    language=name
+                else in_sentence(
+                    _tr("{language} is on your Learning page now."), language=name
                 ),
                 _ui(12),
                 DIM,
@@ -934,7 +1051,7 @@ class LookupCard(QWidget):
             return
         name = learned_name(card.offer)
         painted.text(
-            _tr("Learning {language} too?").format(language=name),
+            in_sentence(_tr("Learning {language} too?"), language=name),
             _ui(12),
             DIM,
         )
@@ -942,7 +1059,7 @@ class LookupCard(QWidget):
         painted.row(
             [
                 _Piece(
-                    _tr("Learn {language} too").format(language=name),
+                    in_sentence(_tr("Learn {language} too"), language=name),
                     _ui(12, bold=True),
                     ACCENT,
                     (None, _alpha(ACCENT, 0.8)),
@@ -985,12 +1102,15 @@ class LookupCard(QWidget):
                 right=room,
             )
 
-    def _no_voice(self, painted: _Painted, language: str) -> None:
+    def _no_voice(self, painted: _Painted, language: str, system: bool) -> None:
         """No voice for the word's language on this PC: how Windows adds
         one (Microsoft's steps, polyglotic-hq 286), and a button to it - on
-        a Mac, how macOS adds one (Apple's steps, 428)."""
+        a Mac, how macOS adds one (Apple's steps, 428). On Linux the steps
+        alone, and why (591): there is no settings page to open."""
         painted.space(4)
-        painted.text(no_voice_steps(language), _ui(12), DIM)
+        painted.text(no_voice_steps(language, system), _ui(12), DIM)
+        if on_linux():
+            return
         painted.space(2)
         painted.row(
             [
@@ -1031,7 +1151,13 @@ class LookupCard(QWidget):
         )
 
     def _headline(self, painted: _Painted, card: Card, room: int = 26) -> None:
-        pieces = [_Piece(card.word, self._headword_font(card), TEXT)]
+        """The word and its reading; a word too long for the line beside the
+        buttons (a pinned card's Say it and Close) shrinks, then wraps."""
+        right = room if card.pinned else 0
+        font = self._headword_font(card)
+        smaller, fits = fitted(card.word, font, painted.right - right - PAD)
+        # a little too long: smaller, on its line; far too long: `row` wraps it
+        pieces = [_Piece(card.word, smaller if fits else font, TEXT)]
         reading = card.readings[0].reading if card.readings else card.guess
         if reading and (self.model.is_chinese or not card.pinned):
             pieces.append(_Piece(reading, _font(15, _families(card)), ACCENT))
@@ -1046,7 +1172,7 @@ class LookupCard(QWidget):
             )
         if not card.pinned and card.basic:
             pieces.append(self._basic_chip())
-        painted.row(pieces, gap=10, right=room if card.pinned else 0)
+        painted.row(pieces, gap=10, right=right)
 
     def _basic_chip(self) -> _Piece:
         """From a basic dictionary: open data, meanings no person has
@@ -1107,16 +1233,14 @@ class LookupCard(QWidget):
         meanings = _font(13, _meanings(card))
         for index, reading in enumerate(card.readings):
             painted.space(3)
-            senses = reading.senses
             if not card.pinned:
-                painted.text(senses[0] if senses else "-", meanings, TEXT)
+                self._definitions(painted, reading.definitions[:1], meanings, False)
                 continue
             # a reading of its own (a phonetic, a second pinyin): nothing if
             # there's none - not a lone blue "-" (polyglotic-hq 192, 198)
             if (index or not self.model.is_chinese) and reading.reading:
                 painted.text(reading.reading, _font(14, _families(card)), ACCENT)
-            numbered = "   ".join(f"{n}. {s}" for n, s in enumerate(senses, 1))
-            painted.text(numbered or "-", meanings, TEXT)
+            self._definitions(painted, reading.definitions, meanings, True)
             if reading.measure_words:
                 painted.text(
                     _tr("Measure word: {words}").format(
@@ -1127,6 +1251,29 @@ class LookupCard(QWidget):
                 )
         if card.more_readings:
             painted.text(more_readings(card.more_readings), _ui(12), FAINT)
+
+    @staticmethod
+    def _definitions(
+        painted: _Painted,
+        senses: Sequence[DictionarySense],
+        font: QFont,
+        numbered: bool,
+    ) -> None:
+        text = ""
+        labels = []
+        for index, sense in enumerate(senses, 1):
+            if numbered:
+                text += ("   " if index > 1 else "") + f"{index}. "
+            before, classes, after = _sense_parts(sense)
+            text += before
+            if classes:
+                label = QTextLayout.FormatRange()
+                label.start = len(text.encode("utf-16-le")) // 2  # Qt's offsets
+                label.length = len(classes.encode("utf-16-le")) // 2
+                label.format.setFont(_ui(13))
+                labels.append(label)
+            text += classes + after
+        painted.text(text or "-", font, TEXT, fonts=labels)
 
     def _not_found(self, painted: _Painted, card: Card) -> None:
         painted.space(3)
@@ -1397,10 +1544,13 @@ class LookupCard(QWidget):
         language, state = saying
         if state is Say.NO_VOICE:
             name = learned_name("zh" if language == "zh-hant" else language)
-            return pc_or_mac(
-                _tr("No {language} voice on this PC"),
-                _tr("No {language} voice on this Mac"),
-            ).format(language=name)
+            return in_sentence(
+                pc_or_mac(
+                    _tr("No {language} voice on this PC"),
+                    _tr("No {language} voice on this Mac"),
+                ),
+                language=name,
+            )
         if state is Say.SPEAKING:
             return _tr("Stop (R)")
         return _tr("Say it (R)")

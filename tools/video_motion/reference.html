@@ -1,0 +1,928 @@
+<title>Video Subtitle Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans:wght@500&family=Noto+Sans+SC:wght@400;500&display=swap">
+<style>
+/* Layout: a workbench. Two synced video frames on top, the transport and timeline under them, then the controls beside the rules they change. */
+:root {
+  --bg: #eef0f3;
+  --panel: #ffffff;
+  --fg: #15181d;
+  --muted: #586070;
+  --line: #d8dce3;
+  --accent: #c47410;
+  --accent-soft: #f7e6cb;
+  --accent-ink: #1c1306;
+  --good: #2c7a4d;
+  --stage: #0b0d11;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --f-cap: "Noto Sans", "Noto Sans SC", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1014; --panel: #161a20; --fg: #e8eaee; --muted: #9aa2ae; --line: #2b313a;
+    --accent: #f0a43a; --accent-soft: #3a2a13; --accent-ink: #1c1306; --good: #5cc28a; --stage: #06070a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1014; --panel: #161a20; --fg: #e8eaee; --muted: #9aa2ae; --line: #2b313a;
+  --accent: #f0a43a; --accent-soft: #3a2a13; --accent-ink: #1c1306; --good: #5cc28a; --stage: #06070a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1720px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+header h1 { font-size: 22px; line-height: 1.2; margin: 0; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 78ch; }
+.mono { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.panes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap: 16px; }
+.pane { display: grid; gap: 8px; align-content: start; }
+.pane-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.pane-head h2 { font-size: 15px; margin: 0; font-weight: 600; }
+.pane-head .sub { color: var(--muted); font-size: 13px; }
+.pane-head .size { margin-left: auto; color: var(--muted); font-size: 12px; }
+canvas.stage { width: 100%; height: auto; display: block; border-radius: 6px; background: var(--stage); }
+.pane-foot { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; min-height: 26px; }
+.chip { font-family: var(--f-num); font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+.chip.wait { background: var(--accent-soft); border-color: var(--accent); color: var(--fg); }
+.last { color: var(--muted); font-size: 12px; min-width: 0; overflow-wrap: anywhere; }
+.transport { display: grid; gap: 10px; }
+.speech { display: flex; gap: 10px; align-items: baseline; min-height: 28px; flex-wrap: wrap; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.speech-text { font-family: var(--f-cap); font-size: 17px; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.speech-text .quiet { color: var(--muted); font-weight: 400; }
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.btn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 6px; padding: 6px 11px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; min-width: 76px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .seg label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+select { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 6px; padding: 5px 8px; }
+.time { margin-left: auto; font-size: 13px; color: var(--muted); }
+.timeline { position: relative; height: 46px; cursor: pointer; touch-action: none; user-select: none; }
+.timeline .rail { position: absolute; left: 0; right: 0; top: 14px; height: 14px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); }
+.timeline .bar { position: absolute; top: 15px; height: 12px; border-radius: 3px; background: var(--accent-soft); border: 1px solid var(--accent); }
+.timeline .fin { position: absolute; top: 10px; width: 2px; height: 22px; background: var(--accent); border-radius: 1px; }
+.timeline .head { position: absolute; top: 4px; bottom: 12px; width: 2px; margin-left: -1px; background: var(--fg); border-radius: 1px; }
+.timeline .tick { position: absolute; bottom: 0; font-family: var(--f-num); font-size: 10px; color: var(--muted); transform: translateX(-50%); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; vertical-align: -1px; margin-right: 6px; }
+.legend .sw-bar { width: 16px; height: 10px; border-radius: 2px; background: var(--accent-soft); border: 1px solid var(--accent); }
+.legend .sw-fin { width: 2px; height: 12px; background: var(--accent); }
+.lower { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; }
+.controls { display: grid; gap: 12px; }
+fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px 12px; margin: 0; display: grid; gap: 10px; min-width: 0; }
+legend { font-weight: 600; font-size: 13px; padding: 0 4px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; align-items: baseline; }
+.row label { font-size: 13px; }
+.row output { font-family: var(--f-num); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg label { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+.seg input { accent-color: var(--accent); margin: 0; }
+.seg-title { font-size: 13px; }
+.checks { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; }
+.checks input { accent-color: var(--accent); margin-right: 6px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.side { display: grid; gap: 16px; }
+.side h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.rules ol, .questions ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.rules li b, .questions li b { font-weight: 600; }
+.rules .ctl { color: var(--muted); font-size: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; font-size: 12px; color: var(--muted); }
+td.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+.foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.foot .status { color: var(--good); font-size: 13px; }
+textarea { width: 100%; min-height: 160px; font-family: var(--f-num); font-size: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--fg); padding: 8px; }
+.about { color: var(--muted); font-size: 12px; max-width: 100ch; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Video Subtitle Motion</h1>
+    <p>Both modes show original and translated words as they arrive. Space plays or pauses. The arrow keys step one frame, and Shift with an arrow steps one second.</p>
+  </header>
+
+  <section class="panes" aria-label="The two timings">
+    <article class="panel pane">
+      <div class="pane-head"><h2>Instant</h2><span class="size mono" id="size-instant"></span></div>
+      <canvas class="stage" id="cv-instant" role="img" aria-label="Instant subtitles fill each line and wrap"></canvas>
+      <div class="pane-foot"><span class="chip" id="chip-instant">Ready</span><span class="last mono" id="last-instant"></span></div>
+    </article>
+    <article class="panel pane">
+      <div class="pane-head"><h2>Scrolling</h2><span class="size mono" id="size-scrolling"></span></div>
+      <canvas class="stage" id="cv-scrolling" role="img" aria-label="Scrolling subtitles slide sideways on overflow"></canvas>
+      <div class="pane-foot"><span class="chip" id="chip-scrolling">Ready</span><span class="last mono" id="last-scrolling"></span></div>
+    </article>
+  </section>
+
+  <section class="panel transport" aria-label="Playback">
+    <div class="speech"><span class="label">Speaker says</span><span class="speech-text" id="speech"></span></div>
+    <div class="buttons">
+      <button class="btn" id="b-restart" type="button">Restart</button>
+      <button class="btn" id="b-back1" type="button">−1 s</button>
+      <button class="btn" id="b-backf" type="button">−1 frame</button>
+      <button class="btn primary" id="b-play" type="button">Play</button>
+      <button class="btn" id="b-fwdf" type="button">+1 frame</button>
+      <button class="btn" id="b-fwd1" type="button">+1 s</button>
+      <label class="label" for="speed" style="margin-left:6px">Playback</label>
+      <select id="speed">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+      </select>
+      <span class="time mono" id="time">0:00.0</span>
+    </div>
+    <div class="timeline" id="timeline" aria-label="Timeline: click or drag to move"><div class="rail"></div><div id="tl-items"></div><div class="head" id="tl-head"></div></div>
+    <div class="legend"><span><i class="sw-bar"></i>someone is speaking</span><span><i class="sw-fin"></i>the line is finished by the server</span></div>
+  </section>
+
+  <section class="lower">
+    <div class="panel controls" aria-label="Settings">
+      <fieldset>
+        <legend>Window</legend>
+        <div class="presets">
+          <button class="btn" type="button" data-preset="tiny">Tiny</button>
+          <button class="btn" type="button" data-preset="small">Small</button>
+          <button class="btn" type="button" data-preset="medium">Medium</button>
+          <button class="btn" type="button" data-preset="large">Large</button>
+        </div>
+        <div class="row"><label for="W">Width</label><output id="W-v" for="W"></output><input type="range" id="W" min="360" max="1200" step="10"></div>
+        <div class="row"><label for="H">Height</label><output id="H-v" for="H"></output><input type="range" id="H" min="70" max="340" step="2"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Text</legend>
+        <div class="row"><label for="origPx">Caption size</label><output id="origPx-v" for="origPx"></output><input type="range" id="origPx" min="18" max="44" step="1"></div>
+        <div class="row"><label for="transPx">Translation size</label><output id="transPx-v" for="transPx"></output><input type="range" id="transPx" min="14" max="40" step="1"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Motion</legend>
+        <div class="row"><label for="vmax">Glide speed limit</label><output id="vmax-v" for="vmax"></output><input type="range" id="vmax" min="100" max="800" step="20"></div>
+        <div class="row"><label for="lift">Lift time</label><output id="lift-v" for="lift"></output><input type="range" id="lift" min="50" max="400" step="10"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Reading</legend>
+        <div class="row"><label for="cps">Reading speed</label><output id="cps-v" for="cps"></output><input type="range" id="cps" min="8" max="25" step="1"></div>
+        <div class="row"><label for="minHold">Shortest time a finished line stays</label><output id="minHold-v" for="minHold"></output><input type="range" id="minHold" min="0.5" max="1" step="0.1"></div>
+        <div class="row"><label for="maxWait">Reading wait cap</label><output id="maxWait-v" for="maxWait"></output><input type="range" id="maxWait" min="0" max="4" step="0.1"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Speech and view</legend>
+        <div class="row"><label for="rate">Speech rate</label><output id="rate-v" for="rate"></output><input type="range" id="rate" min="0.75" max="1.5" step="0.05"></div>
+        <div class="checks">
+          <label><input type="checkbox" id="original">Show original</label>
+          <label><input type="checkbox" id="translation">Show translation</label>
+          <label><input type="checkbox" id="debug">Show boxes and reading timers</label>
+        </div>
+      </fieldset>
+      <div class="foot">
+        <button class="btn primary" type="button" id="b-copy">Copy settings</button>
+        <button class="btn" type="button" id="b-reset">Reset to my proposal</button>
+        <span class="status" id="copy-status" aria-live="polite"></span>
+      </div>
+      <textarea id="copy-box" hidden readonly aria-label="Settings to copy"></textarea>
+    </div>
+
+    <div class="side">
+      <div class="panel rules">
+        <h3>Reading holds</h3>
+        <p>A finished row keeps its shape and position for at least 0.5 seconds, plus any reading time left up to the cap. Old captions leave at the top when space is needed.</p>
+      </div>
+      <div class="panel numbers">
+        <h3>Numbers so far</h3>
+        <table aria-label="Numbers so far">
+          <thead><tr><th scope="col"></th><th scope="col">Instant</th><th scope="col">Scrolling</th></tr></thead>
+          <tbody id="nums"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="about">The speech is a made-up cooking video with Chinese translations. Its timings follow the live server's: the first update about 0.9 s after a word is spoken, an update every 0.5 s, a line finished 0.85 s after the speaker stops, and its translation 0.45 s later. A few words are misheard at first and corrected, as the recogniser does. The live translation arrives 0.35 s after each update; here it is approximated by showing the finished translation in proportion to the words heard, so a real one will reorder words more as the sentence grows.</p>
+</div>
+
+<script>
+// ENGINE START
+const FPS = 60, DT = 1 / FPS;
+const VISIBLE_ALPHA = 0.002; // Canvas drawRow visibility threshold, opacity [0, 1].
+// Translation characters per original character at the same reading time (ratio 0..1).
+const TRANSLATION_PACE_RATIO = 0.5;
+const LAT = { first: 0.9, every: 0.5, heard: 0.35, endGap: 0.6, final: 0.25, trans: 0.45, transLive: 0.35 };
+const CAPTIONS = [
+  { s: 0.6, e: 2.4, en: "Okay, so today we're making dumplings.", zh: "好，今天我们来包饺子。", mis: { 5: "dump links." } },
+  { s: 3.0, e: 7.2, en: "My grandmother taught me this when I was eight, standing on a chair.", zh: "这是我八岁时外婆教我的，那时我站在一把椅子上。", mis: { 8: "ate," } },
+  { s: 7.9, e: 8.6, en: "Seriously.", zh: "真的。" },
+  { s: 9.3, e: 12.3, en: "First, mix the flour with warm water, not cold.", zh: "首先，面粉要用温水和，不要用冷水。", mis: { 3: "flower" } },
+  { s: 12.9, e: 17.3, en: "If the water is too cold, the dough tears when you fold the edges.", zh: "水太凉的话，面团在你捏边的时候就会破。" },
+  { s: 17.9, e: 19.8, en: "Knead it for about ten minutes.", zh: "揉大概十分钟。", mis: { 0: "Need" } },
+  { s: 20.2, e: 20.9, en: "Like this.", zh: "像这样。" },
+  { s: 21.6, e: 25.9, en: "While that rests, chop the cabbage finely and squeeze out the water.", zh: "面团醒着的时候，把白菜切碎，再把水挤干。", mis: { 5: "garbage" } },
+  { s: 26.5, e: 28.9, en: "This step matters more than people think.", zh: "这一步比大家想的更重要。" },
+  { s: 29.5, e: 31.6, en: "Wet filling means soggy dumplings.", zh: "馅太湿，饺子就会软塌塌的。", mis: { 4: "dump links." } }
+];
+const ZH_NO_START = "，。！？、；：）」』”";
+
+function ease(x) { x = Math.min(1, Math.max(0, x)); return 1 - Math.pow(1 - x, 3); }
+function tween(o, t) { return o.from + (o.to - o.from) * ease((t - o.t0) / o.dur); }
+
+function buildSource(rate) {
+  return CAPTIONS.map((c, id) => {
+    const s = c.s / rate, e = c.e / rate;
+    const words = c.en.split(" ");
+    const lens = words.map(w => w.length + 1);
+    const total = lens.reduce((a, b) => a + b, 0);
+    let acc = 0;
+    const ends = words.map((w, i) => { acc += lens[i]; return s + (e - s) * acc / total; });
+    const starts = words.map((w, i) => (i === 0 ? s : ends[i - 1]));
+    const finishT = e + LAT.endGap + LAT.final, transT = finishT + LAT.trans;
+    const updates = [], tupdates = [], zhChars = [...c.zh];
+    for (let k = 0; ; k++) {
+      const u = s + LAT.first + k * LAT.every;
+      if (u >= finishT - 0.05) break;
+      const heard = u - LAT.heard;
+      let n = 0;
+      while (n < words.length && ends[n] <= heard) n++;
+      if (!n) continue;
+      updates.push({ t: u, words: words.slice(0, n).map((w, i) => ({ t: (n - i <= 2 && c.mis && c.mis[i]) ? c.mis[i] : w, sure: n - i > 2 })) });
+      // A live translation of the words so far, 0.35 s after each update. Approximated by
+      // showing the finished translation in proportion to the words heard.
+      const m = Math.floor(zhChars.length * (n / words.length) * 0.92);
+      if (m > 0) tupdates.push({ t: u + LAT.transLive, chars: zhChars.slice(0, m).map((ch, i) => ({ t: ch, sure: i < m - 2 })) });
+    }
+    return { id, s, e, en: c.en, zh: c.zh, words, starts, ends, finishT, transT, updates, tupdates };
+  });
+}
+function partialAt(c, t) { let u = null; for (const x of c.updates) { if (x.t <= t + 1e-9) u = x; else break; } return u; }
+function translationAt(c, t) {
+  if (t + 1e-9 >= c.transT) return [...c.zh].map(ch => ({ t: ch, sure: true }));
+  // A finished original closes its live revision, even while waiting for room.
+  let chars = null;
+  for (const reply of c.tupdates) {
+    if (reply.t + 1e-9 >= c.finishT || reply.t > t + 1e-9) break;
+    chars = reply.chars;
+  }
+  return chars;
+}
+
+const EPS = 1e-8;
+const CJK = "\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff";
+const WRAP = new RegExp("\\s+|(?:[" + CJK + "]|[^\\s" + CJK + ZH_NO_START +
+  "]+|[" + ZH_NO_START + "])[" + ZH_NO_START + "]*", "gu");
+const graphemes = new Intl.Segmenter(undefined, {granularity: "grapheme"});
+
+class Pane {
+  constructor(mode, measure) {
+    this.mode = mode;
+    this.measure = measure;
+  }
+
+  reset(P, src) {
+    this.P = P;
+    this.src = src;
+    const pad = 10;
+    this.g = {
+      pad, oLH: P.origPx * 1.3, tLH: P.transPx * 1.35,
+      foot: P.H - pad, avail: P.W - 2 * pad, blockGap: P.origPx * 0.35,
+      innerGap: 2, tails: [P.origPx * 0.8, P.transPx * 0.8],
+      fo: P.fonts?.[0] ?? '500 ' + P.origPx + 'px "Noto Sans", "Noto Sans SC", system-ui, sans-serif',
+      ft: P.fonts?.[1] ?? '400 ' + P.transPx + 'px "Noto Sans SC", "Noto Sans", system-ui, sans-serif',
+    };
+    this.now = -Infinity;
+    this.sides = [true, true];
+    this.shownSides = [true, true];
+    this.shownMode = this.mode;
+    this.tracks = new Map();
+    this.slots = new Map();
+    this.last = -1;
+    this.liftEnds = -Infinity;
+    this.waiting = false;
+    this.oneRow = false;
+    this.events = [];
+  }
+
+  font(side) { return side ? this.g.ft : this.g.fo; }
+  width(text, side) { return this.measure(text, this.font(side)); }
+  log(text) { this.events.push({t: this.now, text}); }
+
+  wrap(text, side) {
+    const rows = [];
+    let current = "", spaces = "";
+    for (const [unit] of text.matchAll(WRAP)) {
+      if (!unit.trim()) {
+        spaces += unit;
+        continue;
+      }
+      if (current && this.width(current + spaces + unit, side) > this.g.avail) {
+        rows.push(current + spaces);
+        current = spaces = "";
+      }
+      current += spaces;
+      if (this.width(unit, side) > this.g.avail) {
+        for (const {segment} of graphemes.segment(unit)) {
+          if (current && this.width(current + segment, side) > this.g.avail) {
+            rows.push(current);
+            current = "";
+          }
+          current += segment;
+        }
+      } else {
+        current += unit;
+      }
+      spaces = "";
+    }
+    if (current || spaces) rows.push(current + spaces);
+    return rows;
+  }
+
+  readingNeed(text, side) {
+    const P = this.P;
+    const wide = (text.match(/[\u3400-\u9fff\u3040-\u30ff]/gu) || []).length;
+    const spaced = [...text].filter(c => !/[\u3400-\u9fff\u3040-\u30ff]/u.test(c)
+      && /[\p{L}\p{N}]/u.test(c)).length;
+    const need = P.readNotice + wide / (side ? P.meantWide : P.saidWide)
+      + spaced / (side ? P.meantSpaced : P.saidSpaced);
+    return Math.max([...text].length / (P.cps * (side ? TRANSLATION_PACE_RATIO : 1)),
+      Math.min(P.readMost, Math.max(P.readLeast, need)));
+  }
+
+  copy(c, t) {
+    const final = t + EPS >= c.finishT;
+    return {
+      id: c.id,
+      texts: [
+        final ? c.en : (partialAt(c, t)?.words || []).map(w => w.t).join(" "),
+        (translationAt(c, t) || []).map(w => w.t).join(""),
+      ],
+      final: [final, t + EPS >= c.transT],
+    };
+  }
+
+  reveal(copy, track) {
+    const final = [...copy.final];
+    const texts = copy.texts.map((text, side) => {
+      const state = track.words[side];
+      const units = text.match(/[\u3400-\u9fff\u3040-\u30ff][?????]?|\s*[^\s\u3400-\u9fff\u3040-\u30ff]+/gu) || [];
+      let stable = 0;
+      while (stable < state.shown && stable < units.length &&
+             state.units[stable].trim() === units[stable].trim()) ++stable;
+      if (stable < units.length && this.now + EPS >= state.next) {
+        ++stable;
+        state.next = this.now + this.P.wordInterval;
+      }
+      state.shown = stable;
+      state.units = units;
+      final[side] &&= stable === units.length;
+      return units.slice(0, stable).join("").trimEnd();
+    });
+    return {...copy, texts, final};
+  }
+
+  shape(copy, scrolling, sides = this.sides, starts = [0, 0]) {
+    return copy.texts.flatMap((text, side) => {
+      let start = starts[side];
+      text = text.slice(start);
+      if (!text || !sides[side]) return [];
+      const pieces = scrolling ? [text] : this.wrap(text, side);
+      return pieces.map((piece, index) => {
+        const row = {
+          id: copy.id, side, start, text: piece, x: 0, y: 0,
+          h: side ? this.g.tLH : this.g.oLH, scrolling,
+          final: copy.final[side] || index < pieces.length - 1,
+          key: [copy.id, side, start].join(" "),
+        };
+        start += piece.length;
+        return row;
+      });
+    });
+  }
+
+  spacing(upper, lower) {
+    if (upper.id !== lower.id) return this.g.blockGap;
+    return upper.side !== lower.side ? this.g.innerGap : 0;
+  }
+
+  fit(rows) {
+    const sides = [rows.filter(r => !r.side), rows.filter(r => r.side)];
+    const room = this.g.foot - this.g.pad;
+    while (rows.length) {
+      const gap = sides.every(s => s.length) ? this.g.innerGap : 0;
+      if (rows.reduce((sum, row) => sum + row.h, gap) <= room + EPS) break;
+      sides[sides[0].length < sides[1].length ? 1 : 0].shift();
+      rows = sides.flat();
+    }
+    return rows;
+  }
+
+  layout(groups) {
+    const placed = [];
+    let bottom = this.g.foot;
+    for (const caption of groups.slice().reverse()) {
+      const group = [];
+      for (const row of caption.slice().reverse()) {
+        const lower = group.at(-1) || placed.at(-1);
+        if (lower) bottom -= this.spacing(row, lower);
+        const y = Math.min(bottom - row.h, this.slots.get(row.key)?.row.y ?? Infinity);
+        if (y < this.g.pad - EPS) break;
+        group.push({...row, y});
+        bottom = y;
+      }
+      if (group.length < caption.length) {
+        if (!placed.length) placed.push(...group);
+        break;
+      }
+      placed.push(...group);
+    }
+    return placed.reverse();
+  }
+
+  settle(slot) {
+    if (slot.ready !== undefined) return;
+    const {row} = slot;
+    const remaining = slot.since + this.readingNeed(row.text.trimEnd(), row.side) - this.now;
+    slot.ready = this.now + this.P.minHold + Math.min(this.P.maxWait, Math.max(0, remaining));
+    this.log("settle " + row.key);
+  }
+
+  panTarget(row) {
+    const overflow = Math.max(0, this.width(row.text.trimEnd(), row.side) - this.g.avail);
+    return overflow ? overflow + this.g.tails[row.side] : 0;
+  }
+
+  panRows(dt) {
+    const {P, now} = this;
+    for (const slot of this.slots.values()) {
+      const row = slot.row;
+      if (slot.incoming) {
+        if (now + EPS < this.liftEnds) continue;
+        slot.incoming = false;
+        slot.since = now;
+      }
+      if (this.mode === "scrolling" && row.scrolling) {
+        const pan = this.tracks.get(row.id).pans[row.side];
+        const target = this.panTarget(row);
+        const catchup = P.catchupMs / 1000;
+        if (target !== pan.target) {
+          pan.target = target;
+          pan.burst = Math.abs(target - pan.x) > P.vmax * catchup
+            ? {from: pan.x, to: target, t0: now, dur: catchup - DT} : null;
+        }
+        const wanted = pan.burst ? tween(pan.burst, now) : target;
+        const limit = pan.burst ? P.catchupStep : Math.min(P.catchupStep, P.vmax * dt);
+        pan.x += Math.max(-limit, Math.min(limit, wanted - pan.x));
+        row.x = pan.x;
+        if (Math.abs(row.x - target) > EPS) continue;
+      }
+      if (row.final && now + EPS >= this.liftEnds) this.settle(slot);
+    }
+  }
+
+  step(t) {
+    const dt = Number.isFinite(this.now) ? Math.max(0, t - this.now) : DT;
+    this.now = t;
+    const repack = this.mode !== this.shownMode ||
+      this.sides.some((side, i) => side !== this.shownSides[i]);
+    if (repack) {
+      this.liftEnds = t;
+      this.shownSides = [...this.sides];
+      this.shownMode = this.mode;
+      this.slots = new Map([...this.slots].filter(([, slot]) => this.sides[slot.row.side]));
+      for (const slot of this.slots.values()) {
+        if (slot.lift) slot.row.y = tween(slot.lift, t);
+        slot.lift = null;
+      }
+      for (const track of this.tracks.values()) track.pending = false;
+      const latest = this.src.find(c => c.id === this.last);
+      const track = this.tracks.get(this.last);
+      if (track && latest && t + EPS < latest.finishT && track.scrolling !== (this.mode === "scrolling")) {
+        const starts = [...track.first];
+        for (const {row} of this.slots.values()) {
+          if (row.id !== this.last) continue;
+          let start = row.start;
+          if (this.mode === "instant" && row.x > 0) {
+            for (const unit of row.text.matchAll(WRAP)) {
+              const end = unit.index + unit[0].length;
+              if (this.width(row.text.slice(0, end), row.side) > row.x) break;
+              start = row.start + end;
+            }
+          }
+          starts[row.side] = Math.max(starts[row.side], start);
+        }
+        track.scrolling = this.mode === "scrolling";
+        track.pans = this.freshPans();
+        track.starts = starts;
+      }
+    } else if (t + EPS < this.liftEnds) {
+      this.panRows(dt);
+      return;
+    }
+
+    const groups = [], desired = new Map(), updates = new Map();
+    let canOpen = [...this.tracks.values()].every(track => !track.pending);
+    for (const c of this.src) {
+      let copy = this.copy(c, t);
+      if (!copy.texts.some(Boolean)) continue;
+      let track = this.tracks.get(c.id);
+      if (!track) {
+        if (c.id <= this.last || !canOpen) continue;
+        track = {
+          scrolling: this.mode === "scrolling", first: [0, 0], starts: [0, 0],
+          pans: this.freshPans(),
+          words: [0, 1].map(() => ({units: [], shown: 0, next: -Infinity})),
+        };
+        this.tracks.set(c.id, track);
+        this.last = c.id;
+        canOpen = false;
+      }
+      const words = track.words.map(state => ({...state}));
+      if (!this.P.motionOnly) {
+        copy = this.reveal(copy, {words});
+        if (c.id === this.last && words.some((state, side) =>
+          this.sides[side] && (state.shown < state.units.length ||
+            state.next !== track.words[side].next))) canOpen = false;
+      }
+      const shaped = this.shape(copy, track.scrolling, this.sides, track.starts)
+        .filter(row => row.start >= track.first[row.side]);
+      if (!this.oneRow && c.id === this.last && this.sides.every(Boolean) &&
+          track.first[1] === 0 && shaped.length && !shaped.some(row => row.side)) {
+        shaped.push({id: c.id, side: 1, start: 0, text: "", x: 0, y: 0,
+          h: this.g.tLH, scrolling: track.scrolling, final: false, key: c.id + " 1 0"});
+      }
+      for (const row of shaped) desired.set(row.key, row);
+      const fitted = this.fit(shaped);
+      updates.set(c.id, {words, fitted});
+      if (fitted.length) groups.push(fitted);
+    }
+
+    const placed = this.layout(groups);
+    const nextRows = new Map(placed.map(row => [row.key, row]));
+    let blocked = false;
+    for (const [key, slot] of this.slots) {
+      const row = desired.get(key), next = nextRows.get(key);
+      const pan = this.tracks.get(slot.row.id).pans[slot.row.side];
+      const target = row?.scrolling && this.mode === "scrolling" ? this.panTarget(row) : pan.x;
+      if (row?.final && !slot.incoming && row.text.trimEnd() === slot.row.text.trimEnd() &&
+          Math.abs(pan.x - target) <= EPS) this.settle(slot);
+      const changes = !next || next.y < slot.row.y - EPS ||
+        next.text.trimEnd() !== slot.row.text.trimEnd();
+      if (changes && slot.ready !== undefined &&
+          t + EPS < slot.ready) blocked = true;
+    }
+    if (blocked && !repack) {
+      if (!this.waiting) this.log("wait starts");
+      this.waiting = true;
+      for (const [key, slot] of this.slots) {
+        const row = desired.get(key);
+        if (!row || (slot.ready !== undefined && t + EPS < slot.ready)) continue;
+        if (slot.row.text.trimEnd() !== row.text.trimEnd()) slot.ready = undefined;
+        if (!slot.row.text && row.text) slot.since = t;
+        slot.row = {...row, x: slot.row.x, y: slot.row.y};
+      }
+      for (const [id, {words, fitted}] of updates) {
+        const track = this.tracks.get(id);
+        track.pending = false;
+        for (const side of [0, 1]) {
+          const accepted = fitted.every(row => row.side !== side || !row.text ||
+            this.slots.get(row.key)?.row.text === row.text);
+          if (accepted) track.words[side] = words[side];
+          track.pending ||= !accepted;
+        }
+      }
+      this.panRows(dt);
+      return;
+    }
+    if (this.waiting) this.log("wait ends");
+    this.waiting = false;
+    for (const [key, {row}] of this.slots) {
+      if (!nextRows.has(key) && (desired.has(key) || row.id < this.last)) {
+        const first = this.tracks.get(row.id).first;
+        first[row.side] = Math.max(first[row.side], row.start + row.text.trimEnd().length);
+      }
+    }
+    const first = placed[0]?.id ?? this.last;
+    for (const key of this.tracks.keys()) {
+      if (key < first) this.tracks.delete(key);
+    }
+    const slots = new Map();
+    for (const row of placed) {
+      const old = this.slots.get(row.key);
+      const same = old?.row.text.trimEnd() === row.text.trimEnd();
+      if (old && row.scrolling && this.mode !== "scrolling") row.x = old.row.x;
+      const slot = {row, since: old?.row.text ? old.since : t,
+        ready: same ? old.ready : undefined, incoming: !old};
+      if (old && !repack && row.y < old.row.y - EPS) {
+        this.liftEnds = t + this.P.lift / 1000;
+        slot.lift = {from: old.row.y, to: row.y, t0: t, dur: this.P.lift / 1000};
+      }
+      slots.set(row.key, slot);
+    }
+    this.slots = slots;
+    for (const [id, track] of this.tracks) {
+      track.pending = false;
+      track.words = updates.get(id)?.words ?? track.words;
+    }
+    this.panRows(dt);
+  }
+
+  freshPans() {
+    return [0, 1].map(() => ({x: 0, target: 0, burst: null}));
+  }
+
+  history(captionId, t) {
+    const rows = [];
+    let bottom = this.g.pad;
+    for (const caption of this.src.filter(c => c.id >= captionId)) {
+      for (const row of this.shape(this.copy(caption, t), false)) {
+        const y = bottom + (rows.length ? this.spacing(rows.at(-1), row) : 0);
+        if (y + row.h > this.g.foot + EPS) return rows;
+        rows.push({...row, y, phase: "history"});
+        bottom = y + row.h;
+      }
+    }
+    return rows;
+  }
+
+  rows() {
+    if (this.historyRows) return this.historyRows;
+    return [...this.slots.values()].filter(slot =>
+      slot.row.text && (!slot.incoming || this.now + EPS >= this.liftEnds))
+      .map(({row, lift, ready}) => ({
+        ...row, y: lift ? tween(lift, this.now) : row.y,
+        phase: ready === undefined ? "live" : "settled",
+      }));
+  }
+}
+// ENGINE END
+
+// catchupMs: positive ms from arrival or row clearance (release budget 200).
+// catchupStep: positive logical pixels per 60 Hz frame (128 covers the longest
+// recorded single-row translation while leaving room to decelerate).
+const DEFAULTS = {
+  W: 760, H: 210, origPx: 28, transPx: 22, vmax: 360, catchupMs: 200,
+  catchupStep: 128, lift: 150, cps: 15, readNotice: 0.35, saidWide: 3.25,
+  saidSpaced: 10, meantWide: 9, meantSpaced: 17, readLeast: 1, readMost: 7,
+  minHold: 0.5, maxWait: 1.0, wordInterval: 0.016, rate: 1, debug: false,
+  original: true, translation: true,
+};
+const PRESETS = {
+  tiny: { W: 560, H: 96 }, small: { W: 640, H: 150 },
+  medium: { W: 760, H: 210 }, large: { W: 960, H: 270 },
+  narrow: { W: 360, H: 210 },
+};
+const STORE = "video-motion-params-v2";
+const $ = id => document.getElementById(id);
+let params = Object.assign({}, DEFAULTS);
+try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && typeof saved === "object") params = Object.assign({}, DEFAULTS, saved); } catch (e) { /* storage unavailable */ }
+
+const mctx = document.createElement("canvas").getContext("2d");
+const mcache = new Map();
+function measure(s, f) { const k = f + "|" + s; let v = mcache.get(k); if (v === undefined) { mctx.font = f; v = mctx.measureText(s).width; mcache.set(k, v); } return v; }
+
+const panes = ["instant", "scrolling"].map(mode => {
+  const canvas = $("cv-" + mode), layer = document.createElement("canvas"), scratch = document.createElement("canvas");
+  return { mode, engine: new Pane(mode, measure), canvas, ctx: canvas.getContext("2d"), layer, lctx: layer.getContext("2d"), scratch, sctx: scratch.getContext("2d"), chip: $("chip-" + mode), last: $("last-" + mode), size: $("size-" + mode) };
+});
+
+let src = [], END = 36, frameIdx = -1, t = 7.0, playing = false, speed = 1;
+const COLORS = { live: { sure: "#ffffff", unsure: "rgba(255,255,255,0.52)" }, settled: { sure: "#f2f3f5", unsure: "#f2f3f5" }, trans: { sure: "#f6d79c", unsure: "rgba(246,215,156,0.55)" } };
+
+function fmt(x) { const m = Math.floor(x / 60), s = x - m * 60; return `${m}:${s.toFixed(1).padStart(4, "0")}`; }
+function resetPanes() {
+  for (const pane of panes) {
+    pane.engine.reset(params, src);
+    pane.engine.sides = [params.original, params.translation];
+  }
+}
+function resim(toT) {
+  src = buildSource(params.rate);
+  const lastC = src[src.length - 1];
+  END = Math.ceil((lastC.transT + 3.5) * 10) / 10;
+  resetPanes();
+  frameIdx = -1;
+  advance(Math.min(toT, END));
+  buildTimeline();
+}
+function advance(toT) {
+  const n = Math.round(Math.max(0, toT) * FPS);
+  if (n < frameIdx) { resetPanes(); frameIdx = -1; }
+  for (let i = frameIdx + 1; i <= n; i++) panes.forEach(p => p.engine.step(i * DT));
+  frameIdx = Math.max(frameIdx, n);
+}
+function sizeCanvas(c, w, h, dpr) { const W = Math.round(w * dpr), H = Math.round(h * dpr); if (c.width !== W || c.height !== H) { c.width = W; c.height = H; } }
+function speakingAt(x) { return src.some(c => x >= c.s && x <= c.e); }
+
+function drawVideo(ctx, w, h, x) {
+  const gr = ctx.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#1c2a2f"); gr.addColorStop(1, "#2b1f18");
+  ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
+  const blobs = [[0.24, 0.34, 0.34, "rgba(214,150,82,0.22)"], [0.72, 0.28, 0.3, "rgba(120,170,160,0.15)"], [0.55, 0.78, 0.42, "rgba(240,210,170,0.09)"]];
+  blobs.forEach(([bx, by, br, col], i) => {
+    const cx = (bx + 0.04 * Math.sin(x * 0.21 + i * 2)) * w, cy = (by + 0.05 * Math.cos(x * 0.17 + i)) * h, r = br * Math.max(w, h);
+    const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r); rg.addColorStop(0, col); rg.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
+  });
+  const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.75);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.45)"); ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
+  const sp = speakingAt(x);
+  ctx.font = '500 12px "IBM Plex Mono", ui-monospace, monospace'; ctx.textBaseline = "middle";
+  ctx.fillStyle = sp ? "#f0a43a" : "rgba(255,255,255,0.3)";
+  ctx.beginPath(); ctx.arc(20, 18, sp ? 4.5 + 1.2 * Math.abs(Math.sin(x * 9)) : 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.78)"; ctx.textAlign = "left"; ctx.fillText(sp ? "Speaker talking" : "Silence", 32, 18);
+  ctx.textAlign = "right"; ctx.fillText(fmt(x), w - 16, 18); ctx.textAlign = "left";
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+function drawRow(pv, row) {
+  const P = params, e = pv.engine, g = e.g, dpr = pv.dpr, sc = pv.sctx, h = pv.rowH;
+  sc.setTransform(dpr, 0, 0, dpr, 0, 0);
+  sc.clearRect(0, 0, P.W, h);
+  sc.font = e.font(row.side);
+  sc.textBaseline = "middle";
+  sc.fillStyle = row.side ? COLORS.trans.sure : COLORS[row.phase === "settled" ? "settled" : "live"].sure;
+  sc.fillText(row.text.trimEnd(), g.pad - row.x, h / 2);
+  const fw = g.pad + P.origPx * 1.4;
+  sc.globalCompositeOperation = "destination-out";
+  function mask(edge, inside) {
+    const gr = sc.createLinearGradient(edge, 0, inside, 0);
+    gr.addColorStop(0, "rgba(0,0,0,1)");
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    sc.fillStyle = gr;
+    sc.fillRect(Math.min(edge, inside), 0, fw, h);
+  }
+  if (row.x > 0.5) mask(0, fw);
+  if (e.width(row.text.trimEnd(), row.side) - row.x > g.avail + EPS) mask(P.W, P.W - fw);
+  sc.globalCompositeOperation = "source-over";
+  pv.lctx.drawImage(pv.scratch, 0, 0, Math.round(P.W * dpr), Math.round(h * dpr),
+    0, row.y + row.h / 2 - h / 2, P.W, h);
+}
+
+function drawDebug(ctx, e, x0, y0, x) {
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.font = '500 10px monospace';
+  ctx.textBaseline = "top";
+  for (const row of e.rows()) {
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.strokeRect(e.g.pad, row.y, e.g.avail, row.h);
+    const ready = e.slots.get(row.key)?.ready;
+    if (ready > x) {
+      ctx.fillStyle = "#f0a43a";
+      ctx.fillText("reading " + (ready - x).toFixed(1) + " s", e.P.W - 100, row.y + 2);
+    }
+  }
+  ctx.restore();
+}
+function drawPane(pv, x) {
+  const P = params, e = pv.engine, g = e.g;
+  const dpr = Math.min(2, window.devicePixelRatio || 1); pv.dpr = dpr;
+  const vw = P.W + 72, vh = P.H + 120;
+  sizeCanvas(pv.canvas, vw, vh, dpr);
+  const ctx = pv.ctx; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawVideo(ctx, vw, vh, x);
+  const x0 = 36, y0 = vh - 24 - P.H;
+  roundRect(ctx, x0, y0, P.W, P.H, 8); ctx.fillStyle = "rgba(0,0,0,0.30)"; ctx.fill(); ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.lineWidth = 1; ctx.stroke();
+  sizeCanvas(pv.layer, P.W, P.H, dpr);
+  pv.rowH = Math.ceil(Math.max(g.oLH, g.tLH) + 8);
+  sizeCanvas(pv.scratch, P.W, pv.rowH, dpr);
+  const lc = pv.lctx; lc.setTransform(dpr, 0, 0, dpr, 0, 0); lc.clearRect(0, 0, P.W, P.H);
+  for (const row of e.rows()) drawRow(pv, row);
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 5; ctx.shadowOffsetY = 1;
+  ctx.drawImage(pv.layer, 0, 0, pv.layer.width, pv.layer.height, x0, y0, P.W, P.H); ctx.restore();
+  if (P.debug) drawDebug(ctx, e, x0, y0, x);
+}
+function statusOf(e) {
+  if (e.waiting) return {text: "Reading hold", wait: true};
+  return {text: e.rows().length ? "Showing subtitles" : "Waiting for speech", wait: false};
+}
+let lastSpeech = null, lastNums = "";
+function drawAll() {
+  const x = frameIdx * DT;
+  const shown = Math.round(params.W + 72);
+  panes.forEach(pv => {
+    drawPane(pv, x);
+    const st = statusOf(pv.engine, x);
+    if (pv.chip.textContent !== st.text) pv.chip.textContent = st.text;
+    pv.chip.classList.toggle("wait", st.wait);
+    const ev = pv.engine.events[pv.engine.events.length - 1];
+    const lt = ev ? `${fmt(ev.t)}  ${ev.text}` : "";
+    if (pv.last.textContent !== lt) pv.last.textContent = lt;
+    const scale = pv.canvas.clientWidth ? Math.round(pv.canvas.clientWidth / shown * 100) : 100;
+    const sz = `window ${params.W} × ${params.H} px${scale < 99 ? ` · shown at ${scale} %` : ""}`;
+    if (pv.size.textContent !== sz) pv.size.textContent = sz;
+  });
+  $("time").textContent = `${fmt(x)} / ${fmt(END)}`;
+  $("tl-head").style.left = `${(x / END) * 100}%`;
+  const c = src.find(c => x >= c.s && x <= c.e + 0.4);
+  const sp = c ? c.words.filter((w, i) => c.starts[i] <= x).join(" ") : "";
+  if (sp !== lastSpeech) { lastSpeech = sp; $("speech").innerHTML = ""; const span = document.createElement("span"); if (sp) span.textContent = sp; else { span.textContent = "(silence)"; span.className = "quiet"; } $("speech").appendChild(span); }
+  renderNums(x);
+}
+function renderNums(x) {
+  const rows = [
+    ["Finished rows", panes.map(p => p.engine.events.filter(e => e.text.startsWith("settle ")).length)],
+    ["Reading holds", panes.map(p => p.engine.events.filter(e => e.text === "wait starts").length)],
+  ];
+  const html = rows.map(([label, values]) => '<tr><th scope="row">' + label + '</th>' +
+    values.map(value => '<td class="num">' + value + '</td>').join("") + '</tr>').join("");
+  if (html !== lastNums) { lastNums = html; $("nums").innerHTML = html; }
+}
+function buildTimeline() {
+  const box = $("tl-items"); box.innerHTML = "";
+  for (const c of src) {
+    const bar = document.createElement("div"); bar.className = "bar"; bar.style.left = `${c.s / END * 100}%`; bar.style.width = `${(c.e - c.s) / END * 100}%`; bar.title = `Line ${c.id + 1}: ${c.en}`; box.appendChild(bar);
+    const fin = document.createElement("div"); fin.className = "fin"; fin.style.left = `${c.finishT / END * 100}%`; box.appendChild(fin);
+  }
+  for (let s = 0; s <= END; s += 5) { const tk = document.createElement("div"); tk.className = "tick"; tk.style.left = `${s / END * 100}%`; tk.textContent = fmt(s).replace(/\.0$/, ""); box.appendChild(tk); }
+}
+
+function setTime(x) { t = Math.min(END, Math.max(0, x)); advance(t); drawAll(); }
+function setPlaying(p) { playing = p; $("b-play").textContent = p ? "Pause" : "Play"; }
+let lastTs = null;
+function loop(ts) {
+  if (playing) {
+    if (lastTs !== null) { t = Math.min(END, t + Math.min(0.1, (ts - lastTs) / 1000) * speed); advance(t); if (t >= END) setPlaying(false); }
+    lastTs = ts; drawAll();
+  } else lastTs = null;
+  requestAnimationFrame(loop);
+}
+
+const RANGES = {
+  W: v => `${v} px`, H: v => `${v} px`, origPx: v => `${v} px`, transPx: v => `${v} px`, vmax: v => `${v} px/s`, lift: v => `${v} ms`,
+  cps: v => `${v} characters/s`, minHold: v => `${(+v).toFixed(1)} s`, maxWait: v => (+v === 0 ? "no wait" : `${(+v).toFixed(1)} s`), rate: v => `${(+v).toFixed(2)}×`
+};
+function syncControls() {
+  for (const k of Object.keys(RANGES)) { $(k).value = params[k]; $(k + "-v").textContent = RANGES[k](params[k]); }
+  $("original").checked = params.original;
+  $("translation").checked = params.translation;
+  $("original").disabled = !params.translation;
+  $("translation").disabled = !params.original;
+  $("debug").checked = params.debug;
+}
+function changed(resimNeeded = true) {
+  try { localStorage.setItem(STORE, JSON.stringify(params)); } catch (e) { /* storage unavailable */ }
+  if (resimNeeded) resim(t);
+  drawAll();
+}
+for (const k of Object.keys(RANGES)) {
+  $(k).addEventListener("input", () => { params[k] = parseFloat($(k).value); $(k + "-v").textContent = RANGES[k](params[k]); changed(); });
+}
+for (const side of ["original", "translation"]) {
+  $(side).addEventListener("change", () => {
+    params[side] = $(side).checked;
+    syncControls();
+    for (const pane of panes) {
+      pane.engine.sides = [params.original, params.translation];
+      pane.engine.step(frameIdx * DT);
+    }
+    changed(false);
+  });
+}
+$("debug").addEventListener("change", () => { params.debug = $("debug").checked; changed(false); });
+document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => { Object.assign(params, PRESETS[b.dataset.preset]); syncControls(); changed(); }));
+$("b-reset").addEventListener("click", () => { params = Object.assign({}, DEFAULTS); syncControls(); changed(); });
+$("b-play").addEventListener("click", () => { if (!playing && t >= END) setTime(0); setPlaying(!playing); });
+$("b-restart").addEventListener("click", () => { setTime(0); });
+$("b-back1").addEventListener("click", () => { setPlaying(false); setTime(frameIdx * DT - 1); });
+$("b-fwd1").addEventListener("click", () => { setPlaying(false); setTime(frameIdx * DT + 1); });
+$("b-backf").addEventListener("click", () => { setPlaying(false); setTime((frameIdx - 1) * DT); });
+$("b-fwdf").addEventListener("click", () => { setPlaying(false); setTime((frameIdx + 1) * DT); });
+$("speed").addEventListener("change", () => { speed = parseFloat($("speed").value); });
+$("b-copy").addEventListener("click", () => {
+  const text = JSON.stringify(Object.assign({ simulation: "Video subtitle motion, Instant and Scrolling (HQ projects 686 and 743)" }, params), null, 2);
+  const box = $("copy-box"), status = $("copy-status");
+  const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); status.textContent = "Select and copy the text below."; };
+  try {
+    navigator.clipboard.writeText(text).then(() => { status.textContent = "Copied. Paste it to Claude."; box.hidden = true; }, fallback);
+  } catch (e) { fallback(); }
+});
+document.addEventListener("keydown", ev => {
+  const tag = (ev.target && ev.target.tagName) || "";
+  if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || tag === "BUTTON") { if (!(tag === "BUTTON" && ev.code !== "Space" && ev.code !== "Enter")) return; }
+  if (ev.code === "Space") { ev.preventDefault(); if (!playing && t >= END) setTime(0); setPlaying(!playing); }
+  else if (ev.code === "ArrowRight") { ev.preventDefault(); setPlaying(false); setTime(frameIdx * DT + (ev.shiftKey ? 1 : DT)); }
+  else if (ev.code === "ArrowLeft") { ev.preventDefault(); setPlaying(false); setTime(frameIdx * DT - (ev.shiftKey ? 1 : DT)); }
+});
+const tl = $("timeline");
+function scrubAt(ev) { const r = tl.getBoundingClientRect(); setTime((ev.clientX - r.left) / r.width * END); }
+tl.addEventListener("pointerdown", ev => { setPlaying(false); tl.setPointerCapture(ev.pointerId); scrubAt(ev); });
+tl.addEventListener("pointermove", ev => { if (tl.hasPointerCapture(ev.pointerId)) scrubAt(ev); });
+window.addEventListener("resize", () => drawAll());
+
+syncControls();
+resim(t);
+drawAll();
+requestAnimationFrame(loop);
+const zhText = CAPTIONS.map(c => c.zh).join("");
+if (document.fonts && document.fonts.load) {
+  Promise.all([
+    document.fonts.load('500 28px "Noto Sans"', "Okay, so today"),
+    document.fonts.load('400 22px "Noto Sans SC"', zhText),
+    document.fonts.load('500 12px "IBM Plex Mono"', "0:00.0")
+  ]).then(() => { mcache.clear(); resim(t); drawAll(); }, () => {});
+}
+</script>

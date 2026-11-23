@@ -66,6 +66,11 @@ STORED_KEY = "transcripts"
 
 MIN_SIZE = Size(520, 320)
 DEFAULT_SIZE = Size(720, 520)
+MOST_OF_AREA = 0.75
+"""A transcript's minimum is never more than this share of its work area,
+each way: at Windows' 150 % and the app's Larger or Largest, MIN_SIZE times
+the text size (1131 x 696, 1170 x 720) was taller than a 1080p laptop's
+672 px at 150 % (polyglotic-hq 586)."""
 RAIL_WIDTH = 356
 """The settings rail, beside the list: the session's panels are 320 px wide
 (project 115), with the rail's margins and scroll bar around them (109
@@ -80,7 +85,7 @@ CASCADE = 32
 its place (`clear_of`)."""
 
 
-THREE_HOURS = 3 * 3600.0
+TRANSCRIPT_HOURS: int = 3
 ASK_FROM_LINES = 300
 """A transcript with more lines than this - the 300 captions the app's
 history kept before transcripts kept more (polyglotic-hq 334's brief) -
@@ -107,7 +112,7 @@ class TranscriptLength(StrEnum):
         """At most how many lines it lists, and from how many seconds back
         (None: however long ago)."""
         if self is TranscriptLength.THREE_HOURS:
-            return TRANSCRIPT_MOST_LINES, THREE_HOURS
+            return TRANSCRIPT_MOST_LINES, TRANSCRIPT_HOURS * 3600.0
         if self is TranscriptLength.SESSION:
             return TRANSCRIPT_MOST_LINES, None
         return TRANSCRIPT_LINES, None
@@ -126,20 +131,33 @@ class _Unlabelled(Labels):
     """No label line above a transcript's lines: the transcript draws its
     own heading (time, "You", the language spoken, checked)."""
 
-    def of(self, caption: Caption, took: CaptionDelay | None = None) -> tuple[str, str]:
+    def of(
+        self,
+        caption: Caption,
+        took: CaptionDelay | None = None,
+        before: Caption | None = None,
+    ) -> tuple[str, str]:
         return "", ""
 
 
 @dataclass(frozen=True, slots=True)
 class TranscriptChoices:
-    """What a transcript remembers for its app: its text size, and whether
-    its settings rail is open."""
+    """What a transcript remembers for its app: its text size, whether its
+    settings rail is open, and its window's size as the learner left it
+    (None: the usual first size; polyglotic-hq 586)."""
 
     text_size: float = 1.0
     rail_open: bool = False
+    size: tuple[int, int] | None = None
 
     def to_stored(self) -> dict[str, object]:
-        return {"text_size": self.text_size, "rail_open": self.rail_open}
+        stored: dict[str, object] = {
+            "text_size": self.text_size,
+            "rail_open": self.rail_open,
+        }
+        if self.size is not None:
+            stored["size"] = list(self.size)
+        return stored
 
     @classmethod
     def from_stored(cls, stored: object) -> "TranscriptChoices":
@@ -156,6 +174,14 @@ class TranscriptChoices:
             found = replace(found, text_size=round(float(size), 2))
         if isinstance(stored.get("rail_open"), bool):
             found = replace(found, rail_open=bool(stored["rail_open"]))
+        size = stored.get("size")
+        if (
+            isinstance(size, list | tuple)
+            and len(size) == 2
+            and all(isinstance(n, int) and not isinstance(n, bool) for n in size)
+            and all(0 < n <= 16384 for n in size)
+        ):
+            found = replace(found, size=(int(size[0]), int(size[1])))
         return found
 
 

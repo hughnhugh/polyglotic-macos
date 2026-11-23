@@ -103,18 +103,22 @@ def as_text(
     zone: tzinfo | None = None,
     sources: Mapping[SourceId, str] | None = None,
     seconds: Seconds | None = None,
+    respoken: str = "re-spoken",
 ) -> str:
     """The finished captions as plain text. `names` names the languages
     for the translation lines (default: their codes); `sources` names the
     sources (default: none), and `you` labels the user's own captions when
     `sources` doesn't name theirs; times are shown in `zone` (default: as
-    stored, UTC)."""
+    stored, UTC). A caption the learner re-spoke is marked `respoken`
+    (polyglotic-hq 567)."""
     names = names or {}
     paragraphs = []
     for caption in finished(captions):
         time = caption.started_at.astimezone(zone) if zone else caption.started_at
         head = f"[{time:%H:%M:%S}]"
         who = _source_name(caption, sources, you)
+        if caption.respoken:
+            who = f"{who} ({respoken})" if who else f"({respoken})"
         if who:
             head += f" {who}:"
         lines = [f"{head} {caption.original}"]
@@ -183,10 +187,13 @@ def as_csv(
 ) -> str:
     """The finished captions as CSV, a row each: time (ISO 8601, in
     `zone`), you (yes/no), its source's name (from `sources`; "" if not
-    named), language, original, then a column per translation language."""
+    named), re-spoken (yes/no: the learner said it again for its source,
+    polyglotic-hq 567), language, original, then a column per translation
+    language."""
     out = io.StringIO()
     writer = csv.writer(out, lineterminator="\n")
-    writer.writerow(["time", "you", "source", "language", "original", *languages])
+    header = ["time", "you", "source", "respoken", "language", "original"]
+    writer.writerow([*header, *languages])
     for caption in finished(captions):
         time = caption.started_at.astimezone(zone) if zone else caption.started_at
         writer.writerow(
@@ -194,6 +201,7 @@ def as_csv(
                 time.isoformat(timespec="seconds"),
                 "yes" if caption.by_you else "no",
                 (sources or {}).get(caption.source_id, ""),
+                "yes" if caption.respoken else "no",
                 caption.language or "",
                 caption.original,
                 *_translations(caption, languages, seconds),

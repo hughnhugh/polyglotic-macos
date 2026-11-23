@@ -2,6 +2,7 @@
 the interaction specs 10.1-10.4): its parts and states, and the windows
 kept one per app."""
 
+import logging
 import time
 from collections.abc import Iterator
 from dataclasses import replace
@@ -14,9 +15,17 @@ from PySide6.QtGui import (
     QEnterEvent,
     QKeyEvent,
     QMouseEvent,
+    QWheelEvent,
 )
 from PySide6.QtWidgets import QApplication, QLabel, QMenu, QPushButton, QWidget
-from tests.ui_next.made_up import EN, ZH, finished_updates, live_update
+from tests.ui_next.made_up import (
+    EN,
+    SEPARATE,
+    ZH,
+    at_one_moment,
+    finished_updates,
+    live_update,
+)
 
 from polyglotic_desktop.core.listening.captions import (
     CaptionKind,
@@ -32,17 +41,18 @@ from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_window import (
     BAND_HEIGHT,
-    HOLD_SEC,
     MIN_PANEL,
     POINT_POLL_MS,
     POINT_REST,
     STRIP,
+    VIEW_GRACE_SEC,
     CaptionWindow,
     _Drag,
     notice_text,
 )
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.languages import not_offered_note
+from polyglotic_desktop.ui_next.os_words import pc_mac_or_linux
 from polyglotic_desktop.ui_next.settings_popover import ROWS, beside
 from polyglotic_desktop.ui_next.views.caption_window import (
     STORED_KEY,
@@ -110,6 +120,7 @@ def window_of(
 @pytest.fixture
 def window(qapp: QApplication) -> Iterator[CaptionWindow]:
     shown = window_of(qapp)
+    at_one_moment(shown)  # never a slide begun by a busy runner's pause (578)
     yield shown
     shown.close()
 
@@ -197,39 +208,244 @@ def _shown(window: CaptionWindow) -> list[tuple[int, float]]:
     return [(line.key, rect.top()) for line, _, rect in window.canvas.placed]
 
 
-def test_nothing_moves_under_the_mouse_new_captions_wait_until_it_leaves(
+def _on_words(window: CaptionWindow) -> QPointF:
+    """A point on the text of the newest caption drawn where the mouse can
+    be on it: in the window, on no edge and not under the hover band. A
+    caption sliding in is drawn from below the window's foot: a point on it
+    there was on the bottom edge, which never holds (polyglotic-hq 578: on
+    GitHub's slower machines a pause between two arrivals made the second
+    slide, and the hold tests failed 3 runs in 9)."""
+    window.canvas.repaint()
+    band = window.band.geometry() if window.band.isVisible() else QRect()
+    refused = []
+    for line, laid, rect in reversed(window.placed()):
+        for row in laid.rows:
+            box = row.layout.lineAt(0).naturalTextRect()
+            point = QPointF(
+                rect.x() + box.center().x(), rect.y() + row.top + box.center().y()
+            )
+            why = {
+                "outside": not window.rect().contains(point.toPoint()),
+                "edge": bool(window._edges(point)),
+                "band": band.contains(point.toPoint()),
+                "no hit": window.canvas.hit(point) is None,
+            }
+            if not any(why.values()):
+                return point
+            refused.append(
+                (
+                    line.key,
+                    round(point.x()),
+                    round(point.y()),
+                    *(k for k, v in why.items() if v),
+                )
+            )
+    raise AssertionError(
+        f"no caption's words drawn where the mouse can be, in {window.size()}"
+        f" (clear_top {window.canvas.clear_top}, moving"
+        f" {window.motion.moving(window.clock())}): {refused[:8]}"
+    )
+
+
+def _off_words(window: CaptionWindow) -> QPointF:
+    """A point on the panel around the text: on no caption's words, the
+    hover band or an edge."""
+    window.canvas.repaint()
+    for x in range(window.width() - 40, 40, -20):
+        for y in range(BAND_HEIGHT + 20, window.height() - 20, 4):
+            point = QPointF(x, y)
+            if window.canvas.hit(point) is None and not window._edges(point):
+                return point
+    raise AssertionError("no panel without words")
+
+
+def _move(window: CaptionWindow, pos: QPointF) -> None:
+    """The mouse moved to `pos`, no button held."""
+    window.mouseMoveEvent(
+        QMouseEvent(
+            QEvent.Type.MouseMove, pos, window.mapToGlobal(pos),
+            Qt.MouseButton.NoButton, Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier,
+        )
+    )  # fmt: skip
+
+
+def _ids(window: CaptionWindow) -> list[str]:
+    return [str(line.caption_id) for line in window.view.lines]
+
+
+def _still(before: list[tuple[int, float]], now: list[tuple[int, float]]) -> bool:
+    """Every line shown `before` is where it was."""
+    at = dict(now)
+    return all(key in at and abs(at[key] - top) < 0.5 for key, top in before)
+
+
+@pytest.mark.parametrize("skip", [False, True])
+def test_leaving_a_busy_instant_window_shows_the_next_missed_caption(
+    window: CaptionWindow,
+    skip: bool,
+) -> None:
+    from polyglotic_desktop.core.listening.timing import CaptionMode
+
+    now = [window.clock()]
+    window.clock = lambda: now[0]
+    window.set_timing(CaptionMode.INSTANT)
+    window.grab()
+    QApplication.sendEvent(window, _enter())
+    _move(window, _on_words(window))
+    before = max(key for key, _ in _shown(window))
+    first, second, third = finished_updates(3, start=80)
+    for update in (first, second, third):
+        window.receive(update)
+    window.leaveEvent(None)
+    window._hold_timer.timeout.emit()
+    assert window.motion.moving(window.clock())
+    now[0] += 2.0
+    visible = _shown(window)
+    assert visible[-1][0] == before + 1
+    assert window.view.lines[-1].caption_id == third.caption_id
+    assert not window.pill.isHidden() and "2 new" in window.pill.text()
+    if skip:
+        window.go_live()
+    else:
+        window._resume_timer.stop()
+        window._resume_timer.timeout.emit()
+    now[0] += 2.0
+    assert _shown(window)[-1][0] == window.view.lines[-1].key
+
+
+def test_the_mouse_on_the_words_holds_the_view_not_the_captions(
     window: CaptionWindow,
 ) -> None:
     """109: nothing moves on hover. 145: lines moved under the mouse as
-    captions arrived, so a click a moment late landed on another word."""
+    captions arrived, so a click a moment late landed on another word.
+    583 (the user, 2026-11-21: "The mouse shouldn't hold up delivery,
+    could hold up pushing text by introducing back to live / new messages
+    alert right?"): the caption comes in at once; the view holds, and Back
+    to live counts it."""
+    QApplication.sendEvent(window, _enter())
+    _move(window, _on_words(window))  # reaching for a word
     before = _shown(window)
-    QApplication.sendEvent(window, _enter())
-    _mouse(window, "move", QPointF(300, 120))  # reaching for a word
     (new,) = finished_updates(1, start=40)
-    assert not window.receive(new)  # waits
-    assert _shown(window) == before
-    assert window.waiting == [new]
-    window.leaveEvent(None)  # in at once
-    assert not window.waiting
-    after = _shown(window)
-    assert after != before and after[-1][0] == window.view.lines[-1].key
+    assert window.receive(new)  # in at once
+    assert window.view.lines[-1].caption_id == new.caption_id
+    assert _still(before, _shown(window))  # nothing moved under the mouse
+    assert not window.pill.isHidden() and "1 new" in window.pill.text()
+    window.leaveEvent(None)  # off the window: live a moment later
+    assert not window.view.scroll.following and window._hold_timer.isActive()
+    assert window._hold_timer.interval() == round(VIEW_GRACE_SEC.value * 1000)
+    window._hold_timer.timeout.emit()
+    assert window.view.scroll.following and window.pill.isHidden()
+    assert _shown(window)[-1][0] == window.view.lines[-1].key
 
 
-def test_a_mouse_left_still_lets_the_captions_in(window: CaptionWindow) -> None:
-    """A parked mouse mustn't stop the captions: HOLD_SEC still lets them in,
-    and moving again holds the next ones."""
-    QApplication.sendEvent(window, _enter())
+def test_only_the_words_hold_the_view(window: CaptionWindow) -> None:
+    """polyglotic-hq 554 (DECISIONS #242's C): the mouse coming over the
+    window, or moving over the panel around the text, held every new
+    caption. Only the words hold now - the view, not the captions (583) -
+    and moving off them lets it go."""
+    first, second, third, fourth = finished_updates(4, start=40)
+    panel = _off_words(window)
+    QApplication.sendEvent(window, QEnterEvent(panel, panel, panel))
+    assert window.receive(first)  # came over the panel: not held
+    _move(window, _off_words(window))
+    assert window.receive(second) and window.view.scroll.following
+    _move(window, _on_words(window))
+    assert window.receive(third)  # on a caption's words: in, the view held
+    assert not window.view.scroll.following
+    _move(window, _off_words(window))  # off them: live after the grace
+    window._hold_timer.timeout.emit()
+    assert window.view.scroll.following
+    assert _ids(window)[-1] == str(third.caption_id)
+    window.hovered, window.band_shown = True, False
+    window._show_band(True)
+    _move(window, QPointF(window.band.geometry().center()))
+    assert window.receive(fourth) and window.view.scroll.following  # the band
+    window._show_band(False)
+
+
+def test_a_busy_runners_pause_never_slides_a_tests_captions(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 578: on GitHub's machines a pause of 0.1 s between two
+    arrivals - the runner busy, or collecting garbage - slid the second in,
+    drawn below the window's foot with nothing above it, and the hold and
+    drag tests missed the words. A test's window (`at_one_moment`) has its
+    captions arrive at one moment, whatever the runner does between them."""
+    window = window_of(qapp)
+    at_one_moment(window)
+    paused = [0.0]
+    real = time.monotonic
+    monkeypatch.setattr(time, "monotonic", lambda: real() + paused[0])
     first, second = finished_updates(2, start=40)
     window.receive(first)
-    assert window._hold_timer.interval() == round(HOLD_SEC * 1000)
-    window._hold_timer.timeout.emit()  # left still that long
-    assert not window.waiting and window.view.lines[-1].key > 0
-    shown = _shown(window)
-    assert window.receive(second)  # still: shown at once
-    assert _shown(window) != shown
-    _mouse(window, "move", QPointF(300, 120))
-    (third,) = finished_updates(1, start=42)
-    assert not window.receive(third)  # moving again: waits
+    paused[0] += 0.1  # the runner pauses
+    window.receive(second)
+    window.canvas.repaint()
+    assert not window.motion.moving(window.clock())
+    assert any(rect.bottom() <= window.height() for _, _, rect in window.placed())
+    window.close()
+
+
+def test_the_words_of_a_caption_still_sliding_in_hold_the_view(
+    window: CaptionWindow,
+) -> None:
+    """polyglotic-hq 578: a pause between two arrivals - a busy runner's
+    0.1 s - and the second slides in from below the window's foot. The
+    mouse on visible words holds the view as the next caption arrives."""
+    now = [window.clock() + 10.0]  # well after the window opened
+    window.clock = lambda: now[0]
+    first, second, third = finished_updates(3, start=40)
+    panel = _off_words(window)
+    QApplication.sendEvent(window, QEnterEvent(panel, panel, panel))
+    assert window.receive(first)  # came over the panel: not held
+    now[0] += 0.1
+    assert window.receive(second)
+    window.canvas.repaint()
+    assert window.motion.moving(now[0])  # still sliding in
+    _move(window, _on_words(window))
+    assert window.receive(third)
+    assert not window.view.scroll.following
+
+
+def test_a_mouse_moving_over_the_words_for_20_s_holds_no_caption(
+    window: CaptionWindow,
+) -> None:
+    """polyglotic-hq 554, a tester's report 40f40850 (2026-11-20, "Another
+    stall and hang, 5-10+ seconds til text"): with the mouse moving over a
+    caption window, its captions waited up to 19.9 s, then came all at
+    once. 20 s of a mouse moving over the words every 0.25 s while a
+    caption comes each second: every one is in the window as it comes
+    (583), and the lines shown never move under the mouse."""
+    now = [0.0]
+    window.clock = lambda: now[0]
+    QApplication.sendEvent(window, _enter())
+    _move(window, _on_words(window))
+    before = _shown(window)
+    updates = iter(finished_updates(20, start=100))
+    for tick in range(80):
+        now[0] += 0.25
+        _move(window, _on_words(window))
+        if tick % 4 == 0:
+            update = next(updates)
+            window.receive(update)
+            assert window.view.lines[-1].caption_id == update.caption_id
+    assert _still(before, _shown(window))
+    assert "20 new" in window.pill.text()
+
+
+def test_a_mouse_left_on_the_words_keeps_the_view_and_the_captions_come(
+    window: CaptionWindow,
+) -> None:
+    """A parked mouse mustn't stop the captions: they come in, the view
+    holds and Back to live counts them; Back to live goes live at once."""
+    QApplication.sendEvent(window, _enter())
+    _move(window, _on_words(window))
+    for update in finished_updates(3, start=40):
+        assert window.receive(update)
+    assert "3 new" in window.pill.text()
+    window.pill.click()
+    assert window.view.scroll.following and window.pill.isHidden()
 
 
 def test_a_locked_window_never_holds_its_captions(window: CaptionWindow) -> None:
@@ -254,8 +470,10 @@ def test_the_strip_is_the_label_and_four_buttons_at_every_width(
     window._show_band(True)
     window.resize(960, 180)
     qapp.processEvents()
-    # "Report a problem" is an alpha tester's only (275): not here
-    assert window.buttons["report"].isHidden()
+    # "Report a problem" is an alpha tester's only (275): not here; Fill the
+    # width isn't on the strip at all (polyglotic-hq 556) and is behind its
+    # flag, off (555)
+    assert window.buttons["report"].isHidden() and "fill" not in window.buttons
     shown = [b for name, b in window.buttons.items() if name != "report"]
     # each its own width: its words', or an icon's as wide as its glyph was (179)
     hints = [max(b.sizeHint().width(), b.minimumWidth()) for b in shown]
@@ -264,11 +482,10 @@ def test_the_strip_is_the_label_and_four_buttons_at_every_width(
     assert window.chip.isVisible()
     assert window.chip.x() >= window.tag.geometry().right()
     assert window.chip.x() - window.tag.geometry().right() <= 8
-    window.resize(MIN_PANEL.width, 180)
+    window.resize(window._minimum().width, 180)
     qapp.processEvents()
     assert all(not b.isHidden() and b.width() > 0 for b in shown)
-    # too narrow for the chip and a readable label: the chip goes first
-    assert window.chip.isHidden()
+    assert window.chip.isVisible() and not window.chip.icon().isNull()
     assert window.tag.width() > 0
 
 
@@ -283,7 +500,8 @@ def test_an_alpha_testers_strip_reports_a_problem_at_every_width(
     window._show_band(True)
     window.resize(MIN_PANEL.width, 180)
     qapp.processEvents()
-    assert all(not b.isHidden() and b.width() > 0 for b in window.buttons.values())
+    shown = [b for name, b in window.buttons.items() if name != "fill"]  # 555
+    assert all(not b.isHidden() and b.width() > 0 for b in shown)
     window.buttons["report"].click()
     assert asked == [True]
     window.set_reporting(False)
@@ -298,10 +516,12 @@ def test_the_settings_popover_has_the_rest_in_order(
     window.buttons["settings"].click()
     popover = window.popover
     assert popover is not None and popover.isVisible()
-    assert list(popover.rows) == list(ROWS)
-    order = [popover.rows[name].geometry().top() for name in ROWS if name != "join"]
+    assert [name for name in popover.rows if name in ROWS] == list(ROWS)
+    shown = [name for name in ROWS if not popover.rows[name].isHidden()]
+    order = [popover.rows[name].geometry().top() for name in shown]
+    hidden = ("join",)  # one window; lyrics lives in the language popover (655)
     assert order == sorted(order)
-    assert popover.rows["join"].isHidden()  # one window: nothing to join
+    assert all(popover.rows[name].isHidden() for name in hidden)
     stop = popover.rows["stop"]
     assert isinstance(stop, QPushButton) and stop.text() == "Stop captioning Discord"
     window.buttons["settings"].click()  # the button closes it too
@@ -317,7 +537,9 @@ def test_the_popover_never_takes_the_focus(window: CaptionWindow) -> None:
     window.toggle_settings()
     popover = window.popover
     assert popover is not None
-    for shown in (window, popover):
+    # on Linux the popover takes the keyboard while it's open (570): its test
+    # is test_popover_takes_the_keyboard.py
+    for shown in (window,) if popover.takes_the_keyboard else (window, popover):
         assert shown.windowFlags() & Qt.WindowType.WindowDoesNotAcceptFocus
         assert shown.testAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
     assert all(
@@ -334,8 +556,8 @@ def test_the_language_list_says_why_mongolian_and_kazakh_are_not_there(
     into row says it (DECISIONS.md #40; polyglotic-hq 132's map, 144)."""
     window.hovered = True
     window._show_band(True)
-    window.toggle_settings()
-    popover = window.popover
+    window.toggle_languages()
+    popover = window.languages
     assert popover is not None
     assert not popover.not_offered.isVisible()  # the list shut
     popover.language.click()
@@ -352,8 +574,8 @@ def test_changes_in_the_popover_apply_at_once(window: CaptionWindow) -> None:
     window.stop_wanted.connect(lambda: stopped.append(True))
     window.hovered = True
     window._show_band(True)
-    window.toggle_settings()
-    popover = window.popover
+    window.toggle_languages()
+    popover = window.languages
     assert popover is not None
     popover.language.click()  # the list opens inside the popover
     assert popover.languages.isVisible()
@@ -461,6 +683,30 @@ def test_a_resize_stops_at_the_minimum_and_a_real_drag_saves_the_place(
     assert window.choices.preset is Preset.BOTTOM_CENTRE and changed
 
 
+def test_a_resize_drag_says_what_it_did_in_sizes_only(
+    window: CaptionWindow, caplog: pytest.LogCaptureFixture
+) -> None:
+    """The log says each resize drag's edges and sizes - and when nothing
+    changed - never a caption or an app (polyglotic-hq 586)."""
+    caplog.set_level(logging.INFO, logger="polyglotic_desktop.ui_next.caption_window")
+    top_middle = QPointF(480, 2)
+    _mouse(window, "press", top_middle)
+    _mouse(window, "move", top_middle + QPointF(0, 400))
+    _mouse(window, "release", top_middle + QPointF(0, 400))
+    _mouse(window, "press", top_middle)
+    _mouse(window, "move", top_middle + QPointF(0, 50))  # at the minimum already
+    _mouse(window, "release", top_middle + QPointF(0, 50))
+    said = [r.getMessage() for r in caplog.records if "resized" in r.getMessage()]
+    least = MIN_PANEL.height
+    wide = window._minimum().width  # the strip's, or MIN_PANEL's
+    shrunk = f"960 x 300 to 960 x {least} (least {wide} x {least})"
+    kept = f"960 x {least} to 960 x {least} (least {wide} x {least}) - unchanged"
+    assert said == [
+        f"caption window 0 resized at TOP: {shrunk}",
+        f"caption window 0 resized at TOP: {kept}",
+    ]
+
+
 def test_moving_snaps_to_a_preset_or_is_where_i_put_it(window: CaptionWindow) -> None:
     start = place(window)
     window.move_by(_Drag(Edge.NONE, QPointF(), start), -430, 10)  # near Bottom left
@@ -494,21 +740,97 @@ def test_text_size_is_live_and_the_window_keeps_its_size(window: CaptionWindow) 
     assert window.view.text_size == CAPTION_TEXT_SIZES[0] == 0.6
 
 
-def test_ctrl_wheel_steps_the_text_size(window: CaptionWindow) -> None:
-    from PySide6.QtGui import QWheelEvent
-
+def _wheel(widget: QWidget, delta: int, modifier: Qt.KeyboardModifier) -> None:
     event = QWheelEvent(
-        QPointF(100, 100), QPointF(100, 100), QPoint(), QPoint(0, 120),
-        Qt.MouseButton.NoButton, Qt.KeyboardModifier.ControlModifier,
-        Qt.ScrollPhase.NoScrollPhase, False,
+        QPointF(5, 5), QPointF(widget.mapToGlobal(QPoint(5, 5))), QPoint(), QPoint(0, delta),
+        Qt.MouseButton.NoButton, modifier, Qt.ScrollPhase.NoScrollPhase, False,
     )  # fmt: skip
-    window.wheelEvent(event)
-    assert window.view.text_size == 1.1
+    QApplication.sendEvent(widget, event)
+    assert event.isAccepted()
+
+
+@pytest.mark.parametrize(
+    ("mac", "modifier"),
+    [
+        (False, Qt.KeyboardModifier.ControlModifier),
+        (True, Qt.KeyboardModifier.ControlModifier),
+        (True, Qt.KeyboardModifier.MetaModifier),
+    ],
+)
+def test_modified_wheel_scales_both_rows_without_scrolling(
+    window: CaptionWindow,
+    monkeypatch: pytest.MonkeyPatch,
+    mac: bool,
+    modifier: Qt.KeyboardModifier,
+) -> None:
+    monkeypatch.setattr(caption_window_module, "on_a_mac", lambda: mac)
+    window.set_translation_size(0.8)
+    before = place(window)
+    changed: list[tuple[float, float]] = []
+    window.changed.connect(
+        lambda: changed.append(
+            (window.choices.text_size, window.choices.translation_size)
+        )
+    )
+    _wheel(window, 120, modifier)
+    _wheel(window, -120, modifier)
+    assert changed == [(1.1, 0.88), (1.0, 0.8)]
+    assert window.view.scroll.following
+    assert place(window) == before
+    _wheel(window, 120, Qt.KeyboardModifier.NoModifier)
+    assert not window.view.scroll.following
+    assert len(changed) == 2
+
+
+@pytest.mark.parametrize(
+    ("cap", "trans", "delta", "expected"),
+    [
+        (1.98, 3.96, 120, (2.0, 4.0)),
+        (2.0, 4.0, 120, (2.0, 4.0)),
+        (1.24, 0.62, -120, (1.2, 0.6)),
+        (1.2, 0.6, -120, (1.2, 0.6)),
+    ],
+)
+def test_modified_wheel_stops_both_rows_at_one_rows_limit(
+    window: CaptionWindow,
+    cap: float,
+    trans: float,
+    delta: int,
+    expected: tuple[float, float],
+) -> None:
+    window.set_text_size(cap)
+    window.set_translation_size(trans)
+    _wheel(window, delta, Qt.KeyboardModifier.ControlModifier)
+    assert (window.view.text_size, window.choices.translation_size) == expected
+    assert window.view.scroll.following
+
+
+def test_ctrl_wheel_over_the_scrollbar_zooms_the_caption_window(
+    window: CaptionWindow,
+) -> None:
+    window.set_timing(CaptionMode.STEADY)
+    assert window.scroll_bar.isVisible() and window.scroll_bar.maximum() > 0
+    _wheel(window.scroll_bar, 120, Qt.KeyboardModifier.ControlModifier)
+    assert window.view.text_size == window.choices.translation_size == 1.1
+    assert window.view.scroll.following
+
+
+def test_repeated_wheel_steps_keep_the_ratio_despite_percentage_rounding(
+    window: CaptionWindow,
+) -> None:
+    window.set_translation_size(1.03)
+    for _ in range(10):
+        _wheel(window, 120, Qt.KeyboardModifier.ControlModifier)
+    assert (window.view.text_size, window.choices.translation_size) == (2.0, 2.06)
+    window.set_translation_size(1.6)
+    _wheel(window, 120, Qt.KeyboardModifier.ControlModifier)
+    assert (window.view.text_size, window.choices.translation_size) == (2.1, 1.68)
 
 
 def test_a_hint_on_bigger_text_when_few_lines_fit(window: CaptionWindow) -> None:
     window.resize(960, 180)
     window.set_text_size(2.0)
+    window.set_translation_size(2.0)
     assert window.controls["bigger"].toolTip() == "Drag the top edge for more lines"
 
 
@@ -527,7 +849,7 @@ def test_show_my_speech_here_adds_my_lines(window: CaptionWindow) -> None:
     assert window.view.apply(mine)
     assert window.view.lines[-1].by_you
     assert window.view.lines[-1].label == "You  Mandarin"  # always labelled
-    assert window.tag.mic
+    assert window.mic_button.isChecked() and not window.tag.mic
 
 
 def test_scrolled_back_says_how_many_are_new(window: CaptionWindow) -> None:
@@ -561,16 +883,15 @@ def test_locked_no_band_no_hover_and_it_follows_live(window: CaptionWindow) -> N
     assert window.windowFlags() & Qt.WindowType.WindowTransparentForInput
 
 
-def test_a_full_server_says_so_and_counts_down(window: CaptionWindow) -> None:
-    """203's item 4: `server_busy` read "Reconnecting - trying again in 24 s",
-    which looks like the learner's own connection (polyglotic-hq 208)."""
+def test_a_full_server_retries_without_a_countdown(window: CaptionWindow) -> None:
+    """The notice stays put while capacity is unavailable."""
     window.notices.retry_at = None
     window.set_connection(Notice.SERVER_BUSY, 24.0)
     window._tick()
-    assert window.notice.text() == "The server is busy - trying again in 24 s"
+    assert window.notice.text() == "Polyglotic is busy — try again in a few minutes"
     now = time.monotonic()
-    assert window.notices.retry_in(now + 10) == 14
-    assert window.notices.next_change(now) == pytest.approx(now + 1.0)
+    assert window.notices.retry_in(now + 10) is None
+    assert window.notices.next_change(now) is None
 
 
 def test_notices_paused_first_then_brief_ones(window: CaptionWindow) -> None:
@@ -592,6 +913,24 @@ class Clock:
 
     def monotonic(self) -> float:
         return self.now
+
+    def perf_counter(self) -> float:
+        return self.now
+
+
+def test_caption_motion_advances_between_windows_clock_ticks(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    clock = Clock()
+    monkeypatch.setattr(caption_window_module, "time", clock)
+    monkeypatch.setattr(clock, "monotonic", lambda: 1000.0)
+    window = window_of(qapp)
+    try:
+        window.glide.push(window.clock(), 104.0)
+        clock.now += 0.008  # within one 15.625-ms system clock tick on Windows
+        assert window.glide.to(window.clock()) < 104.0
+    finally:
+        window.close()
 
 
 def _settle(window: CaptionWindow, clock: Clock) -> None:
@@ -660,6 +999,14 @@ def test_its_first_caption_ends_the_waiting(
     new.close()
 
 
+STOPPED_SAID = pc_mac_or_linux(
+    "Stopped - quit from the tray and start again",
+    "Stopped - quit from the menu bar and start again",
+    "Stopped - quit Polyglotic and start it again",  # no tray on GNOME (571)
+)
+"""What a stopped caption window says: where the app's icon is, on each OS."""
+
+
 def test_each_notice_in_087s_words(window: CaptionWindow) -> None:
     """087 section 5.5's words (a busy time: slowed, as the server's pace
     hint does - not paused)."""
@@ -671,7 +1018,7 @@ def test_each_notice_in_087s_words(window: CaptionWindow) -> None:
     assert said == {
         Notice.NOT_SIGNED_IN: "Not signed in - sign in on Home",
         Notice.UPDATE_NEEDED: "Update needed - captions paused; see Home",
-        Notice.STOPPED: "Stopped - quit from the tray and start again",
+        Notice.STOPPED: STOPPED_SAID,
     }
     window.set_minutes_used(True)
     window._tick()
@@ -696,10 +1043,16 @@ def test_stopped_says_what_to_do_as_home_does(window: CaptionWindow) -> None:
 
     window.set_connection(Notice.STOPPED, None)
     window._tick()
-    assert window.notice.text() == "Stopped - quit from the tray and start again"
+    assert window.notice.text() == STOPPED_SAID
     home = StateCard(QAction("Pause captions"))
     home.show_state(HomeState(ListeningState.STOPPED, chosen=True))
-    assert home.detail.text().startswith("quit from the tray and start ")
+    assert home.detail.text().startswith(
+        pc_mac_or_linux(
+            "quit from the tray and start ",
+            "quit from the menu bar and start ",
+            "quit Polyglotic and start ",
+        )
+    )
     assert notice_text(Notice.STOPPED, None) == window.notice.text()
 
 
@@ -852,6 +1205,7 @@ def test_an_empty_window_says_it_waits_and_whose_captions_appear_there(
 @pytest.fixture
 def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
     found = CaptionWindows(Store({"targets": ["en"]}), MIC, areas)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     yield found
     found.close()
 
@@ -910,6 +1264,27 @@ def test_choices_are_saved_by_app_and_a_new_window_copies_the_last(
     again.set_captioned([("a", APP)])
     assert again.windows["a"].choices.target == Language("ja")
     again.close()
+
+
+def test_wheel_zoom_saves_both_sizes_for_the_window_and_preset(
+    windows: CaptionWindows,
+) -> None:
+    windows.set_preset_sizes("everyday")
+    windows.set_captioned([("a", APP)])
+    first = windows.windows["a"]
+    first.set_text_size(1.0)
+    first.set_translation_size(0.8)
+    _wheel(first, 120, Qt.KeyboardModifier.ControlModifier)
+    windows.save_now()
+    store = windows._store
+    assert isinstance(store, Store)
+    again = CaptionWindows(store, MIC, areas)
+    try:
+        again.set_captioned([("a", APP)])
+        assert again.current_size_readout() == (1.1, 0.88)
+        assert again.stored.preset_sizes["everyday"] == (1.1, 0.88)
+    finally:
+        again.close()
 
 
 def test_a_save_when_the_file_cant_be_read_keeps_todays_settings(
@@ -1137,7 +1512,7 @@ def test_a_busy_time_is_said_briefly_over_live_updates_only(
     window._tick()
     assert not window.notice.isVisible()
     windows.set_busy(False)
-    windows.set_timing(CaptionMode.LIVE)
+    windows.set_timing(CaptionMode.INSTANT)
     windows.set_busy(True)
     assert window.notice.text() == "Busy time - live updates slowed; captions continue"
     window.notices.brief("", 0.0, 0.0)  # its few seconds over
@@ -1214,35 +1589,32 @@ def test_the_band_covers_whole_rows_never_half_a_label(window: CaptionWindow) ->
 
 
 def test_original_only_says_so_on_the_strip(window: CaptionWindow) -> None:
-    """On the language chip (465) - or, where the strip is too narrow for
-    the chip, beside the label."""
+    """On the language chip, including when it's shown as an icon."""
     window.resize(960, 180)
     assert window.tag.note == ""
     window.set_language("")
     assert window.chip.text().startswith("Detect → Original only")
     assert window.tag.note == ""  # the chip says it
-    window.resize(MIN_PANEL.width, 180)
-    assert window.chip.isHidden()
-    assert window.tag.note == "Original only"
-    assert "Original only" in window.tag.toolTip()
+    window.resize(window._minimum().width, 180)
+    assert not window.chip.isHidden()
+    assert "Original only" in window.chip.toolTip()
     window.set_language("en")
     assert window.tag.note == ""
 
 
-def test_show_my_speech_here_is_a_switch(
+def test_show_my_speech_here_left_the_menu(
     window: CaptionWindow,
 ) -> None:
+    """polyglotic-hq 593 (585's section 6): the preset chip's My speech does
+    it - "two switches for one thing" - and the first window's set-up still
+    asks; the window's menu doesn't."""
     window.hovered = True
     window._show_band(True)
     window.toggle_settings()
     popover = window.popover
     assert popover is not None
     switch = popover.findChild(QPushButton, "settings_popover.caption_window.show_mic")
-    assert switch is not None and type(switch).__name__ == "SwitchButton"
-    assert switch.text() == "Show my speech here"  # no tick, no spaces
-    assert not switch.isChecked()
-    window.controls["show_mic"].trigger()
-    assert switch.isChecked()
+    assert switch is None and "show_mic" not in popover.rows
 
 
 # -- what the UI lab's checks found (project 119) -----------------------------------------
@@ -1258,14 +1630,13 @@ def test_the_strips_buttons_have_names_a_screen_reader_can_say(
     }
     assert said == {
         "links": "Word links",
-        "quiet": "Quiet view",
-        "fill": "Fill the width",
-        "aligned": "Line up the parts",
         "lock": "Lock all windows",
         "report": "Report a problem",
         "settings": "Settings",
         "stop": "Stop captioning Discord",
     }
+    chip = QAccessible.queryAccessibleInterface(window.preset_chip)
+    assert chip.text(QAccessible.Text.Name) == "Preset: Everyday"  # in words (593)
 
 
 def test_notes_are_never_under_12_px(window: CaptionWindow) -> None:
@@ -1393,7 +1764,7 @@ def test_a_caption_windows_own_words_are_in_the_interfaces_fonts(
     popover = window.popover
     assert popover is not None
     assert popover.font().families() == families  # a window: not its owner's
-    assert popover.language.font().families() == families
+    assert popover.text_size.font().families() == families
 
 
 def test_it_keeps_layouts_only_for_the_lines_it_keeps(window: CaptionWindow) -> None:

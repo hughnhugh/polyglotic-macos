@@ -8,6 +8,8 @@ takes in, and one click on Home captions one app instead."""
 from collections.abc import Iterator
 
 import pytest
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import FakeAppList, MemorySettingsStore
 
@@ -26,7 +28,7 @@ from polyglotic_desktop.main import (
     picker_of,
     wire_caption_windows,
 )
-from polyglotic_desktop.ui.app import DesktopApp
+from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.recorded_captions import MIC
 from polyglotic_desktop.ui.settings import FOLLOW_DEFAULT, AppSettings, Settings
 from polyglotic_desktop.ui_next.caption_window import whose_captions
@@ -198,4 +200,51 @@ def test_one_app_instead_takes_everythings_window(qapp: QApplication) -> None:
         built.window.keep_in_tray = False
         built.window.close()
         windows.close()
+        desktop.close()
+
+
+def test_start_and_stop_on_home_follow_the_real_capture_choice(
+    qapp: QApplication,
+) -> None:
+    store = MemorySettingsStore({"whole_system": False})
+    desktop = DesktopApp(store, None, FakeAppList())
+    windows = CaptionWindows(store, MIC, areas)
+    assert desktop.apps is not None
+    built = Hub(desktop, windows, Panels(desktop.settings, windows), desktop.apps, True)
+    try:
+        card = built.home.picker_card
+        assert built.home.state.pause.isHidden()
+        desktop.pause.setChecked(True)
+        desktop.set_connection(ConnectionState.LISTENING)
+        assert not built.home.state.pause.isHidden()
+        assert card.start.accessibleName() == pc_or_mac(
+            "Caption everything the PC plays", "Caption everything the Mac plays"
+        )
+        card.start.click()
+        assert not desktop.pause.isChecked()
+        assert not built.home.state.pause.isHidden()
+        assert desktop.settings.value.whole_system and card.start.isHidden()
+        card.rows["system"].stop.click()
+        assert not desktop.settings.value.source_chosen
+        assert built.home.state.pause.isHidden()
+        built.sample_on = True
+        built.follow()
+        assert not built.home.state.pause.isHidden()
+        built.sample_on = False
+        built.follow()
+        assert built.home.state.pause.isHidden()
+        desktop.apps._take(FakeAppList().playing_apps())  # the next discovery result
+        built.follow()
+        assert card.start.accessibleName() == "Caption Web Browser"
+        QTest.keyClick(card.start, Qt.Key.Key_Space)
+        assert desktop.settings.value.apps == ("Web Browser",)
+        assert not desktop.settings.value.whole_system
+        assert not built.home.state.pause.isHidden()
+        assert card.active.accessibleName() == "Captioning Web Browser"
+        desktop.caption_failed()
+        desktop.caption_failed()
+        assert card.active.isHidden()  # Home now reports a captioning failure
+    finally:
+        windows.close()
+        built.close()
         desktop.close()

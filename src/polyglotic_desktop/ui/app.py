@@ -36,10 +36,13 @@ windows (`ui_next`, wired by `main`'s `Hub`) follow it:
   `check_report_wanted.emit(summary)` (project 096);
 - `set_activity(provider)` - what each source being captured has done
   (sound and speech heard), for that check (`caption_facts`);
-- `hotkeys` - the commands with a system-wide hotkey (Ctrl+Alt+ the
-  letter, as in the proof of concept; ⌃⌘ the letter on a Mac), shown in
-  the tray menu;
-  `hotkey_pressed.emit(letter)` from any thread runs one on the Qt thread
+- `hotkeys` - the commands with a system-wide hotkey, by its name
+  (`core.listening.hotkeys.Hotkey`): lock, pause and hide (Ctrl+Alt+ the
+  letter, as in the proof of concept; ⌃⌘ the letter on a Mac), back to
+  live, and copy the newest caption, the next preset and the captions'
+  text size (polyglotic-hq 567) - each key the learner's own
+  (`set_hotkeys`), shown in the tray menu;
+  `hotkey_pressed.emit(name)` from any thread runs one on the Qt thread
   (`main` registers them with the OS); `hotkeys_not_working` stops showing
   the ones that don't work here - another app already has them, or they
   weren't registered (a preview build has none: polyglotic-hq 398) - so
@@ -55,15 +58,17 @@ windows (`ui_next`, wired by `main`'s `Hub`) follow it:
   time the main window is closed rather than quit, a message from the tray
   saying the app is still running there (`note_in_tray`, once per PC);
   its menu opens wholly on the work area, above the taskbar, as Windows'
-  own tray menus do (`tray_menu_place`).
+  own tray menus do (`tray_menu_place`) - on Linux the desktop's tray
+  shows it itself (`DESKTOP_SHOWS_TRAY_MENU`, polyglotic-hq 571).
 
 It holds no rules: what to show is core's, what to do with the user's
 choices is `main`'s.
 """
 
 import logging
+import sys
 import time
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Mapping
 from enum import StrEnum
 
 from PySide6.QtCore import (
@@ -83,9 +88,12 @@ from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from polyglotic_desktop.core.learning.curriculum import chosen_from
 from polyglotic_desktop.core.listening.captions import CaptionUpdate
 from polyglotic_desktop.core.listening.check import Facts, SourceActivity, Ticked
+from polyglotic_desktop.core.listening.dictation_keys import DictationKey
 from polyglotic_desktop.core.listening.failing import FailingCaptions
 from polyglotic_desktop.core.listening.held_back import LIVE_UPDATES_HELD_BACK
 from polyglotic_desktop.core.listening.history import CaptionHistory
+from polyglotic_desktop.core.listening.hotkeys import Hotkey
+from polyglotic_desktop.core.listening.hotkeys import keys as hotkey_keys
 from polyglotic_desktop.core.listening.sources import (
     EVERYTHING_ELSE,
     MIC,
@@ -107,9 +115,20 @@ from polyglotic_desktop.ports.settings import SettingsStore
 from polyglotic_desktop.ui import theme
 from polyglotic_desktop.ui.apps_with_sound import AppsWithSound
 from polyglotic_desktop.ui.captions import CaptionFeed
-from polyglotic_desktop.ui.icons import TrayState, menu_bar_icon, tray_icon
+from polyglotic_desktop.ui.icons import (
+    TrayState,
+    menu_bar_icon,
+    tray_icon,
+    with_idle_dot,
+)
 from polyglotic_desktop.ui.learning import LearningTools
-from polyglotic_desktop.ui.os_words import on_a_mac, pc_or_mac
+from polyglotic_desktop.ui.os_words import (
+    on_a_mac,
+    on_linux,
+    pc_mac_or_linux,
+    pc_or_mac,
+    platform,
+)
 from polyglotic_desktop.ui.settings import (
     SOURCE_KEY_EVERYTHING_ELSE,
     SOURCE_KEY_MIC,
@@ -146,6 +165,8 @@ class ConnectionState(StrEnum):
     UPDATE_NEEDED = "update_needed"  # the server needs a newer app
     MOVED = "moved"  # the account listens on another device (project 095)
     PLUS_ENDED = "plus_ended"  # the server closed listening: Plus ended (4009, 185)
+    ALLOWANCE_EXHAUSTED = "allowance_exhausted"
+    CROSS_BORDER_CONSENT_REQUIRED = "cross_border_consent_required"
     STOPPED = "stopped"  # for another reason, until the user acts
 
 
@@ -160,6 +181,13 @@ def tray_menu_place(at: QPoint, size: QSize, area: QRect) -> QPoint:
     y = min(at.y() - size.height(), area.y() + area.height() - size.height())
     return QPoint(max(x, area.x()), max(y, area.y()))
 
+
+DESKTOP_SHOWS_TRAY_MENU = sys.platform.startswith("linux")
+"""Linux's trays show the tray's menu themselves (polyglotic-hq 571): KDE's
+and GNOME's AppIndicator draw it from what Qt hands them over D-Bus (the
+StatusNotifierItem's menu) and never ask the app to open one, and an X11
+tray's (XFCE's older one) is Qt's own at the click. The app opens it itself
+only on Windows and a Mac (`show_tray_menu`), where Qt would place it badly."""
 
 TIP_MAX = 127
 """The most a tray icon's tooltip can hold, in UTF-16 units: Windows keeps
@@ -200,9 +228,47 @@ def fitted_tip(lines: list[str], limit: int = TIP_MAX) -> str:
     return fitted if _units(fitted) <= limit else text[: limit - 1] + "…"
 
 
+QT_KEYS = {
+    "space": "Space",
+    "enter": "Return",
+    "tab": "Tab",
+    "backspace": "Backspace",
+    "delete": "Del",
+    "left": "Left",
+    "right": "Right",
+    "up": "Up",
+    "down": "Down",
+    "home": "Home",
+    "end": "End",
+    "page_up": "PgUp",
+    "page_down": "PgDown",
+    "insert": "Ins",
+    "escape": "Esc",
+    "pause": "Pause",
+    "scroll_lock": "ScrollLock",
+    "print_screen": "Print",
+    "menu": "Menu",
+}
+"""`dictation_keys.KEYS` that Qt names otherwise; letters, digits and F1-F24
+are its own names, upper case."""
+QT_MODIFIERS = {"ctrl": "Ctrl", "alt": "Alt", "shift": "Shift", "win": "Meta"}
+"""As kept, Qt's names: on a Mac Qt's Ctrl is Command and Meta Control."""
+
+
+def key_sequence(key: DictationKey | None) -> QKeySequence:
+    """A hotkey's key as Qt's shortcut, for menus and the OS's own words
+    ("Ctrl+Alt+L"; on a Mac "⌃⌘L"); an empty one for none."""
+    if key is None or key.held_alone:
+        return QKeySequence()
+    held = [QT_MODIFIERS[part] for part in key.parts[:-1]]
+    name = key.parts[-1]
+    return QKeySequence("+".join([*held, QT_KEYS.get(name) or name.upper()]))
+
+
 class DesktopApp(QObject):
     hotkey_pressed = Signal(str)
-    """A hotkey's letter, from any thread (queued to the Qt thread)."""
+    """A hotkey's name (`Hotkey`), from any thread (queued to the Qt
+    thread)."""
     feedback_wanted = Signal(str)
     """The feedback form, opened on a kind (`problem`, `suggestion`, ...)."""
     check_report_wanted = Signal(str)
@@ -248,6 +314,7 @@ class DesktopApp(QObject):
         your_sources: tuple[SourceId, ...] = (MIC,),
         history: CaptionHistory | None = None,
         light_taskbar: Callable[[], bool] | None = None,
+        activate_from_tray: Callable[[], None] | None = None,
     ) -> None:
         super().__init__()
         self.settings = Settings(store, self)
@@ -337,6 +404,11 @@ class DesktopApp(QObject):
         """The tray's "Restart to install version X", while an update is
         downloaded (polyglotic-hq 299): `main` quits and installs it."""
         self.install_update.setVisible(False)
+        self.usage = self._action("account.usage", "")
+        """The tray's usage line on a capped plan, "62% of today's free
+        captions left" (`show_usage`; polyglotic-hq 684): `main` opens
+        Upgrade from it."""
+        self.usage.setVisible(False)
         self.quit_check: Callable[[], bool] | None = None
         """Asked before Quit goes on (`may_quit`): `main` hands it the
         transcripts' question (polyglotic-hq 334)."""
@@ -355,7 +427,7 @@ class DesktopApp(QObject):
             lambda: self.feedback_wanted.emit("work_with_us")
         )
         self.quit.setToolTip(
-            pc_or_mac(
+            pc_mac_or_linux(
                 self.tr(
                     "Stop captioning and close Polyglotic - closing the window keeps it"
                     " in the tray"
@@ -363,6 +435,11 @@ class DesktopApp(QObject):
                 self.tr(
                     "Stop captioning and close Polyglotic - closing the window keeps it"
                     " in the menu bar"
+                ),
+                # Linux: true with a tray or without one (GNOME's own: 571)
+                self.tr(
+                    "Stop captioning and close Polyglotic - closing the window keeps it"
+                    " running"
                 ),
             )
         )
@@ -372,14 +449,43 @@ class DesktopApp(QObject):
             )
         )
 
+        # what only a hotkey does: `main` connects each (polyglotic-hq 567),
+        # named as Settings > Hotkeys names them
+        self.go_live = self._action(
+            "captions.live", QApplication.translate("Hotkeys", "Back to live")
+        )
+        self.copy_caption = self._action(
+            "captions.copy",
+            QApplication.translate("Hotkeys", "Copy the newest caption"),
+        )
+        self.next_preset = self._action(
+            "captions.preset", QApplication.translate("Hotkeys", "Next preset")
+        )
+        self.text_bigger = self._action(
+            "captions.bigger", QApplication.translate("Hotkeys", "Caption text bigger")
+        )
+        self.text_smaller = self._action(
+            "captions.smaller",
+            QApplication.translate("Hotkeys", "Caption text smaller"),
+        )
+        self.caption_controls = self._action(
+            "captions.bar",
+            QApplication.translate("Hotkeys", "Open caption bar controls"),
+        )
         self.hotkeys = {
-            "L": self.lock_windows,
-            "P": self.pause,
-            "H": self.hide_windows,
+            Hotkey.LOCK.value: self.lock_windows,
+            Hotkey.PAUSE.value: self.pause,
+            Hotkey.HIDE.value: self.hide_windows,
+            Hotkey.LIVE.value: self.go_live,
+            Hotkey.COPY.value: self.copy_caption,
+            Hotkey.PRESET.value: self.next_preset,
+            Hotkey.BIGGER.value: self.text_bigger,
+            Hotkey.SMALLER.value: self.text_smaller,
+            Hotkey.BAR.value: self.caption_controls,
         }
-        """Ctrl+Alt+ the letter, system-wide: lock, pause, hide. (W, the
-        newest line checked with the best model, went with "Looks wrong?":
-        polyglotic-hq 339.)"""
+        """Each hotkey's command, by its name, system-wide (`Hotkey`). (W,
+        the newest line checked with the best model, went with "Looks
+        wrong?": polyglotic-hq 339.)"""
         self._activity: Callable[[], dict[SourceId, SourceActivity]] = dict
         self._last_caption: float | None = None
         self._drops = UnstableConnection()
@@ -402,13 +508,11 @@ class DesktopApp(QObject):
         self.lock_windows.toggled.connect(lambda on: self.settings.update(locked=on))
         self.show_delay.toggled.connect(lambda on: self.settings.update(show_delay=on))
         self.settings.changed.connect(self._settings_changed)
-        # Ctrl+Alt+ the letter; on a Mac Control+Command (polyglotic-hq 428,
-        # DECISIONS #193), which Qt writes Meta+Ctrl there: "⌃⌘L"
-        hotkey = "Meta+Ctrl+{key}" if on_a_mac() else "Ctrl+Alt+{key}"
-        for key, action in self.hotkeys.items():
+        for action in self.hotkeys.values():
             # shown in menus; the OS's hotkey does the work, from anywhere
-            action.setShortcut(QKeySequence(hotkey.format(key=key)))
             action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+            action.setShortcutVisibleInContextMenu(True)
+        self.set_hotkeys(hotkey_keys(value.hotkeys, platform()))
         self.hotkey_pressed.connect(self._hotkey, Qt.ConnectionType.QueuedConnection)
         self.tray: QSystemTrayIcon | None = None
         self.tray_icons: Callable[[TrayState, bool], QIcon] = (
@@ -418,20 +522,33 @@ class DesktopApp(QObject):
         bar's template, which macOS draws light or dark itself (428)."""
         self.tray_menu = self._tray_menu()
         self.tray_menu.aboutToShow.connect(self._style_tray_menu)
+        self.sample_playing = False
         self.state_title = ""
         """The state Home shows, for the tray's tooltip (`show_state_title`)."""
         self.hidden_line = ""
         """Hidden caption windows' line in the tray's tooltip (`show_hidden`)."""
+        self.usage_line = ""
+        """A capped plan's allowance left, in the tray's tooltip (`show_usage`)."""
         self.banner_in_view: Callable[[], bool] = lambda: False
         """Whether Home's banner is in front of the learner now (`main`'s
         main window sets it): a report's outcome is then said there only,
         not in the tray too (`show_feedback`; polyglotic-hq 279)."""
         # Windows doesn't say when only the taskbar turns light or dark
+        self._activate_from_tray = activate_from_tray
         self._light_taskbar = light_taskbar or (lambda: theme.system_theme() == "light")
         self._taskbar_check = QTimer(self)
         self._taskbar_check.setInterval(10_000)
         self._taskbar_check.timeout.connect(self._show_tray_state)
         self.pause.toggled.connect(self._show_tray_state)
+        # where the OS's light or dark is read by the app, not Qt (Linux's
+        # portal: `theme.os_mode`), nothing tells Qt it changed: asked again
+        # every 10 s, and followed as Qt's change is (571)
+        self._os_mode = theme.system_theme()
+        self._os_mode_check = QTimer(self)
+        self._os_mode_check.setInterval(10_000)
+        self._os_mode_check.timeout.connect(self._follow_os_mode)
+        if theme.os_mode is not None:
+            self._os_mode_check.start()
         self._apps: dict[SourceId, tuple[str, str]] = {}
 
     # -- source labels ----------------------------------------------------------------
@@ -508,7 +625,7 @@ class DesktopApp(QObject):
             ticked=ticked,
             activity=activity,
             last_caption=self._last_caption,
-            failing=self._failures.failing,
+            failing=self.captions_are_failing,
             unreachable=self.unreachable,
         )
 
@@ -568,6 +685,7 @@ class DesktopApp(QObject):
         menu.addAction(self.open_window)
         menu.setDefaultAction(self.open_window)
         menu.addAction(self.install_update)  # hidden until one is ready
+        menu.addAction(self.usage)  # hidden on an unlimited plan
         menu.addSeparator()
         for action in (
             self.pause,
@@ -589,13 +707,35 @@ class DesktopApp(QObject):
 
     def show_update_ready(self, version: str | None) -> None:
         """An update downloaded (`version`), or none: the tray's menu offers
-        to restart into it, under Open - quietly, never a notification over
-        a game or a call (polyglotic-hq 299). Kept after Home's Later."""
+        to restart into it (on Linux: quit to finish updating, since the
+        AppImage applies as the app quits - polyglotic-hq 640), under Open -
+        quietly, never a notification over a game or a call (polyglotic-hq
+        299). Kept after Home's Later."""
         self.install_update.setVisible(version is not None)
         if version is not None:
-            self.install_update.setText(
-                self.tr("Restart to install version {version}").format(version=version)
+            text = (
+                self.tr("Quit to finish updating to {version}")
+                if on_linux()
+                else self.tr("Restart to install version {version}")
             )
+            self.install_update.setText(text.format(version=version))
+
+    def show_usage(self, line: str | None) -> None:
+        """A capped plan's allowance left, as one line in the tray's menu
+        and its tooltip - or none, on an unlimited plan (polyglotic-hq 684;
+        the words are `ui_next.usage`'s, handed over by `main`)."""
+        self.usage_line = line or ""
+        self.usage.setText(self.usage_line)
+        self.usage.setVisible(bool(line))
+        if self.tray is not None:
+            self.tray.setToolTip(self._tooltip())
+
+    def offer_dictation(self, offered: bool) -> None:
+        """Dictation in the tray's menu, with its languages - or neither, on
+        an OS that has no dictation yet (Linux, until polyglotic-hq 546's
+        slice 8: its key would be said to be another program's; 574)."""
+        self.dictation.setVisible(offered)
+        self.dictation_language_menu.menuAction().setVisible(offered)
 
     def show_dictation_key(self, key: str) -> None:
         """Dictation's key, in words ("Right Ctrl"), at the right of its
@@ -607,6 +747,13 @@ class DesktopApp(QObject):
             ).format(key=key)
         )
 
+    def set_hotkeys(self, keys: Mapping[Hotkey, DictationKey | None]) -> None:
+        """Each hotkey's key now, shown on its command: Ctrl+Alt+L; on a Mac
+        Control+Command, which Qt writes Meta+Ctrl there: "⌃⌘L"
+        (polyglotic-hq 428, DECISIONS #193). None: no key."""
+        for hotkey, key in keys.items():
+            self.hotkeys[hotkey.value].setShortcut(key_sequence(key))
+
     def hotkeys_not_working(self, keys: Collection[str]) -> None:
         """These hotkeys don't work here - another app already has them, or
         they weren't registered: stop showing them, so a locked caption
@@ -615,7 +762,7 @@ class DesktopApp(QObject):
         named = [
             self.hotkeys[key].shortcut().toString()
             for key in keys
-            if key in self.hotkeys
+            if key in self.hotkeys and not self.hotkeys[key].shortcut().isEmpty()
         ]
         if named:
             log.warning("hotkey(s) not working, not shown: %s", ", ".join(named))
@@ -636,8 +783,10 @@ class DesktopApp(QObject):
             return
         tray = QSystemTrayIcon(self)
         tray.setToolTip(self._tooltip())
-        # no setContextMenu: Qt would open it against the whole screen, over
-        # the taskbar (`show_tray_menu` opens it above)
+        if DESKTOP_SHOWS_TRAY_MENU:  # Linux: the tray shows it (571)
+            tray.setContextMenu(self.tray_menu)
+        # elsewhere no setContextMenu: Qt would open it against the whole
+        # screen, over the taskbar (`show_tray_menu` opens it above)
         tray.activated.connect(self._tray_activated)
         self.tray = tray
         self._show_tray_state()
@@ -645,13 +794,28 @@ class DesktopApp(QObject):
         self._taskbar_check.start()
 
     def _tray_activated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
+        if self._activate_from_tray is not None and reason in (
+            QSystemTrayIcon.ActivationReason.Trigger,
+            QSystemTrayIcon.ActivationReason.DoubleClick,
+            QSystemTrayIcon.ActivationReason.Context,
+        ):
+            self._activate_from_tray()
         if reason in (
             QSystemTrayIcon.ActivationReason.Trigger,
             QSystemTrayIcon.ActivationReason.DoubleClick,
         ):
             self.show_window()
-        elif reason is QSystemTrayIcon.ActivationReason.Context:
-            self.show_tray_menu()
+        elif (
+            reason is QSystemTrayIcon.ActivationReason.Context
+            and not DESKTOP_SHOWS_TRAY_MENU  # there, it's open already (571)
+        ):
+            if self._activate_from_tray:
+                # Cocoa finishes making the accessory active after the
+                # status-item callback. A popup opened during that change
+                # closes as soon as its temporary window loses focus.
+                QTimer.singleShot(150, self, self.show_tray_menu)
+            else:
+                self.show_tray_menu()
 
     def show_tray_menu(self) -> None:
         """The tray's menu, from the mouse on the icon - or the icon, opened
@@ -668,9 +832,12 @@ class DesktopApp(QObject):
         self._style_tray_menu()  # before measuring: dark and light differ in size
         menu.popup(tray_menu_place(at, menu.sizeHint(), screen.availableGeometry()))
 
-    def show_state_title(self, title: str) -> None:
+    def show_state_title(self, title: str, sample_playing: bool = False) -> None:
         """The state Home shows ("Listening", "Paused", ...): the tray's
         tooltip says it too."""
+        if self.sample_playing != sample_playing:
+            self.sample_playing = sample_playing
+            self._show_tray_state()
         self.state_title = title
         if self.tray is not None:
             self.tray.setToolTip(self._tooltip())
@@ -699,7 +866,13 @@ class DesktopApp(QObject):
 
     def _tooltip(self) -> str:
         title = f"Polyglotic - {self.state_title}" if self.state_title else "Polyglotic"
-        return fitted_tip([title, *self.hidden_line.split("\n")])
+        idle = self.tr("Not captioning yet") if self._needs_source else ""
+        # the usage line sits in the middle: the first to go when it's too long
+        return fitted_tip([title, idle, self.usage_line, *self.hidden_line.split("\n")])
+
+    @property
+    def _needs_source(self) -> bool:
+        return not self.settings.value.source_chosen and not self.sample_playing
 
     @property
     def tray_state(self) -> TrayState:
@@ -709,14 +882,18 @@ class DesktopApp(QObject):
         if self.pause.isChecked():
             return TrayState.PAUSED
         live = self.connection is ConnectionState.LISTENING
-        if live and self.settings.value.source_chosen:
+        if live and not self._needs_source:
             return TrayState.LISTENING
         return TrayState.IDLE
 
     def _show_tray_state(self) -> None:
         if self.tray is not None:
             light = self._light_taskbar()
-            self.tray.setIcon(self.tray_icons(self.tray_state, light))
+            icon = self.tray_icons(self.tray_state, light)
+            self.tray.setIcon(
+                with_idle_dot(icon, theme.WARNING) if self._needs_source else icon
+            )
+            self.tray.setToolTip(self._tooltip())
             self._style_tray_menu(light)
 
     def _style_tray_menu(self, light: bool | None = None) -> None:
@@ -752,15 +929,18 @@ class DesktopApp(QObject):
             title = self.tr("Polyglotic is still captioning")
         elif state is TrayState.PAUSED:
             title = self.tr("Polyglotic is still running, with captions paused")
-            return title, pc_or_mac(
+            return title, pc_mac_or_linux(
                 self.tr("It's in the tray. Resume or quit from there."),
                 self.tr("It's in the menu bar. Resume or quit from there."),
+                # Linux: the tray is the panel's - GNOME's top bar, KDE's, Xfce's
+                self.tr("Its icon is in the panel. Resume or quit from there."),
             )
         else:
             title = self.tr("Polyglotic is still running")
-        return title, pc_or_mac(
+        return title, pc_mac_or_linux(
             self.tr("It's in the tray. Quit from there."),
             self.tr("It's in the menu bar. Quit from there."),
+            self.tr("Its icon is in the panel. Quit from there."),
         )
 
     def show_window(self) -> None:
@@ -917,6 +1097,10 @@ class DesktopApp(QObject):
             )
             self.connection_unstable.emit(unstable)
 
+    @property
+    def captions_are_failing(self) -> bool:
+        return self._failures.failing
+
     @Slot()
     def caption_failed(self) -> None:
         """A finished caption failed on the server (`processing_failed`)."""
@@ -1008,6 +1192,14 @@ class DesktopApp(QObject):
 
         self._show_tray_state()
 
+    def _follow_os_mode(self) -> None:
+        """The OS's light or dark as `theme.os_mode` reads it, followed when
+        it changes (571)."""
+        mode = theme.system_theme()
+        if mode != self._os_mode:
+            self._os_mode = mode
+            self._system_theme()
+
     def _system_theme(self) -> None:
         """Windows switched between light and dark: followed if the
         learner chose "system"; the tray's icon follows the taskbar."""
@@ -1044,6 +1236,7 @@ class DesktopApp(QObject):
 
     def close(self) -> None:
         self._taskbar_check.stop()
+        self._os_mode_check.stop()
         if self.tray is not None:
             self.tray.hide()
         if self.apps is not None:

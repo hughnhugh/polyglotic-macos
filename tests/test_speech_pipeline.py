@@ -20,6 +20,7 @@ from polyglotic_desktop.core.listening.delays import CAPTION_LOG
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.timing import (
     FRAME_SAMPLES,
+    CaptionId,
     CaptionMode,
     CaptionTiming,
     Decision,
@@ -27,10 +28,16 @@ from polyglotic_desktop.core.listening.timing import (
     TimingRules,
     TranscriptionRequest,
 )
+from polyglotic_desktop.perf import trace
 from polyglotic_desktop.platform import speech_pipeline
 from polyglotic_desktop.platform.speech_detection import Audio, FrameResult
-from polyglotic_desktop.platform.speech_pipeline import Ready, SpeechPipeline
-from polyglotic_desktop.ports.capture import NOT_ALLOWED, AudioCallback, SourceCategory
+from polyglotic_desktop.platform.speech_pipeline import Ready, SpeechPipeline, stopped
+from polyglotic_desktop.ports.capture import (
+    APP_CLOSED,
+    NOT_ALLOWED,
+    AudioCallback,
+    SourceCategory,
+)
 
 SR = 16000
 T0 = 500.0
@@ -86,6 +93,8 @@ class FakeCapture:
     def error(self) -> str | None:
         return None
 
+    restarts = 0  # never fails (566)
+
 
 def pattern(*stretches: tuple[float, bool]) -> Audio:
     rng = np.random.default_rng(0)
@@ -126,12 +135,37 @@ def test_speech_comes_out_as_requests_with_ogg_opus() -> None:
     assert capture.stopped
 
 
+def test_finished_speech_never_sent_is_told_so_its_caption_ends() -> None:
+    """polyglotic-hq 557 (529's B3): finished speech dropped before it was
+    sent - held through a planned maintenance window, or waiting too long -
+    left its live caption provisional for good. Each is told (`dropped`),
+    from whichever thread dropped it, with the lock let go."""
+    told: list[CaptionId] = []
+    pipeline = SpeechPipeline(LoudnessDetector, CaptionTiming(), dropped=told.append)
+    pipeline.hold_speech(False)  # the server away for a planned window
+    pipeline.add_source(
+        APP, FakeCapture(pattern((0.5, False), (1.5, True), (1.0, False)))
+    )
+    assert drain(pipeline) == []
+    assert len(told) == 1
+    pipeline.hold_speech(True)
+    pipeline.add_source(
+        MIC, FakeCapture(pattern((0.5, False), (1.5, True), (1.0, False)))
+    )
+    finished = [
+        d
+        for d, _ in drain(pipeline)
+        if isinstance(d, TranscriptionRequest) and d.kind is SpeechKind.FINISHED
+    ]
+    assert len(finished) == 1 and len(told) == 1  # sent: nothing more told
+
+
 def test_the_pieces_of_a_cut_meet_without_overlapping() -> None:
     """polyglotic-hq 291: nonstop speech cut at Steady's 6s limit was sent
     with 0.2s more audio each side of every cut, so 0.4s - a word or two of
     fast speech - went to both pieces. Now the audio has no margin at a cut:
     the pieces' audio adds up to the whole stretch, with its two margins."""
-    timing = CaptionTiming(None, rules=CaptionMode.STEADY.rules)
+    timing = CaptionTiming(None, rules=CaptionMode.WHOLE.rules)
     pipeline = SpeechPipeline(LoudnessDetector, timing)
     pipeline.add_source(
         APP, FakeCapture(pattern((0.5, False), (13.0, True), (1.5, False)))
@@ -289,6 +323,63 @@ def test_a_capture_the_os_does_not_allow_is_noted_for_the_check() -> None:
     pipeline.add_source(MIC, FakeCapture(pattern((1.0, False))))
     activity = pipeline.activity()
     assert activity[APP.id].not_allowed and not activity[MIC.id].not_allowed
+
+
+class StateCapture(FakeCapture):
+    """A capture in a given state: what it captures, and its error."""
+
+    def __init__(self, capturing: str | None, error: str | None) -> None:
+        super().__init__(pattern((0.1, False)))
+        self._state = (capturing, error)
+
+    @property
+    def capturing(self) -> str | None:
+        return self._state[0]
+
+    @property
+    def error(self) -> str | None:
+        return self._state[1]
+
+
+def test_a_capture_that_failed_is_noted_as_stopped_for_the_check() -> None:
+    """polyglotic-hq 557 (529's B1): a capture whose thread failed captured
+    nothing while the check said the app was quiet. It has stopped - and is
+    trying again (decision 0266) - when it captures nothing and gives an
+    error other than not being allowed or its app having closed."""
+    assert stopped(StateCapture(None, "Capture stopped: RuntimeError"))
+    assert stopped(StateCapture(None, "Couldn't capture the app: 0x80070005"))
+    assert not stopped(StateCapture("My Game", None))
+    assert not stopped(StateCapture(None, None))  # between devices, or none plugged
+    assert not stopped(StateCapture(None, APP_CLOSED))
+    assert not stopped(StateCapture(None, NOT_ALLOWED))
+    assert not stopped(StateCapture("Mic", "a stream lost a moment ago"))
+    pipeline = SpeechPipeline(LoudnessDetector, CaptionTiming())
+    pipeline.add_source(APP, StateCapture(None, "Capture stopped: RuntimeError"))
+    pipeline.add_source(MIC, FakeCapture(pattern((1.0, False))))
+    activity = pipeline.activity()
+    assert activity[APP.id].stopped and not activity[MIC.id].stopped
+
+
+def test_the_captures_restarts_are_taken_once_each_removed_sources_too() -> None:
+    """polyglotic-hq 566: each listening session's summary counts the
+    times its captures failed and started again (decision 0266), so the
+    pipeline gives those since it was last asked - a source removed
+    meanwhile (the learner chose another app) included, none twice."""
+    pipeline = SpeechPipeline(LoudnessDetector, CaptionTiming())
+    app, mic = FakeCapture(pattern((0.1, False))), FakeCapture(pattern((0.1, False)))
+    pipeline.add_source(APP, app)
+    pipeline.add_source(MIC, mic)
+    assert pipeline.take_restarts() == 0
+    app.restarts, mic.restarts = 2, 1
+    assert pipeline.take_restarts() == 3
+    assert pipeline.take_restarts() == 0
+    app.restarts = 5
+    pipeline.remove_source(APP.id)
+    assert pipeline.take_restarts() == 3
+    pipeline.add_source(APP, FakeCapture(pattern((0.1, False))))  # a new capture
+    mic.restarts = 2
+    assert pipeline.take_restarts() == 1
+    pipeline.stop()
 
 
 def test_finished_speech_is_kept_as_sent_and_cleared_on_delete_and_close() -> None:
@@ -527,23 +618,23 @@ def test_old_hushes_are_forgotten() -> None:
     assert len(pipeline._hushes) == 1
 
 
-# -- what's dictated is dictation's alone (polyglotic-hq 299) ------------------------
+# -- legacy re-speaking still suppresses own speech (polyglotic-hq 567) -------------
 
 HELD_AT, LET_GO_AT = T0 + 2.0, T0 + 5.0
-"""The dictation key goes down 2 s in, and its mic closes 3 s later."""
+"""A re-speaking hold starts 2 s in, and its mic closes 3 s later."""
 
 
-def test_the_mic_captions_nothing_while_dictation_has_it() -> None:
-    """The learner talks, holds the dictation key and dictates, lets go and
+def test_the_mic_captions_nothing_while_legacy_respeaking_has_it() -> None:
+    """The learner talks, holds the re-speaking key and repeats, lets go and
     talks on: what was said before the key went down is a "You" line,
-    finished as a pause would finish it; what was dictated never is; what
+    finished as a pause would finish it; what was repeated never is; what
     follows the tail is captioned again."""
     talk = pattern((0.5, False), (4.0, True), (2.0, False), (2.0, True), (2.0, False))
     pipeline = SpeechPipeline(
         LoudnessDetector, CaptionTiming(live_update_interval=None)
     )
-    pipeline.dictation_holds(HELD_AT)
-    pipeline.dictation_lets_go(LET_GO_AT)
+    pipeline.respeaking_holds(HELD_AT)
+    pipeline.respeaking_lets_go(LET_GO_AT)
     buffer = pipeline.add_source(MIC, FakeCapture(talk), hears_the_app=True)
     sent = [d for d, _ in drain(pipeline) if isinstance(d, TranscriptionRequest)]
     finished = [r for r in sent if r.kind is SpeechKind.FINISHED]
@@ -564,28 +655,110 @@ def test_while_the_key_is_held_the_mic_captions_nothing_to_its_end() -> None:
     pipeline = SpeechPipeline(
         LoudnessDetector, CaptionTiming(live_update_interval=None)
     )
-    pipeline.dictation_holds(HELD_AT)
+    pipeline.respeaking_holds(HELD_AT)
     pipeline.add_source(MIC, FakeCapture(talk), hears_the_app=True)
     sent = [d for d, _ in drain(pipeline) if isinstance(d, TranscriptionRequest)]
     assert sent and all(r.speech_end <= HELD_AT + 0.05 for r in sent)
     pipeline.stop()
 
 
-def test_dictation_never_silences_an_app() -> None:
-    """Only the mic is dictation's: an app talking at the same time is
+def test_legacy_respeaking_never_silences_an_app() -> None:
+    """Only the mic is re-speaking's: an app talking at the same time is
     still captioned."""
     talk = pattern((0.5, False), (6.0, True), (1.0, False))
     pipeline = SpeechPipeline(
         LoudnessDetector, CaptionTiming(live_update_interval=None)
     )
-    pipeline.dictation_holds(HELD_AT)
-    pipeline.dictation_lets_go(LET_GO_AT)
+    pipeline.respeaking_holds(HELD_AT)
+    pipeline.respeaking_lets_go(LET_GO_AT)
     buffer = pipeline.add_source(APP, FakeCapture(talk))
     sent = [d for d, _ in drain(pipeline) if isinstance(d, TranscriptionRequest)]
     assert any(r.speech_start < HELD_AT < r.speech_end for r in sent)
     kept = buffer.slice(HELD_AT, LET_GO_AT, pad=0)
     assert kept is not None and np.any(kept)
     pipeline.stop()
+
+
+@pytest.mark.parametrize("source", [APP, MIC])
+@pytest.mark.parametrize("mode", list(CaptionMode))
+def test_watching_a_hold_keeps_the_caption_schedule_and_audio(
+    source: Source, mode: CaptionMode
+) -> None:
+    class PushedCapture(FakeCapture):
+        def start(self, on_audio: AudioCallback) -> None:
+            self.push = on_audio
+
+    def capture(typing: bool) -> tuple[list[Ready], tuple[TranscriptionRequest, ...]]:
+        ids = (CaptionId(str(n)) for n in range(100))
+        timing = CaptionTiming(
+            mode.live_update_interval(1.5), lambda: next(ids), rules=mode.rules
+        )
+        pipeline = SpeechPipeline(LoudnessDetector, timing)
+        active = PushedCapture(np.empty(0, dtype=np.float32))
+        pipeline.add_source(source, active)
+        other_source = APP if source == MIC else MIC
+        other = PushedCapture(np.empty(0, dtype=np.float32))
+        pipeline.add_source(other_source, other)
+        span = pipeline.watch_captions(source.id, T0 + 1.0) if typing else None
+        assert (span is not None) == typing
+        # Words straddle both key boundaries. The end waits for the usual
+        # caption boundary, while work for the other window continues.
+        audio = pattern(
+            (0.5, False), (3.0, True), (2.0, False), (2.0, True), (2.0, False)
+        )
+        end = T0 + 2.5
+        sent: list[Ready] = []
+        requests: tuple[TranscriptionRequest, ...] | None = None
+        step = SR // 100
+        try:
+            for i in range(0, len(audio), step):
+                now = T0 + i / SR
+                piece = audio[i : i + step].tobytes()
+                active.push(now, piece)
+                other.push(now, piece)
+                sent.extend(drain(pipeline))
+                if span is not None and requests is None and now >= end:
+                    requests = pipeline.finished_captions(span, end)
+                    if now == end:
+                        assert requests is None
+            assert not typing or requests
+            return sent, requests or ()
+        finally:
+            pipeline.stop()
+
+    plain, _ = capture(False)
+    held, requests = capture(True)
+    # Compare timing and decoded samples, since Ogg stream IDs are random.
+    assert [decision for decision, _ in held] == [decision for decision, _ in plain]
+    for (_, before), (_, after) in zip(plain, held, strict=True):
+        if before is not None and after is not None:
+            np.testing.assert_array_equal(
+                sf.read(io.BytesIO(before))[0], sf.read(io.BytesIO(after))[0]
+            )
+        else:
+            assert before is after
+    assert all(r.source == source and r.speech_start < T0 + 2.5 for r in requests)
+    assert all(r.speech_end > T0 + 1.0 for r in requests)
+    assert {r.source for r, _ in held if isinstance(r, TranscriptionRequest)} == {
+        APP,
+        MIC,
+    }
+
+
+def test_paused_and_absent_sources_cannot_supply_a_hold() -> None:
+    pipeline = SpeechPipeline(LoudnessDetector, CaptionTiming())
+    assert pipeline.watch_captions(APP.id, T0) is None
+    pipeline.add_source(APP, FakeCapture(np.empty(0, dtype=np.float32)))
+    try:
+        pipeline.set_paused_sources(frozenset({APP.id}))
+        assert pipeline.watch_captions(APP.id, T0) is None
+        pipeline.set_paused_sources(frozenset())
+        span = pipeline.watch_captions(APP.id, T0)
+        assert span is not None
+        pipeline.remove_source(APP.id)
+        assert pipeline.finished_captions(span, T0 + 1) == ()
+    finally:
+        pipeline.stop()
 
 
 def test_the_mic_has_a_detector_of_its_own_and_every_other_source_the_same() -> None:
@@ -614,3 +787,61 @@ def test_the_mic_has_a_detector_of_its_own_and_every_other_source_the_same() -> 
     alone = SpeechPipeline(detector("every source"), CaptionTiming(None))
     alone.add_source(MIC, FakeCapture(sound))
     assert made == ["every source"]
+
+
+class DeafDetector:
+    """Hears nothing as speech, and gives each frame's level as the real
+    detector does (root mean square)."""
+
+    def __init__(self) -> None:
+        self._leftover = np.zeros(0, dtype=np.float32)
+
+    def feed(self, start: float, audio: Audio) -> list[FrameResult]:
+        buffer = np.concatenate([self._leftover, audio])
+        count = len(buffer) // FRAME_SAMPLES
+        self._leftover = buffer[count * FRAME_SAMPLES :]
+        first_end = start + (FRAME_SAMPLES - (len(buffer) - len(audio))) / SR
+        return [
+            FrameResult(
+                first_end + i * FRAME_SAMPLES / SR,
+                False,
+                float(
+                    np.sqrt(
+                        np.mean(
+                            np.square(
+                                buffer[i * FRAME_SAMPLES : (i + 1) * FRAME_SAMPLES]
+                            )
+                        )
+                    )
+                ),
+            )
+            for i in range(count)
+        ]
+
+
+def test_sound_heard_as_not_speech_goes_to_the_caption_timelines() -> None:
+    """polyglotic-hq 549: a stretch over 3 s of sound nothing heard as
+    speech is in the timelines - done when the sound stops, as it stands
+    while it goes on, and done as stopped when its source is removed."""
+    made = trace.Tracer(clock=lambda: T0 + 10.0)  # the captures' clock
+    before = trace.use(made)
+    try:
+        pipeline = SpeechPipeline(DeafDetector, CaptionTiming())
+        pipeline.add_source(APP, FakeCapture(pattern((5.0, True), (2.0, False))))
+        [done] = made.recent()
+        assert (done["kind"], done["src"], done["end"]) == (
+            "sound_unheard",
+            "video",
+            "quiet",
+        )
+        assert done["len"] == pytest.approx(5.0, abs=0.05)
+        game = Source(SourceId("game"), SourceCategory.GAME)
+        pipeline.add_source(game, FakeCapture(pattern((6.0, True))))
+        assert [r["end"] for r in made.recent() if r["src"] == "game"] == ["open"]
+        pipeline.remove_source(game.id)
+        assert [r["end"] for r in made.recent() if r["src"] == "game"] == ["stopped"]
+        assert drain(pipeline) == []  # nothing heard, nothing sent
+        pipeline.stop()
+        assert len(made.recent()) == 2
+    finally:
+        trace.use(before)

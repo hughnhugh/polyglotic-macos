@@ -89,3 +89,7 @@ class SampleCapture:
     @property
     def error(self) -> str | None:
         return None
+
+    @property
+    def restarts(self) -> int:
+        return 0

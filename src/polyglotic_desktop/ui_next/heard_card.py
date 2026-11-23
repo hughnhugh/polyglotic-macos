@@ -72,10 +72,10 @@ def coverage_lines(coverage: Coverage) -> tuple[str, str, str]:
             "",
             _tr("Not enough heard yet"),
             _trn(
-                "Shows once you've heard %Ln word(s) in 7 days, so one short "
-                "session doesn't swing it.",
+                "Shows once you've heard %Ln word(s) {period}, so one short session "
+                "doesn't swing it.",
                 MIN_TOKENS,
-            ),
+            ).format(period=_trn("in %Ln day(s)", RECENT_DAYS)),
         )
     one_in = coverage.one_new_in
     if one_in is None:
@@ -118,7 +118,9 @@ def listening_lines(seconds: float, recent: float) -> tuple[str, str, str]:
     """The listening tile's number, its meaning and its faint line."""
     return (
         duration(seconds),
-        _tr("{time} in the last 7 days").format(time=duration(recent)),
+        _trn("{time} in the last %Ln day(s)", RECENT_DAYS).format(
+            time=duration(recent)
+        ),
         pc_or_mac(
             _tr("Time captions were on, counted on this PC."),
             _tr("Time captions were on, counted on this Mac."),
@@ -131,7 +133,9 @@ def met_lines(met: int, new: int) -> tuple[str, str, str]:
     last 7 days - and its faint line."""
     return (
         QLocale().toString(met),
-        _trn("+%Ln new in the last 7 days", new),
+        _trn("+%Ln new {period}", new).format(
+            period=_trn("in the last %Ln day(s)", RECENT_DAYS)
+        ),
         _tr(
             "Heard in a finished caption at least once; names and your own "
             "speech don't count."
@@ -218,7 +222,9 @@ class HeardCard(Card):
             ),
         )
         self.met = Tile("words.met", _tr("Words met"))
-        self.coverage = Tile("words.coverage", _tr("Coverage, last 7 days"))
+        self.coverage = Tile(
+            "words.coverage", _trn("Coverage, last %Ln day(s)", RECENT_DAYS)
+        )
         self.listening = Tile("words.listening", _tr("Listening"))
         self.tiles = Tiles([self.met, self.coverage, self.listening])
         self.add(self.tiles)

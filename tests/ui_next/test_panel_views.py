@@ -22,7 +22,6 @@ from polyglotic_desktop.ui_next.views.caption_window import ORIGINAL_ONLY, Capti
 from polyglotic_desktop.ui_next.views.panels import (
     LIVE_CHOICES,
     MAX_HINTS,
-    PREVIEW_LINES_AT,
     WAIT_CHOICES,
     LanguagesView,
     LookView,
@@ -54,9 +53,9 @@ def test_a_change_made_elsewhere_is_shown_but_not_handed_on() -> None:
     view = TimingView(Timing(), handed.append)
     told: list[bool] = []
     view.subscribe(lambda: told.append(True))
-    view.follow(Timing(CaptionMode.LIVE, 2.0))
+    view.follow(Timing(CaptionMode.INSTANT, 2.0))
     assert told == [True] and handed == []
-    view.follow(Timing(CaptionMode.LIVE, 2.0))
+    view.follow(Timing(CaptionMode.INSTANT, 2.0))
     assert told == [True]
 
 
@@ -66,7 +65,7 @@ def test_a_panel_that_goes_stops_being_told() -> None:
     stop = view.subscribe(lambda: told.append(True))
     stop()
     stop()  # twice is harmless
-    view.set_mode(CaptionMode.PREVIEW)
+    view.set_mode(CaptionMode.CALM)
     assert told == []
 
 
@@ -167,7 +166,7 @@ def test_live_updates_come_as_often_as_the_panel_says() -> None:
     of speech, as the panel says of a caption's."""
     for interval in LIVE_CHOICES:
         for wait in WAIT_CHOICES:
-            timing = Timing(CaptionMode.LIVE, interval, wait)
+            timing = Timing(CaptionMode.INSTANT, interval, wait)
             asked = _live_updates(timing, 18.0, finished=True)
             gaps = [b - a for a, b in itertools.pairwise(asked)]
             assert gaps, (interval, wait)
@@ -176,17 +175,9 @@ def test_live_updates_come_as_often_as_the_panel_says() -> None:
             assert statistics.median_high(gaps) == pytest.approx(
                 timing.live_every, abs=FRAME_SEC
             ), (interval, wait, gaps)
-    assert Timing(CaptionMode.LIVE, 6.0, 3.0).live_every == 3.0
-    assert Timing(CaptionMode.LIVE, 1.5, 3.0).live_every == 1.5
+    assert Timing(CaptionMode.INSTANT, 6.0, 3.0).live_every == 3.0
+    assert Timing(CaptionMode.INSTANT, 1.5, 3.0).live_every == 1.5
 
 
-def test_quick_previews_dim_lines_come_where_the_panel_says() -> None:
-    """Quick preview's dim lines, fixed: at PREVIEW_LINES_AT into a caption
-    (1.5 and 3 s), then its finished caption - at a longest wait that adds
-    none of its own."""
-    asked = _live_updates(Timing(CaptionMode.PREVIEW, max_wait=6.0), 6.0)
-    assert PREVIEW_LINES_AT == (1.5, 3.0)
-    assert len(asked) == len(PREVIEW_LINES_AT)
-    for at, said in zip(asked, PREVIEW_LINES_AT, strict=True):
-        assert abs(at - said) <= FRAME_SEC
-    assert max(LIVE_CHOICES) <= max(WAIT_CHOICES)  # an interval offered can be followed
+def test_an_interval_offered_can_be_followed() -> None:
+    assert max(LIVE_CHOICES) <= max(WAIT_CHOICES)

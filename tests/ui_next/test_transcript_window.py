@@ -217,14 +217,14 @@ def test_the_strip_asks_for_its_caption_window_s_choices(
     window.timing_wanted.connect(asked.append)
     window.language_actions["ja"].trigger()
     window.language_actions[""].trigger()
-    window.timing_actions[CaptionMode.LIVE].trigger()
+    window.timing_actions[CaptionMode.INSTANT].trigger()
     assert asked == ["ja", "", "live"]
 
 
 def test_it_shows_its_caption_window_s_choices(window: TranscriptWindow) -> None:
-    window.follow(DISCORD, "", True, CaptionMode.PREVIEW, YOU)
+    window.follow(DISCORD, "", True, CaptionMode.CALM, YOU)
     assert window.buttons["language"].text() == "Original only ▾"
-    assert window.buttons["timing"].text() == "Quick preview ▾"
+    assert window.buttons["timing"].text() == "Calm ▾"
     assert window.tag.mic
 
 
@@ -528,7 +528,9 @@ def test_it_opens_beside_its_caption_window(
     windows.windows["Discord.exe"].controls["transcript"].trigger()
     shown = transcripts.shown["Discord.exe"]
     assert shown.isVisible()
-    caption = windows.windows["Discord.exe"].geometry()
+    # joined, as two windows start (554): beside the window it's a column of
+    assert windows.joined_window is not None
+    caption = windows.joined_window.geometry()
     assert shown.geometry().size().toTuple() == (720, 520)
     assert not shown.geometry().intersects(caption)
 
@@ -575,7 +577,7 @@ class Views:
 
     def __init__(self) -> None:
         self.languages = LanguagesView(SessionLanguages())
-        self.timing = TimingView(Timing(CaptionMode.STEADY, 2.0))
+        self.timing = TimingView(Timing(CaptionMode.WHOLE, 2.0))
         self.look = LookView(CaptionLook())
 
 

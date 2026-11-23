@@ -14,7 +14,7 @@ import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 
-from PySide6.QtCore import QRect, QRectF, QSize, Qt, QTimer, QUrl, Signal
+from PySide6.QtCore import QPoint, QRect, QRectF, QSize, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import (
     QColor,
     QDesktopServices,
@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
     QLayoutItem,
     QMenu,
     QPushButton,
+    QRadioButton,
     QSizePolicy,
     QSpacerItem,
     QStyle,
@@ -361,9 +362,8 @@ def wrapped(text: str, font: QFont, width: int) -> str:
 
 
 class _Wraps:
-    """What `WrapButton` and `WrapCheckBox` share: their words wrap onto
-    more lines when the button is narrower than them - never cut - and the
-    least width is the longest word's. `text()` stays the words as given
+    """Wrap a button's words onto more lines when the button narrows.
+    The least width is the longest word's. `text()` stays the words as given
     (a screen reader, the tests); only the painting breaks them. Its height
     follows its lines (`sizeHint` at its width now), so a layout gives it
     the lines' height and no more."""
@@ -477,6 +477,25 @@ class WrapCheckBox(_Wraps, QCheckBox):
 
     def _one_line(self) -> QSize:
         return QCheckBox.sizeHint(self)
+
+
+class WrapRadioButton(_Wraps, QRadioButton):
+    """A radio button whose label wraps at narrow widths."""
+
+    _element = QStyle.ControlElement.CE_RadioButton
+
+    def __init__(self, text: str = "", parent: QWidget | None = None) -> None:
+        super().__init__(text, parent)
+        self._setup()
+
+    def _one_line(self) -> QSize:
+        return QRadioButton.sizeHint(self)
+
+    def hitButton(self, pos: QPoint) -> bool:
+        if self.width() < self._one_line().width():
+            # Qt's native hit area can cover only the unwrapped line.
+            return self.rect().contains(pos)
+        return super().hitButton(pos)
 
 
 def right_row(*buttons: QWidget) -> Flow:
@@ -604,8 +623,9 @@ class Card(QFrame):
         self.title = label(title, "CardTitle") if title else None
         if self.title is not None:
             self.column.addWidget(self.title)
-        if subtitle:
-            self.column.addWidget(label(subtitle, "Dim", wrap=True))
+        self.subtitle = label(subtitle, "Dim", wrap=True) if subtitle else None
+        if self.subtitle is not None:
+            self.column.addWidget(self.subtitle)
 
     def add(self, item: QWidget | QLayout) -> None:
         if isinstance(item, QWidget):
@@ -679,13 +699,16 @@ class Segmented(QFrame):
         row.setContentsMargins(3, 3, 3, 3)
         self.buttons: list[QPushButton] = []
         for index, (_, text) in enumerate(options):
-            button = QPushButton(text)
+            button = self._make_button(text)
             button.setCheckable(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.clicked.connect(lambda _=False, i=index: self._clicked(i))
             self.buttons.append(button)
             row.addWidget(button)
         self.set_value(value)
+
+    def _make_button(self, text: str) -> QPushButton:
+        return QPushButton(text)
 
     def _clicked(self, index: int) -> None:
         self.set_value(self._values[index])  # a click on the chosen one keeps it

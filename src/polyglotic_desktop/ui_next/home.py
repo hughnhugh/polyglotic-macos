@@ -52,17 +52,24 @@ from PySide6.QtCore import (
     QLocale,
     QObject,
     QPoint,
+    QRectF,
     Qt,
     QTimer,
     Signal,
 )
 from PySide6.QtGui import (
+    QAccessible,
+    QAccessibleAnnouncementEvent,
     QAction,
+    QColor,
     QCursor,
     QGuiApplication,
     QHideEvent,
     QKeyEvent,
+    QKeySequence,
     QMouseEvent,
+    QPainter,
+    QPaintEvent,
     QShowEvent,
 )
 from PySide6.QtWidgets import (
@@ -83,25 +90,30 @@ from PySide6.QtWidgets import (
 )
 
 from polyglotic_desktop.core.listening.hidden import Sight
+from polyglotic_desktop.core.listening.hotkeys import OWN_MODIFIERS
 from polyglotic_desktop.core.listening.maintenance import Maintenance
 from polyglotic_desktop.core.listening.unreachable import Unreachable
+from polyglotic_desktop.core.shared.papers import STATUS_PAGE
 from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ports.learning import SetAsideLearningData
 from polyglotic_desktop.ui_next import maintenance, style, wheel
-from polyglotic_desktop.ui_next.caption_window import notice_text
+from polyglotic_desktop.ui_next.caption_window import notice_text, reduced_motion
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Flow,
     GlyphButton,
-    Segmented,
     StatusDot,
     SwitchRow,
+    WrapButton,
+    WrapRadioButton,
     label,
+    page_button,
     swatch,
 )
-from polyglotic_desktop.ui_next.glyphs import Glyph
+from polyglotic_desktop.ui_next.glyphs import Glyph, paint
 from polyglotic_desktop.ui_next.languages import (
+    in_sentence,
     language_name,
     name_list,
     not_offered_note,
@@ -109,7 +121,13 @@ from polyglotic_desktop.ui_next.languages import (
     target_languages,
 )
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
-from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.os_words import (
+    hotkeys_here,
+    on_linux,
+    pc_mac_or_linux,
+    pc_or_mac,
+    platform,
+)
 from polyglotic_desktop.ui_next.pack_row import megabytes
 from polyglotic_desktop.ui_next.plan import get_plus_text
 from polyglotic_desktop.ui_next.sound_card import SoundCard
@@ -119,7 +137,6 @@ from polyglotic_desktop.ui_next.views.caption_window import (
     minutes_used_up,
 )
 from polyglotic_desktop.ui_next.views.home import (
-    SYSTEM,
     Action,
     AddableApp,
     AppRow,
@@ -161,6 +178,33 @@ WHATS_NEW_ON_HOME = 3
 
 def _tr(text: str) -> str:
     return QApplication.translate("Home", text)
+
+
+def not_writable_notice() -> str:
+    """Home's and Settings > Updates' notice when an AppImage sits in a folder
+    the learner can't change: one string, so both say the same (polyglotic-hq 640)."""
+    return _tr(
+        "Polyglotic can't update itself in this folder. Move it to your "
+        "Applications folder (~/Applications) and start it from there."
+    )
+
+
+def open_folder_label() -> str:
+    """Button beside the not-writable notice on Home and in Settings > Updates."""
+    return _tr("Open folder")
+
+
+def update_ready_linux() -> str:
+    """Home's and Settings > Updates' "update ready" line on Linux, where an
+    AppImage update applies when the app quits (polyglotic-hq 640)."""
+    return _tr(
+        "Version {version} is ready. Quit and start Polyglotic again to finish updating."
+    )
+
+
+def quit_now_label() -> str:
+    """Button beside the update-ready line on Linux (polyglotic-hq 640)."""
+    return _tr("Quit now")
 
 
 def learning_set_aside_notice(aside: SetAsideLearningData) -> str:
@@ -332,6 +376,16 @@ def hotkey_works(action: QAction) -> bool:
     return not action.shortcut().isEmpty()
 
 
+def own_hotkey(action: QAction, letter: str) -> bool:
+    """`action`'s hotkey works and is still the app's own Ctrl+Alt+`letter`
+    (the platform's: ⌃⌘ on a Mac): the words that name it say that one, so a key the
+    learner chose instead leaves them unsaid (polyglotic-hq 567)."""
+    qt = {"ctrl": "Ctrl", "alt": "Alt", "shift": "Shift", "win": "Meta"}
+    held = [qt[m.value] for m in OWN_MODIFIERS[platform()]]
+    own = QKeySequence("+".join([*held, letter]))  # Qt reads them in any order
+    return hotkey_works(action) and action.shortcut() == own
+
+
 def _bound(text: str, action: QAction) -> QPushButton:
     """A checkable button showing a checkable action - either changes it."""
     button = _button(text)
@@ -347,7 +401,8 @@ def _bound(text: str, action: QAction) -> QPushButton:
 
 class StateCard(Card):
     """Home's first card: the banner, what's happening, and Pause captions /
-    Resume - or Sign in."""
+    Resume - or Sign in; and Server status while the server can't be
+    reached and the problem may be ours."""
 
     def __init__(
         self,
@@ -371,12 +426,26 @@ class StateCard(Card):
         (`_show_banner`)."""
         self.notice.hide()
         self.add(self.notice)
+        self.capture_problem = label("", "Banner", wrap=True)
+        self.capture_settings = page_button(
+            QApplication.translate("Settings", "Open System Settings"),
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture",
+            "home.system_audio_settings",
+        )
+        self.capture_settings.setToolTip(
+            QApplication.translate("Settings", "Open System Settings")
+        )
+        self.add(self.capture_problem)
+        self.add(self.capture_settings)
+        self.capture_problem.hide()
+        self.capture_settings.hide()
         self._brief: str | None = None
         self._minutes_used = False
         self._failing = False
         self._unstable = False
         self._clock_off: str | None = None
         """This PC's clock looks wrong (313): on the banner, captions working."""
+        self._email_sign_in = True
         self._pause_key = True
         """Ctrl+Alt+P works here (`show_pause_key`)."""
         self._dictionary: str | None = None
@@ -402,12 +471,20 @@ class StateCard(Card):
         self._plus_ended = False  # the title says it: the plan line would repeat it
         for each in (self.title_label, self.detail, self.minutes, self.plan):
             words.addWidget(each)
+        self.status_page = page_button(
+            server_status_text(), STATUS_PAGE, "home.status_page"
+        )
+        """While the server can't be reached and the problem may be ours:
+        the site's status page (polyglotic-hq 540, 563)."""
+        self.status_page.setProperty("kind", "ghost")
+        self.status_page.hide()
         row.add_layout(words, 1)
         self.pause = QToolButton()
         self.pause.setDefaultAction(pause)
         self.pause.setProperty("kind", "primary")
         self.pause.setCursor(Qt.CursorShape.PointingHandCursor)
         self.pause.setMinimumWidth(style.px(110))
+        self.pause.hide()
         row.addWidget(self.pause)
         self.sign_in = _button(_tr("Sign in"), "primary")
         self.sign_in.setObjectName("home.sign_in")
@@ -420,6 +497,15 @@ class StateCard(Card):
         self.get_plus.setMinimumWidth(style.px(110))
         self.get_plus.hide()
         row.addWidget(self.get_plus)
+        self.upgrade = _button(_tr("Upgrade"), "primary")
+        self.upgrade.setObjectName("home.upgrade")
+        self.upgrade.hide()
+        row.addWidget(self.upgrade)
+        self.review_consent = _button(_tr("Review consent"), "primary")
+        self.review_consent.hide()
+        row.addWidget(self.review_consent)
+        # after the state's own button: where they don't fit, it goes under
+        row.addWidget(self.status_page)
         self.add(row)
         self._notice_timer = QTimer(self, singleShot=True, interval=NOTICE_ON_HOME_MS)
         self._notice_timer.timeout.connect(lambda: self.set_notice(None))
@@ -441,6 +527,10 @@ class StateCard(Card):
             self._pause_key = works
             self.tick()
 
+    def use_email_sign_in(self, available: bool) -> None:
+        self._email_sign_in = available
+        self.tick()
+
     def tick(self) -> None:
         """The line as it is now - the countdown a second on."""
         line = state_line(replace(self._state, failing=self._failing), self._clock())
@@ -452,13 +542,17 @@ class StateCard(Card):
             title = _TITLES[line.title]()
         self.title_label.setText(title)
         self.detail.setText(
-            " · ".join(_detail(d, arg, self._pause_key) for d, arg in line.details)
+            " · ".join(
+                _detail(d, arg, self._pause_key, email_sign_in=self._email_sign_in)
+                for d, arg in line.details
+            )
         )
-        signing_in = line.action is Action.SIGN_IN
-        getting_plus = line.action is Action.GET_PLUS
-        self.sign_in.setVisible(signing_in)
-        self.get_plus.setVisible(getting_plus)
-        self.pause.setVisible(not signing_in and not getting_plus)
+        self.sign_in.setVisible(line.action is Action.SIGN_IN)
+        self.get_plus.setVisible(line.action is Action.GET_PLUS)
+        self.upgrade.setVisible(line.action is Action.UPGRADE)
+        self.review_consent.setVisible(line.action is Action.REVIEW_CONSENT)
+        self.status_page.setVisible(line.status_page)
+        self.pause.setVisible(line.action is Action.PAUSE)
         self._plus_ended = line.title is Title.PLUS_ENDED
         self.plan.setVisible(bool(self.plan.text()) and not self._plus_ended)
         counting = any(detail is Detail.RETRY_IN for detail, _ in line.details)
@@ -466,6 +560,12 @@ class StateCard(Card):
             self._tick.start()
         elif not counting:
             self._tick.stop()
+
+    def show_capture_problem(self, text: str) -> None:
+        """Keep the recovery action visible while the selected source is unavailable."""
+        self.capture_problem.setText(text)
+        self.capture_problem.setVisible(bool(text))
+        self.capture_settings.setVisible(bool(text))
 
     def set_notice(self, text: str | None) -> None:
         """A brief notice on the banner for a while (None: gone)."""
@@ -593,11 +693,15 @@ _TITLES: dict[Title, Callable[[], str]] = {
     Title.LISTENING: lambda: _tr("Listening"),
     Title.RECONNECTING: lambda: _tr("Reconnecting"),
     # full, not the learner's connection (208): "trying again in 24 s" after it
-    Title.SERVER_BUSY: lambda: _tr("The server is busy"),
+    Title.SERVER_BUSY: lambda: _tr("Polyglotic is busy — try again in a few minutes"),
     Title.NOT_SIGNED_IN: lambda: _tr("Not signed in"),
     Title.UPDATE_NEEDED: lambda: _tr("Update needed"),
     Title.MOVED: lambda: _tr("Listening moved"),
     Title.PLUS_ENDED: lambda: _tr("Plus has ended"),
+    Title.ALLOWANCE_EXHAUSTED: lambda: _tr("You’ve used your listening allowance"),
+    Title.CROSS_BORDER_CONSENT_REQUIRED: lambda: _tr(
+        "Consent is needed to start listening"
+    ),
     Title.STOPPED: lambda: _tr("Stopped"),
     # waiting to try again: why the server can't be reached (251)
     Title.CANT_REACH: lambda: _tr("Can't reach Polyglotic's server"),
@@ -616,6 +720,11 @@ _TITLES: dict[Title, Callable[[], str]] = {
     # with the window held, "until 15:30" (`ui_next.maintenance.state_title`)
     Title.MAINTENANCE: lambda: maintenance.state_title(None, datetime.now(UTC)),
 }
+
+
+def server_status_text() -> str:
+    """The site's status page, as Home and Help name it: one string."""
+    return _tr("Server status")
 
 
 def unreachable_words(why: Unreachable) -> tuple[str, str]:
@@ -639,7 +748,7 @@ def clock_looks_wrong_notice() -> str:
     polyglotic-hq 313): captions work; what the clock says, and where to
     set it."""
     now = QDateTime.currentDateTime()
-    return pc_or_mac(
+    return pc_mac_or_linux(
         #: {date}, {time}: what this PC's clock says, in its regional format
         _tr(
             "This PC's date or time looks wrong: it says {date}, {time}. Captions "
@@ -652,30 +761,45 @@ def clock_looks_wrong_notice() -> str:
             "work; to set it, turn on Set time and date automatically in System "
             "Settings, General, Date & Time."
         ),
+        #: {date}, {time}: what this PC's clock says, in its regional format.
+        #: Linux: GNOME's, KDE's and Xfce's settings each have a Date & Time page
+        _tr(
+            "This PC's date or time looks wrong: it says {date}, {time}. Captions "
+            "work; to set it, turn on automatic date and time in your desktop's "
+            "settings, under Date & Time."
+        ),
     ).format(
         date=QLocale().toString(now.date(), QLocale.FormatType.LongFormat),
         time=QLocale().toString(now.time(), QLocale.FormatType.ShortFormat),
     )
 
 
-def sign_in_needed() -> str:
+def sign_in_needed(email: bool = True) -> str:
     """What signing in needs - Home's line after "Not signed in", and
     Account's: one string, so the two say the same (polyglotic-hq 228)."""
-    return _tr("you need a code from us: an invite, or the one in your Plus email")
+    return (
+        _tr("sign in with your email to listen")
+        if email
+        else _tr("you need a code from us: an invite, or the one in your Plus email")
+    )
 
 
-def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
+def _detail(
+    detail: Detail, arg: object, pause_key: bool = True, *, email_sign_in: bool = True
+) -> str:
     """`pause_key`: Ctrl+Alt+P works here, so the paused line names it."""
     if detail is Detail.RESUME:
         if not pause_key:
-            return pc_or_mac(
+            return pc_mac_or_linux(
                 _tr("resume here or from the tray"),
                 _tr("resume here or from the menu bar"),
+                _tr("resume here"),  # Linux: GNOME has no tray of its own (571)
             )
         return hotkeys_here(
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr("resume with Ctrl+Alt+P, or from the tray"),
                 _tr("resume with Ctrl+Alt+P, or from the menu bar"),
+                _tr("resume with Ctrl+Alt+P, or here"),
             )
         )
     if detail is Detail.WINDOWS_PAUSED:  # after "Paused": why, and what to do
@@ -684,14 +808,14 @@ def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
             int(arg),  # type: ignore[call-overload]
         )
     if detail is Detail.SIGN_IN:
-        return sign_in_needed()
+        return sign_in_needed(email_sign_in)
     if detail is Detail.NOTHING_CHOSEN:
         # the Caption card under it says how (once: 109's rule 3)
         return _tr("nothing is captioned yet")
     if detail is Detail.HELP_CHECKS:
         return _tr("Help can check what's wrong")
     if detail is Detail.START_AGAIN:  # Help's check says the same (228)
-        return pc_or_mac(
+        return pc_mac_or_linux(
             _tr(
                 "quit from the tray and start Polyglotic again - if it keeps "
                 "stopping, Help can check what's wrong"
@@ -700,13 +824,17 @@ def _detail(detail: Detail, arg: object, pause_key: bool = True) -> str:
                 "quit from the menu bar and start Polyglotic again - if it keeps "
                 "stopping, Help can check what's wrong"
             ),
+            _tr(
+                "quit Polyglotic and start it again - if it keeps stopping, Help can "
+                "check what's wrong"
+            ),
         )
     if detail is Detail.RETRY_IN:
         # the caption windows' words: "Reconnecting - trying again in 8 s"
         return _tr("trying again in {seconds} s").format(seconds=arg)
     if detail is Detail.CAPTIONS_IN:
-        names = name_list(shown_name(str(code)) for code in arg)  # type: ignore[attr-defined]
-        return _tr("captions in {languages}").format(languages=names)
+        names = [shown_name(str(code)) for code in arg]  # type: ignore[attr-defined]
+        return in_sentence(_tr("captions in {languages}"), languages=names)
     if detail is Detail.ORIGINAL_ONLY:
         return _tr("captions without translation")
     if detail in _UPDATE_DETAILS:
@@ -725,7 +853,7 @@ _UPDATE_DETAILS: dict[Detail, Callable[[], str]] = {
     Detail.UPDATING: lambda: _tr(
         "getting the update - Polyglotic restarts by itself when it's ready"
     ),
-    Detail.RESTART_TO_INSTALL: lambda: pc_or_mac(
+    Detail.RESTART_TO_INSTALL: lambda: pc_mac_or_linux(
         _tr(
             "the update is downloaded - quit from the tray and start Polyglotic "
             "again to install it"
@@ -733,6 +861,10 @@ _UPDATE_DETAILS: dict[Detail, Callable[[], str]] = {
         _tr(
             "the update is downloaded - quit from the menu bar and start Polyglotic "
             "again to install it"
+        ),
+        _tr(
+            "the update is downloaded - quit Polyglotic and start it again to "
+            "install it"
         ),
     ),
     Detail.NO_UPDATE_YET: lambda: _tr(
@@ -781,7 +913,7 @@ _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
     ),
     # only when the clock is certainly wrong - before this copy of the app
     # was built (connection.tls, decision 0104; polyglotic-hq 313)
-    Detail.SET_THE_CLOCK: lambda: pc_or_mac(
+    Detail.SET_THE_CLOCK: lambda: pc_mac_or_linux(
         #: {date}: the date this PC's clock says, in its regional format
         _tr(
             "this PC says it's {date}, which can't be right. Turn on Set time "
@@ -792,6 +924,11 @@ _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
         _tr(
             "this Mac says it's {date}, which can't be right. Turn on Set time and "
             "date automatically in System Settings, General, Date & Time"
+        ),
+        #: {date}: the date this PC's clock says, in its regional format
+        _tr(
+            "this PC says it's {date}, which can't be right. Turn on automatic date "
+            "and time in your desktop's settings, under Date & Time"
         ),
     ).format(date=this_pcs_date()),
     #: a certificate out of date, and this PC's clock looks right (313)
@@ -978,7 +1115,7 @@ class AppRowWidget(QFrame):
         self.transcript.setObjectName(f"picker.transcript.{index}")
         self.transcript.clicked.connect(lambda: view.open_transcript(self.key))
         line.addWidget(self.transcript)
-        self.stop = _button("×", "ghost")
+        self.stop = _button(_tr("Stop"), "small")
         self.stop.setObjectName(f"picker.stop.{index}")
         once = stopping or OneClick()
         once.watch(self.stop)
@@ -994,9 +1131,8 @@ class AppRowWidget(QFrame):
             self.edit.hide()
             self.name.show()
         self.row = row
-        self.stop.setVisible(row.key != SYSTEM)  # Apps | Everything switches it
         self.colour.setIcon(swatch(row.colour, 14))
-        self.name.setText(row.label)
+        self.name.setText(style.button_text(row.label))
         self.status.setText(row_status(row))
         self.chip.setText(_chip_text(row.translate_into))
         self.mic.setChecked(row.show_mic)
@@ -1048,6 +1184,45 @@ class AppRowWidget(QFrame):
             self.view.rename(self.key, self.edit.text())
 
 
+WAVE_SIDE = 16
+"""Logical pixels at base text size (12–24). Match the small status glyphs."""
+WAVE_FRAME_MS = 450
+"""Milliseconds per sound-wave frame (250–750). Slow enough to read beside text."""
+START_HEIGHT = 40
+"""Minimum primary button height in logical pixels at base size (32–48)."""
+
+
+class PlayingWave(QWidget):
+    """A playing source. Use the static speaker when reduced motion is on."""
+
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
+        self.setFixedSize(style.px(WAVE_SIDE), style.px(WAVE_SIDE))
+        self.frame = Glyph.SPEAKER
+        self.timer = QTimer(self, interval=WAVE_FRAME_MS)
+        self.timer.timeout.connect(self.advance)
+
+    def advance(self) -> None:
+        self.frame = Glyph.SPEAKING if self.frame is Glyph.SPEAKER else Glyph.SPEAKER
+        self.update()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        if not reduced_motion():
+            self.timer.start()
+
+    def hideEvent(self, event: QHideEvent) -> None:
+        self.timer.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        painter = QPainter(self)
+        paint(
+            painter, self.frame, QRectF(self.rect()), QColor(style.current()["ACCENT"])
+        )
+        painter.end()
+
+
 class AddRow(QFrame):
     """An app with sound that could be added: its name, then playing or
     quiet in the same dim place for both (the captioned rows say their
@@ -1069,9 +1244,15 @@ class AddRow(QFrame):
         line.addWidget(self.title, 1)
         playing = _tr("playing") if app.playing else _tr("quiet")
         self.status = label(playing, "Faint", copyable=False)
+        if app.playing:
+            line.addWidget(PlayingWave(self))
         line.addWidget(self.status)
+        self.suggestion = label(_tr("Suggested"), "RowTitle", copyable=False)
+        line.addWidget(self.suggestion)
         caption = _tr("Caption {app}").format(app=app.title)
-        self.add = _button(_tr("Caption"), "small", caption)
+        self.add = _button(
+            _tr("Caption"), "primary" if app.playing else "small", caption
+        )
         self.add.setAccessibleName(caption)
         self.add.setObjectName(f"picker.add.{app.name}")
         once = adding or OneClick()
@@ -1109,26 +1290,24 @@ class PickerCard(Card):
         """The rows' x (a double-click stops one app)."""
         head = QHBoxLayout()
         head.addWidget(label(_tr("Caption"), "CardTitle"))
+        self.nothing = label(_tr("Not captioning yet"), "CaptionIdle")
+        head.addWidget(self.nothing)
+        self.active = label("", "CaptionActive", wrap=True)
+        head.addWidget(self.active)
+        self._state_text = ""
         head.addStretch(1)
         self.count = label("", "Dim")
         self.count.setObjectName("picker.count")
         head.addWidget(self.count)
         self.add(head)
-        self.nothing = label(
-            pc_or_mac(
-                _tr(
-                    "Nothing is captioned until you add an app, or choose Everything "
-                    "the PC plays."
-                ),
-                _tr(
-                    "Nothing is captioned until you add an app, or choose Everything "
-                    "the Mac plays."
-                ),
-            ),
-            "Dim",  # plain: a first step, not a warning (151's W5)
-            wrap=True,
-        )
-        self.add(self.nothing)
+        self.start = WrapButton(parent=self)
+        self.start.setProperty("kind", "primary")
+        self.start.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.start.setObjectName("picker.start")
+        self.start.setMinimumHeight(style.px(START_HEIGHT))
+        self.add_once.watch(self.start)
+        self.start.clicked.connect(lambda: self.add_once(view.start))
+        self.add(self.start)
         # everything the PC plays - a new learner's from the first launch: what
         # that takes in, said plainly once, and the one click to an app instead
         # (polyglotic-hq 484)
@@ -1175,7 +1354,7 @@ class PickerCard(Card):
         refresh.clicked.connect(view.refresh)
         add_head.addWidget(refresh)
         adding.addLayout(add_head)
-        self.full = label(_tr("3 of 3 - stop one to add another"), "Warning", wrap=True)
+        self.full = label("", "Warning", wrap=True)
         self.full.setObjectName("picker.full")
         adding.addWidget(self.full)
         self.add_box = QVBoxLayout()
@@ -1193,7 +1372,7 @@ class PickerCard(Card):
         self.sample.setObjectName("picker.sample")
         sample = QHBoxLayout(self.sample)
         sample.setContentsMargins(0, 2, 0, 0)
-        self.sample_button = _button(_tr("Try it on a sample"), "primary")
+        self.sample_button = _button(_tr("Try it on a sample"), "small")
         self.sample_button.setObjectName("picker.sample_button")
         self.sample_button.clicked.connect(
             lambda: view.try_sample(view.value.sample is not Sample.PLAYING)
@@ -1218,23 +1397,26 @@ class PickerCard(Card):
         self.add_rows: dict[str, AddRow] = {}
         self._available: tuple[AddableApp, ...] | None = None
 
-        self.everything = Segmented(
-            [
-                (False, _tr("Apps")),
-                (
-                    True,
-                    pc_or_mac(
-                        _tr("Everything the PC plays"), _tr("Everything the Mac plays")
-                    ),
-                ),
-            ],
-            view.value.whole_system,
+        choices = QHBoxLayout()
+        self.pick_apps = WrapRadioButton(_tr("Pick apps"), self)
+        self.all_audio = WrapRadioButton(
+            pc_or_mac(_tr("Everything the PC plays"), _tr("Everything the Mac plays")),
+            self,
         )
-        self.everything.setObjectName("picker.everything")
-        self.everything.changed.connect(lambda on: view.set_whole_system(bool(on)))
+        for button, detail in (
+            (self.pick_apps, _tr("Only caption the apps you choose.")),
+            (self.all_audio, _tr("Caption sound from all apps together.")),
+        ):
+            column = QVBoxLayout()
+            column.addWidget(button)
+            column.addWidget(label(detail, "Faint", wrap=True))
+            choices.addLayout(column, 1)
+            button.setAccessibleDescription(detail)
+        self.pick_apps.clicked.connect(lambda: view.set_whole_system(False))
+        self.all_audio.clicked.connect(lambda: view.set_whole_system(True))
+        self.add(choices)
         everything = QHBoxLayout()
-        everything.addWidget(self.everything, 0, Qt.AlignmentFlag.AlignLeft)
-        self.everything_note = label("", "Faint", wrap=True)  # `_note`
+        self.everything_note = label("", "Faint", wrap=True)
         everything.addWidget(self.everything_note, 1)
         # capturing apps one by one failed here: tried again (decision 0076)
         self.apps_again = _button(_tr("Try apps again"), "small")
@@ -1245,7 +1427,8 @@ class PickerCard(Card):
 
         you = QHBoxLayout()
         you.setSpacing(6)
-        you.addWidget(label(_tr("Your speech is labelled"), "Dim", wrap=True))
+        self.you_label = label(_tr("Your speech is labelled"), "Dim", wrap=True)
+        you.addWidget(self.you_label)
         self.you = AppRowWidget("you", view, self.colours)  # its colour and name
         parts: tuple[QWidget, ...] = (
             self.you.status,
@@ -1267,6 +1450,13 @@ class PickerCard(Card):
         self.destroyed.connect(lambda *_: stop())
         self.refresh()
 
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        if self._state_text:
+            QAccessible.updateAccessibility(
+                QAccessibleAnnouncementEvent(self, self._state_text)
+            )
+
     def _changed(self) -> None:
         with spans.span("home.picker"):
             self.refresh()
@@ -1274,8 +1464,9 @@ class PickerCard(Card):
     def refresh(self) -> None:
         value = self.view.value
         self._rows(value)
-        self.everything.set_value(value.whole_system)
-        self.everything.buttons[0].setEnabled(value.per_app)
+        self.all_audio.setChecked(value.whole_system)
+        self.pick_apps.setChecked(not value.whole_system)
+        self.pick_apps.setEnabled(value.per_app)
         self._note(value)
         if value.whole_system:  # its row says it: no count of apps
             self.count.setText("")
@@ -1286,7 +1477,7 @@ class PickerCard(Card):
                 _tr("{n} of {limit}").format(n=len(value.apps), limit=value.limit)
             )
         self._everything_else(value)
-        self.nothing.setVisible(not value.captioned)
+        self._show_caption_state(value)
         self._everything_said(value)
         # with everything the PC plays too: one click captions an app instead
         self.adding.setVisible(value.per_app)
@@ -1297,13 +1488,15 @@ class PickerCard(Card):
         if value.you is not None:
             self.you.show_row(value.you, hidden=False)
             self.you.stop.hide()
-        self.you.setVisible(value.you is not None)
+        self.you.setVisible(bool(value.captioned) and value.you is not None)
+        self.you_label.setVisible(bool(value.captioned) and value.you is not None)
+        self.speech.setVisible(bool(value.captioned))
         shown = value.speech_shown_in
         if shown:
             self.speech.setText(
                 _tr(
-                    "My speech: shown in {windows} - sent to the server only "
-                    "while a window shows it"
+                    "My speech: shown in {windows} - sent for your captions only "
+                    "while it's shown"
                 ).format(windows=name_list(shown))
             )
         elif value.captioned:
@@ -1313,13 +1506,50 @@ class PickerCard(Card):
                     "microphone, or a window's settings"
                 )
             )
-        else:
-            self.speech.setText(
-                _tr(
-                    "My speech: not shown - add an app first, then turn it on with "
-                    "its row's microphone, or its window's settings"
+
+    def _show_caption_state(self, value: Picker) -> None:
+        sample = value.sample is Sample.PLAYING
+        idle = not value.captioned and not sample
+        if self.property("captionIdle") != idle:
+            self.setProperty("captionIdle", idle)
+            self.style().unpolish(self)
+            self.style().polish(self)
+        self.nothing.setVisible(idle)
+        self.start.setVisible(idle)
+        suggested = self.view.suggested
+        if idle:
+            target = (
+                _tr("Caption {app}").format(app=suggested.title)
+                if suggested
+                else pc_or_mac(
+                    _tr("Caption everything the PC plays"),
+                    _tr("Caption everything the Mac plays"),
                 )
             )
+            self.start.setText("▶ " + style.button_text(target))
+            self.start.setAccessibleName(target)
+        listening_to = [
+            row.label
+            for row in value.captioned
+            if row.sight is not Sight.PAUSED and row.status is not AppStatus.NOT_OPEN
+        ]
+        live = value.listening and (sample or bool(listening_to))
+        self.active.setVisible(live)
+        words = ""
+        if idle:
+            words = self.nothing.text()
+            self.nothing.setAccessibleName(words)
+        elif live:
+            names = _tr("Sample") if sample else name_list(listening_to)
+            words = _tr("Captioning {app}").format(app=names)
+            self.active.setText("● " + words)
+            self.active.setAccessibleName(words)
+        if words != self._state_text:
+            self._state_text = words
+            if words and self.isVisible():
+                QAccessible.updateAccessibility(
+                    QAccessibleAnnouncementEvent(self, words)
+                )
 
     def _everything_said(self, value: Picker) -> None:
         """While everything the PC plays is captioned: that a call's voices
@@ -1354,12 +1584,15 @@ class PickerCard(Card):
         Apps is off - an older Windows 10, or trying apps failed here, with
         "Try apps again" (decision 0076)."""
         if value.fell_back:
-            note = pc_or_mac(
+            note = pc_mac_or_linux(
                 _tr(
                     "instead of apps: Windows on this PC couldn't caption one app alone"
                 ),
                 _tr("instead of apps: this Mac couldn't caption one app alone"),
+                _tr("instead of apps: this PC couldn't caption one app alone"),
             )
+        elif not value.per_app and on_linux():  # one app alone: slice 2 (550)
+            note = _tr("instead of apps (the only choice on Linux for now)")
         elif not value.per_app:
             note = pc_or_mac(
                 _tr("instead of apps (the only choice on this version of Windows)"),
@@ -1367,7 +1600,7 @@ class PickerCard(Card):
             )
         else:
             note = _tr("instead of apps")
-        self.everything.setToolTip(note)
+        self.pick_apps.setToolTip(note if not value.per_app else "")
         self.everything_note.setText(note)
         self.everything_note.setVisible(not value.per_app)
         self.apps_again.setVisible(value.fell_back)
@@ -1406,8 +1639,9 @@ class PickerCard(Card):
                 _tr("Everything the Mac plays except {app}, in a window of its own"),
             ).format(app=app)
         else:
-            detail = pc_or_mac(
+            detail = pc_mac_or_linux(
                 _tr("With one app only - Windows can leave just one app out"),
+                _tr("With one app only"),
                 _tr("With one app only"),
             )
         row.detail.setText(detail)
@@ -1417,7 +1651,10 @@ class PickerCard(Card):
         self.full.setText(
             _tr("One app beside everything else - turn that off to add another")
             if value.everything_else
-            else _tr("3 of 3 - stop one to add another")
+            else _tr("{used} of {limit} - stop one to add another").format(
+                used=QLocale().toString(len(value.apps)),
+                limit=QLocale().toString(value.limit),
+            )
         )
         self.full.setVisible(value.full)
         self.none_found.setVisible(not value.available)
@@ -1438,7 +1675,13 @@ class PickerCard(Card):
                 widget = AddRow(app, self.view, self.add_once)
                 self.add_box.addWidget(widget)
                 self.add_rows[app.name] = widget
+        suggested = self.view.suggested
         for widget in self.add_rows.values():
+            widget.suggestion.setVisible(
+                not value.captioned
+                and suggested is not None
+                and widget.name == suggested.name
+            )
             widget.setEnabled(not value.full)
 
 
@@ -1455,6 +1698,8 @@ class HomePage(Page):
     """The learner's answer to "Start Polyglotic with Windows?"."""
     sign_in_wanted = Signal()
     get_plus_wanted = Signal()
+    upgrade_wanted = Signal()
+    review_consent_wanted = Signal()
     """Plus ended: "Get Plus" (`main` opens Account's address)."""
     reset_positions_wanted = Signal()
     level_wanted = Signal()
@@ -1469,6 +1714,9 @@ class HomePage(Page):
     """The update card's Later: not asked again until the next start."""
     download_anyway_wanted = Signal()
     """The update card's Download anyway, on a metered connection (345)."""
+    open_app_folder_wanted = Signal()
+    """The not-writable card's Open folder: `main` opens the folder holding
+    this copy so the learner can move it to ~/Applications (640)."""
     whats_new_wanted = Signal()
     """What's new's All the changes: `main` opens Help's What's new (345)."""
     whats_new_closed = Signal()
@@ -1490,6 +1738,8 @@ class HomePage(Page):
         self.state = StateCard(pause)
         self.state.sign_in.clicked.connect(self.sign_in_wanted)
         self.state.get_plus.clicked.connect(self.get_plus_wanted)
+        self.state.upgrade.clicked.connect(self.upgrade_wanted)
+        self.state.review_consent.clicked.connect(self.review_consent_wanted)
         self.content.addWidget(self.state)
 
         # the level, which the first run doesn't ask (polyglotic-hq 293):
@@ -1555,6 +1805,23 @@ class HomePage(Page):
         self.update_card.add(self.update_then)
         self.update_card.hide()
         self.content.addWidget(self.update_card)
+
+        # an AppImage in a folder the learner can't change (polyglotic-hq 640):
+        # shown instead of failing silently in the log, with Open folder
+        self.not_writable_card = Card()
+        self.not_writable_card.setObjectName("Card")
+        not_writable_row = QHBoxLayout()
+        not_writable_row.setSpacing(8)
+        self.not_writable_notice = label(not_writable_notice(), wrap=True)
+        self.not_writable_notice.setObjectName("home.update.not_writable_notice")
+        not_writable_row.addWidget(self.not_writable_notice, 1)
+        self.open_app_folder = _button(open_folder_label())
+        self.open_app_folder.setObjectName("home.update.open_folder")
+        self.open_app_folder.clicked.connect(self.open_app_folder_wanted)
+        not_writable_row.addWidget(self.open_app_folder)
+        self.not_writable_card.add(not_writable_row)
+        self.not_writable_card.hide()
+        self.content.addWidget(self.not_writable_card)
 
         # what's new, after an update (polyglotic-hq 345): this version's
         # notes in a few lines, once - until Close; Help keeps them all
@@ -1637,7 +1904,10 @@ class HomePage(Page):
         """Lock all's and Hide all's tips, the paused line and a hidden
         window's tip name a hotkey only while it works (polyglotic-hq 400:
         398's preview build registers none, and they said "Ctrl+Alt+L")."""
-        pause, lock, hide = (hotkey_works(action) for action in self._hotkeys)
+        pause, lock, hide = (
+            own_hotkey(action, letter)
+            for action, letter in zip(self._hotkeys, "PLH", strict=True)
+        )
         self.lock.setToolTip(hotkeys_here(_tr("Ctrl+Alt+L")) if lock else "")
         self.hide_all.setToolTip(hotkeys_here(_tr("Ctrl+Alt+H")) if hide else "")
         self.state.show_pause_key(pause)
@@ -1678,8 +1948,14 @@ class HomePage(Page):
             return
         held = metered_size is not None
         if not held:
-            title = _tr("Version {version} is ready. Restart to install it.")
-            then = _tr("Or later: it installs the next time Polyglotic starts.")
+            if on_linux():
+                title = update_ready_linux()
+                then = _tr("Or later: it applies when you quit Polyglotic.")
+                self.update_restart.setText(quit_now_label())
+            else:
+                title = _tr("Version {version} is ready. Restart to install it.")
+                then = _tr("Or later: it installs the next time Polyglotic starts.")
+                self.update_restart.setText(_tr("Restart now"))
         else:
             title = (
                 _tr("Version {version} is available: {size} MB to download.")
@@ -1702,6 +1978,12 @@ class HomePage(Page):
         ):
             line.setText(f"• {text}" if text else "")
             line.setVisible(bool(text))
+
+    def show_update_not_writable(self, shown: bool) -> None:
+        """Home's quiet card when the app's folder can't be written to
+        (e.g. a Linux AppImage in /opt): tells the learner to move it to
+        ~/Applications and offers Open folder (polyglotic-hq 640)."""
+        self.not_writable_card.setVisible(shown)
 
     def _downloading(self) -> None:
         """Download anyway, clicked: it says so until the download ends -
@@ -1793,16 +2075,21 @@ class HomePage(Page):
         row = QHBoxLayout()
         row.addWidget(
             label(
-                pc_or_mac(
+                pc_mac_or_linux(
                     _tr("Start Polyglotic with Windows?"),
                     _tr("Open Polyglotic when you log in?"),
+                    _tr("Start Polyglotic when you sign in?"),  # Linux (571)
                 ),
                 "RowTitle",
                 wrap=True,
             ),
             1,
         )
-        yes = _button(pc_or_mac(_tr("Start with Windows"), _tr("Open at login")))
+        yes = _button(
+            pc_mac_or_linux(
+                _tr("Start with Windows"), _tr("Open at login"), _tr("Start at sign-in")
+            )
+        )
         yes.setObjectName("home.startup.yes")
         no = _button(_tr("Not now"), "ghost")
         no.setObjectName("home.startup.no")
@@ -1811,7 +2098,7 @@ class HomePage(Page):
         card.add(row)
         card.add(
             label(
-                pc_or_mac(
+                pc_mac_or_linux(
                     _tr(
                         "It waits in the tray, so captions are a click away when "
                         "you play or watch. Windows' Startup apps can turn it off."
@@ -1821,6 +2108,12 @@ class HomePage(Page):
                         "It opens when you log in, so captions are a click away "
                         "when you play or watch. Login Items in System Settings "
                         "can turn it off."
+                    ),
+                    # Linux: an autostart entry; not every desktop lists them
+                    # (GNOME needs Tweaks), so Polyglotic's own Settings (571)
+                    _tr(
+                        "It starts when you sign in, so captions are a click away "
+                        "when you play or watch. You can turn it off in Settings."
                     ),
                 ),
                 "Faint",

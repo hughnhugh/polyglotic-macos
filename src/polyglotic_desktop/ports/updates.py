@@ -36,6 +36,12 @@ class DownloadFailed(Exception):
     the feed said it was. `download` raises it."""
 
 
+class NotWritable(DownloadFailed):
+    """The release was found, but the app's folder can't be changed by this
+    user (e.g. a Linux AppImage in /opt or a read-only mount), so an update
+    can't replace it. `download` raises it (polyglotic-hq 640)."""
+
+
 class Updater(Protocol):
     def installed(self) -> bool:
         """Installed by the installer: False when run from source, or from

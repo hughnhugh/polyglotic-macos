@@ -62,6 +62,8 @@ class ListeningState(StrEnum):
     UPDATE_NEEDED = "update_needed"
     MOVED = "moved"
     PLUS_ENDED = "plus_ended"
+    ALLOWANCE_EXHAUSTED = "allowance_exhausted"
+    CROSS_BORDER_CONSENT_REQUIRED = "cross_border_consent_required"
     STOPPED = "stopped"
 
 
@@ -77,6 +79,8 @@ class Title(StrEnum):
     UPDATE_NEEDED = "update_needed"
     MOVED = "moved"
     PLUS_ENDED = "plus_ended"
+    ALLOWANCE_EXHAUSTED = "allowance_exhausted"
+    CROSS_BORDER_CONSENT_REQUIRED = "cross_border_consent_required"
     STOPPED = "stopped"
     # waiting to try again: why the server can't be reached (251)
     CANT_REACH = "cant_reach"
@@ -93,7 +97,7 @@ class Title(StrEnum):
 class Detail(StrEnum):
     RESUME = "resume"  # how: Ctrl+Alt+P, or the tray
     WINDOWS_PAUSED = "windows_paused"  # every window hidden too long: show them
-    SIGN_IN = "sign_in"  # you need an invite code from us
+    SIGN_IN = "sign_in"
     NOTHING_CHOSEN = "nothing_chosen"
     RETRY_IN = "retry_in"  # seconds
     HELP_CHECKS = "help_checks"  # not connected: Help's check says why (176)
@@ -145,6 +149,11 @@ _BY_CONNECTION = {
     ListeningState.UPDATE_NEEDED: (Tone.BAD, Title.UPDATE_NEEDED),
     ListeningState.MOVED: (Tone.WAIT, Title.MOVED),
     ListeningState.PLUS_ENDED: (Tone.BAD, Title.PLUS_ENDED),
+    ListeningState.ALLOWANCE_EXHAUSTED: (Tone.BAD, Title.ALLOWANCE_EXHAUSTED),
+    ListeningState.CROSS_BORDER_CONSENT_REQUIRED: (
+        Tone.BAD,
+        Title.CROSS_BORDER_CONSENT_REQUIRED,
+    ),
     ListeningState.STOPPED: (Tone.BAD, Title.STOPPED),
 }
 
@@ -165,6 +174,20 @@ _UNREACHABLE: dict[Unreachable, tuple[Title, Detail]] = {
     Unreachable.MAINTENANCE: (Title.MAINTENANCE, Detail.MAINTENANCE),
 }
 """Waiting to try again: what Home says, by why the server can't be reached."""
+
+STATUS_PAGE_HELPS = frozenset(
+    {
+        Unreachable.NO_ANSWER,
+        Unreachable.DOWN,
+        Unreachable.RESTARTING,
+        Unreachable.SERVER_ERROR,
+        Unreachable.MAINTENANCE,
+    }
+)
+"""Why the server can't be reached where the site's status page can say
+more: the problem is ours, or may be (polyglotic-hq 540, 563). Not this
+PC offline (the page won't open either), nor its network or clock in the
+way, nor the account's refusals."""
 
 
 _UPDATE_DETAIL = {
@@ -210,12 +233,15 @@ class HomeState:
 
 
 class Action(StrEnum):
-    """The state line's button: Pause captions / Resume, Sign in, or Get
-    Plus."""
+    """The state line's button: Pause captions / Resume, Sign in, Get
+    Plus, or none while nothing is captioned."""
 
+    NONE = "none"
     PAUSE = "pause"
     SIGN_IN = "sign_in"
     GET_PLUS = "get_plus"
+    UPGRADE = "upgrade"
+    REVIEW_CONSENT = "review_consent"
 
 
 @dataclass(frozen=True)
@@ -224,6 +250,8 @@ class StateLine:
     title: Title
     details: tuple[tuple[Detail, object], ...] = ()
     action: Action = Action.PAUSE
+    status_page: bool = False
+    """The site's status page is offered (`STATUS_PAGE_HELPS`)."""
 
     @property
     def pulse(self) -> bool:
@@ -276,14 +304,23 @@ def state_line(state: HomeState, now: float = 0.0) -> StateLine:
         return StateLine(Tone.WAIT, Title.PAUSED, paused)
     if title is Title.NOT_SIGNED_IN:
         return StateLine(tone, title, ((Detail.SIGN_IN, None),), Action.SIGN_IN)
+    action = Action.PAUSE if state.chosen else Action.NONE
     if title is Title.UPDATE_NEEDED:  # what to do, and nothing else
-        return StateLine(tone, title, ((_UPDATE_DETAIL[state.update_found], None),))
+        return StateLine(
+            tone, title, ((_UPDATE_DETAIL[state.update_found], None),), action
+        )
     if title is Title.PLUS_ENDED:  # what ended, what stays, what to do (185)
         return StateLine(tone, title, ((Detail.WORDS_STAY, None),), Action.GET_PLUS)
+    if title is Title.ALLOWANCE_EXHAUSTED:
+        return StateLine(tone, title, (), Action.UPGRADE)
+    if title is Title.CROSS_BORDER_CONSENT_REQUIRED:
+        return StateLine(tone, title, (), Action.REVIEW_CONSENT)
+    if title is Title.SERVER_BUSY:
+        return StateLine(tone, title, (), action)
     if title is Title.STOPPED:  # what to do, as every other bad state (228)
-        return StateLine(tone, title, ((Detail.START_AGAIN, None),))
+        return StateLine(tone, title, ((Detail.START_AGAIN, None),), action)
     if title is Title.RECONNECTING and state.unreachable is not None:
-        return _unreachable(state.unreachable, retry_in(state, now))
+        return _unreachable(state.unreachable, retry_in(state, now), action)
     if state.failing and tone is Tone.GOOD:  # the banner says why
         tone = Tone.WAIT
     details: list[tuple[Detail, object]] = []
@@ -300,7 +337,7 @@ def state_line(state: HomeState, now: float = 0.0) -> StateLine:
         details.append((Detail.ORIGINAL_ONLY, None))
     if not state.speech_shown:
         details.append((Detail.SPEECH_NOT_CAPTIONED, None))
-    return StateLine(tone, title, tuple(details))
+    return StateLine(tone, title, tuple(details), action)
 
 
 def every_window_paused(rows: Sequence["AppRow"]) -> int | None:
@@ -318,7 +355,9 @@ def unreachable_line(why: Unreachable) -> tuple[Title, Detail]:
     return _UNREACHABLE[why]
 
 
-def _unreachable(why: Unreachable, seconds: int | None) -> StateLine:
+def _unreachable(
+    why: Unreachable, seconds: int | None, action: Action = Action.PAUSE
+) -> StateLine:
     """Waiting to try again, and why the server can't be reached: what's
     wrong (the title), whose side it's on and what to do, then the
     countdown - and nothing else: what's captioned can wait (251). The
@@ -330,7 +369,9 @@ def _unreachable(why: Unreachable, seconds: int | None) -> StateLine:
     # next try would be noise for half an hour (319)
     if seconds is not None and why is not Unreachable.MAINTENANCE:
         details.append((Detail.RETRY_IN, seconds))
-    return StateLine(tone, title, tuple(details))
+    return StateLine(
+        tone, title, tuple(details), action, status_page=why in STATUS_PAGE_HELPS
+    )
 
 
 # -- the app picker -------------------------------------------------------------------
@@ -416,6 +457,7 @@ class Picker:
     changed them) - today's Labels card had it beside the apps'."""
     everything_else: bool = False
     sample: Sample = Sample.NONE
+    listening: bool = True  # the session can currently caption the selected sources
 
     @property
     def apps(self) -> tuple[AppRow, ...]:
@@ -502,6 +544,7 @@ def addable(
 class PickerCommands(Protocol):
     """What the picker asks for; `main` carries it out."""
 
+    def start_captioning(self, app: str | None) -> None: ...
     def add(self, name: str) -> None: ...
     def remove(self, key: str) -> None: ...
     def rename(self, key: str, text: str) -> None: ...
@@ -524,6 +567,35 @@ class PickerView(Shared[Picker]):
     def __init__(self, value: Picker, commands: PickerCommands) -> None:
         super().__init__(value)
         self.commands = commands
+        self._recent: list[str] = []
+        self._remember(value)
+
+    def _remember(self, value: Picker) -> None:
+        """Most recently observed starting first. Simultaneous starts keep
+        the picker's stable display order. Forget sources once quiet."""
+        playing = [app.name for app in value.available if app.playing]
+        self._recent = [name for name in playing if name not in self._recent] + [
+            name for name in self._recent if name in playing
+        ]
+
+    def follow(self, value: Picker) -> None:
+        if value.available != self.value.available:
+            self._remember(value)
+        super().follow(value)
+
+    @property
+    def suggested(self) -> AddableApp | None:
+        if self._recent and self.value.per_app:
+            return next(
+                (a for a in self.value.available if a.name == self._recent[0]), None
+            )
+        return None
+
+    def start(self) -> None:
+        if self.value.captioned or self.value.sample is Sample.PLAYING:
+            return
+        app = self.suggested
+        self.commands.start_captioning(app.name if app else None)
 
     def add(self, name: str) -> None:
         if not self.value.full:

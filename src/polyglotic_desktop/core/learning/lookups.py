@@ -99,6 +99,8 @@ class LookupContext:
     the caption's word links join it to ("" for none). For the card only."""
     counterpart_language: str = ""
     """The counterpart's language code, for its font ("" if unknown)."""
+    word_class: str | None = None
+    """Display class of the word in this caption, if available."""
 
 
 def is_chinese(language: str) -> bool:

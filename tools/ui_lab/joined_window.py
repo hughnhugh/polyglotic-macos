@@ -9,7 +9,9 @@ over 1,000 made-up captions (it keeps its 150), then joined. Timed: a
 resize step with three columns (the right edge, then the top), join and
 separate, a new caption in one column (and its slide into place, 267),
 the hover band (every strip at once), a move step, and the column's
-popover opening.
+popover opening. And a new PC's set-up asked in a column (554): the first
+window's, kept when a second app's window joins it; and a window that
+opens as the middle of three columns, asking in its narrow width.
 """
 
 from functools import partial
@@ -21,7 +23,7 @@ from PySide6.QtWidgets import QWidget
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
-from polyglotic_desktop.ui_next.caption_window import _Drag, to_rect
+from polyglotic_desktop.ui_next.caption_window import CaptionWindow, _Drag, to_rect
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.joined_window import JoinedWindow
 from polyglotic_desktop.ui_next.views.caption_window import Notice, Notices
@@ -231,6 +233,54 @@ def window_popover(lab: Lab) -> QWidget:
     return _Together(window, window.popover)
 
 
+def _asking(lab: Lab, first_answers: bool) -> tuple[CaptionWindows, CaptionWindow]:
+    """A new PC's windows, joined as they start (554). The first window
+    asks its languages (465); with `first_answers`, Start captions, then
+    two more apps open and the first of them asks, as the middle column -
+    else one more app opens while the first still asks. The column asking
+    has no captions: its first caption would close the question."""
+    windows = CaptionWindows(None, MIC, _areas, offer_set_up=True)
+    windows.set_labels(LABELS, "You")
+    windows.set_captioned([("app0", SOURCES[0])])
+    first = windows.windows["app0"]
+    first.always_shown = True
+    first.show()
+    lab.pump()
+    asked = first.set_up
+    assert asked is not None
+    if first_answers:
+        asked.start.click()
+        for update in finished(CAPTIONS, SOURCES[0]):
+            windows.apply(update)
+    apps = 3 if first_answers else 2
+    windows.set_captioned([(f"app{n}", s) for n, s in enumerate(SOURCES[:apps])])
+    for each in windows.windows.values():
+        each.always_shown = True
+    for update in finished(CAPTIONS, SOURCES[apps - 1]):
+        windows.apply(update)
+    lab.pump()
+    lab.closing.append(windows.close)
+    asking = windows.windows["app1" if first_answers else "app0"]
+    assert asking.host is windows.joined_window and asking.set_up is not None
+    return windows, asking
+
+
+def set_up_kept(lab: Lab) -> QWidget:
+    """The first window's question, kept when a second app's window joins
+    it (554): inside its column, the other column's captions beside it."""
+    windows, asking = _asking(lab, first_answers=False)
+    assert asking.set_up is not None
+    return _Together(window_of(windows), asking.set_up)
+
+
+def set_up_in_a_column(lab: Lab) -> QWidget:
+    """A window opening as the middle of three columns asks its question
+    there (478, 554), as narrow as the column."""
+    windows, asking = _asking(lab, first_answers=True)
+    assert asking.set_up is not None
+    return _Together(window_of(windows), asking.set_up)
+
+
 def _ticked(window: JoinedWindow) -> None:
     for column in window.columns:
         column._tick()
@@ -274,5 +324,7 @@ STATES = [
         ("window_popover", window_popover, False),
         ("paused", paused, True),
         ("notice", notice, True),
+        ("set_up_kept", set_up_kept, False),
+        ("set_up_in_a_column", set_up_in_a_column, False),
     )
 ]

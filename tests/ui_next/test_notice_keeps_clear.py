@@ -9,9 +9,11 @@ up" covered the line the learner was reaching for.
 from collections.abc import Iterator
 
 import pytest
+from PySide6.QtCore import QPoint, QRect
 from PySide6.QtWidgets import QApplication
 from tests.ui_next.test_caption_window import window_of
 
+from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, band_height
 
 
@@ -40,9 +42,19 @@ def test_the_strip_showing_doesnt_move_the_notice(window: CaptionWindow) -> None
     window._show_band(True)
     assert window.notice.geometry() == at_rest
     # ...in the gap between the strip's label and its buttons
-    first = min(b.x() for b in window.buttons.values() if not b.isHidden())
-    assert at_rest.right() < window.band.x() + first
-    assert at_rest.left() > window.band.x() + window.tag.sizeHint().width()
+    assert window.buttons["links"].isVisible()
+    for widget in (
+        window.tag,
+        window.chip,
+        window.preset_chip,
+        window.timing_chip,
+        window.mic_button,
+        window.usage_ring,
+        *window.buttons.values(),
+    ):
+        if widget.isVisible():
+            rect = QRect(widget.mapTo(window, QPoint()), widget.size())
+            assert not at_rest.intersects(rect), widget.objectName()
     window._show_band(False)
     assert window.notice.geometry() == at_rest
 
@@ -84,3 +96,40 @@ def test_the_rows_come_back_when_the_notice_goes(window: CaptionWindow) -> None:
     window._tick()
     assert not window.notice.isVisible() and window.notice_foot() == 0
     assert _captions_start(window) == without
+
+
+def test_the_first_run_hint_never_overlaps_the_language_or_preset_chip(
+    window: CaptionWindow, qapp: QApplication
+) -> None:
+    """644 bug 4: with 'Everything the PC plays', 'Click any word to look it
+    up' sat right on top of the 'Detect → English' language chip because
+    _notice_place only checked tag and icon buttons (and read layout positions
+    before band.layout().activate())."""
+    window.label = SourceLabel("Everything the PC plays", "#4dd0e1")
+    window.set_hint("Click any word to look it up")
+    for width in (960, 760):
+        window.resize(width, 300)
+        qapp.processEvents()
+        window._show_band(True)
+        # Must be clear immediately on _show_band(True), before processEvents(),
+        # and still clear after layout settles.
+        for _ in range(2):
+            notice = window.notice.geometry()
+            assert window.notice.isVisible()
+            assert not window.chip.isHidden()
+            for part in (
+                window.tag,
+                window.chip,
+                window.preset_chip,
+                *(b for b in window.buttons.values() if not b.isHidden()),
+            ):
+                rect = QRect(part.mapTo(window, QPoint(0, 0)), part.size())
+                assert not notice.intersects(rect), (
+                    width,
+                    part.objectName(),
+                    notice,
+                    rect,
+                )
+            assert _captions_start(window) > notice.bottom()
+            qapp.processEvents()
+        window._show_band(False)

@@ -11,7 +11,8 @@ it, and what its button shows.
   en-US before en-GB, pt-BR before pt-PT...), then any region of the
   language; within one, Windows' own order.
 - **The button:** ready, speaking, or no voice for the language - never a
-  dead button: no voice says so, and how Windows adds one.
+  dead button: no voice says so, and how Windows adds one - on Linux, why
+  the system's voice is missing (`system_voice`, 591).
 - **The pace:** the voice's own, every time - a word sounds the same at
   each press (polyglotic-hq 518: the slower second press, in the OS's
   voice where the word is recorded, sounded robotic to the user).
@@ -97,6 +98,13 @@ def voice_for(voices: tuple[Voice, ...], language: str) -> Voice | None:
         return None  # Mandarin isn't said in Cantonese, nor Cantonese in Mandarin
     primary = language.split("-")[0].lower()
     return next((v for t, v in by_tag if t.split("-")[0] == primary), None)
+
+
+def system_voice(voices: tuple[Voice, ...]) -> bool:
+    """Whether the PC's own voices answer - any voice not a recording. On
+    Linux, whether speech-dispatcher did (polyglotic-hq 591): without it
+    only recorded words are said, and the card says why."""
+    return any(not v.id.startswith(RECORDED) for v in voices)
 
 
 def notice_language(language: str) -> str:

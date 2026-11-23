@@ -24,7 +24,7 @@ from PySide6.QtGui import (
     QTextCharFormat,
     QTextLayout,
 )
-from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.QtWidgets import QApplication, QWidget
 from tests.budget_judge import sampled, within
 from tests.ui.fakes import chinese_tools
 from tests.ui.test_learning_load_view import LINE, SPANS
@@ -57,7 +57,6 @@ from polyglotic_desktop.ui_next.caption_layout import (
 from polyglotic_desktop.ui_next.caption_marks import LINK_COLORS
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, look_ink
 from polyglotic_desktop.ui_next.panels import ReadingLinesPanel, WordLinksPanel
-from polyglotic_desktop.ui_next.settings_popover import SettingsPopover
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, WindowChoices
 from polyglotic_desktop.ui_next.views.captions import CaptionLines
 from polyglotic_desktop.ui_next.views.flow import flow_options
@@ -116,6 +115,58 @@ def test_in_its_word_links_colour_where_a_link_joins_it_else_its_lines() -> None
 def test_with_no_links_shown_its_lines_colour() -> None:
     ink = Ink(reading_colour=ReadingColour.LINK)
     assert _reading_colours(placed(0, 1), [], ink, QColor("#ffffff")) == []
+
+
+def _is_grey(colour: QColor) -> bool:
+    return (
+        max(colour.red(), colour.green(), colour.blue())
+        - min(colour.red(), colour.green(), colour.blue())
+        <= 6
+    )
+
+
+def test_grey_where_no_link_joins_it_and_its_links_colour_where_one_does() -> None:
+    """Polyglotic-hq 532 (the user, 2026-11-19: "the default pinyin/
+    alternate reading font colour ... (maybe even arrowlink default)
+    should be greyish"): 游戏 linked in orange, 的 not linked - its
+    reading grey, under the gold of its line, not the line's gold."""
+    ink = Ink(reading_colour=ReadingColour.GREY, panel="#0a0c10")
+    row = QColor("#ffd76e")
+    found = _reading_colours(placed(0, 1, 2), [(0, 2, ORANGE, 0)], ink, row)
+    assert [c.name() for c in found[:2] if c] == [ORANGE.name(), ORANGE.name()]
+    assert found[2] is not None and _is_grey(found[2])
+    assert found[2].lightness() < QColor("#ffffff").lightness()
+    # word links off: every reading grey
+    plain = _reading_colours(placed(0, 1), [], ink, QColor("#ffffff"))
+    assert len(plain) == 2 and all(c is not None and _is_grey(c) for c in plain)
+
+
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.key)
+def test_the_grey_is_quieter_than_its_text_and_still_reads_on_every_panel(
+    preset: object,
+) -> None:
+    """Between the panel and what was said - light on dark panels, dark on
+    Paper's cream - and drawn at a reading's ink, 4.5:1 on its panel."""
+    from polyglotic_desktop.ui_next.views.presets import ColourPreset
+    from polyglotic_desktop.ui_next.views.tone import reading_grey
+
+    assert isinstance(preset, ColourPreset)
+    grey = reading_grey(preset.background, preset.original)
+    assert _is_grey(QColor(grey))
+    assert contrast(grey, preset.background) < contrast(
+        preset.original, preset.background
+    )
+    ink = Ink(
+        QColor(preset.original),
+        QColor(preset.translation),
+        reading_colour=ReadingColour.GREY,
+        panel=preset.background,
+        panel_opacity=preset.opacity,
+    )
+    (drawn,) = _reading_colours(placed(0), [], ink, QColor(preset.original))
+    assert drawn is not None
+    seen = _mix(preset.background, drawn.name(), reading_lines.ALPHA)
+    assert contrast(seen, preset.background) >= AA_TEXT - 0.05, preset.key
 
 
 def test_a_custom_colour_for_every_reading_as_faint_as_its_line() -> None:
@@ -472,13 +523,13 @@ def test_on_and_its_link_colour_until_chosen_and_wrong_values_are_the_default() 
     word links turned on show a word, its pinyin and its translation alike
     (the user, 2026-11-17, polyglotic-hq 446: "default this setting to be
     on"); with word links off they change nothing."""
-    assert caption_look(AppSettings()).reading_colour is ReadingColour.LINK
+    assert caption_look(AppSettings()).reading_colour is ReadingColour.GREY  # 532
     assert caption_look(AppSettings()).said_in_link_colours
     assert caption_look(AppSettings()).translation_in_link_colours
     found = AppSettings.from_stored(
         {"reading_colour": "rainbow", "reading_custom_color": "blue"}
     )
-    assert found.reading_colour == "link" and found.reading_custom_color == "#9ad0ff"
+    assert found.reading_colour == "grey" and found.reading_custom_color == "#9ad0ff"
 
 
 def test_the_pinyin_group_offers_the_three_and_custom_shows_its_colour(
@@ -520,41 +571,6 @@ def test_the_word_links_group_colours_the_linked_words(qapp: QApplication) -> No
     assert not view.value.translation_in_link_colours
     view.set_word_links(WordLinks.OFF)
     assert not said.isEnabled() and not translation.isEnabled()  # nothing to colour
-
-
-def test_a_windows_popover_switches_each_side_for_every_window(
-    qapp: QApplication,
-) -> None:
-    """431: the caption window's settings popover has both switches; a
-    click asks for that side in every window (main hands it to Settings'
-    look, which every window follows), showing the look's choice."""
-    window = CaptionWindow(
-        "Discord.exe", APP, WindowChoices(), SourceLabel("Discord", "#4dd0e1"),
-        mic=MIC, areas=areas, learner=chinese_tools(),
-    )  # fmt: skip
-    MADE.append(window)
-    window.set_look(replace(UNCOLOURED, word_links=WordLinks.COLOURS))
-    asked: list[tuple[str, bool]] = []
-    window.said_colours_wanted.connect(lambda on: asked.append(("said", on)))
-    window.translation_colours_wanted.connect(
-        lambda on: asked.append(("translation", on))
-    )
-    popover = SettingsPopover(window)
-    MADE.append(popover)
-    said = popover.findChild(QPushButton, "settings_popover.said_colours")
-    translation = popover.findChild(QPushButton, "settings_popover.translation_colours")
-    assert said is not None and translation is not None
-    assert not said.isChecked() and said.isEnabled()
-    translation.click()
-    assert asked == [("translation", True)]
-    window.set_look(
-        replace(
-            UNCOLOURED, word_links=WordLinks.COLOURS, translation_in_link_colours=True
-        )
-    )
-    assert translation.isChecked() and not said.isChecked()
-    window.set_look(CaptionLook(word_links=WordLinks.OFF))
-    assert not said.isEnabled() and not translation.isEnabled()
 
 
 # -- the cost --------------------------------------------------------------------------
@@ -601,3 +617,15 @@ def test_a_live_update_with_both_sides_coloured_is_within_a_new_captions_budget(
         window.canvas.repaint()
 
     within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * 12))
+
+
+def test_an_untouched_reading_colour_follows_the_new_grey_and_a_choice_stays() -> None:
+    """Every 0.1.8 and 0.1.9 settings file holds "link", chosen or not: one
+    whose record of changes doesn't name it takes today's default, Grey
+    (532, decision 0220); one that names it keeps the choice."""
+    untouched = AppSettings.from_stored({"reading_colour": "link", "changed": []})
+    assert untouched.reading_colour == ReadingColour.GREY.value
+    chosen = AppSettings.from_stored(
+        {"reading_colour": "link", "changed": ["reading_colour"]}
+    )
+    assert chosen.reading_colour == ReadingColour.LINK.value

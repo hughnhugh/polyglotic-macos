@@ -363,6 +363,9 @@ KAIKKI_MK = kaikki_source(
     "0568e00d91bb122d07d123fa35dd41302448ca5781b3dfe3591abb63d5648efc",
 )
 
+KAIKKI_KO = kaikki_source(
+    "ko", "Korean", "2bf0aeac466458f2621e0ecfdd72b7b5b00a90c0e775443d55d369d6dab5ea83"
+)
 KAIKKI_TH = kaikki_source(
     "th", "Thai", "fcd83d053ccc7856192ba785fe8be00eaf9b8e50ff1efbc97b2a8758a34f2c2c"
 )

@@ -18,13 +18,14 @@ from PySide6.QtCore import QObject, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 
 from polyglotic_desktop.ports.speaker import RECORDED, Sounding, Speaker, Voice
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.speech import (
     MAC_SPEECH_SETTINGS,
     NORMAL,
     SPEECH_SETTINGS,
     BetterVoice,
     Say,
+    system_voice,
     voice_for,
 )
 
@@ -101,20 +102,27 @@ class WordSpeech(QObject):
     ) -> tuple[Voice, str] | None:
         """`voice`, and what it is asked to say: the form it has recorded,
         else `text` as written."""
+        if self._recorded_voices is not None:
+            recorded = voice_for(self._recorded_voices(), language) if text else None
+            if recorded is not None:
+                said = next(
+                    (f for f in recorded_as or (text,) if self._recorded(recorded, f)),
+                    None,
+                )
+                if said is not None:
+                    return recorded, said
         voices = self.speaker.voices()
         self._seen = voices
-        if self._recorded_voices is not None:
-            ours = self._recorded_voices()
-        else:
+        if self._recorded_voices is None:
             ours = tuple(v for v in voices if v.id.startswith(RECORDED))
-        recorded = voice_for(ours, language) if text else None
-        if recorded is not None:
-            said = next(
-                (f for f in recorded_as or (text,) if self._recorded(recorded, f)),
-                None,
-            )
-            if said is not None:
-                return recorded, said
+            recorded = voice_for(ours, language) if text else None
+            if recorded is not None:
+                said = next(
+                    (f for f in recorded_as or (text,) if self._recorded(recorded, f)),
+                    None,
+                )
+                if said is not None:
+                    return recorded, said
         found = voice_for(
             tuple(v for v in voices if not v.id.startswith(RECORDED)), language
         )
@@ -177,8 +185,14 @@ class WordSpeech(QObject):
 
     def add_voice(self) -> None:
         """Windows' speech settings, where Add voices is; a Mac's Spoken
-        Content, where Manage Voices is."""
-        self._open_url(pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS))
+        Content, where Manage Voices is. Linux has no such page: its steps
+        are in words (591)."""
+        if not on_linux():
+            self._open_url(pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS))
+
+    def system_voice(self) -> bool:
+        """Whether the PC's own voices answer (`views.speech.system_voice`)."""
+        return system_voice(self.speaker.voices())
 
     def _sounding(self, start: float, seconds: float) -> None:
         if self.hush is not None:
@@ -192,3 +206,5 @@ class WordSpeech(QObject):
     def _look_again(self) -> None:
         if self.speaker.voices() != self._seen:
             self.changed.emit()
+        elif not getattr(self.speaker, "listed", True):
+            self._recheck.start()

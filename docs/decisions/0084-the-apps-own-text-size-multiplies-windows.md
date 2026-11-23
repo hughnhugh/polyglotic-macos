@@ -1,6 +1,6 @@
 # 0084 The app's own text size multiplies Windows', and never touches the captions
 
-- **Status:** accepted
+- **Status:** accepted; its steps (0.9, 1.0, 1.2, 1.45) and Normal's place replaced by [0244](0244-the-apps-text-is-larger-by-default.md) (2026-11-20)
 - **Date:** 2026-11-12
 - **Decided by:** the user asked for it ("yes make it a setting, just a
   general remark", 2026-11-11 ~23:20, after testers said they couldn't

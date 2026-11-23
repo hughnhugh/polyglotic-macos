@@ -34,7 +34,7 @@ import re
 import sys
 import time
 import unicodedata
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import partial
@@ -50,6 +50,7 @@ from polyglotic_desktop.adapters.sqlite_dictionary import (
 from polyglotic_desktop.core.lexicon import arabic, english
 from polyglotic_desktop.core.lexicon.vietnamese import key as word_key
 from polyglotic_desktop.ports.dictionary import EntryRecord
+from polyglotic_desktop.ports.word_classes import SenseClasses
 from tools.dictionaries import (
     cantonese,
     cedict,
@@ -57,8 +58,10 @@ from tools.dictionaries import (
     frequency,
     jmdict,
     kaikki,
+    korean,
     rank_check,
     russian,
+    sense_classes,
     spanish,
     thai,
     treebanks,
@@ -66,6 +69,7 @@ from tools.dictionaries import (
     wordfreq_ranks,
 )
 from tools.dictionaries.entry_ids import Registry, assign_ids
+from tools.dictionaries.reviewed_classes import apply_reviews
 from tools.dictionaries.sources import (
     CANTO_READINGS,
     CC0,
@@ -88,6 +92,7 @@ from tools.dictionaries.sources import (
     KAIKKI_HI,
     KAIKKI_ID,
     KAIKKI_IT,
+    KAIKKI_KO,
     KAIKKI_MK,
     KAIKKI_MS,
     KAIKKI_NL,
@@ -139,6 +144,9 @@ class DraftEntry:
     common: bool = False
     """The source marks it common (JMdict's priority lists): kept
     whatever wordfreq says."""
+    source_pos: str = ""
+    sense_classes: tuple[SenseClasses, ...] = ()
+    zh_classes: tuple[SenseClasses, ...] = ()
 
 
 @dataclass
@@ -249,6 +257,17 @@ def chinese_for(
     return tuple(dict.fromkeys(found))[: kaikki.MAX_MEANINGS]
 
 
+def chinese_classes(
+    word: str, pos: str, zh: Mapping[str, list[str]]
+) -> tuple[SenseClasses, ...]:
+    """The Chinese edition's own class for an exact same-POS gloss.
+
+    The spelling-only fallbacks in `chinese_for` remain pending.
+    """
+    cls = sense_classes.wikt(pos)
+    return (cls,) * len(zh.get(f"{word}|{pos}", ())[: kaikki.MAX_MEANINGS])
+
+
 def read_spanish(paths: Mapping[str, Path]) -> Draft:
     uses = treebanks.uses_for("es", paths)
     words = kaikki.read_language(kaikki.lines(paths["kaikki-es"], "es"), uses=uses)
@@ -310,6 +329,10 @@ def draft_of(
                 reading=e.reading,
                 meanings=tuple(f"({e.pos}) {m}" if e.pos else m for m in e.meanings),
                 ranked_by=(e.word,),
+                source_pos=e.pos,
+                zh_classes=chinese_classes(e.word, e.pos, zh_by_word.get(e.word, {}))
+                if zh_by_word
+                else (),
                 zh_meanings=chinese_for(
                     e.word, e.pos, not forms[e.word], zh_by_word.get(e.word, {})
                 )
@@ -364,6 +387,11 @@ class Spelling:
     """The first words of two-word adpositions whose second word is no
     word of a caption alone: each such second word gets the phrase's
     meanings (`phrase_words`)."""
+    prepared: Callable[[Iterable[dict[str, object]]], Iterable[dict[str, object]]] = (
+        lambda objects: objects
+    )
+    """The extract's objects as the language's rules read them (Korean's
+    `korean.prepared`)."""
 
 
 AS_WRITTEN = Spelling()
@@ -519,7 +547,9 @@ def read_wiktionary(
     (polyglotic-hq 387)."""
     objects: Iterable[dict[str, object]] = (
         obj
-        for obj in kaikki.lines(paths[f"kaikki-{language}"], language)
+        for obj in spelling.prepared(
+            kaikki.lines(paths[f"kaikki-{language}"], language)
+        )
         if not russian.is_letter(obj)
     )
     if spelling.phrase_heads:
@@ -830,6 +860,127 @@ def wiktionary_pack(
     )
 
 
+# -- Korean: Wiktionary, its words counted with their particles -------------------
+
+
+def read_korean(paths: Mapping[str, Path]) -> Draft:
+    """Korean's Wiktionary (`read_wiktionary`, its romanization the
+    reading) as Korean's rules read it (`tools.dictionaries.korean`):
+    - a predicate ranked by its stem and fused past, as wordfreq counts
+      Korean (`korean.predicate_counts`), and its stem one of its forms
+      where the stem is no word (있 for 있다: polyglotic-hq 510);
+    - a particle alone opening on the dictionary's particle, and the
+      commonest homographs on their predicate (`korean.PARTICLE_FIRST`,
+      `korean.OPENS_ON`): 마다, "every"; 대한, 대하다's "about";
+    - a word's own adverb, determiner or other small word's entry kept
+      first (하지만, "but"), and a predicate's own dictionary form
+      (들리다, "to be heard", not 듣다's passive);
+    - the commonest words' first meanings (`korean.FIRST_SENSES`), and
+      words English Wiktionary has only under their hanja
+      (`korean.hanja_words`: 해상, "maritime") (polyglotic-hq 516).
+    Every entry is kept, ranked or not: wordfreq's Korean list stops at
+    30,000 parts, and a word past it (재건, reconstruction) is kept, as
+    Thai's are."""
+    added = korean.hanja_words(kaikki.lines(paths["kaikki-ko"], "ko"))
+    spelling = replace(ROMANIZED, prepared=partial(korean.prepared, added=added))
+    draft = read_wiktionary("ko", paths, spelling)
+    by_headword: dict[str, list[DraftEntry]] = defaultdict(list)
+    for entry in draft.entries:
+        by_headword[entry.headword].append(entry)
+    words = {  # headwords with an entry a learner meets
+        word
+        for word, own in by_headword.items()
+        if not all(korean.no_word(e.meanings) for e in own)
+    }
+    lemma_used = dict(draft.lemma_used)
+    entries = []
+    for entry in draft.entries:
+        if korean.no_word(entry.meanings):
+            entry = replace(entry, ranked_by=())  # 랑 (浪): the particle's count
+        if part_of_speech(entry.meanings) in korean.PREDICATES:
+            counted = korean.predicate_counts(entry.headword, words, by_headword)
+            entry = replace(entry, ranked_by=(*entry.ranked_by, *counted))
+            if stem := korean.stem_forms(entry.headword, words, by_headword):
+                draft.inflections.setdefault(stem, set()).add(entry.headword)
+                if stem in by_headword:  # 크: a jamo's name, then 크다
+                    lemma_used[stem] = frozenset({entry.headword})
+        entries.append(entry)
+    draft.entries = entries
+    for word in korean.PARTICLE_FIRST:
+        if f"-{word}" in by_headword and word in by_headword:
+            draft.inflections.setdefault(word, set()).add(f"-{word}")
+            lemma_used[word] = frozenset({f"-{word}"})
+    for word, predicate in korean.OPENS_ON.items():
+        if predicate in by_headword and word in by_headword:
+            draft.inflections.setdefault(word, set()).add(predicate)
+            lemma_used[word] = frozenset({predicate})
+    for word in korean.NO_STEM - set(by_headword):
+        draft.inflections.pop(word, None)  # 째, -째's count: not 째다's form
+    for word, lemmas in draft.inflections.items():
+        if word in korean.SMALL and f"-{word}" in lemmas and word not in by_headword:
+            # 는, whose page only points to -는: the particle's, not 이거's
+            # (whose table lists 는) - which had become the commonest word
+            draft.inflections[word] = {f"-{word}"}
+    draft.lemma_used = lemma_used
+    shared = {korean.stem(w) for w in korean.STEM_SHARED} - set(korean.OPENS_ON)
+    draft.own_first = (
+        draft.own_first
+        | {w for w in shared if w}
+        | {
+            word
+            for word, own in by_headword.items()
+            if word in draft.inflections
+            and any(
+                part_of_speech(e.meanings) in korean.OWN_FIRST_POS
+                or (
+                    korean.stem(word)
+                    and part_of_speech(e.meanings) in korean.PREDICATES
+                )
+                for e in own
+            )
+        }
+    )
+    first_senses(draft, korean.FIRST_SENSES)
+    draft.keep_unranked = True
+    return draft
+
+
+def first_senses(draft: Draft, table: Mapping[str, tuple[str, ...]]) -> None:
+    """Each word in `table` opening on its meanings there (Thai's
+    `thai.first_senses`, on a draft; each meaning the start of one of
+    Wiktionary's): the entry with the first meaning comes first among the
+    word's own entries, and those of its meanings listed, first in it;
+    every entry's key (its ID) stays. A meaning the word no longer has
+    stops the build (ValueError), so a new extract can't quietly undo the
+    order."""
+
+    def said(meaning: str) -> str:
+        return meaning.split(") ", 1)[1] if meaning.startswith("(") else meaning
+
+    def place(meaning: str, meanings: tuple[str, ...]) -> int | None:
+        return next(
+            (n for n, m in enumerate(meanings) if said(meaning).startswith(m)), None
+        )
+
+    at = {e.key: n for n, e in enumerate(draft.entries)}
+    for word, meanings in table.items():
+        keys = draft.forms.get(word, [])
+        own = [draft.entries[at[k]] for k in keys if k in at]
+        if not own:
+            continue  # a word the extract hasn't got
+        first = next(
+            (e for e in own if any(place(m, meanings) == 0 for m in e.meanings)), None
+        )
+        if first is None:
+            raise ValueError(f"{word}: no meaning {meanings[0]!r} in Wiktionary")
+        listed = [m for m in first.meanings if place(m, meanings) is not None]
+        listed.sort(key=lambda m: place(m, meanings) or 0)
+        draft.entries[at[first.key]] = replace(
+            first, meanings=(*listed, *(m for m in first.meanings if m not in listed))
+        )
+        draft.forms[word] = [first.key, *(k for k in keys if k != first.key)]
+
+
 # -- Malay: Wiktionary, and Indonesian's words it shares ---------------------------
 
 
@@ -864,7 +1015,9 @@ def read_malay(paths: Mapping[str, Path]) -> Draft:
             or all(m.startswith("(name) ") for m in e.meanings)
         ):
             continue
-        malay.entries.append(replace(e, meanings=tuple(m + SHARED for m in e.meanings)))
+        malay.entries.append(
+            replace(e, meanings=tuple(m + SHARED for m in e.meanings), source_pos="")
+        )
         malay.forms.setdefault(e.headword, []).append(e.key)
     words = {e.headword for e in malay.entries}
     for form, lemmas in indonesian.inflections.items():
@@ -931,6 +1084,8 @@ def read_russian(paths: Mapping[str, Path]) -> Draft:
                 reading=e.reading,
                 meanings=tuple(f"({e.pos}) {m}" if e.pos else m for m in e.meanings),
                 ranked_by=(e.word,),
+                source_pos=e.pos,
+                zh_classes=chinese_classes(e.word, e.pos, zh_by_word.get(e.word, {})),
                 zh_meanings=chinese_for(
                     e.word, e.pos, not forms[e.word], zh_by_word.get(e.word, {})
                 ),
@@ -984,6 +1139,7 @@ def read_vietnamese(paths: Mapping[str, Path]) -> Draft:
                 reading=e.reading,
                 meanings=tuple(f"({e.pos}) {m}" if e.pos else m for m in e.meanings),
                 ranked_by=(e.word,),
+                source_pos=e.pos,
             )
         )
         forms[e.word].append(e.key)
@@ -1344,13 +1500,37 @@ def chinese_for_japanese(
     first kanji form the edition has (年's entries share 年's), else those
     of its kana if it owns the kana (`kana_owners`): かみ could be 神, 髪
     or 紙, but する is 為る, usually written する."""
-    for kanji in word.kanji:
-        if kanji in zh:
-            return tuple(zh[kanji][: jmdict.MAX_MEANINGS])
-    for kana in word.kana:
-        if kana in zh and kana_owner.get(kana) == word.seq:
-            return tuple(zh[kana][: jmdict.MAX_MEANINGS])
-    return ()
+    form = chinese_form_for_japanese(word, zh, kana_owner)
+    return tuple(zh.get(form, ())[: jmdict.MAX_MEANINGS])
+
+
+def chinese_form_for_japanese(
+    word: jmdict.JmdictWord,
+    zh: Mapping[str, list[str]],
+    kana_owner: Mapping[str, str],
+) -> str:
+    return next(
+        (
+            form
+            for form in (*word.kanji, *word.kana)
+            if form in zh and (form in word.kanji or kana_owner.get(form) == word.seq)
+        ),
+        "",
+    )
+
+
+def japanese_chinese_classes(
+    word: jmdict.JmdictWord,
+    glosses: Sequence[str],
+    evidence: Mapping[str, set[SenseClasses]],
+) -> tuple[SenseClasses, ...]:
+    allowed = {cls for labels in word.sense_classes for cls in labels or ()}
+    classes: list[SenseClasses] = []
+    for gloss in glosses:
+        candidates = evidence.get(gloss, set())
+        cls = next(iter(candidates)) if len(candidates) == 1 else None
+        classes.append(cls if cls and set(cls) <= allowed else None)
+    return tuple(classes)
 
 
 def kana_owners(words: Sequence[jmdict.JmdictWord]) -> dict[str, str]:
@@ -1396,10 +1576,16 @@ def japanese(paths: Mapping[str, Path]) -> Draft:
     _, words = jmdict.read(paths["jmdict"])
     zh = kaikki.glosses_by_word(kaikki.lines(paths["kaikki-zh"], "ja"))
     zh_by_word: dict[str, list[str]] = defaultdict(list)
+    labels: dict[str, dict[str, set[SenseClasses]]] = defaultdict(
+        lambda: defaultdict(set)
+    )
     for word_pos, glosses in zh.items():
-        word = word_pos.split("|")[0]
+        word, _, pos = word_pos.rpartition("|")
         zh_by_word[word] += [g for g in glosses if g not in zh_by_word[word]]
+        for gloss in glosses:
+            labels[word][gloss].add(sense_classes.wikt(pos))
     owners = kana_owners(words)
+    counts = Counter(form for word in words for form in word.written)
     levels = jlpt_levels(paths["jlpt"])
     entries = []
     forms: dict[str, list[str]] = defaultdict(list)
@@ -1409,6 +1595,8 @@ def japanese(paths: Mapping[str, Path]) -> Draft:
         if w.headword in w.kana and usual_in_kana(w, owners):
             pairs.append((w.headword, w.headword))
         level = min((levels[p] for p in pairs if p in levels), default=None)
+        chinese_form = chinese_form_for_japanese(w, zh_by_word, owners)
+        zh_meanings = tuple(zh_by_word.get(chinese_form, ())[: jmdict.MAX_MEANINGS])
         entries.append(
             DraftEntry(
                 key=w.seq,
@@ -1416,9 +1604,15 @@ def japanese(paths: Mapping[str, Path]) -> Draft:
                 reading=w.reading,
                 meanings=w.meanings,
                 ranked_by=ranked_by(w, owners),
-                zh_meanings=chinese_for_japanese(w, zh_by_word, owners),
+                zh_meanings=zh_meanings,
                 levels=(("jlpt", level),) if level else (),
                 common=w.common,
+                sense_classes=w.sense_classes,
+                zh_classes=japanese_chinese_classes(
+                    w, zh_meanings, labels[chinese_form]
+                )
+                if counts[chinese_form] == 1 and len(w.kana) == 1
+                else (),
             )
         )
         for written in w.written:
@@ -1479,6 +1673,22 @@ PACKS = {
     "el": wiktionary_pack("el", "Greek", KAIKKI_EL),
     "tl": wiktionary_pack("tl", "Filipino", KAIKKI_TL, FILIPINO),
     "mk": wiktionary_pack("mk", "Macedonian", KAIKKI_MK, MACEDONIAN),
+    # wave 0's last (polyglotic-hq 448, 510)
+    "ko": Pack(
+        language="ko",
+        name="wiktko",
+        title="Korean",
+        sources=(KAIKKI_KO, WORDFREQ),
+        read=lambda paths: read_korean(paths),
+        level_schemes="ko-frequency",
+        about=(
+            "Wiktionary's Korean words with their English meanings, Revised "
+            "Romanization and conjugations, cut to the words wordfreq ranks, "
+            "with frequency ranks from wordfreq (its words with their "
+            "particles and endings counted for the word they are made from)"
+        ),
+        meanings=("en",),
+    ),
     "th": Pack(
         language="th",
         name="wiktth",
@@ -2390,6 +2600,22 @@ class Built:
     lookup shows as another word's (inflections, other spellings) that
     wordfreq has met."""
     stats: dict[str, object]
+    zh_classes: dict[str, tuple[SenseClasses, ...]] = field(default_factory=dict)
+
+
+def entry_record(entry: DraftEntry, entry_id: str, rank: int | None) -> EntryRecord:
+    classes, prefixes = sense_classes.legacy_wikt(entry.meanings, entry.source_pos)
+    return EntryRecord(
+        entry_id=entry_id,
+        headword=entry.headword,
+        traditional="",
+        reading=entry.reading,
+        meanings=entry.meanings,
+        frequency_rank=rank,
+        levels=entry.levels,
+        sense_classes=entry.sense_classes or classes,
+        sense_prefixes=prefixes,
+    )
 
 
 def frequency_lists(
@@ -2424,18 +2650,7 @@ def assemble(
     ]
     kept = {e.key for e in kept_entries}
     ids = assign_ids(registry, kept)
-    records = [
-        EntryRecord(
-            entry_id=ids[e.key],
-            headword=e.headword,
-            traditional="",
-            reading=e.reading,
-            meanings=e.meanings,
-            frequency_rank=rank_of.get(e.key),
-            levels=e.levels,
-        )
-        for e in kept_entries
-    ]
+    records = [entry_record(e, ids[e.key], rank_of.get(e.key)) for e in kept_entries]
     record_rank = {ids[k]: rank_of.get(k, 1 << 30) for k in kept}
     forms = {}
     for form, keys in draft.forms.items():
@@ -2493,7 +2708,25 @@ def assemble(
         share = 100 * with_zh / max(1, len(records))
         stats["with Chinese meanings"] = f"{with_zh} ({share:.1f} %)"
     zh = {ids[e.key]: e.zh_meanings for e in kept_entries}
-    return Built(records, forms, lemmas, zh, form_readings, stats)
+    zh_classes = {ids[e.key]: e.zh_classes for e in kept_entries if e.zh_classes}
+    return Built(records, forms, lemmas, zh, form_readings, stats, zh_classes)
+
+
+def records_for(built: Built, gloss_language: str) -> list[EntryRecord]:
+    if gloss_language != "zh":
+        return built.records
+    return [
+        replace(
+            record,
+            meanings=translated,
+            sense_classes=built.zh_classes.get(record.entry_id, ()),
+            sense_prefixes=(),
+        )
+        if (translated := built.zh.get(record.entry_id))
+        and translated != record.meanings
+        else record
+        for record in built.records
+    ]
 
 
 def info(pack: Pack, meanings: str, ranked: int) -> dict[str, str]:
@@ -2515,30 +2748,41 @@ def info(pack: Pack, meanings: str, ranked: int) -> dict[str, str]:
     }
 
 
-def write_pack(pack: Pack, built: Built, out: Path) -> dict[str, Path]:
+def write_pack(
+    pack: Pack, built: Built, out: Path, reviews: Path | None = None
+) -> tuple[dict[str, Path], dict[str, dict[str, int]]]:
     """`<name>.sqlite` (English meanings) and, if the pack has Chinese
     (`Pack.meanings`), `<name>-zh.sqlite` (an entry the Chinese edition
     hasn't got keeps its English)."""
     paths = {}
+    counts = {}
     for meanings in pack.meanings:
-        records = built.records
-        if meanings == "zh":
-            records = [
-                replace(r, meanings=built.zh[r.entry_id] or r.meanings) for r in records
-            ]
+        records = records_for(built, meanings)
         path = out / (
             f"{pack.name}.sqlite" if meanings == "en" else f"{pack.name}-zh.sqlite"
         )
+        final, provenance, verified = apply_reviews(
+            records,
+            reviews if pack.language == "yue" else None,
+            path.stem,
+            pack.language,
+            meanings,
+        )
         write_dictionary(
             path,
-            info(pack, meanings, sum(1 for r in records if r.frequency_rank)),
-            records,
+            {
+                **info(pack, meanings, sum(1 for r in records if r.frequency_rank)),
+                **provenance,
+            },
+            final,
             built.forms,
             lemmas=built.lemmas,
             form_readings=built.form_readings,
+            with_sense_classes=True,
         )
         paths[meanings] = path
-    return paths
+        counts[meanings] = sense_classes.coverage(final, verified)
+    return paths, counts
 
 
 def credits(pack: Pack) -> str:
@@ -2610,13 +2854,15 @@ def credits(pack: Pack) -> str:
     return "\n".join(lines)
 
 
-def build(pack: Pack, paths: Mapping[str, Path], out: Path) -> dict[str, object]:
+def build(
+    pack: Pack, paths: Mapping[str, Path], out: Path, reviews: Path | None = None
+) -> dict[str, object]:
     registry_path = REGISTRY / f"{pack.name}.tsv"
     registry = Registry.load(registry_path, pack.name)
     before = (dict(registry.ids), dict(registry.merged))
     draft = pack.read(paths)
     built = assemble(pack, draft, registry, paths)
-    files = write_pack(pack, built, out)
+    files, counts = write_pack(pack, built, out, reviews)
     (out / f"{pack.name}.CREDITS.md").write_text(
         credits(pack), encoding="utf-8", newline="\n"
     )
@@ -2624,6 +2870,7 @@ def build(pack: Pack, paths: Mapping[str, Path], out: Path) -> dict[str, object]
         registry.save(registry_path)
         print(f"  ! {registry_path.name} changed (a hash was salted): commit it")
     stats = dict(built.stats)
+    stats["sense classes by gloss language"] = counts
     probed = coverage.probe(files["en"], pack.language)
     added = {"coverage": f"{probed.share:.4f}"}
     if pack.language in coverage.SCRIPTS:
@@ -2675,6 +2922,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--out", type=Path, default=REPO / "build" / "dictionaries" / "packs"
     )
+    parser.add_argument(
+        "--class-reviews",
+        type=Path,
+        help="folder of reviewed 746 drafts and frozen packs",
+    )
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
     args.out.mkdir(parents=True, exist_ok=True)
@@ -2683,7 +2935,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         pack = PACKS[language]
         paths = {s.name: fetch(s, args.sources) for s in pack.sources}
         started = time.perf_counter()
-        stats = build(pack, paths, args.out)
+        stats = build(pack, paths, args.out, args.class_reviews)
         print(
             f"{pack.name} ({language}), format {FORMAT}: "
             f"{time.perf_counter() - started:.0f}s"

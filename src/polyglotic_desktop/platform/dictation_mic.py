@@ -21,7 +21,9 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 
 from polyglotic_desktop.core.listening.dictation import PIECE_MAX_SEC, quietest_cut
+from polyglotic_desktop.core.listening.respeaking import RESPEAK_GAIN, RESPEAK_PEAK
 from polyglotic_desktop.core.listening.timing import VAD_SAMPLE_RATE
+from polyglotic_desktop.core.listening.type_theirs import SILENCE_PEAK
 from polyglotic_desktop.platform.opus import encode_ogg_opus
 from polyglotic_desktop.platform.speech_detection import Audio
 from polyglotic_desktop.ports.capture import AudioCapture, MicPiece
@@ -32,6 +34,21 @@ LEVEL_GAIN = 12.0
 """Speech's loudness (RMS around 0.02-0.08) times this fills the meter."""
 
 
+def encode_respeaking(audio: Audio) -> bytes:
+    """Bring quiet held-mic audio up before encoding, with a gain limit."""
+    peak = float(np.max(np.abs(audio), initial=0.0))
+    if 0.0 < peak < RESPEAK_PEAK.configured:
+        audio = audio * min(RESPEAK_GAIN.configured, RESPEAK_PEAK.configured / peak)
+    return encode_ogg_opus(audio)
+
+
+def encode_speakers(audio: Audio) -> bytes | None:
+    """Skip near-silence. Normalise quiet audio before encoding."""
+    if float(np.max(np.abs(audio), initial=0.0)) < SILENCE_PEAK.configured:
+        return None
+    return encode_respeaking(audio)
+
+
 class DictationMic:
     """The mic for dictation's holds, one at a time."""
 
@@ -39,13 +56,16 @@ class DictationMic:
         self,
         new_capture: Callable[[], AudioCapture],
         piece_max_sec: float = PIECE_MAX_SEC,
-        encode: Callable[[Audio], bytes] = encode_ogg_opus,
+        encode: Callable[[Audio], bytes | None] = encode_ogg_opus,
+        *,
+        single_piece: bool = False,
     ) -> None:
         """`new_capture`: the mic's capture, made for each hold (the
         learner's chosen mic, or Windows' default)."""
         self._new_capture = new_capture
         self._piece_max = round(piece_max_sec * VAD_SAMPLE_RATE)
         self._encode = encode
+        self._single_piece = single_piece
         self._lock = threading.Lock()
         self._worker = ThreadPoolExecutor(1, thread_name_prefix="dictation-mic")
         self._capture: AudioCapture | None = None
@@ -68,11 +88,15 @@ class DictationMic:
 
     def close(self, tail: float) -> None:
         with self._lock:
-            if self._capture is None or self._closing is not None:
+            capture = self._capture
+            if capture is None or self._closing is not None:
                 return
-            self._closing = threading.Timer(tail, self._finish)
-            self._closing.daemon = True
-            self._closing.start()
+            if tail:
+                self._closing = threading.Timer(tail, self._finish, args=(capture,))
+                self._closing.daemon = True
+                self._closing.start()
+                return
+        self._finish(capture)
 
     def drop(self) -> None:
         with self._lock:
@@ -91,7 +115,7 @@ class DictationMic:
     def stop(self) -> None:
         """At the app's end: the mic closed, the worker's last piece out."""
         self.drop()
-        self._worker.shutdown(wait=True, cancel_futures=True)
+        self._worker.shutdown(wait=True)
 
     def _heard(self, capture: AudioCapture, start: float, samples: bytes) -> None:
         """A capture thread's audio: kept, measured, and cut once the piece
@@ -102,11 +126,17 @@ class DictationMic:
             if capture is not self._capture:
                 return  # dropped, or a newer hold's
             self._level = min(1.0, level * LEVEL_GAIN)
+            if self._single_piece:
+                # The server accepts a bounded finished caption. Keep one
+                # clip, and continue to meter until the key is released.
+                audio = audio[: self._piece_max - self._samples]
+                if not len(audio):
+                    return
             if self._start is None:
                 self._start = start
             self._chunks.append(audio)
             self._samples += len(audio)
-            if self._samples < self._piece_max:
+            if self._single_piece or self._samples < self._piece_max:
                 return
             audio_now = np.concatenate(self._chunks)
             at = _cut_at(audio_now)
@@ -117,25 +147,37 @@ class DictationMic:
             on_piece = self._on_piece
         self._hand_on(on_piece, hold, piece_start, audio_now[:at], last=False)
 
-    def _finish(self) -> None:
+    def _finish(self, capture: AudioCapture) -> None:
         """The tail is over: the capture closed, the last piece handed on."""
         with self._lock:
-            capture, self._capture, self._closing = self._capture, None, None
+            if capture is not self._capture:
+                return
+            self._capture, self._closing = None, None
             chunks, start, hold = self._chunks, self._start, self._hold
             self._chunks, self._start, self._samples = [], None, 0
             self._level = 0.0
             on_piece = self._on_piece
-        if capture is None:
-            return
-        capture.stop()
-        audio = np.concatenate(chunks) if chunks else np.zeros(0, np.float32)
-        if start is None or not len(audio):
-            failed = capture.error is not None
-            self._worker.submit(
-                on_piece, MicPiece(hold, 0.0, 0.0, None, True, mic_failed=failed)
-            )
-            return
-        self._hand_on(on_piece, hold, start, audio, last=True)
+
+        def finish() -> None:
+            if self._single_piece:
+                capture.stop()
+            if start is None or not chunks:
+                on_piece(
+                    MicPiece(hold, 0.0, 0.0, None, True, capture.error is not None)
+                )
+                return
+            audio = np.concatenate(chunks)
+            end = start + len(audio) / VAD_SAMPLE_RATE
+            try:
+                speech = self._encode(audio)
+            except (OSError, ValueError):
+                on_piece(MicPiece(hold, start, end, None, True, mic_failed=True))
+            else:
+                on_piece(MicPiece(hold, start, end, speech, True))
+
+        if not self._single_piece:
+            capture.stop()
+        self._worker.submit(finish)
 
     def _hand_on(
         self,
@@ -163,3 +205,12 @@ def _cut_at(audio: Audio) -> int:
     steps = audio[: whole * step].reshape(whole, step)
     levels = np.sqrt(np.mean(steps**2, axis=1))
     return max(step, quietest_cut([float(x) for x in levels], STEP_SEC) * step)
+
+
+def speaker_hold(
+    loopback: Callable[[str | None], AudioCapture], selected: Callable[[], str | None]
+) -> DictationMic:
+    """Read the Speakers setting when the hold starts, including OS default."""
+    return DictationMic(
+        lambda: loopback(selected()), encode=encode_speakers, single_piece=True
+    )

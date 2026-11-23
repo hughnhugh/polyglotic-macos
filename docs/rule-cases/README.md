@@ -107,3 +107,51 @@ of the dictionary is used.
 - `following_top`: the one-way layout - captions' `height` and last `top`
   (null: arriving), the canvas, `gap`, `last_is_live`, `headroom`,
   `reanchor` -> the stack's `top`.
+
+## `playout.json` - the paced modes' playout and the two zones
+
+`core/listening/playout.py` (decision 0245): Steady's and Calm's words
+shown at the moment each was said plus a delay; and
+`ui_next/views/zones.py` (decision 0251): when a caption hands off from
+the live lines to the settled transcript. For the browser and phone
+clients (polyglotic-hq 535), which play captions out themselves.
+
+- `constants`: seconds (`delay`, `eager_delay`, `min_gap` between two
+  words, `estimate_late`, `conversation_within`, `pause`) and line counts.
+- **`tokens`** - boundaries as tokens. Each `text` is a clause's
+  original; `tokens` are its words in order, whose `text`s end to end are
+  the clause: a word carries the spaces and punctuation after it (and, for
+  the first, before); unspaced writing (Chinese) is a character a word
+  here (the app passes its dictionary's split instead). `key`: what two
+  hearings of the word share; `units`: about its syllables, what the
+  estimate shares a speech's time by; `start`: code points into `text`.
+- **`cases`** - the playout. `rules`: `delay`; `hold_back` (how many of a
+  live update's newest words wait for the next update); `ahead` (`none`,
+  `waiting`, `all`: the karaoke option); `established_only` (Calm);
+  `translation_after` (Acquisition, seconds; 0: with the clause's last
+  word). `heard`: the server's caption updates in order, each `at` the
+  time it came, with `start` and `end` of its speech (all on one clock,
+  seconds), `kind` (`live` / `finished`), `established` (code points, 0
+  if absent), `replaces`, and `clauses` (`original`, a `translation` or
+  none, and `words` when the server sent word times: `[start, end,
+  said_from, said_to]`, the span in code points).
+  - **Driving it:** for each `heard` entry in order - first, while the
+    playout's next due time is at or before the entry's `at`, release at
+    that due time; then give it the entry at `at`. After the last, release
+    at each due time until nothing is due.
+  - `shown`: every update the playout gave, in order: `at`, `caption`,
+    `kind`, `text` (the clauses' originals joined), `established` (with
+    words ahead, text past it is drawn faint), and `translated` (a flag a
+    clause: whether its translation is shown yet).
+- **`zones`** - the handoff. Each case's `steps` run on one new state;
+  `answers` holds a step's answer (null where it has none):
+  - `{heard: speaker, at}`: that speaker had new text.
+  - `{live_lines: now}`: how many lines the live zone shows at `now`.
+  - `{handoff: [[key, last_line, live], ...], lines, live_lines_shown}`:
+    the live paragraph is `lines` long, each caption's last word on
+    paragraph line `last_line` (from 0); the captions wholly above a zone
+    of `live_lines_shown` lines, and finished, settle. Answer: `settled`,
+    every key settled so far.
+  - `{pause: [keys]}`: nothing new for `pause` seconds - every caption
+    the window has settles, and the next starts a new paragraph
+    (`ended`).

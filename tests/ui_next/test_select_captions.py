@@ -102,6 +102,22 @@ def copied() -> str:
     return QGuiApplication.clipboard().text()
 
 
+def after_the_drag(windows: CaptionWindows, shown_: CaptionWindow) -> str:
+    """What a drag within a clause left, for an assertion that it pinned
+    its phrase: what's held, the card, the sentence card and the window's
+    place. These drags failed now and then in GitHub's whole-suite runs and
+    never alone (polyglotic-hq 557, 566); this says which way one went."""
+    held, found = shown_.held.selection, windows.card
+    sentence = shown_.sentence_card
+    return (
+        f"held {held} (one clause: {held.one_clause if held else None}),"
+        f" card shown {found.isVisible() if found else None}"
+        f" pinned {found.model.pinned if found else None},"
+        f" sentence card shown {sentence.isVisible() if sentence else None},"
+        f" window {shown_.geometry().getRect()}"
+    )
+
+
 @pytest.fixture(autouse=True)
 def clipboard() -> None:
     QGuiApplication.clipboard().setText(UNTOUCHED)
@@ -149,7 +165,8 @@ def test_a_drag_within_the_clause_still_pins_the_phrase_and_holds_it(
     _, start = find(shown_, "画")
     _, end = find(shown_, "很漂亮")  # under 4: no sentence (522)
     drag(shown_, start, QPointF(end.x() + 4, end.y()))
-    assert shared.pinned and shared.model.word.startswith("画面")
+    assert shared.pinned, after_the_drag(windows, shown_)
+    assert shared.model.word.startswith("画面")
     held = shown_.held.selection
     assert held is not None and held.one_clause
     assert shown_.held.text() == shared.model.word
@@ -297,7 +314,7 @@ def test_with_a_phrase_pinned_ctrl_c_is_the_cards(windows: CaptionWindows) -> No
     _, start = find(shown_, "画")
     _, end = find(shown_, "很漂亮")  # under 4: no sentence (522)
     drag(shown_, start, QPointF(end.x() + 4, end.y()))
-    assert shown_.held.copy_is_cards()
+    assert shown_.held.copy_is_cards(), after_the_drag(windows, shown_)
 
 
 def test_the_place_under_the_mouse_is_between_characters_and_off_text_the_nearest(
@@ -369,8 +386,13 @@ def test_a_drag_selects_each_character_on_its_own(
     nudge = QPointF(drag_distance() + 1, 0)
     hit = shown_.canvas.hit(start + nudge)
     assert hit is not None and hit[1].row.text[hit[3]] == "游"  # still on 游
+    pressed_on = shown_._marked_at(start)  # the word a press there selects from
     drag(shown_, start, start + nudge)
-    assert held_text(shown_) == "游"
+    # failed now and then in a GitHub shard, never alone (polyglotic-hq 566,
+    # 576, 578): which way it went, and whether the press found the word
+    assert held_text(shown_) == "游", (
+        f"pressed on {pressed_on}; {after_the_drag(windows, shown_)}"
+    )
     assert shared.pinned and shared.model.word == "游"  # a phrase: looked up
     for to, wanted in (("戏的", "游戏"), ("的画", "游戏的")):
         drag(shown_, start, on(shown_, to) + QPointF(2, 0))

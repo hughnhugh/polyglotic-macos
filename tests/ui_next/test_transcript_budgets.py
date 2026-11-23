@@ -17,8 +17,9 @@ from functools import partial
 
 import pytest
 from PySide6.QtWidgets import QApplication
+from tests import budget_judge
 from tests.budget_judge import sampled, within
-from tests.ui_next.made_up import EN, finished_updates
+from tests.ui_next.made_up import EN, arriving, finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.perf import budgets
@@ -35,6 +36,7 @@ from polyglotic_desktop.ui_next.views.transcript import (
     TranscriptChoices,
     TranscriptLength,
 )
+from tools import busy_pc
 
 LINES = 1_000
 THREE_HOURS = 4_000
@@ -121,7 +123,7 @@ def test_w2_a_new_caption_with_its_caption_window_showing(
     caption.show()
     qapp.processEvents()
     listed = len(window.transcript.lines)
-    updates = iter(finished_updates(40, start=listed))  # warm-up and timed, twice
+    updates = arriving(10, start=listed)
 
     def arrive() -> None:
         update = next(updates)
@@ -138,6 +140,21 @@ def test_w2_a_new_caption_with_its_caption_window_showing(
         )
     finally:
         caption.close()
+
+
+def test_w2_a_new_caption_has_new_captions_for_every_try(
+    window: TranscriptWindow, qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Over its budget on a busy runner, the judge tries the new caption up
+    to `busy_pc.MOST_TRIES` times: the test fails on its budget, saying so
+    for every try - never on running out of new captions first (polyglotic-
+    hq 577, 578: GitHub's Windows machine ran out on the third try)."""
+    monkeypatch.setattr(budget_judge, "fits", lambda budget, sample: False)
+    monkeypatch.setattr(busy_pc, "saturated", lambda share, level=0.0: True)
+    monkeypatch.setattr(budget_judge, "beside_main", lambda *_: "")
+    monkeypatch.setattr(budget_judge, "JUDGED", [])  # not in the run's summary
+    with pytest.raises(AssertionError, match=f"in all {busy_pc.MOST_TRIES} tries"):
+        test_w2_a_new_caption_with_its_caption_window_showing(window, qapp)
 
 
 def test_w2_a_search(window: TranscriptWindow, qapp: QApplication) -> None:

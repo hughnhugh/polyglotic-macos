@@ -45,6 +45,7 @@ from polyglotic_desktop.ui_next.caption_window import (
     caption_style,
     high_contrast,
     look_ink,
+    marks_panel,
     paint_loading,
 )
 from polyglotic_desktop.ui_next.languages import spoken_names
@@ -287,7 +288,8 @@ class CaptionPreview(QWidget):
         surface.older = replace(
             surface.ink, alpha=older, translation_alpha=translation / older
         )
-        self.marks.set_look(look.word_links, look.introductions)
+        # its links in the colours its look's window takes (554)
+        self.marks.set_look(look.word_links, look.introductions, marks_panel(look))
         self.lines.set_options(
             DisplayOptions(
                 look.show_original,

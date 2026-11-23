@@ -51,6 +51,10 @@ class Pacing:
     def __len__(self) -> int:
         return len(self._waiting)
 
+    def waits(self, update: CaptionUpdate) -> bool:
+        """Whether `update` still waits its turn (perf.trace: held by the gap)."""
+        return any(w.update is update for w in self._waiting)
+
     def add(self, update: CaptionUpdate, now: float) -> None:
         self._waiting.append(_Waiting(update, now))
 

@@ -131,8 +131,9 @@ components:
 The new interface's visual system as built (`ui_next`), in the shape of
 Impeccable's `document` (polyglotic-hq 347, 2026-11-15). **The code is the
 source:** colours are `ui/theme.py`'s Margin palettes (dark, the default,
-and light), sizes and radii are `ui_next/style.py`'s stylesheet at 100 %
-text size. This file names them for people and agents; the UI lab's design
+and light), sizes and radii are `ui_next/style.py`'s stylesheet at a text
+size factor of 1.0 (Windows' 100 % and the app's Smaller; the default,
+Normal, is 1.3 since desktop decision 0244). This file names them for people and agents; the UI lab's design
 detector holds the code to the type scale and radii (`TYPE_SCALE`,
 `RADII` in `tools/ui_lab/design.py`). What the app is for:
 [PRODUCT.md](PRODUCT.md); the rules every window follows: 109's
@@ -167,7 +168,7 @@ text colour); `SUCCESS`, `WARNING`, `DANGER` states, always with words;
 
 Segoe UI Variable Text for the interface (Windows' own; Chinese in
 Microsoft YaHei UI or JhengHei UI by the interface's language), Literata
-only for page titles. The scale at 100 %: 12 (notes, section labels), 13
+only for page titles. The scale at a factor of 1.0: 12 (notes, section labels), 13
 (body), 14 (card titles), 15 (the brand), 16 (the transcript), 17 (section
 buttons), 18 and 26 (the lookup card's word), 20 (state titles), 24 (page
 titles), 28 (stats). Every size is multiplied by the text size

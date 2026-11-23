@@ -12,7 +12,7 @@ from itertools import cycle, pairwise
 
 import pytest
 import shiboken6
-from PySide6.QtCore import QPointF
+from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QColor, QFont, QFontMetricsF, QImage, QPainter
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.budget_judge import sampled, within
@@ -49,7 +49,7 @@ from polyglotic_desktop.ui_next.caption_layout import (
     Ink,
     LaidLine,
 )
-from polyglotic_desktop.ui_next.caption_marks import CaptionMarks
+from polyglotic_desktop.ui_next.caption_marks import CaptionMarks, link_colour
 from polyglotic_desktop.ui_next.caption_window import (
     RUN_ON_MOST,
     CaptionWindow,
@@ -63,6 +63,7 @@ from polyglotic_desktop.ui_next.views.captions import CaptionLines, Line
 from polyglotic_desktop.ui_next.views.flow import Cut, FlowOptions
 from polyglotic_desktop.ui_next.views.lab import CaptionLab, Fill
 from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.word_classes import CLASS_COLOURS
 
 ROWS = FlowOptions()
 STACKED = FlowOptions(Cut.CAPTION)
@@ -100,9 +101,8 @@ def engine_of(flow: FlowOptions, **style: object) -> CaptionLayout:
 # -- word links ------------------------------------------------------------------------
 
 
-def test_two_clauses_on_one_line_never_share_a_links_colour() -> None:
-    """Numbered from 0 in each clause, 我们 and 好不好 were both orange on
-    one poured line (340's picture 02)."""
+def test_two_clauses_on_one_line_keep_separate_links_and_hover_colours() -> None:
+    """Pairing across clauses uses unique IDs even when classes share a swatch."""
     (line,) = lines_of(finished("a", WEEKEND, OKAY)).lines
     marks = CaptionMarks(None)
     marks.set_look(WordLinks.COLOURS, WordIntroductions.OFF)
@@ -110,11 +110,80 @@ def test_two_clauses_on_one_line_never_share_a_links_colour() -> None:
     for index, row in enumerate(line.rows):
         for _, _, format_ in marks(line, index):
             if format_.hasProperty(LINK_MARK):
+                link = int(format_.property(LINK_MARK))
                 colours.setdefault(row.clause, set()).add(
-                    format_.underlineColor().name()
+                    link_colour(marks.panel, link)
                 )
     assert len(colours[0]) == 4 and len(colours[1]) == 1
     assert colours[0].isdisjoint(colours[1])
+
+
+def test_video_links_show_a_contrasting_edge_over_matching_footage(
+    qapp: QApplication,
+) -> None:
+    (line,) = lines_of(finished("a", OKAY)).lines
+    marks = CaptionMarks(None)
+    panel = replace(marks.panel, opacity=0.0)
+    marks.set_look(WordLinks.COLOURS, WordIntroductions.OFF, panel)
+    engine = engine_of(ROWS)
+    laid = engine.laid(line, 500, 1.0)
+    ink = Ink(panel=panel.background, panel_opacity=panel.opacity)
+    scene = QImage(500, 180, QImage.Format.Format_RGB32)
+    scene.fill(QColor(CLASS_COLOURS[None]))
+    with QPainter(scene) as painter:
+        engine.paint(painter, line, laid, QPointF(0, 0), ink, marks)
+    # Grey marks are on a grey scene. The contrasting edge is the only black ink.
+    assert QColor("#000000").rgb() in (
+        scene.pixel(x, y) for y in range(scene.height()) for x in range(scene.width())
+    )
+
+
+def test_joined_card_layout_and_links_match_a_fresh_paint_after_resizing(
+    qapp: QApplication,
+) -> None:
+    (line,) = lines_of(finished("card", WEEKEND, OKAY), links=WordLinks.ARROWS).lines
+    engine = engine_of(PAIRED, arrows=True)
+    marks = CaptionMarks(None)
+
+    def draw(laid: LaidLine, clip_top: int, alpha: float) -> QImage:
+        image = QImage(600, 350, QImage.Format.Format_ARGB32)
+        image.fill(QColor("black"))
+        painter = QPainter(image)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setClipRect(QRectF(0, clip_top, image.width(), image.height()))
+        ink = Ink(
+            said_in_link_colours=True, translation_in_link_colours=True, alpha=alpha
+        )
+        engine.paint(painter, line, laid, QPointF(5.25, 10.5), ink, marks)
+        painter.end()
+        return image
+
+    for width in (580, 575, 160, 580):
+        card = engine.laid_card(line, width, 1.0)
+        fresh = engine.laid(line, width, 1.0)
+        assert card.height == fresh.height
+        for links in (WordLinks.ARROWS, WordLinks.OFF, WordLinks.ARROWS):
+            marks.set_look(links, WordIntroductions.OFF)
+            for clip, alpha in ((0, 1.0), (0, 1.0), (45, 0.6), (0, 1.0)):
+                assert draw(card, clip, alpha) == draw(fresh, clip, alpha)
+
+
+def test_wrapped_translation_keeps_its_words_whole(qapp: QApplication) -> None:
+    clause = Clause(
+        "五六七八九十。",
+        {EN: "Found fifteen green flags on the other side of the great river."},
+    )
+    (line,) = lines_of(
+        finished(
+            "sample", Clause("一二三四", {EN: "Seven runners scored points."}), clause
+        )
+    ).lines
+    laid = engine_of(PAIRED).laid_card(line, 260, 1.0)
+    row = next(r for r in laid.rows if r.row.text == clause.translations[EN])
+    assert row.layout.lineCount() > 1
+    for n in range(1, row.layout.lineCount()):
+        at = row.layout.lineAt(n).textStart()
+        assert not (row.row.text[at - 1].isalpha() and row.row.text[at].isalpha())
 
 
 def painted(engine: CaptionLayout, line: Line, width: int) -> tuple[QImage, LaidLine]:
@@ -245,6 +314,7 @@ def test_the_labs_new_layout_puts_a_caption_window_on_the_one_layout(
     assert caption_style(arrows).arrows  # in every layout now
 
 
+@pytest.mark.usefixtures("fill_the_width_on")
 def test_the_new_layout_is_off_until_chosen_and_saved_leniently() -> None:
     lab = CaptionLab()
     assert (lab.flow, lab.run_on, lab.aligned) == (False, False, False)

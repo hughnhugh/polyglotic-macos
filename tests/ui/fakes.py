@@ -15,7 +15,7 @@ from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.listening.sources import MIC
 from polyglotic_desktop.core.shared import EntryFacts, EntryId
-from polyglotic_desktop.main import Hub, Panels
+from polyglotic_desktop.main import Hub, Panels, chinese_word_split
 from polyglotic_desktop.ports.capture import PlayingApp, SourceCategory
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ui.app import DesktopApp
@@ -91,12 +91,24 @@ class Built:
     builds them (no capture, no connection); `close` closes them all."""
 
     def __init__(
-        self, store: MemorySettingsStore | None = None, tools: bool = False
+        self,
+        store: MemorySettingsStore | None = None,
+        tools: bool = False,
+        *,
+        caption_learning: bool = False,
     ) -> None:
-        """`tools`: a Chinese learner's (`chinese_tools`), else none."""
+        """`tools`: a Chinese learner's (`chinese_tools`), else none.
+        `caption_learning`: wire those tools into the caption windows as well.
+        """
         store = store or MemorySettingsStore()
         self.desktop = make_app(store, tools)
-        self.windows = CaptionWindows(store, MIC, lambda: [Rect(0, 0, 1920, 1040)])
+        learner = self.desktop.tools if caption_learning else None
+        self.windows = CaptionWindows(
+            store, MIC, lambda: [Rect(0, 0, 1920, 1040)], learner=learner
+        )
+        if learner is not None:
+            learner.changed.connect(self.windows.learning_changed)
+            self.windows.word_split = chinese_word_split(learner)
         self.panels = Panels(self.desktop.settings, self.windows)
         assert self.desktop.apps is not None
         self.hub = Hub(self.desktop, self.windows, self.panels, self.desktop.apps, True)

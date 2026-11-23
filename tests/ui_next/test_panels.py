@@ -9,9 +9,11 @@ from tests.budget_judge import sampled, within
 from tests.ui_next.made_up import finished_updates
 
 from polyglotic_desktop.core.listening.display import WordLinks
+from polyglotic_desktop.core.listening.playout import Ahead
 from polyglotic_desktop.core.listening.sources import MIC, SourceId
-from polyglotic_desktop.core.listening.timing import CaptionMode
+from polyglotic_desktop.core.listening.timing import OFFERED_MODES, CaptionMode
 from polyglotic_desktop.perf import budgets
+from polyglotic_desktop.ui_next.caption_window import timing_tip
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
@@ -114,16 +116,30 @@ def test_a_panel_that_goes_is_no_longer_told(qapp: QApplication) -> None:
     QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     qapp.processEvents()
     assert view._listeners == []
-    view.set_mode(CaptionMode.LIVE)  # nothing left to refresh
+    view.set_mode(CaptionMode.INSTANT)  # nothing left to refresh
+
+
+def test_the_card_stack_has_a_switch_in_the_paced_modes(qapp: QApplication) -> None:
+    view = TimingView(Timing(CaptionMode.STEADY))
+    panel = TimingPanel(view)
+    panel.show()
+    assert panel.cards_row.isVisible() and panel.cards_row.switch.isChecked()
+    assert not panel.zones_row.isVisible()  # the cards take the two zones' place
+    panel.cards_row.switch.setChecked(False)
+    assert not view.value.cards
+    assert panel.zones_row.isVisible()  # off: the two zones, and their switch
+    panel.mode.choose(CaptionMode.INSTANT)
+    assert not panel.cards_row.isVisible()
+    panel.close()
 
 
 def test_the_interval_only_with_live_updates(qapp: QApplication) -> None:
-    view = TimingView(Timing(CaptionMode.STEADY, 10.0))
+    view = TimingView(Timing(CaptionMode.WHOLE, 10.0))
     panel = TimingPanel(view)
     panel.show()
     assert not panel.live.isVisible()
-    panel.mode.choose(CaptionMode.LIVE)
-    assert panel.live.isVisible() and view.value.mode is CaptionMode.LIVE
+    panel.mode.choose(CaptionMode.INSTANT)
+    assert panel.live.isVisible() and view.value.mode is CaptionMode.INSTANT
     assert panel.interval.currentData() == 10.0  # set by hand: shown as itself
     panel.interval.setCurrentIndex(0)
     assert view.value.live_interval == 0.5
@@ -137,17 +153,15 @@ def test_each_modes_sentence_promises_what_was_measured(qapp: QApplication) -> N
     words came at 4.5-5.5 s; since 277 a dim line comes at the longest
     wait for text if the speaker talks on, and Steady's sentence says
     that wait."""
-    view = TimingView(Timing(CaptionMode.STEADY))
+    view = TimingView(Timing(CaptionMode.WHOLE))
     panel = TimingPanel(view)
     steady = panel.sentence.text()
     assert "half a second after it ends" in steady
-    assert "a dim line first if the speaker talks on for 3 seconds" in steady
+    assert "A dim line comes first if the speaker talks on for 3 seconds" in steady
     view.set_max_wait(5.0)
     assert "talks on for 5 seconds" in panel.sentence.text()
-    panel.mode.choose(CaptionMode.PREVIEW)
-    preview = panel.sentence.text()
-    assert "words in about 2 seconds" in preview
-    assert "translation about half a second after the sentence ends" in preview
+    panel.mode.choose(CaptionMode.STEADY)
+    assert panel.sentence.text() == timing_tip(CaptionMode.STEADY)
 
 
 def test_the_longest_wait_for_text_in_every_mode(qapp: QApplication) -> None:
@@ -155,10 +169,10 @@ def test_the_longest_wait_for_text_in_every_mode(qapp: QApplication) -> None:
     by hand shows as itself. A drop-down, so a change is one click: the
     settings are saved and sent once."""
     handed: list[Timing] = []
-    view = TimingView(Timing(CaptionMode.STEADY, 1.5, 3.5), handed.append)
+    view = TimingView(Timing(CaptionMode.WHOLE, 1.5, 3.5), handed.append)
     panel = TimingPanel(view)
     panel.show()
-    for mode in (CaptionMode.STEADY, CaptionMode.PREVIEW, CaptionMode.LIVE):
+    for mode in OFFERED_MODES:
         panel.mode.choose(mode)
         assert panel.wait.isVisible()
     assert panel.wait.currentData() == 3.5  # set by hand: shown as itself
@@ -174,7 +188,7 @@ def test_the_longest_wait_for_text_in_every_mode(qapp: QApplication) -> None:
     handed.clear()  # the modes chosen above
     panel.wait.setCurrentIndex(0)
     assert view.value.max_wait == 2.0 and handed == [view.value]
-    view.follow(Timing(CaptionMode.LIVE, 1.5, 6.0))  # changed elsewhere
+    view.follow(Timing(CaptionMode.INSTANT, 1.5, 6.0))  # changed elsewhere
     assert panel.wait.currentData() == 6.0 and len(handed) == 1  # not handed back
     panel.close()
 
@@ -188,33 +202,41 @@ def _gone(*panels: QWidget) -> None:
 def test_each_timing_shows_only_its_own_settings(qapp: QApplication) -> None:
     """polyglotic-hq 295 (the user, 2026-11-11: "caption timing setting
     should give their respective options"): under the choice, the chosen
-    timing's own settings in seconds - Steady the longest wait; Quick
-    preview its dim lines (fixed) and the longest wait; Live updates how
-    often, translating live and the longest wait - and nothing else."""
+    timing's own settings - Whole captions the longest wait; Instant how
+    often, translating live and the longest wait; Steady its newest word
+    and the words ahead; Calm the words ahead - and nothing else (526:
+    Quick preview, retired, is not offered)."""
     speech = LanguagesView(SessionLanguages(in_use=("en",)))
     panel = TimingPanel(TimingView(Timing()), languages=speech)
     panel.show()
     rows = {
-        "preview": panel.preview,
+        "newest": panel.newest_row,
+        "ahead": panel.ahead_row,
         "live": panel.live,
         "translate": panel.translate_row,
         "wait": panel.wait_row,
     }
     own = {
-        CaptionMode.STEADY: {"wait"},
-        CaptionMode.PREVIEW: {"preview", "wait"},
-        CaptionMode.LIVE: {"live", "translate", "wait"},
+        CaptionMode.INSTANT: {"live", "translate", "wait"},
+        CaptionMode.WHOLE: {"wait"},
+        CaptionMode.STEADY: {"newest", "ahead", "wait"},
+        CaptionMode.CALM: {"ahead", "wait"},
     }
+    assert tuple(own) == OFFERED_MODES
     try:
         for mode, shown in own.items():
             panel.mode.choose(mode)
             visible = {name for name, row in rows.items() if row and row.isVisible()}
             assert visible == shown, mode
-        panel.mode.choose(CaptionMode.PREVIEW)
-        assert panel.preview_at.text() == "1.5s, 3s into each caption"
-        assert "Fixed" in panel.preview.detail.text()
+        panel.mode.choose(CaptionMode.STEADY)
+        panel.newest_row.switch.click()
+        panel.ahead.choose(Ahead.WAITING)
+        assert (panel.view.value.newest_word, panel.view.value.words_ahead) == (
+            True,
+            Ahead.WAITING,
+        )
         # each says what it trades; the one longest wait, for every timing
-        assert panel.live.detail.text().startswith("Shorter: text sooner")
+        assert "show text sooner" in panel.live.detail.text()
         assert "the same in every timing" in panel.wait_row.detail.text()
         # Live updates every offers 0.5 to 6 s and says nothing of 20 (before
         # 295: "from 0.5 to 20 seconds", with 6 s the most offered)
@@ -230,7 +252,7 @@ def test_live_updates_say_when_the_longest_wait_comes_first(
     (core.listening.timing: the longest wait comes first): the panel says
     so under the interval, and says nothing when the interval is followed
     (polyglotic-hq 295)."""
-    view = TimingView(Timing(CaptionMode.LIVE, 6.0, 3.0))
+    view = TimingView(Timing(CaptionMode.INSTANT, 6.0, 3.0))
     panel = TimingPanel(view)
     panel.show()
     try:
@@ -243,7 +265,7 @@ def test_live_updates_say_when_the_longest_wait_comes_first(
         view.set_live_interval(1.5)
         view.set_max_wait(2.0)
         assert not panel.live_note.isVisible()
-        view.set_mode(CaptionMode.STEADY)
+        view.set_mode(CaptionMode.WHOLE)
         assert not panel.live.isVisible()
     finally:
         _gone(panel)
@@ -341,9 +363,9 @@ def test_no_window_flashes_while_a_panel_is_built(qapp: QApplication) -> None:
                 LanguagesView(SessionLanguages()),
                 WindowLanguageView(WindowLanguage("Discord")),
             ),
-            TimingPanel(TimingView(Timing(CaptionMode.LIVE))),
+            TimingPanel(TimingView(Timing(CaptionMode.INSTANT))),
             TimingPanel(
-                TimingView(Timing(CaptionMode.LIVE)),
+                TimingView(Timing(CaptionMode.INSTANT)),
                 languages=LanguagesView(SessionLanguages()),
             ),
             LanguagesPanel(LanguagesView(SessionLanguages()), speech=True),
@@ -445,7 +467,8 @@ def test_live_updates_every_says_the_first_waits_for_a_second(
 
     panel = TimingPanel(TimingView(Timing()))
     try:
-        assert "first update waits for a second of speech" in panel.live.detail.text()
+        assert "first update waits for a second of speech" in panel.live.toolTip()
+        assert panel.interval.accessibleDescription() == panel.live.toolTip()
     finally:
         panel.deleteLater()
         QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
@@ -464,7 +487,7 @@ def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     view = TimingView(Timing(), handed.append)
     panel = TimingPanel(view)
     panel.show()
-    for mode in (CaptionMode.STEADY, CaptionMode.PREVIEW, CaptionMode.LIVE):
+    for mode in OFFERED_MODES:
         panel.mode.choose(mode)
         assert panel.settle.isVisible()
     assert panel.settle.currentData() == 3.0
@@ -478,7 +501,7 @@ def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     handed.clear()
     panel.settle.setCurrentIndex(1)
     assert view.value.settle_after == 1.0 and handed == [view.value]
-    view.follow(Timing(CaptionMode.LIVE, 1.5, 3.0, 0.5))  # set by hand, elsewhere
+    view.follow(Timing(CaptionMode.INSTANT, 1.5, 3.0, 0.5))  # set by hand, elsewhere
     assert panel.settle.currentData() == 0.5 and len(handed) == 1
     panel.close()
     _gone(panel)

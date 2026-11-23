@@ -108,6 +108,7 @@ from polyglotic_desktop.core.listening.recheck import RecheckResult
 from polyglotic_desktop.core.listening.settings import ListeningSettings
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.timing import (
+    CaptionId,
     CaptionTiming,
     Decision,
     TranscriptionRequest,
@@ -310,7 +311,7 @@ def _pipeline(args: argparse.Namespace, on_ready: Callable[[], None]) -> SpeechP
         lambda: SpeechDetector(model),
         timing,
         on_ready=on_ready,
-        new_mic_detector=lambda: SpeechDetector(model, MIC_GAIN_MAX),
+        new_mic_detector=lambda: SpeechDetector(model, MIC_GAIN_MAX, beds=False),
     )
 
 
@@ -434,11 +435,19 @@ class _CaptionView:
     def minutes_changed(self, used: float, left: float | None) -> None:
         self._say(f"[minutes used this month: {used}]")
 
+    def allowance_changed(
+        self, allowance: protocol.AllowanceUpdate | protocol.AllowanceExhausted
+    ) -> None:
+        self._say(f"[allowance: {allowance.left}%]")
+
     def notice(self, code: str) -> None:
         self._say(f"[notice: {code}]")
 
     def caption_failed(self) -> None:
         self._say("[a finished caption failed on the server]")
+
+    def caption_dropped(self, caption_id: CaptionId) -> None:
+        self._say("[a finished caption won't come: its live caption ends]")
 
     def connection_stalled(self, stalled: bool) -> None:
         self._say(f"[connection stalled: {'yes' if stalled else 'no'}]")

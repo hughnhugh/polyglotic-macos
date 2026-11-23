@@ -125,8 +125,10 @@ def test_todays_keys_are_not_touched() -> None:
         "recent_spoken",
         "declined_spoken",
         "reading_hinted",
+        "respeaking_hinted",
         "set_up",  # the first window's set-up answered (465)
         "start_like_this",
+        "kept_languages",  # while every window shows the original only (556)
     }
 
 
@@ -137,4 +139,4 @@ def test_a_source_today_didnt_name_takes_todays_values_until_saved() -> None:
     system = stored.for_new(0)
     assert system.show_mic and system.preset is Preset.CUSTOM
     stored.first_use = False  # saved, a window opened: from now on, new ones
-    assert stored.for_new(1) == WindowChoices("zh", 1.3)
+    assert stored.for_new(1) == WindowChoices("zh", 1.3, translation_size=1.3)

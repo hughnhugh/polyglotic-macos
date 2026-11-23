@@ -32,10 +32,11 @@ def test_main_loads_without_any_os_adapters() -> None:
 
 
 def test_an_os_without_adapters_is_told_what_is_missing() -> None:
-    """Linux; macOS has its own since 409 (tests/test_macos_adapters.py)."""
+    """FreeBSD, say; macOS has its own since 409, Linux since 550
+    (tests/test_macos_adapters.py, tests/test_linux_adapters.py)."""
     with pytest.raises(NoOsAdapters) as error:
-        os_adapters("linux")
-    assert "linux" in str(error.value) and "platform/linux" in str(error.value)
+        os_adapters("freebsd14")
+    assert "freebsd14" in str(error.value) and "platform" in str(error.value)
 
 
 class Item:

@@ -196,12 +196,17 @@ def test_the_wheel_changes_nothing_in_a_caption_windows_popover(
         popover = window.popover
         assert popover is not None and popover.isVisible()
         assert changed_by_the_wheel(popover, "the popover") == []
-        # each list of choices open: it scrolls, and what's chosen stays
-        for chip in ("spoken", "language", "timing"):
-            getattr(popover, chip).click()
+        window.close_settings()
+        # each list of choices open in the language chip popover: it scrolls,
+        # and what's chosen stays (655: the bar chip is the one place)
+        window.toggle_languages()
+        lang_popover = window.languages
+        assert lang_popover is not None and lang_popover.isVisible()
+        for chip in ("spoken", "language"):
+            getattr(lang_popover, chip).click()
             qapp.processEvents()
-            assert changed_by_the_wheel(popover, f"the popover, {chip} open") == []
-            getattr(popover, chip).click()
+            assert changed_by_the_wheel(lang_popover, f"the popover, {chip} open") == []
+            getattr(lang_popover, chip).click()
     finally:
         window.close()
 

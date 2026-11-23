@@ -23,6 +23,7 @@ and `follow` brings back what they changed.
 """
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from typing import Protocol
 
@@ -97,8 +98,10 @@ class SoundCommands(Protocol):
 
     def set_my_speech(self, on: bool) -> None: ...
 
-    def sound_devices(self) -> SoundDevices:
-        """The devices plugged in now."""
+    def look_for_devices(self, found: Callable[[SoundDevices], None]) -> None:
+        """The devices plugged in now, handed to `found` - at once, or once
+        they're listed: a Mac took 1.9 s to list them, and the interface
+        waited (polyglotic-hq 523, 563)."""
         ...
 
     def mic_peak(self) -> float | None:
@@ -116,8 +119,10 @@ class SoundView(Shared[Sound]):
 
     def look_again(self) -> None:
         """The devices plugged in, looked at again (a card shown, a list
-        opened): a device plugged in since shows."""
-        devices = self.commands.sound_devices()
+        opened): a device plugged in since shows - when they're listed."""
+        self.commands.look_for_devices(self._found)
+
+    def _found(self, devices: SoundDevices) -> None:
         if devices != self.value.devices:
             self.follow(_with(self.value, devices=devices))
 

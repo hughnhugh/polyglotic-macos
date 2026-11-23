@@ -8,6 +8,7 @@ import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
 import pytest
 from PySide6.QtCore import QRectF, Qt
@@ -631,3 +632,36 @@ def test_the_lab_draws_in_windows_fonts() -> None:
         cwd=Path(__file__).parents[2],
     )
     assert done.returncode == 0 and done.stdout.strip() == "ok", done.stderr[-2000:]
+
+
+def _box(
+    pen: tuple[int, int, int], behind: tuple[int, int, int], pen_share: float
+) -> Any:
+    """A 10 x 10 box of RGBA pixels: `pen_share` of it the text's colour,
+    the rest what's behind it."""
+    import numpy as np
+
+    pixels = np.zeros((10, 10, 4), dtype=np.uint8)
+    pixels[:, :, 3] = 255
+    pixels[:, :, :3] = behind
+    covered = round(100 * pen_share)
+    flat = pixels.reshape(-1, 4)
+    flat[:covered, :3] = pen
+    return pixels
+
+
+def test_whats_behind_text_is_never_its_own_colour_while_another_shows() -> None:
+    """A short run of bold, dense script covers more of its box than what's
+    behind it: Hindi at the app's Normal (1.3) read "#e9ecf1 on #e9ecf1"
+    (polyglotic-hq 524). What's behind is the most of the rest; text on
+    its own colour still shows only that."""
+    from PySide6.QtGui import QColor
+
+    pen, dark = (233, 236, 241), (17, 21, 29)
+    whole = QRectF(0, 0, 10, 10)
+    dense = checks._behind(_box(pen, dark, 0.6), whole, QColor(*pen))
+    assert dense is not None and dense.name() == QColor(*dark).name()
+    alone = checks._behind(_box(pen, pen, 1.0), whole, QColor(*pen))
+    assert alone is not None and alone.name() == QColor(*pen).name()
+    sparse = checks._behind(_box(pen, dark, 0.3), whole, QColor(*pen))
+    assert sparse is not None and sparse.name() == QColor(*dark).name()

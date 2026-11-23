@@ -151,3 +151,70 @@ def test_a_participle_or_a_small_word_is_no_compounds_part() -> None:
     assert d.parts("Schreiden") == []  # Schrei + den: "den" is a small word
     assert d.parts("Bodabo") == []  # "Bod" is too short to be Boden cut short
     assert [p.form for p in d.parts("Bodenabo")] == ["Boden", "Abo"]
+
+
+KOREAN_WORDS = {
+    "국립": ("(noun) national", 2245),
+    "공원": ("(noun) park", 759),
+    "식물": ("(noun) plant", 1800),
+    "-성": ("(suffix) -ity, -ness", 0),
+    "여행": ("(noun) travel, trip", 600),
+    "객": ("(noun) guest", 3000),
+    "대-": ("(prefix) large, great", 0),
+    "도시": ("(noun) city", 350),
+    "대표": ("(noun) representative", 50000),
+    "팀": ("(noun) team", 30000),
+    "표팀": ("(noun) a word made up to tempt a cut", 1),
+    "바깥": ("(noun) outside", 2000),
+    "층": ("(noun) floor, layer", 515),
+    "국": ("(noun) soup", 900),
+    "립": ("(syllable) 立: stand", 0),
+    "공": ("(noun) ball", 800),
+    "원": ("(noun) won (currency)", 200),
+    "파티": ("(noun) party", 3000),
+    "-마": ("(suffix) horse", 0),
+}
+KOREAN = FakeDictionaryFile(
+    [
+        record(f"wiktko:{w}", w, meaning, rank)
+        for w, (meaning, rank) in KOREAN_WORDS.items()
+    ],
+    {w: [f"wiktko:{w}"] for w in KOREAN_WORDS},
+)
+
+
+def korean() -> BasicDictionary:
+    return BasicDictionary(KOREAN, FakeSplit(), "ko")
+
+
+def test_a_korean_compound_is_its_words_of_two_syllables_or_more() -> None:
+    """Korean closes compounds up (국립공원, national park) and Wiktionary
+    lists few: such a word is its words of two syllables or more - never
+    single syllables, any of which is some word (국, 립, 공, 원) - then a
+    one-syllable suffix, word or prefix read by hand (polyglotic-hq 516)."""
+    assert cut(korean(), "국립공원") == [("국립", "국립", True), ("공원", "공원", True)]
+    assert cut(korean(), "식물성") == [("식물", "식물", True), ("성", "-성", True)]
+    assert cut(korean(), "바깥층") == [("바깥", "바깥", True), ("층", "층", True)]
+    assert cut(korean(), "대도시") == [("대", "대-", True), ("도시", "도시", True)]
+
+
+def test_a_prefix_only_where_no_cut_without_one_will_do() -> None:
+    assert [p.form for p in korean().parts("대표팀")] == [
+        "대표",
+        "팀",
+    ]  # not 대- + 표팀
+
+
+def test_a_korean_compounds_particles_are_no_parts() -> None:
+    """국립공원은 is 국립공원 + 은: its parts are 국립 and 공원, as 학교에서's
+    word is 학교 - a particle is no word of a caption's own."""
+    assert cut(korean(), "국립공원은") == [
+        ("국립", "국립", True),
+        ("공원", "공원", True),
+    ]
+    assert [p.form for p in korean().parts("여행객에게도")] == ["여행", "객"]
+    assert korean().parts("공원은") == []  # a word the pack has, with a particle
+
+
+def test_a_name_in_hangul_isnt_cut_at_any_syllable() -> None:
+    assert korean().parts("파티마") == []  # Fatima: not 파티 + -마

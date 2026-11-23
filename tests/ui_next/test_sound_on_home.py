@@ -4,7 +4,9 @@ microphone settings"): which speakers everything the PC plays comes from,
 whether what I say is captioned, which mic, and its level - one state,
 two cards. No real device is opened or listed here."""
 
-from collections.abc import Iterator
+import threading
+import time
+from collections.abc import Callable, Iterator
 from dataclasses import replace
 
 import numpy as np
@@ -82,8 +84,8 @@ class Commands:
         self.calls.append(("my_speech", on))
         self._changed(my_speech=on)
 
-    def sound_devices(self) -> SoundDevices:
-        return self.devices
+    def look_for_devices(self, found: Callable[[SoundDevices], None]) -> None:
+        found(self.devices)
 
     def mic_peak(self) -> float | None:
         return self.peak
@@ -267,11 +269,11 @@ def test_the_devices_are_listed_once_the_card_is_shown_not_while(
     commands = Commands()
     listed: list[SoundDevices] = []
 
-    def counted() -> SoundDevices:
+    def counted(found: Callable[[SoundDevices], None]) -> None:
         listed.append(commands.devices)
-        return commands.devices
+        found(commands.devices)
 
-    commands.sound_devices = counted  # type: ignore[method-assign]
+    commands.look_for_devices = counted  # type: ignore[method-assign]
     view = view_with(Sound(), commands)
     card = SoundCard(view)
     MADE.append(card)
@@ -320,7 +322,9 @@ def test_what_you_hear_and_what_you_say_are_told_apart(qapp: QApplication) -> No
     assert card.speakers.accessibleName() == "Speakers"
     assert card.mics.accessibleName() == "Microphone"
     assert card.my_speech.switch.text() == "Caption what I say"
-    assert "sent to the server only while this is on" in card.my_speech.detail.text()
+    assert (
+        "sent for your captions only while this is on" in card.my_speech.detail.text()
+    )
 
 
 def test_the_meter_reads_only_while_what_i_say_is_captioned(qapp: QApplication) -> None:
@@ -352,7 +356,6 @@ def test_home_and_settings_show_one_state(qapp: QApplication) -> None:
     MADE.append(home)
     settings = SettingsPage(
         [("margin", "Margin")],
-        {},
         QAction("Tell us"),
         look=LookView(CaptionLook()),
         timing=TimingView(Timing()),
@@ -391,6 +394,40 @@ def test_the_hub_saves_the_choices_and_captions_what_i_say(qapp: QApplication) -
         hub.sound.set_mic(None)  # back to Windows' default
         assert built.desktop.settings.value.mic_device is None
     finally:
+        built.close()
+
+
+def test_a_slow_listing_never_holds_the_interface(qapp: QApplication) -> None:
+    """Polyglotic-hq 563 (523's sweep): a Mac's Core Audio took 1.9 s to
+    list its devices, and the interface froze while Settings' Speakers list
+    opened. The list is made on a thread of its own; the card shows it when
+    it's made."""
+    built = Built(MemorySettingsStore({"apps": ["Chat.exe"]}))
+    gate = threading.Event()
+
+    def slow() -> SoundDevices:
+        gate.wait(10)
+        return PLUGGED
+
+    try:
+        hub = built.hub
+        hub.list_devices = slow
+        began = time.monotonic()
+        hub.sound.look_again()
+        hub.sound.look_again()  # opened again meanwhile: the same listing
+        assert time.monotonic() - began < 0.5  # it was 1.9 s on a Mac
+        assert hub.sound.value.devices == SoundDevices()  # not listed yet
+        gate.set()
+        deadline = time.monotonic() + 5
+        while hub.sound.value.devices != PLUGGED:
+            assert time.monotonic() < deadline, "never listed"
+            QTest.qWait(10)
+        # a quick one (Windows': 4-10 ms) is there at once, as before
+        hub.list_devices = lambda: SoundDevices((SPEAKERS,), (), SPEAKERS.id)
+        hub.sound.look_again()
+        assert hub.sound.value.devices.speakers == (SPEAKERS,)
+    finally:
+        gate.set()
         built.close()
 
 

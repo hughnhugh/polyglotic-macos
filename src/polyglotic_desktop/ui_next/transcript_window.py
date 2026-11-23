@@ -125,8 +125,9 @@ from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.listening.caption_model import Words
 from polyglotic_desktop.core.listening.display import RowKind, clause_versions
 from polyglotic_desktop.core.listening.history import Caption
+from polyglotic_desktop.core.listening.offers import Use, offered
 from polyglotic_desktop.core.listening.sources import SourceLabel
-from polyglotic_desktop.core.listening.timing import CaptionMode
+from polyglotic_desktop.core.listening.timing import OFFERED_MODES, CaptionMode
 from polyglotic_desktop.core.listening.transcript import (
     as_csv,
     as_srt,
@@ -148,6 +149,7 @@ from polyglotic_desktop.ui_next.caption_marks import Learner
 from polyglotic_desktop.ui_next.caption_selection import word_rects
 from polyglotic_desktop.ui_next.caption_window import (
     Marked,
+    live_tip,
     notice_text,
     timing_name,
     timing_tip,
@@ -159,6 +161,7 @@ from polyglotic_desktop.ui_next.copying import (
     selection_menu,
 )
 from polyglotic_desktop.ui_next.languages import (
+    in_sentence,
     language_name,
     shown_name,
     spoken_names,
@@ -201,6 +204,7 @@ from polyglotic_desktop.ui_next.views.speech import Say
 from polyglotic_desktop.ui_next.views.tone import vibrant
 from polyglotic_desktop.ui_next.views.transcript import (
     MIN_SIZE,
+    MOST_OF_AREA,
     RAIL_WIDTH,
     Spot,
     Transcript,
@@ -455,7 +459,15 @@ class TranscriptList(QWidget):
         and "checked by the best model" - laid out once per line, text size
         and what it says."""
         px = max(8, round(HEADING_PX * min(self._scale(), 1.6)))
-        said = (line.started_at, line.by_you, line.heard, line.checked, px, self.you)
+        said = (
+            line.started_at,
+            line.by_you,
+            line.heard,
+            line.checked,
+            line.respoken,
+            px,
+            self.you,
+        )
         found = self._headings.get(line.key)
         if found is not None and found.said == said:
             self._headings.move_to_end(line.key)
@@ -475,6 +487,10 @@ class TranscriptList(QWidget):
             you = (at, at + len(self.you.name))
             parts.append(self.you.name)
             at = you[1]
+        if line.respoken:  # said again by the learner, for its app (567)
+            words = _tr("re-spoken")
+            parts.append(words)
+            at += 3 + len(words)
         heard = spoken_names(str(lang) for lang in line.heard if lang)
         if heard:
             parts.append(heard)
@@ -1077,7 +1093,7 @@ class TranscriptList(QWidget):
 
             action = into.addAction(side_text(state, side.language), say)
             if state is Say.NO_VOICE:
-                action.setToolTip(no_voice_steps(side.language))
+                action.setToolTip(no_voice_steps(side.language, reading.system_voice()))
         into.setToolTipsVisible(True)
 
     def better_voice(self, reading: SelectionReading, language: str) -> QMessageBox:
@@ -1384,14 +1400,15 @@ class TranscriptWindow(QWidget):
             str(transcript.target) if transcript.target else ORIGINAL_ONLY
         )
         self.save_folder = save_folder or SaveFolder()
-        self.timing = CaptionMode.STEADY
+        self.timing = CaptionMode.WHOLE
         self.notice_shown: Notice | None = None
         self.animate = True  # the rail slides (off in the lab and tests)
         self._slide = QVariantAnimation(self)
         self._slide.setDuration(RAIL_SLIDE_MS)
         self._slide.valueChanged.connect(self._rail_width)
         self._slide.finished.connect(self._slid)
-        self.setMinimumSize(style.px(MIN_SIZE.width), style.px(MIN_SIZE.height))
+        self._area: Rect | None = None  # the work area it opened on (`keep_to`)
+        self._keep_minimum()
         self.setWindowTitle(_tr("{app} - Transcript").format(app=label.name))
 
         column = QVBoxLayout(self)
@@ -1424,6 +1441,7 @@ class TranscriptWindow(QWidget):
         self.pill.setObjectName("transcript_window.back_to_live")
         self.pill.setCursor(Qt.CursorShape.PointingHandCursor)
         self.pill.clicked.connect(self.go_live)
+        self.pill.setToolTip(live_tip(""))
         self.pill.hide()
         self.notice = QLabel(self.list)
         self.notice.setObjectName("transcript_window.notice")
@@ -1493,7 +1511,7 @@ class TranscriptWindow(QWidget):
         timing_menu = QMenu(timing)
         group = QActionGroup(timing_menu)
         self.timing_actions: dict[CaptionMode, QAction] = {}
-        for mode in CaptionMode:
+        for mode in (*OFFERED_MODES, CaptionMode.SCROLLING):
             action = timing_menu.addAction(timing_name(mode))
             action.setToolTip(timing_tip(mode))  # what it does (F22, 249)
             action.setCheckable(True)
@@ -1501,6 +1519,7 @@ class TranscriptWindow(QWidget):
             action.triggered.connect(
                 lambda _=False, m=mode: self.timing_wanted.emit(m.value)
             )
+            action.setVisible(mode is not CaptionMode.SCROLLING)
             self.timing_actions[mode] = action
         timing_menu.setToolTipsVisible(True)
         timing.setMenu(timing_menu)
@@ -1559,7 +1578,7 @@ class TranscriptWindow(QWidget):
         chip = self.buttons["language"]
         chip.setText(f"{code.upper() if code else _tr('Original only')} ▾")
         chip.setToolTip(
-            _tr("Translate into: {language}").format(language=language_name(code))
+            in_sentence(_tr("Translate into: {language}"), language=language_name(code))
             if code
             else _tr("Original only - no translation")
         )
@@ -1598,11 +1617,17 @@ class TranscriptWindow(QWidget):
         show_mic: bool,
         timing: CaptionMode,
         you: SourceLabel,
+        *,
+        video: bool = False,
     ) -> None:
         """Its caption window's choices and the session's, as they are now."""
         self.show_label(label, show_mic)
         self.translate_into = translate_into
         self.timing = timing
+        choices = offered(Use.WATCHING).timings if video else OFFERED_MODES
+        for mode, action in self.timing_actions.items():
+            action.setVisible(mode in choices)
+            action.setToolTip(timing_tip(mode, video=video))
         if you != self.list.you:
             self.list.you = you
             self.list.update()
@@ -1633,7 +1658,7 @@ class TranscriptWindow(QWidget):
         """At the text size now (Windows' changed while it ran): dressed
         again, its minimum and the rail at it, the strip folded to fit."""
         self.setStyleSheet(stylesheet(self.theme))
-        self.setMinimumSize(style.px(MIN_SIZE.width), style.px(MIN_SIZE.height))
+        self._keep_minimum()
         self.tag.restyle()
         if self.rail.width() > 0:
             self.rail.setFixedWidth(style.px(RAIL_WIDTH))
@@ -1714,6 +1739,11 @@ class TranscriptWindow(QWidget):
     def go_live(self) -> None:
         self.transcript.go_live()
         self.refresh()
+
+    def set_live_keys(self, keys: str) -> None:
+        """Back to live's hotkey as the OS writes it ("" none), on its tip
+        (polyglotic-hq 567)."""
+        self.pill.setToolTip(live_tip(keys))
 
     # -- the rail -------------------------------------------------------------------------
 
@@ -1910,7 +1940,15 @@ class TranscriptWindow(QWidget):
                 for caption in captions
             }
             return as_csv(captions, languages, zone, sources, seconds)
-        return as_text(captions, languages, names, you, zone, seconds=seconds)
+        return as_text(
+            captions,
+            languages,
+            names,
+            you,
+            zone,
+            seconds=seconds,
+            respoken=_tr("re-spoken"),
+        )
 
     def text(self) -> str:
         """What Copy all copies: the whole session's lines (or, searching,
@@ -1998,7 +2036,29 @@ class TranscriptWindow(QWidget):
 
     # -- events ---------------------------------------------------------------------------
 
+    def keep_to(self, area: Rect) -> None:
+        """On the work area `area`: its minimum kept to it (`_keep_minimum`)."""
+        self._area = area
+        self._keep_minimum()
+
+    def _keep_minimum(self) -> None:
+        """Its minimum at the text size now (MIN_SIZE times it), but never
+        more than MOST_OF_AREA of its work area: at a large text size on a
+        small screen the minimum was taller than the screen, and the window
+        opened at it - arrows on every edge, none moving (polyglotic-hq
+        586, as the main window's)."""
+        width, height = style.px(MIN_SIZE.width), style.px(MIN_SIZE.height)
+        if self._area is not None:
+            width = min(width, round(self._area.width * MOST_OF_AREA))
+            height = min(height, round(self._area.height * MOST_OF_AREA))
+        self.setMinimumSize(width, height)
+
     def resizeEvent(self, event: QResizeEvent) -> None:
+        if self.isVisible() and not self.isMaximized() and not self.isMinimized():
+            size = (self.width(), self.height())
+            if size != self.choices.size:  # opened at it next time (586)
+                self.choices = replace(self.choices, size=size)
+                self.changed.emit()
         self._fold()
         inline = rail_inline(self.width(), style.text_scale())
         if self.popover_open:

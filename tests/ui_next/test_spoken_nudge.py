@@ -2,7 +2,12 @@
 once Detect has heard a window's app speak one language steadily, the
 window asks "This sounds like Russian. Always hear it as Russian?" - Yes
 names it, Not now leaves Detect and never asks about that language again
-for that window. Detect keeps working either way."""
+for that window. Detect keeps working either way.
+
+Behind its flag, off since polyglotic-hq 555 (the user, 2026-11-20:
+"Detect should be the default mode and we shouldn't push users to force
+a language choice"): these tests turn it on; test_detect_by_default
+checks that, off, nothing asks."""
 
 from collections.abc import Iterator
 from dataclasses import replace
@@ -15,6 +20,7 @@ from tests.ui_next.made_up import finished_updates
 from polyglotic_desktop.core.listening.captions import CaptionUpdate, Language
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.spoken import STEADY_CAPTIONS, SteadyLanguage
+from polyglotic_desktop.core.releases import flags
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -55,6 +61,13 @@ def heard_in(
         replace(update, language=language, languages_heard=(language,))
         for update in finished_updates(count, source, start)
     ]
+
+
+@pytest.fixture(autouse=True)
+def nudge_on() -> Iterator[None]:
+    flags.set_value(flags.SPOKEN_NUDGE, True)
+    yield
+    flags.set_value(flags.SPOKEN_NUDGE, None)
 
 
 @pytest.fixture

@@ -98,17 +98,27 @@ def test_an_srt_cue_never_runs_into_the_next() -> None:
 def test_csv_has_a_row_per_finished_caption_and_a_column_per_language() -> None:
     rows = list(csv.reader(io.StringIO(as_csv(CAPTIONS, [EN, ZH]))))
     assert rows == [
-        ["time", "you", "source", "language", "original", "en", "zh"],
+        ["time", "you", "source", "respoken", "language", "original", "en", "zh"],
         [
             "2026-11-04T09:00:01+00:00",
             "no",
             "",
+            "no",
             "zh",
             "你好，今天。",
             "Hello, today.",
             "",
         ],
-        ["2026-11-04T09:00:04+00:00", "yes", "", "en", "Sounds good.", "", "不错。"],
+        [
+            "2026-11-04T09:00:04+00:00",
+            "yes",
+            "",
+            "no",
+            "en",
+            "Sounds good.",
+            "",
+            "不错。",
+        ],
     ]
 
 
@@ -160,7 +170,7 @@ SECOND_LINE = [
 
 def test_a_second_language_line_is_saved_under_its_own_language() -> None:
     rows = list(csv.reader(io.StringIO(as_csv(SECOND_LINE, [EN, ZH], seconds=SECONDS))))
-    assert [row[3:] for row in rows] == [
+    assert [row[4:] for row in rows] == [
         ["language", "original", "en", "zh"],
         ["zh", "你好，今天。", "Hello, today.", ""],
         ["en", "See you.", "", "明天见。"],
@@ -185,4 +195,4 @@ def test_a_line_already_in_its_key_stays_there() -> None:
     the second; one said in another language is in the window's."""
     heard_en = caption(1, Clause("Hi.", {ZH: "嗨。"}), at=1.0, language="en")
     rows = list(csv.reader(io.StringIO(as_csv([heard_en], [ZH, EN], seconds={ZH: EN}))))
-    assert rows[1][5:] == ["嗨。", ""]
+    assert rows[1][6:] == ["嗨。", ""]

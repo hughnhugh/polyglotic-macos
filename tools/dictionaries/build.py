@@ -43,6 +43,7 @@ from polyglotic_desktop.adapters.sqlite_dictionary import (
 )
 from polyglotic_desktop.core.lexicon import chinese
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
+from polyglotic_desktop.core.lexicon.readings import RESPELLED_WORD_LIMIT
 from polyglotic_desktop.ports.dictionary import EntryRecord
 from tools.dictionaries import (
     cedict,
@@ -51,10 +52,12 @@ from tools.dictionaries import (
     english_meanings,
     oewn,
     respell,
+    sense_classes,
     treebanks,
     wordfreq_ranks,
 )
 from tools.dictionaries.entry_ids import Registry, assign_ids
+from tools.dictionaries.reviewed_classes import apply_reviews
 from tools.dictionaries.sources import (
     CEDICT,
     CMUDICT,
@@ -138,7 +141,10 @@ def attach_levels(
 
 
 def build_chinese(
-    paths: Mapping[str, Path], out: Path, registry: Registry
+    paths: Mapping[str, Path],
+    out: Path,
+    registry: Registry,
+    reviews: Path | None = None,
 ) -> dict[str, object]:
     lines = cedict.read(paths["cedict"])
     ids = assign_ids(registry, (line.key for line in lines))
@@ -176,19 +182,26 @@ def build_chinese(
     for e in entries:
         for word in sorted(chinese.index_words(e)):
             meaning_words[word].append(e.entry_id)
+    reviewed, provenance, verified = apply_reviews(
+        records, reviews, "cedict", "zh", "en"
+    )
     write_dictionary(
         out,
-        info(
-            CEDICT,
-            [CEDICT, JIEBA, HSK30],
-            frequency="jieba",
-            schemes="hsk-2025 hsk-2021",
-            ranked=sum(1 for r in records if r.frequency_rank),
-        ),
-        records,
+        {
+            **info(
+                CEDICT,
+                [CEDICT, JIEBA, HSK30],
+                frequency="jieba",
+                schemes="hsk-2025 hsk-2021",
+                ranked=sum(1 for r in records if r.frequency_rank),
+            ),
+            **provenance,
+        },
+        reviewed,
         forms,
         meaning_words,
         merged=registry.resolved_merges(),
+        with_sense_classes=True,
     )
     with_level = {s: sum(1 for r in records if s in dict(r.levels)) for s in HSK_TABLES}
     return {
@@ -197,6 +210,9 @@ def build_chinese(
         "names": sum(1 for e in entries if e.is_name),
         "entries with a level": with_level,
         "HSK words not in CC-CEDICT": missing,
+        "sense classes by gloss language": {
+            "en": sense_classes.coverage(reviewed, verified)
+        },
     }
 
 
@@ -283,15 +299,25 @@ def build_english(
             ids[name.name],
         ]
     merged = registry.resolved_merges()
+    chinese_glosses = [sense_classes.english(r, chinese_glosses=True) for r in records]
     write_dictionary(
-        out, about, records, forms, lemmas=lemmas, merged=merged, form_readings=respelt
+        out,
+        about,
+        chinese_glosses,
+        forms,
+        lemmas=lemmas,
+        merged=merged,
+        form_readings=respelt,
     )
     names = {  # a name's first line in English: "a man's name"
         r.entry_id: "; ".join(kinds)
         for r in records
         if r.headword[:1].isupper() and (kinds := ecdict.name_kinds(r.meanings[0]))
     }
-    english = english_records(paths, kept, rows, records, uses, names)
+    english = [
+        sense_classes.english(r, chinese_glosses=False)
+        for r in english_records(paths, kept, rows, records, uses, names)
+    ]
     write_dictionary(
         out.with_name(ENGLISH_MEANINGS),
         {
@@ -318,6 +344,10 @@ def build_english(
         "names of our own": len(given),
         "with English meanings": sum(1 for r in english if r.meanings),
         "respelled": len(respelt),
+        "sense classes by gloss language": {
+            "en": sense_classes.coverage(english),
+            "zh": sense_classes.coverage(chinese_glosses),
+        },
     }
 
 
@@ -335,7 +365,9 @@ def respellings(paths: Mapping[str, Path], lemmas: Mapping[str, str]) -> dict[st
     cmudict = respell.read_cmudict(paths["cmudict"].read_text(encoding="utf-8"))
     frequencies = wordfreq_ranks.frequencies(paths["wordfreq"])
     picks = respell.read_picks(respell.PICKS.read_text(encoding="utf-8"))
-    rows = respell.table(respell.commonest(frequencies, RESPELLED), cmudict, picks)
+    rows = respell.table(
+        respell.commonest(frequencies, RESPELLED_WORD_LIMIT), cmudict, picks
+    )
     found = {row.word: row.respelling for row in rows}
     heteronyms = {row.word for row in rows if any("(" in a for a in row.alternates)}
     forms = sorted(
@@ -350,12 +382,6 @@ def respellings(paths: Mapping[str, Path], lemmas: Mapping[str, str]) -> dict[st
         (row.word, row.respelling) for row in respell.table(forms, cmudict, picks)
     )
     return found
-
-
-RESPELLED = 10_000
-"""How many of the commonest English words are respelled: the 10,000 471
-picked pronunciations for and checked (99.5 % right, weighted by use) -
-with their inflected forms (`respellings`)."""
 
 
 ENGLISH_MEANINGS = "ecdict-en.sqlite"
@@ -468,7 +494,7 @@ def credits() -> str:
         "  them), CC BY-SA 4.0 and GFDL. Changes: chosen per sense and ordered,",
         "  converted to SQLite by ECDICT's entry IDs. It is shared under",
         "  **CC BY-SA 4.0**.",
-        "- Both English files carry respellings of the 10,000 commonest words",
+        f"- Both English files carry respellings of the {RESPELLED_WORD_LIMIT:,} commonest words",
         "  (KAY-oss), made by Polyglotic's own rules from CMUdict's American",
         "  pronunciations (its licence below), the usual one picked with",
         "  Wiktionary's help (CC BY-SA 4.0).",
@@ -520,6 +546,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--out", type=Path, default=REPO / "build" / "dictionaries")
     parser.add_argument(
+        "--class-reviews",
+        type=Path,
+        help="folder of reviewed 746 drafts and frozen packs",
+    )
+    parser.add_argument(
         "--english-frequency",
         choices=["wordfreq", "ecdict"],
         default="wordfreq",
@@ -546,7 +577,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
 
     builds = {
-        "cedict": build_chinese,
+        "cedict": lambda paths, out, registry: build_chinese(
+            paths, out, registry, args.class_reviews
+        ),
         "ecdict": lambda paths, out, registry: build_english(
             paths, out, registry, args.english_frequency
         ),

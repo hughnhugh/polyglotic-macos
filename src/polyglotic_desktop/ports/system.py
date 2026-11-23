@@ -5,7 +5,8 @@ and Linux later), which `main` picks in one place (`main.os_adapters`) and
 hands over:
 - `OnTop` and `ForegroundWatch` - the caption windows kept above a game
   that is itself always on top;
-- `Hotkeys` - Ctrl+Alt+L, P and H, wherever the learner is;
+- `Hotkeys` - Ctrl+Alt+L, P, H and J, or the keys the learner chose
+  (polyglotic-hq 567), wherever the learner is;
 - `HoldKey`, `TypeText`, `KeyboardWindow` - dictation's key, held, and
   its text typed into the program with the keyboard (polyglotic-hq 283);
   `TypingPermission` - where the OS lets an app type only with the
@@ -64,13 +65,14 @@ class ForegroundWatch(Protocol):
 
 
 class Hotkeys(Protocol):
-    """Key combinations for the whole system; made with each key (a letter
-    or digit) and what to call, on the hotkeys' own thread, when it's
-    pressed."""
+    """Key combinations for the whole system; made with each combination as
+    kept (`core.listening.dictation_keys.DictationKey`: "ctrl+alt+l", "f9";
+    never a modifier alone) and what to call, on the hotkeys' own thread,
+    when it's pressed."""
 
     def start(self) -> list[str]:
-        """Takes the keys and starts listening; returns those another app
-        already has (not working here)."""
+        """Takes the combinations and starts listening; returns those
+        another app already has (not working here)."""
         ...
 
     def stop(self) -> None: ...

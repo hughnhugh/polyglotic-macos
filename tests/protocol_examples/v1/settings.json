@@ -11,5 +11,6 @@
     "Polyglotic",
     "Wang Fang"
   ],
-  "translate_live": true
+  "translate_live": true,
+  "join_pause_fragments": true
 }

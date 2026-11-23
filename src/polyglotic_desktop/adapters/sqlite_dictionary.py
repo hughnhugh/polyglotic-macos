@@ -23,6 +23,10 @@ Tables:
   dictionary marks it apart from its entries' headwords (Russian's stress:
   "руку" is "ру́ку"). Added in format 1 (polyglotic-hq 298): an older app
   ignores it, and a file without it has no form readings.
+- `sense_classes`: reviewed class masks by entry number and gloss ordinal.
+  Optional and versioned separately within format 1.
+- `sense_prefixes`: lengths of redundant labels in the legacy gloss text,
+  for display alongside the optional typed classes.
 """
 
 from __future__ import annotations
@@ -33,9 +37,11 @@ import sys
 import threading
 from array import array
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import replace
 from pathlib import Path
 
 from polyglotic_desktop.ports.dictionary import DictionaryProblem, EntryRecord
+from polyglotic_desktop.ports.word_classes import SenseClasses, WordClass
 
 log = logging.getLogger(__name__)
 
@@ -72,6 +78,28 @@ CREATE TABLE lemmas (form TEXT PRIMARY KEY, lemma TEXT NOT NULL) WITHOUT ROWID;
 CREATE TABLE merged (old_id TEXT PRIMARY KEY, id TEXT NOT NULL) WITHOUT ROWID;
 CREATE TABLE form_readings (form TEXT PRIMARY KEY, reading TEXT NOT NULL) WITHOUT ROWID;
 """
+
+SENSE_CLASSES_VERSION = "1"
+_CLASS_BITS = {cls: 1 << index for index, cls in enumerate(WordClass)}
+_ALL_CLASSES = sum(_CLASS_BITS.values())
+_SENSE_CLASSES_SCHEMA = f"""
+CREATE TABLE sense_classes (
+    n INTEGER NOT NULL REFERENCES entries(n),
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 0),
+    classes INTEGER NOT NULL CHECK (classes BETWEEN 0 AND {_ALL_CLASSES}),
+    PRIMARY KEY (n, ordinal)
+) WITHOUT ROWID
+"""
+_SENSE_PREFIXES_SCHEMA = """
+CREATE TABLE sense_prefixes (
+    n INTEGER NOT NULL,
+    ordinal INTEGER NOT NULL,
+    length INTEGER NOT NULL CHECK (length > 0),
+    PRIMARY KEY (n, ordinal),
+    FOREIGN KEY (n, ordinal) REFERENCES sense_classes(n, ordinal)
+) WITHOUT ROWID
+"""
+_QUERY_CHUNK = 500  # parameters per query, within SQLite's variable limit
 
 _OWN_FIRST = (
     "entries e JOIN forms f ON f.form = e.headword AND f.n = e.n AND f.position = 0"
@@ -156,6 +184,29 @@ class SqliteDictionary:
                 "SELECT 1 FROM sqlite_master WHERE name = 'form_readings'"
             ).fetchone()
         )  # a file written before 298 hasn't the table
+        self._sense_classes = False
+        self._sense_prefixes = False
+        if self.info.get("sense_classes_version") == SENSE_CLASSES_VERSION:
+            try:
+                found = self._db.execute(
+                    "SELECT n, ordinal, classes FROM sense_classes LIMIT 1"
+                ).fetchone()
+            except sqlite3.DatabaseError:
+                pass  # the optional extension cannot invalidate the base dictionary
+            else:
+                self._sense_classes = found is not None
+                try:
+                    self._db.execute(
+                        "SELECT n, ordinal, length FROM sense_prefixes LIMIT 0"
+                    )
+                except sqlite3.DatabaseError:
+                    pass
+                else:
+                    self._sense_prefixes = True
+
+    @property
+    def has_sense_classes(self) -> bool:
+        return self._sense_classes
 
     @property
     def _db(self) -> sqlite3.Connection:
@@ -200,11 +251,59 @@ class SqliteDictionary:
 
     def records(self, word: str) -> Sequence[EntryRecord]:
         rows = self._db.execute(
-            f"SELECT {_COLUMNS} FROM forms f JOIN entries e ON e.n = f.n "
+            f"SELECT e.n, {_COLUMNS} FROM forms f JOIN entries e ON e.n = f.n "
             "WHERE f.form = ? ORDER BY f.position",
             (word,),
-        )
-        return [_record(row) for row in rows]
+        ).fetchall()
+        found = self._records(rows)
+        return [found[row[0]] for row in rows]
+
+    def _records(self, rows: Iterable[tuple]) -> dict[int, EntryRecord]:
+        found = {n: _record(tuple(rest)) for n, *rest in rows}
+        if not self._sense_classes:
+            return found
+        classes: dict[int, list[SenseClasses]] = {}
+        prefixes: dict[int, list[int]] = {}
+        columns = "s.n, s.ordinal, s.classes"
+        table = "sense_classes AS s"
+        if self._sense_prefixes:
+            columns += ", p.length"
+            table += " LEFT JOIN sense_prefixes AS p USING (n, ordinal)"
+        else:
+            columns += ", NULL"
+        numbers = list(found)
+        for start in range(0, len(numbers), _QUERY_CHUNK):
+            chunk = numbers[start : start + _QUERY_CHUNK]
+            marks = ", ".join("?" * len(chunk))
+            for n, ordinal, mask, prefix in self._db.execute(
+                f"SELECT {columns} FROM {table} WHERE s.n IN ({marks})",
+                chunk,
+            ):
+                count = len(found[n].meanings)
+                if (
+                    isinstance(ordinal, int)
+                    and 0 <= ordinal < count
+                    and isinstance(mask, int)
+                    and 0 <= mask <= _ALL_CLASSES
+                ):
+                    if n not in classes:
+                        classes[n] = [None] * count
+                    classes[n][ordinal] = tuple(
+                        cls for cls, bit in _CLASS_BITS.items() if mask & bit
+                    )
+                    if isinstance(prefix, int) and 0 < prefix < len(
+                        found[n].meanings[ordinal]
+                    ):
+                        if n not in prefixes:
+                            prefixes[n] = [0] * count
+                        prefixes[n][ordinal] = prefix
+        for n, labels in classes.items():
+            found[n] = replace(
+                found[n],
+                sense_classes=tuple(labels),
+                sense_prefixes=tuple(prefixes.get(n, ())),
+            )
+        return found
 
     def records_by_meaning(
         self, english_word: str, limit: int
@@ -216,12 +315,11 @@ class SqliteDictionary:
             return []
         numbers = _unpack(row[0])[:limit]
         found: dict[int, EntryRecord] = {}
-        for start in range(0, len(numbers), 500):  # well within SQLite's limit
-            chunk = numbers[start : start + 500]
+        for start in range(0, len(numbers), _QUERY_CHUNK):
+            chunk = numbers[start : start + _QUERY_CHUNK]
             marks = ", ".join("?" * len(chunk))
             query = f"SELECT e.n, {_COLUMNS} FROM entries e WHERE e.n IN ({marks})"
-            for n, *rest in self._db.execute(query, chunk):
-                found[n] = _record(tuple(rest))
+            found.update(self._records(self._db.execute(query, chunk)))
         return [found[n] for n in numbers if n in found]
 
     def lemma(self, word: str) -> str | None:
@@ -239,7 +337,7 @@ class SqliteDictionary:
         return str(row[0]) if row else ""
 
     def record(self, entry_id: str) -> EntryRecord | None:
-        query = f"SELECT {_COLUMNS} FROM entries e WHERE e.id = ?"
+        query = f"SELECT e.n, {_COLUMNS} FROM entries e WHERE e.id = ?"
         row = self._db.execute(query, (entry_id,)).fetchone()
         if row is None:
             merged = self._db.execute(
@@ -247,7 +345,7 @@ class SqliteDictionary:
             ).fetchone()
             if merged:
                 row = self._db.execute(query, (merged[0],)).fetchone()
-        return _record(row) if row else None
+        return self._records([row])[row[0]] if row else None
 
     def merged_ids(self) -> Sequence[str]:
         return [old for (old,) in self._db.execute("SELECT old_id FROM merged")]
@@ -361,6 +459,10 @@ class GuardedDictionary:
         if self._file is not None:
             self._file.close()
 
+    @property
+    def has_sense_classes(self) -> bool:
+        return self._ask(lambda file: file.has_sense_classes, False)
+
     def headwords(self) -> Iterable[str]:
         return self._ask(lambda file: file.headwords(), [])
 
@@ -409,19 +511,60 @@ def write_dictionary(
     lemmas: Mapping[str, str] | None = None,
     merged: Mapping[str, str] | None = None,
     form_readings: Mapping[str, str] | None = None,
+    *,
+    with_sense_classes: bool = False,
 ) -> None:
     """Writes a new dictionary file at `path` (replacing any). `forms` maps
     each written form to entry IDs in order; `meaning_words` maps English
     words to entry IDs (stored commonest first); `merged` maps old entry IDs
     to current ones; `form_readings` maps written forms to how each is
     said."""
+    with_prefixes = False
     for record in records:
         if any("\n" in m for m in record.meanings):
             raise ValueError(f"{record.entry_id}: a meaning with a line break")
+        if record.sense_classes:
+            with_sense_classes = True
+            if len(record.sense_classes) != len(record.meanings):
+                raise ValueError(
+                    f"{record.entry_id}: classes must follow the stored glosses"
+                )
+            if any(
+                cls not in _CLASS_BITS
+                for labels in record.sense_classes
+                for cls in labels or ()
+            ):
+                raise ValueError(f"{record.entry_id}: invalid sense class")
+        if record.sense_prefixes:
+            with_prefixes = True
+            if (
+                len(record.sense_prefixes) != len(record.meanings)
+                or not record.sense_classes
+                or any(
+                    prefix and (labels is None or not 0 < prefix < len(gloss))
+                    for prefix, gloss, labels in zip(
+                        record.sense_prefixes,
+                        record.meanings,
+                        record.sense_classes,
+                        strict=True,
+                    )
+                )
+            ):
+                raise ValueError(f"{record.entry_id}: invalid legacy sense prefix")
     path.unlink(missing_ok=True)
     db = sqlite3.connect(path)
     try:
+        db.execute("PRAGMA foreign_keys = ON")
         db.executescript(SCHEMA)
+        db.execute("BEGIN")
+        info = {
+            key: value for key, value in info.items() if key != "sense_classes_version"
+        }
+        if with_sense_classes:
+            db.execute(_SENSE_CLASSES_SCHEMA)
+            info = {**info, "sense_classes_version": SENSE_CLASSES_VERSION}
+        if with_prefixes:
+            db.execute(_SENSE_PREFIXES_SCHEMA)
         db.executemany(
             "INSERT INTO info VALUES (?, ?)", sorted({**info, "format": FORMAT}.items())
         )
@@ -450,6 +593,30 @@ def write_dictionary(
                 for position, entry_id in enumerate(ids)
             ),
         )
+        if with_sense_classes:
+            db.executemany(
+                "INSERT INTO sense_classes VALUES (?, ?, ?)",
+                (
+                    (
+                        number[r.entry_id],
+                        ordinal,
+                        sum(_CLASS_BITS[cls] for cls in set(labels)),
+                    )
+                    for r in records
+                    for ordinal, labels in enumerate(r.sense_classes)
+                    if labels is not None
+                ),
+            )
+        if with_prefixes:
+            db.executemany(
+                "INSERT INTO sense_prefixes VALUES (?, ?, ?)",
+                (
+                    (number[r.entry_id], ordinal, prefix)
+                    for r in records
+                    for ordinal, prefix in enumerate(r.sense_prefixes)
+                    if prefix
+                ),
+            )
         rank = {r.entry_id: r.frequency_rank for r in records}
 
         def commonest_first(entry_id: str) -> tuple[bool, int, int]:

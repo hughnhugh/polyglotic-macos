@@ -59,6 +59,18 @@ def test_scrolled_back_holds_its_line_as_new_ones_arrive() -> None:
     assert scroll.placed(lines, Measured(), VIEW, GAP) == held
 
 
+def test_a_held_row_stays_put_as_the_text_below_it_shrinks_and_grows() -> None:
+    lines = rows(10)
+    scroll = Scroll()
+    scroll.anchor = Anchor(8, 0.0)
+    scroll.sticky = True
+    for visible in (lines, lines[:-1], lines):
+        placed = scroll.placed(visible, Measured(), VIEW, GAP)
+        assert placed[0].line.key == 8
+        assert placed[0].top == 0
+        assert scroll.anchor == Anchor(8, 0.0)
+
+
 def test_scrolling_down_to_the_newest_follows_again() -> None:
     lines = rows(10)
     scroll = Scroll()

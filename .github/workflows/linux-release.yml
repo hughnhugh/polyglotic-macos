@@ -1,0 +1,466 @@
+# Linux, tested without a person (polyglotic-hq 546's section 3, 574): the
+# release's own AppImage - built here as a release builds it, then started
+# as a learner starts it - checked on GitHub's own runners. Only on the
+# public Linux copy (a snapshot pushed to hughnhugh/polyglotic-linux-spike),
+# where GitHub's runners are free: every job checks the repo is public. The
+# release script (polyglotic-hq's publish-alpha.sh, `linux-check`) starts it
+# by pushing a snapshot of what's being released to a `linux-release-X.Y.Z`
+# branch - X.Y.Z the version it's built as - waits, and stops on red.
+#
+# - build: the app built and packed in ubuntu:22.04 as two versions, 0.0.1
+#   and VERSION, from one build (tools/package/linux_build.sh), kept a day as
+#   `appimage-<run id>` for the jobs below. VERSION is packed as the release
+#   is (polyglotic-hq 592): beside the channel's releases already on the
+#   update host, with the version's notes, and what the release script
+#   publishes is set apart from it (tools/package/linux_publish_set.py) and
+#   kept a day as `linux-publish-<run id>` - the AppImage under the channel's
+#   name, the version's packages, the channel's feed, SHA256SUMS. Every job
+#   below checks that AppImage, and the update checks read that feed;
+# - package: (1) linkage on clean Ubuntu 24.04 and 26.04, with (2) the
+#   app's own --check-install, no FUSE needed; (6) the update rehearsal -
+#   0.0.1 in ~/Applications updated in place to VERSION through the feed to
+#   be published, in a folder, as it exits, a second user, a folder not
+#   theirs; (7) linkage and the update on Fedora 45
+#   (tools/package/linux_update_fedora.sh, with FUSE 3);
+# - capture: (3) the sound server's own tests in a desktop session -
+#   system, mic, one app and everything else, isolation measured between two
+#   tone players on PipeWire 1.0.5 - and (5) the keyring's, locked and
+#   unlocked (from source: the libraries' calls; the packed app's are the
+#   tours');
+# - desktops: the packed AppImage's tour (tools/linux_packed_tour.sh) on
+#   Ubuntu 24.04's GNOME, Ubuntu's GNOME with its AppIndicator tray, Fedora
+#   45's GNOME, KDE Plasma 6 and Xfce: signed in to a stand-in over TLS, what
+#   the PC plays and the mic captioned, one app alone, (4) the caption window
+#   above a full-screen window in the desktop's own picture, light or dark,
+#   the menu entry, the tray's menu from another process (Pause, Quit; no
+#   Dictation), Save transcript's and the Anki export's dialogs the
+#   desktop's own (the portal's, opened through AT-SPI), (5) the token in
+#   the keyring - or, on Xfce, none and the app's own file;
+# - verdict: the seven, and the desktops' manners, as one answer
+#   (tools/linux_release_verdict.py), kept a day as `linux-release-<run id>`
+#   with the desktops' pictures. The job fails on any red.
+#
+# Nothing here reaches the live server: no invite, no token, no secret. The
+# build reads the update host's public feed for the channel, as Windows'
+# build does; nothing is uploaded to it and nothing is signed here (the
+# feed's key never leaves the PC that publishes).
+# Every artifact is kept a day; the release script deletes the run's own.
+name: Linux release check
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version the build is stamped and packed as (the second of the two)
+        default: "0.0.2"
+      channel:
+        description: The Linux update channel (linux-x64-alpha or linux-x64-rehearsal)
+        default: "linux-x64-alpha"
+  push:
+    branches: ["linux-copy-574*", "linux-release-*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-release-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash  # -e and pipefail: a red step under a tee is red
+
+env:
+  CHANNEL: linux-x64-alpha
+  UPDATES: https://updates.polyglotic.io/  # main.UPDATES: where the channel's releases are
+  UV_PYTHON: "3.12.15"
+  UV_PYTHON_PREFERENCE: only-managed
+
+jobs:
+  build:
+    name: The AppImage, built as a release builds it
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OUT: build/linux
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: The version and channel - asked for by hand, or the release branch's (linux-release-X.Y.Z or linux-release-CHANNEL-X.Y.Z), or 0.0.2
+        id: version
+        env:
+          ASKED: ${{ inputs.version }}
+          ASKED_CHANNEL: ${{ inputs.channel }}
+        run: |
+          v="$ASKED"
+          ch="$ASKED_CHANNEL"
+          case "$GITHUB_REF_NAME" in
+            linux-release-linux-*)
+              rest="${GITHUB_REF_NAME#linux-release-}"
+              v="${v:-${rest##*-}}"
+              ch="${ch:-${rest%-*}}"
+              ;;
+            linux-release-*)
+              v="${v:-${GITHUB_REF_NAME#linux-release-}}"
+              ;;
+          esac
+          v="${v:-0.0.2}"
+          ch="${ch:-linux-x64-alpha}"
+          case "$v" in *[!0-9.]*|"") echo "not a version: $v"; exit 1 ;; esac
+          case "$ch" in linux-x64-alpha|linux-x64-beta|linux-x64-stable|linux-x64-rehearsal) ;; *) echo "not a Linux channel: $ch"; exit 1 ;; esac
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "channel=$ch" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+          echo "CHANNEL=$ch" >> "$GITHUB_ENV"
+          echo "Built as $v on $ch (and 0.0.1, to update from)" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      # The pinned sources are checked against their SHA-256 either way
+      # (tools/dictionaries/sources.py); the cache only saves downloading.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources
+        run: |
+          uv sync --locked
+          uv run --no-sync python -m tools.dictionaries.build
+
+      # a release's notes are on its commit (its prep pull request cut them);
+      # a trial version has none, and its feed says so
+      - name: The version's notes, for its feed (RELEASE-NOTES.md's section)
+        run: |
+          uv run --no-sync python -m tools.package.release_notes "v$VERSION" --out build/version-notes.md ||
+            { rm -f build/version-notes.md; echo "No notes for $VERSION: its feed has none" >> "$GITHUB_STEP_SUMMARY"; }
+
+      # the build's own check must pass but for its start budget, which
+      # GitHub's machines miss now and then (565: the train judges budgets;
+      # 571's linux-typing.yml): a missed budget is listed, not failed
+      - name: Built and packed in ubuntu:22.04 (0.0.1, and VERSION as the release is, from one build)
+        run: |
+          notes=""
+          [ ! -s build/version-notes.md ] || notes=build/version-notes.md
+          docker run --rm -v "$PWD:/w" -w /w -e RELEASE_FROM="$UPDATES" -e RELEASE_NOTES="$notes" ubuntu:22.04 \
+            bash tools/package/linux_build.sh "v$VERSION" "$CHANNEL" "$OUT" 0.0.1 "$VERSION" || true
+          python3 -c "import json,re,sys; p=json.load(open(sys.argv[1]))['problems']; left=[x for x in p if not re.search(r'over \d+ ms', x)]; print('budgets missed:', [x for x in p if x not in left]); sys.exit('the build check: ' + '; '.join(left) if left else 0)" "$OUT/summary.json"
+          mkdir -p appimage
+          mv "$OUT"/Polyglotic-0.0.1.AppImage "$OUT/Polyglotic-$VERSION.AppImage" appimage/
+          cp "$OUT"/summary.json appimage/ 2>/dev/null || true
+          ls -la appimage
+
+      - name: What's published, set apart (the AppImage every job checks is its AppImage)
+        run: |
+          python3 -m tools.package.linux_publish_set "$OUT/release" "$VERSION" "$CHANNEL" publish | tee -a "$GITHUB_STEP_SUMMARY"
+          cmp "appimage/Polyglotic-$VERSION.AppImage" "publish/Polyglotic-$CHANNEL.AppImage"
+          ls -la publish
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        continue-on-error: true
+        with:
+          name: appimage-${{ github.run_id }}
+          path: appimage
+          retention-days: 1
+
+      # what the release script downloads, checks and publishes - never
+      # from here: no key, no upload
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: linux-publish-${{ github.run_id }}
+          path: publish
+          retention-days: 1
+
+  package:
+    name: Linkage, the update, and Fedora 45
+    needs: build
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      OUT: out/package
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: appimage-${{ github.run_id }}
+          path: appimage
+
+      # the update checks read the feed the release script would publish
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: linux-publish-${{ github.run_id }}
+          path: publish
+
+      - name: The parts' folder, the runner's own (the containers write as root)
+        run: |
+          mkdir -p "$OUT/updates" "$OUT/fedora-update"
+          (cd publish && sha256sum -c SHA256SUMS)
+          cp publish/SHA256SUMS "$OUT/publish-SHA256SUMS"
+
+      - name: (1, 2) Linkage and the app's own check on a clean Ubuntu 24.04
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w ubuntu:24.04 bash tools/package/linux_linkage.sh "appimage/Polyglotic-$VERSION.AppImage" "$OUT/linkage-ubuntu-24.04"
+
+      - name: (1, 2) Linkage and the app's own check on a clean Ubuntu 26.04
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w ubuntu:26.04 bash tools/package/linux_linkage.sh "appimage/Polyglotic-$VERSION.AppImage" "$OUT/linkage-ubuntu-26.04"
+
+      - name: (7) Linkage and the app's own check on a clean Fedora 45
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w fedora:45 bash tools/package/linux_linkage.sh "appimage/Polyglotic-$VERSION.AppImage" "$OUT/linkage-fedora-45"
+
+      - name: (7) Updated in place on Fedora 45, with FUSE 3 and no FUSE 2
+        if: ${{ !cancelled() }}
+        run: >-
+          docker run --rm --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor=unconfined
+          -e GITHUB_ACTIONS -v "$PWD:/w" -w /w fedora:45
+          bash tools/package/linux_update_fedora.sh "$OUT/fedora-update" publish
+          appimage/Polyglotic-0.0.1.AppImage "$VERSION"
+
+      - name: (6) Updated in place from the feed to be published, no libfuse2, two users, a folder not theirs
+        if: ${{ !cancelled() }}
+        run: bash tools/package/linux_update_rehearsal.sh "$OUT/updates" publish appimage/Polyglotic-0.0.1.AppImage "$VERSION"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: part-package-${{ github.run_id }}
+          path: out
+          retention-days: 1
+
+  capture:
+    name: The sound server's and the keyring's own tests
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      OUT: ${{ github.workspace }}/out
+      POLYGLOTIC_LINUX_DESKTOP: "1"
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The sound server, the keyring and Qt's libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            pipewire pipewire-pulse pipewire-bin wireplumber libpulse0 pulseaudio-utils \
+            dbus-bin dbus-daemon gnome-keyring xvfb \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+            libegl1 libgl1 libfontconfig1 libdbus-1-3 fonts-noto-core
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: (3) Capture - system, mic, one app, everything else, isolation measured
+        id: capture
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-capture" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs
+          tests/test_linux_capture.py tests/ui/test_apps_one_by_one.py
+
+      - name: (5) The keyring, unlocked
+        id: keyring
+        if: ${{ !cancelled() }}
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-keyring" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs tests/test_linux_keyring.py
+
+      - name: (5) The keyring, locked, with nobody to answer
+        id: locked
+        if: ${{ !cancelled() }}
+        env:
+          POLYGLOTIC_LOCKED_KEYRING: "1"
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-locked" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs -s
+          tests/test_linux_keyring.py -k locked_keyring
+
+      - name: What they found
+        if: ${{ always() }}
+        run: |
+          mkdir -p "$OUT/capture"
+          said() { [ "$1" = success ] && echo pass || echo fail; }
+          {
+            echo "$(said "${{ steps.capture.outcome }}") the sound server's capture tests (system, mic, one app, everything else)"
+            echo "$(said "${{ steps.keyring.outcome }}") the keyring tests, unlocked"
+            echo "$(said "${{ steps.locked.outcome }}") the keyring tests, locked"
+          } | tee "$OUT/capture/summary.txt"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: part-capture-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/capture
+            ${{ env.OUT }}/session-*/*.txt
+          retention-days: 1
+
+  desktops:
+    name: The packed AppImage on ${{ matrix.name }}
+    needs: build
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - desktop: gnome
+            name: Ubuntu 24.04 (GNOME)
+            parts: mutter xwayland gnome-keyring at-spi2-core python3-pyatspi gstreamer1.0-pipewire gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-tools
+          - desktop: ubuntu
+            name: Ubuntu's GNOME (AppIndicator)
+            parts: gnome-shell gnome-shell-extension-appindicator xwayland gnome-keyring at-spi2-core python3-pyatspi xdotool gstreamer1.0-pipewire gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-tools
+          - desktop: fedora-gnome
+            name: Fedora 45 (GNOME)
+            parts: ""
+          - desktop: kde
+            name: KDE Plasma 6 (Fedora 45)
+            parts: ""
+          - desktop: xfce  # no gnome-keyring installed: no Secret Service at all; tests on-demand speech-dispatcher (646)
+            name: Xfce (no keyring)
+            parts: xvfb xfwm4 xfce4-panel xfconf imagemagick xdotool speech-dispatcher speech-dispatcher-espeak-ng speech-dispatcher-audio-plugins
+    env:
+      OUT: ${{ github.workspace }}/out
+      POLYGLOTIC_LINUX_DESKTOP: "1"
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: appimage-${{ github.run_id }}
+          path: appimage
+
+      # Ubuntu's archive has stalled a job's install for 20 minutes and more
+      # (571; run 44749110793): each try is cut off after 10, and tried again
+      - name: The desktop's parts, the sound server, the keyring and Qt's libraries
+        if: ${{ matrix.parts != '' }}
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        timeout-minutes: 35
+        run: |
+          apt() { for try in 1 2 3; do sudo -E timeout 600 apt-get -o Acquire::Retries=3 "$@" && return 0; echo "apt-get $1: try $try failed"; sleep 15; done; return 1; }
+          apt update -q
+          apt install -y -q --no-install-recommends ${{ matrix.parts }} \
+            pipewire pipewire-pulse pipewire-bin wireplumber libpulse0 pulseaudio-utils \
+            dbus-bin dbus-daemon dbus-x11 libglib2.0-bin x11-utils openssl \
+            xdg-desktop-portal xdg-desktop-portal-gtk dconf-service dconf-gsettings-backend \
+            desktop-file-utils fuse3 \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+            libwayland-client0 libwayland-cursor0 libwayland-egl1 \
+            libegl1 libgl1 libfontconfig1 libdbus-1-3 fonts-noto-core fonts-noto-cjk
+          {
+            . /etc/os-release; echo "$PRETTY_NAME, kernel $(uname -r)"
+            dpkg-query -W -f='${Package} ${Version}\n' ${{ matrix.parts }} pipewire gnome-keyring 2>/dev/null
+          } | tee versions.txt
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: The tour's own environment (the app itself is the AppImage)
+        if: ${{ matrix.parts != '' }}
+        run: uv sync --locked
+
+      - name: The packed AppImage's tour on ${{ matrix.name }}
+        run: bash tools/linux_packed_tour.sh ${{ matrix.desktop }} "$OUT" "appimage/Polyglotic-$VERSION.AppImage"
+
+      - name: What it found
+        if: ${{ always() }}
+        run: |
+          cp versions.txt "$OUT/${{ matrix.desktop }}/" 2>/dev/null || true
+          rm -f "$OUT/Polyglotic-under-test.AppImage"
+          c="$OUT/${{ matrix.desktop }}/checks.json"
+          if [ -f "$c" ]; then
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'])[:2500])" "$c" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: tour-${{ matrix.desktop }}-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.json
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.log
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.txt
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.desktop
+            ${{ env.OUT }}/${{ matrix.desktop }}/dialogs/*.txt
+            ${{ env.OUT }}/${{ matrix.desktop }}/dialogs/*.log
+            ${{ env.OUT }}/${{ matrix.desktop }}/desk/*.png
+            ${{ env.OUT }}/${{ matrix.desktop }}/desk/*.failed
+            ${{ env.OUT }}/${{ matrix.desktop }}/one-app/*.json
+            ${{ env.OUT }}/${{ matrix.desktop }}/one-app/*.log
+            ${{ env.OUT }}/${{ matrix.desktop }}/session/*.txt
+            ${{ env.OUT }}/${{ matrix.desktop }}/session/*.log
+          retention-days: 1
+
+  verdict:
+    name: The seven checks, as one answer
+    needs: [build, package, capture, desktops]
+    if: ${{ always() && !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          pattern: "part-*-${{ github.run_id }}"
+          path: parts-raw
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          pattern: "tour-*-${{ github.run_id }}"
+          path: parts
+
+      - name: The verdict
+        run: |
+          mkdir -p parts/package parts/capture
+          cp -r parts-raw/part-package-*/package/. parts/package/ 2>/dev/null || true
+          cp -r parts-raw/part-capture-*/capture/. parts/capture/ 2>/dev/null || true
+          for d in parts/tour-*-"$GITHUB_RUN_ID"; do
+            [ -d "$d" ] && mv "$d" "${d%-$GITHUB_RUN_ID}"
+          done
+          python3 -m tools.linux_release_verdict parts --out parts/verdict.json | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-release-${{ github.run_id }}
+          path: parts
+          retention-days: 1

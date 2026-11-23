@@ -17,6 +17,7 @@ from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.caption_layout import CaptionLayout, CaptionStyle
 from polyglotic_desktop.ui_next.caption_window import caption_style
 from polyglotic_desktop.ui_next.face_rows import FaceBox, FacesPanel
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
@@ -94,8 +95,9 @@ def test_a_rows_face_draws_that_languages_captions(qapp: QApplication) -> None:
         CaptionLook(font="Georgia", faces=(("zh", "KaiTi"), ("th", "")))
     )
     engine = CaptionLayout(style)
-    assert engine._font(row("我们", "zh"), 1.0, False).families()[:2] == [
+    assert engine._font(row("我们", "zh"), 1.0, False).families()[:3] == [
         "KaiTi",
+        "Ma Shan Zheng Captions",
         "Noto Sans SC Captions",
     ]
     assert (
@@ -135,14 +137,20 @@ def test_a_rows_list_is_grouped_and_its_default_marked(
 ) -> None:
     box = panel[0].boxes["zh"]
     items = [(box.itemText(n), box.itemData(n)) for n in range(box.count())]
-    assert items[:2] == [("Sans", None), ("Noto Sans SC (Default)", "")]
+    assert items[:2] == [("Sans", None), ("Noto Sans SC", "Noto Sans SC Captions")]
     headings = [
         box.itemText(n)
         for n in range(box.count())
         if not box.model().flags(box.model().index(n, 0)) & Qt.ItemFlag.ItemIsEnabled
     ]
-    assert headings[0] == "Sans" and headings[-1] == "Any font on this PC"
-    assert box.currentText() == "Noto Sans SC (Default)"
+    assert headings[0] == "Sans"
+    assert headings[-1] == pc_or_mac("Any font on this PC", "Any font on this Mac")
+    # the calligraphy under a heading of its own, the default (532)
+    at = headings.index("Calligraphy")
+    assert headings[at + 1] == pc_or_mac("This PC's own", "This Mac's own")
+    calligraphy = box.findText("Calligraphy")
+    assert box.itemText(calligraphy + 1) == "Ma Shan Zheng (Default)"
+    assert box.currentText() == "Ma Shan Zheng (Default)"
 
 
 def test_picking_a_face_sets_that_language_only(
@@ -208,23 +216,25 @@ def test_a_face_not_here_says_its_size_and_is_asked_for_when_picked(
 
 
 def test_a_download_under_way_shows_under_its_row(qapp: QApplication) -> None:
-    going = PackProgress("font:notosanstc", Step.DOWNLOADING, 1_000_000, 3_120_000)
-    downloads = DownloadsView(FaceDownloads(progress={"notosanstc": going}))
+    going = PackProgress("font:lxgwwenkaitc", Step.DOWNLOADING, 1_000_000, 3_120_000)
+    downloads = DownloadsView(FaceDownloads(progress={"lxgwwenkaitc": going}))
     languages = LanguagesView(
         SessionLanguages(spoken="zh", in_use=("en",), mandarin_script="traditional")
     )
     faces = FacesPanel(LookView(CaptionLook()), languages, downloads)
     try:
-        row = faces.face_rows["zh-hant"]  # its default comes as a download
+        row = faces.face_rows[
+            "zh-hant"
+        ]  # its default comes as a download (532: LXGW WenKai TC)
         assert not row.status.isHidden()
-        assert row.words.text() == "Downloading Noto Sans TC: 1.0 of 3.1 MB"
+        assert row.words.text() == "Downloading LXGW WenKai TC: 1.0 of 3.1 MB"
         assert row.bar.share == pytest.approx(1_000_000 / 3_120_000)
         assert row.again.isHidden()
         assert faces.face_rows["en"].status.isHidden()  # carried by the app
         stopped = replace(going, problem=Problem.OFFLINE, retry_in=None)
-        downloads.follow(FaceDownloads(progress={"notosanstc": stopped}))
+        downloads.follow(FaceDownloads(progress={"lxgwwenkaitc": stopped}))
         assert not row.again.isHidden() and row.again.text() == "Retry"
-        downloads.follow(FaceDownloads(here=frozenset({"notosanstc"})))
+        downloads.follow(FaceDownloads(here=frozenset({"lxgwwenkaitc"})))
         assert row.status.isHidden()
     finally:
         faces.deleteLater()

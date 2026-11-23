@@ -204,7 +204,7 @@ class Measured(QLabel):
 
     def heightForWidth(self, width: int) -> int:
         if self.measured():
-            width = min(width, self._needs())
+            width = min(width, self._needs(), self.maximumWidth())
         height = self._heights.get(width)
         if height is None:
             if len(self._heights) > 8:  # a window dragged wider and wider

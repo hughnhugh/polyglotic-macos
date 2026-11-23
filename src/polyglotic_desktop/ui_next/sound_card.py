@@ -126,7 +126,7 @@ class SoundCard(Card):
         self.my_speech = SwitchRow(
             _tr("Caption what I say"),
             _tr(
-                "In every window. Your microphone is sent to the server only while "
+                "In every window. Your mic is sent for your captions only while "
                 "this is on."
             ),
             "sound.my_speech",

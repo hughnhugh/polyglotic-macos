@@ -30,7 +30,7 @@ frame, `recheck_result` core's `RecheckResult`, and a closed comparison's
 `LineFlagged` the `line_flagged` usage event's properties.
 """
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from typing import Literal
 
 from polyglotic_desktop.connection import protocol
@@ -39,6 +39,7 @@ from polyglotic_desktop.core.listening.captions import (
     CaptionUpdate,
     Clause,
     Language,
+    WordClass,
     WordLink,
 )
 from polyglotic_desktop.core.listening.recheck import (
@@ -57,6 +58,7 @@ from polyglotic_desktop.core.listening.timing import (
     WithdrawalReason,
     WithdrawCaption,
 )
+from polyglotic_desktop.perf.trace_summary import SessionTimelines, usage_properties
 from polyglotic_desktop.ports.capture import SourceCategory
 
 CODEC: Literal["ogg_opus"] = "ogg_opus"  # decision 0005: one Ogg Opus stream per frame
@@ -91,11 +93,12 @@ def speech_header(
     request: TranscriptionRequest,
     targets: tuple[Language, ...] | None = None,
     spoken_language: str | None = None,
+    seq: int | None = None,
 ) -> protocol.SpeechHeader:
     """The header of the speech frame for a transcription request; `targets`
     its source's own target languages (`own_targets`), and `spoken_language`
     its own spoken language (`own_spoken_language`) - None to leave either
-    out."""
+    out; `seq` the frame's number in the caption timelines (perf.trace)."""
     return protocol.SpeechHeader(
         caption_id=request.caption_id,
         kind=request.kind.value,
@@ -112,6 +115,7 @@ def speech_header(
         codec=CODEC,
         cut_before=request.cut_before or None,
         cut_after=request.cut_after or None,
+        seq=seq,
     )
 
 
@@ -123,19 +127,23 @@ def withdraw(withdrawal: WithdrawCaption) -> protocol.Withdraw:
 
 
 def outgoing(
-    decision: Decision, speech: bytes | None, chosen: ListeningSettings, limit: int
+    decision: Decision,
+    speech: bytes | None,
+    chosen: ListeningSettings,
+    limit: int,
+    seq: int | None = None,
 ) -> bytes | str | None:
     """What to send for one of the timing rules' decisions: a binary speech
-    frame - in its source's languages under `chosen`, at most `limit` - or
-    a `withdraw` text message. None for a transcription request without
-    audio (the source's buffer no longer had it)."""
+    frame - in its source's languages under `chosen`, at most `limit`,
+    numbered `seq` - or a `withdraw` text message. None for a transcription
+    request without audio (the source's buffer no longer had it)."""
     if isinstance(decision, WithdrawCaption):
         return protocol.encode(withdraw(decision))
     if speech is None:
         return None
     targets = own_targets(chosen, decision.source.id, limit)
     spoken = own_spoken_language(chosen, decision.source.id)
-    return protocol.speech_frame(speech_header(decision, targets, spoken), speech)
+    return protocol.speech_frame(speech_header(decision, targets, spoken, seq), speech)
 
 
 def settings(chosen: ListeningSettings, limit: int) -> protocol.Settings:
@@ -151,6 +159,7 @@ def settings(chosen: ListeningSettings, limit: int) -> protocol.Settings:
         },
         spelling_hints=chosen.spelling_hints,
         translate_live=chosen.translate_live,
+        join_pause_fragments=True,
     )
 
 
@@ -207,6 +216,33 @@ def session_ended(
     return props
 
 
+TIMELINE_SUMMARISED = "caption_timeline_summarised"
+"""The tracking plan's event for where a listening session's caption time
+went (version 1; polyglotic-hq 543): usage statistics, beside
+`listening_session_ended`."""
+
+
+def timeline_summarised(
+    timelines: SessionTimelines,
+    caption_mode: str | None,
+    live_interval: float | None,
+    platform: str | None = None,
+) -> dict[str, protocol.UsageValue]:
+    """A session's caption timelines as `caption_timeline_summarised`'s
+    properties: whole milliseconds and counts (perf.trace_summary), the
+    caption mode, the live-update interval and the session's length."""
+    props: dict[str, protocol.UsageValue] = {
+        "caption_mode": caption_mode or "steady",
+        "listening_seconds": round(timelines.seconds(), 1),
+    }
+    if live_interval is not None:
+        props["live_interval_seconds"] = live_interval
+    if platform is not None:
+        props["platform"] = platform
+    props.update(usage_properties(timelines.summary, timelines.stalls()))
+    return props
+
+
 def caption_update(message: protocol.CaptionUpdate) -> CaptionUpdate:
     """A `caption_update` as core's caption update. A withdrawal reason this
     app doesn't know becomes None."""
@@ -221,10 +257,63 @@ def caption_update(message: protocol.CaptionUpdate) -> CaptionUpdate:
         language=Language(message.language) if message.language else None,
         languages_heard=tuple(Language(x) for x in message.languages_heard or ()),
         replaces=tuple(CaptionId(c) for c in message.replaces or ()),
+        continues=CaptionId(message.continues)
+        if message.kind == "finished" and message.continues
+        else None,
         reason=reason,
         processing_ms=message.processing_ms,
         established=max(0, message.established or 0) if message.kind == "live" else 0,
     )
+
+
+class LiveTranslations:
+    """Only a translation of the current original revision can enter a window."""
+
+    def __init__(self, limit: int) -> None:
+        self._limit = limit
+        self._waiting: dict[tuple[str, str], tuple[int, CaptionUpdate]] = {}
+
+    def original(self, update: CaptionUpdate, seq: int | None) -> None:
+        source = update.source_id
+        for gone in (*update.replaces, update.caption_id):
+            self._waiting.pop((source, gone), None)
+        if update.kind is CaptionKind.LIVE and seq is not None:
+            self._waiting[source, update.caption_id] = seq, update
+            if len(self._waiting) > self._limit:
+                del self._waiting[next(iter(self._waiting))]
+
+    def translated(self, message: protocol.LiveTranslation) -> CaptionUpdate | None:
+        key = (message.source_id, message.caption_id)
+        waiting = self._waiting.get(key)
+        if waiting is None or waiting[0] != message.seq:
+            return None
+        original = waiting[1]
+        if len(original.clauses) != len(message.clauses):
+            return None
+        del self._waiting[key]
+        clauses = tuple(
+            replace(
+                source,
+                translations={Language(k): v for k, v in target.translations.items()},
+                written_in={
+                    Language(k): Language(v) for k, v in target.written_in.items()
+                },
+                links={},
+            )
+            for source, target in zip(original.clauses, message.clauses, strict=True)
+        )
+        # Only the original measures speech latency. The translation changes
+        # that caption in place without advancing the speech timeline twice.
+        return replace(original, clauses=clauses, times=None)
+
+
+def _word_class(value: str | None) -> WordClass | None:
+    if value is None:
+        return None
+    try:
+        return WordClass(value)
+    except ValueError:
+        return None
 
 
 def _clause(clause: protocol.Clause) -> Clause:
@@ -233,7 +322,14 @@ def _clause(clause: protocol.Clause) -> Clause:
         translations={Language(k): v for k, v in clause.translations.items()},
         links={
             Language(k): tuple(
-                WordLink(link.original, link.translation, link.key, link.confidence)
+                WordLink(
+                    link.original,
+                    link.translation,
+                    link.key,
+                    link.confidence,
+                    _word_class(link.original_pos),
+                    _word_class(link.translation_pos),
+                )
                 for link in links
             )
             for k, links in clause.links.items()

@@ -117,6 +117,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, fields, replace
 from enum import StrEnum
 
+from polyglotic_desktop.core.releases import flags
 from polyglotic_desktop.ui_next.views.arrivals import (
     OLDER_ALPHA,
     OLDER_TRANSLATION_ALPHA,
@@ -387,6 +388,15 @@ class CaptionLab:
             flow = before.flow or self.filled
         return replace(self, flow=flow, aligned=False)
 
+    def unpoured(self) -> "CaptionLab":
+        """The lab with captions not filling the width: a clause a row, as
+        the app has it without the lab - filled lines off as a caption
+        window's click turns them off, New layout with them unless parts
+        lined up need it (`with_filled`). What Fill the width's flag being
+        off reads a stored lab as (polyglotic-hq 555)."""
+        lab = self.with_filled(False) if self.filled else self
+        return replace(lab, fill=Fill.CLAUSES, join=Join.ELLIPSIS, run_on=False)
+
     def choose(self, **changes: object) -> "CaptionLab":
         """The lab with the learner's `changes` - and what a choice needs
         to do anything (polyglotic-hq 365; the user, 2026-11-15, on
@@ -485,7 +495,10 @@ class CaptionLab:
         gap = _number(stored.get("line_gap"), LINE_GAP_RANGE)
         if gap is not None:
             found["line_gap"] = gap
-        return replace(cls(), **found)  # type: ignore[arg-type]
+        lab = replace(cls(), **found)  # type: ignore[arg-type]
+        # Fill the width hidden (polyglotic-hq 555): who had it on is back
+        # on a clause a row, and saves it so at the next change
+        return lab if flags.on(flags.FILL_THE_WIDTH) else lab.unpoured()
 
 
 def _number(value: object, within: tuple[float, float]) -> float | None:

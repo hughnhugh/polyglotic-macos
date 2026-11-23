@@ -6,7 +6,8 @@ window's minimum (760 x 520) and wide (1600 x 900), neither with a
 horizontal scrollbar; a page switch cold and warm; a theme change; signed
 out, paused, and a notice on the banner (109's section 7) - the dictionary out
 (199), the learning data set aside at the start and found damaged since
-(206).
+(206); a planned maintenance window the day before and during it, its
+times in the PC's zone, named (319, 542).
 
 Built as `main` builds it - the settings (in memory), made-up apps with
 sound, the caption windows, the panels and `main.Hub`.
@@ -14,6 +15,7 @@ sound, the caption windows, the panels and `main.Hub`.
 
 from collections.abc import Mapping
 from dataclasses import asdict, replace
+from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
 
@@ -34,10 +36,11 @@ from polyglotic_desktop.ports.learning import LearningDataProblem, SetAsideLearn
 from polyglotic_desktop.ui import theme as todays_theme
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next import maintenance as maintenance_words
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.main_window import minimum_size
-from tools.ui_lab.caption_window import _areas
+from polyglotic_desktop.ui_next.main_window import roomy_size
+from tools.ui_lab.caption_window import PLANNED, _areas, in_lab_zone
 from tools.ui_lab.lab import Lab, State
 from tools.ui_lab.lookup import sample_tools
 
@@ -61,6 +64,11 @@ def scaled(size: tuple[int, int]) -> tuple[int, int]:
 class MadeUpApps:
     def playing_apps(self) -> list[PlayingApp]:
         return list(APPS)
+
+
+class NoApps(MadeUpApps):
+    def playing_apps(self) -> list[PlayingApp]:
+        return []
 
 
 class QuietApps:
@@ -153,6 +161,12 @@ def picker_none(lab: Lab) -> QWidget:
     """Nothing chosen: a learner who stopped everything (a new learner
     captions everything the PC plays since 484: `everything`)."""
     built = hub(lab, {"whole_system": False})
+    no_horizontal_scrollbar(built)
+    return built.window
+
+
+def picker_no_apps(lab: Lab) -> QWidget:
+    built = hub(lab, {"whole_system": False}, apps=NoApps())
     no_horizontal_scrollbar(built)
     return built.window
 
@@ -272,6 +286,7 @@ def whats_new(lab: Lab) -> QWidget:
 
 def picker_one(lab: Lab) -> QWidget:
     built = hub(lab, {"apps": ["Discord"], "caption_mic": True})
+    built.desktop.set_connection(ConnectionState.LISTENING)
     lab.time(
         "language_chip",
         lambda: built.picker.set_translate_into(
@@ -340,16 +355,18 @@ def everything(lab: Lab) -> QWidget:
     it takes in, a call's voices too, and the apps playing to caption one
     instead with one click."""
     built = hub(lab, {})
+    built.desktop.set_connection(ConnectionState.LISTENING)
     return built.window
 
 
 def at_minimum(lab: Lab) -> QWidget:
-    """Narrowed from its usual size to the minimum (960 x 680, 248):
-    nothing scrolls sideways."""
+    """Narrowed from its usual size to the least it opens at (960 x 680
+    times the text size, 248; `roomy_size` - no longer its minimum, which
+    is `at_floor`'s, polyglotic-hq 586): nothing scrolls sideways."""
     built = hub(lab, {"apps": ["Discord", "Video Player", "Web Browser"]})
-    built.window.resize(*minimum_size())
+    built.window.resize(*roomy_size())
     lab.pump()
-    assert (built.window.width(), built.window.height()) == minimum_size()
+    assert (built.window.width(), built.window.height()) == roomy_size()
     no_horizontal_scrollbar(built)
     return built.window
 
@@ -453,9 +470,7 @@ def paused(lab: Lab) -> QWidget:
 
 
 def server_busy(lab: Lab) -> QWidget:
-    """The server full (`server_busy`): "The server is busy", trying again in
-    24 s - not "Reconnecting", which reads as the learner's own connection
-    (203's item 4, polyglotic-hq 208)."""
+    """The server is at capacity. The status stays put while the connection retries."""
     built = hub(lab, {"apps": ["Discord"], "targets": ["en"]})
     desktop = built.desktop
     desktop.set_connection(ConnectionState.LISTENING)
@@ -486,6 +501,25 @@ def unreachable(why: Unreachable, lab: Lab) -> QWidget:
         desktop.set_connection(ConnectionState.WAITING, 8.0, next(causes))
 
     lab.time("state_change", change, repeat=11, budget=budgets.CLICK)  # ends on why
+    no_horizontal_scrollbar(built)
+    return built.window
+
+
+def maintenance(when: datetime, lab: Lab) -> QWidget:
+    """A planned maintenance window (319): the day before, Home's banner;
+    during it, its title (and so the tray's) and no banner beside it -
+    the times in the PC's zone, named once a line (542)."""
+    in_lab_zone(lab)
+    built = hub(lab, {"apps": ["Discord"], "targets": ["en"]})
+    built.home.state._wall_clock = lambda: when
+    built.set_maintenance(PLANNED)
+    lab.closing.append(lambda: maintenance_words.hold(None))  # held for the windows
+    desktop = built.desktop
+    if when < PLANNED.starts_at:
+        desktop.set_connection(ConnectionState.LISTENING)
+    else:
+        desktop.set_connection(ConnectionState.WAITING, 120.0, Unreachable.MAINTENANCE)
+    lab.pump()
     no_horizontal_scrollbar(built)
     return built.window
 
@@ -587,6 +621,7 @@ STATES = [
     State(f"ui_next.w4_{name}", run, gated=True)
     for name, run in (
         ("picker_none", picker_none),
+        ("picker_no_apps", picker_no_apps),
         ("sample", sample),
         ("sample_ended", sample_ended),
         ("start_with_windows", start_with_windows),
@@ -608,6 +643,15 @@ STATES = [
         ("server_down", partial(unreachable, Unreachable.DOWN)),
         ("cant_reach", partial(unreachable, Unreachable.NO_ANSWER)),
         ("notice", notice),
+        # planned maintenance (319): the evening before, and during it (542)
+        (
+            "maintenance_ahead",
+            partial(maintenance, datetime(2026, 11, 20, 9, tzinfo=UTC)),
+        ),
+        (
+            "maintenance_during",
+            partial(maintenance, datetime(2026, 11, 20, 19, 30, tzinfo=UTC)),
+        ),
         ("dictionary_out", dictionary_out),
         ("learning_set_aside", learning_set_aside),
         ("learning_unsaved", learning_unsaved),

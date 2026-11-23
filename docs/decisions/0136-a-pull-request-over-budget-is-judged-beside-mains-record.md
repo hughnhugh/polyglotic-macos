@@ -1,6 +1,6 @@
 # 0136 A pull request over a budget fails only if it's slower than main's record on this PC
 
-- **Status:** accepted (reversible; adds to decision 0040; the starts keep 0103)
+- **Status:** accepted (reversible; adds to decision 0040; the starts keep 0103; the pytest budget tests' record widened to Linux by [0270](0270-linux-budget-tests-are-judged-beside-mains-record-too.md))
 - **Date:** 2026-11-15
 - **Decided by:** polyglotic-hq project 344 (brief: "a budget measured on a shared runner should fail only when the code got slower ... a real 2x slowdown must still fail"). Claude reviews it with the pull request. No budget changes: the numbers stay the user's (decision 0031).
 

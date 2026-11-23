@@ -15,7 +15,14 @@ open."
   captions). A choice applies at once, as in the popover; the answers are
   how new windows start (`StoredWindows.start_like_this`).
 - **Inside its window**, over the captions under the hover band, and
-  following it when it moves; at the work area's edge it moves in.
+  following it when it moves; at the work area's edge it moves in. In a
+  joined window, inside its column, as narrow as the column if it must
+  be: windows start joined, and joining (a second app's window opening)
+  or separating keeps the question (polyglotic-hq 554). **Never over
+  its window's resize edges:** in a window too short for it - a new one
+  at its usual 300 px - it shows just above the window (below, if the
+  screen has no room above); hanging past the window's foot, it took the
+  presses meant for the bottom edge and corners (polyglotic-hq 586).
 - **It never blocks:** captions are heard and kept while it shows, and the
   first one closes it (`CaptionWindow.set_up_heard`) - not while the mouse
   is on it or one of its lists is open: the next caption after does.
@@ -59,6 +66,7 @@ from polyglotic_desktop.ui_next.settings_popover import (
     ACCENT,
     SettingsPopover,
 )
+from polyglotic_desktop.ui_next.views import placement
 from polyglotic_desktop.ui_next.views.placement import Rect
 
 if TYPE_CHECKING:
@@ -133,7 +141,8 @@ class CaptionSetUp(SettingsPopover):
         column.addWidget(
             self._note(
                 _tr(
-                    'Shown as "You". Your mic is sent to the server only while it\'s on.'
+                    'Shown as "You". Your mic is sent for your captions only while '
+                    "it's on."
                 ),
                 row,
             )
@@ -202,7 +211,10 @@ class CaptionSetUp(SettingsPopover):
 
     def _put(self) -> None:
         """Inside its window under the band, as wide as it fits; moved in
-        to stay on the work area."""
+        to stay on the work area. In a window too short for it, above the
+        window - else below it - never over its resize edges: it hung
+        past a 300 px window's foot and took the presses meant for the
+        bottom edge and corners (polyglotic-hq 586)."""
         owner = self._window
         if not owner.isVisible() and not self.isVisible():
             return
@@ -213,14 +225,34 @@ class CaptionSetUp(SettingsPopover):
             height = self.heightForWidth(width)
             self.resize(width, height if height > 0 else self.sizeHint().height())
         x = top_left.x() + (owner.width() - self.width()) // 2
-        y = top_left.y() + owner.band_bottom()
         area = owner.area_at(QRect(top_left, owner.size()))
+        y = beside_if_short(
+            top_left.y(), owner.height(), owner.band_bottom(), self.height(), area
+        )
         self.move(*placed_in(Rect(x, y, self.width(), self.height()), area))
 
     def follow(self) -> None:
         """Its window moved or changed size: it goes with it."""
         if self.isVisible():
             self._fit()
+
+
+def beside_if_short(top: int, height: int, band: int, tall: int, area: Rect) -> int:
+    """Where a set-up `tall` px high goes for a window at `top`, `height`
+    high, its band `band` px: under the band if it fits there clear of the
+    window's foot and its corners (`placement.CORNER_ZONE`); else just
+    above the window, or below it, where the work area `area` has room;
+    else under the band as before."""
+    under = top + band
+    if under + tall <= top + height - placement.CORNER_ZONE:
+        return under
+    above = top - MARGIN - tall
+    if above >= area.y:
+        return above
+    below = top + height + MARGIN
+    if below + tall <= area.bottom:
+        return below
+    return under
 
 
 def placed_in(rect: Rect, area: Rect) -> tuple[int, int]:

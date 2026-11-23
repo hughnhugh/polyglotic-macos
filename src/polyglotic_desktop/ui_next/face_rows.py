@@ -1,7 +1,8 @@
 """Settings > Captions > Look's Fonts card (polyglotic-hq 482, decision
 0223): a row per language the captions are in - "Chinese (Simplified)
-captions in: Noto Sans SC (Default)" - each row's list grouped Sans /
-Serif / Handwritten / This PC's own / Any font on this PC. The single Font
+captions in: Ma Shan Zheng (Default)" - each row's list grouped Sans /
+Serif / Handwritten / Calligraphy (polyglotic-hq 532) / This PC's own /
+Any font on this PC. The single Font
 row Look had before is that last group now, in every row.
 
 The faces a language offers are `fonts.CHOICES`'; its default is marked.
@@ -57,6 +58,7 @@ def _groups() -> tuple[tuple[str, str], ...]:
         (fonts.SANS, _tr("Sans")),
         (fonts.SERIF, _tr("Serif")),
         (fonts.HANDWRITTEN, _tr("Handwritten")),
+        (fonts.CALLIGRAPHY, _tr("Calligraphy")),
     )
 
 
@@ -320,8 +322,8 @@ class FacesPanel(Panel):
                 gone.deleteLater()
         self.boxes, self.face_rows = {}, {}
         for code in self._codes:
-            title = _tr("{language} captions in").format(
-                language=languages.language_name(code)
+            title = languages.in_sentence(
+                _tr("{language} captions in"), language=languages.language_name(code)
             )
             box = FaceBox(code)
             box.setObjectName(f"look.face_{code}")

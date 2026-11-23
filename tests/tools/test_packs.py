@@ -529,7 +529,7 @@ FREQ: dict[str, dict[int, list[str]]] = {
     "tr": {200: ["araştırmak", "ev", "ingiltere"], 300: ["araşmak", "aratmak"]},
     "ms": {200: ["kereta", "rumah", "penting", "tv", "jakarta"]},
     **{language: {300: []} for language in ("pt", "id", "pl")},
-    **{language: {300: []} for language in ("nl", "sv", "cs", "el", "mk")},
+    **{language: {300: []} for language in ("nl", "sv", "cs", "el", "mk", "ko")},
     "ro": {
         150: ["i", "îi", "voi", "el"],
         200: ["fi", "vedea", "vă", "ea", "își"],
@@ -602,7 +602,7 @@ def sources(folder: Path) -> dict[str, Path]:
     paths["kaikki-ru"].write_bytes(gzip.compress("\n".join(RUSSIAN).encode("utf-8")))
     for language in (
         *("de", "pt", "it", "id", "ar", "hi", "pl", "tr", "ms"),
-        *("nl", "uk", "fa", "sv", "cs", "ro", "el", "tl", "mk"),
+        *("nl", "uk", "fa", "sv", "cs", "ro", "el", "tl", "mk", "ko"),
     ):
         lines = "\n".join(BATCH.get(language, SECOND.get(language, [])))
         paths[f"kaikki-{language}"] = folder / f"{language}.jsonl.gz"
@@ -2088,3 +2088,172 @@ def test_a_letter_takes_no_frequency_as_an_abbreviation_or_a_capital() -> None:
     assert dict(contraction.forms) == {"do": {"de"}}
     assert packs.frequency_of("S", {"s": 1e-3}) == 0.0
     assert packs.frequency_of("s", {"s": 1e-3}) == 1e-3  # a lower-case word: kept
+
+
+def test_a_korean_predicate_is_ranked_by_its_stem(tmp_path: Path) -> None:
+    """wordfreq counts Korean by its parts (같 for 같다): a verb's or an
+    adjective's stem is made its form, so it is ranked, and every entry is
+    kept (polyglotic-hq 510)."""
+    source = tmp_path / "ko.jsonl.gz"
+    entries = [
+        {
+            "word": "같다",
+            "pos": "adj",
+            "lang_code": "ko",
+            "senses": [{"glosses": ["the same"]}],
+        },
+        {
+            "word": "가다",
+            "pos": "verb",
+            "lang_code": "ko",
+            "senses": [{"glosses": ["to go"]}],
+        },
+        {
+            "word": "학교",
+            "pos": "noun",
+            "lang_code": "ko",
+            "senses": [{"glosses": ["school"]}],
+        },
+    ]
+    source.write_bytes(
+        gzip.compress(
+            "\n".join(json.dumps(e, ensure_ascii=False) for e in entries).encode()
+        )
+    )
+    draft = packs.read_korean({"kaikki-ko": source})
+    assert draft.inflections["같"] == {"같다"}
+    assert "가" not in draft.inflections  # 가 is the subject particle too
+    assert draft.keep_unranked
+
+
+def ko(word: str, pos: str, *senses: dict[str, object], **extra: object) -> str:
+    obj = {"word": word, "pos": pos, "lang_code": "ko", "senses": list(senses)}
+    return json.dumps({**obj, **extra}, ensure_ascii=False)
+
+
+def korean_pack(tmp_path: Path, monkeypatch: MonkeyPatch) -> SqliteDictionary:
+    """The Korean pack built from a few words as Wiktionary lists them, and
+    wordfreq's Korean as it counts it: by parts (polyglotic-hq 516)."""
+    monkeypatch.setattr(packs, "REGISTRY", tmp_path / "registry")
+    (tmp_path / "registry").mkdir()
+    monkeypatch.setattr(coverage, "PROBE", tmp_path)
+    (tmp_path / "ko.txt").write_text("교전 중 독일에 대한 봉쇄.", encoding="utf-8")
+    words = [
+        ko("대하다", "verb", sense("to pertain or relate to a topic")),
+        ko("대한", "noun", sense("great khan"), etymology_number=1),
+        ko(
+            "대한",
+            "verb",
+            sense("formal non-polite form of 대하다 (daehada, “to pertain”)"),
+            etymology_number=7,
+        ),
+        ko("마다", "verb", sense("to smash")),
+        ko("-마다", "particle", sense("each, every")),
+        ko("가다", "verb", sense("to go"), forms=forms(("갈", "prospective"))),
+        ko("가", "noun", sense("border, edge, end")),
+        ko("-가", "particle", sense("nominative case marker")),
+        ko("갈", "noun", sense("common reed")),
+        ko("있다", "verb", sense("to stay, remain in a location")),
+        ko("있다", "adj", sense("to be (in a place); to exist")),
+        ko("는", "particle", sense("See the entry at -는 (-neun).")),
+        ko("-는", "particle", sense("topic marker")),
+        ko(
+            "海上",
+            "noun",
+            {
+                "glosses": ["hanja form of 해상 (“maritime”)"],
+                "tags": ["form-of", "hanja"],
+                "form_of": [{"word": "해상", "extra": "maritime"}],
+            },
+            forms=roman("haesang"),
+        ),
+        ko("하다", "verb", sense("to do"), forms=forms(("하지만", "concessive"))),
+        ko("하지만", "adv", sense("but, however")),
+        ko("크", "noun", sense("alternative name for the jamo 키읔 (kieuk)")),
+        ko("크다", "adj", sense("to be big")),
+        ko("-째", "suffix", sense("-th (ordinal)")),
+        ko("째다", "verb", sense("to cleave")),
+        ko("째", "verb", sense("infinitive of 째다", "째다")),
+        ko("듣다", "verb", sense("to listen"), forms=forms(("들리다", "passive"))),
+        ko("들리다", "verb", sense("to be heard")),
+        ko("날", "noun", sense("day")),
+        ko("날다", "verb", sense("to fly"), forms=forms(("날", "prospective"))),
+        ko("먹", "noun", sense("inkstick")),
+        ko("먹다", "verb", sense("to eat")),
+    ]
+    paths = {"kaikki-ko": tmp_path / "ko.jsonl.gz", "wordfreq": tmp_path / "wf.whl"}
+    paths["kaikki-ko"].write_bytes(gzip.compress("\n".join(words).encode()))
+    with zipfile.ZipFile(paths["wordfreq"], "w") as wheel:
+        data = msgpack(
+            [
+                {"format": "cB", "version": 1},
+                *([[]] * 200),
+                ["가", "는", "있", "하", "대한", "마다", "크", "째", "날", "먹"],
+                *([[]] * 50),
+                ["갔", "했", "갈"],
+            ]
+        )
+        wheel.writestr("wordfreq/data/small_ko.msgpack.gz", gzip.compress(data))
+    out = tmp_path / "out"
+    out.mkdir()
+    packs.build(packs.PACKS["ko"], paths, out)
+    return SqliteDictionary(out / "wiktko.sqlite")
+
+
+def test_a_korean_word_opens_on_the_reading_a_caption_most_likely_means(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """Homographs (polyglotic-hq 516): 대한 opens on 대하다 ("about"), not
+    "great khan"; 마다 alone on the particle "every"; 갈 on 가다; 는, whose
+    page only points to -는, on -는; 하지만 keeps its own "but"; 들리다 its
+    own "to be heard", not 듣다 whose passive it is; 크, a jamo's name, on
+    크다."""
+    file = korean_pack(tmp_path, monkeypatch)
+    dictionary = BasicDictionary(file, SpacedSplit("ko"), "ko")
+
+    def first(word: str) -> str:
+        return dictionary.lookup(word)[0].headword
+
+    assert first("대한") == "대하다"
+    assert [e.headword for e in dictionary.lookup("대한")][-1] == "대한"  # still there
+    assert first("마다") == "-마다"
+    assert first("갈") == "가다"
+    assert first("는") == "-는"
+    assert first("하지만") == "하지만"
+    assert first("들리다") == "들리다"
+    assert first("크") == "크다"
+    assert first("날") == "날"  # day, before 날다's "will fly"
+    assert (
+        dictionary.lookup("있다")[0].meanings[0] == "(adj) to be (in a place); to exist"
+    )
+    file.close()
+
+
+def test_a_korean_predicate_is_ranked_by_its_stem_and_fused_past(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    """wordfreq counts Korean by parts: 가다 by 갔 (its stem 가 is the
+    subject particle's), 하다 by 했, 먹다 by 먹 (whose own word, inkstick,
+    is rare); not 날다 by 날 (day). A jamo's name or a hanja syllable takes
+    no rank, and an affix's count (-째, "-th") ranks no predicate (째다, "to
+    cleave", had been the 235th word)."""
+    file = korean_pack(tmp_path, monkeypatch)
+    rank = {r.headword: r.frequency_rank for r in every_record(file)}
+    assert rank["가다"] and rank["하다"] and rank["있다"] and rank["크다"]
+    assert rank["먹다"] and rank["날"] and rank["날다"] is None
+    assert rank["째다"] is None
+    assert not [
+        r
+        for r in every_record(file)
+        if r.meanings[0].startswith("(noun) alt") and r.frequency_rank
+    ]
+    file.close()
+
+
+def test_a_word_wiktionary_has_only_under_its_hanja_has_its_meaning(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    file = korean_pack(tmp_path, monkeypatch)
+    [record] = file.records("해상")
+    assert record.meanings == ("(noun) maritime",) and record.reading == "haesang"
+    file.close()

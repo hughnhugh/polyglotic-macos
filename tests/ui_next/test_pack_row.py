@@ -11,7 +11,7 @@ import pytest
 from PySide6.QtWidgets import QApplication, QWidget
 
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem, Step
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import PackRow, shown
 from polyglotic_desktop.ui_next.views.learning import PackLine
 
@@ -84,7 +84,12 @@ CASES = [
     ),
     (
         downloading(problem=Problem.METERED),
-        "Paused: Windows says this connection is metered. 36.0 MB left to download.",
+        (
+            "Paused: this connection is set as metered. 36.0 MB left to download."
+            if on_linux()  # NetworkManager's setting, not Windows' (571)
+            else "Paused: Windows says this connection is metered. 36.0 MB left to"
+            " download."
+        ),
         ("anyway", "cancel"),
     ),
     (

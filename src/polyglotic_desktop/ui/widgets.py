@@ -17,6 +17,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+BASE_TEXT_PX = 13
+"""The interface's base text at a text size factor of 1.0, in px: the new
+interface's stylesheet's (`ui_next.style.stylesheet`, `px(13)`), which
+`main` gives these dialogs - this package can't import it."""
+
 
 class TextDialog(QDialog):
     """A dialog of wrapped paragraphs that is never shorter than they need.
@@ -36,9 +41,41 @@ class TextDialog(QDialog):
     laptop, the level picker's OK was 1 px under it). Moved up, never
     shrunk: a screen too short for one is a test failure
     (tests/ui/test_first_run_fit.py), and a long one scrolls its own part,
-    as the first screen does (`ConsentDialog`, #305)."""
+    as the first screen does (`ConsentDialog`, #305).
+
+    Its least width (`set_least_width`) grows with its text, so its
+    paragraphs wrap into as many lines at any text size: at a fixed 520 px,
+    the first screen at the app's Normal text size since decision 0244
+    (1.3) scrolled on a 1920 x 1080 screen (polyglotic-hq 524)."""
+
+    _least_width = 0
+
+    def set_least_width(self, width: int) -> None:
+        """Never narrower than `width` px at a text size factor of 1.0 -
+        wider with its text (`at_text_size`), at most nine tenths of its
+        screen's work area."""
+        self._least_width = width
+        self._keep_least_width()
+
+    def at_text_size(self, width: int) -> int:
+        """`width` (px at a text size factor of 1.0) at the size of this
+        dialog's text, as styled (`BASE_TEXT_PX`) - never less."""
+        font = self.font()
+        size = font.pixelSize() if font.pixelSize() > 0 else font.pointSizeF() / 0.75
+        return round(width * max(1.0, size / BASE_TEXT_PX))
+
+    def _keep_least_width(self) -> None:
+        if not self._least_width:
+            return
+        width = self.at_text_size(self._least_width)
+        screen = self.screen()
+        if screen is not None:
+            width = min(width, screen.availableGeometry().width() * 9 // 10)
+        # never under what's in it needs (`_fit_height`, `ConsentDialog`'s yes)
+        self.setMinimumWidth(max(self.minimumWidth(), width))
 
     def showEvent(self, event: QShowEvent) -> None:
+        self._keep_least_width()  # styled by now: at its text's size
         super().showEvent(event)
         QTimer.singleShot(0, self, self.keep_on_screen)  # once placed and styled
 

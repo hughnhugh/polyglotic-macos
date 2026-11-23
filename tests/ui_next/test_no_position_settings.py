@@ -4,7 +4,7 @@ keeps its place (the user's rehearsal feedback F8, polyglotic-hq 249,
 window a bit redundant because you can move it manually")."""
 
 from PySide6.QtCore import QPointF
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QPushButton
 from tests.ui_next.test_caption_window import (
     Store,
     _release_after,
@@ -36,7 +36,7 @@ def test_no_position_controls(qapp: QApplication) -> None:
         window.toggle_settings()
         popover = window.popover
         assert popover is not None
-        words = [b.text() for b in popover.findChildren(type(popover.language))]
+        words = [b.text() for b in popover.findChildren(QPushButton)]
         assert not any("Position" in w or "Bottom" in w for w in words)
     finally:
         window.close()

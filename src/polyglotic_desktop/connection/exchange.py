@@ -117,6 +117,25 @@ account each `welcome` names is noted, and a session opening on a
 different one runs signing out's safeguard first - what waited is dropped
 - and starts as a new install, before anything is sent.
 
+**A row this version can't read is dropped and counted** (polyglotic-hq
+557, 529's B2; decision 0266). Learning events, exposure days and usage
+events are read back from the outbox to send; one written by another
+version that this one can't read (a field it doesn't know, a value it
+won't take) raised at every session's open, and the listening session
+stopped for good. Such a row is dropped from the outbox, logged by kind
+and count, and counted in the outbox's notes (`unreadable_dropped`) - and
+in the next listening session's summary (`take_unreadable`, polyglotic-hq
+566), so it's seen without a tester's log.
+
+**A note it can't read starts again, said once** (polyglotic-hq 566, from
+557). The cursors and the dictionaries out are JSON in the outbox's notes;
+one damaged on disk raised wherever it was read - as the app started
+(`dictionary_whole`) and at every session's open, which after decision
+0266 tries again every minute, for good. Now such a note is cleared and
+logged by its name: the cursors forgotten (each dictionary syncs from the
+start, once), and with the dictionaries out every cursor too, since which
+were out is lost.
+
 Logs counts and kinds only - never entry IDs, props or the token.
 """
 
@@ -128,7 +147,9 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
-from typing import Protocol
+from typing import Protocol, TypeVar
+
+from pydantic import BaseModel
 
 from polyglotic_desktop.connection import learning, protocol
 from polyglotic_desktop.core.shared import LearningEvent
@@ -136,6 +157,8 @@ from polyglotic_desktop.ports.consent import Agreement, ConsentChoice, ConsentSt
 from polyglotic_desktop.ports.outbox import Outbox, Waiting
 
 log = logging.getLogger(__name__)
+
+_Row = TypeVar("_Row", bound=BaseModel)
 
 CONSENT = "consent"
 DELETE = "learning_delete"
@@ -171,6 +194,8 @@ _INSTALLED = "install_started"  # when this PC became this install (its clock)
 _OUT = "learning_dictionaries_out"  # JSON: dictionaries out since their last sync
 _ACCOUNT = "account_id"  # the account what waits belongs to, from `welcome`
 _SIGNED_OUT = "signed_out"  # signed out since this install last had a session
+_UNREADABLE = "unreadable_dropped"  # rows this version couldn't read, dropped ever
+_UNREADABLE_TOLD = "unreadable_told"  # how many of those a summary has counted
 _AGAIN = "consent_sent_again"  # JSON: the install, and when, after consent_missing
 
 RAISED = timedelta(milliseconds=1)
@@ -408,8 +433,18 @@ class DataExchange:
             self._outbox.save_note(_CURSORS, json.dumps(cursors, sort_keys=True))
 
     def _dictionaries_out(self) -> set[str]:
+        """The dictionaries out since their last sync. A note that can't be
+        read is started again, and every cursor with it: whichever were
+        out sync from the start (`_started_again`)."""
         kept = self._outbox.note(_OUT)
-        return set(json.loads(kept)) if kept else set()
+        if not kept:
+            return set()
+        found = _loaded(kept)
+        if isinstance(found, list) and all(isinstance(d, str) for d in found):
+            return set(found)
+        self._started_again(_OUT)
+        self._outbox.save_note(_CURSORS, None)
+        return set()
 
     def has_connected(self) -> bool:
         """This PC has had a session with the server, as some install -
@@ -659,14 +694,20 @@ class DataExchange:
                 continue  # until this PC's deletion's time is known: _stamp
             items = waiting[kind]
             while items and len(self._awaiting) < AWAITING_MAX:
-                key, taken, message = self._message(kind, items)
+                made = self._message(kind, items)
+                if made is None:  # none left it could read: dropped
+                    break
+                key, taken, message = made
                 del items[: len(taken)]
                 self._awaiting[key] = [w.id for w in taken]
                 self._sent.update(w.id for w in taken)
                 out.append(message)
         held = self._asked is not None or DELETE in self._awaiting
         while self._resync and not held and len(self._awaiting) < AWAITING_MAX:
-            key, taken, message = self._message(LEARNING, self._resync)
+            made = self._message(LEARNING, self._resync)
+            if made is None:
+                break
+            key, taken, message = made
             del self._resync[: len(taken)]
             self._awaiting[key] = [w.id for w in taken]
             self._resyncing.add(key)
@@ -798,12 +839,15 @@ class DataExchange:
         - for this PC's own, a learning event from before it asked."""
         if self._deleted is None:
             return False
-        if item.kind == LEARNING:
-            event = protocol.LearningEvent.model_validate_json(item.body)
-            return _time(event.at) <= (own or self._deleted[1])
-        if item.kind == EXPOSURES:
-            day = protocol.ExposureDay.model_validate_json(item.body)
-            return date.fromisoformat(day.date) <= _utc_day(self._deleted[1])
+        try:
+            if item.kind == LEARNING:
+                event = protocol.LearningEvent.model_validate_json(item.body)
+                return _time(event.at) <= (own or self._deleted[1])
+            if item.kind == EXPOSURES:
+                day = protocol.ExposureDay.model_validate_json(item.body)
+                return date.fromisoformat(day.date) <= _utc_day(self._deleted[1])
+        except ValueError:
+            return False  # unreadable: dropped and counted as it's sent (`_read`)
         return False
 
     def _release(self) -> None:
@@ -818,13 +862,19 @@ class DataExchange:
             if w.kind == LEARNING and w.id not in self._sent
         ]
         self._outbox.remove(w.id for w in held)
+        unreadable = []
         for item in held:
-            event = protocol.LearningEvent.model_validate_json(item.body)
+            try:
+                event = protocol.LearningEvent.model_validate_json(item.body)
+            except ValueError:
+                unreadable.append(item)  # removed above: not added again
+                continue
             at = self._stamp(_time(event.at)) or _time(event.at)
             event = event.model_copy(update={"at": protocol.at(at)})
             self._outbox.add(
                 Waiting(LEARNING, item.id, protocol.encode(event)), KEEP[LEARNING]
             )
+        self._count_unreadable(unreadable, removed=True)
 
     def _delete_waiting(self) -> bool:
         return any(w.kind == DELETE for w in self._outbox.waiting())
@@ -847,10 +897,27 @@ class DataExchange:
         self._save_after()
 
     def _cursors(self) -> dict[str, str]:
-        """Each dictionary's cursor from its last `learning_state`."""
+        """Each dictionary's cursor from its last `learning_state`. A note
+        that can't be read is started again: each dictionary syncs from the
+        start (`_started_again`)."""
         kept = self._outbox.note(_CURSORS)
-        cursors: dict[str, str] = json.loads(kept) if kept else {}
-        return cursors
+        if not kept:
+            return {}
+        found = _loaded(kept)
+        if isinstance(found, dict) and all(
+            isinstance(k, str) and isinstance(v, str) for k, v in found.items()
+        ):
+            return found
+        self._started_again(_CURSORS)
+        return {}
+
+    def _started_again(self, note: str) -> None:
+        """A note of the exchange's own that can't be read - damaged on disk,
+        say - is cleared, and logged once by its name, never what it held:
+        read at every session's open, it failed each one, and after decision
+        0266 every minute for good (polyglotic-hq 566)."""
+        self._outbox.save_note(note, None)
+        log.warning("the outbox's %s note couldn't be read; started again", note)
 
     def _keep_cursor(self, cursor: str) -> None:
         cursors = self._cursors() | {self._dictionary: cursor}
@@ -858,9 +925,11 @@ class DataExchange:
 
     def _message(
         self, kind: str, items: list[Waiting]
-    ) -> tuple[str, list[Waiting], str]:
+    ) -> tuple[str, list[Waiting], str] | None:
         """The next message of `kind` from the front of `items`: the key its
-        answer comes back under, the items it carries, and the message."""
+        answer comes back under, the items it carries, and the message.
+        Items this version can't read are dropped from `items` and the
+        outbox (`_read`); None if that leaves none."""
         first = items[0]
         if kind == CONSENT:
             return first.id, [first], first.body
@@ -869,24 +938,75 @@ class DataExchange:
         batch = self._new_id()
         message: protocol.Message
         if kind == LEARNING:
-            taken = self._fill(items, self._limits.learning_events)
-            events = tuple(
-                protocol.LearningEvent.model_validate_json(w.body) for w in taken
+            taken, events = self._read(
+                items, self._limits.learning_events, protocol.LearningEvent
             )
-            message = protocol.Learning(batch=batch, events=events)
-        elif kind == EXPOSURES:
-            taken = self._fill(items, 31)  # protocol.md: 31 days a message
-            days = tuple(
-                protocol.ExposureDay.model_validate_json(w.body) for w in taken
-            )
-            message = protocol.Exposures(batch=batch, days=days)
+            message = protocol.Learning(batch=batch, events=tuple(events))
+        elif kind == EXPOSURES:  # protocol.md: 31 days a message
+            taken, days = self._read(items, 31, protocol.ExposureDay)
+            message = protocol.Exposures(batch=batch, days=tuple(days))
         else:
-            taken = self._fill(items, self._limits.usage_events)
-            usage = tuple(
-                protocol.UsageEvent.model_validate_json(w.body) for w in taken
+            taken, usage = self._read(
+                items, self._limits.usage_events, protocol.UsageEvent
             )
-            message = protocol.Usage(batch=batch, events=usage)
+            message = protocol.Usage(batch=batch, events=tuple(usage))
+        if not taken:
+            return None
         return batch, taken, protocol.encode(message)
+
+    def _read(
+        self, items: list[Waiting], count: int, row: type[_Row]
+    ) -> tuple[list[Waiting], list[_Row]]:
+        """As many items from the front of `items` as one message takes
+        (`_fill`), each read as `row`. One this version can't read - written
+        by another version, say - is dropped from `items` and the outbox and
+        counted, and the message filled again without it: at every session's
+        open it failed the session (decision 0266)."""
+        while True:
+            taken = self._fill(items, count)
+            read: list[_Row] = []
+            unreadable: list[Waiting] = []
+            for item in taken:
+                try:
+                    read.append(row.model_validate_json(item.body))
+                except ValueError:  # pydantic's ValidationError, bad JSON too
+                    unreadable.append(item)
+            if not unreadable:
+                return taken, read
+            for item in unreadable:
+                items.remove(item)
+            self._count_unreadable(unreadable)
+
+    def _count_unreadable(self, rows: list[Waiting], removed: bool = False) -> None:
+        """`rows` couldn't be read: dropped from the outbox (unless `removed`
+        already), logged by kind and count - never what they held - and
+        counted in the outbox's notes."""
+        if not rows:
+            return
+        if not removed:
+            self._outbox.remove(w.id for w in rows)
+        ever = _count(self._outbox.note(_UNREADABLE)) + len(rows)
+        self._outbox.save_note(_UNREADABLE, str(ever))
+        log.warning(
+            "%d waiting %s item(s) this version can't read dropped (%d ever)",
+            len(rows),
+            rows[0].kind,
+            ever,
+        )
+
+    def take_unreadable(self) -> int:
+        """Rows this version couldn't read and dropped since this was last
+        called: counted in the listening session's summary (polyglotic-hq
+        566). From the outbox's notes, so rows dropped as the app started,
+        in a sync session before any listening, go in the next summary.
+        Any thread."""
+        with self._lock:
+            ever = _count(self._outbox.note(_UNREADABLE))
+            told = _count(self._outbox.note(_UNREADABLE_TOLD))
+            if ever == told:
+                return 0
+            self._outbox.save_note(_UNREADABLE_TOLD, str(ever))
+            return max(0, ever - told)  # none if the notes started again
 
     def _fill(self, items: list[Waiting], count: int) -> list[Waiting]:
         """As many items from the front as one message takes: at most
@@ -903,8 +1023,22 @@ class DataExchange:
         return taken
 
 
+def _loaded(kept: str) -> object:
+    """A note's JSON; None if it can't be read."""
+    try:
+        found: object = json.loads(kept)
+    except (ValueError, RecursionError):
+        return None
+    return found
+
+
 def _time(at: str) -> datetime:
     return datetime.fromisoformat(at).astimezone(UTC)
+
+
+def _count(kept: str | None) -> int:
+    """A count as kept in a note; 0 for none, or one that can't be read."""
+    return int(kept) if kept and kept.isdigit() else 0
 
 
 def _utc_day(at: datetime) -> date:

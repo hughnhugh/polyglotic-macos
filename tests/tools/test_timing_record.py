@@ -39,3 +39,14 @@ def test_a_record_that_cant_be_read_is_none(records: Path) -> None:
         "{not json", encoding="utf-8"
     )
     assert timing_record.load("lab-100-normal-en") is None
+
+
+def test_off_windows_the_record_is_in_the_runners_home_not_its_checkout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    r"""CI's Linux runner cleans the job's checkout for each job: a record
+    kept there (`C:\ProgramData` is a relative folder on Linux) would be
+    gone by the next pull request (polyglotic-hq 563)."""
+    monkeypatch.delenv("POLYGLOTIC_TIMING_RECORD")
+    assert timing_record._folder("linux") == Path.home() / ".polyglotic-ci"
+    assert timing_record._folder("win32") == timing_record.start_record.RECORD_FOLDER

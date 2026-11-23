@@ -317,3 +317,25 @@ def test_each_line_that_comes_slides_the_text_above_up(
     assert abs(top() - older) < 1.0  # where it was, for the first frame
     clock.now += 2.0
     assert top() < older - 1.0  # risen by the line that came
+
+
+def test_an_incoming_caption_can_reveal_the_waiting_line_with_a_slide(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(caption_window_module, "reduced_motion", lambda: False)
+    window, clock = paced(qapp, arrival=Arrival.STEP_AND_SLIDE)
+    if not window.sliding:
+        pytest.skip("the lab's photographs: nothing slides")
+    window.receive(three_clauses("first"))
+    first = shown_of(window, "first")
+    assert first is not None
+    slide = window.motion.slide
+
+    clock.now += GAP
+    window.receive(three_clauses("second"))
+
+    revealed = shown_of(window, "first")
+    assert revealed is not None and revealed[0] > first[0]
+    assert shown_of(window, "second") is None
+    assert window.motion.slide is not slide
+    assert window.motion.offset(clock.now) > 1.0

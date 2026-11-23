@@ -10,7 +10,7 @@ characters it reads, centred on them. Where it is wider than they are,
 they get the room: the layout is told how much each character takes
 (`Ruby.before`, `.after`; the one layout measures its units with it,
 `views.flow.Above`), and Qt spaces the characters by the same amounts
-(`spaced`), so a word is still found, marked, selected and looked up by
+(`rooms`), so a word is still found, marked, selected and looked up by
 its row and character - a reading line changes where text is, never what
 it is. A reading may reach over its neighbour's character where that
 one's reading is narrower than it, so characters keep their own spacing
@@ -32,7 +32,7 @@ Holds caption text's sound in what it lays out: never log it.
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, cast
 
 from PySide6.QtCore import QPointF
 from PySide6.QtGui import (
@@ -287,7 +287,7 @@ class Ruby:
     drop: float
     """How far above a line's top a reading's baseline is."""
     spacing: tuple[tuple[int, int, float], ...]
-    """The room as Qt is given it (`spaced`): Qt's index of a character,
+    """The room as Qt is given it (`rooms`): Qt's index of a character,
     its length there, and the room after it."""
     text_font: QFont
     """The text's own font: a mark (`Reading.mark`) is drawn in it."""
@@ -331,8 +331,11 @@ def reading_font(
     makes up (479: a made-up bold drew some letters of the same pinyin
     lighter than others); in the text's weight if the face has none; and
     not in a face holding the text's weight alone (`fonts.WEIGHT_FACES`):
-    asked for another, it would be made up."""
+    asked for another, it would be made up - nor in one that doesn't draw
+    readings (`fonts.reading_families`: Ma Shan Zheng has no tone marks)."""
     small = QFont(font)
+    small.setFamilies(fonts.reading_families(small.families()))
+    small.setStyleName("")  # by weight: the text's style may be Medium (532)
     small.setItalic(False)
     small.setPixelSize(max(SMALLEST_PX, round(font.pixelSize() * share)))
     single = {face for faces in fonts.WEIGHT_FACES.values() for face in faces}
@@ -342,6 +345,16 @@ def reading_font(
     if not families or caption_faces.has_weight(families[0], int(weight.value)):
         small.setWeight(weight)
     return small
+
+
+def band_height(font: QFont) -> float:
+    """The height above the text for this reading font, even before words arrive."""
+    metrics = QFontMetricsF(font)
+    return metrics.ascent() + _drop(font, metrics)
+
+
+def _drop(font: QFont, metrics: QFontMetricsF) -> float:
+    return metrics.descent() * 0.6 + LIFT * font.pixelSize()
 
 
 def ruby(
@@ -404,7 +417,7 @@ def ruby(
         if reading.ends_word:
             room += WORD_GAP * px
         after[last] = max(0.0, room - before[reading.end])
-    drop = metrics.descent() * 0.6 + LIFT * px
+    drop = _drop(small, metrics)
     spacing = []
     plain = text.isascii() or all(ord(char) <= 0xFFFF for char in text)
     for n in range(count):
@@ -462,9 +475,10 @@ def _room(room: float) -> QTextCharFormat:
     return found
 
 
-def spaced(layout: QTextLayout, readings: Ruby) -> None:
-    """Gives `layout` (not yet begun) the room `readings` need: each
-    character followed by its own room after and the next one's before."""
+def rooms(readings: Ruby) -> list[QTextLayout.FormatRange]:
+    """The formats that give a layout (not yet begun) the room `readings`
+    need: each character followed by its own room after and the next
+    one's before."""
     ranges = []
     for start, length, room in readings.spacing:
         found = QTextLayout.FormatRange()
@@ -472,8 +486,7 @@ def spaced(layout: QTextLayout, readings: Ruby) -> None:
         found.length = length
         found.format = _room(room)
         ranges.append(found)
-    if ranges:
-        layout.setFormats(ranges)
+    return ranges
 
 
 def lead(text: str, readings: Ruby, unit: int) -> float:
@@ -499,6 +512,8 @@ class Placed:
     font: QFont | None = None
     """A mark's font, the text's own (`Reading.mark`); None: a reading's,
     the line's (`Ruby.font`)."""
+    end: int = -1
+    """End of the text span this reading belongs to."""
 
 
 def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]:
@@ -521,18 +536,29 @@ def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]
             last = line.textStart() + line.textLength()
             y = line.y() - readings.drop
         at: object = line.cursorToX(unit)  # (x, index) in PySide6
-        x = at[0] if isinstance(at, tuple) else at
+        x = at[0] if isinstance(at, tuple) else cast(float, at)
         if reading.mark:  # at the text's baseline, as an accent on the letter
             base_y = line.y() + line.ascent()
             if text[reading.start].isupper():  # over a capital: its height
                 metrics = QFontMetricsF(readings.text_font)
                 base_y -= metrics.capHeight() - metrics.xHeight()
-            left = x + (under - wide) / 2  # type: ignore[operator]
+            left = x + (under - wide) / 2
             found.append(
-                Placed(left, base_y, reading.text, reading.start, readings.text_font)
+                Placed(
+                    left,
+                    base_y,
+                    reading.text,
+                    reading.start,
+                    readings.text_font,
+                    reading.end,
+                )
             )
             continue
-        found.append(Placed(x + (under - wide) / 2, y, reading.text, reading.start))  # type: ignore[operator]
+        found.append(
+            Placed(
+                x + (under - wide) / 2, y, reading.text, reading.start, end=reading.end
+            )
+        )
     return tuple(found)
 
 

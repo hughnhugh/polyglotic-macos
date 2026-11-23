@@ -2,7 +2,8 @@
 polyglotic-hq 344): on a pull request a test over its budget but not
 `timing_record.SLOWER` than main is "over its budget as main is", not a
 failure; twice as slow fails; main's own runs and the starts are held to
-the budget alone. Windows only: the record is this PC's Windows runs'."""
+the budget alone. On Windows and Linux, each with its own record (CI's
+Linux runner too since polyglotic-hq 563); not on a Mac."""
 
 import os
 import sys
@@ -16,7 +17,8 @@ from polyglotic_desktop.perf import budgets
 from tools import busy_pc, timing_record
 
 pytestmark = pytest.mark.skipif(
-    sys.platform != "win32", reason="main's record is kept on Windows only"
+    sys.platform not in budget_judge.BESIDE_MAIN_ON,
+    reason="main's record is kept on Windows and Linux only",
 )
 
 
@@ -43,15 +45,13 @@ def mains(median: float, longest: float) -> None:
     )
 
 
-def frames(ms: float) -> Sampled:
+def samples(ms: float) -> Sampled:
     return Sampled((ms,) * 9)
 
 
 def test_over_as_main_is_is_said_not_failed() -> None:
-    """The three-column resize step: 8.2-9.1 ms against its 8 on a calm PC
-    (2026-11-13/14), failing pull requests that hadn't touched it."""
     mains(8.6, 9.0)
-    within(budgets.FRAME, lambda: frames(9.1))
+    within(budgets.NEW_CAPTION_WITH_TRANSCRIPT, lambda: samples(9.1))
     (judged,) = budget_judge.JUDGED
     assert judged.passed and judged.as_main.startswith("main's (1234abcd) median 8.6")
     assert judged.verdict().startswith("over its budget as main is: main's")
@@ -59,13 +59,17 @@ def test_over_as_main_is_is_said_not_failed() -> None:
 
 def test_twice_as_slow_as_main_fails() -> None:
     mains(4.5, 5.0)
-    with pytest.raises(AssertionError, match="frame over its 8 ms"):
-        within(budgets.FRAME, lambda: frames(9.0))
+    with pytest.raises(
+        AssertionError, match="new_caption_with_transcript over its 8 ms"
+    ):
+        within(budgets.NEW_CAPTION_WITH_TRANSCRIPT, lambda: samples(9.0))
 
 
 def test_without_a_record_the_budget_is_the_gate() -> None:
-    with pytest.raises(AssertionError, match="frame over its 8 ms"):
-        within(budgets.FRAME, lambda: frames(9.1))
+    with pytest.raises(
+        AssertionError, match="new_caption_with_transcript over its 8 ms"
+    ):
+        within(budgets.NEW_CAPTION_WITH_TRANSCRIPT, lambda: samples(9.1))
 
 
 def test_main_is_held_to_the_budget_and_keeps_its_record(
@@ -74,9 +78,11 @@ def test_main_is_held_to_the_budget_and_keeps_its_record(
     monkeypatch.setenv("GITHUB_EVENT_NAME", "push")
     monkeypatch.setenv("GITHUB_REF", "refs/heads/main")
     mains(9.1, 9.1)
-    with pytest.raises(AssertionError, match="frame over its 8 ms"):
-        within(budgets.FRAME, lambda: frames(9.1))
-    within(budgets.CLICK, lambda: frames(3.0))
+    with pytest.raises(
+        AssertionError, match="new_caption_with_transcript over its 8 ms"
+    ):
+        within(budgets.NEW_CAPTION_WITH_TRANSCRIPT, lambda: samples(9.1))
+    within(budgets.CLICK, lambda: samples(3.0))
     assert budget_judge.keep_mains_record()
     record = timing_record.load(budget_judge.RECORD_KIND)
     assert record is not None and record.commit == "abcdef1234"
@@ -88,3 +94,10 @@ def test_a_start_keeps_its_own_judging() -> None:
     mains(420.0, 420.0)
     with pytest.raises(AssertionError, match="start_from_source over its 400 ms"):
         within(budgets.START_FROM_SOURCE, lambda: Sampled((430.0,)))
+
+
+def test_each_system_keeps_its_own_record() -> None:
+    """The Linux runner's timings beside Windows' would judge one against
+    the other's (the drag's step: 5.9 ms on Windows, 7.4-10 on Linux)."""
+    windows = sys.platform == "win32"  # Windows' name as before: main's kept record
+    assert ("pytest-win32" if windows else "pytest-linux") == budget_judge.RECORD_KIND

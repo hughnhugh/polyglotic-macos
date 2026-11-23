@@ -105,7 +105,7 @@ from polyglotic_desktop.ui_next.controls import (
 )
 from polyglotic_desktop.ui_next.heard_card import HeardCard
 from polyglotic_desktop.ui_next.home import Page
-from polyglotic_desktop.ui_next.languages import learned_name
+from polyglotic_desktop.ui_next.languages import in_sentence, learned_name
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
 from polyglotic_desktop.ui_next.main_window import WORDS_COLUMN
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
@@ -1083,7 +1083,7 @@ def heading(language: str, met: int | None) -> str:
     said = language_said(language)
     if met is None:
         return said
-    return _trn("{language} · %Ln word(s) met", met).format(language=said)
+    return in_sentence(_trn("{language} · %Ln word(s) met", met), language=said)
 
 
 class OpenLanguages:

@@ -25,10 +25,43 @@ set -euo pipefail
 dir=$(realpath -m "$1")
 apt="$dir/apt"
 mkdir -p "$apt/lists/partial" "$apt/cache/archives/partial" "$dir/root" "$dir/fontconfig"
-opts=(-o "Dir::State::Lists=$apt/lists" -o "Dir::Cache=$apt/cache" -o "Debug::NoLocking=1")
+# Positive seconds per HTTP(S) request (765). Override to reproduce stalls
+# quickly. Three retries (nonnegative count) allow brief mirror outages.
+timeout_seconds=${POLYGLOTIC_APT_TIMEOUT_SECONDS:-20}
+retries=3
+opts=(
+  -o "Dir::State::Lists=$apt/lists" -o "Dir::Cache=$apt/cache" -o "Debug::NoLocking=1"
+  -o "Acquire::http::Timeout=$timeout_seconds" -o "Acquire::https::Timeout=$timeout_seconds"
+  -o "Acquire::Retries=$retries"
+)
+
+if [[ -n ${POLYGLOTIC_APT_MIRROR:-} ]]; then
+  # Use the configured source paths and preserve suites, signing keys and
+  # other repositories. apt-config shell quotes the paths for the shell.
+  source_paths=$(apt-config "${opts[@]}" shell source_list Dir::Etc::SourceList/f source_parts Dir::Etc::SourceParts/d)
+  eval "$source_paths"
+  sources=$(mktemp -d "$apt/sources.XXXXXX")
+  trap 'rm -r -- "$sources"' EXIT
+  mkdir "$sources/parts"
+  mirror=$(printf '%s' "${POLYGLOTIC_APT_MIRROR%/}" | sed 's/[\\&@]/\\&/g')
+  rewrite_ubuntu_uris() {
+    sed -E "/^[[:space:]]*#/!s@\bhttps?://(([a-z]{2}\.)?archive|security)\.ubuntu\.com/ubuntu/?([[:space:]]|$)@$mirror\3@g" "$1"
+  }
+  if [[ -f ${source_list:-} ]]; then
+    rewrite_ubuntu_uris "$source_list" >"$sources/sources.list"
+  fi
+  if [[ -d ${source_parts:-} ]]; then
+    for source in "${source_parts%/}"/*.list "${source_parts%/}"/*.sources; do
+      [[ -f $source ]] || continue
+      rewrite_ubuntu_uris "$source" >"$sources/parts/${source##*/}"
+    done
+  fi
+  opts+=(-o "Dir::Etc::SourceParts=$sources/parts" -o "Dir::Etc::SourceList=$sources/sources.list")
+fi
 wanted=(libgl1 libegl1 libxkbcommon0 libfontconfig1 libdbus-1-3 libglib2.0-0 fonts-dejavu-core fonts-wqy-microhei)
 
-apt-get "${opts[@]}" -qq update >&2
+# Treat failed downloads as errors even when apt can reuse older indexes.
+apt-get "${opts[@]}" -o APT::Update::Error-Mode=any -qq update >&2
 mapfile -t closure < <(
   apt-cache "${opts[@]}" depends --recurse --no-recommends --no-suggests \
     --no-conflicts --no-breaks --no-replaces --no-enhances "${wanted[@]}" |

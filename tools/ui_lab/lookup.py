@@ -43,12 +43,15 @@ from polyglotic_desktop.core.listening.display import (
     RowKind,
     WordLinks,
 )
+from polyglotic_desktop.core.listening.playout import PlayoutRules, ReadingPath
 from polyglotic_desktop.core.listening.selection import Place, Selection
+from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordStatus
 from polyglotic_desktop.main import LearningOffer
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ports.dictionary import DictionaryProblem, EntryRecord
 from polyglotic_desktop.ports.speaker import Ended, Quality, Sounding, Spoken, Voice
+from polyglotic_desktop.ports.word_classes import WordClass
 from polyglotic_desktop.ui import recorded_captions as recorded
 from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, EN, MIC, ZH, clause
@@ -545,6 +548,38 @@ def say_it(lab: Lab) -> QWidget:
     return _photo(found)
 
 
+def say_it_long(lab: Lab) -> QWidget:
+    """The card on a long clause looked up, with Say it and Close: the
+    lab's two newest Chinese lines in view as one clause (18 characters,
+    as long as real captions' clauses run: 522's picture's had 19). Its
+    headword wraps at its own size and its pinyin under it, clear of the
+    buttons (polyglotic-hq 522, 533)."""
+    found = windows(lab)
+    assert found.card is not None
+    found.card.use_speech(
+        WordSpeech(
+            _Speaker((Voice("zh", "Microsoft Huihui", "zh-CN"),)),
+            open_url=lambda url: None,
+            parent=found.card,
+        )
+    )
+    shown = window_of(found)
+    rows = [
+        (line.key, row)
+        for line, laid, _ in shown.canvas.placed
+        for row in laid.rows
+        if row.row.kind is RowKind.ORIGINAL and row.row.language == ZH
+    ]
+    (_, first), (key, last) = rows[-2:]
+    text = last.row.text.rstrip("。，！？")
+    request = shown.word_at(Marked(key, last.index, 0, len(text)))
+    assert request is not None
+    clause = first.row.text.rstrip("。，！？") + "，" + text
+    found.card.pin(replace(request, word=clause))
+    lab.pump()
+    return _photo(found)
+
+
 def no_voice(lab: Lab) -> QWidget:
     """No Chinese voice on this PC (an English-only Windows), after a click
     on the crossed-out speaker: how Windows adds one, and its button (286)."""
@@ -758,6 +793,66 @@ def japanese_card(lab: Lab) -> QWidget:
     return _photo(found)
 
 
+def sense_classes_english(lab: Lab) -> QWidget:
+    entry = EntryRecord(
+        "ecdict:guarantee",
+        "guarantee",
+        "",
+        "ˌɡærənˈtiː",
+        ("(verb) to promise", "(noun) an assurance", "(law) a written undertaking"),
+        2300,
+        sense_classes=((WordClass.VERB,), (WordClass.NOUN,), None),
+        sense_prefixes=(7, 7, 0),
+    )
+    dictionary = EnglishDictionary(
+        FakeDictionaryFile([entry], {"guarantee": [entry.entry_id]})
+    )
+    tools = _tools(dictionary, ENGLISH_FREQUENCY.id)
+    lines = (clause("We guarantee the work.", "我们保证工程质量。", into=ZH),)
+    found = _other_learners_windows(lab, tools, lines, EN)
+    _pinned(found, "guarantee")
+    lab.pump()
+    return _photo(found)
+
+
+def sense_classes_japanese(lab: Lab) -> QWidget:
+    tools = sample_tools()
+    entry = replace(
+        JAPANESE_SAMPLE.by_id["jmdict:1"],
+        sense_classes=((WordClass.NOUN,), (WordClass.NOUN,)),
+    )
+    file = FakeDictionaryFile([entry], {"勉強": [entry.entry_id]})
+    tools.basic["ja"] = BasicDictionary(file, JapaneseSplit(), "ja")
+    found = _other_learners_windows(lab, tools, JAPANESE_CAPTIONS, JA)
+    _pinned(found, "勉強")
+    lab.pump()
+    return _photo(found)
+
+
+def sense_classes_chinese(lab: Lab) -> QWidget:
+    entry = EntryRecord(
+        "cedict:baozheng",
+        "保证",
+        "保證",
+        "bao3 zheng4",
+        ("to promise; to guarantee", "a guarantee"),
+        1600,
+        sense_classes=((WordClass.VERB,), (WordClass.NOUN,)),
+    )
+    dictionary = ChineseDictionary(
+        FakeDictionaryFile(
+            [entry], {"保证": [entry.entry_id], "保證": [entry.entry_id]}
+        )
+    )
+    dictionary.prepare()
+    tools = _tools(dictionary, "hsk-2025")
+    lines = (clause("我保证会来。", "I promise I'll come."),)
+    found = _other_learners_windows(lab, tools, lines, ZH)
+    _pinned(found, "保证")
+    lab.pump()
+    return _photo(found)
+
+
 def russian_card(lab: Lab) -> QWidget:
     """A Russian word's card (a basic dictionary) for a Mandarin learner: an
     inflected form with its own stress (ру́ку) under the word it belongs
@@ -766,7 +861,8 @@ def russian_card(lab: Lab) -> QWidget:
     chinese.prepare()
     tools = _tools(chinese, "hsk-2025")
     tools.basic["ru"] = BasicDictionary(RUSSIAN_SAMPLE, SpacedSplit("ru"), "ru")
-    found = _other_learners_windows(lab, tools, RUSSIAN_CAPTIONS, RU)
+    # The lookup fixture supplies no translation into the window's usual target.
+    found = _other_learners_windows(lab, tools, RUSSIAN_CAPTIONS, RU, into=Language(""))
     _pinned(found, "руку")
     lab.pump()
     return _photo(found)
@@ -991,6 +1087,39 @@ def sentence_better_voice(lab: Lab) -> QWidget:
     return card
 
 
+def sentence_look_it_up(lab: Lab) -> QWidget:
+    """Four characters dragged across within one clause - too many for a
+    lookup of their own (522): the sentence card with Say it and a third
+    row, Look it up (polyglotic-hq 533)."""
+    found = windows(lab)
+    found.use_say_it(
+        SelectionReading(
+            _Speaker((HUIHUI, DAVID)), open_url=lambda url: None, parent=found
+        )
+    )
+    shown = window_of(found)
+    line, laid, _ = next(
+        (line, laid, rect)
+        for line, laid, rect in reversed(shown.canvas.placed)
+        if laid.rows
+        and laid.rows[0].row.kind is RowKind.ORIGINAL
+        and all("一" <= c <= "鿿" for c in laid.rows[0].row.text[:4])
+    )
+    row = laid.rows[0]
+    clause = row.row.clause
+    shown.held.hold(
+        Selection(
+            Place(line.key, clause, 0, RowKind.ORIGINAL),
+            Place(line.key, clause, 4, RowKind.ORIGINAL),
+        )
+    )
+    shown._offer_sentence(_let_go(shown), Marked(line.key, row.index, 0, 4))
+    lab.pump()
+    card = shown.sentence_card
+    assert card is not None and card.look_up.isVisible()
+    return card
+
+
 def sentence_saved(lab: Lab) -> QWidget:
     """The same, a category clicked: "Saved to Tricky" for a moment."""
     card = _sentence_offered(lab).sentence_card
@@ -998,6 +1127,70 @@ def sentence_saved(lab: Lab) -> QWidget:
     card.buttons[-1].click()
     lab.pump()
     return card
+
+
+class _LabClock:
+    """The playout's clock in the lab: it moves when the lab says."""
+
+    def __init__(self) -> None:
+        self.now = 1000.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def _steady(
+    lab: Lab, rules: PlayoutRules, more: int = 4, cards: bool = False
+) -> CaptionWindows:
+    """Steady's two zones (polyglotic-hq 526, decision 0251): the captions
+    already there are the transcript; `more` come word by word into the
+    live lines below, every word's moment come. With `cards`, its card
+    stack instead (552, decision 0260)."""
+    found = windows(lab)
+    found.set_cards(cards)
+    clock = _LabClock()
+    found.word_clock = clock
+    found.set_playout(rules)
+    found.set_timing(CaptionMode.STEADY)
+    for update in finished(more, start=CAPTIONS):
+        found.apply(update)
+        for _ in range(200):  # every word shown; a held translation waits
+            due = found.playout.due()
+            if due is None or due - clock.now > 0.5:
+                break
+            clock.now = max(clock.now, due) + 0.1
+            found.release_words()
+    lab.pump()
+    window_of(found).repaint()
+    return found
+
+
+def steady_two_zones(lab: Lab) -> QWidget:
+    """526: the live reading lines below, the settled transcript above."""
+    return window_of(_steady(lab, PlayoutRules(delay=0.0, hold_back=0)))
+
+
+def steady_cards(lab: Lab) -> QWidget:
+    """552, decision 0260: Steady's card stack - each line a card with its
+    translation's room, the older ones turning away above."""
+    return window_of(_steady(lab, PlayoutRules(delay=0.0, hold_back=0), cards=True))
+
+
+def steady_follow(lab: Lab) -> QWidget:
+    """526, decision 0253: Follow - the translation leads, what was said
+    smaller and fainter, in both zones."""
+    found = _steady(lab, PlayoutRules(delay=0.0, hold_back=0))
+    found.set_path(ReadingPath.FOLLOW)
+    lab.pump()
+    window_of(found).repaint()
+    return window_of(found)
+
+
+def steady_acquisition(lab: Lab) -> QWidget:
+    """526, decision 0253: Acquisition - the newest caption said in full,
+    its translation still held back."""
+    rules = PlayoutRules(delay=0.0, hold_back=0, translation_after=2.0)
+    return window_of(_steady(lab, rules))
 
 
 STATES = [
@@ -1011,12 +1204,14 @@ STATES = [
         ("w3_save_to", save_to, False),
         ("w3_sentence_offered", sentence_offered, False),
         ("w3_sentence_saved", sentence_saved, False),
+        ("w3_sentence_look_it_up", sentence_look_it_up, False),
         ("w3_sentence_say_it", sentence_say_it, False),
         ("w3_sentence_reading", sentence_reading, False),
         ("w3_sentence_no_voice", sentence_no_voice, False),
         ("w3_sentence_better_voice", sentence_better_voice, False),
         ("w3_dictionary_out", dictionary_out, False),
         ("w3_say_it", say_it, False),
+        ("w3_say_it_long", say_it_long, False),
         ("w3_no_voice", no_voice, False),
         ("w3_better_voice", better_voice, False),
         ("w1_links_on_hover", links_on_hover, False),
@@ -1030,9 +1225,16 @@ STATES = [
         ("w1_quiet_hover", quiet_hover, False),
         ("w1_quiet_paper", quiet_paper, True),
         ("w1_zhuyin", zhuyin, True),
+        ("w1_steady_two_zones", steady_two_zones, True),
+        ("w1_steady_cards", steady_cards, True),
+        ("w1_steady_follow", steady_follow, True),
+        ("w1_steady_acquisition", steady_acquisition, True),
         ("w3_english_card", english_card, False),
         ("w3_english_card_in_english", english_card_in_english, False),
         ("w3_japanese_card", japanese_card, False),
+        ("w3_sense_classes_english", sense_classes_english, False),
+        ("w3_sense_classes_japanese", sense_classes_japanese, False),
+        ("w3_sense_classes_chinese", sense_classes_chinese, False),
         ("w3_russian_card", russian_card, False),
         ("w3_german_compound", german_compound, False),
         ("w3_learn_too", learn_too, False),

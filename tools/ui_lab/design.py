@@ -10,7 +10,9 @@ from its pixels (`grab()`, over the stand-in video when see-through), never
 from the stylesheet:
 
 - **type_scale:** text at a size off the interface's type scale (`TYPE_SCALE`,
-  at the text size now). Captions are the learner's size: not judged.
+  at the text size now). Captions are the learner's size: not judged; a
+  transcript's lines are its own (A- / A+), on the scale at 1.0 whatever the
+  app's text size (decision 0084).
 - **font_family:** text named in a family the interface doesn't use
   (`FAMILIES`). Captions and the lookup card's words are judged too. Text
   that names no family is in the application's font, which isn't judged:
@@ -23,8 +25,10 @@ from the stylesheet:
   with more than `MOST_RADII` radii.
 - **misaligned:** left edges of text or controls stacked in one column that
   miss each other by 1-3 px: a near miss reads as a mistake.
-- **spacing_grid:** a layout's margins or spacing off the 2 px grid (at
-  100 % text size: the text sizes scale them).
+- **spacing_grid:** a layout's margins or spacing off the 2 px grid, at a
+  text size factor of 1.0 only: the text sizes scale them. That's the
+  app's Smaller since decision 0244 (Normal is 1.3): in the lab's run, the
+  states built at Smaller (`text_sizes`).
 - **line_length:** a wrapped line of more than 80 characters.
 - **tight_leading:** lines of a paragraph closer than 1.2 times the text size.
 - **all_caps:** a run of text longer than three words in capitals.
@@ -82,6 +86,7 @@ from PySide6.QtWidgets import (
 from polyglotic_desktop.ui_next import fonts, style
 from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_surface import CaptionSurface
+from polyglotic_desktop.ui_next.transcript_window import TranscriptList
 from tools.ui_lab import checks
 from tools.ui_lab.checks import Finding, TextPiece
 
@@ -335,16 +340,29 @@ def _judged(piece: TextPiece) -> bool:
     return True
 
 
+def _transcripts_own(piece: TextPiece) -> bool:
+    """Text a transcript's list draws: at the transcript's own size (A- /
+    A+), which the app's text size doesn't touch (decision 0084) - its 12 px
+    headings were off the scale at the app's Normal since 0244 (1.3)."""
+    shown: QWidget | None = piece.widget
+    while shown is not None:
+        if isinstance(shown, TranscriptList):
+            return True
+        shown = shown.parentWidget()
+    return False
+
+
 def _type(drawn: Drawn) -> list[Finding]:
-    scale = scale_now()
-    off: dict[tuple[str, float], list[TextPiece]] = defaultdict(list)
+    now = scale_now()
+    off: dict[tuple[str, float, tuple[int, ...]], list[TextPiece]] = defaultdict(list)
     for piece in drawn.pieces:
         if not _judged(piece):
             continue
+        scale = TYPE_SCALE if _transcripts_own(piece) else now
         if min(abs(piece.px - size) for size in scale) > 0.6:
-            off[(checks.where(piece.widget), round(piece.px, 1))].append(piece)
+            off[(checks.where(piece.widget), round(piece.px, 1), scale)].append(piece)
     found = []
-    for (name, px), pieces in off.items():
+    for (name, px, scale), pieces in off.items():
         texts = sorted({checks._excerpt(p.text, p.rect) for p in pieces})
         found.append(
             Finding(

@@ -50,6 +50,7 @@ def mac_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Authority:
     roots.write_bytes(certificate(root, root, LONG_AGO, FAR_AHEAD).encode())
     monkeypatch.setattr(ssl, "create_default_context", nothing_found)
     monkeypatch.setattr(tls, "MAC_ROOTS", roots, raising=False)
+    monkeypatch.setattr(tls, "linux_roots", lambda: None)  # a Mac, on any OS
     tls._said.clear()
     return root
 

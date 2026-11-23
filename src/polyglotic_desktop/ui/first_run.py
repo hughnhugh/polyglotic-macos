@@ -43,15 +43,19 @@ class Step:
     """Shows the screen - with Back if True - and says what was pressed."""
 
 
-def run(steps: Sequence[Step]) -> bool:
+def run(steps: Sequence[Step], start_at: int = 0) -> bool:
     """Each step that's needed, in order; Back goes to the screen shown
     before it, and the first one shown has no Back. A step once shown is
     shown again when the run comes back to it, needed or not - what was
-    entered there may change what comes after. False when one quits."""
-    behind: list[int] = []
+    entered there may change what comes after. False when one quits.
+
+    `start_at`: resume at step index `start_at` (for example after step 1's
+    language relaunch), keeping earlier steps in `behind` so Back can still
+    reach them."""
+    at = max(0, min(start_at, len(steps)))
+    behind: list[int] = list(range(at))
     """The steps shown, in order: where Back goes."""
-    shown: set[int] = set()
-    at = 0
+    shown: set[int] = set(behind)
     while at < len(steps):
         step = steps[at]
         if at not in shown and not step.needed():

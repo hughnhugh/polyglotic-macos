@@ -29,6 +29,7 @@ from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage
 from polyglotic_desktop.ui_next.home import AddRow
 from polyglotic_desktop.ui_next.learning_page import LearningPage
+from polyglotic_desktop.ui_next.settings_page import SECTIONS
 from polyglotic_desktop.ui_next.transcripts import question
 from polyglotic_desktop.ui_next.views.home import AddableApp, Picker
 from polyglotic_desktop.ui_next.words_page import WordsPage
@@ -69,8 +70,10 @@ def in_add_row(found: QLabel) -> bool:
 
 
 def pages() -> list[QWidget]:
-    settings, _keys = settings_page()
-    for section in ("captions", "learning", "app"):
+    settings = settings_page()
+    # every section shown once: a caption section's cards are made when it
+    # first is (polyglotic-hq 544)
+    for section in (*SECTIONS, "captions", "learning", "app"):
         settings.show_section(section)
     homepage, _commands = home(
         Picker(available=(AddableApp("Spotify", "Spotify", True),))
@@ -106,6 +109,27 @@ def test_every_page_s_words_can_be_selected_but_are_never_a_tab_stop(
     for page in made:
         page.deleteLater()
     settle()
+
+
+def test_the_word_class_legend_copies_plain_text(qapp: QApplication) -> None:
+    page = settings_page()
+    page.show_section("links")
+    legend = page.findChild(QLabel, "word_class_legend.labels")
+    assert isinstance(legend, copying.Text)
+    assert "<span" in legend.text()
+
+    copying.copy_label(legend)
+    copied = QGuiApplication.clipboard().text()
+    assert [row.lstrip(" \u25cf\xa0") for row in copied.splitlines()] == [
+        "Noun",
+        "Verb",
+        "Adjective",
+        "Adverb",
+        "Pronoun or determiner",
+        "Particle, connector or interjection",
+        "Number",
+        "Class unavailable",
+    ]
 
 
 def hover(found: QLabel) -> None:

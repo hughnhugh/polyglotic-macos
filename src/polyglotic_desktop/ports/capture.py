@@ -165,7 +165,18 @@ class AudioCapture(Protocol):
 
     @property
     def error(self) -> str | None:
-        """Why capture isn't running, if it failed - or `NOT_ALLOWED`."""
+        """Why capture isn't running, if it failed - or `NOT_ALLOWED`. A
+        capture that failed tries again by itself and clears it once it
+        runs (decision 0266); one whose app closed says `APP_CLOSED` and is
+        over."""
+        ...
+
+    @property
+    def restarts(self) -> int:
+        """How many times it has failed and started again by itself, or
+        tried to - an error nobody foresaw, a failed open, a stream lost
+        mid-way (decision 0266) - since it was made: counted in the
+        listening session's summary (polyglotic-hq 566)."""
         ...
 
 
@@ -175,6 +186,10 @@ the learner hasn't allowed it - macOS records silence, not an error, when
 "System Audio Recording" or the microphone isn't allowed for the app in
 System Settings > Privacy & Security (polyglotic-hq 411). The capture goes
 on running; the error clears if sound comes."""
+
+APP_CLOSED = "The app has closed."
+"""`AudioCapture.error` once the app a capture was for has closed: the
+capture is over, not failing."""
 
 
 @dataclass(frozen=True, slots=True)

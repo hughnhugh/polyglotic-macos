@@ -8,22 +8,33 @@ doesn't import it): for Chinese each number is an HSK 3.0 level
 too, named beside it; "Not sure" takes a middle one. The most common
 words up to the choice count as known (`Vocabulary.set_known_words`); the
 learner's own statuses are kept. Cancel leaves the level as it was.
+
+On a screen too short for it all - at Windows' 150 % text and the app's
+Normal (1.3 since decision 0244) on a 150 % laptop - the choices scroll
+and OK stays in view, as the first screen's do (`ConsentDialog`).
 """
 
 from collections.abc import Sequence
 from typing import Protocol
 
-from PySide6.QtCore import QLocale
+from PySide6.QtCore import QLocale, Qt, QTimer
+from PySide6.QtGui import QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
     QDialogButtonBox,
+    QFrame,
     QLabel,
     QRadioButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
+from polyglotic_desktop.ui.consent import WINDOW_FRAME
 from polyglotic_desktop.ui.widgets import TextDialog
+
+LEAST_CHOICES = 120
+"""The least the choices get on the tiniest screen: a few, scrolling."""
 
 
 class Choice(Protocol):
@@ -57,9 +68,10 @@ class LevelPicker(TextDialog):
         super().__init__(parent)
         self.setObjectName("LevelPicker")
         self.setWindowTitle(self.tr("Words you know"))
-        self.setMinimumWidth(580)  # the note in three lines at 150 % text
+        self.set_least_width(580)  # the note in three lines at any text size
         self._not_sure = not_sure
         self._choices = tuple(offered)
+        self._fitting = False
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 16, 24, 16)
         layout.setSpacing(8)
@@ -82,9 +94,21 @@ class LevelPicker(TextDialog):
         intro.setWordWrap(True)
         layout.addWidget(intro)
 
-        column = QVBoxLayout()
+        holder = QWidget()
+        holder.setObjectName("level.choices")
+        column = QVBoxLayout(holder)
+        column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(2)
-        layout.addLayout(column)
+        self.choices = QScrollArea()
+        self.choices.setObjectName("level.scroll")
+        self.choices.setWidget(holder)
+        self.choices.setWidgetResizable(True)
+        self.choices.setFrameShape(QFrame.Shape.NoFrame)
+        self.choices.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.choices.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.choices.viewport().setAutoFillBackground(False)
+        holder.setAutoFillBackground(False)  # after `setWidget`, which turns it on
+        layout.addWidget(self.choices)
         self._group = QButtonGroup(self)
         for n, choice in enumerate(self._choices):
             button = QRadioButton(self._label(choice))
@@ -108,6 +132,52 @@ class LevelPicker(TextDialog):
         layout.addWidget(buttons)
 
         self.choose(chosen)
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        QTimer.singleShot(0, self, self._fit)  # once styled: its fonts set its height
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._fit()
+
+    def _fit(self) -> None:
+        """The choices as tall as they need - or, on a screen too short for
+        the whole picker, as tall as its work area leaves room for,
+        scrolling, with OK below in view (polyglotic-hq 524: 709 px tall
+        with 632 px for it). A scroll bar only then: shown "as needed" it
+        flashed over the first screen's text (`ConsentDialog._fit`)."""
+        screen = self.screen()
+        layout = self.layout()
+        holder = self.choices.widget()
+        if screen is None or layout is None or holder is None or self._fitting:
+            return
+        natural = holder.sizeHint().height()
+        self._fitting = True
+        try:
+            self.choices.setFixedHeight(0)
+            layout.invalidate()
+            rest = layout.totalHeightForWidth(self.width())
+            if rest < 0:
+                rest = layout.totalSizeHint().height()
+            room = screen.availableGeometry().height() - WINDOW_FRAME - rest
+            fits = natural <= room
+            self.choices.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+                if fits
+                else Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            )
+            self.choices.setFixedHeight(natural if fits else max(LEAST_CHOICES, room))
+            layout.invalidate()
+            total = layout.totalHeightForWidth(self.width())
+            if total < 0:
+                total = layout.totalSizeHint().height()
+            self.setMinimumHeight(total)
+            if self.height() != total:
+                self.resize(self.width(), total)
+        finally:
+            self._fitting = False
+        self.keep_on_screen()
 
     def _label(self, choice: Choice) -> str:
         if choice.known == 0:

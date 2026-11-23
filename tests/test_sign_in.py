@@ -252,6 +252,7 @@ def test_plain_http_to_another_machine_is_refused_before_anything_is_sent() -> N
         "7kqm-x2pd-9vht-c4ra",
         " 7KQM X2PD 9VHT C4RA ",
         "7KQMX2PD9VHTC4RA",
+        "　７ＫＱＭ－Ｘ２ＰＤ－９ＶＨＴ－Ｃ４ＲＡ　",
         "7KQM-X2PD-9VHT-C4RA",
     ],
 )

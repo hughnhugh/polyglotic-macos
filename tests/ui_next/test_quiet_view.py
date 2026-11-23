@@ -38,8 +38,9 @@ from polyglotic_desktop.ui_next.caption_window import (
     shown_links,
 )
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.panels import QuietViewPanel
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
-from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.panels import LINKS_WHEN_ON, LookView
 from polyglotic_desktop.ui_next.views.placement import Rect
 
 AREA = Rect(0, 0, 1920, 1040)
@@ -64,6 +65,39 @@ def test_the_quiet_view_turns_word_links_off_and_word_links_turn_it_off() -> Non
     view.set_quiet(True)
     view.set_word_links(WordLinks.COLOURS)  # Settings' own choice
     assert not view.value.quiet
+
+
+def test_the_quiet_view_off_puts_word_links_back_as_they_were() -> None:
+    """Off again, word links show as the learner had them (polyglotic-hq
+    555: on every word by default; 523's settings sweep found them left
+    off) - with their colours - and off stays off."""
+    view = LookView(CaptionLook())
+    view.set_links_shown(True, ("zh",))
+    shown = view.value
+    view.set_quiet(True, ("zh", "ja"))
+    assert view.value.word_links is WordLinks.OFF
+    view.set_quiet(False)
+    assert view.value == shown
+    off = LookView(CaptionLook(word_links=WordLinks.OFF))
+    off.set_quiet(True)
+    off.set_quiet(False)
+    assert off.value.word_links is WordLinks.OFF
+    # turned on before a restart: links as the links button shows them
+    restarted = LookView(CaptionLook(quiet=True, word_links=WordLinks.OFF))
+    restarted.set_quiet(False)
+    assert restarted.value.word_links is LINKS_WHEN_ON
+
+
+def test_settings_quiet_view_switch_puts_word_links_back(qapp: QApplication) -> None:
+    """The way 523's sweep found it: Settings > Links' Quiet view, on and
+    off."""
+    view = LookView(CaptionLook(word_links=WordLinks.ARROWS))
+    panel = QuietViewPanel(view, notes=True)
+    panel.quiet.setChecked(True)
+    assert view.value.quiet and view.value.word_links is WordLinks.OFF
+    panel.quiet.setChecked(False)
+    assert not view.value.quiet and view.value.word_links is WordLinks.ARROWS
+    panel.deleteLater()
 
 
 def test_the_quiet_view_puts_a_reading_over_a_chinese_window_and_back_off() -> None:
@@ -94,7 +128,7 @@ def test_every_line_is_italic_a_size_step_bigger_with_no_room_for_underlines() -
     quiet = caption_style(replace(QUIET, reading_past=True))
     assert quiet.italic_all and not plain.italic_all
     assert quiet.text_px == pytest.approx(CaptionStyle().text_px * QUIET_SCALE)
-    assert quiet.translation_size == pytest.approx(QUIET_TRANSLATION)  # the larger
+    assert quiet.translation_factor == pytest.approx(QUIET_TRANSLATION)  # the larger
     assert not quiet.link_room and not quiet.arrows
     assert not quiet.reading_past  # a reading over every word
     assert shown_links(QUIET) is WordLinks.HOVER  # links kept, for the hover
@@ -200,7 +234,7 @@ def test_the_strip_and_the_popover_offer_it(
     shown: CaptionWindows, qapp: QApplication
 ) -> None:
     window = shown.windows["app"]
-    assert "quiet" in window_module.STRIP
+    assert "quiet" not in window_module.STRIP  # the presets' dropdown has it (556)
     assert window.controls["quiet"].isChecked()
     assert window.controls["quiet_curriculum"].isChecked()
     assert not window.controls["quiet_saved"].isChecked()
@@ -229,6 +263,42 @@ def test_a_blue_words_reading_is_blue_and_the_rest_gold(qapp: QApplication) -> N
     found = _coloured_readings(readings, [over])
     assert found[0] is None  # its row's: the gold
     assert found[1] is not None and found[1].name() == QColor(QUIET_BLUE).name()
+
+
+def test_its_readings_are_grey_not_the_translations_gold(qapp: QApplication) -> None:
+    """Polyglotic-hq 532 (the user, 2026-11-19: "the default pinyin/
+    alternate reading font colour on quiet mode ... should be greyish"):
+    pinyin over the quiet view's Chinese was drawn in its gold."""
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QImage, QPainter
+    from tests.ui_next.test_reading_lines import lines_of, made_up
+
+    from polyglotic_desktop.ui_next.caption_layout import CaptionLayout
+
+    lines = lines_of(finished("zh-1", clause("我们去看电影", "We go to the cinema")))
+    line = lines.lines[0]
+    style = replace(caption_style(QUIET), reading_lines=frozenset({"zh"}))
+    engine = CaptionLayout(style, readings=made_up)
+    laid = engine.laid(line, 900, 1.0)
+    image = QImage(920, int(laid.height) + 20, QImage.Format.Format_ARGB32)
+    image.fill(QColor(QUIET.background))
+    painter = QPainter(image)
+    ink = look_ink(Ink(), QUIET)
+    engine.paint(painter, line, laid, QPointF(10, 10), ink)
+    painter.end()
+    said = next(row for row in laid.rows if row.above)
+    band = int(10 + said.top), int(10 + said.top + said.band)
+    gold = grey = 0
+    for y in range(*band):
+        for x in range(0, image.width(), 2):
+            c = image.pixelColor(x, y)
+            if c.lightness() < 70:
+                continue  # the panel
+            if c.red() - c.blue() > 50:
+                gold += 1
+            elif abs(c.red() - c.blue()) < 12:
+                grey += 1
+    assert grey > 40 and gold == 0, (grey, gold)
 
 
 # -- kept with the settings ------------------------------------------------------

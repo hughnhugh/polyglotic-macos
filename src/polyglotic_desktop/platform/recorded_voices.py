@@ -24,7 +24,7 @@ import threading
 from collections.abc import Callable
 from typing import Protocol
 
-from polyglotic_desktop.platform.speaking import Clip, Voices
+from polyglotic_desktop.platform.speaking import Clip, Made, Voices
 from polyglotic_desktop.ports.speaker import RECORDED, Voice
 
 
@@ -122,7 +122,7 @@ class RecordedVoices:
             return same[0] if same else None
         return next((v for v in found if _primary(v.language) == _primary(tag)), None)
 
-    def synthesize(self, text: str, voice: Voice, rate: float) -> Clip:
+    def synthesize(self, text: str, voice: Voice, rate: float) -> Made:
         if not voice.id.startswith(RECORDED):
             return self._os.synthesize(text, voice, rate)
         data = self._recordings.clip(voice, text)

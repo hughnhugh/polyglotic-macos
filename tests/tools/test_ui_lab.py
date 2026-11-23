@@ -6,16 +6,19 @@ moment passes, a real slowdown doesn't (projects 140 and 197, decision
 0040). An action that happens once in a widget's life is judged on five
 fresh ones (decision 0047). The PC's load is set here, never read."""
 
+import contextlib
 import gc
 import itertools
 import json
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
 from PySide6.QtGui import QShowEvent
 from PySide6.QtWidgets import QLabel, QWidget
+from tests import budget_judge
+from tests.budget_judge import Sampled, within
 from tools.ui_lab import __main__ as cli
 from tools.ui_lab import lab, new_parts, pages
 
@@ -39,6 +42,43 @@ def load(monkeypatch: pytest.MonkeyPatch) -> list[float]:
 def slow_state(lab_: lab.Lab) -> QWidget:
     lab_.time("click", lambda: time.sleep(0.06), budget=budgets.CLICK)
     return QLabel("slow")
+
+
+def test_learner_caption_actions_reach_the_timing_gate(tmp_path: Path) -> None:
+    states = [
+        state
+        for state in cli.new_states()
+        if state.name.startswith("ui_next.w1_learner_")
+    ]
+    results = lab.run(states, tmp_path, golden_store=tmp_path)
+    gated = cli.gated_timings(results)
+    expected = {
+        "ui_next.w1_learner_resize_drag: resize_drag_step": (40, budgets.FRAME),
+        "ui_next.w1_learner_caption_during_glide: caption_during_glide": (
+            6,
+            budgets.NEW_CAPTION,
+        ),
+        "ui_next.w1_learner_timing_switch: timing_switch": (12, budgets.CLICK),
+        "ui_next.w1_learner_preset_switch: preset_switch": (12, budgets.CLICK),
+    }
+    assert len(results) == len(expected)
+    assert expected.keys() <= gated.keys()
+    for result in results:
+        assert result.golden is None
+        assert len(result.actions) == 1
+        for name, action in result.actions.items():
+            count, budget = expected[f"{result.state}: {name}"]
+            assert action.budget is budget
+            assert len(action.samples) == count
+
+    resize = next(
+        result for result in results if result.state == "ui_next.w1_learner_resize_drag"
+    )
+    action = resize.actions["resize_drag_step"]
+    # Project 590's preview 2 median was 23.1 ms. It must fail the median
+    # budget even if every sample is under the 50 ms slot ceiling.
+    action.samples[:] = [23.1] * len(action.samples)
+    assert resize.over_budget() == ["resize_drag_step"]
 
 
 def test_a_state_writes_its_png_and_json(tmp_path: Path) -> None:
@@ -168,6 +208,46 @@ def test_a_first_show_is_judged_on_the_median_of_five_fresh_ones(
     assert each["n"] == 5 and "budget" not in each  # recorded, not judged
 
 
+def _words_first_show(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, every_page: bool = False
+) -> lab.Result:
+    """`w4_words_met_1000` in the lab, each try's first page's first show
+    slowed by 60 ms - every page's, with `every_page` - and its first show (the five fresh pages'
+    median, decision 0047) judged as `budget_judge` judges every budget
+    test: on a busy runner tried again; over, but not slower than main's
+    record, passed on the train; and over, said in the words GitHub's
+    machines list and don't fail (polyglotic-hq 565, 578: the bare
+    assertion failed GitHub's slower Windows machines 3 times, 552, 557,
+    572). The last run's result."""
+    learner = pages.met_learner_tools
+    tried: list[lab.Result] = []
+
+    def tools(met: int, zh: ChineseDictionary | None = None) -> LearningTools:
+        trying[0] = True  # a try starts
+        return learner(met, zh)
+
+    trying = [False]
+
+    class Slowed(WordsPage):
+        def showEvent(self, event: QShowEvent) -> None:
+            if every_page or trying[0]:
+                time.sleep(0.06)
+            trying[0] = False
+            super().showEvent(event)
+
+    monkeypatch.setattr(pages, "met_learner_tools", tools)
+    monkeypatch.setattr(pages, "WordsPage", Slowed)
+    state = next(s for s in pages.STATES if s.name == "ui_next.w4_words_met_1000")
+
+    def take() -> Sampled:
+        (result,) = lab.run([state], tmp_path)
+        tried.append(result)
+        return Sampled(tuple(result.actions["page_switch_cold"].samples))
+
+    within(budgets.PAGE_SWITCH_COLD, take)
+    return tried[-1]
+
+
 def test_words_first_show_passes_a_slow_moment_in_each_try(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -175,26 +255,21 @@ def test_words_first_show_passes_a_slow_moment_in_each_try(
     ms in most runs - took 51.0 ms, then 58.7 ms on the retry, while the
     runner was busy, and failed the job. Timed once, a slow moment in each
     try fails; judged on five fresh pages (decision 0047), it passes."""
-    trying = [False]
-    learner = pages.met_learner_tools
-
-    def tools(met: int, zh: ChineseDictionary | None = None) -> LearningTools:
-        trying[0] = True  # a try starts: its first page's first show is slow
-        return learner(met, zh)
-
-    class SlowOnce(WordsPage):
-        def showEvent(self, event: QShowEvent) -> None:
-            if trying[0]:
-                trying[0] = False
-                time.sleep(0.06)
-            super().showEvent(event)
-
-    monkeypatch.setattr(pages, "met_learner_tools", tools)
-    monkeypatch.setattr(pages, "WordsPage", SlowOnce)
-    state = next(s for s in pages.STATES if s.name == "ui_next.w4_words_met_1000")
-    (result,) = lab.run([state], tmp_path)
-    assert result.over_budget() == []
+    result = _words_first_show(tmp_path, monkeypatch)
     assert max(result.actions["page_switch_cold_each"].samples) >= 60
+
+
+def test_words_first_show_slow_every_time_is_a_budgets_verdict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 578: a first show over its budget on most of the five
+    pages - a real slowdown, or a slower machine - fails as a budget, in
+    `budget_judge`'s words (`remote_test.py`'s BUDGET), not as a bare
+    assertion GitHub's machines can't tell from a broken test."""
+    monkeypatch.setattr(budget_judge, "beside_main", lambda *_: "")
+    monkeypatch.setattr(budget_judge, "JUDGED", [])  # not in the run's summary
+    with pytest.raises(AssertionError, match=r"over its [\d.]+ ms \(any one run"):
+        _words_first_show(tmp_path, monkeypatch, every_page=True)
 
 
 def test_the_garbage_collector_is_held_off_while_an_action_is_timed(
@@ -253,7 +328,7 @@ def test_each_state_begins_at_the_runs_app_text_size() -> None:
     try:
         for state in cli.at_app_text_size(states, "largest"):
             state.run(lab.Lab(lab.application(), Path()))
-        assert begun == [1.45, 1.45]
+        assert begun == [1.75, 1.75]
     finally:
         style.use_app_text_size("normal")
 
@@ -393,3 +468,37 @@ def test_without_a_record_a_pull_request_is_held_to_the_budget(
     the budget, as before 0136."""
     code, said = gate(tmp_path, monkeypatch, clicks_taking(60), "pull_request", capsys)
     assert code == 1 and "over budget - ui_next.clicks: click" in said
+
+
+def test_the_lab_command_runs_holding_the_shared_qt_lock(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """`python -m tools.ui_lab` waits for the shared Qt lock and 3.0 GB free
+    on the user's PC, and holds the lock while it runs (polyglotic-hq 563,
+    `tools/qt_lock.py`): it lived only in the agents' wrappers, and a lab
+    run started without one held nothing (551)."""
+    seen: list[str] = []
+    holding: list[str] = []
+
+    @contextlib.contextmanager
+    def held(what: str) -> Iterator[bool]:
+        seen.append(what)
+        holding.append(what)
+        yield True
+        holding.remove(what)
+
+    def main(argv: list[str] | None = None) -> int:
+        assert holding == ["tools.ui_lab languages --jobs 4"], "ran without it"
+        return 0
+
+    monkeypatch.setattr(cli.qt_lock, "held", held)
+    monkeypatch.setattr(cli, "main", main)
+    assert cli.locked(["languages", "--jobs", "4"]) == 0
+    assert seen == ["tools.ui_lab languages --jobs 4"] and not holding
+
+    def waited_too_long(what: str) -> Iterator[bool]:
+        raise cli.qt_lock.GaveUp("qt.lock: gave up after 45 min: ...")
+
+    monkeypatch.setattr(cli.qt_lock, "held", waited_too_long)
+    assert cli.locked(["--gate"]) == 2
+    assert "gave up after 45 min" in capsys.readouterr().err

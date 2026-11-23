@@ -74,6 +74,14 @@ from typing import Any
 
 PASS, FAIL, UNKNOWN = "pass", "fail", "unknown"
 KEYS = "LPH"
+
+
+def mac_key(letter: str) -> str:
+    """⌃⌘ and the letter, as the app keeps it (Qt's names: "ctrl" is Command,
+    "win" Control on a Mac - polyglotic-hq 567)."""
+    return f"ctrl+win+{letter.lower()}"
+
+
 PRESS_WAIT_SEC = 4.0
 """How long a pressed hotkey's binding has to run."""
 PACES = (1.0, 0.85, 0.7, 0.6)
@@ -363,7 +371,7 @@ class Checks:
         from polyglotic_desktop.platform.macos.hotkeys import MacHotkeys
 
         pressed: list[str] = []
-        keys = MacHotkeys({k: partial(pressed.append, k) for k in KEYS})
+        keys = MacHotkeys({mac_key(k): partial(pressed.append, k) for k in KEYS})
         taken = keys.start()
         sent: dict[str, Any] = {}
         try:
@@ -400,18 +408,18 @@ class Checks:
 
         child = (
             "from polyglotic_desktop.platform.macos.hotkeys import MacHotkeys\n"
-            "import json\n"
-            "keys = MacHotkeys({k: (lambda: None) for k in 'LPH'})\n"
+            "import json, sys\n"
+            "keys = MacHotkeys({k: (lambda: None) for k in sys.argv[1:]})\n"
             "print(json.dumps(keys.start()))\n"
             "keys.stop()\n"
         )
-        held = MacHotkeys({k: (lambda: None) for k in KEYS})
+        held = MacHotkeys({mac_key(k): (lambda: None) for k in KEYS})
         held.start()
         try:
-            other = run([sys.executable, "-c", child], 60)
+            other = run([sys.executable, "-c", child, *(mac_key(k) for k in KEYS)], 60)
         finally:
             held.stop()
-        same = MacHotkeys({k: (lambda: None) for k in KEYS})
+        same = MacHotkeys({mac_key(k): (lambda: None) for k in KEYS})
         same_taken = same.start()  # given back: ours again
         same.stop()
         try:
@@ -419,7 +427,7 @@ class Checks:
         except (ValueError, IndexError):
             told = None
         facts = {"other_process": other, "told": told, "again": same_taken}
-        if told == list(KEYS) and same_taken == []:
+        if told == [mac_key(k) for k in KEYS] and same_taken == []:
             self.add(
                 "hotkeys_taken",
                 PASS,
@@ -438,7 +446,12 @@ class Checks:
                 **facts,
             )
         else:
-            self.add("hotkeys_taken", UNKNOWN, "the other process didn't say", **facts)
+            self.add(
+                "hotkeys_taken",
+                FAIL,
+                "the registration probe returned no valid result",
+                **facts,
+            )
 
     def menu_keys(self) -> None:
         from PySide6.QtGui import QKeySequence

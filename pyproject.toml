@@ -20,6 +20,10 @@ dependencies = [
     # else and the whole system; PortAudio for the mic
     "catap>=0.6.1; sys_platform == 'darwin'",
     "sounddevice>=0.5.6; sys_platform == 'darwin'",
+    # Linux only (polyglotic-hq 550): the Secret Service (the desktop's
+    # keyring) over D-Bus, for the device token - pure Python, MIT
+    "jeepney>=0.9.0; sys_platform == 'linux'",
+    "segno>=1.6.6",
 ]
 
 [dependency-groups]
@@ -104,12 +108,13 @@ extra_checks = true
 # Libraries that ship no type information (checked 2026-11-04; PyInstaller
 # 2026-11-05 - only the release build uses it, and only its archive reader).
 # sudachipy ships a .pyi but no py.typed marker (0.7.0, 2026-11-07).
-# catap and sounddevice are installed only on a Mac (polyglotic-hq 411), so
-# mypy elsewhere - and `--platform darwin` on Windows and Linux - can't see them.
+# catap and sounddevice are installed only on a Mac (polyglotic-hq 411), and
+# jeepney only on Linux (550), so mypy elsewhere - and `--platform darwin` or
+# `linux` on another OS - can't see them.
 [[tool.mypy.overrides]]
 module = [
     "onnxruntime", "soundfile", "genanki", "PyInstaller.*", "sudachipy",
-    "catap", "sounddevice",
+    "catap", "sounddevice", "jeepney", "jeepney.*",
 ]
 ignore_missing_imports = true
 
@@ -126,6 +131,7 @@ addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importli
 markers = [
     "windows_only: needs Windows itself - its APIs, paths or file rules, or the app's OS adapters (decision 0038); skipped on macOS and Linux",
     "macos_only: needs macOS itself - its frameworks (the Keychain, Core Foundation) or file rules (polyglotic-hq 409); skipped on Windows and Linux",
+    "linux_desktop: needs a Linux desktop session - a sound server, a session bus with a keyring (polyglotic-hq 550); run by linux.yml on GitHub's Ubuntu runner (POLYGLOTIC_LINUX_DESKTOP=1), skipped everywhere else",
 ]
 
 # ---------------------------------------------------------------------------
@@ -151,11 +157,12 @@ layers = [
 
 [[tool.importlinter.contracts]]
 id = "os-in-one-place"
-name = "The OS is picked in one place: only main's os_adapters (and the Windows-only harness) import platform.windows, platform.macos or the Windows credential store (decision 0038)"
+name = "The OS is picked in one place: only main's os_adapters (and the Windows-only harness) import platform.windows, platform.macos, platform.linux or the Windows credential store (decision 0038)"
 type = "protected"
 protected_modules = [
     "polyglotic_desktop.platform.windows",
     "polyglotic_desktop.platform.macos",
+    "polyglotic_desktop.platform.linux",
     "polyglotic_desktop.adapters.windows_credentials",
 ]
 allowed_importers = ["polyglotic_desktop.main", "polyglotic_desktop.harness"]

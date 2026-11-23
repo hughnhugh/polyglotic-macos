@@ -128,14 +128,14 @@ def test_the_app_text_size_is_the_settings_both_ways_and_applies_at_once(
     try:
         style.use_app_text_size("larger")  # as `main` applies it at start
         desktop.settings.update(theme="signal")  # another setting changed
-        assert style.app_text_size() == 1.2 and sizes == []
+        assert style.app_text_size() == 1.45 and sizes == []
         built.settings.text_size.choose("largest")
-        assert desktop.settings.value.app_text_size == "largest"
-        assert sizes == [1.45]
-        assert "font-size: 19px" in built.window.sidebar.styleSheet()  # 13 px text
-        desktop.settings.update(app_text_size="normal")  # e.g. a settings reset
+        assert desktop.settings.value.interface_text_size == "largest"
+        assert sizes == [1.75]
+        assert "font-size: 23px" in built.window.sidebar.styleSheet()  # 13 px text
+        desktop.settings.update(interface_text_size="normal")  # e.g. a settings reset
         assert built.settings.text_size.value() == "normal"
-        assert sizes == [1.45, 1.0]
+        assert sizes == [1.75, 1.3]
     finally:
         style.use_app_text_size("normal")
 

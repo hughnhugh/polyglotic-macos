@@ -3,7 +3,11 @@ fake updater - look and download quietly, apply at the next start, the
 server's channel followed, a downgrade only when changing channel,
 "update required" straight to the updater."""
 
+from typing import get_args
+
+from polyglotic_desktop.connection.protocol import Channel
 from polyglotic_desktop.core.releases.updates import (
+    CHANNELS,
     Found,
     RestartOffer,
     UpdateCheck,
@@ -105,6 +109,77 @@ def test_a_downgrade_is_allowed_only_when_the_server_names_another_channel() -> 
 def test_a_channel_this_app_doesnt_know_is_ignored() -> None:
     assert check_for(ALPHA, "win-x64-canary") == UpdateCheck()
     assert check_for(ALPHA, "") == UpdateCheck()
+
+
+def test_another_platforms_channel_is_never_followed() -> None:
+    """579 (from 574): a stand-in server named Windows' channel, and the
+    packed Linux app offered Windows' 0.1.9 from Windows' feed."""
+    linux, mac = "linux-x64-alpha", "macos-arm64-alpha"
+    assert check_for(linux, ALPHA) == UpdateCheck()
+    assert check_for(mac, BETA) == UpdateCheck()
+    assert check_for(ALPHA, "macos-arm64-beta") == UpdateCheck()
+    updater = FakeUpdater({UpdateCheck(ALPHA, True): Update("0.1.9", downgrade=True)})
+    updates = Updates(updater, linux)
+    assert updates.another_platforms(ALPHA) and not updates.another_platforms(None)
+    assert not updates.follow(ALPHA)  # nothing changes where to look
+    assert updates.check() is None and updater.calls == ["find None False"]
+
+
+def test_its_own_platforms_channel_is_still_followed() -> None:
+    assert not Updates(FakeUpdater({}), ALPHA).another_platforms(BETA)
+    assert check_for(ALPHA, BETA) == UpdateCheck(BETA, allow_downgrade=True)
+
+
+MAC = ("macos-arm64-alpha", "macos-arm64-beta", "macos-arm64-stable")
+LINUX = ("linux-x64-alpha", "linux-x64-beta", "linux-x64-stable")
+WINDOWS = (ALPHA, BETA, "win-x64-stable")
+
+
+def test_a_mac_app_follows_its_test_groups_mac_channel() -> None:
+    """580: only Windows' channels were known, so a Mac app ignored the
+    beta or stable channel the server named and stayed on the alpha."""
+    assert check_for(MAC[0], "macos-arm64-beta") == UpdateCheck(
+        "macos-arm64-beta", allow_downgrade=True
+    )
+    assert check_for(MAC[1], "macos-arm64-stable") == UpdateCheck(
+        "macos-arm64-stable", allow_downgrade=True
+    )
+    lower = Update("0.1.6", downgrade=True)
+    updater = FakeUpdater({UpdateCheck("macos-arm64-beta", True): lower})
+    updates = Updates(updater, MAC[0])
+    assert updates.follow("macos-arm64-beta") is True  # where to look changed
+    assert updates.check() == lower
+    assert updater.calls == ["find macos-arm64-beta True", "download 0.1.6"]
+
+
+def test_a_linux_app_follows_its_test_groups_linux_channel() -> None:
+    """580: the same for Linux's builds."""
+    assert check_for(LINUX[0], "linux-x64-stable") == UpdateCheck(
+        "linux-x64-stable", allow_downgrade=True
+    )
+    assert check_for(LINUX[2], "linux-x64-beta") == UpdateCheck(
+        "linux-x64-beta", allow_downgrade=True
+    )
+    updates = Updates(FakeUpdater({}), LINUX[0])
+    assert updates.follow("linux-x64-stable") is True
+
+
+def test_neither_follows_the_others_or_windows_channel() -> None:
+    """Every installed channel against every channel the server might
+    name: followed only when it's another of its own platform's (579, 580)."""
+    for own in (WINDOWS, MAC, LINUX):
+        for installed in own:
+            for named in (*WINDOWS, *MAC, *LINUX):
+                followed = named in own and named != installed
+                expected = UpdateCheck(named, True) if followed else UpdateCheck()
+                assert check_for(installed, named) == expected, (installed, named)
+
+
+def test_every_channel_an_app_can_be_stamped_with_is_followed() -> None:
+    """The protocol's channels - what a build stamps into the app and says
+    in `hello` - are all channels core follows: the Mac's were added to the
+    protocol (409) but not here (580)."""
+    assert set(get_args(Channel)) <= set(CHANNELS)
 
 
 def test_another_channels_release_is_downloaded_and_a_downgrade_applied_at_exit() -> (
@@ -325,3 +400,40 @@ def test_the_offer_asks_to_download_anyway_until_one_is_ready_or_later() -> None
     later.found(None, held=NEWER)
     later.later()
     assert later.asking_to_download is None
+
+
+# -- Linux: not writable and apply on quit (polyglotic-hq 640) --------------------------
+
+
+def test_not_writable_is_its_own_outcome() -> None:
+    """640: an AppImage in a read-only folder raises NotWritable, so look()
+    and download_anyway() report Found.NOT_WRITABLE instead of a generic
+    download failure."""
+    from polyglotic_desktop.ports.updates import NotWritable
+
+    class ReadOnlyUpdater(FakeUpdater):
+        def download(self, update: Update) -> None:
+            self.calls.append(f"download {update.version}")
+            raise NotWritable("NotWritable")
+
+    updates = Updates(ReadOnlyUpdater({UpdateCheck(): NEWER}), "linux-x64-alpha")
+    assert updates.look() is Found.NOT_WRITABLE
+    assert updates.downloaded is None
+
+    metered = Updates(
+        ReadOnlyUpdater({UpdateCheck(): NEWER}), "linux-x64-alpha", lambda: True
+    )
+    assert metered.look() is Found.METERED
+    assert metered.held == NEWER
+    assert metered.download_anyway() is Found.NOT_WRITABLE
+    assert metered.held is None
+
+
+def test_apply_on_quit_applies_a_downloaded_update_on_normal_exit() -> None:
+    """640: on Linux, a downloaded update applies as the app quits (without
+    restarting), so Quit applies it through at_exit()."""
+    updater = FakeUpdater({UpdateCheck(): NEWER})
+    updates = Updates(updater, "linux-x64-alpha", apply_on_quit=True)
+    assert updates.look() is Found.READY
+    updates.at_exit()
+    assert updater.calls == ["find None False", "download 0.2.0", "apply at exit 0.2.0"]

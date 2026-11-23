@@ -5,7 +5,7 @@ only while the Lab's mode is on. The sample dictionary with made-up
 ranks, made-up captions. Offscreen."""
 
 from collections.abc import Iterator
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from PySide6.QtWidgets import QApplication
@@ -16,6 +16,7 @@ from polyglotic_desktop.core.learning.load import Counting, LoadRules, Stage
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.shared import EntryId, WordStatus
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next import load_card
 from polyglotic_desktop.ui_next.load_card import LoadCard, progress_text
 from polyglotic_desktop.ui_next.views.load import Listed, LoadRow, LoadView, load_view
 
@@ -134,13 +135,17 @@ def show(card: LoadCard, tools: LearningTools) -> None:
     card.show_load(seen(tools, card.listed, card.rows))
 
 
-def test_the_card_says_the_load_in_numbers_with_a_bar(card: LoadCard) -> None:
+def test_the_card_says_the_load_in_numbers_with_a_bar(
+    card: LoadCard, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(load_card, "WEEK", timedelta(days=2))
     tools = learner()
     hear(tools, "电脑 " * 12 + "游戏 " * 3)
     show(card, tools)
     assert not card.isHidden()
     assert "3 of 3" in card.summary.text()  # one of them ready to check
     assert "Ready to check: 1" in card.summary.text()
+    assert "Graduated in the last 2 days:" in card.summary.text()
     assert card.by_stage.text().split("  ·  ") == [
         "Red 1",
         "Orange 1",

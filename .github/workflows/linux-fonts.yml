@@ -1,0 +1,74 @@
+# Linux's fonts, proved on GitHub's own Ubuntu runners (polyglotic-hq 546,
+# 571; desktop decision 0279): only on the public Linux copy (a snapshot of
+# a branch pushed to its `linux-copy-571-typing` branch by 571's
+# mirror571.sh), where GitHub's runners are free - never in this private
+# repo, whose runners are the PC's: every job checks the repo is public.
+#
+# The interface's words in all 21 languages, in clean containers with only
+# the fonts Ubuntu 24.04's desktop or Fedora 45 installs, or DejaVu alone
+# (`bare`), the UI lab's own checks asked of each, and what carrying Noto's
+# CJK faces would cost (tools/linux_fonts_survey.sh,
+# tools/linux_fonts_check.py). What each found is kept a day.
+name: Linux fonts
+
+on:
+  push:
+    branches: ["linux-copy-571-typing"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-fonts-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_PYTHON: "3.12.15"
+  UV_PYTHON_PREFERENCE: only-managed
+
+jobs:
+  fonts:
+    name: Fonts on ${{ matrix.which }}
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - which: ubuntu
+            image: ubuntu:24.04
+          - which: fedora
+            image: fedora:45
+          - which: bare
+            image: ubuntu:24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+
+      # a finding where the interface draws a box is said, not this run's
+      # failure: `bare` has no Chinese face on purpose
+      - name: The interface's words in ${{ matrix.which }}'s own fonts
+        continue-on-error: ${{ matrix.which == 'bare' }}
+        run: >-
+          mkdir -p out && docker run --rm -e GITHUB_ACTIONS=true -e UV_PYTHON -e UV_PYTHON_PREFERENCE
+          -v "$PWD:/w" -v "$(command -v uv):/usr/local/bin/uv:ro" -w /w ${{ matrix.image }}
+          bash tools/linux_fonts_survey.sh ${{ matrix.which }} /w/out/fonts-${{ matrix.which }}
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-fonts-${{ matrix.which }}-${{ github.run_id }}
+          path: |
+            out/fonts-${{ matrix.which }}/*.txt
+            out/fonts-${{ matrix.which }}/*.md
+            out/fonts-${{ matrix.which }}/*.json
+            out/fonts-${{ matrix.which }}/*.log
+          retention-days: 1

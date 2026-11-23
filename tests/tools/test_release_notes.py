@@ -9,6 +9,8 @@ import yaml
 from tools.package import release_notes
 from tools.package.release_notes import notes_for, parse
 
+from polyglotic_desktop.core.releases.updates import WHATS_NEW_CHARS, whats_new
+
 FILE = """# Release notes
 
 Anything before the first section is the file's own introduction.
@@ -115,6 +117,23 @@ def test_the_repos_own_notes_parse() -> None:
     assert list(sections[0].groups) == list(release_notes.GROUPS)
     for section in sections[1:]:
         assert section.lines() or section.intro, f"{section.title} says nothing"
+
+
+def test_every_unreleased_lines_first_sentence_reads_whole_on_home() -> None:
+    """polyglotic-hq 576: Home's What's new shows the newest notes' first
+    lines, each its first sentence cut at a word to 110 characters
+    (`whats_new`), so a longer one is cut mid-thought - the Hotkeys and
+    Presets lines were, before they said what they do. Every line under
+    Unreleased, which the next release carries, keeps its first sentence
+    within it; shipped versions keep the words they shipped with."""
+    [unreleased] = parse(release_notes.NOTES.read_text(encoding="utf-8"))[:1]
+    cut = []
+    for items in unreleased.groups.values():
+        for line in items:
+            [first] = whats_new(f"- {line}", lines=1, chars=10_000)
+            if len(first) > WHATS_NEW_CHARS:
+                cut.append(f"{len(first)} characters: {first}")
+    assert cut == [], "\n".join(cut)
 
 
 def test_unreleased_names_only_settings_sections_the_app_has() -> None:

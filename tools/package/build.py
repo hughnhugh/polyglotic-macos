@@ -40,6 +40,14 @@ POLYGLOTIC_CODESIGN_IDENTITY names (the release's self-signed one: decision
 afterwards, as on Windows (`pack.sh`; polyglotic-hq 430, decision 0202):
 the zip a tester downloads is Velopack's portable one, which can update
 itself.
+
+On Linux (polyglotic-hq 550) the same steps make `dist/Polyglotic`, a folder
+with `Polyglotic` in it, built in an Ubuntu 22.04 container
+(`linux_build.sh`) so it runs on glibc 2.35 and newer; its icon a PNG for
+the AppImage. Velopack packs it as one `Polyglotic.AppImage` (`pack.sh`).
+The folder must carry Qt's X11 plugin and libxcb-cursor (no desktop is
+sure to have it: 547), and must not carry fontconfig or FreeType (the
+system's are used: `LINUX_SYSTEM`).
 """
 
 from __future__ import annotations
@@ -104,7 +112,9 @@ class Layout:
     parts: tuple[str, ...]
     """The OS's own parts the app can't start without, inside `code`: Qt's
     windowing plugin, Qt's SVG (the icons are drawn from SVG masters),
-    libsndfile and, on macOS, capture's native libraries."""
+    libsndfile and, on macOS, capture's native libraries - and on Linux
+    the input methods' plugins, without which Chinese can't be typed into
+    the app at all (polyglotic-hq 571)."""
 
 
 WINDOWS = Layout(
@@ -115,6 +125,8 @@ WINDOWS = Layout(
     qt="PySide6",
     parts=(
         "PySide6/plugins/platforms/qwindows.dll",
+        "PySide6/plugins/imageformats/qsvg.dll",
+        "PySide6/plugins/iconengines/qsvgicon.dll",
         "PySide6/Qt6Svg.dll",
         "_soundfile_data/libsndfile_x64.dll",
     ),
@@ -127,6 +139,8 @@ MACOS = Layout(
     qt="PySide6/Qt",
     parts=(
         "PySide6/Qt/plugins/platforms/libqcocoa.dylib",
+        "PySide6/Qt/plugins/imageformats/libqsvg.dylib",
+        "PySide6/Qt/plugins/iconengines/libqsvgicon.dylib",
         "PySide6/Qt/lib/QtSvg.framework",
         "_soundfile_data/libsndfile_arm64.dylib",
         # capture (polyglotic-hq 411, 412): catap's Core Audio taps and
@@ -135,8 +149,44 @@ MACOS = Layout(
         "_sounddevice_data/portaudio-binaries/libportaudio.dylib",
     ),
 )
-LAYOUT = MACOS if sys.platform == "darwin" else WINDOWS
-"""This OS's (the app is packed on Windows and macOS only)."""
+LINUX = Layout(
+    folder=NAME,
+    executable=NAME,
+    code="_internal",
+    beside="",
+    qt="PySide6/Qt",
+    parts=(
+        "PySide6/Qt/plugins/platforms/libqxcb.so",
+        "PySide6/Qt/plugins/imageformats/libqsvg.so",
+        "PySide6/Qt/plugins/iconengines/libqsvgicon.so",
+        "PySide6/Qt/lib/libQt6Svg.so.6",
+        "_soundfile_data/libsndfile_x86_64.so",
+        # Qt's X11 plugin can't load without it, and Ubuntu's GNOME desktop
+        # doesn't install it (547): the app wouldn't start, said only to a
+        # terminal
+        "libxcb-cursor.so.0",
+        # typing Chinese, Japanese and Korean into the app's own boxes
+        # (polyglotic-hq 571): IBus's input method plugin - which Fcitx5
+        # answers too, through its IBus frontend - and the D-Bus it talks
+        # over; and compose, for the dead keys of a European layout
+        "PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so",
+        "PySide6/Qt/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so",
+        "PySide6/Qt/lib/libQt6DBus.so.6",
+        # the desktop's own file dialogs, through its portal (574, 0280)
+        "PySide6/Qt/plugins/platformthemes/libqxdgdesktopportal.so",
+    ),
+)
+LAYOUT = (
+    MACOS
+    if sys.platform == "darwin"
+    else LINUX
+    if sys.platform.startswith("linux")
+    else WINDOWS
+)
+"""This OS's."""
+LINUX_SYSTEM = ("libfontconfig.so", "libfreetype.so")
+"""Libraries a Linux build leaves to the system (the spec's LINUX_SYSTEM):
+Ubuntu 22.04's fontconfig misreads Fedora's font settings (547)."""
 QT_TRANSLATIONS = i18n.LRELEASE.parent / (
     "translations" if sys.platform == "win32" else "Qt/translations"
 )
@@ -270,6 +320,19 @@ ICNS_TYPES = {32: b"ic11", 64: b"ic12", 128: b"ic07", 256: b"ic08", 512: b"ic09"
               1024: b"ic10"}  # fmt: skip
 """Apple's icon types that hold a PNG, by its side in pixels (Finder and
 the Dock take the size they need)."""
+
+
+def write_png(path: Path, side: int = 256) -> None:
+    """The app's icon (`ui.icons`, from its SVG masters) as one PNG, for a
+    Linux build: the AppImage's icon and its menu entry's (polyglotic-hq
+    550)."""
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    from PySide6.QtGui import QGuiApplication
+
+    from polyglotic_desktop.ui.icons import app_image
+
+    _app = QGuiApplication.instance() or QGuiApplication([])
+    path.write_bytes(_ico_png(app_image(side)))
 
 
 def write_icns(path: Path) -> None:
@@ -580,6 +643,12 @@ def problems(folder: Path, layout: Layout = WINDOWS) -> list[str]:
     found = [
         f"missing: {need}" for need in needed(layout) if not (folder / need).exists()
     ]
+    if layout is LINUX:
+        found += [
+            f"the system's own, bundled: {path.relative_to(folder).as_posix()}"
+            for path in sorted(folder.rglob("*"))
+            if path.name.startswith(LINUX_SYSTEM)
+        ]
     for path in folder.rglob("*"):
         if not path.is_file():
             continue
@@ -808,6 +877,9 @@ def build(
         (WORK / "info.json").write_text(
             json.dumps(info_plist(version)), encoding="utf-8"
         )
+    elif layout is LINUX:  # the AppImage's (pack.sh takes it from here)
+        icon = WORK / f"{NAME}.png"
+        write_png(icon)
     else:
         icon = WORK / f"{NAME}.ico"
         (WORK / "version_info.txt").write_text(version_info(version), encoding="utf-8")
@@ -826,7 +898,7 @@ def build(
     )
     if macos:  # the app bundle's Info.plist (the spec's BUNDLE)
         env["POLYGLOTIC_INFO_PLIST"] = str(WORK / "info.json")
-    else:  # Windows' file properties
+    elif layout is WINDOWS:  # Windows' file properties
         env["POLYGLOTIC_VERSION_FILE"] = str(WORK / "version_info.txt")
     pyinstaller = [sys.executable, "-m", "PyInstaller", str(SPEC), "--noconfirm",
                    "--clean", "--log-level", "WARN", "--distpath", str(out),

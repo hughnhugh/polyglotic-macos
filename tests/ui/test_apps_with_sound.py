@@ -80,6 +80,13 @@ def test_a_failed_look_keeps_the_last_list(qapp: QApplication) -> None:
     apps.look()
     until_found(apps)
     assert apps.playing_apps() == [PLAYER]
+    assert apps.scan_failed
+    listed.fail = False
+    listed.apps.clear()
+    apps.look()
+    until_found(apps)
+    assert apps.playing_apps() == []
+    assert not apps.scan_failed
     apps.stop()
 
 

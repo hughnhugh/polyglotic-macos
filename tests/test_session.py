@@ -33,6 +33,7 @@ from websockets.asyncio.server import ServerConnection
 
 from polyglotic_desktop.connection import protocol
 from polyglotic_desktop.connection.app import AppInfo
+from polyglotic_desktop.connection.exchange import DataExchange
 from polyglotic_desktop.connection.reconnect import Reconnects, StopReason
 from polyglotic_desktop.connection.session import (
     ListeningSession,
@@ -80,11 +81,13 @@ class Listener:
         self.captions: list[CaptionUpdate] = []
         self.paces: list[float | None] = []
         self.minutes: list[tuple[float, float | None]] = []
+        self.allowances: list[tuple[int, int]] = []
         self.notices: list[str] = []
         self.rechecks: list[RecheckResult] = []
         self.plans: list[protocol.PlanState] = []
         self.windows: list[Maintenance | None] = []
         self.failed = 0
+        self.dropped: list[CaptionId] = []
         self.stalls: list[bool] = []
 
     def status_changed(self, status: Status) -> None:
@@ -99,11 +102,19 @@ class Listener:
     def minutes_changed(self, used: float, left: float | None) -> None:
         self.minutes.append((used, left))
 
+    def allowance_changed(
+        self, allowance: protocol.AllowanceUpdate | protocol.AllowanceExhausted
+    ) -> None:
+        self.allowances.append((allowance.allowance_percent, len(self.captions)))
+
     def notice(self, code: str) -> None:
         self.notices.append(code)
 
     def caption_failed(self) -> None:
         self.failed += 1
+
+    def caption_dropped(self, caption_id: CaptionId) -> None:
+        self.dropped.append(caption_id)
 
     def connection_stalled(self, stalled: bool) -> None:
         self.stalls.append(stalled)
@@ -158,10 +169,13 @@ class Harness:
         timings: Timings | None = None,
         jitter: float = 0.0,
         url: str | None = None,
+        store: MemoryCredentialStore | None = None,
+        speech: Speech | None = None,
+        exchange: DataExchange | None = None,
     ) -> None:
-        self.store = MemoryCredentialStore(credentials)
+        self.store = store or MemoryCredentialStore(credentials)
         self.listener = Listener()
-        self.speech = Speech()
+        self.speech = speech or Speech()
         self.session = ListeningSession(
             url or server.url,
             self.store,
@@ -171,6 +185,7 @@ class Harness:
             self.listener,
             timings=timings or Timings(answer_within=2, close_within=1),
             reconnects=Reconnects(random=lambda: jitter),
+            exchange=exchange,
         )
 
     def __enter__(self) -> Self:
@@ -237,6 +252,55 @@ def test_hello_welcome_settings_then_speech_and_captions(server: FakeServer) -> 
     assert app.listener.paces == [None]  # welcome's pace hint: none
     assert server.closes() == [1000]
     assert app.listener.last().stopped is StopReason.CLOSED
+
+
+def test_live_translation_matches_the_last_live_original_on_an_opted_in_connection(
+    server: FakeServer,
+) -> None:
+    app = Harness(server)
+    separate = dataclasses.replace(
+        SETTINGS, live_translation=True, translate_live=False
+    )
+    app.session.change_settings(separate)
+    with app:
+        wait_until(app.listener.listening)
+        assert server.hellos[-1].get("live_translation") is True
+        original = {
+            "type": "caption_update",
+            "source_id": "app",
+            "caption_id": "c1",
+            "kind": "live",
+            "language": "en",
+            "trace": {"seq": 41},
+            "clauses": [{"original": "Good", "translations": {}}],
+        }
+        translation = {
+            "type": "live_translation",
+            "source_id": "app",
+            "caption_id": "c1",
+            "seq": 41,
+            "clauses": [{"translations": {"zh": "好"}, "written_in": {"zh": "zh"}}],
+        }
+        server.send_to_all(original)
+        server.send_to_all({**translation, "seq": 40})
+        server.send_to_all({**translation, "source_id": "other"})
+        server.send_to_all({**translation, "clauses": []})
+        server.send_to_all(translation)
+        server.send_to_all({**original, "trace": {"seq": 42}})
+        server.send_to_all(translation)
+        server.send_to_all({**original, "kind": "finished"})
+        server.send_to_all({**translation, "seq": 42})
+        server.send_to_all({"type": "pace", "live_interval_min": 0.75})
+        wait_until(lambda: 0.75 in app.listener.paces)
+        assert len(app.listener.captions) == 4
+        assert app.listener.captions[1].clauses[0].translations == {"zh": "好"}
+        assert app.listener.captions[1].clauses[0].written_in == {"zh": "zh"}
+        assert app.listener.captions[-1].kind is CaptionKind.FINISHED
+        assert not app.listener.captions[-1].clauses[0].translations
+        app.session.change_settings(SETTINGS)
+        wait_until(lambda: len(server.hellos) == 2)
+        assert "live_translation" not in server.hellos[-1]
+        assert server.hellos[-1].get("resume") == welcome_message()["session_id"]
 
 
 def test_the_session_names_the_app_in_its_handshake(server: FakeServer) -> None:
@@ -462,6 +526,56 @@ def test_plus_ended_asks_again_and_listens_once_the_account_has_plus(
     assert server.connections == 2
 
 
+def test_allowance_exhaustion_delivers_the_last_caption_and_parks_listening(
+    server: FakeServer,
+) -> None:
+    with Harness(server) as app:
+        wait_until(app.listener.listening)
+        server.send_to_all({"type": "allowance_update", "allowance_percent": 10})
+        app.speech.put(finished("last-caption"), b"OggS one")
+        app.session.speech_ready()
+        wait_until(lambda: len(app.listener.captions) == 1)
+        server.send_to_all(
+            {
+                "type": "allowance_exhausted",
+                "allowance_percent": 0,
+                "resets_at": "2026-11-22T13:00:00Z",
+            }
+        )
+        wait_until(
+            lambda: app.listener.last().stopped is StopReason.ALLOWANCE_EXHAUSTED
+        )
+        assert app.listener.allowances == [(10, 0), (0, 1)]
+        assert app.store.load() == SIGNED_IN
+    assert server.connections == 1
+
+
+@pytest.mark.parametrize(
+    ("message", "reason"),
+    [
+        ({"type": "registration_required"}, StopReason.REGISTRATION_REQUIRED),
+        (
+            {
+                "type": "cross_border_consent_required",
+                "wording_version": "pipl_cross_border_v1",
+            },
+            StopReason.CROSS_BORDER_CONSENT_REQUIRED,
+        ),
+        ({"type": "allowance_exhausted"}, StopReason.ALLOWANCE_EXHAUSTED),
+    ],
+)
+def test_beta_refusal_at_hello_preserves_the_device_credentials(
+    server: FakeServer,
+    message: dict[str, str],
+    reason: StopReason,
+) -> None:
+    server.script = [refuse(message, 4009)]
+    with Harness(server) as app:
+        wait_until(lambda: app.listener.last().stopped is reason)
+        assert app.store.load() == SIGNED_IN
+    assert server.connections == 1
+
+
 def test_listening_moved_stops_without_reconnecting(server: FakeServer) -> None:
     # Close 4011: the account listens on another device now (project 095).
     with Harness(server) as app:
@@ -541,17 +655,29 @@ async def _drop_after_speech(server: FakeServer, websocket: ServerConnection) ->
             return
 
 
+@pytest.mark.parametrize("live_translation", [False, True])
 def test_finished_speech_unanswered_when_the_line_drops_is_sent_again(
     server: FakeServer,
+    live_translation: bool,
 ) -> None:
     server.script = [_drop_after_speech]
-    with Harness(server) as app:
+    harness = Harness(server)
+    harness.session.change_settings(
+        dataclasses.replace(SETTINGS, live_translation=live_translation)
+    )
+    with harness as app:
         wait_until(app.listener.listening)
         app.speech.put(finished("c1"), b"OggS finished")
         app.session.speech_ready()
         wait_until(lambda: len(app.listener.captions) == 1, timeout=5)
     assert [h.caption_id for h, _ in server.speech] == ["c1", "c1"]
     assert server.speech[1][1] == b"OggS finished"
+    if live_translation:
+        first_seq, second_seq = (h.seq for h, _ in server.speech)
+        assert (
+            first_seq is not None and second_seq is not None and second_seq > first_seq
+        )
+        assert all(h.get("live_translation") for h in server.hellos)
     assert server.types()[2] == "settings"  # the new session's settings first
     assert app.listener.captions[0].caption_id == "c1"
     assert len(app.session.unanswered) == 0
@@ -854,6 +980,8 @@ def test_a_caption_the_server_never_answers_doesnt_hold_the_stall_for_good(
     ended = app.session.ended()
     assert ended is not None
     assert (ended.captions, ended.dropped) == (1, 1)
+    # its live caption ends with what it shows, not provisional for good (557)
+    assert app.listener.dropped == ["lost"]
 
 
 def test_finished_speech_the_server_says_it_refused_is_answered(
@@ -878,6 +1006,7 @@ def test_finished_speech_the_server_says_it_refused_is_answered(
     ended = app.session.ended()
     assert ended is not None
     assert (ended.captions, ended.dropped) == (0, 1)
+    assert app.listener.dropped == ["c1"]  # its live caption ends (557)
 
 
 def test_a_withdrawn_captions_finished_speech_isnt_waited_for(
@@ -957,6 +1086,7 @@ def test_processing_failed_answers_the_finished_speech(server: FakeServer) -> No
     assert [(h.caption_id, h.kind) for h, _ in server.speech] == [("c1", "finished")]
     assert len(app.session.unanswered) == 0
     assert app.listener.failed == 1  # told: several in a row are said (145)
+    assert app.listener.dropped == ["c1"]  # its live caption ends (557)
     ended = app.session.ended()
     assert ended is not None
     assert (ended.captions, ended.dropped) == (0, 1)

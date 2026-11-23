@@ -72,8 +72,10 @@ def test_todays_interface_keeps_its_own_values() -> None:
         "recent_spoken",
         "declined_spoken",
         "reading_hinted",
+        "respeaking_hinted",
         "set_up",  # the first window's set-up answered (465)
         "start_like_this",
+        "kept_languages",  # while every window shows the original only (556)
     }
 
 
@@ -82,9 +84,9 @@ def test_joined_or_separate_is_remembered_with_the_joined_place() -> None:
     stored = StoredWindows(joined=joined)
     back = stored_windows({STORED_KEY: stored.to_stored()})
     assert back.joined == joined
-    assert not stored_windows({}).joined.on  # separate, at first
-    # the setting from before the joined window: separate
-    assert not stored_windows({STORED_KEY: {"windows": {}}}).joined.on
+    assert stored_windows({}).joined.on  # joined, at first (554)
+    # the setting from before the joined window: the default, joined
+    assert stored_windows({STORED_KEY: {"windows": {}}}).joined.on
 
 
 def test_joined_choices_read_leniently() -> None:
@@ -167,11 +169,12 @@ def test_minutes_are_used_up_when_the_server_says_none_are_left() -> None:
 def test_a_busy_time_is_said_when_it_begins_and_only_over_live_updates() -> None:
     """The server's pace hint slows live updates; finished captions are
     never held back - so Steady's learner sees no change, and isn't told."""
-    assert slowed_now(False, True, CaptionMode.LIVE)
-    assert slowed_now(False, True, CaptionMode.PREVIEW)
-    assert not slowed_now(False, True, CaptionMode.STEADY)
-    assert not slowed_now(True, True, CaptionMode.LIVE)  # said once
-    assert not slowed_now(True, False, CaptionMode.LIVE)  # over: nothing said
+    assert slowed_now(False, True, CaptionMode.INSTANT)
+    assert slowed_now(False, True, CaptionMode.STEADY)
+    assert slowed_now(False, True, CaptionMode.CALM)
+    assert not slowed_now(False, True, CaptionMode.WHOLE)
+    assert not slowed_now(True, True, CaptionMode.INSTANT)  # said once
+    assert not slowed_now(True, False, CaptionMode.INSTANT)  # over: nothing said
 
 
 def test_the_notice_line_says_when_it_changes_by_itself() -> None:

@@ -18,10 +18,13 @@ the outputs are committed. Run from the repo, with uv:
    (every HSK 1-9 character; 479's sets), with a SemiBold (600) cut of
    what readings draw (pinyin, zhuyin, Jyutping's digits), so a reading is
    never in a made-up bold; both given Microsoft YaHei UI's line box, so a
-   Chinese row is as tall as before (479 section 4: Noto's is 14 % taller).
+   Chinese row is as tall as before (479 section 4: Noto's is 14 % taller);
+6. Ma Shan Zheng, Simplified Chinese's calligraphy default (polyglotic-hq
+   532), static at Regular, cut the same way (it holds GB2312's characters
+   and Latin letters, no pinyin tone marks) and given the same line box.
 
-The two whose shape differs from their maker's - cut, or another line box -
-are named "... Captions": some Windows 11 PCs have Noto Sans SC of their
+The three whose shape differs from their maker's - cut, or another line
+box - are named "... Captions": some Windows 11 PCs have Noto Sans SC of their
 own, and Qt took that one's line box for ours under one name (482).
 
 With `--packs`, the faces downloaded when they're chosen (`fonts.PACKED`)
@@ -109,6 +112,10 @@ SOURCES: dict[str, tuple[str, str]] = {
         f"{_PLEX}/fonts/complete/ttf/IBMPlexSans-MediumItalic.ttf",
         "9928852bf60d82fdbbfe30eac86bcecd611e4188f0fa4d98938560659fa99c64",
     ),
+    "MaShanZheng-Regular.ttf": (
+        _gf("mashanzheng", "MaShanZheng-Regular.ttf"),
+        "6d2546bb189c732a8ca29af9e22457b152387d158aa459e4ac2ce1e51788b7fb",
+    ),
     "tgscc-level-1.txt": (
         f"{_TABLE}/level-1.txt",
         "79a6c710013cc86617d5db65871f59b2d67dee72415d380a2cc7145a51450fe4",
@@ -124,6 +131,10 @@ SOURCES: dict[str, tuple[str, str]] = {
     "NotoSansSC-OFL.txt": (
         _gf("notosanssc", "OFL.txt"),
         "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+    ),
+    "MaShanZheng-OFL.txt": (
+        _gf("mashanzheng", "OFL.txt"),
+        "d7bdb1cee215b689e23c2f95672a6084c790542170648267a55114103d756a08",
     ),
     "NotoSansThaiLooped-OFL.txt": (
         _gf("notosansthailooped", "OFL.txt"),
@@ -164,6 +175,7 @@ COPIED = {
 
 LICENCES = (
     "NotoSansSC-OFL.txt",
+    "MaShanZheng-OFL.txt",
     "NotoSansThaiLooped-OFL.txt",
     "NotoNaskhArabic-OFL.txt",
     "NotoSansDevanagari-OFL.txt",
@@ -196,8 +208,9 @@ tone marks, Jyutping's letters and digits."""
 
 @dataclass(frozen=True)
 class Instance:
-    """A variable font fixed at `weight`, named `family` `style`, maybe cut
-    to `chars` and given `box` (ascent, descent at 1,000 units)."""
+    """A variable font fixed at `weight` - or a static one, at its own -
+    named `family` `style`, maybe cut to `chars` and given `box` (ascent,
+    descent at 1,000 units)."""
 
     out: str
     source: str
@@ -225,6 +238,14 @@ INSTANCES = (
         YAHEI_UI_BOX,
     ),
     Instance(
+        "MaShanZheng-Regular.ttf",
+        "MaShanZheng-Regular.ttf",
+        "Ma Shan Zheng Captions",
+        400,
+        "sc",
+        YAHEI_UI_BOX,
+    ),
+    Instance(
         "NotoSansThaiLooped-Medium.ttf",
         "NotoSansThaiLooped[wdth,wght].ttf",
         "Noto Sans Thai Looped",
@@ -244,7 +265,7 @@ INSTANCES = (
         500,
     ),
 )
-STYLE = {500: "Medium", 600: "SemiBold"}
+STYLE = {400: "Regular", 500: "Medium", 600: "SemiBold"}
 
 
 def fetch(sources: Path) -> None:
@@ -329,10 +350,11 @@ def build(sources: Path, out: Path) -> None:
             subsetter = subset.Subsetter(options)
             subsetter.populate(unicodes=sorted(ord(c) for c in sets[face.chars]))
             subsetter.subset(font)
-        axes = {axis.axisTag: axis for axis in font["fvar"].axes}
-        location = {tag: axis.defaultValue for tag, axis in axes.items()}
-        location["wght"] = face.weight
-        font = instancer.instantiateVariableFont(font, location)
+        if "fvar" in font:  # a static face (Ma Shan Zheng) is at its own weight
+            axes = {axis.axisTag: axis for axis in font["fvar"].axes}
+            location = {tag: axis.defaultValue for tag, axis in axes.items()}
+            location["wght"] = face.weight
+            font = instancer.instantiateVariableFont(font, location)
         _name(font, face.family, STYLE[face.weight], face.weight)
         if face.box is not None:
             _box(font, *face.box)

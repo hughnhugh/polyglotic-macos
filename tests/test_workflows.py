@@ -270,6 +270,13 @@ def test_every_upload_is_kept_a_week_at_most_and_can_fail_nothing() -> None:
     for name, step in uploads:
         kept = step.get("with", {}).get("retention-days")
         assert isinstance(kept, int) and 1 <= kept <= MOST_DAYS_KEPT, (name, step)
+        # 592's release-set upload must fail the build if missing (no set, no
+        # release; test_linux_release_check.py checks it has no continue-on-error)
+        if (
+            name == "linux-release.yml"
+            and step.get("with", {}).get("name") == "linux-publish-${{ github.run_id }}"
+        ):
+            continue
         assert step.get("continue-on-error") is True, (name, step)
     scans = [
         step
@@ -473,6 +480,22 @@ def test_the_macos_job_runs_only_by_hand_on_githubs_mac_and_keeps_a_day() -> Non
     assert app and all("inputs.keep_app" in s["if"] for s in app)
     measured = [s for s in job["steps"] if "macos_measure" in s.get("run", "")]
     assert measured and all(s["continue-on-error"] is True for s in measured)
+
+
+def test_the_macos_job_builds_with_a_pinned_python_of_uvs_own() -> None:
+    """polyglotic-hq 523 (512's finding): 0.1.7's Mac app was packed with
+    whatever python.org Python the runner image had, and that Python's own
+    root list hid a bug every learner met. The job pins an exact version of
+    uv's own Python, refuses the image's, and checks the pin holds before
+    anything is installed or packed."""
+    (job,) = workflow("macos.yml")["jobs"].values()
+    assert re.fullmatch(r"3\.12\.\d+", job["env"]["UV_PYTHON"])
+    assert job["env"]["UV_PYTHON_PREFERENCE"] == "only-managed"
+    runs = [s.get("run", "") for s in job["steps"]]
+    checked = next(i for i, r in enumerate(runs) if "tools.package.macos_python" in r)
+    pack = next(i for i, r in enumerate(runs) if "tools.package.build" in r)
+    assert checked < pack
+    assert "if" not in job["steps"][checked]  # every run, whatever its parts
 
 
 def test_the_macos_job_checks_capture_after_measure_and_keeps_what_it_found() -> None:

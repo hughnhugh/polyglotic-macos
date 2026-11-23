@@ -38,12 +38,28 @@ def test_the_signed_feed_waits_outside_a_mac_app_and_beside_current_on_windows(
     keeps the learner's permissions under, as `exe.parent.parent` put them
     before 430. Windows' place is unchanged."""
     exe = tmp_path / "Polyglotic" / "current" / "Polyglotic.exe"
-    assert verified_feed_folder(exe) == tmp_path / "Polyglotic" / "verified-feed"
+    assert verified_feed_folder(exe, system="win32") == (
+        tmp_path / "Polyglotic" / "verified-feed"
+    )
     app = tmp_path / "Applications" / "Polyglotic.app"
     home = tmp_path / "home"
-    folder = verified_feed_folder(app / "Contents" / "MacOS" / "Polyglotic", home)
+    mac = app / "Contents" / "MacOS" / "Polyglotic"
+    folder = verified_feed_folder(mac, home, system="darwin")
     assert folder == home / "Library" / "Caches" / "Polyglotic" / "verified-feed"
     assert app not in folder.parents
+
+
+def test_on_linux_the_signed_feed_waits_in_the_users_cache(tmp_path: Path) -> None:
+    """An AppImage is one read-only file while it runs (polyglotic-hq 550):
+    the checked feed waits in $XDG_CACHE_HOME, else ~/.cache."""
+    exe = "/tmp/.mount_Polyglx/usr/bin/Polyglotic"
+    home = tmp_path / "home"
+    cache = home / ".cache" / "Polyglotic" / "verified-feed"
+    assert verified_feed_folder(exe, home, "linux", {}) == cache
+    own = {"XDG_CACHE_HOME": "/srv/cache"}
+    assert verified_feed_folder(exe, home, "linux", own) == Path(
+        "/srv/cache/Polyglotic/verified-feed"
+    )
 
 
 def feed(folder: Path, version: str, package: bytes) -> Path:

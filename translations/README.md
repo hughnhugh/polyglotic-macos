@@ -129,6 +129,7 @@ phrase is one string - never a number glued to a translated word.
 | a duration | `_tr("{hours} h {minutes} min")`, `_tr("{minutes} min")` - abbreviations don't take plurals | 12 h 40 min | 12 小时 40 分 |
 | a long duration | `_trn("about %n year(s)", n)` | about 2 years | 大约 2 年 |
 | names in a sentence | `QLocale().createSeparatedList(names)` (`ui_next.languages.name_list`) | Mongolian and Kazakh | 蒙古语和哈萨克语 |
+| a language's name in a sentence | `in_sentence(_tr("Say it in {language}"), language=name)` (`ui_next.languages`; `languages=[...]` for several) | Say it in English | Decirla en inglés (es) |
 | a date, weekdays | `QLocale().toString(date, QLocale.FormatType.LongFormat)`, `QLocale().dayName(n)`, `QLocale().firstDayOfWeek()` | (Windows' regional format) | 2026年11月2日星期一 |
 
 Numbers, dates and the week's first day follow Windows' regional format
@@ -136,6 +137,33 @@ when it's in the interface's language (an Australian English Windows keeps
 its own), else the interface language's (`ui.interface_language.formats`).
 Chinese counts stay exact with digit grouping ("12,430 个词"); 万 ("1.2 万")
 only if a screen ever shows large rounded counts - not yet.
+
+## Language names in a sentence (polyglotic-hq 560)
+
+A string with `{language}` or `{languages}` is filled by
+`ui_next.languages.in_sentence`, never `.format()` (a test fails on a
+`.format(language=...)` in `ui_next` or `main`). It writes the name as the
+interface's language writes it there:
+
+- **Lower case mid-sentence** in Spanish, French, Italian, Portuguese,
+  Czech, Polish, Russian, Ukrainian and Vietnamese ("Decirla en inglés",
+  "đọc bằng tiếng Anh"), as CLDR's names are; the list's capital where a
+  sentence starts with it ("Inglés: versión 2"). Other languages keep the
+  name as the list shows it.
+- **One form only**, the nominative, so a draft puts a bare name only where
+  that fits:
+  - Czech, Polish, Russian, Ukrainian: after a colon, in brackets or
+    «quotes» ("для языка «английский»", "Dodaj głos (angielski)"), or
+    after Czech's "jazyk" in apposition ("do jazyka angličtina") - never
+    straight after a preposition or "języka", "языка", "мови";
+  - French and Italian: no article before it ("le anglais"): "en anglais",
+    "dictionnaire anglais", or brackets;
+  - Spanish and Portuguese may use "el" / "o" (every name is masculine);
+  - Indonesian and Malay: "bahasa {language}" after a preposition;
+  - Korean: 를, 가, 는, 로 (every name ends in a vowel), not 을(를);
+  - Turkish: no "de"/"da" straight after a name ("Şu dili de öğren: {language}").
+
+`tests/ui_next/test_language_names_in_a_sentence.py` checks each of these.
 
 ## The string freeze
 

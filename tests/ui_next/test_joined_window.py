@@ -6,6 +6,7 @@ lock, hide and the notice line - and its budgets (DECISIONS.md #53)."""
 
 import sys
 from collections.abc import Iterator
+from dataclasses import replace
 from functools import partial
 
 import pytest
@@ -14,11 +15,13 @@ from PySide6.QtGui import QEnterEvent, QMouseEvent
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.budget_judge import sampled, within
 from tests.ui.fakes import chinese_tools
-from tests.ui_next.made_up import finished_updates
+from tests.ui_next.made_up import SEPARATE, arriving, finished_updates
+from tests.ui_next.test_caption_window import _on_words
 
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
+from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.perf import budgets
-from polyglotic_desktop.ui.recorded_captions import APP, MIC
+from polyglotic_desktop.ui.recorded_captions import APP, MIC, OKAY, finished
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, _Drag, to_rect
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -71,6 +74,7 @@ def store() -> Store:
 @pytest.fixture
 def windows(qapp: QApplication, store: Store) -> Iterator[CaptionWindows]:
     found = CaptionWindows(store, MIC, areas)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     found.set_labels(
         {
             APP: SourceLabel("Discord", "#4dd0e1"),
@@ -222,6 +226,56 @@ def test_joined_or_separate_is_remembered_across_restarts(
     assert isinstance(stored, dict) and stored["joined"]["on"] is False
 
 
+def test_a_new_window_joins_the_first_until_the_learner_separates_them(
+    qapp: QApplication,
+) -> None:
+    """The user, 2026-11-20 (polyglotic-hq 554): "windows should start
+    joined by default when new windows are added". One window shows on its
+    own; a second app's window joins it as it opens. Separating is the
+    learner's choice, kept: a third app's window then opens on its own, and
+    so after a restart."""
+    store = Store({"targets": ["en"]})
+    windows = CaptionWindows(store, MIC, areas)
+    again: CaptionWindows | None = None
+    try:
+        windows.set_captioned(THREE[:1])
+        assert windows.joined_window is None  # one window: its own
+        assert windows.windows["a"].isVisible()
+        windows.set_captioned(THREE[:2])  # a second app: joined at once
+        assert [c.key for c in joined(windows).columns] == ["a", "b"]
+        windows.separate()
+        windows.set_captioned(THREE)  # the learner's choice holds
+        assert windows.joined_window is None
+        windows.save_now()
+        again = CaptionWindows(store, MIC, areas)
+        again.set_captioned(THREE)
+        assert again.joined_window is None
+        again.join()  # until they join them again
+        assert again.joined_window is not None
+    finally:
+        windows.close()
+        if again is not None:
+            again.close()
+
+
+def test_joined_is_the_default_unless_the_learner_chose_separate() -> None:
+    """Versions before 554 saved "on": false for everyone who never joined
+    the windows: they follow the new default. Separate counts as chosen
+    only where the windows had been joined (a joined window's place or its
+    columns' widths kept), or where the record says so."""
+    assert JoinedChoices().on and not JoinedChoices().chosen
+    never_joined = {"on": False, "position": "bottom_centre", "geometry": None}
+    assert JoinedChoices.from_stored(never_joined).on
+    separated = {**never_joined, "geometry": [480, 650, 1920, 300]}
+    assert not JoinedChoices.from_stored(separated).on
+    assert not JoinedChoices.from_stored({**never_joined, "shares": [0.5, 0.5]}).on
+    assert JoinedChoices.from_stored({"on": True}).chosen
+    for choices in (JoinedChoices(), JoinedChoices(on=False, chosen=True)):
+        assert JoinedChoices.from_stored(choices.to_stored()) == choices
+    untouched = {**JoinedChoices(on=False).to_stored(), "chosen": False}
+    assert JoinedChoices.from_stored(untouched).on  # follows the default
+
+
 # -- columns removed and added ----------------------------------------------------------
 
 
@@ -260,16 +314,21 @@ def test_a_new_app_adds_a_column_and_never_a_fourth(windows: CaptionWindows) -> 
 # -- the window's own place and mode ----------------------------------------------------
 
 
-def test_a_resize_step_divides_the_width_equally_and_stops_at_320_a_column(
+def test_a_resize_step_divides_the_width_equally_and_stops_at_its_columns_least(
     windows: CaptionWindows,
 ) -> None:
+    """At least MIN_COLUMN a column, and as wide as its strip needs - the
+    last one's beside the window's controls, 351 px at 100 % (polyglotic-hq
+    524: at 320 its buttons were squashed)."""
     windows.join()
     window = joined(windows)
     start = place(window)
     drag = _Drag(Edge.RIGHT, QPointF(), start)
     window.resize_by(drag, -2000, 0)
-    assert window.width() == 3 * MIN_COLUMN
-    assert all(c.width() == MIN_COLUMN for c in window.columns)
+    least = window._minimum().width
+    assert least >= 3 * MIN_COLUMN
+    assert window.width() == least
+    assert all(c.width() == least // 3 for c in window.columns)
     top = _Drag(Edge.TOP, QPointF(), place(window))
     window.resize_by(top, 0, -60)
     assert window.height() == start.height + 60
@@ -352,6 +411,77 @@ def test_hover_shows_every_columns_strip_and_the_windows_controls(
     assert window.bar.geometry().right() < window.width() - CORNER_ZONE + 1
 
 
+def on_words(column: CaptionWindow) -> QPointF:
+    """A point on the text of the newest caption drawn in `column` where the
+    mouse can be on it (`test_caption_window._on_words`, polyglotic-hq 578)."""
+    return _on_words(column)
+
+
+def move(column: CaptionWindow, point: QPointF) -> None:
+    column.mouseMoveEvent(
+        QMouseEvent(
+            QEvent.Type.MouseMove, point, column.mapToGlobal(point),
+            Qt.MouseButton.NoButton, Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier,
+        )
+    )  # fmt: skip
+
+
+def test_captions_held_under_the_mouse_come_in_when_it_leaves_the_joined_window(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    """Bug (polyglotic-hq 543; the user, 2026-11-20: live captions "often
+    delay and then process it all at once"): while the mouse moves over a
+    column's words, new captions wait (158's "nothing moves under the
+    mouse") - and come in when it leaves, as in a window of its own. A
+    column left that to its joined window, which never did: they waited
+    for `HOLD_SEC` (4 s) after the mouse's last move, however soon it
+    left, then came at once."""
+    windows.join()
+    window = joined(windows)
+    column = window.columns[0]
+    enter(window)
+    move(column, on_words(column))
+    for update in finished_updates(2, APP, start=30):
+        windows.apply(update)
+    shown = [str(line.caption_id) for line in column.view.lines]
+    assert shown[-2:] == [f"{APP}-00030", f"{APP}-00031"]  # in: never held (583)
+    assert not column.view.scroll.following  # the view holds instead
+    column.leaveEvent(None)  # the mouse leaves: Qt tells the column ...
+    window.leaveEvent(None)  # ... and the joined window
+    column._hold_timer.timeout.emit()  # a moment later
+    assert column.view.scroll.following
+
+
+def test_only_the_column_under_the_mouse_holds_its_captions_and_leaving_it_lets_them_in(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    """polyglotic-hq 554 (DECISIONS #242's C): the mouse over a joined
+    window held every column's captions, wherever it was - over the band,
+    another column, the panel. Now only the words under it wait: the
+    other columns' come in, and moving on to the next column lets the
+    first's in at once."""
+    windows.join()
+    window = joined(windows)
+    first, second = window.columns[0], window.columns[1]
+    enter(window)
+    move(first, on_words(first))
+    for update in (
+        *finished_updates(1, APP, start=30),
+        *finished_updates(1, SECOND_APP, start=30),
+    ):
+        windows.apply(update)
+    # only the column pointed at holds its view; every caption is in (583)
+    assert not first.view.scroll.following and second.view.scroll.following
+    assert [str(line.caption_id) for line in second.view.lines][
+        -1
+    ] == f"{SECOND_APP}-00030"
+    assert [str(line.caption_id) for line in first.view.lines][-1] == f"{APP}-00030"
+    first.leaveEvent(None)  # on to the next column: live a moment later
+    first._hold_timer.timeout.emit()
+    assert first.view.scroll.following
+
+
 def test_a_columns_popover_has_its_own_rows_and_the_windows_the_rest(
     windows: CaptionWindows, qapp: QApplication
 ) -> None:
@@ -360,7 +490,10 @@ def test_a_columns_popover_has_its_own_rows_and_the_windows_the_rest(
     window.show_bands(True)
     column = window.columns[1]
     column.toggle_settings()
-    assert column.popover is not None and tuple(column.popover.rows) == COLUMN_ROWS
+    assert column.popover is not None
+    rows = list(column.popover.rows)
+    # 655: languages stay on the bar chip (bar_languages shows only when folded)
+    assert rows == list(COLUMN_ROWS)
     column.close_settings()
     window.toggle_settings()
     assert window.popover is not None and tuple(window.popover.rows) == WINDOW_ROWS
@@ -408,6 +541,18 @@ def test_join_windows_is_in_each_windows_popover_once_there_are_two(
     )
     first.controls["join"].trigger()
     assert windows.joined_window is not None
+
+
+def test_caption_bar_shortcut_can_reach_each_joined_column(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    windows.join()
+    columns = joined(windows).columns
+    for column in columns:
+        windows.open_bar_controls()
+        qapp.processEvents()
+        assert [w for w in columns if w.keyboard_bar_open] == [column]
+        assert column.window().windowFlags() & Qt.WindowType.WindowDoesNotAcceptFocus
 
 
 # -- lock, hide, the notice line ---------------------------------------------------------
@@ -567,6 +712,35 @@ class Paints(QObject):
         return False
 
 
+def test_a_joined_resize_keeps_each_card_and_its_rows_while_they_fit(
+    windows: CaptionWindows,
+) -> None:
+    windows.join()
+    host = joined(windows)
+    host.resize(1500, 220)
+    windows.set_look(replace(windows.look, show_source=False, show_language=False))
+    windows.set_timing(CaptionMode.STEADY)
+    for column in host.columns:
+        column.always_shown = True
+        for name in ("first", "second"):
+            update = finished(name, OKAY, source=column.source)
+            column.hear(update)
+            column.receive(update)
+    host.grab()
+    cards = []
+    for column in host.columns:
+        line = column.view.lines[-1]
+        assert line.caption_id.startswith("card:") and not line.label
+        cards.append((column.deck, column.view.lines, column.canvas._laid(line)))
+    host.resize(1470, 220)
+    host.grab()
+    for column, (deck, lines, old) in zip(host.columns, cards, strict=True):
+        assert column.deck is deck and column.view.lines is lines
+        now = column.canvas._laid(lines[-1])
+        assert now.width < old.width
+        assert now.rows is old.rows
+
+
 def test_a_resize_step_paints_each_column_once(
     full: CaptionWindows, qapp: QApplication
 ) -> None:
@@ -628,7 +802,7 @@ def test_join_and_separate(full: CaptionWindows, qapp: QApplication) -> None:
 def test_a_new_caption_in_one_column(full: CaptionWindows, qapp: QApplication) -> None:
     full.join()
     joined(full).repaint()
-    updates = iter(finished_updates(40, SECOND_APP, start=2_000))  # 10, warmed, twice
+    updates = arriving(10, SECOND_APP, start=2_000)
 
     def arrive() -> None:
         full.apply(next(updates))
@@ -637,17 +811,16 @@ def test_a_new_caption_in_one_column(full: CaptionWindows, qapp: QApplication) -
     within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * 10))
 
 
-def test_nothing_moves_under_the_mouse_in_a_joined_window_either(
+def test_the_mouse_over_a_joined_window_holds_no_column_off_its_words(
     windows: CaptionWindows,
 ) -> None:
-    """New captions wait in every column while the mouse is over the joined
-    window, and come in when its strip goes (polyglotic-hq 158)."""
+    """New captions waited in every column while the mouse was anywhere on
+    the joined window (polyglotic-hq 158), until its strip went; only a
+    column's words hold its own now (554, DECISIONS #242's C)."""
     windows.join()
     window = joined(windows)
     enter(window)
     windows.apply(finished_updates(1, THIRD_APP, start=99)[0])
-    assert [len(c.view.lines) for c in window.columns] == [30, 30, 0]
-    window._band_left()  # the mouse left: the strips go
     assert [len(c.view.lines) for c in window.columns] == [30, 30, 1]
 
 
@@ -771,3 +944,39 @@ def test_its_notice_is_measured_again_at_a_new_text_size(
         assert window.notice.width() >= window.notice.sizeHint().width()
     finally:
         style.use_text_scale(1.0)
+
+
+def test_no_column_is_narrower_than_its_strip_needs(qapp: QApplication) -> None:
+    """At Windows' 200 % and the app's Normal (2.25, decision 0244), three
+    columns at 500 px left the last one's strip - its buttons beside the
+    window's controls - 343 px for 378 (the UI lab, polyglotic-hq 524).
+    The window fits every column's strip, including all three chip icons."""
+    style.use_text_scale(2.0)  # before the windows are made: they're styled then
+    style.use_app_text_size("normal")
+    windows = CaptionWindows(Store({"targets": ["en"]}), MIC, areas)
+    windows.set_labels(
+        {
+            APP: SourceLabel("Discord", "#4dd0e1"),
+            SECOND_APP: SourceLabel("Video Player", "#a5d66f"),
+            THIRD_APP: SourceLabel("Web Browser", "#f5a97f"),
+        },
+        "You",
+    )
+    windows.set_captioned(THREE)
+    windows.join()
+    window = joined(windows)
+    # 1,500 px before the strip's four toggles went into the preset chip's
+    # dropdown (polyglotic-hq 556): its strip needs less now
+    window.resize(1000, window.height())
+    for column in window.columns:
+        column.hovered = True
+        column._show_band(True)
+    qapp.processEvents()
+    for column in window.columns:
+        assert all(
+            chip.isVisible()
+            for chip in (column.chip, column.preset_chip, column.timing_chip)
+        )
+        assert column.band.width() >= column.band.minimumSizeHint().width()
+    assert window.width() > 1000
+    windows.close()

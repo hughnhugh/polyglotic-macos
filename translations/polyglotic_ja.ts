@@ -20,8 +20,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
-        <source>I have a code</source>
-        <translation type="unfinished">コードを持っている</translation>
+        <source>Redeem a code</source>
+        <translation type="unfinished">コードを使う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Add an email</source>
+        <translation>Add an email</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Upgrade</source>
+        <translation type="unfinished">アップグレード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Restore purchase</source>
+        <translation type="unfinished">購入を復元</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -47,6 +62,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Plus</source>
         <translation type="unfinished">Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Your plan</source>
+        <translation type="unfinished">現在のプラン</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -120,6 +140,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
+        <source>Signed in with an invite code</source>
+        <translation>Signed in with an invite code</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Your account ID: {id}. Quote it if you write to us about your data.</source>
         <translation type="unfinished">アカウントID：{id}。データについてお問い合わせの際はお伝えください。</translation>
     </message>
@@ -169,8 +194,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
-        <source>Shown as &quot;You&quot;. Your mic is sent to the server only while it&apos;s on.</source>
-        <translation type="unfinished">「あなた」として表示。マイクの音声は、オンの間だけサーバーに送られます。</translation>
+        <source>Shown as &quot;You&quot;. Your mic is sent for your captions only while it&apos;s on.</source>
+        <translation type="unfinished">「あなた」として表示。マイクの音声は、オンの間だけ字幕のために送られます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -196,39 +221,44 @@
 <context>
     <name>CaptionWindow</name>
     <message>
+        <location filename="../src/polyglotic_desktop/core/listening/preset_reading.py"/>
+        <source>Shows words right away for general listening.</source>
+        <translation type="unfinished">ふだんの視聴で言葉をすぐに表示します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/core/listening/preset_reading.py"/>
+        <source>Shows words with the least delay so you can reply in time.</source>
+        <translation type="unfinished">最小限の遅延で言葉を表示し、タイミングよく返答できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/core/listening/preset_reading.py"/>
+        <source>Keeps the previous subtitle above the next one when space allows.</source>
+        <translation type="unfinished">スペースがあれば、前の字幕を次の字幕の上に表示したままにします。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/core/listening/preset_reading.py"/>
+        <source>Shows words right away as you study.</source>
+        <translation type="unfinished">学習中に言葉をすぐに表示します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Back to the newest captions</source>
+        <translation type="unfinished">最新の字幕に戻る</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Caption what I say: on</source>
+        <translation type="unfinished">自分の話した内容を字幕にする：オン</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Caption what I say: off</source>
+        <translation type="unfinished">自分の話した内容を字幕にする：オフ</translation>
+    </message>
+    <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view on or off: captions in quiet grey and gold, only your chosen words in blue, no underlines - point at a word to see its partner</source>
         <translation type="unfinished">静かな表示のオン/オフ：字幕を落ち着いたグレーと金色にし、選んだ単語だけを青で表示、下線なし。単語にポインターを置くと対応する語がわかります</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Steady</source>
-        <translation type="unfinished">安定</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Quick preview</source>
-        <translation type="unfinished">プレビュー</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Live updates</source>
-        <translation type="unfinished">ライブ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Each sentence appears once, finished, about half a second after it ends. Nothing changes while you read.</source>
-        <translation type="unfinished">各文は話し終わってから約0.5秒後に、完成した形で一度だけ表示されます。読んでいる間に変わりません。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>A dim first guess after about 2 seconds, then the finished caption and its translation when the sentence ends.</source>
-        <translation type="unfinished">約2秒後に薄い仮の文が出て、文が終わると確定した字幕と翻訳が表示されます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Words appear as they&apos;re said and rewrite themselves until the sentence ends - the quickest, but the words move.</source>
-        <translation type="unfinished">話すそばから単語が表示され、文が終わるまで書き換わります。最も速いですが、単語が動きます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -267,11 +297,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>The server is busy - trying again in {n} s</source>
-        <translation type="unfinished">サーバーが混雑中：{n} 秒後に再試行</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Paused</source>
         <translation type="unfinished">一時停止中</translation>
     </message>
@@ -282,8 +307,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>The server is busy</source>
-        <translation type="unfinished">サーバーが混雑しています</translation>
+        <source>Polyglotic is busy — try again in a few minutes</source>
+        <translation type="unfinished">Polyglotic が混雑しています。数分後にお試しください</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -307,8 +332,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Stopped - quit Polyglotic and start it again</source>
+        <translation type="unfinished">停止：Polyglotic を終了して再起動</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Plus has ended - captions stopped; see Home</source>
         <translation type="unfinished">Plus が終了：字幕は停止。ホームを参照</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>You’ve used your listening allowance</source>
+        <translation type="unfinished">リスニング利用枠を使い切りました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Consent is needed to start listening</source>
+        <translation type="unfinished">リスニングを始めるには同意が必要です</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -432,6 +472,21 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked - unlock on Home</source>
+        <translation type="unfinished">ロック中：ホームで解除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked: clicks now pass through. To unlock, press {keys} or rest the mouse on the lock in this corner</source>
+        <translation type="unfinished">ロック中：クリックは下に届きます。解除するには {keys} を押すか、この隅の鍵にマウスをしばらく置きます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Locked: clicks now pass through. To unlock, rest the mouse on the lock in this corner, or use Home</source>
+        <translation type="unfinished">ロック中：クリックは下に届きます。解除するには、この隅の鍵にマウスをしばらく置くか、ホームを使います</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath, Ctrl+Alt+L</source>
         <translation type="unfinished">ロック：クリックが下にあるものに届きます。Ctrl+Alt+L</translation>
     </message>
@@ -444,6 +499,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home or the menu bar</source>
         <translation type="unfinished">ロック：クリックが下にあるものに届きます。解除するには、隅の鍵にマウスをしばらく置くか、ホームかメニューバーを使います</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lock - clicks pass through to what&apos;s underneath. To unlock, rest the mouse on the lock in the corner, or use Home</source>
+        <translation type="unfinished">ロック：クリックが下にあるものに届きます。解除するには、隅の鍵にマウスをしばらく置くか、ホームを使います</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -493,8 +553,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Your speech is shown here: your microphone is sent to the server only while this is on</source>
-        <translation type="unfinished">ここに自分の声を表示中：これがオンのときだけ、マイクの音声がサーバーに送られます</translation>
+        <source>Your speech is shown here: your microphone is sent for your captions only while this is on</source>
+        <translation type="unfinished">ここに自分の声を表示中：これがオンのときだけ、マイクの音声が字幕のために送られます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -503,8 +563,9 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Back to the newest captions</source>
-        <translation type="unfinished">最新の字幕に戻る</translation>
+        <source>re-spoken</source>
+        <extracomment>on a caption the learner said again for the other person (567)</extracomment>
+        <translation type="unfinished">復唱</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -513,8 +574,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Word links on or off: words that mean the same share a colour</source>
-        <translation type="unfinished">単語リンクのオン/オフ：同じ意味の単語が同じ色になります</translation>
+        <source>Word links on or off. Colours show word class.</source>
+        <translation type="unfinished">単語リンクのオン・オフを切り替えます。色は品詞を示します。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -593,13 +654,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Same as what was said</source>
-        <translation type="unfinished">原文と同じ</translation>
+        <source>Match</source>
+        <translation type="unfinished">揃える</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>The translation as big as what was said</source>
-        <translation type="unfinished">翻訳を原文と同じ大きさに</translation>
+        <source>Set the translation size equal to the caption size</source>
+        <translation type="unfinished">翻訳のサイズを字幕のサイズと同じにします</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -648,13 +709,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Lyrics</source>
+        <translation type="unfinished">歌詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Caption the singing in music players heard on Detect: their sound is sent even while no speech is heard, a few seconds at a time. Off: only what&apos;s heard as speech is sent</source>
+        <translation type="unfinished">自動検出の音楽プレーヤーで歌にも字幕を付けます: 話し声が聞こえないときも、数秒ずつ音を送ります。オフ: 話し声として聞こえたものだけを送ります</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here</source>
         <translation type="unfinished">ここに自分の声を表示</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>Your microphone is sent to the server only while this is on</source>
-        <translation type="unfinished">これがオンのときだけ、マイクの音声がサーバーに送られます</translation>
+        <source>Your microphone is sent for your captions only while this is on</source>
+        <translation type="unfinished">これがオンのときだけ、マイクの音声が字幕のために送られます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -698,8 +769,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
-        <source>What this app speaks, and what it&apos;s translated into - change them here</source>
-        <translation type="unfinished">このアプリで話されている言語と翻訳先 - ここで変更</translation>
+        <source>Caption what I say</source>
+        <translation type="unfinished">自分の話した内容を字幕にする</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -710,6 +781,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links need what was said: turn on “Show the original above the translation” in Settings</source>
         <translation type="unfinished">単語リンクには話された内容が必要です。設定で「翻訳の上に原文を表示」をオンにしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>Languages: {languages}</source>
+        <translation type="unfinished">言語：{languages}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
+        <source>→ {code}</source>
+        <translation type="unfinished">→ {code}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -737,6 +818,171 @@
         <translation type="unfinished">
             <numerusform>%Ln 件の字幕をコピーしました</numerusform>
         </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Steady</source>
+        <translation type="unfinished">安定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Whole captions</source>
+        <translation type="unfinished">文ごとの字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Instant</source>
+        <translation type="unfinished">即時</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Calm</source>
+        <translation type="unfinished">落ち着き</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Scrolling</source>
+        <translation type="unfinished">横スクロール</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Words fill each line and continue on the next.</source>
+        <translation type="unfinished">行が埋まると、次の行に続けて表示します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Words appear one by one at the speaker&apos;s own pace, a moment behind, and rarely change once shown.</source>
+        <translation type="unfinished">単語が話し手のペースで一語ずつ、少し遅れて表示され、表示後はほとんど変わりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Words scroll sideways as the line fills.</source>
+        <translation type="unfinished">行が埋まるにつれて、文字が横にスクロールします。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Like Steady, but only words the speech model is sure of: later, and almost nothing changes once shown.</source>
+        <translation type="unfinished">「安定」と同じですが、音声モデルが確信している単語だけを表示します。少し遅くなり、表示後はほぼ変わりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Each sentence appears once, finished, about half a second after it ends. Nothing changes while you read.</source>
+        <translation type="unfinished">各文は話し終わってから約0.5秒後に、完成した形で一度だけ表示されます。読んでいる間に変わりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Words appear as they&apos;re said and rewrite themselves until the sentence ends - the quickest, but the words move.</source>
+        <translation type="unfinished">話すそばから単語が表示され、文が終わるまで書き換わります。最も速いですが、単語が動きます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Word by word at the speaker&apos;s pace, a moment behind</source>
+        <translation type="unfinished">話し手のペースで一語ずつ、少し遅れて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Only words the speech model is sure of: later, and still</source>
+        <translation type="unfinished">音声モデルが確信した語だけ：遅めで、動かない</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Each sentence once, finished: nothing moves as you read</source>
+        <translation type="unfinished">各文を一度、完成した形で：読んでいる間は何も動かない</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Words as they&apos;re said: the quickest, but they change</source>
+        <translation type="unfinished">話されたそばから：最速だが、語が変わる</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Translation after I&apos;ve read it</source>
+        <translation type="unfinished">読み終えてから翻訳</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Translation with it</source>
+        <translation type="unfinished">翻訳を同時に</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Each line first, its translation a moment later</source>
+        <translation type="unfinished">まず各行、少し後にその翻訳</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Each line and its translation together</source>
+        <translation type="unfinished">各行とその翻訳を一緒に</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Video uses {effective} when {requested} is selected.</source>
+        <translation type="unfinished">「{requested}」が選択されている場合、動画の字幕には「{effective}」が使われます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Timing: {timing}</source>
+        <translation type="unfinished">タイミング：{timing}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Recommended</source>
+        <extracomment>Quiet tag shown beside the timing option recommended for the active preset</extracomment>
+        <translation type="unfinished">おすすめ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Recommended for {preset}: {reason}</source>
+        <extracomment>{preset} is the active preset&apos;s name; {reason} is why this timing is recommended for it</extracomment>
+        <translation type="unfinished">{preset}におすすめ: {reason}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>{timing} doesn&apos;t suit {preset}: pick one of these</source>
+        <translation type="unfinished">{timing} は {preset} に合いません：この中から選んでください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Show original</source>
+        <translation type="unfinished">原文を表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
+        <source>Show translation</source>
+        <translation type="unfinished">翻訳を表示</translation>
+    </message>
+</context>
+<context>
+    <name>CaptionWindows</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Copied the newest caption</source>
+        <translation type="unfinished">最新の字幕をコピーしました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
+        <source>Undo</source>
+        <translation type="unfinished">元に戻す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
+        <source>Subtitles: along the bottom of the screen</source>
+        <translation type="unfinished">字幕：画面の下に表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
+        <source>Back where you put it</source>
+        <translation type="unfinished">置いた場所に戻しました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
+        <source>Didn&apos;t catch that? Hold {key} and say it.</source>
+        <translation type="unfinished">聞き取れませんでしたか？ {key} を押したまま復唱してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
+        <source>Didn&apos;t catch that? Tap {key}, then hold it and say it.</source>
+        <translation type="unfinished">聞き取れませんでしたか？ {key} を一度押し、続けて長押しして復唱してください。</translation>
     </message>
 </context>
 <context>
@@ -845,6 +1091,21 @@
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>White and orange on black, the rows furthest apart in brightness: safe for every kind of colour blindness.</source>
         <translation type="unfinished">黒に白とオレンジ、2行の明るさの差が最大：あらゆる色覚多様性に配慮。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Soft grey and amber on a dark panel, every line crisp and vivid, Semibold with a soft shadow, readings in grey, Chinese in calligraphy.</source>
+        <translation type="unfinished">暗いパネルに柔らかい灰色と琥珀色、どの行もくっきり鮮やか、やや太字にやわらかい影、読みはグレー、中国語は毛筆体。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>Dark ink on cream, a little crisper, readings in grey, Chinese in a textbook&apos;s handwriting: for bright rooms, light apps and calls.</source>
+        <translation type="unfinished">クリーム色に濃いインク、少しくっきり、読みはグレー、中国語は教科書の手書き風：明るい部屋、明るいアプリ、通話に。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
+        <source>White and yellow on solid black, as on TV: crisp and Bold, readings a size larger, Chinese in a plain sans. For bright, busy scenes.</source>
+        <translation type="unfinished">黒一色に白と黄色、テレビと同じ：くっきり太字、読みは一段大きく、中国語はシンプルなゴシック体。明るく情報の多い場面に。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1184,6 +1445,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>The Mac couldn&apos;t list audio sources. Check Screen &amp; System Audio Recording in System Settings.</source>
+        <translation type="unfinished">Macでオーディオソースの一覧を取得できませんでした。「システム設定」で画面収録とシステムオーディオ録音の許可を確認してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Some of your {language} learning data couldn&apos;t be deleted from this PC. Restart Polyglotic, then delete it again on Account.</source>
         <translation type="unfinished">{language} の学習データの一部をこのPCから削除できませんでした。Polyglotic を再起動してから、「アカウント」でもう一度削除してください。</translation>
     </message>
@@ -1212,6 +1478,11 @@
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>This Mac couldn&apos;t caption one app alone, so Polyglotic captions everything the Mac plays. You can try apps again on Home.</source>
         <translation type="unfinished">この Mac では1つのアプリだけを字幕にできなかったため、Mac で再生されるすべての音声を字幕にしています。ホームでアプリをもう一度試せます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>This PC couldn&apos;t caption one app alone, so Polyglotic captions everything the PC plays. You can try apps again on Home.</source>
+        <translation type="unfinished">このPCでは1つのアプリだけを字幕にできなかったため、PCで再生されるすべての音声を字幕にしています。ホームでアプリをもう一度試せます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1300,6 +1571,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Stop captioning and close Polyglotic - closing the window keeps it running</source>
+        <translation type="unfinished">字幕を止めて Polyglotic を閉じます。ウィンドウを閉じるだけなら動き続けます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Resume</source>
         <translation type="unfinished">再開</translation>
     </message>
@@ -1312,6 +1588,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Detect automatically</source>
         <translation type="unfinished">自動検出</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Quit to finish updating to {version}</source>
+        <translation type="unfinished">終了してバージョン {version} への更新を完了</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1337,6 +1618,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Not captioning yet</source>
+        <translation type="unfinished">字幕はまだ開始されていません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still captioning</source>
         <translation type="unfinished">Polyglotic は字幕表示を続けています</translation>
     </message>
@@ -1357,6 +1643,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Its icon is in the panel. Resume or quit from there.</source>
+        <translation type="unfinished">アイコンはパネルにあります。そこから再開または終了できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic is still running</source>
         <translation type="unfinished">Polyglotic は動作中です</translation>
     </message>
@@ -1369,6 +1660,11 @@
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>It&apos;s in the menu bar. Quit from there.</source>
         <translation type="unfinished">メニューバーにあります。そこから終了できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Its icon is in the panel. Quit from there.</source>
+        <translation type="unfinished">アイコンはパネルにあります。そこから終了できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1666,6 +1962,12 @@
         <source>Press a key or combination… (Esc: stop)</source>
         <translation type="unfinished">キーまたは組み合わせを押してください…（Esc：中止）</translation>
     </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>No key</source>
+        <extracomment>a hotkey with no key: it does nothing until one is chosen</extracomment>
+        <translation type="unfinished">キーなし</translation>
+    </message>
 </context>
 <context>
     <name>DictationSign</name>
@@ -1726,8 +2028,33 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>No answer from the server</source>
+        <translation type="unfinished">サーバーから応答なし</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Not connected to the server</source>
+        <translation type="unfinished">サーバーに接続していません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Nothing else is being captioned to re-speak for</source>
+        <translation type="unfinished">復唱できる字幕がほかにありません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Dictation</source>
         <translation type="unfinished">音声入力</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Listening to the PC - let go to type it</source>
+        <translation type="unfinished">PC の音声を聞き取り中。キーを離して入力</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Listening to the Mac - let go to type it</source>
+        <translation type="unfinished">Mac の音声を聞き取り中。キーを離して入力</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -1738,6 +2065,46 @@
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Working…</source>
         <translation type="unfinished">処理中…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Didn&apos;t hear anyone</source>
+        <translation type="unfinished">話し声が聞こえませんでした</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Couldn&apos;t capture speaker audio</source>
+        <translation type="unfinished">スピーカーの音声を取り込めませんでした</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Hold the key while they speak</source>
+        <translation type="unfinished">相手が話す間、キーを押し続けてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Choose a text field in another app</source>
+        <translation type="unfinished">別のアプリでテキスト入力欄を選んでください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Sign in to type what they said</source>
+        <translation type="unfinished">相手の発言を入力するにはログインしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Copied to the clipboard. Paste it where you want.</source>
+        <translation type="unfinished">クリップボードにコピーしました。好きな場所に貼り付けられます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Re-speaking for {name} - let go to caption</source>
+        <translation type="unfinished">{name} の発言を復唱中 — キーを離すと字幕が表示されます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
+        <source>Re-speaking</source>
+        <translation type="unfinished">復唱中</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -1761,6 +2128,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
         <source>Handwritten</source>
         <translation type="unfinished">手書き風</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
+        <source>Calligraphy</source>
+        <translation type="unfinished">毛筆体</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
@@ -1992,6 +2364,11 @@
 <context>
     <name>Help</name>
     <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Polyglotic isn&apos;t allowed to hear what the Mac plays</source>
+        <translation type="unfinished">PolygloticにはMacで再生中の音を聞く許可がありません</translation>
+    </message>
+    <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Help</source>
         <translation type="unfinished">ヘルプ</translation>
@@ -2096,10 +2473,12 @@
         <source>{name} is added on Home</source>
         <translation type="unfinished">{name} がホームに追加されています</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Sound from {name} in the last 30 seconds</source>
-        <translation type="unfinished">直近30秒間の {name} の音</translation>
+        <source>Sound from {name} in the last %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>直近%Ln秒間の {name} の音</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2116,10 +2495,12 @@
         <source>Something is added on Home</source>
         <translation type="unfinished">ホームに何か追加されています</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Sound from it in the last 30 seconds</source>
-        <translation type="unfinished">直近30秒間の音</translation>
+        <source>Sound from it in the last %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>直近%Ln秒間の音</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2148,13 +2529,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Sign in on Account with your invite code - the one this PC used before works again - or the code in your Plus email.</source>
-        <translation type="unfinished">アカウントで招待コード（このPCで以前使ったものも使えます）か、Plus のメールに記載のコードでサインインしてください。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Sign in on Account with your invite code - the one this Mac used before works again - or the code in your Plus email.</source>
-        <translation type="unfinished">アカウントで招待コード（このMacで以前使ったものも使えます）か、Plus のメールに記載のコードでサインインしてください。</translation>
+        <source>Sign in with your email to continue.</source>
+        <translation type="unfinished">続けるにはメールアドレスでログインしてください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2183,6 +2559,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>It downloads the update and restarts by itself. If it doesn&apos;t, quit Polyglotic and start it again.</source>
+        <translation type="unfinished">更新をダウンロードして自動で再起動します。再起動しない場合は、Polyglotic を終了してもう一度起動してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is busy</source>
         <translation type="unfinished">サーバーが混雑しています</translation>
     </message>
@@ -2208,18 +2589,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Quit Polyglotic and start it again. If it keeps happening, report a problem.</source>
+        <translation type="unfinished">Polyglotic を終了してもう一度起動してください。繰り返す場合は問題を報告してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Nothing is added to caption</source>
         <translation type="unfinished">字幕にするものが追加されていません</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>On Home, add an app (up to 3), or choose Everything the PC plays.</source>
-        <translation type="unfinished">ホームでアプリを追加する（3つまで）か、「PCで再生されるすべて」を選んでください。</translation>
+        <source>On Home, add an app (up to {limit}), or choose Everything the PC plays.</source>
+        <translation type="unfinished">ホームでアプリを追加する（{limit}つまで）か、「PCで再生されるすべて」を選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>On Home, add an app (up to 3), or choose Everything the Mac plays.</source>
-        <translation type="unfinished">ホームでアプリを追加する（3つまで）か、「Macで再生されるすべて」を選んでください。</translation>
+        <source>On Home, add an app (up to {limit}), or choose Everything the Mac plays.</source>
+        <translation type="unfinished">ホームでアプリを追加する（{limit}つまで）か、「Macで再生されるすべて」を選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2233,8 +2619,20 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>{name} is quiet: no sound from it in the last 30 seconds</source>
-        <translation type="unfinished">{name} が無音です：直近30秒間、音が出ていません</translation>
+        <source>Polyglotic stopped hearing {name} - it&apos;s starting again by itself</source>
+        <translation type="unfinished">Polyglotic が {name} の音を拾えなくなりました。自動で再開しています</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Polyglotic stopped hearing your microphone - it&apos;s starting again by itself</source>
+        <translation type="unfinished">Polyglotic がマイクの音を拾えなくなりました。自動で再開しています</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>{name} is quiet: no sound from it in the last %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>{name} が無音です：直近%Ln秒間、音が出ていません</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2246,15 +2644,19 @@
         <source>Is it playing sound? Is its output going to this Mac&apos;s speakers or headset, and not muted?</source>
         <translation type="unfinished">音を再生していますか？出力先がこのMacのスピーカーかヘッドセットで、ミュートになっていませんか？</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>The PC is quiet: nothing it plays has made sound in 30 seconds</source>
-        <translation type="unfinished">PCが無音です：30秒間、何の音も再生されていません</translation>
+        <source>The PC is quiet: nothing it plays has made sound in %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>PCが無音です：%Ln秒間、何の音も再生されていません</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>The Mac is quiet: nothing it plays has made sound in 30 seconds</source>
-        <translation type="unfinished">Macが無音です：30秒間、何の音も再生されていません</translation>
+        <source>The Mac is quiet: nothing it plays has made sound in %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>Macが無音です：%Ln秒間、何の音も再生されていません</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2266,10 +2668,12 @@
         <source>Play something. If you hear it on a headset that isn&apos;t the Mac&apos;s default device, make that the default, or add the app instead.</source>
         <translation type="unfinished">何か再生してください。Macの既定のデバイスではないヘッドセットで聞いている場合は、そちらを既定にするか、アプリを追加してください。</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Your microphone is quiet: no sound from it in 30 seconds</source>
-        <translation type="unfinished">マイクが無音です：30秒間、音が入っていません</translation>
+        <source>Your microphone is quiet: no sound from it in %Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>マイクが無音です：%Ln秒間、音が入っていません</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2280,11 +2684,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Is it muted, or is another microphone chosen in the Mac&apos;s sound settings?</source>
         <translation type="unfinished">ミュートになっているか、Macのサウンド設定で別のマイクが選ばれていませんか？</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Polyglotic isn&apos;t allowed to hear what the Mac plays</source>
-        <translation type="unfinished">PolygloticにはMacで再生中の音を聞く許可がありません</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2330,6 +2729,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home, or press Ctrl+Alt+P.</source>
+        <translation type="unfinished">ホームで「再開」を選ぶか、Ctrl+Alt+P を押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the tray menu.</source>
         <translation type="unfinished">ホームまたは通知領域のメニューで「再開」を選んでください。</translation>
     </message>
@@ -2337,6 +2741,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Choose Resume on Home or in the menu bar&apos;s menu.</source>
         <translation type="unfinished">ホームまたはメニューバーのメニューで「再開」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose Resume on Home.</source>
+        <translation type="unfinished">ホームで「再開」を選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2355,6 +2764,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Press Ctrl+Alt+H, or use Hide all on Home. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">Ctrl+Alt+H を押すか、ホームで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the tray menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">ホームまたは通知領域のメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
     </message>
@@ -2362,6 +2776,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Use Hide all on Home or the menu bar&apos;s menu. An app&apos;s transcript shows whether captions are arriving.</source>
         <translation type="unfinished">ホームまたはメニューバーのメニューで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use Hide all on Home. An app&apos;s transcript shows whether captions are arriving.</source>
+        <translation type="unfinished">ホームで「すべて非表示」を使ってください。アプリの書き起こしで字幕が届いているか確認できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2400,13 +2819,29 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
-        <translation type="unfinished">ホームで、音を出しているアプリを3つまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。Windows 10 ではアプリを区別できないため、PCで再生されるすべてが字幕になります。</translation>
+        <source>Caption apps you add</source>
+        <translation type="unfinished">追加したアプリを字幕にする</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>On Home, add up to 3 apps with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
-        <translation type="unfinished">ホームで、音を出しているアプリを3つまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。macOS 14.2 より前の Mac ではアプリを区別できないため、Mac で再生されるすべてが字幕になります。</translation>
+        <source>On Home, add up to %Ln app(s) with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Windows 10 can&apos;t tell apps apart, so there everything the PC plays is captioned.</source>
+        <translation type="unfinished">
+            <numerusform>ホームで、音を出しているアプリを%Lnつまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。Windows 10 ではアプリを区別できないため、PCで再生されるすべてが字幕になります。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to %Ln app(s) with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens. Before macOS 14.2 a Mac can&apos;t tell apps apart, so there everything the Mac plays is captioned.</source>
+        <translation type="unfinished">
+            <numerusform>ホームで、音を出しているアプリを%Lnつまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。macOS 14.2 より前の Mac ではアプリを区別できないため、Mac で再生されるすべてが字幕になります。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>On Home, add up to %Ln app(s) with sound open; each gets a caption window of its own, labelled with its name. An app you added that isn&apos;t open is captioned when it opens.</source>
+        <translation>
+            <numerusform>ホームで、音を出しているアプリを%Lnつまで追加できます。それぞれに名前付きの字幕ウィンドウが付きます。追加したアプリが開いていない場合は、開いたときに字幕になります。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2422,6 +2857,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>With one app added on Home, turn on Also caption everything else the Mac plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
         <translation type="unfinished">ホームでアプリを1つ追加し、「Macで再生されるその他すべても字幕にする」をオンにします。そのアプリ以外のすべてが「その他すべて」という別の字幕ウィンドウになります。通話は一方に、ゲームや動画はもう一方に、重複はありません。一度に1つのアプリで使えます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>With one app added on Home, turn on Also caption everything else the PC plays: everything except that app gets a caption window of its own, labelled Everything else - a call in one window, the game or video in the other, nothing in both. It&apos;s there with one app at a time.</source>
+        <translation type="unfinished">ホームでアプリを1つ追加し、「PCで再生されるその他すべても字幕にする」をオンにします。そのアプリ以外のすべてが「その他すべて」という別の字幕ウィンドウになります。通話は一方に、ゲームや動画はもう一方に、重複はありません。一度に1つのアプリで使えます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2450,16 +2890,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the tray menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">字幕ウィンドウの設定で「ここに自分の声を表示」を、またはすべてのウィンドウなら通知領域のメニューで「自分の声を字幕にする」をオンにします。オンにするまではオフで、マイクの音声はウィンドウに表示している間だけサーバーに送られます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Turn on Show my speech here in a caption window&apos;s settings, or Caption my own speech in the menu bar&apos;s menu for every window. It&apos;s off until you do, and your microphone&apos;s audio goes to the server only while a window shows it.</source>
-        <translation type="unfinished">字幕ウィンドウの設定で「ここに自分の声を表示」を、またはすべてのウィンドウならメニューバーのメニューで「自分の声を字幕にする」をオンにします。オンにするまではオフで、マイクの音声はウィンドウに表示している間だけサーバーに送られます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize the caption windows</source>
         <translation type="unfinished">字幕ウィンドウの移動、ロック、サイズ変更</translation>
     </message>
@@ -2480,13 +2910,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Drag a caption window to move it, or drag its edges to resize it. Lock all, on Home, lets clicks pass through. Lost one? Reset positions on Home puts every window back.</source>
+        <translation type="unfinished">字幕ウィンドウはドラッグで移動、端をドラッグでサイズ変更できます。ホームの「すべてロック」でクリックが下に届きます。見失ったら、ホームの「位置をリセット」で全ウィンドウが戻ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Over a game</source>
         <translation type="unfinished">ゲームの上で</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus and can&apos;t be changed yet. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
-        <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、すべてロック（Ctrl+Alt+L）でクリックをゲームに通します。戦闘中はすべて非表示（Ctrl+Alt+H）。ショートカットキーはゲーム中も使えますが、まだ変更できません。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all (Ctrl+Alt+L) so clicks go through to the game; Hide all (Ctrl+Alt+H) in a fight. The hotkeys work while the game has focus; Settings &gt; Hotkeys changes them. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、すべてロック（Ctrl+Alt+L）でクリックをゲームに通します。戦闘中はすべて非表示（Ctrl+Alt+H）。ショートカットキーはゲーム中も使えます。設定 &gt; ショートカットキーで変更できます。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2500,8 +2935,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Dictate into any program (preview)</source>
-        <translation type="unfinished">どのプログラムでも音声入力（プレビュー）</translation>
+        <source>A caption window never takes the game&apos;s keyboard or mouse: it is never the active window. Put it where it doesn&apos;t cover what you need to see, then Lock all on Home so clicks go through to the game. A game in exclusive full screen covers every other window: choose its borderless or windowed full screen instead.</source>
+        <translation type="unfinished">字幕ウィンドウがゲームのキーボードやマウスを奪うことはありません。アクティブウィンドウにならないからです。見たいものを隠さない場所に置き、ホームの「すべてロック」でクリックをゲームに通します。排他的フルスクリーンのゲームは他のウィンドウをすべて覆うので、ボーダーレスかウィンドウモードのフルスクリーンを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Shortcuts of your desktop&apos;s own</source>
+        <translation type="unfinished">デスクトップ自身のショートカット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Where Polyglotic&apos;s hotkeys don&apos;t work (GNOME on Wayland), add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, or --pause, or --hide. It does what the hotkey would.</source>
+        <translation type="unfinished">Polyglotic のホットキーが使えない環境（Wayland の GNOME）では、デスクトップのキーボード設定でカスタムショートカットを追加し（GNOME：設定 &gt; キーボード &gt; カスタムショートカット）、コマンドに {command} --lock、--pause、または --hide を指定します。ホットキーと同じことをします。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. Dictation is on from the start: turn it off in Settings &gt; Dictation, or in the tray menu. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">{key} を押しながら話し、離すとカーソルの位置に入力されます。入力前なら Esc でキャンセルできます。音声入力ははじめからオンです。オフにするには、設定 &gt; 音声入力、または通知領域のメニューを使います。別のキーや組み合わせを使うには、設定 &gt; 音声入力でキーをクリックし、使いたいキーを押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Hold {key} and speak; let go, and your words are typed where your cursor is. Esc cancels before they&apos;re typed. Dictation is on from the start: turn it off in Settings &gt; Dictation, or in the menu bar&apos;s menu. To use another key or combination, click the key in Settings &gt; Dictation and press the one you want.</source>
+        <translation type="unfinished">{key} を押しながら話し、離すとカーソルの位置に入力されます。入力前なら Esc でキャンセルできます。音声入力ははじめからオンです。オフにするには、設定 &gt; 音声入力、またはメニューバーのメニューを使います。別のキーや組み合わせを使うには、設定 &gt; 音声入力でキーをクリックし、使いたいキーを押してください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2515,18 +2970,94 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Dictate into any program (preview)</source>
+        <translation type="unfinished">どのプログラムでも音声入力（プレビュー）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Turn on Type what they said in Settings &gt; Dictation.</source>
+        <translation type="unfinished">設定 &gt; 音声入力で「相手の発言を入力」をオンにします。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Tap {key}, then hold it while they speak.</source>
+        <translation type="unfinished">{key} を一度押し、続けて相手が話す間押し続けます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Hold {key} while they speak.</source>
+        <translation type="unfinished">相手が話す間、{key} を押し続けます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Use the words or translation from the caption window you’re watching. Without captions, listen to the speakers selected in Settings &gt; Speech.</source>
+        <translation type="unfinished">見ている字幕ウィンドウの原文または翻訳を使います。字幕がない場合は、「設定 &gt; 音声」で選んだスピーカーの音声を聞き取ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Release to copy the speech to the clipboard, then paste it where you want.</source>
+        <translation type="unfinished">キーを離すと発言がクリップボードにコピーされます。好きな場所に貼り付けてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Focus a text field in another app before you let go.</source>
+        <translation type="unfinished">キーを離す前に、別のアプリのテキスト入力欄を選びます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Choose the key and whether to type the original or its translation in Settings &gt; Dictation.</source>
+        <translation type="unfinished">設定 &gt; 音声入力でキーを選び、発言をそのまま入力するか翻訳を入力するかを指定します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Type what they said</source>
+        <translation type="unfinished">相手の発言を入力</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Your first caption window and Conversation windows show your speech as You by default. Use the microphone button on a window&apos;s bar to turn it on or off there.</source>
+        <translation type="unfinished">最初の字幕ウィンドウと「会話」のウィンドウでは、既定で自分の発言が「あなた」として表示されます。ウィンドウのバーにあるマイクボタンで、その表示を切り替えられます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Dictation also uses the microphone while you hold its key.</source>
+        <translation type="unfinished">音声入力も、キーを押している間はマイクを使います。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>macOS asks for microphone access.</source>
+        <translation type="unfinished">macOS ではマイクへのアクセス許可を求められます。</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>%Ln second(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln秒</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>{seconds} s</source>
+        <translation type="unfinished">{seconds}秒</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>What we keep</source>
         <translation type="unfinished">保存するもの</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
-        <translation type="unfinished">このPCから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このPCは各アプリの直近2分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのPCから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</translation>
+        <source>Only speech leaves this PC: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This PC holds the last %Ln minute(s) of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this PC, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">
+            <numerusform>このPCから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このPCは各アプリの直近%Ln分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのPCから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last 2 minutes of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
-        <translation type="unfinished">このMacから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このMacは各アプリの直近2分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのMacから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</translation>
+        <source>Only speech leaves this Mac: our server turns it into captions and translations, and never stores the audio, the captions or the translations. This Mac holds the last %Ln minute(s) of each app&apos;s finished speech in memory, and sends it again only when you ask. Your transcript never leaves this Mac, and it&apos;s gone when you quit Polyglotic unless you save it. We keep your account, your minutes, a record of each session (never what was said or the app&apos;s name) and the dictionary words you look up, save or mark - never the sentence around them. Usage statistics and word counts are shared only if you turn them on (Account &gt; Choose what to share), and you can delete your learning data on Account. The privacy notice, below, says it all.</source>
+        <translation type="unfinished">
+            <numerusform>このMacから送られるのは音声だけです。当社のサーバーは音声を字幕と翻訳に変換し、音声・字幕・翻訳を保存することはありません。このMacは各アプリの直近%Ln分間の確定した音声をメモリに保持し、あなたが求めたときだけ再送します。書き起こしはこのMacから出ることはなく、保存しない限り Polyglotic の終了時に消えます。保存するのは、アカウント、利用時間（分）、各セッションの記録（話された内容やアプリ名は含みません）、調べた・保存した・マークした辞書の単語です（前後の文は含みません）。利用統計と単語の集計は、オンにした場合だけ共有されます（アカウント &gt; 共有する内容を選ぶ）。学習データはアカウントで削除できます。詳しくは下のプライバシー通知をご覧ください。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2540,13 +3071,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>Are songs captioned?</source>
+        <translation type="unfinished">歌に字幕は付きますか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
+        <source>In part. Polyglotic is made for speech: in a song it catches some of the lines sung, and a few come out wrong. Songs work best with Spoken language on Detect: with a language chosen there, a song in another language comes out as a translation into it. Music without words isn&apos;t captioned.</source>
+        <translation type="unfinished">一部だけです。Polyglotic は話し言葉のためのものなので、歌では歌われた行の一部を拾い、いくつかは間違って出ます。歌は「話されている言語」を「自動検出」にすると最もうまくいきます。そこで言語を選んでいると、別の言語の歌はその言語への翻訳として出ます。歌詞のない音楽には字幕は付きません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>When do captions appear?</source>
         <translation type="unfinished">字幕はいつ表示される？</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
-        <source>Quick preview, the default: a dim first line after about 2 seconds, then the finished caption and its translation when the sentence ends. Steady: each sentence appears once, finished and translated, about half a second after it ends; a small bar moves under the captions while it&apos;s on its way, and if the speaker talks on, a dim line shows the words so far. Live updates: words appear as they&apos;re said and rewrite themselves until the sentence ends. Choose one in Settings &gt; Timing, or in a caption window&apos;s settings. In every one, nobody talks longer than the Longest wait for text (3 seconds, unless you change it) before you see text.</source>
-        <translation type="unfinished">プレビュー（既定）：約2秒後に薄い1行目が出て、文が終わると確定した字幕と翻訳が表示されます。安定：各文は話し終わってから約0.5秒後に、完成・翻訳済みの形で一度だけ表示されます。届くまでは字幕の下で小さなバーが動き、話が続く場合はそこまでの言葉が薄い行で表示されます。ライブ：話すそばから単語が表示され、文が終わるまで書き換わります。設定 &gt; タイミング、または字幕ウィンドウの設定で選べます。どれでも、「テキストの最大待ち時間」（変更しない限り3秒）より長く話しても文字が出ないことはありません。</translation>
+        <source>Instant, the default: words appear as they&apos;re said and may change until the sentence ends. Whole captions shows each finished sentence at once. Steady follows the speaker&apos;s pace with a short delay. Calm waits for words the speech model is sure of. Choose a mode in Settings &gt; Timing or from the caption bar. The longest wait for text is {wait} by default.</source>
+        <translation type="unfinished">既定は即時です。話したそばから文字が表示され、文の終わりまで変わることがあります。文ごとの字幕は完成した文を一度に表示します。安定は少し遅れて話すペースに合わせます。落ち着きは音声モデルが確信を持てる単語を待ちます。設定 &gt; タイミング、または字幕バーで選べます。既定の最長待ち時間は {wait} です。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2588,6 +3129,26 @@
     <name>Home</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Polyglotic can&apos;t update itself in this folder. Move it to your Applications folder (~/Applications) and start it from there.</source>
+        <translation type="unfinished">Polyglotic はこのフォルダーでは自動更新できません。Applications フォルダー (~/Applications) に移動して、そこから起動してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open folder</source>
+        <translation type="unfinished">フォルダーを開く</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Version {version} is ready. Quit and start Polyglotic again to finish updating.</source>
+        <translation type="unfinished">バージョン {version} の準備ができました。Polyglotic を終了して再起動すると更新が完了します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Quit now</source>
+        <translation type="unfinished">今すぐ終了</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your learning data on this PC was damaged, so it&apos;s been set aside as {name}. Your saved words are coming back from your account.</source>
         <translation type="unfinished">このPCの学習データが破損していたため、{name} として退避しました。保存した単語をアカウントから復元しています。</translation>
     </message>
@@ -2610,6 +3171,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Sign in</source>
         <translation type="unfinished">サインイン</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Upgrade</source>
+        <translation type="unfinished">アップグレード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Review consent</source>
+        <translation type="unfinished">同意内容を確認</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2659,8 +3230,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>The server is busy</source>
-        <translation type="unfinished">サーバーが混雑しています</translation>
+        <source>Polyglotic is busy — try again in a few minutes</source>
+        <translation type="unfinished">Polyglotic が混雑しています。数分後にお試しください</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2681,6 +3252,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Plus has ended</source>
         <translation type="unfinished">Plus が終了しました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>You’ve used your listening allowance</source>
+        <translation type="unfinished">リスニング利用枠を使い切りました</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Consent is needed to start listening</source>
+        <translation type="unfinished">リスニングを始めるには同意が必要です</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2739,6 +3320,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Server status</source>
+        <translation type="unfinished">サーバーの状態</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{line}.</source>
         <extracomment>Home&apos;s line on why the server can&apos;t be reached, as a sentence in Help</extracomment>
         <translation type="unfinished">{line}。</translation>
@@ -2757,6 +3343,17 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>This PC&apos;s date or time looks wrong: it says {date}, {time}. Captions work; to set it, turn on automatic date and time in your desktop&apos;s settings, under Date &amp; Time.</source>
+        <extracomment>{date}, {time}: what this PC&apos;s clock says, in its regional format. Linux: GNOME&apos;s, KDE&apos;s and Xfce&apos;s settings each have a Date &amp; Time page</extracomment>
+        <translation type="unfinished">このPCの日付または時刻が正しくないようです（{date} {time} になっています）。字幕は使えます。直すには、デスクトップの設定の「日付と時刻」で、日付と時刻の自動設定をオンにしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>sign in with your email to listen</source>
+        <translation type="unfinished">リスニングするにはメールアドレスでログインしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>you need a code from us: an invite, or the one in your Plus email</source>
         <translation type="unfinished">当社のコード（招待コードか Plus のメールのコード）が必要です</translation>
     </message>
@@ -2772,6 +3369,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume here</source>
+        <translation type="unfinished">ここから再開できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the tray</source>
         <translation type="unfinished">Ctrl+Alt+P か通知領域から再開できます</translation>
     </message>
@@ -2779,6 +3381,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>resume with Ctrl+Alt+P, or from the menu bar</source>
         <translation type="unfinished">Ctrl+Alt+P かメニューバーから再開できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>resume with Ctrl+Alt+P, or here</source>
+        <translation type="unfinished">Ctrl+Alt+P かここから再開できます</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2806,6 +3413,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>quit from the menu bar and start Polyglotic again - if it keeps stopping, Help can check what&apos;s wrong</source>
         <translation type="unfinished">メニューバーから終了して Polyglotic を再起動してください。止まり続ける場合はヘルプで原因を確認できます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>quit Polyglotic and start it again - if it keeps stopping, Help can check what&apos;s wrong</source>
+        <translation type="unfinished">Polyglotic を終了して再起動してください。止まり続ける場合はヘルプで原因を確認できます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2846,6 +3458,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the update is downloaded - quit from the menu bar and start Polyglotic again to install it</source>
         <translation type="unfinished">更新のダウンロードが完了しました。メニューバーから終了して Polyglotic を再起動するとインストールされます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>the update is downloaded - quit Polyglotic and start it again to install it</source>
+        <translation type="unfinished">更新のダウンロードが完了しました。Polyglotic を終了して再起動するとインストールされます</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -2909,6 +3526,12 @@
         <source>this Mac says it&apos;s {date}, which can&apos;t be right. Turn on Set time and date automatically in System Settings, General, Date &amp; Time</source>
         <extracomment>{date}: the date this Mac&apos;s clock says, in its regional format</extracomment>
         <translation type="unfinished">この Mac の日付は{date}になっていますが、正しくありません。システム設定の「一般」&gt;「日付と時刻」で「日付と時刻を自動的に設定」をオンにしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>this PC says it&apos;s {date}, which can&apos;t be right. Turn on automatic date and time in your desktop&apos;s settings, under Date &amp; Time</source>
+        <extracomment>{date}: the date this PC&apos;s clock says, in its regional format</extracomment>
+        <translation type="unfinished">このPCの日付は{date}になっていますが、正しくありません。デスクトップの設定の「日付と時刻」で、日付と時刻の自動設定をオンにしてください</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3010,6 +3633,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Stop</source>
+        <translation type="unfinished">停止</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your speech shows in this window - click to stop</source>
         <translation type="unfinished">このウィンドウにあなたの声を表示中：クリックで停止</translation>
     </message>
@@ -3075,6 +3703,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Suggested</source>
+        <translation type="unfinished">おすすめ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Caption {app}</source>
         <translation type="unfinished">{app} を字幕にする</translation>
     </message>
@@ -3085,13 +3718,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Nothing is captioned until you add an app, or choose Everything the PC plays.</source>
-        <translation type="unfinished">アプリを追加するか「PCで再生されるすべて」を選ぶまで、何も字幕になりません。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Nothing is captioned until you add an app, or choose Everything the Mac plays.</source>
-        <translation type="unfinished">アプリを追加するか「Macで再生されるすべて」を選ぶまで、何も字幕になりません。</translation>
+        <source>Not captioning yet</source>
+        <translation type="unfinished">字幕はまだ開始されていません</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3125,11 +3753,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>3 of 3 - stop one to add another</source>
-        <translation type="unfinished">3/3：別のアプリを追加するには1つ停止してください</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>No app has sound open. Play something, then Refresh.</source>
         <translation type="unfinished">音を出しているアプリがありません。何か再生してから「更新」を押してください。</translation>
     </message>
@@ -3150,8 +3773,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>Apps</source>
-        <translation type="unfinished">アプリ</translation>
+        <source>Pick apps</source>
+        <translation type="unfinished">アプリを選択</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3162,6 +3785,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Everything the Mac plays</source>
         <translation type="unfinished">Macで再生されるすべて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Only caption the apps you choose.</source>
+        <translation type="unfinished">選んだアプリだけに字幕を付けます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption sound from all apps together.</source>
+        <translation type="unfinished">すべてのアプリの音声にまとめて字幕を付けます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3190,8 +3823,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>My speech: shown in {windows} - sent to the server only while a window shows it</source>
-        <translation type="unfinished">自分の声：{windows} に表示中。ウィンドウに表示している間だけサーバーに送信</translation>
+        <source>My speech: shown in {windows} - sent for your captions only while it&apos;s shown</source>
+        <translation type="unfinished">自分の声：{windows} に表示中。ウィンドウに表示している間だけ字幕のために送信</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3200,8 +3833,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
-        <source>My speech: not shown - add an app first, then turn it on with its row&apos;s microphone, or its window&apos;s settings</source>
-        <translation type="unfinished">自分の声：表示していません。先にアプリを追加し、その行のマイクかウィンドウの設定でオンにしてください</translation>
+        <source>Caption everything the PC plays</source>
+        <translation type="unfinished">PC で再生するすべての音声に字幕を付ける</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Caption everything the Mac plays</source>
+        <translation type="unfinished">Mac で再生するすべての音声に字幕を付ける</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Sample</source>
+        <translation type="unfinished">サンプル</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Captioning {app}</source>
+        <translation type="unfinished">{app} の字幕を表示中</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3232,6 +3880,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>instead of apps: this Mac couldn&apos;t caption one app alone</source>
         <translation type="unfinished">アプリの代わりに：この Mac では1つのアプリだけを字幕にできませんでした</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps: this PC couldn&apos;t caption one app alone</source>
+        <translation type="unfinished">アプリの代わりに：このPCでは1つのアプリだけを字幕にできませんでした</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>instead of apps (the only choice on Linux for now)</source>
+        <translation type="unfinished">アプリの代わりに（Linux では今のところこれのみ）</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3267,6 +3925,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>One app beside everything else - turn that off to add another</source>
         <translation type="unfinished">アプリ1つ + その他すべて：別のアプリを追加するにはオフにしてください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>{used} of {limit} - stop one to add another</source>
+        <translation type="unfinished">{used}/{limit}：別のアプリを追加するには1つ停止してください</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3385,6 +4048,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Or later: it applies when you quit Polyglotic.</source>
+        <translation type="unfinished">後でも構いません：Polyglotic を終了するときに適用されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Version {version} is ready. Restart to install it.</source>
         <translation type="unfinished">バージョン {version} の準備ができました。再起動してインストールしてください。</translation>
     </message>
@@ -3465,6 +4133,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Start Polyglotic when you sign in?</source>
+        <translation type="unfinished">サインイン時に Polyglotic を起動しますか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Start with Windows</source>
         <translation type="unfinished">Windows と一緒に起動</translation>
     </message>
@@ -3472,6 +4145,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Open at login</source>
         <translation type="unfinished">ログイン時に開く</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Start at sign-in</source>
+        <translation type="unfinished">サインイン時に起動</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3485,8 +4163,246 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>It starts when you sign in, so captions are a click away when you play or watch. You can turn it off in Settings.</source>
+        <translation type="unfinished">サインインすると起動するので、ゲームや動画のときにワンクリックで字幕を使えます。設定でオフにできます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Something wrong, or an idea?</source>
         <translation type="unfinished">不具合やアイデアはありますか？</translation>
+    </message>
+</context>
+<context>
+    <name>Hotkeys</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Back to live</source>
+        <translation type="unfinished">ライブに戻る</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Copy the newest caption</source>
+        <translation type="unfinished">最新の字幕をコピー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Next preset</source>
+        <translation type="unfinished">次のプリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Caption text bigger</source>
+        <translation type="unfinished">字幕の文字を大きく</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Caption text smaller</source>
+        <translation type="unfinished">字幕の文字を小さく</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Open caption bar controls</source>
+        <translation type="unfinished">字幕バーの操作メニューを開く</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Dictate</source>
+        <translation type="unfinished">音声入力</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Type what they said</source>
+        <translation type="unfinished">相手の発言を入力</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Hold Ctrl, Alt, Shift or Win with a key, or choose an F key.</source>
+        <translation type="unfinished">Ctrl、Alt、Shift、Win とキーを一緒に押すか、F キーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Hold ⌘, ⌥, ⇧ or ⌃ with a key, or choose an F key.</source>
+        <translation type="unfinished">⌘、⌥、⇧、⌃ とキーを一緒に押すか、F キーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Hold Ctrl, Alt, Shift or Super with a key, or choose an F key.</source>
+        <translation type="unfinished">Ctrl、Alt、Shift、Super とキーを一緒に押すか、F キーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Esc closes things in every program: choose another key.</source>
+        <translation type="unfinished">Esc はどのプログラムでも何かを閉じるのに使います。別のキーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Letting go of Alt opens a program&apos;s menu: hold Ctrl with it too.</source>
+        <translation type="unfinished">Alt を離すとプログラムのメニューが開きます。Ctrl も一緒に押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Clear</source>
+        <translation type="unfinished">クリア</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>No key: the hotkey does nothing</source>
+        <translation type="unfinished">キーなし：このショートカットキーは何もしません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Clear {name}&apos;s key</source>
+        <translation type="unfinished">{name} のキーをクリア</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>They work from any program, even a game in front. Click a key, then press the one you want.</source>
+        <translation type="unfinished">どのプログラムからでも、ゲームが前面にあっても使えます。キーをクリックしてから、使いたいキーを押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>They work from any app, even a game in front. Click a key, then press the one you want.</source>
+        <translation type="unfinished">どのアプリからでも、ゲームが前面にあっても使えます。キーをクリックしてから、使いたいキーを押してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Reset all</source>
+        <translation type="unfinished">すべてリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Every hotkey back to its own key</source>
+        <translation type="unfinished">すべてのショートカットキーを元のキーに戻す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>This desktop doesn&apos;t allow global hotkeys. Add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
+        <translation type="unfinished">このデスクトップ環境ではグローバルショートカットを使用できません。代わりにデスクトップのキーボード設定（GNOME: 設定 &gt; キーボード &gt; カスタムショートカット）で、コマンド {command} --lock、--pause、または --hide のショートカットを追加してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>{other} has this key too, and only it works.</source>
+        <translation type="unfinished">{other} も同じキーを使っていて、そちらだけが働きます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program has this key: choose another.</source>
+        <translation type="unfinished">このキーは別のプログラムが使っています。別のキーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>{other} has that key: clear it there, or choose another.</source>
+        <translation type="unfinished">そのキーは {other} が使っています。そちらでクリアするか、別のキーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Held while you speak</source>
+        <translation type="unfinished">話す間押し続けるキー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Change in Dictation</source>
+        <translation type="unfinished">音声入力で変更</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Dictate: hold {key} and speak.</source>
+        <translation type="unfinished">音声入力：{key} を押しながら話してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Dictate: off. Turn it on in Dictation.</source>
+        <translation type="unfinished">音声入力：オフ。音声入力でオンにしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Enable the hold key</source>
+        <translation type="unfinished">長押しキーを有効にする</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Use the words or translation from the caption window you’re watching. Without captions, listen to the speakers selected in Settings &gt; Speech.</source>
+        <translation type="unfinished">見ている字幕ウィンドウの原文または翻訳を使います。字幕がない場合は、「設定 &gt; 音声」で選んだスピーカーの音声を聞き取ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Type</source>
+        <translation type="unfinished">入力する内容</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>What they said</source>
+        <translation type="unfinished">相手の発言</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Its translation</source>
+        <translation type="unfinished">その翻訳</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>One key for both</source>
+        <translation type="unfinished">両方に同じキー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Its own key</source>
+        <translation type="unfinished">専用のキー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Release to copy the speech to the clipboard, then paste it where you want.</source>
+        <translation type="unfinished">キーを離すと発言がクリップボードにコピーされます。好きな場所に貼り付けてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program has {key}: choose another.</source>
+        <translation type="unfinished">{key} は別のプログラムが使っています。別のキーを選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Hold {key} while they speak.</source>
+        <translation type="unfinished">相手が話す間、{key} を押し続けます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>its key</source>
+        <translation type="unfinished">専用のキー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Tap {key}, then hold it while they speak. Held without a tap, it dictates.</source>
+        <translation type="unfinished">{key} を一度押し、続けて相手が話す間押し続けます。最初から長押しすると音声入力になります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Search a transcript</source>
+        <translation type="unfinished">書き起こしを検索</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Back to live in a transcript</source>
+        <translation type="unfinished">書き起こしでライブに戻る</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Copy what&apos;s selected</source>
+        <translation type="unfinished">選択部分をコピー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Close the search or the lookup</source>
+        <translation type="unfinished">検索または辞書引きを閉じる</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>In a window</source>
+        <translation type="unfinished">ウィンドウ内</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>While a transcript or the lookup has the keyboard.</source>
+        <translation type="unfinished">書き起こしか辞書引きがキーボードを使っているとき。</translation>
     </message>
 </context>
 <context>
@@ -3534,15 +4450,19 @@
 </context>
 <context>
     <name>KnownMap</name>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
-        <source>No change in the last 7 days.</source>
-        <translation type="unfinished">この 7 日間は変化なし。</translation>
+        <source>No change in the last %Ln day(s).</source>
+        <translation type="unfinished">
+            <numerusform>この %Ln 日間は変化なし。</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
-        <source>In the last 7 days: {green} green, {red} red.</source>
-        <translation type="unfinished">この 7 日間：緑 {green}、赤 {red}。</translation>
+        <source>In the last %Ln day(s): {green} green, {red} red.</source>
+        <translation type="unfinished">
+            <numerusform>この %Ln 日間：緑 {green}、赤 {red}。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
@@ -3621,10 +4541,12 @@
         <source>Looked up, then heard again without a lookup.</source>
         <translation type="unfinished">調べたあと、調べずにまた聞きました。</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
-        <source>Looked up in the last 3 days.</source>
-        <translation type="unfinished">この 3 日間に調べました。</translation>
+        <source>Looked up in the last %Ln day(s).</source>
+        <translation type="unfinished">
+            <numerusform>この %Ln 日間に調べました。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/known_map_card.py"/>
@@ -4126,6 +5048,29 @@
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Together</source>
         <translation type="unfinished">同時</translation>
+    </message>
+</context>
+<context>
+    <name>LanguagePicker</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/language_picker.py"/>
+        <source>Your language</source>
+        <translation type="unfinished">表示言語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/language_picker.py"/>
+        <source>Polyglotic will restart in this language.</source>
+        <translation type="unfinished">Polygloticはこの言語で再起動します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/language_picker.py"/>
+        <source>Continue</source>
+        <translation type="unfinished">続ける</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/language_picker.py"/>
+        <source>Translations into {name} - change any time in Settings</source>
+        <translation type="unfinished">翻訳先：{name}（設定でいつでも変更できます）</translation>
     </message>
 </context>
 <context>
@@ -4839,6 +5784,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
+        <source>Paused: this connection is set as metered. {size} left to download.</source>
+        <translation type="unfinished">一時停止中：この接続は従量制に設定されています。残り {size} をダウンロードします。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>Paused: Windows says this connection is metered. {size} left to download.</source>
         <translation type="unfinished">一時停止中：Windows によるとこの接続は従量制です。残り {size} をダウンロードします。</translation>
     </message>
@@ -5183,10 +6133,12 @@
         <source>For orange, yellow and green. When a colour is full, a word waits in the one before it, the most heard first.</source>
         <translation type="unfinished">オレンジ、黄、緑が対象です。色がいっぱいのとき、単語は前の色で待ち、多く聞いたものから進みます。</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
-        <source>In your load: {words} of {size}. Ready to check: {ready}. Graduated in the last 7 days: {week}.</source>
-        <translation type="unfinished">ロード内：{words}/{size}。確認待ち：{ready}。過去 7 日間に卒業：{week}。</translation>
+        <source>In your load: {words} of {size}. Ready to check: {ready}. Graduated in the last %Ln day(s): {week}.</source>
+        <translation type="unfinished">
+            <numerusform>ロード内：{words}/{size}。確認待ち：{ready}。過去 %Ln 日間に卒業：{week}。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -5251,6 +6203,21 @@
     <name>LookupCard</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>{classes} · {gloss}</source>
+        <translation type="unfinished">{classes} · {gloss}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice yet: Polyglotic speaks with the system&apos;s speech-dispatcher, which isn&apos;t installed or didn&apos;t start. Install speech-dispatcher and speech-dispatcher-espeak-ng from your software manager.</source>
+        <translation type="unfinished">{language} の音声がまだありません：Polyglotic はシステムの speech-dispatcher で話しますが、インストールされていないか起動しませんでした。ソフトウェア管理ツールから speech-dispatcher と speech-dispatcher-espeak-ng をインストールしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>No {language} voice yet: the system&apos;s speech-dispatcher has none. speech-dispatcher-espeak-ng, from your software manager, adds voices for over 100 languages.</source>
+        <translation type="unfinished">{language} の音声がまだありません：システムの speech-dispatcher にはその音声がありません。ソフトウェア管理ツールから speech-dispatcher-espeak-ng を入れると、100以上の言語の音声が追加されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>No {language} voice on this PC yet. Windows adds one for free: Settings &gt; Time &amp; language &gt; Speech &gt; Add voices, then {language}.</source>
         <translation type="unfinished">このPCには {language} の音声がまだありません。Windows で無料で追加できます：設定 &gt; 時刻と言語 &gt; 音声認識 &gt; 音声を追加、で {language} を選びます。</translation>
     </message>
@@ -5258,6 +6225,17 @@
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>No {language} voice on this Mac yet. macOS adds one for free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then {language}.</source>
         <translation type="unfinished">この Mac には {language} の音声がまだありません。macOS で無料で追加できます：システム設定 &gt; アクセシビリティ &gt; 読み上げコンテンツ &gt; システムの声 &gt; 声を管理、で {language} を選びます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>That was the system&apos;s basic {language} voice, from speech-dispatcher. Polyglotic can&apos;t use a more natural one on Linux yet; words with a recording play in a natural voice.</source>
+        <translation type="unfinished">今のは speech-dispatcher による、システムの基本的な {language} の音声です。Linux では Polyglotic はまだより自然な音声を使えません。録音のある単語は自然な音声で再生されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
+        <source>That was macOS&apos;s basic {language} voice. A more natural one is free: System Settings &gt; Accessibility &gt; Spoken Content &gt; System voice &gt; Manage Voices, then an {language} voice marked Enhanced or Premium.</source>
+        <extracomment>&quot;an&quot; before a language name said with a vowel first (&quot;an English voice&quot;). Translate as the text with &quot;then a {language} voice&quot;</extracomment>
+        <translation type="unfinished">今のは macOS の基本的な {language} の音声です。より自然な音声を無料で追加できます：システム設定 &gt; アクセシビリティ &gt; 読み上げコンテンツ &gt; システムの声 &gt; 声を管理 で、「拡張」または「プレミアム」と表示された {language} の音声を選びます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -5613,6 +6591,12 @@
     <name>Maintenance</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>{time} ({zone})</source>
+        <extracomment>a time and the time zone of the learner&apos;s PC it&apos;s in, said once in a line about planned maintenance: &quot;07:30 (AEDT)&quot;, &quot;Sunday 07:30 (UTC+11)&quot;</extracomment>
+        <translation type="unfinished">{time}（{zone}）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>{day} {time}</source>
         <extracomment>a weekday&apos;s name and a time on it: &quot;Sunday 00:30&quot;</extracomment>
         <translation type="unfinished">{day} {time}</translation>
@@ -5648,6 +6632,12 @@
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
         <source>Planned maintenance tomorrow, {start}-{end}: captions pause then, and come back by themselves.</source>
         <translation type="unfinished">明日 {start}～{end} に計画メンテナンスを行います。その間は字幕が一時停止し、終了後に自動で戻ります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
+        <source>Planned maintenance until {time} - captions come back by themselves</source>
+        <extracomment>the caption windows&apos; line while Polyglotic&apos;s server is in it</extracomment>
+        <translation type="unfinished">{time} まで計画メンテナンス中 - 字幕は自動で戻ります</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/maintenance.py"/>
@@ -5694,6 +6684,29 @@
     </message>
 </context>
 <context>
+    <name>NoTray</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
+        <source>Polyglotic keeps running</source>
+        <translation type="unfinished">Polyglotic は動作を続けます</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
+        <source>Your caption windows stay up. To come back to this window, open Polyglotic again from your apps. Quit is at the foot of its sidebar.</source>
+        <translation type="unfinished">字幕ウィンドウは表示されたままです。このウィンドウに戻るには、アプリ一覧から Polyglotic をもう一度開いてください。終了はサイドバーの一番下にあります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
+        <source>Keep running</source>
+        <translation type="unfinished">動作を続ける</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
+        <source>Quit</source>
+        <translation type="unfinished">終了</translation>
+    </message>
+</context>
+<context>
     <name>OneCopy</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
@@ -5704,6 +6717,172 @@
         <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
         <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, force quit Polyglotic (⌥⌘Esc), then open it again.</source>
         <translation type="unfinished">Polyglotic はすでに開いていますが、応答していません。しばらく待ってから、もう一度開いてください。それでも表示されない場合は、Polyglotic を強制終了（⌥⌘Esc）してから、もう一度開いてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/one_copy.py"/>
+        <source>Polyglotic is already open, but it isn&apos;t responding. Wait a moment, then open it again. If it still doesn&apos;t come up, end Polyglotic in System Monitor, then open it again.</source>
+        <translation type="unfinished">Polyglotic はすでに開いていますが、応答していません。しばらく待ってから、もう一度開いてください。それでも表示されない場合は、システムモニターで Polyglotic を終了してから、もう一度開いてください。</translation>
+    </message>
+</context>
+<context>
+    <name>OpenBeta</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>To restore a purchase made with another email, sign out and verify that email.</source>
+        <translation type="unfinished">別のメールアドレスで購入した場合は、ログアウトしてそのアドレスを認証してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>That code isn&apos;t valid - check it and try again.</source>
+        <translation type="unfinished">このコードは無効です。確認してもう一度お試しください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Check the code in your email, or request a new one.</source>
+        <translation type="unfinished">メールのコードを確認するか、新しいコードをリクエストしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Use a permanent email address.</source>
+        <translation type="unfinished">使い捨てでないメールアドレスを使ってください。</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>%n hour(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n時間</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>%n minute(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n分</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>%n second(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n秒</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Too many attempts. Try again in {time}.</source>
+        <translation type="unfinished">試行回数が多すぎます。{time}後にもう一度お試しください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Too many attempts. Try again later.</source>
+        <translation type="unfinished">試行回数が多すぎます。時間をおいて再試行してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Sign in with your email to continue.</source>
+        <translation type="unfinished">続けるにはメールアドレスでログインしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>That code isn’t available. Check it and try again.</source>
+        <translation type="unfinished">このコードは利用できません。確認してもう一度お試しください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>This plan is unavailable for your account.</source>
+        <translation type="unfinished">このプランはお使いのアカウントでは利用できません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>This account already has an offer from another code.</source>
+        <translation type="unfinished">このアカウントには、別のコードの特典がすでにあります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>The price has changed. Review the change again.</source>
+        <translation type="unfinished">価格が変わりました。変更内容をもう一度確認してください。</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>A payment on this account is still being confirmed. Finish paying in the open checkout, or try again in about %n minute(s).</source>
+        <translation type="unfinished">
+            <numerusform>このアカウントのお支払いを確認中です。開いている決済ページで支払いを完了するか、約%n分後にもう一度お試しください。</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>The open beta is not available in your region yet.</source>
+        <translation type="unfinished">お住まいの地域ではオープンベータをまだ利用できません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Polyglotic couldn’t complete that request. Please try again.</source>
+        <translation type="unfinished">Polyglotic がリクエストを処理できませんでした。もう一度お試しください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Restore purchase</source>
+        <translation type="unfinished">購入を復元</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Sign in</source>
+        <translation type="unfinished">サインイン</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Use the email address you bought Polyglotic with.</source>
+        <translation type="unfinished">Polyglotic の購入に使用したメールアドレスを入力してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Enter your email to create an account or sign in.</source>
+        <translation type="unfinished">メールアドレスを入力してアカウントを作成するか、ログインしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Email address</source>
+        <translation type="unfinished">メールアドレス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Six-digit email code</source>
+        <translation type="unfinished">メールで届く6桁のコード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Send me learning tips and Polyglotic news. Unsubscribe any time.</source>
+        <translation type="unfinished">学習のヒントと Polyglotic のお知らせを受け取る。いつでも配信を停止できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Have an invite code? Sign in with it instead</source>
+        <translation>Have an invite code? Sign in with it instead</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Change email or resend code</source>
+        <translation type="unfinished">メールアドレスを変更、またはコードを再送</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Email me a code</source>
+        <translation type="unfinished">コードをメールで送信</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Enter your email address.</source>
+        <translation type="unfinished">メールアドレスを入力してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Verify email</source>
+        <translation type="unfinished">メールアドレスを認証</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
+        <source>Check your inbox for a six-digit code.</source>
+        <translation type="unfinished">受信トレイで6桁のコードを確認してください。</translation>
     </message>
 </context>
 <context>
@@ -5765,6 +6944,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Detect finds the language each time someone speaks, and handles mixed talk. Name it and every caption is heard as that language: steadier for an app that speaks one, but a line in another may come out wrong.</source>
         <translation type="unfinished">自動検出は、話すたびに言語を見分け、混ざった会話にも対応します。言語を選ぶと、すべての字幕をその言語として聞き取ります。1つの言語を話すアプリでは安定しますが、別の言語の行は正しく出ないことがあります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Lyrics in music players</source>
+        <translation type="unfinished">音楽プレーヤーの歌詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Captions the singing in Spotify and other music players heard on Detect: their sound is sent even while no speech is heard, a few seconds at a time. Off: only what&apos;s heard as speech is sent.</source>
+        <translation type="unfinished">自動検出の Spotify などの音楽プレーヤーで歌にも字幕を付けます: 話し声が聞こえないときも、数秒ずつ音を送ります。オフ: 話し声として聞こえたものだけを送ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5843,8 +7032,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Your microphone is sent to the server only while this is on.</source>
-        <translation type="unfinished">これがオンのときだけ、マイクの音声がサーバーに送られます。</translation>
+        <source>Your microphone is sent for your captions only while this is on.</source>
+        <translation type="unfinished">これがオンのときだけ、マイクの音声が字幕のために送られます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5878,44 +7067,98 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Steady</source>
-        <translation type="unfinished">安定</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Quick preview</source>
-        <translation type="unfinished">プレビュー</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Live updates</source>
-        <translation type="unfinished">ライブ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Caption timing</source>
         <translation type="unfinished">字幕のタイミング</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>, </source>
-        <extracomment>between the times in a list, &quot;1.5s, 3s&quot; (Chinese: 、)</extracomment>
-        <translation type="unfinished">、</translation>
+        <source>Show the newest word too</source>
+        <translation type="unfinished">最新の単語も表示</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>{times} into each caption</source>
-        <translation type="unfinished">各字幕の {times}</translation>
+        <source>A quarter of a second sooner, but the newest word is the one most often corrected. Off: it waits until the next update confirms it.</source>
+        <translation type="unfinished">4分の1秒早くなりますが、最新の単語は最も修正されやすい単語です。オフ: 次の更新で確定するまで待ちます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Dim lines at</source>
-        <translation type="unfinished">薄い行を表示</translation>
+        <source>Card stack</source>
+        <translation type="unfinished">カードスタック</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Fixed: a first guess at the words, replaced by the finished caption.</source>
-        <translation type="unfinished">固定：最初の仮の文で、確定した字幕に置き換わります。</translation>
+        <source>Each line that is said keeps its place, with its translation under it, and the lines roll up together as new ones come. Off: live lines below, transcript above.</source>
+        <translation type="unfinished">話された各行は訳を下に添えてその場にとどまり、新しい行が来ると行全体が一緒に上へ送られます。オフ: 下にライブ行、上に書き起こし。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Live lines below, transcript above</source>
+        <translation type="unfinished">下にライブ行、上に書き起こし</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The lines being spoken stay at the foot of the caption window; each caption moves up into the transcript, with its translation, once it has been read. Off: one list of captions.</source>
+        <translation type="unfinished">話されている行は字幕ウィンドウの下端にとどまり、各字幕は読み終わると訳と一緒に上の書き起こしへ移ります。オフ: 字幕を1つのリストで表示します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Follow</source>
+        <translation type="unfinished">内容を追う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Both</source>
+        <translation type="unfinished">両方</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Acquisition</source>
+        <translation type="unfinished">習得</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>What you read first</source>
+        <translation type="unfinished">先に読むもの</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Follow: the translation leads, and what was said is smaller. Acquisition: what was said first, its translation a moment after each part. Both: the two together.</source>
+        <translation type="unfinished">内容を追う: 訳が主役で、話された内容は小さくなります。習得: 話された内容が先で、訳は各部分の少し後に出ます。両方: 2つを一緒に表示します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Translation after</source>
+        <translation type="unfinished">訳が出るまで</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>How long after a part is shown its translation appears.</source>
+        <translation type="unfinished">ある部分が表示されてから訳が出るまでの時間。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off</source>
+        <translation type="unfinished">オフ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Faint ahead</source>
+        <translation type="unfinished">先の単語を薄く</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>With the newest word</source>
+        <translation type="unfinished">最新の単語も含める</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Words ahead</source>
+        <translation type="unfinished">先の単語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The words already heard wait in faint text, and each lights up at the speaker&apos;s pace.</source>
+        <translation type="unfinished">すでに聞こえた単語が薄い文字で待機し、話し手のペースで一語ずつ点灯します。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5924,13 +7167,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Shorter: text sooner, rewritten more often; the first update waits for a second of speech.</source>
-        <translation type="unfinished">短いほど：文字が早く出て、頻繁に書き換わります。最初の更新は1秒分の音声を待ちます。</translation>
+        <source>Shorter intervals show text sooner, with more revisions.</source>
+        <translation type="unfinished">間隔を短くすると、文字が早く表示され、修正される回数が増えます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Less than a second of speech is too little for the speech model to tell the language.</source>
-        <translation type="unfinished">1秒未満の音声では、音声認識モデルが言語を判別できません。</translation>
+        <source>The first update waits for a second of speech.</source>
+        <translation type="unfinished">最初の更新には1秒分の音声が必要です。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5959,18 +7202,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Steady: each sentence once, finished, about half a second after it ends - with a dim line first if the speaker talks on for {seconds} seconds.</source>
-        <translation type="unfinished">安定：各文は話し終わってから約0.5秒後に、完成した形で一度だけ表示されます。{seconds} 秒以上話が続くと、先に薄い行が出ます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Quick preview: words in about 2 seconds, in a dim line; the full caption and its translation about half a second after the sentence ends.</source>
-        <translation type="unfinished">プレビュー：約2秒で薄い行に言葉が出て、文が終わってから約0.5秒後に字幕全体と翻訳が表示されます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Live updates: the caption rewrites itself while the speaker goes on.</source>
-        <translation type="unfinished">ライブ：話が続く間、字幕が書き換わります。</translation>
+        <source>A dim line comes first if the speaker talks on for {seconds} seconds.</source>
+        <translation type="unfinished">話し手が{seconds}秒話し続けると、先に薄い行が表示されます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -5986,6 +7219,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every caption window.</source>
         <translation type="unfinished">すべての字幕ウィンドウ。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Recommended looks</source>
+        <translation type="unfinished">おすすめの見た目</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colours, caption text, readings and Chinese fonts together, in one click. Change anything after; your other choices stay.</source>
+        <translation type="unfinished">色、字幕の文字、読み、中国語のフォントをまとめて、ワンクリックで。あとから何でも変えられ、ほかの設定はそのままです。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6084,11 +7327,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Off</source>
-        <translation type="unfinished">オフ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>On hover</source>
         <translation type="unfinished">ポイント時</translation>
     </message>
@@ -6109,8 +7347,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Which words of what was said and its translation mean the same. On hover: point at a word. Underline: matching words share a colour. Arrows: curves join them. The button on a caption window turns this off and on.</source>
-        <translation type="unfinished">話された内容と翻訳で、同じ意味の単語を示します。ポイント時：単語にポインターを合わせます。下線：対応する単語が同じ色になります。矢印：曲線で結びます。字幕ウィンドウのボタンでオン/オフできます。</translation>
+        <source>Which words of what was said and its translation mean the same. On hover: point at a word. Underline: colours show word class. Arrows: curves join them. A caption window&apos;s preset menu turns them off and on, under Add.</source>
+        <translation type="unfinished">下線の色は品詞を示します。単語にポインターを合わせると対応する語がわかり、矢印では対応する語を結びます。プリセットメニューでも切り替えられます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6189,8 +7427,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Each word a link joins takes its colour. With both on, and pinyin in its word link&apos;s colour, a word, its pinyin and its translation all match.</source>
-        <translation type="unfinished">リンクでつながった単語がその色になります。両方をオンにしてピンインも「単語リンクの色」にすると、単語・ピンイン・訳がすべて同じ色になります。</translation>
+        <source>Each linked word takes its own word class colour, as its underline does.</source>
+        <translation type="unfinished">リンクされた単語は、下線と同じ品詞の色になります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6261,6 +7499,26 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>How many words our curriculum holds at a time.</source>
         <translation type="unfinished">カリキュラムに一度に入れる単語の数。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>The language I&apos;m learning</source>
+        <translation type="unfinished">学習中の言語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Both lines</source>
+        <translation type="unfinished">両方の行</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Mark my words in</source>
+        <translation type="unfinished">自分の単語を表示する行</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Which line the quiet view marks your words in: the line in the language you&apos;re learning, every line in a language you learn, or only what was said.</source>
+        <translation type="unfinished">静かな表示で自分の単語をどの行に表示するか: 学習中の言語の行、学習している言語のすべての行、または話された内容だけ。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6373,10 +7631,12 @@
         <source>Respelling above English</source>
         <translation type="unfinished">英語の上に発音のつづり</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the 10,000 commonest words, in what was said and in translations into English, once you learn English.</source>
-        <translation type="unfinished">英単語がどう聞こえるかを、ふつうの文字で、強く読む部分を大文字で表示します（KAY-oss、ri-SEET）。よく使われる10,000語について、話された内容にも英語への翻訳にも。英語を学習しているときに表示されます。</translation>
+        <source>How each English word sounds, in plain letters, its stressed part in capitals (KAY-oss, ri-SEET) - for the %Ln commonest word(s), in what was said and in translations into English, once you learn English.</source>
+        <translation type="unfinished">
+            <numerusform>英単語がどう聞こえるかを、ふつうの文字で、強く読む部分を大文字で表示します（KAY-oss、ri-SEET）。よく使われる%Ln語について、話された内容にも英語への翻訳にも。英語を学習しているときに表示されます。</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6405,6 +7665,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Grey</source>
+        <translation type="unfinished">グレー</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Same as its line</source>
         <translation type="unfinished">その行と同じ</translation>
     </message>
@@ -6425,8 +7690,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Its word link&apos;s colour: a reading takes the colour of its word&apos;s link, where one joins it. Word links can colour the linked words too.</source>
-        <translation type="unfinished">単語リンクの色：リンクでつながった単語の読みが、そのリンクの色になります。単語リンクでは単語そのものにも色を付けられます。</translation>
+        <source>Grey keeps readings behind their text. With Grey or its word link&apos;s colour, a reading takes the colour of its word&apos;s link where one joins it. Word links can colour the linked words too.</source>
+        <translation type="unfinished">グレーにすると、読みが文字より控えめになります。グレーか単語リンクの色では、リンクでつながった単語の読みがそのリンクの色になります。単語リンクでは単語そのものにも色を付けられます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6502,6 +7767,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Off: it stays hidden, and the menu bar&apos;s icon says it&apos;s still captioning.</source>
         <translation type="unfinished">オフ：非表示のままで、メニューバーのアイコンに字幕を作成中と表示されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Off: it stays hidden, and Home says it&apos;s still captioning.</source>
+        <translation type="unfinished">オフ：非表示のままで、ホームに字幕を作成中と表示されます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -6585,6 +7855,592 @@
         <location filename="../src/polyglotic_desktop/ui_next/plan.py"/>
         <source>Get Plus</source>
         <translation type="unfinished">Plus を購入</translation>
+    </message>
+</context>
+<context>
+    <name>Presets</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Everyday</source>
+        <translation type="unfinished">普段使い</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Conversation</source>
+        <translation type="unfinished">会話</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Video, film &amp; TV</source>
+        <translation type="unfinished">動画・映画・テレビ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Learning</source>
+        <translation type="unfinished">学習</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Custom</source>
+        <translation type="unfinished">カスタム</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Every helper on: the app&apos;s own setup</source>
+        <translation type="unfinished">補助機能をすべてオン：アプリ標準の設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Calls and chats: your speech too</source>
+        <translation type="unfinished">通話やチャット：自分の声も表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Subtitles along the bottom, large</source>
+        <translation type="unfinished">画面の下に大きな字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Word links and fewer word introductions</source>
+        <translation type="unfinished">単語リンクと少なめの新出単語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Your settings from before presets</source>
+        <translation type="unfinished">プリセット導入前のあなたの設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>One of your own</source>
+        <translation type="unfinished">自分で作ったプリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Both</source>
+        <translation type="unfinished">両方</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Original only</source>
+        <translation type="unfinished">原文のみ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Translation only</source>
+        <translation type="unfinished">翻訳のみ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Preset: {name}</source>
+        <translation type="unfinished">プリセット：{name}</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>%n change(s) not saved</source>
+        <translation type="unfinished">
+            <numerusform>%n 件の変更が未保存</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Now {name}. Changes to {before} weren&apos;t saved.</source>
+        <translation type="unfinished">{name} に切り替えました。{before} の変更は保存されていません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Changes to {name} discarded.</source>
+        <translation type="unfinished">{name} の変更を破棄しました。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>{name} is back to its defaults.</source>
+        <translation type="unfinished">{name} を既定に戻しました。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>{name} deleted.</source>
+        <translation type="unfinished">{name} を削除しました。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Save changes to {name}</source>
+        <translation type="unfinished">変更を {name} に保存</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Save as new preset…</source>
+        <translation type="unfinished">新しいプリセットとして保存…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Discard changes</source>
+        <translation type="unfinished">変更を破棄</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Restore {name}&apos;s defaults</source>
+        <translation type="unfinished">{name} を既定に戻す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Undo</source>
+        <translation type="unfinished">元に戻す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Preset</source>
+        <translation type="unfinished">プリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Show</source>
+        <translation type="unfinished">表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Lines shown</source>
+        <extracomment>How many subtitle lines remain on screen in Video mode.</extracomment>
+        <translation type="unfinished">表示行数</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Add</source>
+        <translation type="unfinished">追加</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Word links</source>
+        <translation type="unfinished">単語リンク</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Quiet view</source>
+        <translation type="unfinished">静かな表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Readings</source>
+        <translation type="unfinished">読み</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Pinyin, Jyutping or a respelling over the words</source>
+        <translation type="unfinished">単語の上にピンイン、粤拼、または発音のつづり</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Rename…</source>
+        <translation type="unfinished">名前を変更…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Delete</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Customise presets…</source>
+        <translation type="unfinished">プリセットをカスタマイズ…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
+        <source>Edit, rename, reset or add presets in Settings</source>
+        <translation type="unfinished">プリセットの編集、名前の変更、リセット、追加は設定で</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Preset: {name} · {not_saved}</source>
+        <translation type="unfinished">プリセット：{name} · {not_saved}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Using the preset {name}</source>
+        <translation type="unfinished">使用中のプリセット：{name}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The new preset&apos;s name</source>
+        <translation type="unfinished">新しいプリセットの名前</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Save as new preset:</source>
+        <translation type="unfinished">新しいプリセットとして保存：</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Save to {name}</source>
+        <translation type="unfinished">{name} に保存</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Five of your own at most: delete one first</source>
+        <translation type="unfinished">自分用は5つまで：先に1つ削除してください</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>On</source>
+        <translation type="unfinished">オン</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Off</source>
+        <translation type="unfinished">オフ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>{percent}%</source>
+        <translation type="unfinished">{percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Never</source>
+        <translation type="unfinished">しない</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>{seconds} s</source>
+        <translation type="unfinished">{seconds} 秒</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>On hover only</source>
+        <translation type="unfinished">ポイント時のみ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Colours</source>
+        <translation type="unfinished">色分け</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>With arrows</source>
+        <translation type="unfinished">矢印</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>None</source>
+        <translation type="unfinished">なし</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Follow (the translation leads)</source>
+        <translation type="unfinished">内容を追う（翻訳が中心）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Acquisition (each line first)</source>
+        <translation type="unfinished">習得（各行を原文で先に）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Both together</source>
+        <translation type="unfinished">両方を同時に</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Steady</source>
+        <translation type="unfinished">安定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Whole captions</source>
+        <translation type="unfinished">文ごとの字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Instant</source>
+        <translation type="unfinished">即時</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Calm</source>
+        <translation type="unfinished">落ち着き</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The default</source>
+        <translation type="unfinished">既定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>A shadow</source>
+        <translation type="unfinished">影</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>An outline</source>
+        <translation type="unfinished">縁取り</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The words waiting</source>
+        <translation type="unfinished">待っている単語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>All, the newest too</source>
+        <translation type="unfinished">すべて（最新の単語も）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>A few</source>
+        <translation type="unfinished">少しだけ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Every new word</source>
+        <translation type="unfinished">新しい単語すべて</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Each window&apos;s own</source>
+        <translation type="unfinished">ウィンドウごと</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Custom choices</source>
+        <translation type="unfinished">カスタム設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Default choices</source>
+        <translation type="unfinished">既定の設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What was said</source>
+        <translation type="unfinished">話された内容</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The translation</source>
+        <translation type="unfinished">翻訳</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The language over each caption</source>
+        <translation type="unfinished">各字幕の上に言語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The source over each caption</source>
+        <translation type="unfinished">各字幕の上にソース</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Fade after quiet</source>
+        <translation type="unfinished">無音で薄く消す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Readings only past what you know</source>
+        <translation type="unfinished">知っている範囲を超えた単語だけに読み</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Word introductions</source>
+        <translation type="unfinished">単語の紹介</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>How many word introductions</source>
+        <translation type="unfinished">単語の紹介の数</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Panel</source>
+        <translation type="unfinished">パネル</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What was said&apos;s colour</source>
+        <translation type="unfinished">話された内容の色</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The translation&apos;s colour</source>
+        <translation type="unfinished">翻訳の色</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The panel&apos;s colour</source>
+        <translation type="unfinished">パネルの色</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Around the letters</source>
+        <translation type="unfinished">文字のまわり</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Thickness</source>
+        <translation type="unfinished">太さ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Contrast</source>
+        <translation type="unfinished">コントラスト</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Vibrance</source>
+        <translation type="unfinished">鮮やかさ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Caption mode</source>
+        <translation type="unfinished">字幕モード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Path</source>
+        <translation type="unfinished">進め方</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Translation after</source>
+        <translation type="unfinished">訳が出るまで</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The newest word shown</source>
+        <translation type="unfinished">最新の単語を表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Words ahead</source>
+        <translation type="unfinished">先の単語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Two zones</source>
+        <translation type="unfinished">2 つのエリア</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Card stack</source>
+        <translation type="unfinished">カードスタック</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Subtitles along the bottom</source>
+        <translation type="unfinished">画面の下に字幕</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Subtitles&apos; text size</source>
+        <translation type="unfinished">下の字幕の文字サイズ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Subtitles&apos; width</source>
+        <translation type="unfinished">下の字幕の幅</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>My speech</source>
+        <translation type="unfinished">自分の声</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Lyrics</source>
+        <translation type="unfinished">歌詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Window languages</source>
+        <translation type="unfinished">ウィンドウの言語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Second languages</source>
+        <translation type="unfinished">第2翻訳言語</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Presets</source>
+        <translation type="unfinished">プリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Pick how captions work for what you&apos;re doing - here or from a caption window&apos;s bar. Bar changes save automatically. Use Save here to keep your Settings edits.</source>
+        <translation type="unfinished">ここ、または字幕ウィンドウのバーで字幕の表示方法を選べます。バーでの変更は自動保存されます。設定での変更を残すには、ここで「保存」を選んでください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>New preset</source>
+        <translation type="unfinished">新しいプリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The captions as they are now, as a preset of your own</source>
+        <translation type="unfinished">今の字幕の設定を、自分用のプリセットに</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>In use</source>
+        <translation type="unfinished">使用中</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Use</source>
+        <translation type="unfinished">使う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Use {name}</source>
+        <translation type="unfinished">「{name}」を使う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>The preset in use</source>
+        <translation type="unfinished">使用中のプリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Its name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What it changes</source>
+        <translation type="unfinished">変わる設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What it changes from the app&apos;s defaults</source>
+        <translation type="unfinished">アプリの既定から変わる設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What it changes from Everyday</source>
+        <translation type="unfinished">「普段使い」から変わる設定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Nothing yet.</source>
+        <translation type="unfinished">まだありません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>Back to the app&apos;s defaults</source>
+        <translation type="unfinished">アプリの既定の設定に戻します</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
+        <source>What you saved in it goes; its own settings stay</source>
+        <translation type="unfinished">このプリセットに保存した内容は消え、元の設定は残ります</translation>
     </message>
 </context>
 <context>
@@ -6793,6 +8649,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Look it up</source>
+        <translation type="unfinished">調べる</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
         <source>Say it</source>
         <translation type="unfinished">読み上げ</translation>
     </message>
@@ -6808,6 +8669,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
+        <source>Add an {language} voice</source>
+        <extracomment>&quot;an&quot; before a language name said with a vowel first: &quot;Add an English voice&quot;. Translate as &quot;Add a {language} voice&quot;</extracomment>
+        <translation type="unfinished">{language}の音声を追加</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/sentence_card.py"/>
         <source>Add a {language} voice</source>
         <translation type="unfinished">{language}の音声を追加</translation>
     </message>
@@ -6820,24 +8687,89 @@
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
+        <source>Open System Settings</source>
+        <translation type="unfinished">「システム設定」を開く</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Lock all caption windows</source>
         <translation type="unfinished">すべての字幕ウィンドウをロック</translation>
     </message>
     <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Pause captions</source>
         <translation type="unfinished">字幕を一時停止</translation>
     </message>
     <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Hide all caption windows</source>
         <translation type="unfinished">すべての字幕ウィンドウを非表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Hotkeys</source>
+        <translation type="unfinished">ショートカットキー</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Third-party notices</source>
         <translation type="unfinished">サードパーティの通知</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Text sizes</source>
+        <translation type="unfinished">文字サイズ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Applies to any language; scripts are matched in size automatically.</source>
+        <translation type="unfinished">どの言語にも適用されます。文字体系ごとの表示サイズは自動でそろいます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Caption size</source>
+        <translation type="unfinished">字幕のサイズ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Smaller caption size</source>
+        <translation type="unfinished">字幕を小さく</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Bigger caption size</source>
+        <translation type="unfinished">字幕を大きく</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Translation size</source>
+        <translation type="unfinished">翻訳のサイズ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Match</source>
+        <translation type="unfinished">揃える</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Match translation size to caption size</source>
+        <translation type="unfinished">翻訳のサイズを字幕のサイズに揃える</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Set the translation size equal to the caption size</source>
+        <translation type="unfinished">翻訳のサイズを字幕のサイズと同じにします</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Smaller translation size</source>
+        <translation type="unfinished">翻訳を小さく</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Bigger translation size</source>
+        <translation type="unfinished">翻訳を大きく</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6896,18 +8828,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Hotkeys</source>
-        <translation type="unfinished">ショートカットキー</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>They work from any program, including a game.</source>
-        <translation type="unfinished">ゲームを含むどのプログラムからでも使えます。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates</source>
         <translation type="unfinished">更新</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Updates download quietly and apply when you quit Polyglotic.</source>
+        <translation type="unfinished">更新は自動でダウンロードされ、Polyglotic を終了するときに適用されます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6923,6 +8850,21 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Restart now</source>
         <translation type="unfinished">今すぐ再起動</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Start at sign-in</source>
+        <translation type="unfinished">サインイン時に起動</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Start Polyglotic when you sign in to your computer</source>
+        <translation type="unfinished">パソコンにサインインしたら Polyglotic を起動</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Ready to caption from the moment you sign in.</source>
+        <translation type="unfinished">サインインした時点から字幕を表示できます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -6979,16 +8921,19 @@
         <source>How far back a transcript window scrolls and searches. Copy all and Save always have the whole session.</source>
         <translation type="unfinished">書き起こしウィンドウでさかのぼってスクロール・検索できる範囲です。すべてコピーと保存には常にセッション全体が入ります。</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Newest {count} lines</source>
-        <extracomment>{count} is always 1,000</extracomment>
-        <translation type="unfinished">最新 {count} 行</translation>
+        <source>Newest %Ln line(s)</source>
+        <translation type="unfinished">
+            <numerusform>最新 %Ln 行</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Last 3 hours</source>
-        <translation type="unfinished">直近 3 時間</translation>
+        <source>Last %Ln hour(s)</source>
+        <translation type="unfinished">
+            <numerusform>直近 %Ln 時間</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7005,10 +8950,19 @@
         <source>Ask to save before quitting</source>
         <translation type="unfinished">終了前に保存を確認する</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>With Last 3 hours or Whole session: Quit asks about a transcript of more than 300 lines that isn&apos;t saved.</source>
-        <translation type="unfinished">「直近 3 時間」か「セッション全体」のとき、300 行を超える未保存の書き起こしがあれば終了時に確認します。</translation>
+        <source>With Last %Ln hour(s) or Whole session: Quit asks about a transcript of {line_limit} that isn&apos;t saved.</source>
+        <translation type="unfinished">
+            <numerusform>「直近 %Ln 時間」か「セッション全体」のとき、{line_limit}未保存の書き起こしがあれば終了時に確認します。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>more than %Ln line(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln 行を超える</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7017,8 +8971,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Hold a key and speak; let go, and your words are typed where your cursor is, in any program. Your voice goes to our server only while you hold the key, and nothing is kept.</source>
-        <translation type="unfinished">キーを押しながら話し、離すと、どのプログラムでもカーソルの位置に入力されます。声はキーを押している間だけ当社のサーバーに送られ、何も保存されません。</translation>
+        <source>Hold a key and speak. Release it to type where your cursor is. When your own speech is captioned, dictation also appears in the caption window and uses its spoken language. Otherwise, dictation listens only during the hold.</source>
+        <translation type="unfinished">キーを押したまま話し、離すとカーソルの位置に入力されます。自分の発話を字幕にしている場合は、音声入力の内容も字幕ウィンドウに表示され、そのウィンドウの話し言葉の設定が使われます。それ以外の場合は、キーを押している間だけ音声を聞き取ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7062,13 +9016,18 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The tray&apos;s menu switches it too.</source>
-        <translation type="unfinished">自動検出では、キーを押すたびに話した言語で入力します。言語を1つ決めると（英語、標準中国語など）、常にその言語として聞き取り、短い言葉が別の言語と誤認されることはありません。通知領域のメニューでも切り替えられます。</translation>
+        <source>Choose a language or use {detect} when dictation records its own audio.</source>
+        <translation type="unfinished">音声入力が専用に録音するときは、言語を選ぶか「{detect}」を使います。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Detect types whatever language you speak, each time you hold the key. Set one - English, Mandarin… - and it&apos;s always heard as that: a short phrase is never taken for another. The menu bar&apos;s menu switches it too.</source>
-        <translation type="unfinished">自動検出では、キーを押すたびに話した言語で入力します。言語を1つ決めると（英語、標準中国語など）、常にその言語として聞き取り、短い言葉が別の言語と誤認されることはありません。メニューバーのメニューでも切り替えられます。</translation>
+        <source>The tray&apos;s menu switches it too.</source>
+        <translation type="unfinished">通知領域のメニューでも切り替えられます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>The menu bar&apos;s menu switches it too.</source>
+        <translation type="unfinished">メニューバーのメニューでも切り替えられます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7088,11 +9047,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Open System Settings</source>
-        <translation type="unfinished">「システム設定」を開く</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Another program has {key}: choose another.</source>
         <translation type="unfinished">{key} は別のプログラムが使っています。別のキーを選んでください。</translation>
     </message>
@@ -7105,6 +9059,12 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold {key} and speak; let go, and it&apos;s typed.</source>
         <translation type="unfinished">{key} を押しながら話し、離すと入力されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Presets</source>
+        <extracomment>Settings&apos; section of the presets for use cases (conversation, video...)</extracomment>
+        <translation type="unfinished">プリセット</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7169,6 +9129,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Later</source>
+        <translation type="unfinished">後で</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Machine draft</source>
         <translation type="unfinished">機械翻訳の下書き</translation>
     </message>
@@ -7181,11 +9146,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Tell us what reads wrong</source>
         <translation type="unfinished">おかしな表現を教えてください</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>another program has it</source>
-        <translation type="unfinished">別のプログラムが使用中</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7204,13 +9164,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Polyglotic is up to date.</source>
-        <translation type="unfinished">Polyglotic は最新です。</translation>
+        <source>Version {version} is ready. Restart to install it.</source>
+        <translation type="unfinished">バージョン {version} の準備ができました。再起動してインストールしてください。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>Version {version} is ready. Restart to install it.</source>
-        <translation type="unfinished">バージョン {version} の準備ができました。再起動してインストールしてください。</translation>
+        <source>Polyglotic is up to date.</source>
+        <translation type="unfinished">Polyglotic は最新です。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -7235,6 +9195,11 @@
 </context>
 <context>
     <name>SettingsPopover</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>{percent}%</source>
+        <translation type="unfinished">{percent}%</translation>
+    </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>When they already speak {language}</source>
@@ -7308,6 +9273,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
+        <source>Captions singing too: the music is sent while it plays</source>
+        <translation type="unfinished">歌にも字幕を付けます: 再生中は音楽を送ります</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>When they already speak this window&apos;s language</source>
         <translation type="unfinished">すでにこのウィンドウの言語で話しているとき</translation>
     </message>
@@ -7328,43 +9298,23 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Blue words in the quiet view</source>
-        <translation type="unfinished">静かな表示で青にする単語</translation>
+        <source>Caption size</source>
+        <translation type="unfinished">字幕のサイズ</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Your microphone is sent to the server only while this is on</source>
-        <translation type="unfinished">これがオンのときだけ、マイクの音声がサーバーに送られます</translation>
+        <source>Smaller caption size</source>
+        <translation type="unfinished">字幕を小さく</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Timing</source>
-        <translation type="unfinished">タイミング</translation>
+        <source>Bigger caption size</source>
+        <translation type="unfinished">字幕を大きく</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>for every window</source>
-        <translation type="unfinished">すべてのウィンドウ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>When captions appear, for every window. The full choice is in Settings.</source>
-        <translation type="unfinished">字幕が表示されるタイミング（すべてのウィンドウ共通）。すべての選択肢は設定にあります。</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Text size</source>
-        <translation type="unfinished">文字サイズ</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Smaller text</source>
-        <translation type="unfinished">文字を小さく</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Bigger text</source>
-        <translation type="unfinished">文字を大きく</translation>
+        <source>Match translation size to caption size</source>
+        <translation type="unfinished">翻訳のサイズを字幕のサイズに揃える</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -7373,12 +9323,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Smaller translation</source>
+        <source>Smaller translation size</source>
         <translation type="unfinished">翻訳を小さく</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>Bigger translation</source>
+        <source>Bigger translation size</source>
         <translation type="unfinished">翻訳を大きく</translation>
     </message>
     <message>
@@ -7388,8 +9338,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
-        <source>{percent}%</source>
-        <translation type="unfinished">{percent}%</translation>
+        <source>Caption what I say</source>
+        <translation type="unfinished">自分の話した内容を字幕にする</translation>
     </message>
 </context>
 <context>
@@ -7490,6 +9440,12 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
+        <source>This PC says it&apos;s {date}, which can&apos;t be right, and a secure connection needs the right date. Turn on automatic date and time in your desktop&apos;s settings, under Date &amp; Time.</source>
+        <extracomment>{date}: the date this PC&apos;s clock says, in its regional format. Linux: GNOME&apos;s, KDE&apos;s and Xfce&apos;s settings each have Date &amp; Time</extracomment>
+        <translation type="unfinished">このPCの日付は{date}になっていますが、正しくありません。安全な接続には正しい日付が必要です。デスクトップの設定の「日付と時刻」で、日付と時刻の自動設定をオンにしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
         <source>Something on this network is in the way with an out-of-date certificate - most often an antivirus&apos;s HTTPS scanning, or a VPN. Turn it off for Polyglotic, or try another network.</source>
         <translation type="unfinished">このネットワークの何かが、期限切れの証明書で妨げています（多くはウイルス対策ソフトの HTTPS スキャン、または VPN）。Polyglotic に対してそれをオフにするか、別のネットワークをお試しください。</translation>
     </message>
@@ -7530,13 +9486,13 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
-        <source>Captions stop until you sign in again - with the same invite code: it works again on this PC. Your saved words and learning data stay, on this PC and on our server.</source>
-        <translation type="unfinished">もう一度サインインするまで字幕は止まります。同じ招待コードがこのPCでもう一度使えます。保存した単語と学習データは、このPCと当社のサーバーに残ります。</translation>
+        <source>Captions stop until you sign in again. Your saved words and learning data stay, on this PC and on our server.</source>
+        <translation type="unfinished">再びログインするまで字幕は停止します。保存した単語と学習データは、この PC とサーバーに残ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
-        <source>Captions stop until you sign in again - with the same invite code: it works again on this Mac. Your saved words and learning data stay, on this Mac and on our server.</source>
-        <translation type="unfinished">もう一度サインインするまで字幕は止まります。同じ招待コードがこのMacでもう一度使えます。保存した単語と学習データは、このMacと当社のサーバーに残ります。</translation>
+        <source>Captions stop until you sign in again. Your saved words and learning data stay, on this Mac and on our server.</source>
+        <translation type="unfinished">再びログインするまで字幕は停止します。保存した単語と学習データは、この Mac とサーバーに残ります。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/sign_in.py"/>
@@ -7613,8 +9569,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
-        <source>In every window. Your microphone is sent to the server only while this is on.</source>
-        <translation type="unfinished">すべてのウィンドウで。マイクの音声は、これがオンの間だけサーバーに送られます。</translation>
+        <source>In every window. Your mic is sent for your captions only while this is on.</source>
+        <translation type="unfinished">すべてのウィンドウで。マイクの音声は、これがオンの間だけ字幕のために送られます。</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -7669,6 +9625,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
         <source>Couldn&apos;t save {name}. It may be open in another program, or the folder may be read-only - close it or pick another folder, and try again.</source>
         <translation type="unfinished">{name} を保存できませんでした。他のプログラムで開いているか、フォルダーが読み取り専用の可能性があります。閉じるか別のフォルダーを選んで、もう一度お試しください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
+        <source>re-spoken</source>
+        <translation type="unfinished">復唱</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/transcript_window.py"/>
@@ -7906,6 +9867,535 @@
     </message>
 </context>
 <context>
+    <name>Upgrade</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/main.py"/>
+        <source>Local prices are unavailable.</source>
+        <translation type="unfinished">現地価格を取得できません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Alpha</source>
+        <translation type="unfinished">アルファ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Free beta</source>
+        <translation type="unfinished">無料ベータ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Lite</source>
+        <translation type="unfinished">Lite</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Plus</source>
+        <translation type="unfinished">Plus</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Standard</source>
+        <translation type="unfinished">スタンダード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Premium</source>
+        <translation type="unfinished">プレミアム</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Plan unavailable</source>
+        <translation type="unfinished">プランを取得できません</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{plan} · {percent}% of today’s allowance left</source>
+        <translation type="unfinished">{plan} · 今日の利用枠は残り {percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{plan} · {percent}% of allowance left</source>
+        <translation type="unfinished">{plan} · 利用枠は残り {percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Monthly</source>
+        <translation type="unfinished">月額</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Yearly</source>
+        <translation type="unfinished">年額</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>1-month pass</source>
+        <translation type="unfinished">1か月パス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>3-month pass</source>
+        <translation type="unfinished">3か月パス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>6-month pass</source>
+        <translation type="unfinished">6か月パス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>12-month pass</source>
+        <translation type="unfinished">12か月パス</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{plan}, {cadence}.</source>
+        <translation type="unfinished">{plan}（{cadence}）</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Ends on {date} and won’t renew.</source>
+        <translation type="unfinished">{date}に終了し、更新されません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Auto-renew is off.</source>
+        <translation type="unfinished">自動更新はオフです。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Payment overdue. Update your payment details.</source>
+        <translation type="unfinished">支払い期限を過ぎています。お支払い情報を更新してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Subscription paused.</source>
+        <translation type="unfinished">サブスクリプションは一時停止中です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Trial ends on {date}.</source>
+        <translation type="unfinished">試用期間は{date}に終了します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Trial</source>
+        <translation type="unfinished">試用期間</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Renews at {price} on {date}.</source>
+        <translation type="unfinished">{date}に{price}で更新されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Renews on {date}.</source>
+        <translation type="unfinished">{date}に更新されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>monthly</source>
+        <translation type="unfinished">月払い</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>yearly</source>
+        <translation type="unfinished">年払い</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Switches to {plan}, {cadence}, on {date}.</source>
+        <translation type="unfinished">{date}に{plan}（{cadence}）に切り替わります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Next charge: {amount} on {date}</source>
+        <translation type="unfinished">次回の請求: {date} に {amount}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{price} a month</source>
+        <translation type="unfinished">月額{price}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{price} a year</source>
+        <translation type="unfinished">年額{price}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{rate} from {date}.</source>
+        <translation type="unfinished">{date}から{rate}になります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Review the price and start date.</source>
+        <translation type="unfinished">料金と開始日を確認してください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>This switch also resumes auto-renew.</source>
+        <translation type="unfinished">切り替えると自動更新も再開されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>One payment. The pass ends automatically.</source>
+        <translation type="unfinished">一括払い。期間満了時に自動で終了します。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Renews at {price} on {date}. Cancel any time.</source>
+        <translation type="unfinished">{date} に {price} で更新されます。いつでも解約できます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{price} for the first year</source>
+        <translation type="unfinished">初年度 {price}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>{price} for the first month</source>
+        <translation type="unfinished">初月 {price}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Code applied: {percent}% off your first payment.</source>
+        <translation type="unfinished">コード適用済み: 初回のお支払いが {percent}% オフ。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Code applied: community pass prices.</source>
+        <translation type="unfinished">コード適用済み: コミュニティ向けパス価格。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Code applied.</source>
+        <translation type="unfinished">コード適用済み。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Today: {amount}</source>
+        <translation type="unfinished">本日: {amount}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Your pass keeps its end date.</source>
+        <translation type="unfinished">パスの終了日は変わりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Your pass then runs until {date}.</source>
+        <translation type="unfinished">パスは {date} まで有効になります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>This pass starts when your current pass ends.</source>
+        <translation type="unfinished">このパスは、現在のパスが終了したときに始まります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Upgrade</source>
+        <translation type="unfinished">アップグレード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Your plan</source>
+        <translation type="unfinished">現在のプラン</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Manage subscription</source>
+        <translation type="unfinished">サブスクリプションを管理</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Resume auto-renew</source>
+        <translation type="unfinished">自動更新を再開</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Terms</source>
+        <translation type="unfinished">利用規約</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Auto-renewal terms</source>
+        <translation type="unfinished">自動更新の条件</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Have a code?</source>
+        <translation type="unfinished">コードをお持ちですか？</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Code</source>
+        <translation type="unfinished">コード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Apply</source>
+        <translation type="unfinished">適用</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Remove code</source>
+        <translation type="unfinished">コードを外す</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Checkout</source>
+        <translation type="unfinished">お支払い</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Review change</source>
+        <translation type="unfinished">変更内容を確認</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Confirm change</source>
+        <translation type="unfinished">変更を確定</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Pay on this PC</source>
+        <translation type="unfinished">この PC で支払う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Pay on this Mac</source>
+        <translation type="unfinished">この Mac で支払う</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Show payment QR code</source>
+        <translation type="unfinished">支払い用 QR コードを表示</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Checkout QR code</source>
+        <translation type="unfinished">支払い用 QR コード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Back to Account</source>
+        <translation type="unfinished">アカウントに戻る</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Restore purchase</source>
+        <translation type="unfinished">購入を復元</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Checking your plan…</source>
+        <translation type="unfinished">プランを確認しています…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Sign in to see your plan.</source>
+        <translation type="unfinished">プランを表示するにはログインしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Done. Your plan is updating.</source>
+        <translation type="unfinished">完了しました。プランを更新しています。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Select plan</source>
+        <translation type="unfinished">プランを選択</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Recommended</source>
+        <translation type="unfinished">おすすめ</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>= {price} a month</source>
+        <translation type="unfinished">= 月あたり {price}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>◷ Listening allowance    ◈ Learning tools</source>
+        <translation type="unfinished">◷ リスニング利用枠    ◈ 学習ツール</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>∞ Unlimited listening    ◈ Learning tools    ⚡ Priority</source>
+        <translation type="unfinished">∞ リスニング無制限    ◈ 学習ツール    ⚡ 優先処理</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Checking the code…</source>
+        <translation type="unfinished">コードを確認中…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Switch to {period}</source>
+        <translation type="unfinished">{period}に切り替える</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Changing your plan…</source>
+        <translation type="unfinished">プランを変更中…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>That change isn’t available for your plan.</source>
+        <translation type="unfinished">この変更は、ご利用のプランではできません。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Working out the change…</source>
+        <translation type="unfinished">変更内容を計算中…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Your plan change is still being confirmed.</source>
+        <translation type="unfinished">プラン変更を確認中です。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Done. {plan} starts from {date}.</source>
+        <translation type="unfinished">完了しました。{plan} は {date} に始まります。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Preparing checkout…</source>
+        <translation type="unfinished">お支払いを準備中…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Your plan updates when payment is confirmed.</source>
+        <translation type="unfinished">お支払いが確認されるとプランが更新されます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Use the QR code to open checkout.</source>
+        <translation type="unfinished">QR コードで支払い画面を開いてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
+        <source>Scan with your phone to open checkout.</source>
+        <translation type="unfinished">スマートフォンで読み取って支払い画面を開いてください。</translation>
+    </message>
+</context>
+<context>
+    <name>Usage</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Lite</source>
+        <translation type="unfinished">Lite</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Standard</source>
+        <translation type="unfinished">スタンダード</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Free today: {percent}% left</source>
+        <translation type="unfinished">今日の無料分: 残り {percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Free today: {percent}% left - resets at midnight</source>
+        <translation type="unfinished">今日の無料分: 残り {percent}% - 午前0時にリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Free today: {percent}% left - resets at {time}</source>
+        <translation type="unfinished">今日の無料分: 残り {percent}% - {time} にリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>{plan}: {percent}% of this month’s hours left - resets {date}</source>
+        <translation type="unfinished">{plan}: 今月の時間は残り {percent}% - {date} にリセット</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>{percent}% of today’s free captions left</source>
+        <translation type="unfinished">今日の無料字幕は残り {percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>{percent}% of this month’s hours left</source>
+        <translation type="unfinished">今月の時間は残り {percent}%</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>{percent}% of today’s free captions left. Upgrade for more listening.</source>
+        <translation type="unfinished">今日の無料字幕は残り {percent}%。アップグレードするともっと聞けます。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Today’s free captions are used up. Upgrade in Polyglotic to keep listening.</source>
+        <translation type="unfinished">今日の無料字幕を使い切りました。聞き続けるには Polyglotic でアップグレードしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>This month’s hours are used up. Upgrade in Polyglotic to keep listening.</source>
+        <translation type="unfinished">今月の時間を使い切りました。聞き続けるには Polyglotic でアップグレードしてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
+        <source>Listening allowance</source>
+        <translation type="unfinished">リスニングの利用枠</translation>
+    </message>
+</context>
+<context>
+    <name>WordClasses</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Noun</source>
+        <translation type="unfinished">名詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Verb</source>
+        <translation type="unfinished">動詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Adjective</source>
+        <translation type="unfinished">形容詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Adverb</source>
+        <translation type="unfinished">副詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Pronoun or determiner</source>
+        <translation type="unfinished">代名詞・限定詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Particle, connector or interjection</source>
+        <translation type="unfinished">助詞・接続詞・感動詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Number</source>
+        <translation type="unfinished">数詞</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Class unavailable</source>
+        <translation type="unfinished">品詞不明</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Word class legend</source>
+        <translation type="unfinished">品詞の色凡例</translation>
+    </message>
+</context>
+<context>
     <name>Words</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -7919,9 +10409,16 @@
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
-        <source>Shows once you&apos;ve heard %Ln word(s) in 7 days, so one short session doesn&apos;t swing it.</source>
+        <source>Shows once you&apos;ve heard %Ln word(s) {period}, so one short session doesn&apos;t swing it.</source>
         <translation type="unfinished">
-            <numerusform>7日間で %Ln 語を聞くと表示されます。短いセッション1回で大きく変わらないようにするためです。</numerusform>
+            <numerusform>{period} %Ln 語を聞くと表示されます。短いセッション1回で大きく変わらないようにするためです。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>in %Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln日間で</numerusform>
         </translation>
     </message>
     <message>
@@ -7972,10 +10469,12 @@
         <source>{hours} h {minutes} min</source>
         <translation type="unfinished">{hours}時間{minutes}分</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
-        <source>{time} in the last 7 days</source>
-        <translation type="unfinished">直近7日間で {time}</translation>
+        <source>{time} in the last %Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform>直近%Ln日間で {time}</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -7989,9 +10488,16 @@
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
-        <source>+%Ln new in the last 7 days</source>
+        <source>+%Ln new {period}</source>
         <translation type="unfinished">
-            <numerusform>直近7日間で新たに +%Ln 語</numerusform>
+            <numerusform>{period}新たに +%Ln 語</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
+        <source>in the last %Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform>直近%Ln日間で</numerusform>
         </translation>
     </message>
     <message>
@@ -8029,10 +10535,12 @@
         <source>Words met</source>
         <translation type="unfinished">出会った単語</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
-        <source>Coverage, last 7 days</source>
-        <translation type="unfinished">カバー率（直近7日間）</translation>
+        <source>Coverage, last %Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform>カバー率（直近%Ln日間）</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>

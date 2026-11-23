@@ -45,6 +45,7 @@ WHERE = {
     "Home": "Home",
     "JoinedWindow": "joined caption windows",
     "Lab": "Settings > Captions > Lab",
+    "LanguagePicker": "the first start: choosing the app's language",
     "Learning": "Learning",
     "LearningLanguage": "Learning",
     "Languages": "language names and notes",

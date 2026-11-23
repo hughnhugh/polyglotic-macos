@@ -5,8 +5,10 @@ all come back in the same second after a restart": before attempt n (0,
 1, 2, ...) wait a random time between 0 and min(8, 2^n) seconds; after a
 session that lasted 60 seconds or more, start again from n = 0. Then, by
 close code, protocol.md's table - some codes wait for the server's
-`retry_after`, some stop until the user acts. No I/O: the session asks,
-this answers.
+`retry_after`, some stop until the user acts. A session that failed in the
+app itself - an exception nobody foresaw - tries again too, after a longer
+capped wait (`after_failure`; polyglotic-hq 557, decision 0266: it stopped
+for good). No I/O: the session asks, this answers.
 """
 
 import random
@@ -27,6 +29,10 @@ minutes (each try waits out the 10 s open timeout), 20 s (p90 46 s); at
 8 s, 7 s (p90 13 s) - polyglotic-hq projects/165-reachable-from-anywhere/
 scripts/backoff_sim_165.py. Attempts 0-3, a restart's herd, wait as before
 (at most 1, 2, 4, 8 s)."""
+FAILED_MAX_SEC = 60.0
+"""The longest wait after a session failed in the app itself (decision
+0266): a fault that repeats calls the server about once a minute at most,
+not every few seconds."""
 NO_RETRY_AFTER_SEC = 60.0  # too_many_attempts without its retry_after
 RESET_AFTER_SEC = 60.0  # a session this long starts the backoff again
 GOING_AWAY_MIN_SEC = 1.0  # a restarting server: wait at least this
@@ -57,6 +63,9 @@ Refusal = (
     | protocol.ServerBusy
     | protocol.TooManySessions
     | protocol.LimitReached
+    | protocol.AllowanceExhausted
+    | protocol.RegistrationRequired
+    | protocol.CrossBorderConsentRequired
 )
 """The server's answers to `hello` that come just before it closes."""
 
@@ -74,6 +83,7 @@ class Ended:
     refusal: Refusal | None = None
     lasted: float = 0.0
     unreachable: Unreachable | None = None
+    new_hello: bool = False
 
 
 class StopReason(StrEnum):
@@ -83,6 +93,9 @@ class StopReason(StrEnum):
     UPDATE_REQUIRED = "update_required"  # update the app
     SIGN_IN_NEEDED = "sign_in_needed"  # a new invite code
     LIMIT_REACHED = "limit_reached"  # Plus ended: no listening (193, 185)
+    ALLOWANCE_EXHAUSTED = "allowance_exhausted"
+    REGISTRATION_REQUIRED = "registration_required"
+    CROSS_BORDER_CONSENT_REQUIRED = "cross_border_consent_required"
     ENDED_BY_US = "ended_by_us"  # the admin tool ended the session
     LISTENING_MOVED = "listening_moved"  # the account listens on another device
 
@@ -102,13 +115,21 @@ class Reconnects:
 
     def __init__(self, random: Callable[[], float] = random.random) -> None:
         self.attempt = 0
+        self.failures = 0
+        """Sessions in a row that failed in the app itself (`after_failure`)."""
         self._random = random
 
     def after(self, ended: Ended) -> RetryIn | Stop:
         """What to do after `ended`."""
         if ended.lasted >= RESET_AFTER_SEC:
-            self.attempt = 0
+            self.attempt = self.failures = 0  # failures: a good run between
         code, refusal = ended.close_code, ended.refusal
+        if isinstance(refusal, protocol.AllowanceExhausted):
+            return Stop(StopReason.ALLOWANCE_EXHAUSTED)
+        if isinstance(refusal, protocol.RegistrationRequired):
+            return Stop(StopReason.REGISTRATION_REQUIRED)
+        if isinstance(refusal, protocol.CrossBorderConsentRequired):
+            return Stop(StopReason.CROSS_BORDER_CONSENT_REQUIRED)
         if code == NORMAL:
             return Stop(StopReason.CLOSED)
         if code in (UPDATE_REQUIRED, PROTOCOL_NOT_SUPPORTED) or isinstance(
@@ -144,6 +165,19 @@ class Reconnects:
         if code == GOING_AWAY:
             wait = max(GOING_AWAY_MIN_SEC, wait)
         return RetryIn(wait)
+
+    def after_failure(self, lasted: float) -> RetryIn:
+        """A session failed in the app itself after `lasted` seconds - an
+        exception nobody foresaw, not the network or the server (decision
+        0266): try again after half to all of min(60, 2^n) seconds, n the
+        failures in a row - from n = 0 again after one that lasted
+        RESET_AFTER_SEC. Half at least: a fault that repeats at once never
+        calls the server in a tight loop."""
+        if lasted >= RESET_AFTER_SEC:
+            self.failures = 0
+        ceiling = min(FAILED_MAX_SEC, 2.0**self.failures)
+        self.failures += 1
+        return RetryIn(ceiling * (0.5 + 0.5 * self._random()))
 
     def random(self) -> float:
         """A random 0-1, the backoff's own (tests fix it)."""

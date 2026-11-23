@@ -723,7 +723,7 @@ def test_steady_is_each_caption_once_finished_at_a_0_6s_pause() -> None:
     (the proof of concept waited 0.8s), and the 2.2s caption before it is
     a sentence, not a fragment, so nothing is joined onto it. (Short of
     the breath cut's 3s: from there a 0.3s pause finishes it.)"""
-    timing = mode_timing(CaptionMode.STEADY)
+    timing = mode_timing(CaptionMode.WHOLE)
     timing.add_source(APP)
     decided: list[tuple[float, Decision]] = []
     for end, speech in frames(SENTENCE_THEN_MORE):
@@ -748,12 +748,12 @@ def test_steady_cuts_long_speech_at_a_breath_after_3s() -> None:
         (1.5, False),
     ]
     first, second = requests(
-        run(mode_timing(CaptionMode.STEADY), {APP: pattern}), SpeechKind.FINISHED
+        run(mode_timing(CaptionMode.WHOLE), {APP: pattern}), SpeechKind.FINISHED
     )
     assert first.speech_end == pytest.approx(T0 + 4.2, abs=FRAME_SEC)
     assert second.caption_id != first.caption_id and second.replaces == ()
     nonstop = run(
-        mode_timing(CaptionMode.STEADY),
+        mode_timing(CaptionMode.WHOLE),
         {APP: [(0.5, False), (17.0, True), (1.0, False)]},
     )
     assert [round(span(f)) for f in requests(nonstop, SpeechKind.FINISHED)][:2] == [
@@ -766,7 +766,7 @@ def test_continuous_speech_is_never_8s_without_a_caption() -> None:
     """The user's F34 in Steady (polyglotic-hq 268, from 243's phase 2):
     in continuous speech - no pause long enough for a breath - a caption
     arrives every 6s, not every 8s, in Steady and Quick preview alike."""
-    for mode in (CaptionMode.STEADY, CaptionMode.PREVIEW):
+    for mode in (CaptionMode.WHOLE, CaptionMode.PREVIEW):
         timing = mode_timing(mode)
         timing.add_source(APP)
         shown = [T0 + 0.5]
@@ -795,7 +795,7 @@ def test_quick_preview_s_first_live_update_is_1_5s_in_replaced_by_the_finished()
     assert out.index(live) < out.index(finished)
     # Its rules are Steady's, on the growing schedule (260)
     assert CaptionMode.PREVIEW.rules == dataclasses.replace(
-        CaptionMode.STEADY.rules, schedule=LiveSchedule.GROWING
+        CaptionMode.WHOLE.rules, schedule=LiveSchedule.GROWING
     )
 
 
@@ -817,7 +817,7 @@ def test_live_updates_finish_unbroken_speech_in_pieces() -> None:
     does, each a caption of its own, cut where the next begins; and a live
     update never hears further back than its own piece."""
     out = run(
-        mode_timing(CaptionMode.LIVE),
+        mode_timing(CaptionMode.INSTANT),
         {APP: [(0.5, False), (20.0, True), (1.5, False)]},
     )
     pieces = requests(out, SpeechKind.FINISHED)
@@ -838,7 +838,7 @@ def test_live_updates_finish_at_a_breath_once_a_caption_has_run_a_while() -> Non
     """...and at a 0.3s breath once a caption has run 3s, so most pieces
     end between phrases, not at the limit (296)."""
     out = run(
-        mode_timing(CaptionMode.LIVE),
+        mode_timing(CaptionMode.INSTANT),
         {APP: [(0.5, False), (4.0, True), (0.4, False), (3.0, True), (1.5, False)]},
     )
     first, second = requests(out, SpeechKind.FINISHED)
@@ -878,15 +878,15 @@ def test_quick_preview_keeps_updating_through_long_speech() -> None:
 
 def test_live_updates_are_the_proof_of_concepts_timing_at_the_chosen_interval() -> None:
     out = run(
-        mode_timing(CaptionMode.LIVE, chosen=1.0),
+        mode_timing(CaptionMode.INSTANT, chosen=1.0),
         {APP: [(0.5, False), (5.0, True), (1.5, False)]},
     )
     lives = requests(out, SpeechKind.LIVE)
     assert [round(live.speech_end - FIRST_FRAME) for live in lives] == [1, 2, 3, 4]
-    rules = CaptionMode.LIVE.rules
+    rules = CaptionMode.INSTANT.rules
     assert rules.silence_hangover == SILENCE_HANGOVER_SEC
-    assert CaptionMode.LIVE.live_update_interval(1.0) == 1.0
-    assert CaptionMode.STEADY.live_update_interval(1.0) is None
+    assert CaptionMode.INSTANT.live_update_interval(1.0) == 1.0
+    assert CaptionMode.WHOLE.live_update_interval(1.0) is None
 
 
 @pytest.mark.parametrize("mode", list(CaptionMode))
@@ -915,10 +915,10 @@ def test_every_mode_joins_only_onto_a_fragment(mode: CaptionMode) -> None:
 def test_the_mode_can_change_while_listening() -> None:
     """The learner picks another mode mid-session: from the next frame on,
     its rules and interval apply."""
-    timing = mode_timing(CaptionMode.LIVE)
+    timing = mode_timing(CaptionMode.INSTANT)
     pattern: Pattern = [(0.5, False), (5.0, True), (1.5, False)]
     assert requests(run(timing, {APP: pattern}), SpeechKind.LIVE)
-    timing.change(CaptionMode.STEADY.rules, None)
+    timing.change(CaptionMode.WHOLE.rules, None)
     out = []
     for end, speech in frames(pattern, start=T0 + 10):
         out.extend(timing.frame(APP.id, end, speech))
@@ -931,7 +931,7 @@ def test_hearing_is_speech_under_way_long_enough_to_send() -> None:
     """What the listening mark shows is being heard: a source whose speech
     has gone on long enough to be sent (not a blip), until its pause has
     passed; nothing while paused."""
-    timing = mode_timing(CaptionMode.STEADY)
+    timing = mode_timing(CaptionMode.WHOLE)
     timing.add_source(APP)
     heard: list[tuple[float, frozenset[SourceId]]] = []
     for end, speech in frames([(0.5, False), (2.0, True), (1.0, False)]):
@@ -941,7 +941,7 @@ def test_hearing_is_speech_under_way_long_enough_to_send() -> None:
     assert under_way[0] == pytest.approx(0.5 + 0.4, abs=2 * FRAME_SEC)
     assert under_way[-1] == pytest.approx(2.5 + 0.6, abs=2 * FRAME_SEC)
     assert under_way == [at for at, _ in heard if under_way[0] <= at <= under_way[-1]]
-    blip = mode_timing(CaptionMode.STEADY)
+    blip = mode_timing(CaptionMode.WHOLE)
     blip.add_source(APP)
     for end, speech in frames([(0.5, False), (0.3, True), (1.0, False)]):
         blip.frame(APP.id, end, speech)
@@ -1004,10 +1004,10 @@ def longest_without_text(timing: CaptionTiming, pattern: Pattern) -> float:
 @pytest.mark.parametrize(
     ("mode", "chosen"),
     [
-        (CaptionMode.STEADY, 1.5),
+        (CaptionMode.WHOLE, 1.5),
         (CaptionMode.PREVIEW, 1.5),
-        (CaptionMode.LIVE, 1.5),
-        (CaptionMode.LIVE, 10.0),  # a long interval chosen
+        (CaptionMode.INSTANT, 1.5),
+        (CaptionMode.INSTANT, 10.0),  # a long interval chosen
     ],
 )
 @pytest.mark.parametrize("pattern", [NONSTOP, WITH_BREATHS], ids=["nonstop", "breaths"])
@@ -1028,10 +1028,10 @@ def test_steady_s_provisional_line_comes_at_the_longest_wait_and_no_sooner() -> 
     no live update at all; one that runs on gets one at the wait, under
     its own id, so the finished caption replaces it - and in nonstop speech
     one in each 6s piece the breath cut makes."""
-    short = run(waiting_timing(CaptionMode.STEADY, 3.0), {APP: SENTENCE_THEN_MORE})
+    short = run(waiting_timing(CaptionMode.WHOLE, 3.0), {APP: SENTENCE_THEN_MORE})
     assert requests(short, SpeechKind.LIVE) == []
     out = run(
-        waiting_timing(CaptionMode.STEADY, 3.0),
+        waiting_timing(CaptionMode.WHOLE, 3.0),
         {APP: [(0.5, False), (4.0, True), (1.5, False)]},
     )
     (live,) = requests(out, SpeechKind.LIVE)
@@ -1039,7 +1039,7 @@ def test_steady_s_provisional_line_comes_at_the_longest_wait_and_no_sooner() -> 
     assert live.speech_end - FIRST_FRAME == pytest.approx(3.0, abs=FRAME_SEC)
     assert live.caption_id == finished.caption_id
     assert out.index(live) < out.index(finished)
-    nonstop = run(waiting_timing(CaptionMode.STEADY, 3.0), {APP: NONSTOP})
+    nonstop = run(waiting_timing(CaptionMode.WHOLE, 3.0), {APP: NONSTOP})
     pieces = requests(nonstop, SpeechKind.FINISHED)
     lives = requests(nonstop, SpeechKind.LIVE)
     assert [round(span(p)) for p in pieces][:4] == [6, 6, 6, 6]
@@ -1054,9 +1054,9 @@ def test_steady_s_provisional_line_comes_at_the_longest_wait_and_no_sooner() -> 
 def test_a_longer_wait_gives_steady_fewer_lines() -> None:
     """At 6s, Steady's breath cut comes first: no provisional lines in
     nonstop speech, as before 277. At 2s, two in each 6s piece."""
-    six = run(waiting_timing(CaptionMode.STEADY, 6.0), {APP: NONSTOP})
+    six = run(waiting_timing(CaptionMode.WHOLE, 6.0), {APP: NONSTOP})
     assert requests(six, SpeechKind.LIVE) == []
-    two = run(waiting_timing(CaptionMode.STEADY, 2.0), {APP: NONSTOP})
+    two = run(waiting_timing(CaptionMode.WHOLE, 2.0), {APP: NONSTOP})
     first = requests(two, SpeechKind.FINISHED)[0]
     assert (
         len(
@@ -1072,7 +1072,7 @@ def test_a_longer_wait_gives_steady_fewer_lines() -> None:
 
 def test_live_updates_at_a_long_interval_still_update_within_the_wait() -> None:
     out = run(
-        waiting_timing(CaptionMode.LIVE, 3.0, chosen=10.0),
+        waiting_timing(CaptionMode.INSTANT, 3.0, chosen=10.0),
         {APP: [(0.5, False), (10.0, True), (1.5, False)]},
     )
     lives = requests(out, SpeechKind.LIVE)
@@ -1085,7 +1085,7 @@ def test_live_updates_at_a_long_interval_still_update_within_the_wait() -> None:
 def test_the_pace_hint_stretches_the_wait_too() -> None:
     """A busy server's pace hint holds back every live update, the longest
     wait's too; finished captions never wait."""
-    timing = waiting_timing(CaptionMode.STEADY, 3.0)
+    timing = waiting_timing(CaptionMode.WHOLE, 3.0)
     timing.pace_hint = 5.0
     assert timing.paced_max_wait == 5.0
     out = run(timing, {APP: [(0.5, False), (5.5, True), (1.5, False)]})
@@ -1096,9 +1096,9 @@ def test_the_pace_hint_stretches_the_wait_too() -> None:
 
 
 def test_steady_and_quick_preview_lines_are_provisional() -> None:
-    assert CaptionMode.STEADY.provisional_lines
+    assert CaptionMode.WHOLE.provisional_lines
     assert CaptionMode.PREVIEW.provisional_lines
-    assert not CaptionMode.LIVE.provisional_lines
+    assert not CaptionMode.INSTANT.provisional_lines
 
 
 def test_after_the_first_second_live_updates_come_at_the_interval_chosen() -> None:
@@ -1140,7 +1140,7 @@ def test_a_cut_at_the_limit_falls_at_the_quietest_moment_before_it() -> None:
     """A tester's fast video (291): Steady cut it at 6.02s, mid-word. The
     quietest moment of the 1.5s before the limit - here a 0.1s dip 5.2s
     in - is where it's cut, and the next caption starts there."""
-    out = run_levels(mode_timing(CaptionMode.STEADY), 9.0, quiet=[(5.2, 0.1)])
+    out = run_levels(mode_timing(CaptionMode.WHOLE), 9.0, quiet=[(5.2, 0.1)])
     first, second = requests(out, SpeechKind.FINISHED)
     dip = FIRST_FRAME + 5.2 - 0.012  # the dip, on the frames' clock
     assert first.speech_end == pytest.approx(dip + 0.05, abs=2 * FRAME_SEC)
@@ -1148,7 +1148,7 @@ def test_a_cut_at_the_limit_falls_at_the_quietest_moment_before_it() -> None:
 
 
 def test_a_dip_before_the_last_1_5s_isnt_where_it_is_cut() -> None:
-    out = run_levels(mode_timing(CaptionMode.STEADY), 9.0, quiet=[(3.5, 0.1)])
+    out = run_levels(mode_timing(CaptionMode.WHOLE), 9.0, quiet=[(3.5, 0.1)])
     first = requests(out, SpeechKind.FINISHED)[0]
     assert span(first) == pytest.approx(6.0 + ONSET_LEAD_IN_SEC, abs=2 * FRAME_SEC)
 
@@ -1156,7 +1156,7 @@ def test_a_dip_before_the_last_1_5s_isnt_where_it_is_cut() -> None:
 def test_the_two_sides_of_a_cut_say_so_and_their_audio_doesnt_overlap() -> None:
     """291: each piece's audio ran 0.2s past the cut each side, so 0.4s -
     a word or two of fast speech - was heard, and captioned, twice."""
-    timing = mode_timing(CaptionMode.STEADY)
+    timing = mode_timing(CaptionMode.WHOLE)
     timing.max_wait = 2.0  # the friend's longest wait for text
     out = run_levels(timing, 14.0, quiet=[(5.2, 0.1)])
     pieces = requests(out, SpeechKind.FINISHED)
@@ -1196,14 +1196,14 @@ def test_a_long_speech_split_is_cut_at_its_quietest_moment_too() -> None:
 
 def test_a_pause_ends_a_caption_as_before_with_its_margins() -> None:
     """Only a cut while the speech goes on loses its margins."""
-    out = run_levels(mode_timing(CaptionMode.STEADY), 4.0)
+    out = run_levels(mode_timing(CaptionMode.WHOLE), 4.0)
     (finished,) = requests(out, SpeechKind.FINISHED)
     assert not finished.cut_before and not finished.cut_after
     assert finished.pads == (SLICE_PAD_SEC, SLICE_PAD_SEC)
 
 
 def test_without_loudness_the_cut_falls_at_the_limit_as_before() -> None:
-    timing = mode_timing(CaptionMode.STEADY)
+    timing = mode_timing(CaptionMode.WHOLE)
     timing.add_source(APP)
     out: list[Decision] = []
     for end, speech in frames([(0.5, False), (9.0, True), (1.5, False)]):
@@ -1228,7 +1228,7 @@ def live_mode_timing(interval: float, ceiling: float | None = 600.0) -> CaptionT
     timing = CaptionTiming(
         live_update_interval=interval,
         new_caption_id=lambda: next(ids),
-        rules=CaptionMode.LIVE.rules,
+        rules=CaptionMode.INSTANT.rules,
         max_wait=3.0,
     )
     timing.speech_ceiling = ceiling

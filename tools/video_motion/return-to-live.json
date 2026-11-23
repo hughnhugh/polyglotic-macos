@@ -1,0 +1,132 @@
+{
+  "settings": {
+    "W": 1600,
+    "H": 645,
+    "origPx": 63,
+    "transPx": 61
+  },
+  "appFaces": [
+    "Arial",
+    "Courier New"
+  ],
+  "actions": {
+    "scroll": 720,
+    "hold": 840,
+    "leave": 1656,
+    "live": 1674
+  },
+  "keyframes": [
+    900,
+    1686,
+    1740,
+    1812
+  ],
+  "browseCaption": 0,
+  "wrappedCaption": 2,
+  "source": [
+    {
+      "id": 0,
+      "s": 2,
+      "e": 3,
+      "language": "zh",
+      "target": "en",
+      "en": "或走向混乱。",
+      "zh": "",
+      "words": [
+        "或走向混乱。"
+      ],
+      "updates": [
+        {
+          "t": 2,
+          "words": [
+            {
+              "t": "或走向混乱。",
+              "sure": false
+            }
+          ]
+        }
+      ],
+      "tupdates": [],
+      "finishT": 3,
+      "transT": 3
+    },
+    {
+      "id": 1,
+      "s": 6,
+      "e": 7,
+      "language": "zh",
+      "target": "en",
+      "en": "能够阻止宗派战争不断增长的暴力。",
+      "zh": "",
+      "words": [
+        "能够阻止宗派战争不断增长的暴力。"
+      ],
+      "updates": [
+        {
+          "t": 6,
+          "words": [
+            {
+              "t": "能够阻止宗派战争不断增长的暴力。",
+              "sure": false
+            }
+          ]
+        }
+      ],
+      "tupdates": [],
+      "finishT": 7,
+      "transT": 7
+    },
+    {
+      "id": 2,
+      "s": 11,
+      "e": 16,
+      "language": "zh",
+      "target": "en",
+      "en": "报告警告称：“没有人能保证目前在伊拉克采取的任何行动。”",
+      "zh": "The report warns: “No one can guarantee any actions currently taken in Iraq.”",
+      "words": [
+        "报告警告称：“没有人能保证目前在伊拉克采取的任何行动。”"
+      ],
+      "updates": [
+        {
+          "t": 11,
+          "words": [
+            {
+              "t": "报告警告称：“没有人能保证目前在伊拉克采取的任何行动。”",
+              "sure": false
+            }
+          ]
+        }
+      ],
+      "tupdates": [],
+      "finishT": 16,
+      "transT": 16
+    },
+    {
+      "id": 3,
+      "s": 24,
+      "e": 34,
+      "language": "zh",
+      "target": "en",
+      "en": "或走向混乱。",
+      "zh": "Or towards chaos.",
+      "words": [
+        "或走向混乱。"
+      ],
+      "updates": [
+        {
+          "t": 24,
+          "words": [
+            {
+              "t": "或走向混乱。",
+              "sure": false
+            }
+          ]
+        }
+      ],
+      "tupdates": [],
+      "finishT": 34,
+      "transT": 34
+    }
+  ]
+}

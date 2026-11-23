@@ -309,10 +309,20 @@ class KeyBox(QPushButton):
     listening_changed = Signal(bool)
     """It listens (the dictation key itself must then let keys through)."""
 
-    def __init__(self, key: str) -> None:
+    def __init__(
+        self,
+        key: str,
+        name: str = "settings.dictation_key",
+        accessible: str | None = None,
+    ) -> None:
+        """`key` as kept ("" none: a hotkey cleared, polyglotic-hq 567);
+        `name`: its object name; `accessible`: what a screen reader calls
+        it (dictation's key by default)."""
         super().__init__()
-        self.setObjectName("settings.dictation_key")
-        self.setAccessibleName(_tr("Dictation key"))
+        self.setObjectName(name)
+        self.setAccessibleName(
+            _tr("Dictation key") if accessible is None else accessible
+        )
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setCheckable(True)
         self.key = key
@@ -346,8 +356,11 @@ class KeyBox(QPushButton):
         listening = self.isChecked()
         if listening:
             self.setText(_tr("Press a key or combination… (Esc: stop)"))
-        else:
+        elif self.key:
             self.setText(key_words(self.key))
+        else:
+            #: a hotkey with no key: it does nothing until one is chosen
+            self.setText(_tr("No key"))
         if (self.property("kind") == "primary") != listening:
             # the accent while it listens, so it's plain it's waiting for a key
             self.setProperty("kind", "primary" if listening else None)

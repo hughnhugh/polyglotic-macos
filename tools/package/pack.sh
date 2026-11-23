@@ -9,11 +9,12 @@
 # VERSION   MAJOR.MINOR.PATCH (Velopack refuses 0.0.0)
 # CHANNEL   win-x64-alpha, -beta or -stable: stamped into Velopack's
 #           sq.version, which channel the installed copy follows; or a
-#           Mac's, macos-arm64-alpha (below)
-# PACKDIR   the PyInstaller folder, with Polyglotic.exe; on a Mac, the
-#           signed Polyglotic.app
+#           Mac's, macos-arm64-alpha, or Linux's, linux-x64-alpha (below)
+# PACKDIR   the PyInstaller folder, with Polyglotic.exe (Linux: Polyglotic);
+#           on a Mac, the signed Polyglotic.app
 # OUTDIR    where the packages go (with any earlier release, for deltas)
-# ICON      the installer's .ico (a Mac's icon is in its bundle: ignored)
+# ICON      the installer's .ico (a Mac's icon is in its bundle: ignored;
+#           Linux's, the AppImage's, a PNG)
 # NOTES     the version's release notes, Markdown (RELEASE-NOTES.md's
 #           section: `python -m tools.package.release_notes vX.Y.Z --out`):
 #           the feed carries them, and the app's offer to restart into
@@ -61,6 +62,26 @@ macos-*)
     --channel "$channel" --outputDir "$outdir" --noInst \
     --signAppIdentity "${POLYGLOTIC_CODESIGN_IDENTITY:--}" --signDisableDeep \
     ${SIGNING_KEYCHAIN:+--keychain "$SIGNING_KEYCHAIN"}
+  exit
+  ;;
+# Linux (polyglotic-hq 550; 547's spike), on Linux only (PyInstaller's folder
+# is built there): one AppImage, the full package and the channel's feed.
+# Velopack's AppImage carries the static AppImage runtime, so it runs with
+# no libfuse2 (only fusermount3), and updates itself by moving the new file
+# over its own. It's called Polyglotic.AppImage whatever the version, so the
+# file a learner has, and a menu entry or a shortcut pointing at it, keep
+# working after each update.
+linux-*)
+  dotnet vpk pack --packId "$id" --packVersion "$version" \
+    --packTitle Polyglotic --packAuthors Polyglotic \
+    --packDir "$packdir" --mainExe Polyglotic \
+    ${icon:+--icon "$icon"} ${notes:+--releaseNotes "$notes"} --runtime linux-x64 \
+    --channel "$channel" --outputDir "$outdir"
+  # vpk names it after the channel too (Polyglotic-linux-x64-alpha.AppImage),
+  # the same at every version: renamed, so each pack's is the one left
+  rm -f "$outdir/$id.AppImage"
+  mv -f "$outdir/$id-$channel.AppImage" "$outdir/$id.AppImage"
+  [ -f "$outdir/$id.AppImage" ] || { echo "vpk made no AppImage in $outdir" >&2; exit 1; }
   exit
   ;;
 esac

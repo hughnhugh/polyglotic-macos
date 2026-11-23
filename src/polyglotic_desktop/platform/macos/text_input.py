@@ -193,3 +193,17 @@ def keyboard_window() -> int:
     ordinary window, by its number (0: none)."""
     pid = window_list.front_pid()
     return window_list.front_window(window_list.on_screen(), pid) if pid else 0
+
+
+def window_is_ours(_window: int) -> bool:
+    return window_list.front_pid() == os.getpid()
+
+
+def type_text_for(text: str, window: int) -> bool:
+    """Type only while the intended external window still has focus."""
+    return bool(
+        window
+        and keyboard_window() == window
+        and not window_is_ours(window)
+        and type_text(text)
+    )

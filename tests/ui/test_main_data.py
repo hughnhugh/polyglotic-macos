@@ -36,6 +36,7 @@ from polyglotic_desktop.core.shared import (
     WordStatus,
     WordStatusChanged,
 )
+from polyglotic_desktop.core.shared.open_beta import Account
 from polyglotic_desktop.main import (
     SERVER,
     QtExchange,
@@ -174,6 +175,27 @@ def test_the_account_page_shows_the_start_of_the_account_id(qapp: QApplication) 
     page.set_signed_in(False)
     assert page.account_id.isHidden() and page.account_id.text() == ""
     desktop.close()
+
+
+def test_account_says_whether_invite_code_or_email_signed_in() -> None:
+    page = AccountPage()
+    page.set_signed_in(True)
+    invited = Account("invited-account", "alpha", False, "alpha", None)
+    page.show_beta_account(invited)
+    assert page.state.text() == "Signed in with an invite code"
+    assert page.add_email_button.isVisibleTo(page)
+
+    registered = Account(
+        "email-account",
+        "open_beta",
+        True,
+        "beta_free",
+        None,
+        email="learner@example.test",
+    )
+    page.show_beta_account(registered)
+    assert page.state.text() == "learner@example.test"
+    assert not page.add_email_button.isVisibleTo(page)
 
 
 def test_the_built_in_server_is_the_live_one_over_https() -> None:

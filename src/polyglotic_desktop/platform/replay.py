@@ -103,6 +103,10 @@ class ReplayCapture:
     def error(self) -> str | None:
         return None
 
+    @property
+    def restarts(self) -> int:
+        return 0
+
     def _play(self, on_audio: AudioCallback) -> None:
         piece = round(PIECE_SEC * VAD_SAMPLE_RATE)
         started = self._clock()

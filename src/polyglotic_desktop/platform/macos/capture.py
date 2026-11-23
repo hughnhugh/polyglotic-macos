@@ -38,6 +38,7 @@ app restarts).
 """
 
 import contextlib
+import logging
 import os
 import platform
 import queue
@@ -50,9 +51,11 @@ from typing import Any
 import numpy as np
 
 from polyglotic_desktop.core.listening.timing import VAD_SAMPLE_RATE
+from polyglotic_desktop.platform.capture_restarts import Backoff, why
 from polyglotic_desktop.platform.macos import apps, devices
 from polyglotic_desktop.platform.timeline import Timeline, wanted_device
 from polyglotic_desktop.ports.capture import (
+    APP_CLOSED,
     NOT_ALLOWED,
     AppCaptureSupport,
     AppCaptureTrial,
@@ -60,6 +63,9 @@ from polyglotic_desktop.ports.capture import (
     TrialOutcome,
 )
 
+log = logging.getLogger(__name__)
+
+DIAGNOSTIC_INTERVAL_SEC = 60.0
 DEVICE_POLL_SEC = 1.0
 WAKE_SEC = 0.1  # wake at least this often without audio
 RESYNC_SEC = 0.2
@@ -309,15 +315,23 @@ class _Opening:
 class _Capture:
     """The thread that runs one capture: opens its stream, delivers its
     audio converted and continuous, watches for silence it isn't allowed
-    past, and reopens it when what it should capture changes."""
+    past, and reopens it when what it should capture changes - or, after a
+    failure, when `Backoff` says: a failed open is tried again, and an error
+    nobody foresaw starts it again, each logged by `KIND` and the error's
+    type (polyglotic-hq 557, decision 0266)."""
 
     _permission: Permission
+    KIND = "a"
+    """What kind of capture it is, for the log: never an app's or a
+    device's name."""
 
     def __init__(self) -> None:
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
+        self._delivering = threading.Lock()
         self._capturing: str | None = None
         self._error: str | None = None
+        self._restarts = 0  # failures it tried again after (566)
 
     @property
     def capturing(self) -> str | None:
@@ -327,17 +341,33 @@ class _Capture:
     def error(self) -> str | None:
         return self._error
 
+    @property
+    def restarts(self) -> int:
+        return self._restarts
+
     def start(self, on_audio: AudioCallback) -> None:
         if self._thread is not None:
             return
         self._stop.clear()
+
+        def deliver(start: float, samples: bytes) -> None:
+            with self._delivering:
+                if not self._stop.is_set():
+                    on_audio(start, samples)
+
         self._thread = threading.Thread(
-            target=self._run, args=(on_audio,), name=type(self).__name__, daemon=True
+            target=self._run, args=(deliver,), name=type(self).__name__, daemon=True
         )
         self._thread.start()
 
-    def stop(self) -> None:
+    def retire(self) -> None:
+        """End delivery now. The capture thread closes its Core Audio stream."""
         self._stop.set()
+        with self._delivering:
+            pass  # the last callback must finish before its source ID is reused
+
+    def stop(self) -> None:
+        self.retire()
         if self._thread is not None:
             self._thread.join(timeout=3)
             self._thread = None
@@ -361,31 +391,64 @@ class _Capture:
         return True
 
     def _run(self, on_audio: AudioCallback) -> None:
+        stops = Backoff()
         try:
-            self._deliver(on_audio)
-        except Exception as e:  # noqa: BLE001 - the thread must not die quietly
-            # Report it by its type, never its text: it could hold anything.
-            self._error = f"Capture stopped: {type(e).__name__}"
+            while not self._stop.is_set():
+                began = time.monotonic()
+                try:
+                    self._deliver(on_audio)
+                    return  # stopped, or the app closed
+                except Exception as e:  # noqa: BLE001 - retry, logging only the type (0266)
+                    # Said by its type, never its text: it could hold anything.
+                    self._capturing = None
+                    self._error = f"Capture stopped: {type(e).__name__}"
+                    wait = stops.failed(time.monotonic() - began)
+                    self._restarts += 1
+                    log.warning(
+                        "%s capture stopped (%s); starting again in %.0fs",
+                        self.KIND,
+                        why(e),
+                        wait,
+                    )
+                    self._stop.wait(wait)
         finally:
             self._capturing = None
 
     def _deliver(self, on_audio: AudioCallback) -> None:
         timeline = Timeline()
         watch = SilenceWatch(self._permission)
+        opens = Backoff()
         failed: Hashable | None = None
+        again_at = 0.0  # when `failed` is tried again
         while not self._stop.is_set():
             target = self._target()
-            if target is None or target == failed:
+            if target is None or (target == failed and time.monotonic() < again_at):
                 self._capturing = None
                 self._stop.wait(DEVICE_POLL_SEC)
                 continue
+            log.info("%s capture opening", self.KIND)
             try:
                 opened = self._opened(target, watch)
             except OSError as e:
-                failed, self._capturing, self._error = target, None, str(e)
+                wait = opens.failed()
+                self._restarts += 1
+                failed, again_at = target, time.monotonic() + wait
+                self._capturing, self._error = None, str(e)
+                log.warning(
+                    "%s capture couldn't open (%s); trying again in %.0fs",
+                    self.KIND,
+                    why(e),
+                    wait,
+                )
                 continue
             if opened is None:  # stopped while macOS still held the open
                 return
+            log.info(
+                "%s capture open%s",
+                self.KIND,
+                f" after {opens.failures} failed tries" if opens.failures else "",
+            )
+            opens = Backoff()
             stream, name = opened
             failed, self._capturing = None, name
             self._error = NOT_ALLOWED if watch.not_allowed else None
@@ -393,13 +456,17 @@ class _Capture:
                 self._pump(stream, target, timeline, watch, on_audio)
             except OSError as e:  # the tap or device failed mid-stream: reopen
                 self._error = str(e)
+                self._restarts += 1
+                log.info("%s capture lost its stream (%s)", self.KIND, why(e))
                 self._stop.wait(DEVICE_POLL_SEC)  # not at once: it may fail again
             finally:
                 stream.close()
+                log.info("%s capture closed", self.KIND)
             if self._gone():
                 for piece in timeline.ending():
                     on_audio(*piece)
-                self._error = "The app has closed."
+                self._error = APP_CLOSED
+                log.info("%s capture over: its app closed", self.KIND)
                 return
 
     def _opened(self, target: Any, watch: SilenceWatch) -> tuple[Stream, str] | None:
@@ -411,15 +478,32 @@ class _Capture:
         capture is stopped first; the stream, if it opens after, is closed."""
         opening = _Opening(self._open, target, f"{type(self).__name__} opening")
         next_check = time.perf_counter() + DEVICE_POLL_SEC
+        next_report = time.perf_counter() + DIAGNOSTIC_INTERVAL_SEC
         while not opening.done.wait(WAKE_SEC):
             if self._stop.is_set():
                 opening.abandon()
+                log.info("%s capture stopped while open was pending", self.KIND)
                 return None
             now = time.perf_counter()
             if now >= next_check:
                 next_check = now + DEVICE_POLL_SEC
-                if watch.checked(DEVICE_POLL_SEC, self._playing()):
+                playing = self._playing()
+                if (
+                    watch.checked(DEVICE_POLL_SEC, playing)
+                    and self._error != NOT_ALLOWED
+                ):
                     self._error = NOT_ALLOWED
+                    log.warning(
+                        "%s capture NOT_ALLOWED: open pending while Core Audio reports playback",
+                        self.KIND,
+                    )
+                if now >= next_report:
+                    log.info(
+                        "%s capture open pending: frames=0 playing=%s",
+                        self.KIND,
+                        playing,
+                    )
+                    next_report = now + DIAGNOSTIC_INTERVAL_SEC
         result = opening.result
         if isinstance(result, BaseException):
             raise result
@@ -436,10 +520,14 @@ class _Capture:
         resampler: Resampler | None = None
         stamper = Stamper()
         next_check = time.perf_counter() + DEVICE_POLL_SEC
+        next_report = time.perf_counter() + DIAGNOSTIC_INTERVAL_SEC
+        frames = zero_frames = 0
         while not self._stop.is_set():
             delivered = False
             for arrival, data, form in stream.pieces(WAKE_SEC):
                 samples = mono_float(data, form)
+                frames += len(samples)
+                zero_frames += len(samples) - int(np.count_nonzero(samples))
                 watch.heard(samples)
                 if resampler is None or resampler.rate != form.rate:
                     resampler, stamper = Resampler(form.rate), Stamper()
@@ -456,10 +544,27 @@ class _Capture:
                 raise OSError("Core Audio stopped the capture")
             if now >= next_check:
                 next_check = now + DEVICE_POLL_SEC
-                if watch.checked(DEVICE_POLL_SEC, self._playing()):
+                playing = self._playing()
+                if watch.checked(DEVICE_POLL_SEC, playing):
+                    if self._error != NOT_ALLOWED:
+                        log.warning(
+                            "%s capture NOT_ALLOWED: only silence while Core Audio reports playback",
+                            self.KIND,
+                        )
                     self._error = NOT_ALLOWED
                 elif self._error == NOT_ALLOWED:
                     self._error = None
+                    log.info("%s capture permission recovered", self.KIND)
+                if now >= next_report:
+                    log.info(
+                        "%s capture: frames=%d zero_frames=%d playing=%s",
+                        self.KIND,
+                        frames,
+                        zero_frames,
+                        playing,
+                    )
+                    frames = zero_frames = 0
+                    next_report = now + DIAGNOSTIC_INTERVAL_SEC
                 if self._gone() or self._target() != target:
                     return
 
@@ -550,6 +655,7 @@ class _TapStream(Stream):
             )
             self._session.start()
         except Exception as e:  # noqa: BLE001 - catap's errors, by type only
+            log.warning("Core Audio tap creation failed (%s)", type(e).__name__)
             raise OSError(f"Couldn't start the tap: {type(e).__name__}") from None
 
     def _buffer(self, buffer: Any) -> None:
@@ -594,6 +700,7 @@ class AppCapture(_Capture):
     change, ended once the app has closed."""
 
     _permission = TAPS
+    KIND = "app"
 
     def __init__(
         self,
@@ -665,6 +772,7 @@ class EverythingElseCapture(_GlobalCapture):
     heard twice. If the app closes it goes on hearing everything."""
 
     NAME = "everything else"
+    KIND = "everything else"
 
     def __init__(
         self,
@@ -705,6 +813,7 @@ class SystemCapture(_GlobalCapture):
     global tap, which follows macOS' default as it changes)."""
 
     NAME = "everything the Mac plays"
+    KIND = "system"
 
     def __init__(
         self,
@@ -729,6 +838,18 @@ class SystemCapture(_GlobalCapture):
             names = {d.uid: d.name for d in devices.audio_devices()}
             name = names.get(target.device, name)
         return self._open_tap(target), name
+
+
+class SpeakerCapture(SystemCapture):
+    """The chosen output only, or the Mac's default output if unset."""
+
+    def _target(self) -> Hashable | None:
+        device = self._device() if self.device_id is not None else _default_output()
+        if device is None:
+            return None
+        return TapTarget(
+            self._left_out(self._processes()), leave_out=True, device=device
+        )
 
 
 # -- the mic ------------------------------------------------------------------
@@ -803,6 +924,7 @@ class MicCapture(_Capture):
     default as it changes."""
 
     _permission = MIC
+    KIND = "mic"
 
     def __init__(
         self,

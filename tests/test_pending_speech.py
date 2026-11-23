@@ -102,6 +102,8 @@ def test_finished_speech_waiting_behind_two_minutes_of_newer_speech_is_dropped()
     pending.put(ended_at("new", 250.0), "new")  # 150s after "old", 120 after "edge"
     assert drain(pending) == ["edge", "new"]
     assert pending.dropped == 1
+    # its finished caption won't come: its live caption ends (557)
+    assert pending.take_dropped() == ["old"] and pending.take_dropped() == []
 
 
 def test_a_short_outage_keeps_every_finished_caption() -> None:
@@ -144,6 +146,7 @@ def test_nothing_is_held_through_a_planned_maintenance_window() -> None:
     pending.put(finished("f2"), "f2")
     pending.put(live("g2"), "g2")
     assert len(pending) == 0 and pending.dropped == 2  # live updates aren't counted
+    assert pending.take_dropped() == ["f1", "f2"]  # their live captions end (557)
     pending.hold(True)
     pending.put(finished("f3"), "f3")
     pending.put(finished("f4"), "f4")

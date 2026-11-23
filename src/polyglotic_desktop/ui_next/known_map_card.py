@@ -40,14 +40,15 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QSizePolicy, QToolTip, QWidget
 
-from polyglotic_desktop.core.learning.known_chance import Chance, Moved, Start
+from polyglotic_desktop.core.learning.known_chance import FRESH, Chance, Moved, Start
 from polyglotic_desktop.core.learning.known_map import MAP_WORDS, Tally
 from polyglotic_desktop.core.shared import EntryFacts, EntryId
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import Card, label
 from polyglotic_desktop.ui_next.heard_card import percent
+from polyglotic_desktop.ui_next.languages import in_sentence
 from polyglotic_desktop.ui_next.views.known_colours import known_colour
-from polyglotic_desktop.ui_next.views.known_map import ROW, KnownMapView
+from polyglotic_desktop.ui_next.views.known_map import ROW, WEEK, KnownMapView
 from polyglotic_desktop.ui_next.views.lab import Palette
 from polyglotic_desktop.ui_next.views.presets import _mix
 
@@ -77,8 +78,8 @@ def week_text(now: Tally, then: Tally) -> str:
     """How the green and red words moved in the last 7 days."""
     green, red = now.mastered - then.mastered, now.unknown - then.unknown
     if green == 0 and red == 0:
-        return _tr("No change in the last 7 days.")
-    return _tr("In the last 7 days: {green} green, {red} red.").format(
+        return _trn("No change in the last %Ln day(s).", WEEK.days)
+    return _trn("In the last %Ln day(s): {green} green, {red} red.", WEEK.days).format(
         green=_signed(green), red=_signed(red)
     )
 
@@ -121,7 +122,9 @@ def why(found: Chance, line: int | None, line_set: bool) -> list[str]:
                     Moved.NOT_AGAIN: _tr(
                         "Looked up, then heard again without a lookup."
                     ),
-                    Moved.FRESH_LOOKUP: _tr("Looked up in the last 3 days."),
+                    Moved.FRESH_LOOKUP: _trn(
+                        "Looked up in the last %Ln day(s).", FRESH.days
+                    ),
                     Moved.SINCE_KNOWN: _tr(
                         "Looked up twice since you said you know it."
                     ),
@@ -350,7 +353,7 @@ class KnownMapCard(Card):
     def _title(self, language: str) -> None:
         if self.title is not None:
             self.title.setText(
-                _tr("How well you know {language}").format(language=language)
+                in_sentence(_tr("How well you know {language}"), language=language)
                 if language
                 else _tr("How well you know the language")
             )

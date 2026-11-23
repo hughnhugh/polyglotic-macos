@@ -8,8 +8,10 @@ seconds (new, or put back by Reset position: DECISIONS.md #56), Strip, my
 speech shown, the listening mark (in each timing - Steady, under Quick
 preview's line, under a live update - and still, with Windows' animations
 off: polyglotic-hq 260), Quick preview's line, three windows at the
-start, the first window's set-up (and its spoken languages open), and the
-bar's language chip open (polyglotic-hq 465).
+start, the first window's set-up (and its spoken languages open), the
+bar's language chip open (polyglotic-hq 465), and the line a few minutes
+before a planned maintenance window, its times in the PC's zone, named
+(polyglotic-hq 542).
 
 Every window is over 1,000 made-up captions (it keeps its 150), at the
 default size on a 1920 x 1040 work area. Timed: a resize step (the top
@@ -22,9 +24,10 @@ slide, polyglotic-hq 267).
 
 from collections.abc import Callable
 from dataclasses import replace
+from datetime import UTC, datetime
 from functools import partial
 
-from PySide6.QtCore import QPoint, QPointF
+from PySide6.QtCore import QByteArray, QLocale, QPoint, QPointF, QTimeZone
 from PySide6.QtGui import QPainter, QPaintEvent, QRegion
 from PySide6.QtWidgets import QWidget
 
@@ -34,6 +37,7 @@ from polyglotic_desktop.core.listening.captions import (
     Language,
 )
 from polyglotic_desktop.core.listening.display import RowKind, WordLinks
+from polyglotic_desktop.core.listening.maintenance import Maintenance
 from polyglotic_desktop.core.listening.selection import Place, Selection
 from polyglotic_desktop.core.listening.sources import (
     WHOLE_SYSTEM,
@@ -44,6 +48,7 @@ from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui.recorded_captions import APP, MIC, clause
 from polyglotic_desktop.ui_next import caption_window as caption_window_module
+from polyglotic_desktop.ui_next import maintenance as maintenance_words
 from polyglotic_desktop.ui_next.caption_window import (
     MIN_PANEL,
     CaptionWindow,
@@ -55,6 +60,7 @@ from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.views.app_choices import AppChoice, AppState
 from polyglotic_desktop.ui_next.views.caption_window import (
     CaptionLook,
+    JoinedChoices,
     Notice,
     Notices,
     WindowChoices,
@@ -73,6 +79,29 @@ LABELS = {
     MIC: SourceLabel("You", "#7c9cff"),
     WHOLE_SYSTEM: SourceLabel("Everything the PC plays", "#f5a97f"),
 }
+
+LAB_ZONE = QTimeZone(
+    QByteArray(b"Polyglotic/Lab"),
+    11 * 3600,
+    "Australian Eastern Daylight Time",
+    "AEDT",
+    QLocale.Country.Australia,
+    "",
+)
+"""Melbourne's summer zone, made up: a planned maintenance window's
+times and zone are pictured alike whatever the PC's zone and the
+season (polyglotic-hq 542)."""
+PLANNED = Maintenance(
+    datetime(2026, 11, 20, 19, tzinfo=UTC),  # 06:00-07:30 AEDT on the 21st
+    datetime(2026, 11, 20, 20, 30, tzinfo=UTC),
+)
+
+
+def in_lab_zone(lab: Lab) -> None:
+    """Maintenance's times written in `LAB_ZONE` until the state ends."""
+    real = maintenance_words.pc_zone
+    maintenance_words.pc_zone = lambda: LAB_ZONE
+    lab.closing.append(lambda: setattr(maintenance_words, "pc_zone", real))
 
 
 def _areas() -> list[Rect]:
@@ -194,7 +223,13 @@ def sliding_in(lab: Lab, shown: CaptionWindow, updates: list[CaptionUpdate]) -> 
             shown.canvas.repaint()
 
         lab.time("new_caption", arrive, budget=budgets.NEW_CAPTION)
-        assert shown.arriving, "a new caption didn't slide in"
+        assert shown.arriving, (
+            f"no caption slide: visible={shown.isVisible()}, exposed="
+            f"{bool(shown.windowHandle() and shown.windowHandle().isExposed())}, "
+            f"reduced_motion={caption_window_module.reduced_motion()}, "
+            f"sliding={shown.sliding}, following={shown.view.scroll.following}, "
+            f"rows_painted={len(shown.canvas.at_rest)}, rows={len(shown.canvas.rest_rows())}"
+        )
 
         def frame() -> None:
             clock.now += 1 / 60
@@ -280,7 +315,6 @@ def settings_popover(lab: Lab) -> QWidget:
     shown.toggle_settings()
     popover = shown.popover
     assert popover is not None
-    popover.language.click()  # the languages open inside it
     lab.pump()
     lab.closing.append(shown.close)
     return popover
@@ -359,6 +393,36 @@ def notice(lab: Lab) -> QWidget:
     shown.set_connection(Notice.RECONNECTING, 4.0)
     shown._tick()
     hovered(lab, shown)
+    return shown
+
+
+def maintenance_soon(lab: Lab) -> QWidget:
+    """A few minutes before a planned maintenance window: its line, its
+    times in the PC's zone and the zone named once (polyglotic-hq 542)."""
+    in_lab_zone(lab)
+    shown = window(lab)
+    shown.show_notice(maintenance_words.soon_line(PLANNED))
+    shown._tick()
+    lab.pump()
+    return shown
+
+
+def maintenance_during(lab: Lab) -> QWidget:
+    """During a planned maintenance window: the notice says until when, in
+    the PC's zone, named (polyglotic-hq 563, 542's proposal) - at a fixed
+    time in it, so the picture is the same any day."""
+    in_lab_zone(lab)
+    real = maintenance_words.wall_clock
+    maintenance_words.wall_clock = lambda: (
+        PLANNED.starts_at + (PLANNED.ends_at - PLANNED.starts_at) / 3
+    )
+    maintenance_words.hold(PLANNED)
+    lab.closing.append(lambda: maintenance_words.hold(None))
+    lab.closing.append(lambda: setattr(maintenance_words, "wall_clock", real))
+    shown = window(lab)
+    shown.set_connection(Notice.MAINTENANCE, 120.0)
+    shown._tick()
+    lab.pump()
     return shown
 
 
@@ -462,6 +526,24 @@ def my_speech(lab: Lab) -> QWidget:
     hovered(lab, shown)
     # photographed taller: at the default height the hover band covers the
     # "You" label, the one mark of the mic's line on the canvas (123)
+    shown.resize(shown.width(), 300)
+    lab.pump()
+    return shown
+
+
+def respoken(lab: Lab) -> QWidget:
+    """Lines the learner said again for the app (polyglotic-hq 567): marked
+    re-spoken on their label, under the app's name though labels are off."""
+    shown = CaptionWindow(
+        "lab", APP, WindowChoices(), LABELS[APP], None, mic=MIC, areas=_areas
+    )
+    shown.set_labels(LABELS, "You")
+    shown.always_shown = True
+    updates = finished(CAPTIONS, APP)
+    for n, update in enumerate(updates):
+        shown.view.apply(replace(update, respoken=n >= len(updates) - 2))
+    shown.apply_changed(new_caption=True)
+    shown.show()
     shown.resize(shown.width(), 300)
     lab.pump()
     return shown
@@ -870,8 +952,28 @@ def languages_chip(lab: Lab) -> QWidget:
     return _Together([shown, opened])
 
 
+def lyrics(lab: Lab) -> QWidget:
+    """A music player's window on Detect, its language chip opened: the
+    Lyrics switch under They speak, on (polyglotic-hq 595, decision 0287) -
+    a row no other window has."""
+    shown = window(lab)
+    shown.set_labels({**LABELS, APP: SourceLabel("Spotify", "#1ed760")}, "You")
+    shown.music_player = True
+    shown.set_lyrics(True)
+    hovered(lab, shown)
+    shown.toggle_languages()
+    lab.pump()
+    opened = shown.languages
+    assert opened is not None and not opened.rows["lyrics"].isHidden()
+    lab.closing.append(shown.close)
+    return _Together([shown, opened])
+
+
 def three_windows(lab: Lab) -> QWidget:
     windows = CaptionWindows(None, MIC, _areas)
+    # three on their own, as a learner who chose Separate windows has them:
+    # windows start joined (polyglotic-hq 554; joined: `joined_window.py`)
+    windows.stored.joined = JoinedChoices(on=False, chosen=True)
     windows.set_labels(LABELS, "You")
     sources = [APP, SourceId("app-2"), SourceId("app-3")]
     windows.set_captioned([(f"app{n}", s) for n, s in enumerate(sources)])
@@ -903,10 +1005,13 @@ STATES = [
         ("paused", paused, True),
         ("notice", notice, True),
         ("notices", notices, True),
+        ("maintenance_soon", maintenance_soon, True),
+        ("maintenance_during", maintenance_during, True),
         ("empty", empty, True),
         ("everything_empty", everything_empty, True),
         ("new", new_window, True),
         ("my_speech", my_speech, True),
+        ("respoken", respoken, True),
         ("filled", filled, True),
         ("filled_lines", filled_lines, True),
         ("flow_run_on", flow_run_on, True),
@@ -929,5 +1034,6 @@ STATES = [
         ("set_up_spoken", set_up_spoken, False),
         ("first_heard", first_heard, False),
         ("languages_chip", languages_chip, False),
+        ("lyrics", lyrics, False),
     )
 ]

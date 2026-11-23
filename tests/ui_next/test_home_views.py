@@ -4,10 +4,12 @@ the PC plays."""
 
 from dataclasses import replace
 
+from polyglotic_desktop.core.listening.unreachable import Unreachable
 from polyglotic_desktop.core.releases.updates import UpdateNow
 from polyglotic_desktop.ui_next.views.caption_window import ORIGINAL_ONLY
 from polyglotic_desktop.ui_next.views.home import (
     Action,
+    AddableApp,
     AppRow,
     AppStatus,
     Detail,
@@ -48,8 +50,35 @@ def test_the_first_runs_last_step_is_home_picking_what_to_caption() -> None:
     """DECISIONS.md #25: the first run ends on Home, paused until
     something is ticked - "Pick what to caption", nothing captioned."""
     line = state_line(HomeState(ListeningState.NOT_CONNECTED, chosen=False))
-    assert (line.tone, line.title, line.action) == (Tone.WAIT, Title.PICK, Action.PAUSE)
+    assert (line.tone, line.title, line.action) == (Tone.WAIT, Title.PICK, Action.NONE)
     assert line.details[0] == (Detail.NOTHING_CHOSEN, None)
+
+
+def test_no_pause_action_while_nothing_is_captioned() -> None:
+    """polyglotic-hq 629: nothing is captioned, so there is nothing to pause.
+    Pause returns once something is chosen; Sign in, Get Plus and Resume keep
+    their own buttons."""
+    for state in (
+        HomeState(ListeningState.NOT_CONNECTED, chosen=False),
+        HomeState(ListeningState.LISTENING, chosen=False),
+        HomeState(ListeningState.STOPPED, chosen=False),
+        HomeState(ListeningState.CONNECTING, chosen=False),
+        HomeState(ListeningState.UPDATE_NEEDED, chosen=False),
+        HomeState(
+            ListeningState.WAITING, chosen=False, unreachable=Unreachable.OFFLINE
+        ),
+    ):
+        assert state_line(state).action is Action.NONE, state
+    assert state_line(HomeState(ListeningState.SIGN_IN_NEEDED)).action is Action.SIGN_IN
+    assert state_line(HomeState(ListeningState.PLUS_ENDED)).action is Action.GET_PLUS
+    assert (
+        state_line(HomeState(ListeningState.NOT_CONNECTED, paused=True)).action
+        is Action.PAUSE
+    )
+    assert (
+        state_line(HomeState(ListeningState.LISTENING, chosen=True)).action
+        is Action.PAUSE
+    )
 
 
 def test_pick_what_to_caption_until_something_is_chosen() -> None:
@@ -201,3 +230,17 @@ def test_stopped_says_to_start_again_as_every_other_bad_state() -> None:
     unticked = state_line(HomeState(ListeningState.STOPPED))
     assert unticked.title is Title.PICK
     assert (Detail.START_AGAIN, None) not in unticked.details
+
+
+def test_suggestion_returns_to_the_last_app_still_playing() -> None:
+    a, b, c = (AddableApp(key, key, True) for key in ("a", "b", "c"))
+    view = PickerView(Picker(available=(a, b)), Commands())  # type: ignore[arg-type]
+    assert view.suggested == a  # simultaneous discoveries keep display order
+    view.follow(Picker(available=(a, b, c)))
+    assert view.suggested == c
+    view.follow(Picker(available=(a, b, replace(c, playing=False))))
+    assert view.suggested == a
+    view.follow(Picker(available=(b,)))
+    assert view.suggested == b
+    view.follow(Picker(available=(b,), per_app=False))
+    assert view.suggested is None

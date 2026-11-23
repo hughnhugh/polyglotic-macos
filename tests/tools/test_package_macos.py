@@ -67,8 +67,9 @@ def test_the_app_bundle_needs_qts_cocoa_plugin_and_its_own_libraries() -> None:
     assert not [n for n in needed if n.endswith(".dll") or "_internal" in n]
 
 
-def drop_patterns() -> list[str]:
-    """The spec's DROP, evaluated as PyInstaller would for Mandarin."""
+def drop_patterns(linux: bool = False) -> list[str]:
+    """The spec's DROP, evaluated as PyInstaller would for Mandarin - on
+    Linux (`linux`), or elsewhere."""
     tree = ast.parse(SPEC.read_text(encoding="utf-8"))
     (value,) = [
         node.value
@@ -78,7 +79,12 @@ def drop_patterns() -> list[str]:
     ]
     found = eval(  # the spec's own expression, nothing else
         compile(ast.Expression(value), str(SPEC), "eval"),
-        {"re": re, "QT_LANGUAGES": ["zh_CN"]},
+        {
+            "re": re,
+            "QT_LANGUAGES": ["zh_CN"],
+            "INPUT_METHODS": "" if linux else "|platforminputcontexts",
+            "PLATFORM_THEMES": "" if linux else "|platformthemes",
+        },
     )
     assert isinstance(found, list)
     return found
@@ -91,12 +97,17 @@ def drop_patterns() -> list[str]:
         ("PySide6/Qt/plugins/platforms/libqoffscreen.dylib", True),
         ("PySide6/Qt/plugins/platforms/libqminimal.dylib", False),
         ("PySide6/Qt/plugins/styles/libqmacstyle.dylib", True),
+        ("PySide6/Qt/plugins/imageformats/libqsvg.dylib", True),
+        ("PySide6/Qt/plugins/iconengines/libqsvgicon.dylib", True),
         ("PySide6/Qt/plugins/imageformats/libqjpeg.dylib", False),
         ("PySide6/Qt/translations/qtbase_zh_CN.qm", True),
         ("PySide6/Qt/translations/qtbase_de.qm", False),
         # Windows' as before
         ("PySide6/plugins/platforms/qwindows.dll", True),
         ("PySide6/plugins/platforms/qminimal.dll", False),
+        ("PySide6/plugins/imageformats/qsvg.dll", True),
+        ("PySide6/plugins/iconengines/qsvgicon.dll", True),
+        ("PySide6/plugins/imageformats/qjpeg.dll", False),
         ("PySide6/translations/qtbase_zh_CN.qm", True),
     ],
 )
@@ -105,6 +116,30 @@ def test_the_spec_keeps_cocoa_and_drops_what_it_drops_on_windows(
 ) -> None:
     dropped = any(re.search(pattern, path) for pattern in drop_patterns())
     assert dropped is not kept
+
+
+@pytest.mark.parametrize(
+    ("path", "on_linux", "elsewhere"),
+    [
+        ("PySide6/Qt/plugins/platformthemes/libqxdgdesktopportal.so", True, False),
+        ("PySide6/Qt/plugins/platformthemes/libqgtk3.so", False, False),
+        (
+            "PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so",
+            True,
+            False,
+        ),
+        ("PySide6/Qt/plugins/platforms/libqxcb.so", True, True),
+    ],
+)
+def test_the_spec_keeps_the_portals_theme_on_linux_only(
+    path: str, on_linux: bool, elsewhere: bool
+) -> None:
+    """574 (decision 0280): Linux's package keeps Qt's portal theme, for the
+    desktop's own file dialogs, and no other theme - GTK 3's would load the
+    system's GTK beside the app's own GLib."""
+    for linux, kept in ((True, on_linux), (False, elsewhere)):
+        dropped = any(re.search(p, path) for p in drop_patterns(linux))
+        assert dropped is not kept, (path, linux)
 
 
 def test_the_spec_makes_an_app_bundle_on_macos_only() -> None:

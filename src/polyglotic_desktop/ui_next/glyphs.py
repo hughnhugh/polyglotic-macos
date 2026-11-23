@@ -48,6 +48,7 @@ class Glyph(StrEnum):
     CLOSE = "close"
     MORE = "more"
     MIC = "mic"
+    MIC_OFF = "mic_off"
     LINKS = "links"
     REPORT = "report"
     SPEAKER = "speaker"
@@ -74,6 +75,10 @@ class Glyph(StrEnum):
     """Settings > Readings: a short line over a letter - ruby, a reading."""
     TIMING = "timing"
     """Settings > Timing: a clock."""
+    LANGUAGES = "languages"
+    """The caption bar's language choices: a globe."""
+    PRESET = "preset"
+    """The caption bar's preset choices: a stack of cards."""
     SPEECH = "speech"
     """Settings > Speech: a speech bubble."""
     APP = "app"
@@ -97,6 +102,8 @@ class Glyph(StrEnum):
     """App's Hotkeys: a keyboard."""
     UPDATES = "updates"
     """App's Updates: an arrow down into a tray."""
+    START = "start"
+    """App's Start at sign-in: a power symbol (polyglotic-hq 571)."""
     ABOUT = "about"
     """App's About: an i in a circle."""
 
@@ -122,7 +129,21 @@ def _gear() -> QPainterPath:
 def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
     """`glyph`'s lines (stroked) and dots (filled), on the 16-unit grid."""
     lines, dots = QPainterPath(), QPainterPath()
-    if glyph is Glyph.LOCK:
+    if glyph is Glyph.LANGUAGES:
+        lines.addEllipse(QRectF(1.5, 1.5, 13, 13))
+        lines.addEllipse(QRectF(5, 1.5, 6, 13))
+        lines.moveTo(1.5, 8)
+        lines.lineTo(14.5, 8)
+    elif glyph is Glyph.PRESET:
+        lines.addRoundedRect(QRectF(1.5, 4.5, 10, 9.5), 1.5, 1.5)
+        lines.moveTo(4.5, 2)
+        lines.lineTo(13, 2)
+        lines.quadTo(14.5, 2, 14.5, 3.5)
+        lines.lineTo(14.5, 11)
+        for y in (8, 10.5):
+            lines.moveTo(4, y)
+            lines.lineTo(9, y)
+    elif glyph is Glyph.LOCK:
         lines.addRoundedRect(QRectF(2.25, 6.5, 11.5, 8.75), 2, 2)
         lines.moveTo(4.5, 6.5)
         lines.lineTo(4.5, 4.5)
@@ -177,12 +198,15 @@ def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
         lines.moveTo(1.75, 10.5)
         lines.lineTo(14.25, 10.5)
         dots.addRoundedRect(QRectF(6.0, 4.0, 4.0, 3.0), 1.5, 1.5)
-    elif glyph is Glyph.MIC:
+    elif glyph in (Glyph.MIC, Glyph.MIC_OFF):
         lines.addRoundedRect(QRectF(5.5, 0.75, 5, 9.5), 2.5, 2.5)
         lines.moveTo(3, 7.25)
         lines.arcTo(QRectF(3, 2.25, 10, 10), 180, 180)
         lines.moveTo(8, 12.75)
         lines.lineTo(8, 15.25)
+        if glyph is Glyph.MIC_OFF:
+            lines.moveTo(2.25, 2.25)
+            lines.lineTo(13.75, 13.75)
     elif glyph in (Glyph.SPEAKER, Glyph.SPEAKING, Glyph.NO_VOICE):
         lines.moveTo(1.5, 5.75)
         lines.lineTo(4.25, 5.75)
@@ -321,6 +345,12 @@ def _settings_outline(glyph: Glyph, lines: QPainterPath, dots: QPainterPath) -> 
         lines.lineTo(2.25, 14)
         lines.lineTo(13.75, 14)
         lines.lineTo(13.75, 10.75)
+    elif glyph is Glyph.START:  # a power symbol: a circle open at the top, a line in it
+        ring = QRectF(2.25, 2.75, 11.5, 11.5)
+        lines.arcMoveTo(ring, 120)
+        lines.arcTo(ring, 120, 300)
+        lines.moveTo(8, 1.5)
+        lines.lineTo(8, 7.75)
     elif glyph is Glyph.ABOUT:  # an i in a circle
         lines.addEllipse(QPointF(8, 8), 6, 6)
         lines.moveTo(8, 7.25)

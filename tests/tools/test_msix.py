@@ -5,6 +5,7 @@ real build with MakeAppx on every run (.github/actions/build-and-pack)."""
 
 import hashlib
 import io
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -133,9 +134,18 @@ def test_every_logo_the_manifest_names_is_drawn_at_each_scale() -> None:
 
 
 def test_the_logos_are_pngs_of_their_size(tmp_path: Path) -> None:
-    from PySide6.QtGui import QImage
+    """Drawn under the widgets' application, as the icon's test is
+    (test_package_build): the tool makes a bare QGuiApplication when there's
+    none, and one left behind failed every test after it that needs a
+    QApplication - 227 of tests/ui's in a run of tests/tools then tests/ui
+    (polyglotic-hq 565, the whole suite split across machines)."""
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    from PySide6.QtGui import QGuiApplication, QImage
+    from PySide6.QtWidgets import QApplication
 
+    _app = QApplication.instance() or QApplication([])
     written = msix.write_logos(tmp_path)
+    assert isinstance(QGuiApplication.instance(), QApplication)
     assert {p.name for p in written} == set(msix.logo_files())
     image = QImage(str(tmp_path / "Square150x150Logo.scale-100.png"))
     assert (image.width(), image.height()) == (150, 150)

@@ -16,11 +16,14 @@ windows' dark colours whatever the window theme. `main` hands it
 `ui.dictation.Dictating`'s `sign_changed`.
 """
 
-from PySide6.QtCore import QRectF, Qt, QTimer
+from PySide6.QtCore import QPoint, QRect, QRectF, Qt, QTimer
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QPainter, QPaintEvent
 from PySide6.QtWidgets import QApplication, QWidget
 
-from polyglotic_desktop.ui_next.style import px, ui_font
+from polyglotic_desktop.ui_next.above_all import ABOVE_ALL
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.style import at_app_text_size, px, ui_font
+from polyglotic_desktop.ui_next.views.respeaking import SIGN_GAP
 
 SAID_MS = 2000
 """How long the sign says why nothing was typed."""
@@ -66,6 +69,22 @@ def said_text(said: str, key: str = "") -> str:
     return texts.get(said, "")
 
 
+def respeaking_said(said: str) -> str:
+    """What the sign says once a re-speaking hold is over and nothing was
+    captioned (a `core.listening.respeaking.Said` value); "" for nothing
+    to say - captioned, or idle."""
+    texts = {
+        "nothing_heard": _tr("Didn't catch that"),
+        "no_mic": _tr("No microphone found"),
+        "too_short": _tr("Hold the key while you speak"),
+        "cancelled": _tr("Cancelled"),
+        "no_answer": _tr("No answer from the server"),
+        "no_server": _tr("Not connected to the server"),
+        "no_source": _tr("Nothing else is being captioned to re-speak for"),
+    }
+    return texts.get(said, "")
+
+
 class DictationSign(QWidget):
     """The pill: shown without activating, click-through, on top."""
 
@@ -76,7 +95,8 @@ class DictationSign(QWidget):
             | Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.WindowDoesNotAcceptFocus
-            | Qt.WindowType.WindowTransparentForInput,
+            | Qt.WindowType.WindowTransparentForInput
+            | ABOVE_ALL,
         )
         self.setObjectName("DictationSign")
         self.setWindowTitle(_tr("Dictation"))  # never shown; tools name it
@@ -86,58 +106,146 @@ class DictationSign(QWidget):
         # on a Mac a tool window hides while the app isn't active - and the
         # app is never active while the learner is in another (polyglotic-hq 429)
         self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
-        self.setFont(ui_font())
-        self.text = ""
+        self.text = self._display = ""
         self.listening = False
         self.level = 0.0
         self.key = ""
         """Dictation's key, in words ("Right Ctrl"), as the sign names it."""
+        self._anchor: QRect | None = None
         self._hide_later = QTimer(self, singleShot=True, interval=SAID_MS)
         self._hide_later.timeout.connect(self.hide)
 
-    def show_state(self, state: str, level: float = 0.0) -> None:
+    def show_state(
+        self,
+        state: str,
+        level: float = 0.0,
+        *,
+        speakers: bool = False,
+        window: QWidget | None = None,
+    ) -> None:
         """A `Stage` value ("listening", "working", "idle") or a `Said`
         value, as `Dictating.sign_changed` gives them."""
+        anchor = QRect(window.mapToGlobal(QPoint()), window.size()) if window else None
+        moved = anchor != self._anchor
+        self._anchor = anchor
         self._hide_later.stop()
         self.listening = state == "listening"
         self.level = level
         if self.listening:
-            text = _tr("Listening")
+            text = (
+                pc_or_mac(
+                    _tr("Listening to the PC - let go to type it"),
+                    _tr("Listening to the Mac - let go to type it"),
+                )
+                if speakers
+                else _tr("Listening")
+            )
         elif state == "working":
             text = _tr("Working…")
         else:
-            text = said_text(state, self.key)
+            text = (
+                {
+                    "nothing_heard": _tr("Didn't hear anyone"),
+                    "no_mic": _tr("Couldn't capture speaker audio"),
+                    "too_short": _tr("Hold the key while they speak"),
+                    "own_window": _tr("Choose a text field in another app"),
+                    "sign_in": _tr("Sign in to type what they said"),
+                    "copied": _tr("Copied to the clipboard. Paste it where you want."),
+                }.get(state, said_text(state))
+                if speakers
+                else said_text(state, self.key)
+            )
             if not text:
                 self.hide()
                 return
             self._hide_later.start(LONGER_SAID_MS if state in LONGER else SAID_MS)
-        self._show_text(text)
+        self._show_text(text, moved)
+
+    def show_respeaking(
+        self,
+        state: str,
+        level: float = 0.0,
+        whose: str = "",
+        window: QWidget | None = None,
+    ) -> None:
+        """Re-speaking's state (polyglotic-hq 567), as
+        `Respeaking.sign_changed` gives it: whose it's for while held -
+        "Re-speaking for Discord" - then nothing once it's captioned (the
+        caption shows), or why not."""
+        anchor = (
+            QRect(window.mapToGlobal(QPoint()), window.size())
+            if window is not None
+            else None
+        )
+        moved = self._anchor != anchor
+        self._anchor = anchor
+        self._hide_later.stop()
+        self.listening = state == "listening"
+        self.level = level
+        if self.listening:
+            text = (
+                _tr("Re-speaking for {name} - let go to caption").format(name=whose)
+                if whose
+                else _tr("Re-speaking")
+            )
+        elif state == "working":
+            text = _tr("Working…")
+        else:
+            text = respeaking_said(state)
+            if not text:
+                self.hide()
+                return
+            self._hide_later.start(SAID_MS)
+        self._show_text(text, moved)
 
     def show_hint(self) -> None:
         """Dictation was just turned on: which key to hold, for
         `HINT_MS` (polyglotic-hq 289)."""
         if not self.key or self.isVisible():
             return
+        self._anchor = None
         self.listening = False
         self._show_text(_tr("Hold {key} and speak").format(key=self.key))
         self._hide_later.start(HINT_MS)
 
-    def _show_text(self, text: str) -> None:
-        if text != self.text or not self.isVisible():
+    def _show_text(self, text: str, moved: bool = False) -> None:
+        if moved or text != self.text or not self.isVisible():
+            self.setAccessibleName(text)
             self.text = text
             self._place()
         self.show()
         self.update()
 
     def _place(self) -> None:
+        self.setFont(at_app_text_size(ui_font()))
         metrics = self.fontMetrics()
         meter = px(_BARS * 8 + 12) if self.listening else 0
         width = px(40) + metrics.horizontalAdvance(self.text) + meter + px(18)
-        self.resize(width, px(_HEIGHT))
         screen = (
-            QGuiApplication.screenAt(QCursor.pos()) or QGuiApplication.primaryScreen()
+            QGuiApplication.screenAt(
+                self._anchor.center() if self._anchor else QCursor.pos()
+            )
+            or QGuiApplication.primaryScreen()
         )
         area = screen.availableGeometry()
+        self.resize(min(area.width(), width), px(_HEIGHT))
+        self._display = metrics.elidedText(
+            self.text,
+            Qt.TextElideMode.ElideMiddle,
+            self.width() - px(40) - px(18) - meter,
+        )
+        if self._anchor is not None:
+            anchor = self._anchor
+            gap = px(SIGN_GAP.value)
+            x = anchor.center().x() - self.width() // 2
+            y = anchor.top() - self.height() - gap
+            if y < area.top():
+                y = anchor.bottom() + gap
+            self.move(
+                max(area.left(), min(x, area.right() - self.width() + 1)),
+                max(area.top(), min(y, area.bottom() - self.height() + 1)),
+            )
+            return
         self.move(
             area.center().x() - self.width() // 2,
             area.bottom() - self.height() - px(_ABOVE_TASKBAR),
@@ -157,11 +265,11 @@ class DictationSign(QWidget):
         painter.drawEllipse(QRectF(px(16), (self.height() - dot) / 2, dot, dot))
         painter.setPen(_TEXT)
         text_left = px(40)
-        advance = self.fontMetrics().horizontalAdvance(self.text)
+        advance = self.fontMetrics().horizontalAdvance(self._display)
         painter.drawText(
             QRectF(text_left, 0, advance + 2, self.height()),
             Qt.AlignmentFlag.AlignVCenter,
-            self.text,
+            self._display,
         )
         if self.listening:  # the meter
             painter.setPen(Qt.PenStyle.NoPen)

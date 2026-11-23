@@ -10,7 +10,8 @@ from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from tests.ui.fakes import MemorySettingsStore, make_app
 from tests.ui.test_window_theme import _contrast
 
-from polyglotic_desktop.ui import icons
+from polyglotic_desktop.core.listening.hotkeys import Platform
+from polyglotic_desktop.ui import icons, theme
 from polyglotic_desktop.ui.app import DARK_TRAY_MENU, ConnectionState, DesktopApp
 from polyglotic_desktop.ui.icons import TrayState
 
@@ -136,7 +137,10 @@ def _tray_app(light: bool) -> DesktopApp:
 
 def _shows(app: DesktopApp, state: TrayState, light: bool) -> bool:
     assert app.tray is not None
-    return app.tray.icon().cacheKey() == icons.tray_icon(state, light).cacheKey()
+    expected = icons.tray_icon(state, light)
+    if not app.settings.value.source_chosen:
+        expected = icons.with_idle_dot(expected, theme.WARNING)
+    return app.tray.icon().cacheKey() == expected.cacheKey()
 
 
 def test_the_tray_follows_listening_idle_and_paused(qapp: QApplication) -> None:
@@ -152,7 +156,12 @@ def test_the_tray_follows_listening_idle_and_paused(qapp: QApplication) -> None:
     assert _shows(app, TrayState.LISTENING, False)
     app.settings.update(whole_system=False)  # as Home: "Pick what to caption"
     assert _shows(app, TrayState.IDLE, False)
+    assert app.tray is not None and "Not captioning yet" in app.tray.toolTip()
+    assert app.tray.icon().pixmap(16).toImage().pixelColor(13, 13) == QColor(
+        theme.WARNING
+    )
     app.settings.update(whole_system=True)
+    assert "Not captioning yet" not in app.tray.toolTip()
     app.set_connection(ConnectionState.WAITING)
     assert _shows(app, TrayState.IDLE, False)
     app.close()
@@ -264,6 +273,7 @@ def test_on_a_mac_the_tray_is_the_menu_bars_template(
     from polyglotic_desktop.ui import app as app_module
 
     monkeypatch.setattr(app_module, "on_a_mac", lambda: True)
+    monkeypatch.setattr(app_module, "platform", lambda: Platform.MAC)  # its keys (567)
     app = DesktopApp(
         MemorySettingsStore({"whole_system": False}),
         None,
@@ -272,7 +282,9 @@ def test_on_a_mac_the_tray_is_the_menu_bars_template(
     )
     app.tray = QSystemTrayIcon(app)
     app.set_connection(ConnectionState.NOT_CONNECTED)
-    assert app.tray.icon().cacheKey() == icons.menu_bar_icon(TrayState.IDLE).cacheKey()
+    assert app.tray.icon().isMask()
+    badged = icons.with_idle_dot(icons.menu_bar_icon(TrayState.IDLE), theme.WARNING)
+    assert app.tray.icon().cacheKey() == badged.cacheKey()
     # the menus' keys: Control+Command, which Qt writes Meta+Ctrl on a Mac
     assert app.lock_windows.shortcut().toString() == "Meta+Ctrl+L"
     app.close()

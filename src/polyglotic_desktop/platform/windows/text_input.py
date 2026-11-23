@@ -67,6 +67,11 @@ class INPUT(ctypes.Structure):
 _user32 = ctypes.WinDLL("user32", use_last_error=True)
 _user32.GetForegroundWindow.argtypes = []
 _user32.GetForegroundWindow.restype = ctypes.wintypes.HWND
+_user32.GetWindowThreadProcessId.argtypes = [
+    ctypes.wintypes.HWND,
+    ctypes.POINTER(ctypes.wintypes.DWORD),
+]
+_user32.GetWindowThreadProcessId.restype = ctypes.wintypes.DWORD
 
 
 def unicode_events(text: str) -> "ctypes.Array[INPUT]":
@@ -117,3 +122,20 @@ def type_text(text: str, send: Send | None = None) -> bool:
 def keyboard_window() -> int:
     """The window that has the keyboard now (0: none)."""
     return int(_user32.GetForegroundWindow() or 0)
+
+
+def window_is_ours(window: int) -> bool:
+    pid = ctypes.wintypes.DWORD()
+    if window:
+        _user32.GetWindowThreadProcessId(window, ctypes.byref(pid))
+    return pid.value == os.getpid()
+
+
+def type_text_for(text: str, window: int) -> bool:
+    """Type only while the intended external window still has focus."""
+    return bool(
+        window
+        and keyboard_window() == window
+        and not window_is_ours(window)
+        and type_text(text)
+    )

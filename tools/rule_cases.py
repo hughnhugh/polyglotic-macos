@@ -39,7 +39,15 @@ from polyglotic_desktop.core.learning.levels import (
 )
 from polyglotic_desktop.core.learning.statuses import estimated_status
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
-from polyglotic_desktop.core.listening.captions import Clause, Language, WordLink
+from polyglotic_desktop.core.listening.captions import (
+    CaptionKind,
+    CaptionUpdate,
+    Clause,
+    Language,
+    SpeechTimes,
+    WordLink,
+    WordTime,
+)
 from polyglotic_desktop.core.listening.display import (
     LIVE_TRAIL,
     DisplayOptions,
@@ -52,6 +60,17 @@ from polyglotic_desktop.core.listening.display import (
     numbered_links,
 )
 from polyglotic_desktop.core.listening.history import Caption
+from polyglotic_desktop.core.listening.playout import (
+    DELAY_SEC,
+    EAGER_DELAY_SEC,
+    ESTIMATE_LATE_SEC,
+    MIN_GAP_SEC,
+    Ahead,
+    Playout,
+    PlayoutRules,
+    _clause_words,
+    each_character,
+)
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.timing import (
     FRAME_SEC,
@@ -66,6 +85,14 @@ from polyglotic_desktop.core.listening.timing import (
 )
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, Level, WordInLine
 from polyglotic_desktop.ports.capture import SourceCategory
+from polyglotic_desktop.ui_next.views.zones import (
+    CONVERSATION_WITHIN_SEC,
+    LIVE_LINES_CONVERSATION,
+    LIVE_LINES_MONOLOGUE,
+    PAUSE_SEC,
+    Zones,
+    handed_off,
+)
 
 REPO = Path(__file__).resolve().parents[1]
 FOLDER = REPO / "docs" / "rule-cases"
@@ -817,9 +844,9 @@ def timing() -> dict[str, Any]:
         _timing_case("joins only to repair a fragment", {app: ("video", [(0.5, False), (3.0, True), (1.0, False), (2.0, True), (1.5, False)])}, None, rules(join_only_under=2.0)),
         _timing_case("the default rules: a lead-in before the first speech", {app: ("video", [(1.0, False), (3.0, True), (1.5, False)])}, 1.5, TimingRules()),
         # the caption modes the app offers (project 064): each mode's rules and interval
-        _timing_case("Steady: once, finished, at a 0.6s pause or a breath; joins only onto fragments", {app: ("video", [(0.5, False), (4.5, True), (0.4, False), (3.0, True), (0.7, False), (1.2, True), (1.0, False), (1.5, True), (1.5, False)])}, CaptionMode.STEADY.live_update_interval(1.5), CaptionMode.STEADY.rules),
+        _timing_case("Steady: once, finished, at a 0.6s pause or a breath; joins only onto fragments", {app: ("video", [(0.5, False), (4.5, True), (0.4, False), (3.0, True), (0.7, False), (1.2, True), (1.0, False), (1.5, True), (1.5, False)])}, CaptionMode.WHOLE.live_update_interval(1.5), CaptionMode.WHOLE.rules),
         _timing_case("Quick preview: live updates 1.5 and 3s in, cut at 6s, then the finished caption", {app: ("video", [(0.5, False), (7.0, True), (1.0, False), (1.0, True), (1.5, False)])}, CaptionMode.PREVIEW.live_update_interval(1.5), CaptionMode.PREVIEW.rules),
-        _timing_case("Live updates: every 1.5s, finished at a 0.8s pause, joins only onto fragments", {app: ("video", [(0.5, False), (4.0, True), (1.2, False), (1.2, True), (1.2, False), (1.5, True), (1.5, False)])}, CaptionMode.LIVE.live_update_interval(1.5), CaptionMode.LIVE.rules),
+        _timing_case("Live updates: every 1.5s, finished at a 0.8s pause, joins only onto fragments", {app: ("video", [(0.5, False), (4.0, True), (1.2, False), (1.2, True), (1.2, False), (1.5, True), (1.5, False)])}, CaptionMode.INSTANT.live_update_interval(1.5), CaptionMode.INSTANT.rules),
     ]  # fmt: skip
     return {
         "rule": "The live-update timing rules (protocol v1: the app decides)",
@@ -827,6 +854,274 @@ def timing() -> dict[str, Any]:
         "t0": T0,
         "frame_seconds": FRAME_SEC,
         "cases": cases,
+    }
+
+
+# -- the playout (decision 0245) and the two zones (0251) -------------------------------
+
+_INTO = Language("en")
+
+
+def update_from(data: dict[str, Any]) -> CaptionUpdate:
+    """A playout case's `heard` entry as the caption update it stands for."""
+    clauses = tuple(
+        Clause(
+            each["original"],
+            {_INTO: each["translation"]} if each.get("translation") else {},
+            words=tuple(
+                WordTime((w[0], w[1]), w[2], w[3]) for w in each.get("words", ())
+            ),
+        )
+        for each in data["clauses"]
+    )
+    return CaptionUpdate(
+        CaptionId(data["caption"]),
+        SourceId(data["source"]),
+        CaptionKind(data["kind"]),
+        clauses,
+        _INTO,
+        (_INTO,),
+        tuple(CaptionId(c) for c in data.get("replaces", ())),
+        times=SpeechTimes(data["start"], data["end"], data["end"], data["at"]),
+        established=data.get("established", 0),
+    )
+
+
+def playout_rules(data: dict[str, Any]) -> PlayoutRules:
+    return PlayoutRules(
+        delay=data["delay"],
+        hold_back=data["hold_back"],
+        ahead=Ahead(data["ahead"]),
+        established_only=data["established_only"],
+        translation_after=data["translation_after"],
+    )
+
+
+def played_out(rules: PlayoutRules, heard: list[dict[str, Any]]) -> list[Any]:
+    """What a playout shows for `heard`, as the file says it (README)."""
+    playout = Playout(rules)
+    shown: list[dict[str, Any]] = []
+
+    def note(at: float, updates: Sequence[CaptionUpdate]) -> None:
+        for each in updates:
+            shown.append(
+                {
+                    "at": _round(at),
+                    "caption": each.caption_id,
+                    "kind": each.kind.value,
+                    "text": "".join(c.original for c in each.clauses),
+                    "established": each.established,
+                    "translated": [bool(c.translations) for c in each.clauses],
+                }
+            )
+
+    def release(until: float | None) -> None:
+        while (due := playout.due()) is not None and (until is None or due <= until):
+            note(due, playout.release(due))
+
+    for entry in heard:
+        release(entry["at"])
+        note(entry["at"], playout.heard(update_from(entry), entry["at"]))
+    release(None)
+    return shown
+
+
+def _heard(
+    caption: str,
+    kind: str,
+    start: float,
+    end: float,
+    *clauses: str | tuple[str, str] | dict[str, Any],
+    source: str = "app",
+    **more: Any,
+) -> dict[str, Any]:
+    each: list[dict[str, Any]] = []
+    for clause in clauses:
+        if isinstance(clause, str):
+            each.append({"original": clause})
+        elif isinstance(clause, tuple):
+            each.append({"original": clause[0], "translation": clause[1]})
+        else:
+            each.append(clause)
+    return {
+        "at": _round(end + 0.1),
+        "caption": caption,
+        "source": source,
+        "kind": kind,
+        "start": start,
+        "end": end,
+        "clauses": each,
+        **more,
+    }
+
+
+def _playout_cases() -> list[dict[str, Any]]:
+    default = PlayoutRules()
+    eager = PlayoutRules(delay=EAGER_DELAY_SEC, hold_back=0)
+    growing = [
+        _heard("c1", "live", 10.0, 11.0, "one two three"),
+        _heard("c1", "live", 10.0, 12.0, "one two three four five six"),
+        _heard("c1", "finished", 10.0, 12.6, ("one two three four five six seven.", "un a sept.")),
+    ]  # fmt: skip
+    cases: list[tuple[str, PlayoutRules, list[dict[str, Any]]]] = [
+        ("the default: words in the speaker's rhythm, a delay behind, the newest held back", default, growing),
+        ("the newest word shown too, 1.5 s behind", eager, growing),
+        ("a finished caption alone: every word, then the server's own update", default,
+         [_heard("c1", "finished", 20.0, 22.0, ("Good morning, everyone.", "Bonjour a tous."))]),
+        ("the server's word times are used when it sends them", default,
+         [_heard("c1", "finished", 30.0, 33.0, {
+             "original": "slow then quick quick",
+             "translation": "lent puis vite vite",
+             "words": [[0, 4, 30.0, 31.6], [5, 9, 31.8, 32.2], [10, 15, 32.3, 32.6], [16, 21, 32.7, 33.0]],
+         })]),
+        ("a rewrite of words not yet shown is never seen", default, [
+            _heard("c1", "live", 40.0, 41.0, "the whether is"),
+            _heard("c1", "live", 40.0, 42.0, "the weather is fine today"),
+            _heard("c1", "finished", 40.0, 42.4, "The weather is fine today."),
+        ]),
+        ("a clause's translation comes with its last word", default,
+         [_heard("c1", "finished", 50.0, 53.0, ("One two, ", "Un deux,"), ("three four.", "trois quatre."))]),
+        ("Acquisition: each clause's translation 2 s after its last word", dataclasses.replace(default, translation_after=2.0),
+         [_heard("c1", "finished", 50.0, 53.0, ("One two, ", "Un deux,"), ("three four.", "trois quatre."))]),
+        ("Calm: only the established words while the caption is live", dataclasses.replace(default, established_only=True), [
+            _heard("c1", "live", 60.0, 61.0, "one two three", established=4),
+            _heard("c1", "live", 60.0, 62.0, "one two three four five", established=14),
+            _heard("c1", "finished", 60.0, 62.5, "One two three four five."),
+        ]),
+        ("words ahead, waiting: the words heard wait faint (text past `established`)", dataclasses.replace(default, ahead=Ahead.WAITING), growing),
+        ("words ahead, all: the newest word too", dataclasses.replace(default, ahead=Ahead.ALL), growing),
+        ("Chinese: a character at a time, punctuation with the word before", default,
+         [_heard("c1", "finished", 70.0, 72.0, ("你好，世界。", "Hello, world."))]),
+        ("two sources at once keep their own rhythm", default, [
+            _heard("c1", "finished", 80.0, 81.0, "one two three"),
+            _heard("m1", "finished", 80.2, 81.2, "yes indeed", source="mic"),
+        ]),
+        ("a caption that replaces another carries on from the words shown", default, [
+            _heard("c1", "live", 90.0, 91.5, "one two three four"),
+            _heard("c2", "finished", 90.0, 93.0, "one two three four five six.", replaces=["c1"]),
+        ]),
+    ]  # fmt: skip
+    return [
+        {
+            "name": name,
+            "rules": {
+                "delay": rules.delay,
+                "hold_back": rules.hold_back,
+                "ahead": rules.ahead.value,
+                "established_only": rules.established_only,
+                "translation_after": rules.translation_after,
+            },
+            "heard": heard,
+            "shown": played_out(rules, heard),
+        }
+        for name, rules, heard in cases
+    ]
+
+
+def tokens_of(text: str) -> list[dict[str, Any]]:
+    return [
+        {"text": w.text, "key": w.key, "units": _round(w.units), "start": w.start}
+        for w in _clause_words(text, 0, each_character)
+    ]
+
+
+_TOKEN_TEXTS = (
+    "one two three",
+    "Good morning, everyone.",
+    "Well - no; it's a state-of-the-art thing...",
+    "\u201cQuoted,\u201d she said.",
+    "It cost 3.50 in 2024.",
+    "你好，世界。",
+    "我用Python写code。",
+    "  leading and trailing  ",
+    "",
+)
+
+
+def zones_played(steps: list[dict[str, Any]]) -> list[Any]:
+    """Each step's answer from a new `Zones` (README)."""
+    zones = Zones()
+    answers: list[Any] = []
+    for step in steps:
+        if "heard" in step:
+            zones.heard(step["heard"], step["at"])
+            answers.append(None)
+        elif "live_lines" in step:
+            answers.append(zones.live_lines(step["live_lines"]))
+        elif "handoff" in step:
+            gone = handed_off(
+                [(c[0], c[1], c[2]) for c in step["handoff"]],
+                step["lines"],
+                step["live_lines_shown"],
+            )
+            zones.settle(gone)
+            answers.append({"settled": sorted(zones.settled)})
+        else:
+            zones.pause(step["pause"])
+            answers.append(
+                {"settled": sorted(zones.settled), "ended": sorted(zones.ended)}
+            )
+    return answers
+
+
+def _zone_cases() -> list[dict[str, Any]]:
+    cases: list[tuple[str, list[dict[str, Any]]]] = [
+        ("one speaker: three live lines", [
+            {"heard": "app", "at": 0.0},
+            {"live_lines": 10.0},
+        ]),
+        ("two speakers within a minute: two live lines; three again once one is quiet", [
+            {"heard": "app", "at": 0.0},
+            {"heard": "you", "at": 20.0},
+            {"live_lines": 30.0},
+            {"live_lines": 60.0},
+            {"live_lines": 60.5},
+            {"heard": "app", "at": 100.0},
+            {"live_lines": 100.0},
+        ]),
+        ("a caption hands off when its last line rolls out of the zone", [
+            {"handoff": [[1, 0, False], [2, 1, False], [3, 2, True]], "lines": 3, "live_lines_shown": 3},
+            {"handoff": [[1, 0, False], [2, 2, False], [3, 3, True]], "lines": 4, "live_lines_shown": 3},
+            {"handoff": [[2, 2, False], [3, 5, True]], "lines": 6, "live_lines_shown": 3},
+        ]),
+        ("a caption still being spoken never hands off", [
+            {"handoff": [[1, 0, True]], "lines": 5, "live_lines_shown": 3},
+        ]),
+        ("with two live lines a caption hands off a line sooner", [
+            {"handoff": [[1, 0, False], [2, 2, True]], "lines": 3, "live_lines_shown": 2},
+        ]),
+        ("a 5 s pause settles everything, and the next caption starts a paragraph", [
+            {"handoff": [[1, 0, False], [2, 1, False]], "lines": 2, "live_lines_shown": 3},
+            {"pause": [1, 2]},
+            {"pause": []},
+        ]),
+    ]  # fmt: skip
+    return [
+        {"name": name, "steps": steps, "answers": zones_played(steps)}
+        for name, steps in cases
+    ]
+
+
+def playout() -> dict[str, Any]:
+    return {
+        "rule": "The paced modes' playout (decision 0245) and the two zones' handoff (0251)",
+        "code": [
+            "src/polyglotic_desktop/core/listening/playout.py",
+            "src/polyglotic_desktop/ui_next/views/zones.py",
+        ],
+        "constants": {
+            "delay": DELAY_SEC,
+            "eager_delay": EAGER_DELAY_SEC,
+            "min_gap": MIN_GAP_SEC,
+            "estimate_late": ESTIMATE_LATE_SEC,
+            "live_lines_monologue": LIVE_LINES_MONOLOGUE,
+            "live_lines_conversation": LIVE_LINES_CONVERSATION,
+            "conversation_within": CONVERSATION_WITHIN_SEC,
+            "pause": PAUSE_SEC,
+        },
+        "tokens": [{"text": t, "tokens": tokens_of(t)} for t in _TOKEN_TEXTS],
+        "cases": _playout_cases(),
+        "zones": _zone_cases(),
     }
 
 
@@ -838,6 +1133,7 @@ BUILDERS: dict[str, Callable[[], dict[str, Any]]] = {
     "highlights.json": highlights,
     "word-split.json": word_split,
     "display.json": display,
+    "playout.json": playout,
 }
 
 

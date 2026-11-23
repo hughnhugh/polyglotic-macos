@@ -23,7 +23,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
 from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.sources import DICTATION, SourceId
+from polyglotic_desktop.core.listening.sources import TYPED_SOURCES, SourceId
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,13 +50,16 @@ class ListeningSettings:
     )
     source_spoken: Mapping[SourceId, Language | None] = field(default_factory=dict)
 
+    live_translation: bool = False
+    """Request separately delivered provisional translations on the listening hello."""
+
     @property
     def original_only(self) -> bool:
         """A source is captioned without a translation ("Original only"):
         its own languages are none - or no language is chosen at all.
         Dictation's none don't count: it is never translated, nor a
         caption (decision 0073)."""
-        own = {s: t for s, t in self.source_targets.items() if s != DICTATION}
+        own = {s: t for s, t in self.source_targets.items() if s not in TYPED_SOURCES}
         if not self.targets and not own:
             return True
         return any(not languages for languages in own.values())

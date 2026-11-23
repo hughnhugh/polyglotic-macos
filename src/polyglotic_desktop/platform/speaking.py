@@ -1,5 +1,6 @@
 """The `Speaker` port on a thread of its own, over an OS's voices and sound
-output (polyglotic-hq 286, decision 0077) - Windows': `windows.voices`.
+output (polyglotic-hq 286, decision 0077) - Windows': `windows.voices`; a
+Mac's: `macos.voices`; Linux's: `linux.voices` and `linux.sound`.
 
 `SpeakerThread` lists the voices in the background - first when asked
 (`voices`) or told to (`look_for_voices`: `main`, once the app has
@@ -19,6 +20,13 @@ the captions hushed no longer than the chunk it was in), the next made
 while one plays, a short pause between; and each word told as it sounds
 (`spoken`), from the voice's own word times. Readings and words share the
 one speaker: either stops the other.
+
+A voice may instead say a chunk itself (`SaysItself`: Linux's system voice,
+speech-dispatcher, makes the sound and plays it, so the app never has it -
+polyglotic-hq 591): started, watched and stopped as a clip on an `Output`
+is, the captions hushed from when it was asked, a little ahead at a time,
+for as long as it plays (its length isn't known until it ends), nothing
+trimmed or kept.
 
 Holds the words it says only while saying them: never logged.
 """
@@ -57,6 +65,12 @@ length: a device that stops answering doesn't hold the speaker."""
 CHUNK_PAUSE_SEC = 0.15
 """Silence between a reading's chunks, beside the `TAIL_SEC` and `LEAD_SEC`
 kept: about a sentence's pause (polyglotic-hq 488 used 0.25 s in all)."""
+HUSH_AHEAD_SEC = 0.6
+"""A chunk a voice says itself (`SaysItself`) hushes the captions this far
+ahead, from when it was asked, and again before that runs out, while it
+plays: its sound's length is known only when it ends (polyglotic-hq 591:
+speech-dispatcher's sound began within 20 ms of being asked, and was over
+about 0.3 s before it said so)."""
 KEPT_BYTES = 10_000_000
 """The readings' sound kept in memory to play again without making it again
 - about the last 20 readings (488: 7 s each at 16 kHz is about 0.22 MB a
@@ -126,6 +140,38 @@ def trimmed(clip: Clip) -> Clip:
     return Clip(clip.pcm[first * width : last * width], clip.rate, clip.channels, words)
 
 
+class SaysItself(Protocol):
+    """A chunk a voice says itself, its sound never the app's
+    (`linux.voices.DispatcherSays`): asked only on the speaker's thread."""
+
+    @property
+    def longest(self) -> float:
+        """Seconds it may take at most: stopped after that, as a clip that
+        overruns is."""
+        ...
+
+    def start(self) -> bool:
+        """Starts saying it; False if it can't (the speech server gone)."""
+        ...
+
+    def playing(self) -> bool:
+        """Until it's over: heard to its end, stopped, or failed."""
+        ...
+
+    @property
+    def heard(self) -> bool:
+        """It's over, heard to its end."""
+        ...
+
+    def stop(self) -> None:
+        """Stops it if it still plays."""
+        ...
+
+
+Made = Clip | SaysItself
+"""What a voice makes of a chunk: its sound, or a chunk it says itself."""
+
+
 class Voices(Protocol):
     """An OS's voices (`windows.voices.WindowsVoices`), asked only on the
     speaker's thread."""
@@ -134,9 +180,10 @@ class Voices(Protocol):
         """The voices installed now; OSError if they can't be listed."""
         ...
 
-    def synthesize(self, text: str, voice: Voice, rate: float) -> Clip:
-        """`text` said in `voice` at `rate`; OSError if it can't be (the
-        voice gone, the OS's speech failing)."""
+    def synthesize(self, text: str, voice: Voice, rate: float) -> Made:
+        """`text` said in `voice` at `rate` - its sound, or what says it
+        (`SaysItself`); OSError if it can't be (the voice gone, the OS's
+        speech failing)."""
         ...
 
 
@@ -317,10 +364,18 @@ class SpeakerThread:
         """Says it, a chunk at a time; whether it was heard to its end."""
         clip = self._made(said, 0)
         for index in range(len(said.chunks)):
-            if clip is None or self._interrupted() or not clip.frames:
+            if clip is None or self._interrupted():
+                return False
+            if isinstance(clip, Clip) and not clip.frames:
                 return False
             if index and not self._pause(CHUNK_PAUSE_SEC):
                 return False
+            if not isinstance(clip, Clip):  # the voice says it itself
+                if not self._let_say(clip, said, index):
+                    return False
+                last = index == len(said.chunks) - 1
+                clip = None if last else self._made(said, index + 1)
+                continue
             output = self._new_output()
             try:
                 start = self._clock()
@@ -339,22 +394,59 @@ class SpeakerThread:
                 output.stop()
         return True
 
-    def _made(self, said: _Said, index: int) -> Clip | None:
+    def _made(self, said: _Said, index: int) -> Made | None:
         """Chunk `index`'s sound, its silence trimmed - a reading's from
-        those kept if it was made lately; None if it can't be made."""
+        those kept if it was made lately - or what says it; None if it
+        can't be made."""
         text = said.chunks[index]
         key = (said.voice.id, said.rate, text)
         if said.spoken is not None and key in self._kept:
             self._kept.move_to_end(key)
             return self._kept[key]
         try:
-            made = trimmed(self._source.synthesize(text, said.voice, said.rate))
+            made = self._source.synthesize(text, said.voice, said.rate)
         except (OSError, ValueError) as error:  # never the word itself
             log.warning("couldn't say a word in %s: %s", said.voice.language, error)
             return None
+        if not isinstance(made, Clip):
+            return made  # said by the voice itself: no sound to trim or keep
+        made = trimmed(made)
         if said.spoken is not None:  # a reading's (a word's may become recorded)
             self._keep(key, made)
         return made
+
+    def _let_say(self, saying: SaysItself, said: _Said, index: int) -> bool:
+        """A chunk the voice says itself, until it's over (True: heard to
+        its end) or stopped, replaced or overrunning (False) - the captions
+        hushed from now, `HUSH_AHEAD_SEC` ahead at a time, while it plays."""
+        start = self._clock()
+        if not saying.start():
+            log.warning("couldn't say a word: the system's voice didn't take it")
+            return False
+        try:
+            _tell(said.sounding, start, HUSH_AHEAD_SEC)
+            hushed_until = start + HUSH_AHEAD_SEC
+            if said.spoken is not None:  # no word times: the chunk as it starts
+                _tell(said.spoken, index, 0, len(said.chunks[index]))
+            give_up = start + saying.longest
+            while True:
+                with self._cond:
+                    self._cond.wait_for(
+                        lambda: self._interrupt or self._closing, timeout=POLL_SEC
+                    )
+                    if self._interrupt or self._closing:
+                        return False
+                if not saying.playing():
+                    return saying.heard
+                now = self._clock()
+                if now > give_up:
+                    log.warning("a word's sound never ended: stopped")
+                    return False
+                if hushed_until - now < HUSH_AHEAD_SEC / 2:
+                    _tell(said.sounding, now, HUSH_AHEAD_SEC)
+                    hushed_until = now + HUSH_AHEAD_SEC
+        finally:
+            saying.stop()
 
     def _keep(self, key: tuple[str, float, str], clip: Clip) -> None:
         self._kept[key] = clip

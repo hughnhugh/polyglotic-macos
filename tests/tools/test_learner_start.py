@@ -160,6 +160,9 @@ BESIDE_THE_WINDOW = {
     "apps-with-sound_0",  # the apps with sound, looked for off the interface
     "interface-watchdog",  # times the interface thread's long stretches
     "fonts-ahead",  # Windows' fonts read, never holding the interpreter (322)
+    # Home's Sound card's devices, listed while the interface thread waits for
+    # them at most 30 ms - on it before (563: a Mac's took 1.9 s)
+    "sound devices",
 }
 """The threads that may begin before the window's first paint."""
 

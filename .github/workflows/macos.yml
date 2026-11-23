@@ -134,7 +134,7 @@ on:
       learner:
         description: A learner's Mac (523) - every setting changed and put back; with pack, the download path, a fresh user and the update from the published release
         type: boolean
-        default: true
+        default: false
 
 concurrency:
   group: macos-${{ github.ref }}
@@ -154,6 +154,13 @@ jobs:
       TAG: v0.0.1
       CHANNEL: macos-arm64-alpha
       OUT: build/macos
+      # polyglotic-hq 523 (512's finding): the app is built with uv's own
+      # Python at this exact version - never whichever python.org or
+      # Homebrew Python the runner image has (0.1.7 was built with the
+      # image's python.org 3.12.10, whose root list hid 512's bug). Moved on
+      # purpose, with the lockfile's next refresh.
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -167,6 +174,11 @@ jobs:
 
       - name: Install for macOS (fails if uv.lock is out of date)
         run: uv sync --locked
+
+      # 523: the pin above holds - uv's own build, at its exact version - so
+      # the app packed here carries a Python a learner's Mac never had to have
+      - name: The pinned Python (uv's own build, not the runner image's)
+        run: uv run --no-sync python -m tools.package.macos_python
 
       - name: The machine
         run: |
@@ -226,7 +238,7 @@ jobs:
       # 523: from source with the dev tools (the stand-in server), so before
       # pack's own sync; the Mac's own windows, keys and voices
       - name: Every setting changed and put back, on the Mac's windows (learner)
-        if: ${{ false }}
+        if: ${{ !cancelled() && inputs.learner }}
         run: uv run --no-sync python -m tools.macos_settings_sweep "$OUT/sweep" --limit 900
 
       # The certificate is only ever in this keychain and, for a moment, the

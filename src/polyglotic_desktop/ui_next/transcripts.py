@@ -216,6 +216,8 @@ class Transcripts(QObject):
         """Each app's label as its caption window last had it, by key - a
         transcript outlives its window (Quit's question names it)."""
         self.shown: dict[str, TranscriptWindow] = {}
+        self.live_keys = ""
+        """Back to live's hotkey as the OS writes it ("" none: 567)."""
         """The transcript windows opened, by app (closed ones kept, hidden)."""
         self.say_it: SelectionReading | None = None
         """Reads a selection aloud from its menu (polyglotic-hq 495)."""
@@ -261,6 +263,7 @@ class Transcripts(QObject):
                     clock=self._clock,
                     length=self.length,
                 )
+                found.captions.class_evidence = windows.class_evidence
             found.set_language(target, second)
             found.set_settle_after(windows.settle_after)
             found.set_show_mic(choices.show_mic)
@@ -275,6 +278,7 @@ class Transcripts(QObject):
                     choices.show_mic,
                     windows.timing,
                     self._you(),
+                    video=window.video_enabled or window.preset_menu.chosen == "video",
                 )
         for key in [k for k in self.shown if k not in windows.windows]:
             self._close(key)
@@ -288,7 +292,7 @@ class Transcripts(QObject):
         self._menu_names = names
         self.menu.clear()
         for key, name in names:
-            self.menu.addAction(name, partial(self.show, key))
+            self.menu.addAction(style.button_text(name), partial(self.show, key))
         self.menu.setEnabled(bool(names))
 
     def _choices(self, key: str) -> TranscriptChoices:
@@ -318,6 +322,19 @@ class Transcripts(QObject):
                     shown.refresh()
 
     # -- the session's ----------------------------------------------------------------
+
+    def set_live_keys(self, keys: str) -> None:
+        """Back to live's hotkey as it is now ("" none), on every
+        transcript's Back to live (polyglotic-hq 567)."""
+        self.live_keys = keys
+        for window in self.shown.values():
+            window.set_live_keys(keys)
+
+    def go_live(self) -> None:
+        """Every open transcript back to its newest line, as its Back to
+        live does (the hotkey's: polyglotic-hq 567)."""
+        for window in self.shown.values():
+            window.go_live()
 
     def is_open(self, key: str) -> bool:
         """Whether app `key`'s transcript window is open and not minimised:
@@ -352,6 +369,14 @@ class Transcripts(QObject):
         for shown in self.shown.values():
             shown.list.dictionary_ready()
         self.learning_changed(Changed.SAVED_WORDS.value)
+
+    def refresh_link_classes(self) -> None:
+        for key, transcript in self.transcripts.items():
+            transcript.captions.class_evidence = self.windows.class_evidence
+            if transcript.captions.refresh_link_classes():
+                shown = self.shown.get(key)
+                if shown is not None and shown.isVisible():
+                    shown.refresh()
 
     def learning_changed(self, what: str) -> None:
         """Learning changed: saved words' colours drawn again."""
@@ -405,6 +430,7 @@ class Transcripts(QObject):
                 window.choices.show_mic,
                 self.windows.timing,
                 self._you(),
+                video=window.video_enabled or window.preset_menu.chosen == "video",
             )
             shown.show()
             shown.raise_()
@@ -428,6 +454,7 @@ class Transcripts(QObject):
             self._panels(key) if window is not None else [],
             self.save_folder,
         )
+        shown.set_live_keys(self.live_keys)
         # beside its caption window - or, joined, the joined window it's a column of
         joined = self.windows.joined_window
         anchor: QWidget | None = joined if joined is not None else window
@@ -438,7 +465,13 @@ class Transcripts(QObject):
         areas = self._areas()
         found_area = area_for(near, areas) if near is not None else None
         area = found_area or (areas[0] if areas else Rect(0, 0, 1920, 1040))
-        size = Size(style.px(DEFAULT_SIZE.width), style.px(DEFAULT_SIZE.height))
+        left = self._choices(key).size  # as the learner left it (586)
+        size = (
+            Size(*left)
+            if left is not None
+            else Size(style.px(DEFAULT_SIZE.width), style.px(DEFAULT_SIZE.height))
+        )
+        shown.keep_to(area)  # its minimum never most of a small screen
         showing = anchor is not None and anchor.isVisible()
         place = beside(near if showing else None, size, area)
         others = [w.geometry() for w in self.shown.values() if w.isVisible()]

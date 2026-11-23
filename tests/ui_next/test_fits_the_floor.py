@@ -9,8 +9,16 @@ UI lab's `w4_pages_at_floor`."""
 from collections.abc import Iterator
 
 import pytest
+from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtGui import QAction, QFont
-from PySide6.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import (
+    QApplication,
+    QPushButton,
+    QStyleFactory,
+    QVBoxLayout,
+    QWidget,
+)
 
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import (
@@ -19,10 +27,11 @@ from polyglotic_desktop.ui_next.controls import (
     SwitchButton,
     WrapButton,
     WrapCheckBox,
+    WrapRadioButton,
     least_width,
     wrapped,
 )
-from polyglotic_desktop.ui_next.main_window import FLOOR, SIZE, MainWindow
+from polyglotic_desktop.ui_next.main_window import FLOOR, FRAME, SIZE, MainWindow
 from polyglotic_desktop.ui_next.word_table import (
     LEAST_MEANING,
     LEAST_WORD,
@@ -148,6 +157,32 @@ def test_a_switch_and_a_check_box_wrap(qapp: QApplication) -> None:
         each.deleteLater()
 
 
+def test_a_wrapped_radio_button_accepts_clicks_on_its_last_line(
+    qapp: QApplication,
+) -> None:
+    holder = QWidget()
+    column = QVBoxLayout(holder)
+    button = WrapRadioButton(SENTENCE)
+    native = QStyleFactory.create("Fusion")
+    assert native is not None
+    native.setParent(button)
+    button.setStyle(native)
+    column.addWidget(button)
+    one = button.sizeHint()
+    holder.resize(one.width() // 2, 300)
+    holder.show()
+    qapp.processEvents()
+    assert button.height() > one.height()
+    metrics = button.fontMetrics()
+    point = QPoint(
+        one.width() - metrics.horizontalAdvance(SENTENCE) + 1,
+        button.height() - metrics.lineSpacing() // 2,
+    )
+    QTest.mouseClick(button, Qt.MouseButton.LeftButton, pos=point)
+    assert button.isChecked()
+    holder.deleteLater()
+
+
 def test_chinese_breaks_between_any_characters(qapp: QApplication) -> None:
     font = QFont()
     text = "同时为电脑播放的其他声音加字幕"
@@ -164,7 +199,9 @@ def test_a_segmented_choice_wraps_its_choices(qapp: QApplication) -> None:
     choices.deleteLater()
 
 
-def test_a_tables_columns_narrow_to_leave_the_meaning_room(at_normal: object) -> None:
+def test_a_tables_columns_narrow_to_leave_the_meaning_room() -> None:
+    """At the design sizes (a text size factor of 1.0: the app's Smaller
+    since decision 0244), where the least widths are as named."""
     widths = {Column.WORD: 150, Column.ADD: 110, Column.KNOWN: 90}
     least = {Column.WORD: LEAST_WORD, Column.ADD: 60, Column.KNOWN: 70}
     assert fitted(widths, least, 1000) == widths  # room: as they were
@@ -190,8 +227,37 @@ def test_the_sidebar_at_a_large_text_size_leaves_the_page_room(
         window.add_page(key, key.title(), QWidget())
     window.resize(*FLOOR)
     window._fit_sidebar(FLOOR[0])
-    needs = window.sidebar.minimumSizeHint().width()
+    needs = window.sidebar_needs()  # its words, and a scroll bar where it scrolls
     assert window.sidebar.width() == max(184, needs) < style.px(184)
     window._fit_sidebar(SIZE[0])  # the usual size: its column's lines readable
     assert window.sidebar.width() >= style.px(184)  # 184 or, wider, 200
+    window.deleteLater()
+
+
+def test_at_the_floor_the_sidebar_scrolls_rather_than_squash_its_buttons(
+    at_normal: QApplication,
+) -> None:
+    """At the Largest text size (1.75 since decision 0244) the floor's 520 px
+    is shorter than the sidebar: its pages' buttons were squashed, their
+    words cut top and bottom (the UI lab, polyglotic-hq 524). Its column
+    scrolls instead, every button its own height."""
+    style.use_app_text_size("largest")
+    window = MainWindow(QAction("Quit"))
+    for key in ("home", "words", "learning", "account"):
+        window.add_page(key, key.title(), QWidget())
+    window.add_page("settings", "Settings", QWidget(), "foot")
+    window.add_page("help", "Help", QWidget(), "foot")
+    window.fit_to(QRect(0, 0, FLOOR[0] + FRAME, FLOOR[1] + FRAME))
+    window.show()
+    at_normal.processEvents()
+    assert (window.width(), window.height()) == FLOOR
+    squashed = [
+        b.text()
+        for b in window.top_buttons + window.foot_buttons
+        if b.height() < b.sizeHint().height()
+    ]
+    assert squashed == []
+    assert window.side_scroll.verticalScrollBar().maximum() > 0
+    window.keep_in_tray = False
+    window.close()
     window.deleteLater()

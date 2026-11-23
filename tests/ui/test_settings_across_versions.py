@@ -20,9 +20,7 @@ from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.main import new_interface
 from polyglotic_desktop.ui.app import DesktopApp
 from polyglotic_desktop.ui.settings import AppSettings, Settings
-from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.views.caption_window import STORED_KEY
-from polyglotic_desktop.ui_next.views.placement import Rect
 from polyglotic_desktop.ui_next.views.transcript import STORED_KEY as TRANSCRIPTS_KEY
 from polyglotic_desktop.ui_next.views.transcript import TranscriptChoices
 
@@ -68,7 +66,6 @@ OWNED_BY_THE_OLDER_BUILD = (  # the new interface reads them, never writes them
     "overlay_position",
     "overlay_width",
 )
-SCREEN = [Rect(0, 0, 1920, 1040)]
 PLAYER = SourceId("app-10")
 
 
@@ -96,11 +93,13 @@ def test_the_build_before_the_switch_runs_after_this_one_and_loses_nothing(
     # this build runs: the settings migrated, then changed in the new interface
     desktop = DesktopApp(store, None, FakeAppList())
     built = new_interface(desktop, store, None, per_app=True)
+    assert built.windows.preset_menu.video_lines_shown == 2
+    built.windows.video_lines_wanted.emit(1)
     built.windows.set_captioned([("Video Player", PLAYER)])
     built.windows.windows["Video Player"].set_language("ko")
     built.hub.picker.add("Web Browser")
     built.panels.look.set_opacity(0.8)
-    built.panels.timing.set_mode(CaptionMode.STEADY)
+    built.panels.timing.set_mode(CaptionMode.WHOLE)
     built.hub.settings.theme_chosen.emit("signal")
     desktop.lock_windows.setChecked(False)
     built.transcripts.follow()
@@ -132,10 +131,14 @@ def test_the_build_before_the_switch_runs_after_this_one_and_loses_nothing(
     assert older_keys(older.value.to_stored()) == older_keys(saved)
     older.update(opacity=0.5)  # and saves a change
     after = store.load()
+    assert after["video_lines_shown"] == 1
     assert after[STORED_KEY] == saved[STORED_KEY]  # the windows' choices kept
     assert after[TRANSCRIPTS_KEY] == saved[TRANSCRIPTS_KEY]
 
     # this build again: its windows as they were
-    again = CaptionWindows(store, None, lambda: SCREEN)
-    assert again.stored.by_key["Video Player"].translate_into == "ko"
+    reopened = DesktopApp(store, None, FakeAppList())
+    again = new_interface(reopened, store, None, per_app=True)
+    assert again.windows.stored.by_key["Video Player"].translate_into == "ko"
+    assert again.windows.preset_menu.video_lines_shown == 1
     again.close()
+    reopened.close()

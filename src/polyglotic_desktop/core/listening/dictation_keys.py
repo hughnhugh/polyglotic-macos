@@ -23,6 +23,16 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
+from polyglotic_desktop.core.shared.tunables import tunable
+
+HOLD_RELEASE_POLLS = tunable(
+    "hotkeys.hold_release_polls",
+    3,
+    "polls",
+    (1, 10),
+    source="651: consecutive up-polls (15 ms each) to confirm a registered hold key is released, absorbing key bounce and auto-repeat gaps",
+)
+
 
 class Modifier(StrEnum):
     """The keys held with another, in the order they're written."""
@@ -145,6 +155,9 @@ class Refusal(StrEnum):
     words would be typed into the menu."""
     APP_HOTKEY = "app_hotkey"
     """One of Polyglotic's own hotkeys (Ctrl+Alt+L, P, H...)."""
+    HELD_ALONE = "held_alone"
+    """A modifier alone, or modifiers alone: a hotkey that's pressed needs a
+    key with them (`core.listening.hotkeys`; dictation's, held, can be)."""
 
 
 def _keys(*texts: str) -> frozenset[DictationKey]:

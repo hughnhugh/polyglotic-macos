@@ -13,7 +13,9 @@ checklist for D5, item 9):
   (`UpdateNow`) tells the learner what to do while there's nothing to
   restart into (polyglotic-hq 137).
 - **Follow the channel the server names** (`welcome.channel`) when it's one
-  this app knows; **a lower version only when changing channel**
+  this app knows, for its own platform's builds - never another's: a
+  Linux app told Windows' channel offered Windows' 0.1.9 (polyglotic-hq
+  579, from 574) - **a lower version only when changing channel**
   (`AllowVersionDowngrade` nowhere else). The installer doesn't apply a
   lower version by itself at start, so a downgrade applies as the app
   exits.
@@ -51,12 +53,29 @@ from polyglotic_desktop.core.releases.notes import plain_items
 from polyglotic_desktop.ports.updates import (
     DownloadFailed,
     FeedUnreachable,
+    NotWritable,
     Update,
     Updater,
 )
 
-CHANNELS = ("win-x64-alpha", "win-x64-beta", "win-x64-stable")
-"""The update channels (protocol.md): names fixed once testers install."""
+CHANNELS = (
+    "win-x64-alpha",
+    "win-x64-beta",
+    "win-x64-stable",
+    "macos-arm64-alpha",
+    "macos-arm64-beta",
+    "macos-arm64-stable",
+    "linux-x64-alpha",
+    "linux-x64-beta",
+    "linux-x64-stable",
+)
+"""The update channels (protocol.md): names fixed once testers install.
+Each platform's alpha, beta and stable - Windows', the Mac's and Linux's,
+as their builds are stamped and polyglotic-server's `channel_for` names
+them - so a Mac or Linux app follows its test group to a beta or stable
+channel, never another platform's (`check_for`; polyglotic-hq 580: only
+Windows' were listed, so a Mac or Linux app ignored every channel the
+server named)."""
 
 CHECK_EVERY_HOURS = 6
 
@@ -90,6 +109,10 @@ class Found(StrEnum):
     trusted: it's looked at again later."""
     NOT_DOWNLOADED = "not_downloaded"
     """Found, but the download failed: tried again at the next look."""
+    NOT_WRITABLE = "not_writable"
+    """Found, not downloaded: the app's folder can't be changed by this
+    user (e.g. a Linux AppImage in /opt or a read-only mount), so an
+    update can't replace it (polyglotic-hq 640)."""
     METERED = "metered"
     """Found, not downloaded: the connection is metered, and the learner
     hasn't said Download anyway (`Updates.held`)."""
@@ -106,12 +129,32 @@ class UpdateCheck:
     allow_downgrade: bool = False
 
 
+def platform_of(channel: str) -> str:
+    """A channel's platform and processor - all but its last part
+    (`win-x64-alpha` -> `win-x64`): what the server keeps when it moves an
+    app to its test group's channel (polyglotic-server's `channel_for`)."""
+    return channel.rsplit("-", 1)[0]
+
+
+def another_platforms(installed_channel: str, server_channel: str | None) -> bool:
+    """Whether the server named a channel for another platform's builds -
+    which this app never follows (579)."""
+    if not server_channel:
+        return False
+    return platform_of(server_channel) != platform_of(installed_channel)
+
+
 def check_for(installed_channel: str, server_channel: str | None) -> UpdateCheck:
     """The installed channel, unless the server names another channel this
-    app knows - then that one, and its newest release even if lower. A
-    channel this app doesn't know is ignored (protocol.md's versioning rule
-    1)."""
-    if server_channel in CHANNELS and server_channel != installed_channel:
+    app knows, for its own platform's builds - then that one, and its
+    newest release even if lower. A channel this app doesn't know is
+    ignored (protocol.md's versioning rule 1), and so is another
+    platform's (579)."""
+    if (
+        server_channel in CHANNELS
+        and server_channel != installed_channel
+        and not another_platforms(installed_channel, server_channel)
+    ):
         return UpdateCheck(server_channel, allow_downgrade=True)
     return UpdateCheck()
 
@@ -125,13 +168,17 @@ class Updates:
         updater: Updater | None,
         installed_channel: str,
         metered: Callable[[], bool] = lambda: False,
+        apply_on_quit: bool = False,
     ) -> None:
         """`updater` None: the Microsoft Store's copy, which the Store
         updates - nothing here looks, downloads or applies. `metered`:
-        whether Windows calls the connection metered now."""
+        whether Windows calls the connection metered now. `apply_on_quit`:
+        on Linux, a downloaded AppImage update applies as the app quits
+        rather than at the next start (decision 0259, polyglotic-hq 640)."""
         self._updater = updater
         self._installed_channel = installed_channel
         self._metered = metered
+        self._apply_on_quit = apply_on_quit
         self._server_channel: str | None = None
         self.downloaded: Update | None = None
         self.held: Update | None = None
@@ -142,6 +189,11 @@ class Updates:
     @property
     def wanted(self) -> UpdateCheck:
         return check_for(self._installed_channel, self._server_channel)
+
+    def another_platforms(self, server_channel: str | None) -> bool:
+        """Whether `server_channel` is for another platform's builds: not
+        followed (`check_for`)."""
+        return another_platforms(self._installed_channel, server_channel)
 
     def follow(self, server_channel: str | None) -> bool:
         """The channel the server's `welcome` named. True if that changes
@@ -180,6 +232,8 @@ class Updates:
             update = self.check()
         except FeedUnreachable:
             return Found.NO_FEED
+        except NotWritable:
+            return Found.NOT_WRITABLE
         except DownloadFailed:
             return Found.NOT_DOWNLOADED
         if self.held is not None:
@@ -188,13 +242,17 @@ class Updates:
 
     def download_anyway(self) -> Found:
         """The learner's Download anyway: the update held on a metered
-        connection is downloaded now. READY once it is; NOT_DOWNLOADED if
-        it fails (held still); UP_TO_DATE when nothing was held."""
+        connection is downloaded now. READY once it is; NOT_WRITABLE if the
+        folder can't take the new file; NOT_DOWNLOADED if it fails (held
+        still); UP_TO_DATE when nothing was held."""
         held = self.held
         if self._updater is None or held is None:
             return Found.UP_TO_DATE
         try:
             self._updater.download(held)
+        except NotWritable:
+            self.held = None
+            return Found.NOT_WRITABLE
         except DownloadFailed:
             return Found.NOT_DOWNLOADED
         self.downloaded, self.held = held, None
@@ -225,14 +283,14 @@ class Updates:
 
     def at_exit(self) -> None:
         """The app is quitting. After Restart now, what's downloaded applies
-        and the new version starts; otherwise a downloaded downgrade (a
-        change of channel) applies now, since the next start won't apply
-        it, and a newer version is left for the next start."""
+        and the new version starts; otherwise, on Linux (`apply_on_quit`) or
+        for a downloaded downgrade (a change of channel), it applies now,
+        and elsewhere a newer version is left for the next start."""
         if self._updater is None or self.downloaded is None:
             return
         if self._restart:
             self._updater.apply_at_exit(self.downloaded, restart=True)
-        elif self.downloaded.downgrade:
+        elif self._apply_on_quit or self.downloaded.downgrade:
             self._updater.apply_at_exit(self.downloaded)
 
 

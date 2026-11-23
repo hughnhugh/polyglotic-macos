@@ -101,7 +101,6 @@ def test_a_draft_goes_out_and_comes_back_checked(
     assert len(work) == len(messages)  # nothing translated yet: all of it
     by_key = {(row[1], row[3]): row for row in work}
     plain = by_key["CaptionWindow", "Original only"]
-    between = by_key["Panels", ", "]  # between times in a list: its space kept
     named = by_key["CaptionWindow", "{app}'s captions appear here"]
     counted = by_key["ProblemReport", "%n caption(s)"]
     assert counted[2] == "2"  # German: one, and the rest
@@ -110,7 +109,6 @@ def test_a_draft_goes_out_and_comes_back_checked(
         f"{plain[0]}\tNur Original\n"
         f"{named[0]}\tHier erscheinen die Untertitel\n"  # lost {app}
         f"{counted[0]}\t%n Untertitel | %n Untertitel\n"
-        f"{between[0]}\t, \n"
         "0000000000\tVerwaist\n",
         encoding="utf-8",
     )
@@ -118,9 +116,8 @@ def test_a_draft_goes_out_and_comes_back_checked(
     said = capsys.readouterr().out
     assert "refused:" in said and "{app}" in said
     assert "not in the work any more" in said
-    assert "3 drafted; 1 refused" in said
+    assert "2 drafted; 1 refused" in said
     file = ts.read(i18n.ts_path("xx"))
-    assert file.translations[("Panels", ", ", "")].forms == (", ",)
     original = file.translations[("CaptionWindow", "Original only", "")]
     assert original == ts.Translation(("Nur Original",), done=False)  # a draft
     assert file.translations[("ProblemReport", "%n caption(s)", "")].forms == (
@@ -137,7 +134,7 @@ def test_a_draft_goes_out_and_comes_back_checked(
     assert ("CaptionWindow", "{app}'s captions appear here") in again
     assert ("CaptionWindow", "Original only") not in again
     assert ("ProblemReport", "%n caption(s)") not in again
-    assert len(rows) == len(messages) - 3
+    assert len(rows) == len(messages) - 2
 
 
 def test_a_language_with_unknown_count_rules_isnt_drafted(

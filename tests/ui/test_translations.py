@@ -110,7 +110,10 @@ ABOUT_WINDOWS = {
     # Windows' own setting: the probe asks it (decision 0122)
     ("Learning", "Paused: Windows says this connection is metered"),
     ("Help", "Caption apps you add (Windows 11)"),
-    ("Help", "On Home, add up to 3 apps with sound open; each gets a caption window"),
+    (
+        "Help",
+        "On Home, add up to %Ln app(s) with sound open; each gets a caption window",
+    ),
     ("Help", "With one app added on Home, turn on Also caption everything else"),
     # 285 (decision 0076): what Windows here can capture, and why apps are off
     ("Home", "instead of apps (the only choice on this version of Windows)"),
@@ -245,18 +248,15 @@ def test_traditional_chinese_says_help_and_kind_in_taiwans_words() -> None:
 
 @pytest.mark.parametrize("language", [code for code in OFFERED if code != ENGLISH])
 def test_dictations_note_names_detect_as_its_list_does(language: str) -> None:
-    """Settings - Dictation's note names the choice as its list does: 317
-    made it "Detect automatically", but German's note still said "Auto
-    tippt ..." (329's QA), and so did Filipino's, Dutch's, Polish's,
-    Russian's and Ukrainian's - a choice the list no longer has (330)."""
+    """Dictation's note uses the same translated Detect label as the list."""
     file = ts.read(i18n.ts_path(language))
     said = {source: t.forms[0] for (_c, source, _d), t in file.translations.items()}
     note = next(
         text
         for source, text in said.items()
-        if source.startswith("Detect types whatever language you speak")
+        if source.startswith("Choose a language or use {detect} when dictation")
     )
-    assert not re.search(r"\bAuto\b|Авто", note), note
+    assert "{detect}" in note
 
 
 @pytest.mark.parametrize(

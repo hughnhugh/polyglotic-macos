@@ -11,7 +11,7 @@ class MemoryCredentialStore:
         self.kept_install_id = saved.install_id if saved else None
 
     def load(self) -> DeviceCredentials | None:
-        return self.saved
+        return self.saved if self.saved and self.saved.device_token else None
 
     def install_id(self) -> str | None:
         return self.kept_install_id

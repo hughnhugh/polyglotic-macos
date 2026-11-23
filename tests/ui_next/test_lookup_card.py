@@ -16,7 +16,7 @@ from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.lexicon.sample import english_sample
 from tests.ui.fakes import MemorySettingsStore, chinese_tools, tools_for
-from tests.ui_next.made_up import finished_updates
+from tests.ui_next.made_up import at_one_moment, finished_updates
 from tests.ui_next.test_lookup_view import learner
 
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
@@ -94,9 +94,10 @@ def windows(
     found = CaptionWindows(None, MIC, lambda: [AREA], keys=keys, learner=tools)
     tools.changed.connect(found.learning_changed)
     found.set_captioned([("app", APP)])
+    shown = found.windows["app"]
+    at_one_moment(shown)  # never a slide begun by a busy runner's pause (578)
     for update in finished_updates(40):
         found.apply(update)
-    shown = found.windows["app"]
     # Detect, kept: the spoken-language question these captions raise would
     # take the top rows the cards' tests click (polyglotic-hq 350)
     shown.set_spoken_language(None)

@@ -54,18 +54,7 @@ def send_report(
     the token would travel in the clear (connection/addresses.py); also
     ProtocolError for a report the protocol can't carry - caught by
     `FeedbackSender`, which forgets it."""
-    address = server_address(server)
-    body = protocol.encode(protocol.validate(protocol.FeedbackRequest, asdict(report)))
-    request = urllib.request.Request(
-        f"{address}/v1/feedback",
-        data=body.encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": USER_AGENT,
-        },
-        method="POST",
-    )
+    request = report_request(server, token, report)
     try:
         with tls.urlopen(request, timeout) as response:
             protocol.validate(protocol.FeedbackResponse, json.load(response))
@@ -84,6 +73,23 @@ def send_report(
         log.info("a report waits: the server's answer couldn't be read")
         return Outcome.WAITING
     return Outcome.SENT
+
+
+def report_request(server: str, token: str, report: Report) -> urllib.request.Request:
+    """The request that sends `report` (`send_report`'s; and the release
+    check's, with a token that's no one's: polyglotic-hq 563)."""
+    address = server_address(server)
+    body = protocol.encode(protocol.validate(protocol.FeedbackRequest, asdict(report)))
+    return urllib.request.Request(
+        f"{address}/v1/feedback",
+        data=body.encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+            "User-Agent": USER_AGENT,
+        },
+        method="POST",
+    )
 
 
 class FeedbackSender:

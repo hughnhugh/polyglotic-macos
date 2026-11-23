@@ -1,0 +1,56 @@
+{
+  "type": "caption_update",
+  "caption_id": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+  "source_id": "source-1",
+  "kind": "live",
+  "language": "zh",
+  "languages_heard": [
+    "zh"
+  ],
+  "clauses": [
+    {
+      "original": "你好，今天天气",
+      "translations": {
+        "en": "Hello, today's weather"
+      },
+      "links": {
+        "en": [
+          {
+            "original": [
+              0,
+              2
+            ],
+            "translation": [
+              0,
+              5
+            ],
+            "key": true,
+            "confidence": 0.91
+          }
+        ]
+      }
+    }
+  ],
+  "replaces": [],
+  "processing_ms": 286,
+  "established": 5,
+  "trace": {
+    "seq": 41,
+    "waited_ms": 12,
+    "queued": 2,
+    "stages_ms": {
+      "decoding": 3,
+      "speech_model": 210,
+      "translator": 0,
+      "word_links": 0,
+      "other": 61
+    },
+    "server_ms": 298,
+    "unanswered": [
+      {
+        "seq": 40,
+        "why": "overtaken_waiting"
+      }
+    ]
+  }
+}

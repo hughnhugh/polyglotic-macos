@@ -6,6 +6,7 @@ or Mandarin named."""
 from PySide6.QtWidgets import QApplication
 
 from polyglotic_desktop.main import languages_settings
+from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.panels import LanguagesPanel
 from polyglotic_desktop.ui_next.views.panels import LanguagesView, SessionLanguages
 
@@ -14,10 +15,14 @@ def test_the_row_starts_as_this_pc_reads_and_keeps_a_choice(qapp: QApplication) 
     view = LanguagesView(SessionLanguages(traditional_here=True))
     panel = LanguagesPanel(view)
     assert panel.mandarin_script.value() is True  # Taiwan's Windows: Traditional
-    assert languages_settings(view.value)["mandarin_script"] is None  # not chosen
+    assert (
+        languages_settings(AppSettings(), view.value)["mandarin_script"] is None
+    )  # not chosen
     panel.mandarin_script.choose(False)
     assert view.value.mandarin_script == "simplified" and not view.value.traditional
-    assert languages_settings(view.value)["mandarin_script"] == "simplified"
+    assert (
+        languages_settings(AppSettings(), view.value)["mandarin_script"] == "simplified"
+    )
     panel.deleteLater()
 
 

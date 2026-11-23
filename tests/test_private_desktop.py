@@ -156,6 +156,19 @@ def test_a_commands_window_is_on_its_desktop_and_never_here(tmp_path: Path) -> N
         assert started.wait(10) is not None
 
 
+def test_speaker_caption_reaches_the_focused_text_box(tmp_path: Path) -> None:
+    output = tmp_path / "speaker-typing.txt"
+    shot = tmp_path / "speaker-typing.png"
+    with PrivateDesktop() as desktop:
+        started = desktop.start(
+            [sys.executable, "-m", "tests.type_theirs_on_a_desktop", str(shot)],
+            env=QT,
+            output=output,
+        )
+        assert started.wait(25) == 0, _tail(output)
+    assert not QImage(str(shot)).isNull()
+
+
 def test_stopping_ends_what_it_started_too(tmp_path: Path) -> None:
     child_pid = tmp_path / "child.txt"
     starts_a_child = (
@@ -220,8 +233,8 @@ def test_the_app_starts_and_quits_on_a_desktop_of_its_own(tmp_path: Path) -> Non
             )
             assert (out / "shown.json").exists(), _tail(log)
             shown = json.loads((out / "shown.json").read_text(encoding="utf-8"))
-            # no language and no level asked (polyglotic-hq 293)
-            assert shown["asked"][:1] == ["ConsentDialog"]
+            # language first, then consent; no level asked (polyglotic-hq 293, 658)
+            assert shown["asked"][:2] == ["LanguagePicker", "ConsentDialog"]
             (main,) = [w for w in desktop.windows(started) if w.hwnd == shown["main"]]
             assert main.visible or not SHOWN  # a service's session shows none
             assert main.cloaked in (0, None)  # None: DWM wouldn't say

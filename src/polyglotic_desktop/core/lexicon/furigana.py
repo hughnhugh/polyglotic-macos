@@ -28,10 +28,13 @@ from __future__ import annotations
 import re
 from collections.abc import Sequence
 from itertools import pairwise
+from typing import TYPE_CHECKING
 
-from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.readings import Reading
 from polyglotic_desktop.ports.word_split import SplitWord
+
+if TYPE_CHECKING:
+    from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 
 KANJI = re.compile("[㐀-䶿一-鿿豈-﫿\U00020000-\U0003134f々〆ヶ]+")
 """A run of kanji: the CJK ideographs, and 々 (repeat the one before), 〆

@@ -5,6 +5,7 @@ removing closes and deletes it, and packs outlive an update of the app."""
 
 from __future__ import annotations
 
+import logging
 import shutil
 import sqlite3
 import threading
@@ -35,8 +36,15 @@ def until(done: Callable[[], bool], seconds: float = 20.0) -> None:
 
 @pytest.fixture
 def server(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    qapp: QApplication,
+    caplog: pytest.LogCaptureFixture,
 ) -> Iterator[StandIn]:
+    # the deliveries' own account, shown with a failure: GitHub's Windows
+    # machine once waited 20 s for a 1 kB pack and said nothing of why - a
+    # failed try waits 5 s, then 15, for the next (polyglotic-hq 578)
+    caplog.set_level(logging.INFO, logger="polyglotic_desktop")
     built = tmp_path / "built"
     tiny_pack(built)
     tiny_pack(built, meanings="zh")

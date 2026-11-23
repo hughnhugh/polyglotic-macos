@@ -9,7 +9,10 @@ whatever this PC's are (293). Off Windows: a machine whose Qt can't load
 (no libEGL or libGL, and none can be installed) still runs every test that
 needs no window, and the few tests that only hold on Windows are skipped
 by name with the reason (`NOT_OFF_WINDOWS`). In a published copy of the
-source, which has no `.github/`, the tests of CI's workflows are skipped."""
+source, which has no `.github/`, the tests of CI's workflows are skipped.
+On the user's PC, off CI, a run with a Qt test in it waits for the shared
+Qt lock and 3.0 GB free, holds the lock to its end, and stops under 2.0 GB
+free (`tools/qt_lock.py`, polyglotic-hq 563)."""
 
 import os
 import re
@@ -19,6 +22,8 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 
 import pytest
+
+from tools import qt_lock
 
 # Windows' fonts for every test's Qt, whichever tests run (polyglotic-hq
 # 258). Offscreen Qt on Windows has no fonts of its own: without this, a
@@ -93,6 +98,9 @@ machine starts from a clean run. The lookup card's: there, a click or hover
 sent to a caption window doesn't reach the card."""
 
 IN_CI = bool(os.environ.get("GITHUB_ACTIONS"))
+LINUX_DESKTOP = "POLYGLOTIC_LINUX_DESKTOP"
+"""Set (to 1) by `.github/workflows/linux.yml` where a sound server and a
+session bus run: only there do `linux_desktop` tests run (550)."""
 
 
 WORKFLOWS = Path(__file__).resolve().parents[1] / ".github" / "workflows"
@@ -145,6 +153,17 @@ def pytest_ignore_collect(collection_path: Path, config: pytest.Config) -> bool 
     return None
 
 
+@pytest.fixture
+def fill_the_width_on() -> Iterator[None]:
+    """Fill the width's flag on for one test (polyglotic-hq 555: off in the
+    app, its code kept): the tests of the pour itself."""
+    from polyglotic_desktop.core.releases import flags
+
+    flags.set_value(flags.FILL_THE_WIDTH, True)
+    yield
+    flags.set_value(flags.FILL_THE_WIDTH, None)
+
+
 @pytest.fixture(autouse=True)
 def _an_english_pc(monkeypatch: pytest.MonkeyPatch) -> None:
     """The learner's own languages as an English Windows has them, whatever
@@ -153,6 +172,29 @@ def _an_english_pc(monkeypatch: pytest.MonkeyPatch) -> None:
     from polyglotic_desktop.ui_next import languages
 
     monkeypatch.setattr(languages, "own_languages", lambda: ["en"])
+
+
+@pytest.fixture(autouse=True)
+def _at_the_design_sizes() -> Iterator[None]:
+    """Each test begins, and leaves the interface, at its design sizes: a
+    text size factor of 1.0 - Windows' 100 % and the app's Smaller, which
+    is 1.0 since decision 0244 made Normal, the default, 1.3 (polyglotic-hq
+    524). The sizes tests name are the interface's own (13 px text, a 960 x
+    680 window); a test of the default sets it (`use_app_text_size
+    ("normal")`), and the UI lab runs every state at it. Only where the
+    interface's style is loaded: a run without Qt never loads it."""
+    _design_sizes()
+    yield
+    _design_sizes()
+
+
+def _design_sizes() -> None:
+    style = sys.modules.get("polyglotic_desktop.ui_next.style")
+    if style is None:
+        return
+    style.use_text_scale(1.0)
+    style.use_app_text_size("smaller")
+    assert style.text_scale() == 1.0, "the app's Smaller isn't 1.0: change this"
 
 
 @pytest.fixture(autouse=True)
@@ -169,6 +211,71 @@ def _pack_warm_ups_end() -> Iterator[None]:
             thread.join(30)
 
 
+TESTS = Path(__file__).resolve().parent
+QT_LOCK_TAKEN = pytest.StashKey[bool]()
+
+
+def _needs_qt(item: pytest.Item, files: dict[Path, bool]) -> bool:
+    """Whether `item` is a Qt test: in `tests/ui` or `tests/ui_next`, in a
+    file that imports Qt, the interface or a tool that draws (`NEEDS_QT`),
+    or one of `NEEDS_QT_BY_NAME`. `files` keeps each file's answer."""
+    path = item.path
+    if any(p.parent == TESTS and p.name in ("ui", "ui_next") for p in path.parents):
+        return True
+    if any(name in item.nodeid for name in NEEDS_QT_BY_NAME):
+        return True
+    if path not in files:
+        text = path.read_text(encoding="utf-8") if path.suffix == ".py" else ""
+        files[path] = bool(NEEDS_QT.search(text))
+    return files[path]
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtestloop(session: pytest.Session) -> Generator[None, object, object]:
+    """On the user's PC (off CI), a run with a Qt test in it waits for the
+    shared Qt lock and 3.0 GB free before its first test, and holds the
+    lock until its last (`tools/qt_lock.py`, polyglotic-hq 563): two
+    whole-suite runs started together took the PC to 0.5 GB free beside
+    the live server on 2026-11-20. A run of no Qt test takes nothing."""
+    files: dict[Path, bool] = {}
+    if (
+        session.config.option.collectonly
+        or not qt_lock.applies()
+        or not any(_needs_qt(item, files) for item in session.items)
+    ):
+        return (yield)
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+
+    def say(text: str) -> None:
+        if reporter is not None:
+            reporter.write_line(text)
+        else:
+            print(text, flush=True)
+
+    what = " ".join(["pytest", *session.config.invocation_params.args])[:120]
+    try:
+        with qt_lock.held(what, say=say) as took:
+            session.stash[QT_LOCK_TAKEN] = took
+            return (yield)
+    except qt_lock.GaveUp as why:
+        pytest.exit(str(why), returncode=pytest.ExitCode.INTERRUPTED)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(
+    item: pytest.Item, nextitem: pytest.Item | None
+) -> Generator[None, object, object]:
+    """A run holding the Qt lock stops after a test that leaves the PC
+    under 2.0 GB free, as the agents' wrappers stopped theirs (the run
+    ends "interrupted", saying why)."""
+    result = yield
+    if item.session.stash.get(QT_LOCK_TAKEN, False):
+        why = qt_lock.too_little_memory()
+        if why:
+            item.session.shouldstop = why
+    return result
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Each `.qm` from its `.ts`, before a test's application installs it."""
     from tools.i18n import __main__ as i18n
@@ -180,7 +287,13 @@ def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:
     """`windows_only` tests are skipped off Windows (decision 0038): the Linux
-    checks run everything else; `macos_only` tests off macOS (409)."""
+    checks run everything else; `macos_only` tests off macOS (409); and
+    `linux_desktop` tests (a sound server, a session bus: 550) everywhere
+    but a Linux desktop session that says it is one (`LINUX_DESKTOP`)."""
+    if not (sys.platform.startswith("linux") and os.environ.get(LINUX_DESKTOP)):
+        for item in items:
+            if item.get_closest_marker("linux_desktop"):
+                item.add_marker(pytest.mark.skip(reason="a Linux desktop session only"))
     if sys.platform != "darwin":
         for item in items:
             if item.get_closest_marker("macos_only"):

@@ -25,8 +25,9 @@ from polyglotic_desktop.main import (
 from polyglotic_desktop.ports.capture import AppCaptureSupport, TrialOutcome
 from polyglotic_desktop.ui.settings import AppSettings, Settings
 from polyglotic_desktop.ui.theme import SOURCE_COLORS
+from polyglotic_desktop.ui_next import home as home_module
 from polyglotic_desktop.ui_next.home import PickerCard
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_mac_or_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.home import (
     AppRow,
     AppStatus,
@@ -201,11 +202,13 @@ def test_the_record_holds_no_apps_name_and_survives_a_restart() -> None:
     assert AppSettings.from_stored({"app_capture_fell_back": {"why": "x" * 200}}) == (
         AppSettings()
     )  # not what this app writes: its default
-    assert fell_back_text() == pc_or_mac(
+    assert fell_back_text() == pc_mac_or_linux(
         "Windows on this PC couldn't caption one app alone, so Polyglotic"
         " captions everything the PC plays. You can try apps again on Home.",
         "This Mac couldn't caption one app alone, so Polyglotic"
         " captions everything the Mac plays. You can try apps again on Home.",
+        "This PC couldn't caption one app alone, so Polyglotic"
+        " captions everything the PC plays. You can try apps again on Home.",
     )
 
 
@@ -263,23 +266,30 @@ def test_homes_note_says_why_apps_are_off(
     note, again = built.everything_note, built.apps_again
     # apps one by one (Windows 11, or a Windows 10 where it works): on hover
     assert note.isHidden() and again.isHidden()
-    assert built.everything.toolTip() == "instead of apps"
-    assert built.everything.buttons[0].isEnabled()
+    assert (
+        built.pick_apps.accessibleDescription() == "Only caption the apps you choose."
+    )
+    assert built.pick_apps.isEnabled()
     # Windows 10 before version 2004
     view.follow(Picker(captioned=(SYSTEM_ROW,), whole_system=True, per_app=False))
     assert not note.isHidden() and again.isHidden()
-    assert note.text() == pc_or_mac(
-        "instead of apps (the only choice on this version of Windows)",
-        "instead of apps (the only choice on this version of macOS)",
+    assert note.text() == (
+        LINUX_NOTE
+        if on_linux()
+        else pc_or_mac(
+            "instead of apps (the only choice on this version of Windows)",
+            "instead of apps (the only choice on this version of macOS)",
+        )
     )
-    assert not built.everything.buttons[0].isEnabled()
+    assert not built.pick_apps.isEnabled()
     # tried here and failed: said, with "Try apps again"
     failed = Picker(captioned=(SYSTEM_ROW,), per_app=False, fell_back=True)
     view.follow(failed)
     assert not note.isHidden() and not again.isHidden()
-    assert note.text() == pc_or_mac(
+    assert note.text() == pc_mac_or_linux(
         "instead of apps: Windows on this PC couldn't caption one app alone",
         "instead of apps: this Mac couldn't caption one app alone",
+        "instead of apps: this PC couldn't caption one app alone",  # 571
     )
     again.click()
     assert commands.calls == [("try_apps_again", ())]
@@ -287,3 +297,27 @@ def test_homes_note_says_why_apps_are_off(
     assert note.isHidden() and again.isHidden()
     PickerView(Picker(), commands).try_apps_again()  # type: ignore[arg-type]
     assert commands.calls == [("try_apps_again", ())]  # not where it didn't fail
+
+
+LINUX_NOTE = "instead of apps (the only choice on Linux for now)"
+
+
+def test_on_linux_homes_note_names_linux_not_windows(
+    card: tuple[PickerCard, PickerView, Commands], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Linux's first build captions everything the PC plays only (one app at
+    a time is 546's slice 2): Home says so in Linux's words, not "this
+    version of Windows" (550)."""
+    built, view, _ = card
+    monkeypatch.setattr(home_module, "on_linux", lambda: True)
+    view.follow(Picker(captioned=(SYSTEM_ROW,), whole_system=True, per_app=False))
+    assert built.everything_note.text() == LINUX_NOTE
+
+
+def test_the_logs_line_names_no_windows_build_where_there_is_none() -> None:
+    """Linux (and a Mac) has no Windows build: the line said "Windows build ,
+    not tried (Windows before version 2004)" on Linux's first run (550)."""
+    assert app_capture_line(NO, "", False) == (
+        "capturing apps one by one: not on this OS yet"
+    )
+    assert app_capture_line(YES, "", True) == "capturing apps one by one: promised"

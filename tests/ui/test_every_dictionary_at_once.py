@@ -571,3 +571,38 @@ def test_a_full_language_added_is_asked_its_level_once_it_opens(
         assert asked == ["en"]
     finally:
         built.close()
+
+
+def test_the_quiet_view_marks_the_line_being_learned_unless_asked(
+    qapp: QApplication,
+) -> None:
+    """Decision 0252 (the user, 2026-11-19): with English learned too, the
+    quiet view marked the English translation of Mandarin speech as well.
+    Its words go in what was said; "both lines" brings the other back."""
+    from polyglotic_desktop.core.learning.highlights import WordIntroductions
+    from polyglotic_desktop.core.listening.display import WordLinks
+    from polyglotic_desktop.ui_next.caption_marks import ChosenWords, Panel
+    from polyglotic_desktop.ui_next.views.caption_window import MarksIn
+
+    tools, zh, en = both()
+    zh.vocabulary.save(
+        computer(), "电脑", "電腦", "", "computer",
+        zh.vocabulary.categories[0].id, LookupContext(""),
+    )  # fmt: skip
+    en.vocabulary.save(
+        RUN, "run", "", "", "跑", en.vocabulary.categories[1].id, LookupContext("")
+    )
+    view = CaptionLines((APP,), EN, keep=10)
+    view.apply(finished("a", clause("我的电脑", "they run my computer"), language=ZH))
+    line = view.lines[0]
+    marks = CaptionMarks(tools)
+
+    def marked(where: MarksIn) -> tuple[bool, bool]:
+        chosen = frozenset({ChosenWords.SAVED})
+        panel = Panel(quiet=True, quiet_words=chosen, marks_in=where)
+        marks.set_look(WordLinks.OFF, WordIntroductions.OFF, panel)
+        return bool(marks(line, 0)), bool(marks(line, 1))
+
+    assert marked(MarksIn.LEARNED) == (True, False)
+    assert marked(MarksIn.BOTH) == (True, True)
+    assert marked(MarksIn.SAID) == (True, False)

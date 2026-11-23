@@ -1,0 +1,325 @@
+# Linux, proved on GitHub's own Ubuntu runners (polyglotic-hq 546, 550):
+# only on the public Linux copy (a snapshot of a branch, pushed to a
+# `linux-copy` branch of hughnhugh/polyglotic-linux-spike by 550's
+# mirror550.sh), where GitHub's runners are free - never in this private
+# repo, whose runners are the PC's: every job checks the repo is public.
+#
+# One job on `ubuntu-24.04` (PipeWire 1.0.5 and WirePlumber 0.4.17, as
+# Ubuntu 24.04 ships them), in a desktop session made for it
+# (tools/linux_session.sh: the sound server with a default output and a
+# default mic, gnome-keyring's Secret Service unlocked, an X screen):
+# - tests: the whole suite (Windows' and the Mac's own skipped), the
+#   `linux_desktop` tests among them - libpulse and the Secret Service for
+#   real; mypy as Linux sees the code; the import rule;
+# - the voice (591): Ubuntu's own speech-dispatcher and espeak-ng, started
+#   by the app as on a desktop without systemd; a word said, stopped, a
+#   recording and Home's sample played, each heard at the output's monitor
+#   and measured (`voice-heard.jsonl`);
+# - tour: the app from source on X11 (xcb), signed in to a stand-in server
+#   on the machine with its token in the keyring, captioning a FLEURS
+#   recording played through the sound server - everything the PC plays,
+#   and a second one into the mic (tools/app_tour.py --real-capture);
+#   pictures by each window's own grab() and checks.json.
+#
+# Nothing here reaches the live server: no invite, no token, no secret
+# (polyglotic-hq 550's brief). The artifact `linux-<run id>` is kept 1 day.
+name: Linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["linux-copy"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    name: A Linux desktop (Ubuntu 24.04)
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OUT: ${{ github.workspace }}/out
+      POLYGLOTIC_LINUX_DESKTOP: "1"
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # tags and main, for tests/test_schema_versions.py
+
+      - name: A desktop's parts (the sound server, the keyring, X and Qt's libraries)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            pipewire pipewire-pulse pipewire-bin wireplumber libpulse0 pulseaudio-utils \
+            dbus-bin dbus-daemon gnome-keyring xvfb libxtst6 \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+            libegl1 libgl1 libfontconfig1 libdbus-1-3 fonts-noto-core fonts-wqy-microhei \
+            speech-dispatcher speech-dispatcher-espeak-ng speech-dispatcher-audio-plugins
+          {
+            . /etc/os-release; echo "$PRETTY_NAME, kernel $(uname -r)"
+            dpkg-query -W -f='${Package} ${Version}\n' pipewire pipewire-pulse wireplumber \
+              libpulse0 gnome-keyring xvfb libxcb-cursor0 speech-dispatcher speech-dispatcher-espeak-ng
+          } | tee versions.txt
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      - name: Types as Linux sees them (mypy --platform linux)
+        run: uv run --no-sync python -m tools.mypy_platforms linux
+
+      - name: Import rule (import-linter)
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync lint-imports
+
+      # Linux's own tests, the `linux_desktop` ones among them: libpulse on
+      # PipeWire and the Secret Service on gnome-keyring, for real
+      - name: Linux's tests in a desktop session
+        if: ${{ !cancelled() }}
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-tests" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs
+          tests/test_linux_adapters.py tests/test_linux_capture.py tests/test_tls_linux_roots.py
+          tests/test_os_in_one_place.py tests/ui_next/test_locked_by_remapping.py
+          tests/ui/test_apps_one_by_one.py
+
+      # The voice (591): speech-dispatcher's words, a recording and Home's
+      # sample, each heard at the output's monitor - measures in the log
+      # and in voice-heard.jsonl
+      - name: The voice, heard at the speakers
+        if: ${{ !cancelled() }}
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-voice" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs -s
+          tests/test_linux_voices.py tests/test_linux_sound.py tests/test_linux_voices_heard.py
+
+      # The whole suite in that session too, as a canary: the gate for it is
+      # this repo's own Checks (Linux). Not here: the schema check, which
+      # reads the private repo's tags and main (the public copy has neither);
+      # and what this VM's fonts and speed decide rather than the code (the
+      # UI lab's gate texts, a link's colour, the budgets' few ms)
+      - name: The whole suite in a desktop session (a canary)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-suite" --
+          uv run --no-sync pytest -p no:cacheprovider -q
+          --deselect tests/test_schema_versions.py
+
+      # A locked keyring (561, decision 0269): gnome-keyring's login
+      # collection locked and nobody to answer its box - asked once, within
+      # the box's time, never again. A session of its own: it locks it.
+      - name: A locked keyring, in a session of its own
+        if: ${{ !cancelled() }}
+        env:
+          QT_QPA_PLATFORM: offscreen
+          POLYGLOTIC_LOCKED_KEYRING: "1"
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-locked" --
+          uv run --no-sync pytest -p no:cacheprovider -q -rs -s
+          tests/test_linux_keyring.py -k locked_keyring
+
+      # The pinned sources are checked against their SHA-256 either way
+      # (tools/dictionaries/sources.py); the cache only saves downloading.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: ${{ !cancelled() }}
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources (the card and the app need them)
+        if: ${{ !cancelled() }}
+        run: uv run --no-sync python -m tools.dictionaries.build
+
+      - name: The app on X11, captioning what the PC plays and the mic
+        if: ${{ !cancelled() }}
+        env:
+          QT_QPA_PLATFORM: xcb
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-tour" --
+          bash -c 'uv run --no-sync python -m tools.linux_keyring_probe gnome-keyring
+          "$OUT/keyring-gnome.json"; uv run --no-sync python -m tools.app_tour "$OUT/tour"
+          --limit 300 --real-capture --mic-sink "$POLYGLOTIC_MIC_SINK"'
+
+      # the hotkeys, --lock and the like, the first lock and the popover's Esc
+      # in an Xorg session (570): X11's grab, keys pressed through XTest
+      - name: The hotkeys and unlocking on X11
+        if: ${{ !cancelled() }}
+        env:
+          QT_QPA_PLATFORM: xcb
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session-unlocking" --
+          uv run --no-sync python -m tools.app_tour "$OUT/tour-unlocking" --limit 300 --unlocking
+
+      - name: What the tour found
+        if: ${{ always() }}
+        run: |
+          cp versions.txt "$OUT/" 2>/dev/null || true
+          if [ -f "$OUT/tour-unlocking/checks.json" ]; then
+            echo "### unlocking (570)" | tee -a "$GITHUB_STEP_SUMMARY"
+            uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'].get('unlocking', {}))[:2000])" "$OUT/tour-unlocking/checks.json" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f "$OUT/tour/checks.json" ]; then
+            uv run --no-sync python -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'])[:2000])" "$OUT/tour/checks.json" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/versions.txt
+            ${{ env.OUT }}/keyring-*.json
+            ${{ env.OUT }}/one-app-isolation.json
+            ${{ env.OUT }}/voice-heard.jsonl
+            ${{ env.OUT }}/tour/*.png
+            ${{ env.OUT }}/tour/checks.json
+            ${{ env.OUT }}/tour/data/logs/*.log
+            ${{ env.OUT }}/tour-unlocking/*.png
+            ${{ env.OUT }}/tour-unlocking/*.json
+            ${{ env.OUT }}/tour-unlocking/data/logs/*.log
+            ${{ env.OUT }}/session-*/*.txt
+            ${{ env.OUT }}/session-*/*.log
+          retention-days: 1
+
+  # What a person sees on each desktop the first version supports (546's
+  # section 2): the tour above, on the desktop's own window manager -
+  # headless, with XWayland - over a focused full-screen Wayland window, and
+  # the window manager's own picture of its screen at each moment the tour
+  # asks for one (tools/linux_desktop_tour.sh). Ubuntu 24.04's GNOME 46 on
+  # the runner; Fedora 45's GNOME and KDE Plasma 6 in containers.
+  desktops:
+    name: On ${{ matrix.name }}
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - desktop: gnome
+            where: runner
+            name: Ubuntu 24.04 (GNOME)
+          - desktop: gnome
+            where: fedora
+            name: Fedora 45 (GNOME)
+          - desktop: kde
+            where: fedora
+            name: Fedora 45 (KDE Plasma)
+    env:
+      OUT: ${{ github.workspace }}/out
+      POLYGLOTIC_LINUX_DESKTOP: "1"
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Ubuntu's GNOME, the sound server, the keyring and Qt's libraries
+        if: ${{ matrix.where == 'runner' }}
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            mutter xwayland gstreamer1.0-pipewire gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good gstreamer1.0-tools \
+            pipewire pipewire-pulse pipewire-bin wireplumber libpulse0 pulseaudio-utils \
+            dbus-bin dbus-daemon gnome-keyring \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+            libwayland-client0 libwayland-cursor0 libwayland-egl1 \
+            libegl1 libgl1 libfontconfig1 libdbus-1-3 fonts-noto-core fonts-noto-cjk
+          {
+            . /etc/os-release; echo "$PRETTY_NAME, kernel $(uname -r)"
+            dpkg-query -W -f='${Package} ${Version}\n' mutter xwayland pipewire wireplumber gnome-keyring
+          } | tee versions.txt
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: Install (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: The interface's translations (.qm)
+        run: uv run --no-sync python -m tools.i18n build
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources
+        run: uv run --no-sync python -m tools.dictionaries.build
+
+      - name: The app over a full-screen window on Ubuntu's GNOME
+        if: ${{ matrix.where == 'runner' }}
+        env:
+          LINUX_SESSION_SCREEN: gnome
+        run: >-
+          dbus-run-session -- bash tools/linux_session.sh "$OUT/session" --
+          bash tools/linux_desktop_tour.sh gnome "$OUT"
+
+      - name: The app over a full-screen window on Fedora's ${{ matrix.desktop }}
+        if: ${{ matrix.where == 'fedora' }}
+        run: bash tools/linux_in_fedora.sh ${{ matrix.desktop }} "$OUT"
+
+      - name: What the tour found
+        if: ${{ always() }}
+        run: |
+          cp versions.txt "$OUT/" 2>/dev/null || true
+          for tour in tour tour-one-app tour-unlocking; do  # one app (561); unlocking (570)
+            if [ -f "$OUT/$tour/checks.json" ]; then
+              echo "### $tour" | tee -a "$GITHUB_STEP_SUMMARY"
+              python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'])[:2000])" "$OUT/$tour/checks.json" | tee -a "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          ls "$OUT/desk" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: linux-${{ matrix.where }}-${{ matrix.desktop }}-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/versions.txt
+            ${{ env.OUT }}/keyring-*
+            ${{ env.OUT }}/desk/*.png
+            ${{ env.OUT }}/desk/*.failed
+            ${{ env.OUT }}/tour/*.png
+            ${{ env.OUT }}/tour/checks.json
+            ${{ env.OUT }}/tour/data/logs/*.log
+            ${{ env.OUT }}/tour-one-app/*.png
+            ${{ env.OUT }}/tour-one-app/*.json
+            ${{ env.OUT }}/tour-one-app/data/logs/*.log
+            ${{ env.OUT }}/tour-unlocking/*.png
+            ${{ env.OUT }}/tour-unlocking/*.json
+            ${{ env.OUT }}/tour-unlocking/data/logs/*.log
+            ${{ env.OUT }}/*.log
+            ${{ env.OUT }}/session/*.txt
+            ${{ env.OUT }}/session/*.log
+          retention-days: 1

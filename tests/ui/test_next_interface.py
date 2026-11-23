@@ -29,7 +29,7 @@ from polyglotic_desktop.main import (
     look_settings,
     picker_of,
     renaming,
-    second_language_chosen,
+    second_languages_changes,
     session_languages,
     stop_captioning,
     wire_caption_windows,
@@ -78,16 +78,32 @@ def test_each_windows_spoken_language_is_its_sources_own() -> None:
 
 
 def test_a_windows_second_language_is_kept_by_language() -> None:
-    value = AppSettings(second_languages={"ja": "en"})
-    assert second_language_chosen(value, "en", "zh") == {
-        "second_languages": {"ja": "en", "en": "zh"}
+    """Kept by language; English, every language's but English's own
+    by default, isn't kept as a choice, and none is (polyglotic-hq 555)."""
+    value = AppSettings(second_languages={"fr": "zh"})
+    assert second_languages_changes(value, {"en": "zh"}) == {
+        "second_languages": {"fr": "zh", "en": "zh"},
+        "no_second_language": (),
     }
-    assert second_language_chosen(value, "ja", "") == {"second_languages": {}}
-    assert second_language_chosen(value, "ja", "ja") == {"second_languages": {}}
+    for none in ("", "fr"):
+        assert second_languages_changes(value, {"fr": none}) == {
+            "second_languages": {},
+            "no_second_language": ("fr",),
+        }
+    assert second_languages_changes(value, {"fr": "en"}) == {
+        "second_languages": {},
+        "no_second_language": (),
+    }
+    assert second_languages_changes(AppSettings(), {"en": ""}) == {
+        "second_languages": {},
+        "no_second_language": (),
+    }
 
 
 def test_without_the_switch_the_settings_are_todays() -> None:
-    chosen = listening_settings(AppSettings(targets=("en", "zh"), dictation=False))
+    chosen = listening_settings(
+        AppSettings(targets=("en", "zh"), dictation=False, type_theirs=False)
+    )
     assert chosen.targets == (EN, ZH) and dict(chosen.source_targets) == {}
 
 
@@ -111,7 +127,7 @@ def test_a_windows_close_unticks_its_app() -> None:
 
 def test_the_windows_look_is_todays_captions_settings() -> None:
     look = caption_look(
-        AppSettings(opacity=0.5, fade_after=None, caption_mode_chosen="preview")
+        AppSettings(opacity=0.5, fade_after=None, caption_mode_chosen="steady")
     )
     assert (look.opacity, look.fade_after, look.preview) == (0.5, None, True)
 
@@ -159,10 +175,12 @@ def test_a_windows_lines_already_in_its_language_are_saved_for_every_window(
     desktop, windows = switched
     window = windows.windows["Web Browser"]
     window.set_second("zh")
-    assert desktop.settings.value.second_languages == {"en": "zh"}
+    assert desktop.settings.value.preset_second_languages == {"en": "zh"}
+    assert desktop.settings.value.second_language_of("en") == "zh"
     windows.set_second_languages({EN: ZH})  # as `follow_settings` hands it back
     window.set_second("")
-    assert desktop.settings.value.second_languages == {}
+    assert desktop.settings.value.preset_second_languages == {"en": ""}
+    assert desktop.settings.value.second_language_of("en") is None
 
 
 def test_a_listening_sessions_server_says_whether_windows_spoken_languages_count(
@@ -216,8 +234,8 @@ def test_the_windows_buttons_use_the_apps_commands(
 ) -> None:
     desktop, windows = switched
     window = windows.windows["Web Browser"]
-    window.timing_wanted.emit(CaptionMode.LIVE.value)
-    assert desktop.settings.value.caption_mode is CaptionMode.LIVE
+    window.timing_wanted.emit(CaptionMode.INSTANT.value)
+    assert desktop.settings.value.caption_mode is CaptionMode.INSTANT
     desktop.pause.setChecked(True)
     window._tick()
     assert window.notice.text() == "Paused"
@@ -237,7 +255,7 @@ def test_the_sessions_state_shows_on_the_windows_notice_line(
     assert window.notice.text().startswith("Reconnecting - trying again in")
     desktop.set_connection(ConnectionState.SERVER_BUSY, 24.0)  # 203's item 4
     window._tick()
-    assert window.notice.text() == "The server is busy - trying again in 24 s"
+    assert window.notice.text() == "Polyglotic is busy — try again in a few minutes"
 
 
 def test_todays_settings_keep_the_windows_own_setting(
@@ -272,7 +290,7 @@ def test_the_panels_values_are_todays_settings() -> None:
     )
     languages = session_languages(value, ["en", "ja"])
     assert languages.in_use == ("en", "ja") and languages.live_updates
-    assert settings_from(languages_settings(languages)) == AppSettings(
+    assert settings_from(languages_settings(value, languages)) == AppSettings(
         spoken_language="yue",
         second_languages={"en": "zh"},
         translate_live=False,
@@ -299,8 +317,8 @@ def test_a_panel_change_is_saved_and_the_windows_follow(
     assert panels.look_waiting and desktop.settings.value.opacity != 0.3
     panels.save_look()
     assert desktop.settings.value.opacity == 0.3 and window.look.opacity == 0.3
-    panels.timing.set_mode(CaptionMode.PREVIEW)
-    assert desktop.settings.value.caption_mode is CaptionMode.PREVIEW
+    panels.timing.set_mode(CaptionMode.CALM)
+    assert desktop.settings.value.caption_mode is CaptionMode.CALM
     panels.timing.set_max_wait(2.5)  # the longest wait for text (277)
     assert desktop.settings.value.max_wait_for_text == 2.5
     desktop.settings.update(max_wait_for_text=5.0)
@@ -510,12 +528,9 @@ def test_signed_out_home_offers_sign_in_and_the_windows_go(
     desktop.set_connection(ConnectionState.SIGN_IN_NEEDED)
     state = built.home.state
     assert state.title_label.text() == "Not signed in"
-    assert (
-        state.detail.text()
-        == "you need a code from us: an invite, or the one in your Plus email"
-    )
+    assert state.detail.text() == "sign in with your email to listen"
     state.sign_in.click()
-    assert asked == [True]  # today's sign in (the invite code dialog)
+    assert asked == [True]
     window = windows.windows["Web Browser"]
     window._tick()
     assert window.notice.text() == "Not signed in - sign in on Home"
@@ -655,12 +670,12 @@ def test_a_busy_time_on_home_and_the_windows_with_live_updates(
     hub: tuple[DesktopApp, CaptionWindows, Hub],
 ) -> None:
     desktop, windows, built = hub
-    desktop.settings.update(caption_mode_chosen=CaptionMode.STEADY.value)
+    desktop.settings.update(caption_mode_chosen=CaptionMode.WHOLE.value)
     built.set_busy(True)  # Steady: nothing slowed that the learner sees
     assert built.home.state.notice.isHidden()
     built.set_busy(False)
-    desktop.settings.update(caption_mode_chosen=CaptionMode.LIVE.value)
-    windows.set_timing(CaptionMode.LIVE)  # as main's follow_settings does
+    desktop.settings.update(caption_mode_chosen=CaptionMode.INSTANT.value)
+    windows.set_timing(CaptionMode.INSTANT)  # as main's follow_settings does
     built.set_busy(True)
     windows.set_busy(True)
     words = "Busy time - live updates slowed; captions continue"
@@ -699,9 +714,10 @@ def test_homes_join_button_joins_and_separates(
     join = built.home.join
     assert not join.isEnabled()  # one window
     windows.set_captioned([("Web Browser", APP_1), ("Video Player", APP_2)])
-    built.follow()
-    assert join.isEnabled() and join.text() == "Join windows"
-    join.click()
-    assert windows.joined_window is not None and join.text() == "Separate windows"
+    built.follow()  # a second window joins the first (554)
+    assert windows.joined_window is not None
+    assert join.isEnabled() and join.text() == "Separate windows"
     join.click()
     assert windows.joined_window is None and join.text() == "Join windows"
+    join.click()
+    assert windows.joined_window is not None and join.text() == "Separate windows"

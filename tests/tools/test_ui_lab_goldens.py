@@ -14,6 +14,8 @@ from PySide6.QtWidgets import QApplication, QLabel, QWidget
 from tools.ui_lab import __main__ as cli
 from tools.ui_lab import goldens, lab, new_parts
 
+from polyglotic_desktop.ui_next import style
+
 
 @pytest.fixture
 def qapp() -> Iterator[QApplication]:
@@ -116,7 +118,11 @@ def test_another_machine_is_named_when_pictures_differ(store: Path) -> None:
 def _label(lab_: lab.Lab) -> QWidget:
     shown = QLabel("Captions appear here")
     shown.setObjectName("lab_label")
-    shown.setStyleSheet("background: #ffffff; color: #111111; padding: 8px;")
+    # the interface's base text at the text size the lab runs at (the app's
+    # Normal, 1.3 since decision 0244): Qt's own 12 px is off its type scale
+    shown.setStyleSheet(
+        f"background: #ffffff; color: #111111; padding: 8px; font-size: {style.px(13)}px;"
+    )
     shown.setAlignment(Qt.AlignmentFlag.AlignCenter)
     shown.resize(240, 60)
     shown.show()
@@ -234,4 +240,4 @@ def test_approve_only_runs_the_states_named_and_prune_is_its_own_step(
 def test_every_new_state_has_a_golden_and_none_is_left_over() -> None:
     """Add a state, approve its golden (`python -m tools.ui_lab approve`)."""
     stored = {p.stem for p in goldens.GOLDENS.glob("*.png")}
-    assert stored == {state.name for state in cli.new_states()}
+    assert stored == {state.name for state in cli.visual_states()}

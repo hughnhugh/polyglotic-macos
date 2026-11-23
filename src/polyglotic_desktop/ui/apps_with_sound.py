@@ -48,6 +48,7 @@ class AppsWithSound(QObject):
         self._apps = apps
         self._last: list[PlayingApp] | None = None
         self._looking = False
+        self.scan_failed = False
         self._looked.connect(self._take, Qt.ConnectionType.QueuedConnection)
         self._worker = ThreadPoolExecutor(1, thread_name_prefix="apps-with-sound")
         self._first = QTimer(self, singleShot=True, interval=FIRST_LOOK_MS)
@@ -92,6 +93,7 @@ class AppsWithSound(QObject):
     @Slot(object)
     def _take(self, apps: list[PlayingApp] | None) -> None:
         self._looking = False
+        self.scan_failed = apps is None
         if apps is not None:
             self._last = apps
         self.found.emit()

@@ -1,0 +1,113 @@
+# The Linux package, proved on GitHub's own Ubuntu runner (polyglotic-hq
+# 550; desktop decision 0259): free on the public copy, where a snapshot of
+# a branch is pushed to its `linux-copy-package` branch (projects/550's
+# mirror550.sh). Never in the private repo: every job is for a public
+# repository only (GitHub's own runners cost money there, and the
+# self-hosted ones are the user's PCs).
+#
+# One job on ubuntu-24.04, each part run even when one before it failed,
+# the job failing if any did:
+# - build: the dictionaries from their pinned sources (the same on every
+#   OS), then the app built and packed in an ubuntu:22.04 container
+#   (tools/package/linux_build.sh: PyInstaller with libxcb-cursor0 bundled
+#   and fontconfig and FreeType left to the system, its own check run, then
+#   Velopack's vpk as .config/dotnet-tools.json pins it) - one build packed
+#   as 0.0.1 and as 0.0.2 into one feed;
+# - linkage: the AppImage in clean ubuntu:24.04, ubuntu:26.04 and fedora:45
+#   containers with only what a desktop installs for any X11 program: every
+#   library found, libxcb-cursor the AppImage's own, its check passing, no
+#   fontconfig complaints (tools/package/linux_linkage.sh);
+# - updates: 0.0.1 put in ~/Applications with no libfuse2 on the machine,
+#   updated in place to 0.0.2 from the feed in a folder - this user's own
+#   packages folder, applied as the app exits - then a second user's copy,
+#   and a copy in a folder the user can't change refusing the download
+#   (tools/package/linux_update_rehearsal.sh).
+# What each part found is kept a day as `linux-package-<run id>` (reports
+# only, never the packages).
+name: Linux package
+
+on:
+  push:
+    branches: ["linux-copy-package"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-package-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      OUT: build/linux
+      TAG: v0.0.1
+      CHANNEL: linux-x64-alpha
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: The machine
+        run: |
+          mkdir -p "$OUT/reports"
+          { grep -E '^PRETTY_NAME=' /etc/os-release; uname -r; ldd --version | head -1; nproc; free -m | sed -n 2p; } | tee "$OUT/reports/runner.txt"
+
+      # The pinned sources are checked against their SHA-256 either way
+      # (tools/dictionaries/sources.py); the cache only saves downloading.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/dictionary-sources
+          key: dictionary-sources-${{ hashFiles('tools/dictionaries/sources.py') }}
+
+      - name: The dictionaries, from their pinned sources
+        run: |
+          uv sync --locked
+          uv run --no-sync python -m tools.dictionaries.build
+
+      - name: Built and packed in ubuntu:22.04 (0.0.1 and 0.0.2 from one build)
+        run: |
+          docker run --rm -v "$PWD:/w" -w /w ubuntu:22.04 \
+            bash tools/package/linux_build.sh "$TAG" "$CHANNEL" "$OUT" 0.0.1 0.0.2
+          cp "$OUT"/summary.json "$OUT"/check-install.json "$OUT/reports/" 2>/dev/null || true
+          ls -la "$OUT" "$OUT/releases" | tee "$OUT/reports/packed.txt"
+          du -sh "$OUT/dist/Polyglotic" "$OUT"/*.AppImage | tee -a "$OUT/reports/packed.txt"
+
+      - name: Linkage on a clean Ubuntu 24.04
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w ubuntu:24.04 bash tools/package/linux_linkage.sh "$OUT/Polyglotic-0.0.2.AppImage" "$OUT/reports/linkage-ubuntu-24.04"
+
+      - name: Linkage on a clean Ubuntu 26.04
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w ubuntu:26.04 bash tools/package/linux_linkage.sh "$OUT/Polyglotic-0.0.2.AppImage" "$OUT/reports/linkage-ubuntu-26.04"
+
+      - name: Linkage on a clean Fedora 45
+        if: ${{ !cancelled() }}
+        run: docker run --rm -e GITHUB_ACTIONS -v "$PWD:/w" -w /w fedora:45 bash tools/package/linux_linkage.sh "$OUT/Polyglotic-0.0.2.AppImage" "$OUT/reports/linkage-fedora-45"
+
+      - name: Updated in place, no libfuse2, two users, a folder not theirs
+        if: ${{ !cancelled() }}
+        run: bash tools/package/linux_update_rehearsal.sh "$OUT/reports/updates" "$OUT/releases" "$OUT/Polyglotic-0.0.1.AppImage" 0.0.2
+
+      - name: What each part found
+        if: ${{ !cancelled() }}
+        run: cat "$OUT"/reports/*/summary.txt "$OUT"/reports/*/linkage.txt 2>/dev/null || true
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        with:
+          name: linux-package-${{ github.run_id }}
+          path: ${{ env.OUT }}/reports
+          retention-days: 1

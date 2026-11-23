@@ -10,7 +10,7 @@ import sys
 import threading
 
 import pytest
-from PySide6.QtCore import QPoint, QRect, QSize
+from PySide6.QtCore import QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon
 from tests.ui.fakes import MemorySettingsStore, RecordingTray, make_app
 
@@ -22,6 +22,7 @@ from polyglotic_desktop.ui.app import (
     tray_menu_place,
 )
 from polyglotic_desktop.ui.icons import TrayState
+from polyglotic_desktop.ui.os_words import pc_mac_or_linux
 from polyglotic_desktop.ui.recorded_captions import clause, finished, live
 from polyglotic_desktop.ui.settings import AppSettings
 
@@ -99,8 +100,10 @@ def test_the_tray_menu_opens_above_the_taskbar_wherever_it_is() -> None:
 
 
 def test_a_right_click_on_the_tray_icon_opens_the_menu_on_the_work_area(
-    qapp: QApplication,
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # Windows' and the Mac's: on Linux the tray shows it itself (571)
+    monkeypatch.setattr(ui_app, "DESKTOP_SHOWS_TRAY_MENU", False)
     app = make_app()
     app.tray = QSystemTrayIcon(app)  # offscreen has no tray: as show_tray makes it
     assert app.tray.contextMenu() is None  # Qt's own placement isn't used
@@ -121,6 +124,7 @@ def test_the_tray_menu_is_measured_as_it_will_show(
     the menu is styled for it before it's measured, so its first opening
     is placed by the size it shows at, not the light one's (polyglotic-hq
     146: about 35 x 14 px off)."""
+    monkeypatch.setattr(ui_app, "DESKTOP_SHOWS_TRAY_MENU", False)  # not Linux's (571)
     light = [True]
     app = DesktopApp(MemorySettingsStore(), None, None, light_taskbar=lambda: light[0])
     app.tray = QSystemTrayIcon(app)  # offscreen has no tray: as show_tray makes it
@@ -150,6 +154,7 @@ def test_the_tray_menu_has_the_named_commands(qapp: QApplication) -> None:
     assert [a.objectName() for a in menu] == [
         "app.open",
         "app.install_update",  # hidden until an update is ready (polyglotic-hq 299)
+        "account.usage",  # a capped plan's allowance left (polyglotic-hq 684)
         "app.pause",
         "windows.lock",
         "windows.hide",
@@ -166,6 +171,7 @@ def test_the_tray_menu_has_the_named_commands(qapp: QApplication) -> None:
     assert texts["windows.lock"] == "Lock all caption windows"
     assert texts["windows.hide"] == "Hide all caption windows"
     assert not app.install_update.isVisible()
+    assert not app.usage.isVisible()  # nothing to say without a meter
     app.close()
 
 
@@ -226,8 +232,12 @@ def test_hotkeys_lock_pause_and_hide_from_any_thread(qapp: QApplication) -> None
     app = make_app()
     shown = {k: a.shortcut().toString() for k, a in app.hotkeys.items()}
     keys = "Meta+Ctrl+" if sys.platform == "darwin" else "Ctrl+Alt+"  # ⌃⌘ (428)
-    assert shown == {k: keys + k for k in "LPH"}
-    for key in "LPH":
+    if sys.platform.startswith("linux"):
+        keys = "Ctrl+Alt+Shift+"  # Ctrl+Alt+L locks some desktops' screens (570)
+    # Back to live's too (polyglotic-hq 567); the rest have none until chosen
+    on = {"lock": "L", "pause": "P", "hide": "H", "live": "J"}
+    assert shown == {k: keys + on[k] if k in on else "" for k in app.hotkeys}
+    for key in ("lock", "pause", "hide"):
         worker = threading.Thread(target=app.hotkey_pressed.emit, args=(key,))
         worker.start()
         worker.join()
@@ -237,12 +247,30 @@ def test_hotkeys_lock_pause_and_hide_from_any_thread(qapp: QApplication) -> None
     assert app.lock_windows.isChecked()
     assert app.hide_windows.isChecked()
     assert app.settings.value.locked  # saved, as when clicked
-    app.hotkey_pressed.emit("P")
+    app.hotkey_pressed.emit("pause")
     qapp.processEvents()
     assert not app.pause.isChecked()
-    app.hotkeys_not_working(["H"])  # another app has Ctrl+Alt+H: not shown
+    app.hotkeys_not_working(["hide"])  # another app has Ctrl+Alt+H: not shown
     assert app.hide_windows.shortcut().isEmpty()
     app.close()
+
+
+def test_tray_displays_registered_shortcuts_when_the_platform_hides_them(
+    qapp: QApplication,
+) -> None:
+    hide = Qt.ApplicationAttribute.AA_DontShowShortcutsInContextMenus
+    original = qapp.testAttribute(hide)
+    qapp.setAttribute(hide, True)
+    try:
+        app = make_app()
+        for action in (app.pause, app.lock_windows, app.hide_windows):
+            assert not action.shortcut().isEmpty()
+            assert action.isShortcutVisibleInContextMenu()
+        app.hotkeys_not_working(["hide"])
+        assert app.hide_windows.shortcut().isEmpty()
+    finally:
+        qapp.setAttribute(hide, original)
+        app.close()
 
 
 def test_the_tray_asks_for_the_main_window(qapp: QApplication) -> None:
@@ -378,7 +406,11 @@ def test_the_tray_follows_the_state(qapp: QApplication) -> None:
 
 STILL_CAPTIONING = (
     "Polyglotic is still captioning",
-    "It's in the tray. Quit from there.",
+    pc_mac_or_linux(
+        "It's in the tray. Quit from there.",
+        "It's in the menu bar. Quit from there.",
+        "Its icon is in the panel. Quit from there.",  # 571
+    ),
 )
 
 
@@ -406,7 +438,11 @@ def test_closing_the_main_window_the_first_time_the_tray_says_it_still_runs(
 
 def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     app = make_app(MemorySettingsStore({"apps": ["Video Player"]}))
-    quit_there = "It's in the tray. Quit from there."
+    quit_there = pc_mac_or_linux(
+        "It's in the tray. Quit from there.",
+        "It's in the menu bar. Quit from there.",
+        "Its icon is in the panel. Quit from there.",
+    )
     # not connected (or nothing picked): nothing is captioned
     assert app.tray_note() == ("Polyglotic is still running", quit_there)
     app.set_connection(ConnectionState.LISTENING)
@@ -414,7 +450,11 @@ def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     app.pause.setChecked(True)
     assert app.tray_note() == (
         "Polyglotic is still running, with captions paused",
-        "It's in the tray. Resume or quit from there.",
+        pc_mac_or_linux(
+            "It's in the tray. Resume or quit from there.",
+            "It's in the menu bar. Resume or quit from there.",
+            "Its icon is in the panel. Resume or quit from there.",
+        ),
     )
     app.close()
 

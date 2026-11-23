@@ -99,7 +99,11 @@ from polyglotic_desktop.ui_next.controls import (
 )
 from polyglotic_desktop.ui_next.home import OneClick, Page
 from polyglotic_desktop.ui_next.known_map_card import KnownMapCard
-from polyglotic_desktop.ui_next.languages import learned_name, target_languages
+from polyglotic_desktop.ui_next.languages import (
+    in_sentence,
+    learned_name,
+    target_languages,
+)
 from polyglotic_desktop.ui_next.load_card import LoadCard
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.pack_row import PackRow, size_text
@@ -183,39 +187,51 @@ def what_it_gives(
             "says what it is in that line's translation."
         )
     if tier is Tier.BASIC and known is PackKnown.NONE_YET:  # "Here: ..." works
-        return _tr(
-            "There's no {language} dictionary to download yet. Captions and "
-            "translation work, and a word you look up says what it is in that "
-            "line's translation."
-        ).format(language=name)
+        return in_sentence(
+            _tr(
+                "There's no {language} dictionary to download yet. Captions and "
+                "translation work, and a word you look up says what it is in that "
+                "line's translation."
+            ),
+            language=name,
+        )
     if tier is Tier.BASIC and known is PackKnown.CHECKING and not on_card:
         # the list held is old and being checked: not a no from it (425)
         return _tr("Checking the list of dictionaries.")
     if tier is Tier.BASIC and known is not PackKnown.OFFERED and on_card:
-        return pc_or_mac(
+        return in_sentence(
+            pc_or_mac(
+                _tr(
+                    "A basic dictionary from open data (meanings not checked by a "
+                    "person), if one is ready: lookups in {language} captions once it's "
+                    "on this PC. Captions and translation work either way."
+                ),
+                _tr(
+                    "A basic dictionary from open data (meanings not checked by a person), "
+                    "if one is ready: lookups in {language} captions once it's on this "
+                    "Mac. Captions and translation work either way."
+                ),
+            ),
+            language=name,
+        )
+    if tier is Tier.BASIC and known is not PackKnown.OFFERED:
+        return in_sentence(
             _tr(
                 "A basic dictionary from open data (meanings not checked by a "
-                "person), if one is ready: lookups in {language} captions once it's "
-                "on this PC. Captions and translation work either way."
+                "person), if one is ready: its card offers it once you add "
+                "{language}. Captions and translation work either way."
             ),
-            _tr(
-                "A basic dictionary from open data (meanings not checked by a person), "
-                "if one is ready: lookups in {language} captions once it's on this "
-                "Mac. Captions and translation work either way."
-            ),
-        ).format(language=name)
-    if tier is Tier.BASIC and known is not PackKnown.OFFERED:
-        return _tr(
-            "A basic dictionary from open data (meanings not checked by a "
-            "person), if one is ready: its card offers it once you add "
-            "{language}. Captions and translation work either way."
-        ).format(language=name)
+            language=name,
+        )
     if tier is Tier.BASIC:  # its pack's row says what it's doing
-        return _tr(
-            "A basic dictionary from open data, meanings not checked by a person: "
-            "lookups in {language} captions once it's downloaded. Until then "
-            "captions and translation work, without lookups."
-        ).format(language=name)
+        return in_sentence(
+            _tr(
+                "A basic dictionary from open data, meanings not checked by a person: "
+                "lookups in {language} captions once it's downloaded. Until then "
+                "captions and translation work, without lookups."
+            ),
+            language=name,
+        )
     return _tr(
         "Captions and translation work; there are no lookups or word "
         "introductions yet. We'll add a dictionary when one passes our check."
@@ -359,7 +375,7 @@ def reset_question(language: str, back_to: LevelLine, changes: int) -> tuple[str
     """Reset's question for quick marks (polyglotic-hq 342): its title,
     and what it changes - how many words, and to what level."""
     return (
-        _tr("Reset {language}'s known words?").format(language=language),
+        in_sentence(_tr("Reset {language}'s known words?"), language=language),
         _trn(
             "About %Ln word(s) you marked known in bulk will count as new again, "
             "and your level goes back to: {level}. Words you marked yourself "
@@ -453,8 +469,9 @@ class LanguageCardView(Card):
             elif card.tier is Tier.FULL:
                 self.add(
                     label(
-                        _tr("You can change it while {language} is in use.").format(
-                            language=learned_name(card.code)
+                        in_sentence(
+                            _tr("You can change it while {language} is in use."),
+                            language=learned_name(card.code),
                         ),
                         "Faint",
                         wrap=True,
@@ -495,10 +512,13 @@ class LanguageCardView(Card):
             "Which words are joined to their translation while word links are on."
         )
         if card.key_words_only:
-            said = _tr(
-                "No dictionary ranks {language} words yet, so only key words are "
-                "linked."
-            ).format(language=name)
+            said = in_sentence(
+                _tr(
+                    "No dictionary ranks {language} words yet, so only key words are "
+                    "linked."
+                ),
+                language=name,
+            )
         self._row(_tr("Word links"), said, self.links)
         self.links_from: QComboBox | None = None
         if card.offers_links_from:
@@ -527,14 +547,14 @@ class LanguageCardView(Card):
         buttons = Flow(right=True)  # onto two lines where it's narrow (354)
         if card.can_switch:
             self.switch = _button(
-                _tr("Make {language} your main language").format(language=name),
+                in_sentence(_tr("Make {language} your main language"), language=name),
                 f"learning.{card.code}.switch",
             )
             self.switch.setToolTip(_tr("From the next time Polyglotic starts"))
             buttons.addWidget(self.switch)
         if not card.main:
             self.stop = _button(
-                _tr("Stop learning {language}").format(language=name),
+                in_sentence(_tr("Stop learning {language}"), language=name),
                 f"learning.{card.code}.stop",
             )
             self.stop.setProperty("kind", "ghost")
@@ -1093,7 +1113,8 @@ class LearningPage(Page):
                 line.setContentsMargins(0, 0, 0, 0)
                 line.setSpacing(12)
                 said = label(
-                    _tr("{language}: version {version}, {size}").format(
+                    in_sentence(
+                        _tr("{language}: version {version}, {size}"),
                         language=learned_name(pack.code),
                         version=pack.version,
                         size=size_text(pack.size),
@@ -1130,8 +1151,10 @@ class LearningPage(Page):
                 tier = Tier.NONE
             items.append(
                 (
-                    _tr("{language} - {tier}").format(
-                        language=learned_name(code), tier=tier_name(tier)
+                    in_sentence(
+                        _tr("{language} - {tier}"),
+                        language=learned_name(code),
+                        tier=tier_name(tier),
                     ),
                     code,
                 )

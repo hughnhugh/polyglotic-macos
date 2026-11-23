@@ -11,12 +11,24 @@ import pytest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import Built, MemorySettingsStore
 
+from polyglotic_desktop.ui_next.lab_panel import LabPanel
+from polyglotic_desktop.ui_next.panels import LookPanel, TimingPanel
+
 
 @pytest.fixture
 def built(qapp: QApplication) -> Iterator[Built]:
     built = Built(MemorySettingsStore({"learning": "zh"}), tools=True)
     yield built
     built.close()
+
+
+def test_the_link_is_wired_without_making_lab_at_the_start(built: Built) -> None:
+    """Settings' caption sections are made when first shown, not at the
+    start (polyglotic-hq 544): the hub wires Lab's link through the page,
+    so neither Lab nor any other caption section is made with the window."""
+    assert not built.hub.settings.findChildren(LabPanel)
+    assert not built.hub.settings.findChildren(LookPanel)
+    assert not built.hub.settings.findChildren(TimingPanel)
 
 
 def test_the_labs_switch_opens_the_load_on_learning(

@@ -111,6 +111,7 @@ def test_an_untouched_lab_keeps_a_clause_a_row() -> None:
     assert caption_style(CaptionLook()).fill is Fill.CLAUSES
 
 
+@pytest.mark.usefixtures("fill_the_width_on")
 def test_the_fill_is_saved_and_read_back_leniently() -> None:
     lab = CaptionLab(fill=Fill.STACKED, join=Join.LINE_ENDS)
     assert lab.to_stored() == {"fill": "stacked", "join": "line_ends"}
@@ -398,7 +399,12 @@ def test_line_by_line_a_line_of_each_cut_at_the_same_place(qapp: QApplication) -
     on the next pair."""
     line = a_paired_line()
     engine = CaptionLayout(PAIRED)
-    font = engine.laid(line, 2000, 1.0).rows[1].layout.font()
+    # the translation's font: `rows[1]` is the second clause's Chinese (rows
+    # go by top), whose Latin letters were Noto Sans SC's, about as wide as
+    # IBM Plex's - Ma Shan Zheng's are narrower (532)
+    english = next(r for r in engine.laid(line, 2000, 1.0).rows if r.index == 1)
+    assert english.row.kind is RowKind.TRANSLATION
+    font = english.layout.font()
     width = int(QFontMetricsF(font).horizontalAdvance("I bought a lot")) + 3
     laid = engine.laid(line, width, 1.0)
     assert laid.poured
@@ -467,6 +473,7 @@ def test_line_by_line_a_word_is_found_where_it_was_poured(qapp: QApplication) ->
     assert abs(rect.left() - its[2]) < 1.0 or its[4] < start
 
 
+@pytest.mark.usefixtures("fill_the_width_on")
 def test_the_lab_offers_line_by_line_and_the_windows_follow(qapp: QApplication) -> None:
     assert CaptionLab.from_stored({"fill": "paired"}).fill is Fill.PAIRED
     window = window_of(qapp, captions=4, look=replace(POURED, lab=CaptionLab()))

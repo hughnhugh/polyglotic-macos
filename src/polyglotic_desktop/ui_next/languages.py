@@ -8,6 +8,8 @@ The codes are protocol.md's; the names go through Qt's translation tools,
 in the same "Languages" context, so one translation serves both.
 """
 
+import re
+import string
 import unicodedata
 from collections.abc import Iterable, Sequence
 
@@ -76,6 +78,77 @@ def name_list(names: Iterable[str]) -> str:
     """Names in a list as the interface's language writes one: "Mongolian
     and Kazakh", "蒙古语和哈萨克语" (decision 0034)."""
     return QLocale().createSeparatedList(list(names))
+
+
+# The interface languages that write a language's name in lower case inside
+# a sentence - "decirla en inglés", "lire en anglais", "nói tiếng Anh" - and
+# capitalise it only where a list or menu shows it, or a sentence starts
+# with it: CLDR's names in Spanish, French, Italian, Portuguese, Czech,
+# Polish, Russian and Ukrainian are these lower-case forms (its
+# contextTransforms capitalise them for a list or menu), and Vietnamese
+# writes "tiếng" in lower case mid-sentence. The others keep the name as a
+# list shows it: German's and Dutch's nouns, Indonesian's proper names,
+# scripts without case (polyglotic-hq 560)
+_LOWER_IN_SENTENCE = frozenset(
+    {
+        QLocale.Language.Spanish,
+        QLocale.Language.French,
+        QLocale.Language.Italian,
+        QLocale.Language.Portuguese,
+        QLocale.Language.Czech,
+        QLocale.Language.Polish,
+        QLocale.Language.Russian,
+        QLocale.Language.Ukrainian,
+        QLocale.Language.Vietnamese,
+    }
+)
+# The {names} in an interface string that hold language names
+_NAMED = frozenset({"language", "languages"})
+# Where a sentence ends: its stop and the space after it, or a new line
+_SENTENCE_END = re.compile(r"[.!?…。！？]\s|\n")
+
+
+def in_sentence(text: str, **values: object) -> str:
+    """`text` - an interface string, translated - with its `{names}` filled
+    in (as `str.format`), its language names written as the interface's
+    language writes them in a sentence: "Decirla en inglés", "El diccionario
+    de inglés", but "Inglés: versión 2" where one starts it. `language` is
+    one language's name; `languages` is one, or several to list
+    (`name_list`). Every string a language name fills goes through this
+    (polyglotic-hq 560)."""
+    lower = QLocale().language() in _LOWER_IN_SENTENCE
+    formatter = string.Formatter()
+    written: list[str] = []
+    for literal, field, spec, conversion in formatter.parse(text):
+        written.append(literal)
+        if field is None:
+            continue
+        value, key = formatter.get_field(field, (), values)
+        if key in _NAMED:
+            names = [value] if isinstance(value, str) else list(value)
+            starts = _starts_sentence("".join(written))
+            value = name_list(
+                name if (starts and i == 0) or not lower else _lower_first(name)
+                for i, name in enumerate(names)
+            )
+        if conversion:
+            value = formatter.convert_field(value, conversion)
+        written.append(formatter.format_field(value, spec or ""))
+    return "".join(written)
+
+
+def _starts_sentence(written: str) -> bool:
+    """Whether what follows `written` starts a sentence: nothing but
+    punctuation ("¿", "(") since its start or the last sentence's end."""
+    ends = list(_SENTENCE_END.finditer(written))
+    since = written[ends[-1].end() :] if ends else written
+    return not any(char.isalnum() for char in since)
+
+
+def _lower_first(name: str) -> str:
+    """`name` with its first letter in lower case: "Chino (simplificado)" ->
+    "chino (simplificado)", "Tiếng Anh" -> "tiếng Anh"."""
+    return name[:1].lower() + name[1:]
 
 
 # Whether Mandarin's lines are shown in Traditional characters now ("Show
@@ -264,9 +337,8 @@ def named_short(code: str) -> str:
     """A language named, as a chip shows it: "Always Russian"."""
     #: Short, on a button: this app's speech is always heard as {language}
     #: (named by the learner, not detected)
-    return _tr(QT_TRANSLATE_NOOP("Languages", "Always {language}")).format(
-        language=spoken_name(code)
-    )
+    said = _tr(QT_TRANSLATE_NOOP("Languages", "Always {language}"))
+    return in_sentence(said, language=spoken_name(code))
 
 
 def find_placeholder() -> str:
@@ -307,8 +379,8 @@ def taken_off(codes: Iterable[str]) -> tuple[str, ...]:
 
 def taken_off_note(codes: Iterable[str]) -> str:
     """Home's notice for saved languages taken off (#40), by name."""
-    names = name_list(_tr(_TAKEN_OFF[c]) for c in taken_off(codes))
-    return _tr(_TAKEN_OFF_NOTE).format(languages=names)
+    names = [_tr(_TAKEN_OFF[c]) for c in taken_off(codes)]
+    return in_sentence(_tr(_TAKEN_OFF_NOTE), languages=names)
 
 
 # Languages dictation can be set to that aren't caption languages: the
@@ -362,6 +434,20 @@ def learned_name(code: str) -> str:
     return language_name(code)
 
 
+_SAID_WITH_Y = ("uk", "uy", "uni", "eu", "one")
+"""Names starting with a vowel letter said with a consonant first: "a
+Ukrainian voice", "a Uyghur one"."""
+
+
+def an_before(name: str) -> bool:
+    """Whether English says "an" before `name` - by its first sound, not
+    its letter: an English voice, an Urdu one, a Ukrainian one (polyglotic-hq
+    551: the card said "Add a English voice"). A string that puts an
+    article before a name has an "an" twin for it."""
+    word = name.strip().lower()
+    return word[:1] in ("a", "e", "i", "o", "u") and not word.startswith(_SAID_WITH_Y)
+
+
 # Windows' tags for Traditional Chinese, by script or by region (as
 # `ui.interface_language` reads them), and its codes that aren't ours
 _TRADITIONAL_TAGS = ("zh-hant", "zh-tw", "zh-hk", "zh-mo")
@@ -393,8 +479,12 @@ def named_question(code: str) -> str:
     steadily: "This sounds like Russian. Always hear it as Russian?"."""
     #: Asked on a caption window after several captions in a row in one
     #: language; Yes names it, so every caption is heard as {language}
-    return _tr(
-        QT_TRANSLATE_NOOP(
-            "Languages", "This sounds like {language}. Always hear it as {language}?"
-        )
-    ).format(language=spoken_name(code))
+    return in_sentence(
+        _tr(
+            QT_TRANSLATE_NOOP(
+                "Languages",
+                "This sounds like {language}. Always hear it as {language}?",
+            )
+        ),
+        language=spoken_name(code),
+    )

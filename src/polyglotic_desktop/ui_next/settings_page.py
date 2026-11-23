@@ -37,6 +37,10 @@ where the name isn't enough (248's section 2.4, F18):
   names and slang;
 - **Lab** - experimental caption settings, tried by feel (284), last.
 
+Each of these six sections' cards is made the first time it's shown (or a
+card of it is asked for), not with the page: the start makes the page
+unseen, and they were about 39 ms of it (polyglotic-hq 544).
+
 **Dictation** - dictation's card (below): a feature of its own, not a
 setting of the app (the user's #129, point 11, would give it a page of
 its own beside Home; here it's one click away until then).
@@ -46,7 +50,7 @@ sections 1.1 and 7; today's page, project 096):
 
 - **Text size:** Smaller, Normal, Larger or Largest - every window of the
   app, at once; the captions keep their own size (polyglotic-hq 292,
-  decision 0084). First: it's what a reader who can't read the rest
+  decision 0084; Normal larger since 0244). First: it's what a reader who can't read the rest
   comes for;
 - **Appearance:** the window's theme (Margin, Glaze or Signal) and light
   or dark - this window and the transcripts; the caption windows stay as
@@ -81,20 +85,21 @@ hands over the themes, the hotkeys' commands, "Tell us" and the caption
 settings' views, and connects what the page asks for.
 """
 
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 
-from PySide6.QtCore import QEvent, QLocale, QObject, QPoint, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QAction, QKeySequence, QResizeEvent, QShowEvent
+from PySide6.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QAction, QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
-    QLabel,
+    QListView,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
+    QStyle,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -106,7 +111,8 @@ from polyglotic_desktop.core.listening.dictation_keys import (
     DictationKey,
     refusal,
 )
-from polyglotic_desktop.ui_next import glyphs, os_words, style
+from polyglotic_desktop.core.listening.hotkeys import DICTATE, RESPEAK
+from polyglotic_desktop.ui_next import glyphs, style
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Combo,
@@ -121,10 +127,23 @@ from polyglotic_desktop.ui_next.controls import (
 from polyglotic_desktop.ui_next.dictation_key import KeyBox, key_words, refusal_words
 from polyglotic_desktop.ui_next.face_rows import FacesPanel
 from polyglotic_desktop.ui_next.glyphs import Glyph
-from polyglotic_desktop.ui_next.home import MARGIN, Page
+from polyglotic_desktop.ui_next.home import (
+    MARGIN,
+    Page,
+    not_writable_notice,
+    open_folder_label,
+    quit_now_label,
+    update_ready_linux,
+)
+from polyglotic_desktop.ui_next.hotkeys_card import (
+    DictationForOthersCard,
+    HoldKeysCard,
+    HotkeysCard,
+    WindowKeysCard,
+)
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
 from polyglotic_desktop.ui_next.languages import detect_name, dictation_choices
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
     LanguagesPanel,
@@ -135,39 +154,78 @@ from polyglotic_desktop.ui_next.panels import (
     TimingPanel,
     WordLinksPanel,
 )
+from polyglotic_desktop.ui_next.presets_card import (
+    PresetLine,
+    PresetPanel,
+    PresetsPanel,
+)
 from polyglotic_desktop.ui_next.settings_marks import PinnedCard, mark_card
+from polyglotic_desktop.ui_next.settings_popover import SizeSlider, size_badge
 from polyglotic_desktop.ui_next.sound_card import SoundCard
+from polyglotic_desktop.ui_next.views.caption_window import (
+    FINE_STEP,
+    TRANSLATION_SIZES,
+    stepped,
+    stepped_translation,
+)
+from polyglotic_desktop.ui_next.views.captions import (
+    CAPTION_TEXT_SIZES,
+    TRANSCRIPT_LINES,
+)
 from polyglotic_desktop.ui_next.views.panels import (
     DownloadsView,
     LanguagesView,
     LookView,
     TimingView,
 )
+from polyglotic_desktop.ui_next.views.preset_menu import PresetsView
 from polyglotic_desktop.ui_next.views.sound import SoundView
+from polyglotic_desktop.ui_next.views.transcript import ASK_FROM_LINES, TRANSCRIPT_HOURS
 
 SECTIONS = (
+    "presets",
     "look",
     "links",
     "readings",
     "timing",
     "speech",
     "dictation",
+    "hotkeys",
     "app",
     "lab",
 )
-"""The page's eight sections, left to right at its top (304; Word links
-and Readings out of Look, 470)."""
+"""The page's ten sections, left to right at its top (304; Word links
+and Readings out of Look, 470; Presets first, polyglotic-hq 556: the
+caption settings' top, where a caption window's "Customise presets…"
+lands; Hotkeys after Dictation, 567)."""
 MARKS = {
+    "presets": Glyph.FILL,
     "look": Glyph.LOOK,
     "links": Glyph.LINKS,
     "readings": Glyph.READINGS,
     "timing": Glyph.TIMING,
     "speech": Glyph.SPEECH,
     "dictation": Glyph.MIC,
+    "hotkeys": Glyph.KEYS,
     "app": Glyph.APP,
     "lab": Glyph.LAB,
 }
 """Each section's mark, beside its name on its tab (470)."""
+CAPTION_CARDS = {
+    "presets": ("presets", "preset"),
+    "look": ("look", "faces", "reset"),
+    "links": ("word_links", "quiet"),
+    "readings": ("reading",),
+    "timing": ("timing", "behaviour"),
+    "speech": ("sound", "speech"),
+    "lab": ("lab",),
+}
+"""The caption windows' sections and their cards, as the page names them:
+each section's made the first time it's shown, or one of its cards asked
+for (`SettingsPage._make`, polyglotic-hq 544)."""
+"""The sections that hold a preset's settings, where the preset line shows
+(polyglotic-hq 587): not Speech, Dictation, Hotkeys, App or the Lab, whose
+settings are the same in every preset."""
 FORMER = {"captions": "look", "learning": "links"}
 """The sections' names before 304, still taken by `show_section`, so a way
 in written for them lands: Captions' first part was Look; Learning only
@@ -183,23 +241,8 @@ def _tr(text: str) -> str:
     return QApplication.translate("Settings", text)
 
 
-def hotkey_name(key: str, action: QAction) -> str:
-    """What a hotkey does, in the new interface's words (today's commands
-    still say "overlays" until the switch-over); the command's own words
-    for any other."""
-    names = {
-        "L": _tr("Lock all caption windows"),
-        "P": _tr("Pause captions"),
-        "H": _tr("Hide all caption windows"),
-    }
-    return names.get(key) or action.text().replace("&", "")
-
-
-def _own_hotkey_modifiers() -> str:
-    """The app's own hotkeys' modifiers, as `DictationKey` keeps them: Ctrl
-    + Alt, and on a Mac Control + Command - Qt's Meta ("win") and Ctrl
-    there (polyglotic-hq 428's ⌃⌘L, P, H; 438)."""
-    return "ctrl+win" if os_words.on_a_mac() else "ctrl+alt"
+def _trn(text: str, n: int) -> str:
+    return QApplication.translate("Settings", text, None, n)
 
 
 def _button(text: str, name: str) -> QPushButton:
@@ -228,26 +271,198 @@ class NoticesDialog(QDialog):
         column.addWidget(buttons)
 
 
+class TranslationSizeCard(Card):
+    """Look's independent Caption size and Translation size controls
+    (polyglotic-hq 655): each with A-, a 5 % slider (60 to 400 %) and A+,
+    a percentage readout, and a small Match button that sets translation
+    equal to caption without touching caption size."""
+
+    caption_chosen = Signal(float)
+    chosen = Signal(float)
+
+    def __init__(
+        self,
+        size: float = 1.0,
+        caption_size: float = 1.0,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(
+            _tr("Text sizes"),
+            _tr("Applies to any language; scripts are matched in size automatically."),
+            parent,
+        )
+        self._caption_size = caption_size
+        self._translation_size = size
+
+        cap_header = QHBoxLayout()
+        cap_header.setContentsMargins(0, 0, 0, 0)
+        cap_header.setSpacing(8)  # constant: header spacing matching Card rows
+        cap_header.addWidget(label(_tr("Caption size")))
+        self.caption_shown = label("", "Dim")
+        cap_header.addWidget(self.caption_shown)
+        cap_header.addStretch(1)
+        self.add(cap_header)
+
+        cap_line = QHBoxLayout()
+        cap_line.setContentsMargins(0, 0, 0, 0)
+        cap_line.setSpacing(6)  # constant: matches popover size row spacing
+        self.caption_smaller = QPushButton("A-")
+        self.caption_smaller.setObjectName("settings.caption_size_smaller")
+        self.caption_smaller.setAccessibleName(_tr("Smaller caption size"))
+        self.caption_smaller.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.caption_slider = SizeSlider(*CAPTION_TEXT_SIZES, FINE_STEP, self)
+        self.caption_slider.setObjectName("settings.caption_size")
+        self.caption_slider.setAccessibleName(_tr("Caption size"))
+        self.caption_slider.setMinimumWidth(160)  # constant: matches Look slider floor
+        self.caption_bigger = QPushButton("A+")
+        self.caption_bigger.setObjectName("settings.caption_size_bigger")
+        self.caption_bigger.setAccessibleName(_tr("Bigger caption size"))
+        self.caption_bigger.setCursor(Qt.CursorShape.PointingHandCursor)
+        cap_line.addWidget(self.caption_smaller)
+        cap_line.addWidget(self.caption_slider, 1)
+        cap_line.addWidget(self.caption_bigger)
+        self.add(cap_line)
+
+        trans_header = QHBoxLayout()
+        trans_header.setContentsMargins(
+            0, 4, 0, 0
+        )  # constant: slight visual split between the two rows
+        trans_header.setSpacing(8)  # constant: header spacing matching Card rows
+        trans_header.addWidget(label(_tr("Translation size")))
+        self.shown = label("", "Dim")
+        trans_header.addWidget(self.shown)
+        trans_header.addStretch(1)
+        self.same = QPushButton(_tr("Match"))
+        self.same.setObjectName("settings.translation_same")
+        self.same.setAccessibleName(_tr("Match translation size to caption size"))
+        self.same.setToolTip(_tr("Set the translation size equal to the caption size"))
+        self.same.setCursor(Qt.CursorShape.PointingHandCursor)
+        trans_header.addWidget(self.same)
+        self.add(trans_header)
+
+        line = QHBoxLayout()
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(6)  # constant: matches popover size row spacing
+        self.translation_smaller = QPushButton("A-")
+        self.translation_smaller.setObjectName("settings.translation_size_smaller")
+        self.translation_smaller.setAccessibleName(_tr("Smaller translation size"))
+        self.translation_smaller.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.slider = SizeSlider(*TRANSLATION_SIZES, FINE_STEP, self)
+        self.slider.setObjectName("settings.translation_size")
+        self.slider.setAccessibleName(_tr("Translation size"))
+        self.slider.setMinimumWidth(160)  # constant: matches Look slider floor
+        self.translation_bigger = QPushButton("A+")
+        self.translation_bigger.setObjectName("settings.translation_size_bigger")
+        self.translation_bigger.setAccessibleName(_tr("Bigger translation size"))
+        self.translation_bigger.setCursor(Qt.CursorShape.PointingHandCursor)
+        line.addWidget(self.translation_smaller)
+        line.addWidget(self.slider, 1)
+        line.addWidget(self.translation_bigger)
+        self.add(line)
+
+        self.caption_slider.valueChanged.connect(self._caption_moved)
+        self.caption_smaller.clicked.connect(lambda: self._step_caption(-1))
+        self.caption_bigger.clicked.connect(lambda: self._step_caption(1))
+        self.slider.valueChanged.connect(self._moved)
+        self.translation_smaller.clicked.connect(lambda: self._step_translation(-1))
+        self.translation_bigger.clicked.connect(lambda: self._step_translation(1))
+        self.same.clicked.connect(self._match)
+        self.show_sizes(caption_size, size)
+
+    def _caption_moved(self, _value: int) -> None:
+        size = self.caption_slider.chosen()
+        self.show_caption_size(size)
+        self.caption_chosen.emit(size)
+
+    def _step_caption(self, steps: int) -> None:
+        size = stepped(self._caption_size, steps, CAPTION_TEXT_SIZES)
+        self.show_caption_size(size)
+        self.caption_chosen.emit(size)
+
+    def _moved(self, _value: int) -> None:
+        size = self.slider.chosen()
+        self.show_size(size)
+        self.chosen.emit(size)
+
+    def _step_translation(self, steps: int) -> None:
+        size = stepped_translation(self._translation_size, steps)
+        self.show_size(size)
+        self.chosen.emit(size)
+
+    def _match(self) -> None:
+        size = self._caption_size
+        self.show_size(size)
+        self.chosen.emit(size)
+
+    def show_caption_size(self, size: float) -> None:
+        low, high = CAPTION_TEXT_SIZES
+        self._caption_size = round(min(high, max(low, size)), 2)
+        self.caption_slider.show_size(self._caption_size)
+        self._refresh_labels()
+
+    def show_size(self, size: float) -> None:
+        low, high = TRANSLATION_SIZES
+        self._translation_size = round(min(high, max(low, size)), 2)
+        self.slider.show_size(self._translation_size)
+        self._refresh_labels()
+
+    def show_sizes(self, caption: float, translation: float) -> None:
+        low, high = CAPTION_TEXT_SIZES
+        self._caption_size = round(min(high, max(low, caption)), 2)
+        self.caption_slider.show_size(self._caption_size)
+        t_low, t_high = TRANSLATION_SIZES
+        self._translation_size = round(min(t_high, max(t_low, translation)), 2)
+        self.slider.show_size(self._translation_size)
+        self._refresh_labels()
+
+    def _refresh_labels(self) -> None:
+        self.caption_shown.setText(size_badge(self._caption_size))
+        self.shown.setText(size_badge(self._translation_size))
+        cap_low, cap_high = CAPTION_TEXT_SIZES
+        self.caption_smaller.setEnabled(self._caption_size > cap_low)
+        self.caption_bigger.setEnabled(self._caption_size < cap_high)
+        t_low, t_high = TRANSLATION_SIZES
+        self.translation_smaller.setEnabled(self._translation_size > t_low)
+        self.translation_bigger.setEnabled(self._translation_size < t_high)
+        self.same.setEnabled(self._translation_size != self._caption_size)
+
+
 class SettingsPage(Page):
     """Captions, Learning and the app on this PC."""
 
     learning_wanted = Signal()
     """The Learning page (its section points there)."""
+    lab_load_wanted = Signal()
+    """Lab's "Open it on Learning" (its card's `load_wanted`), passed on:
+    the card is made when Lab is first shown (`CAPTION_CARDS`)."""
     check_for_updates = Signal()
     restart_wanted = Signal()
-    """Updates' Restart now: `main` quits and installs it (299)."""
+    """Updates' Restart now (or Quit now on Linux): `main` quits and installs
+    it (299, 640)."""
+    open_app_folder_wanted = Signal()
+    """Updates' Open folder when the app's folder isn't writable (640)."""
     theme_chosen = Signal(str)
     """A window theme's key ("margin", "glaze", "signal")."""
     window_theme_chosen = Signal(str)
     """"system", "light" or "dark"."""
     text_size_chosen = Signal(str)
+    caption_size_chosen = Signal(float)
+    """Look's caption size: independent of translation size (polyglotic-hq 655)."""
+    translation_size_chosen = Signal(float)
+    """Look's translation size: independent of caption size (polyglotic-hq 655)."""
     """The app's own text size: a `style.APP_TEXT_SIZES` key ("larger")."""
     transcript_length_chosen = Signal(str)
     """How far back the transcripts' lists go (`TranscriptLength`'s value)."""
     transcript_ask_chosen = Signal(bool)
     """Whether Quit asks to save a long transcript not saved."""
+    start_at_sign_in_chosen = Signal(bool)
+    """Start at sign-in turned on or off (polyglotic-hq 571): `main` writes
+    it where the OS keeps it."""
     interface_language_chosen = Signal(str)
     """An interface language's code ("zh_CN"), or "": like Windows."""
+    language_restart_wanted = Signal()
+    """App language's Restart now: `main` quits and relaunches into the
+    chosen interface language (polyglotic-hq 658)."""
     translation_feedback_wanted = Signal()
     """"Tell us what reads wrong", beside a machine draft's language
     (decision 0087): `main` opens the feedback form."""
@@ -262,6 +477,20 @@ class SettingsPage(Page):
     dictation_key_listening = Signal(bool)
     """The key box listens for a key: dictation's own key must let keys
     through meanwhile."""
+    hotkey_wanted = Signal(str, str)
+    """A hotkey's name and the key the learner gave it, as kept ("" for
+    none): one nothing refuses (`HotkeysCard`, polyglotic-hq 567)."""
+    respeak_changes = Signal(dict)
+    """Speaker typing settings the learner changed ({"type_theirs": False},
+    {"respeak_key": ""}: Settings > Dictation, polyglotic-hq 626)."""
+    respeak_key_wanted = Signal(str)
+    """A key pressed for re-speaking's own that nothing refuses, as kept:
+    `main` tries to take it (`respeak_key_not_taken`)."""
+    hotkeys_reset = Signal()
+    """Reset all: every hotkey's key its default."""
+    hotkey_listening = Signal(bool)
+    """A hotkey's key box listens: the app's hotkeys and dictation's key
+    must let keys through meanwhile."""
     typing_settings_wanted = Signal()
     """"Open System Settings" beside "isn't allowed to type": `main` opens
     the OS's settings where the learner gives it (a Mac's Accessibility,
@@ -270,7 +499,6 @@ class SettingsPage(Page):
     def __init__(
         self,
         themes: Sequence[tuple[str, str]],
-        hotkeys: Mapping[str, QAction],
         work_with_us: QAction,
         languages: Sequence[tuple[str, str]] = (),
         *,
@@ -279,9 +507,9 @@ class SettingsPage(Page):
         speech: LanguagesView,
         sound: SoundView | None = None,
         downloads: DownloadsView | None = None,
+        presets: PresetsView | None = None,
     ) -> None:
-        """`themes`: each window theme's key and name; `hotkeys`: today's
-        hotkeys' commands, by their letter (Ctrl+Alt+ L, P, H, W);
+        """`themes`: each window theme's key and name;
         `work_with_us`: "Tell us"; `languages`: each interface language's
         code and its own name ("简体中文"); `look`, `timing` and `speech`:
         the caption settings' views (`main`'s `Panels`); `sound`: Home's
@@ -289,12 +517,16 @@ class SettingsPage(Page):
         super().__init__(_tr("Settings"))
         self._sound = sound
         self._downloads = downloads
-        self._hotkeys = hotkeys
+        self._presets = presets or PresetsView()
+        """The presets (polyglotic-hq 556): their section, and the line
+        saying which one is in use and what it hasn't saved (587)."""
         self.typing_allowed: Callable[[], bool] | None = None
         """Whether the OS lets the app type, where it asks (a Mac's
         Accessibility: `main` sets it, polyglotic-hq 438); None: it asks
         nothing, as Windows."""
         self._notices: str | None = None
+        self._running_language = ""
+        self._system_language = ""
         self._sheet = ""
         """The main window's stylesheet (`use_sheet`), on the parts shown."""
         # no stylesheet above the parts to paint them the theme's background
@@ -323,6 +555,16 @@ class SettingsPage(Page):
         rows.setContentsMargins(0, 0, 0, 0)
         rows.setSpacing(self.content.spacing())
         self._language_line(rows, languages)
+        # the preset in use, boxed off from the app's language above it, which
+        # no preset holds (587: "Changes here are saved in the preset" read
+        # as covering it)
+        self.preset_line = PresetLine(self._presets, top)
+        rows.addWidget(self.preset_line)
+        stops = (
+            self._presets.naming.subscribe(self._naming),
+            self._presets.subscribe(self._show_preset_line),
+        )
+        self.destroyed.connect(lambda *_: [stop() for stop in stops])
         self.content.insertWidget(0, top)
         self.section: dict[str, QWidget] = {}
         for key in SECTIONS:
@@ -335,10 +577,45 @@ class SettingsPage(Page):
             self.content.addWidget(box)
         self._marks: dict[QWidget, Glyph] = {}
         """Each card's mark, beside its title (`settings_marks`, 470)."""
-        self._captions(look, timing, speech)
-        self._section_layout("dictation").addWidget(
-            self._marked(self._dictation(), Glyph.MIC)
-        )
+        self._views = (look, timing, speech)
+        self._made: set[str] = set()
+        """The caption sections whose cards are made (`_make`)."""
+        self._current = "look"
+        """The section on show (`show_section`)."""
+        self._caption_now = 1.0
+        """The caption windows' caption size (`show_caption_sizes`)."""
+        self._translation_now = 1.0
+        """The caption windows' translation size (`show_caption_sizes`)."""
+        self._show_preset_line()
+        dictation = self._section_layout("dictation")
+        self.dictation_for_others = DictationForOthersCard()
+        dictation.addWidget(self._marked(self.dictation_for_others, Glyph.MIC))
+        self.dictation_card = self._dictation()
+        dictation.addWidget(self._marked(self.dictation_card, Glyph.MIC))
+        # every key in one place (polyglotic-hq 567, decision 0273)
+        keys = self._section_layout("hotkeys")
+        self.hotkeys_card = HotkeysCard()
+        self.hotkeys_card.hotkey_wanted.connect(self.hotkey_wanted)
+        self.hotkeys_card.reset_wanted.connect(self.hotkeys_reset)
+        self.hotkeys_card.listening.connect(self.hotkey_listening)
+        self._hotkey_keys: dict[str, str] = {}
+        self._hotkeys_taken: frozenset[str] = frozenset()
+        self._hotkeys_unavailable = False
+        self._dictation_offered = True
+        self._speaker_typing_offered = True
+        keys.addWidget(self._marked(self.hotkeys_card, Glyph.KEYS))
+        self.hold_keys = HoldKeysCard()
+        self.hold_keys.dictation_wanted.connect(lambda: self.show_section("dictation"))
+        keys.addWidget(self._marked(self.hold_keys, Glyph.MIC))
+        self.hotkeys_for_others = DictationForOthersCard("settings.hotkeys.respeak")
+        self.hotkeys_for_others.setObjectName("settings.hotkeys_for_others")
+        keys.addWidget(self._marked(self.hotkeys_for_others, Glyph.MIC))
+        self.respeak_cards = (self.dictation_for_others, self.hotkeys_for_others)
+        for card in self.respeak_cards:
+            card.respeak_changes.connect(self.respeak_changes)
+            card.respeak_key_wanted.connect(self.respeak_key_wanted)
+            card.listening.connect(self.dictation_key_listening)
+        keys.addWidget(self._marked(WindowKeysCard(), Glyph.APP))
         app = self._section_layout("app")
         app.addWidget(self._marked(self._text_size(), Glyph.TEXT_SIZE))
 
@@ -374,23 +651,13 @@ class SettingsPage(Page):
 
         app.addWidget(self._marked(self._transcripts(), Glyph.TRANSCRIPTS))
 
-        keys = Card(
-            _tr("Hotkeys"), _tr("They work from any program, including a game.")
-        )
-        self.hotkey_values: dict[str, QLabel] = {}
-        for key, action in hotkeys.items():
-            line = QHBoxLayout()
-            line.setSpacing(12)
-            line.addWidget(label(hotkey_name(key, action), wrap=True), 1)
-            value = label("", "Dim")
-            line.addWidget(value)
-            self.hotkey_values[key] = value
-            keys.add(line)
-        app.addWidget(self._marked(keys, Glyph.KEYS))
-
         updates = Card(
             _tr("Updates"),
-            _tr("Updates download quietly and apply the next time Polyglotic starts."),
+            _tr("Updates download quietly and apply when you quit Polyglotic.")
+            if on_linux()
+            else _tr(
+                "Updates download quietly and apply the next time Polyglotic starts."
+            ),
         )
         self.version = label("", "Dim", wrap=True)
         self.version.setHidden(True)
@@ -401,13 +668,33 @@ class SettingsPage(Page):
         updates.add(self.update_found)
         self.update_now = _button(_tr("Check now"), "settings.check_updates")
         self.update_now.clicked.connect(self._check_now)
-        self.restart_now = _button(_tr("Restart now"), "settings.restart_update")
+        self.restart_now = _button(
+            quit_now_label() if on_linux() else _tr("Restart now"),
+            "settings.restart_update",
+        )
         self.restart_now.clicked.connect(self.restart_wanted)
         self.restart_now.setHidden(True)
+        self.open_app_folder = _button(open_folder_label(), "settings.open_app_folder")
+        self.open_app_folder.clicked.connect(self.open_app_folder_wanted)
+        self.open_app_folder.setHidden(True)
         buttons = right_row(self.update_now)
         buttons.addWidget(self.restart_now)
+        buttons.addWidget(self.open_app_folder)
         updates.add(buttons)
         app.addWidget(self._marked(updates, Glyph.UPDATES))
+
+        # starting at sign-in, where the OS can (`offer_start_at_sign_in`):
+        # off by default, the installed app only (polyglotic-hq 571)
+        self.start_card = Card(_tr("Start at sign-in"))
+        self.start_at_sign_in = SwitchRow(
+            _tr("Start Polyglotic when you sign in to your computer"),
+            _tr("Ready to caption from the moment you sign in."),
+            "settings.start_at_sign_in",
+        )
+        self.start_at_sign_in.switch.toggled.connect(self.start_at_sign_in_chosen)
+        self.start_card.add(self.start_at_sign_in)
+        self.start_card.setHidden(True)
+        app.addWidget(self._marked(self.start_card, Glyph.START))
 
         about = Card(_tr("About Polyglotic"))
         about.add(
@@ -431,8 +718,7 @@ class SettingsPage(Page):
         about.add(row)
         app.addWidget(self._marked(about, Glyph.ABOUT))
         self.content.addStretch(1)
-        self.show_section("look")
-        self.refresh()
+        self._show("look", make=False)  # its cards once the page is shown
 
     # -- text size (polyglotic-hq 292) -------------------------------------------------
 
@@ -466,6 +752,21 @@ class SettingsPage(Page):
         """The app's text size as the settings have it ("normal")."""
         self.text_size.set_value(size)
 
+    def show_caption_sizes(self, caption: float, translation: float) -> None:
+        """Show the caption windows' independent sizes once Look is built."""
+        self._caption_now = caption
+        self._translation_now = translation
+        card = getattr(self, "_translation_size", None)
+        if card is not None:
+            card.show_sizes(caption, translation)
+
+    def show_translation_size(self, size: float) -> None:
+        """The caption windows' translation size - on Look's card, once made."""
+        self._translation_now = size
+        card = getattr(self, "_translation_size", None)
+        if card is not None:
+            card.show_size(size)
+
     # -- transcripts (polyglotic-hq 334) ----------------------------------------------
 
     def _transcripts(self) -> Card:
@@ -479,12 +780,11 @@ class SettingsPage(Page):
                 " and Save always have the whole session."
             ),
         )
-        #: {count} is always 1,000
-        newest = _tr("Newest {count} lines").format(count=QLocale().toString(1000))
+        newest = _trn("Newest %Ln line(s)", TRANSCRIPT_LINES)
         self.transcript_length = Segmented(
             [
                 ("newest", newest),
-                ("three_hours", _tr("Last 3 hours")),
+                ("three_hours", _trn("Last %Ln hour(s)", TRANSCRIPT_HOURS)),
                 ("session", _tr("Whole session")),
             ],
             "newest",
@@ -497,16 +797,23 @@ class SettingsPage(Page):
         card.add(self.transcript_length)
         self.transcript_ask = SwitchRow(
             _tr("Ask to save before quitting"),
-            _tr(
-                "With Last 3 hours or Whole session: Quit asks about a transcript"
-                " of more than 300 lines that isn't saved."
-            ),
+            _trn(
+                "With Last %Ln hour(s) or Whole session: Quit asks about a transcript "
+                "of {line_limit} that isn't saved.",
+                TRANSCRIPT_HOURS,
+            ).format(line_limit=_trn("more than %Ln line(s)", ASK_FROM_LINES)),
             "settings.transcript_ask",
         )
         self.transcript_ask.switch.set_quietly(True)
         self.transcript_ask.switch.toggled.connect(self.transcript_ask_chosen)
         card.add(self.transcript_ask)
         return card
+
+    def offer_start_at_sign_in(self, on: bool) -> None:
+        """Start at sign-in offered - the OS can, for this copy - as it is
+        now (`on`), without saying it was chosen (polyglotic-hq 571)."""
+        self.start_card.setHidden(False)
+        self.start_at_sign_in.switch.set_quietly(on)
 
     def show_transcript_length(self, length: str, ask: bool = True) -> None:
         """How far back the transcripts go, and whether Quit asks to save
@@ -524,9 +831,10 @@ class SettingsPage(Page):
         card = Card(
             _tr("Dictation (preview)"),
             _tr(
-                "Hold a key and speak; let go, and your words are typed where your"
-                " cursor is, in any program. Your voice goes to our server only"
-                " while you hold the key, and nothing is kept."
+                "Hold a key and speak. Release it to type where your cursor is."
+                " When your own speech is captioned, dictation also appears in"
+                " the caption window and uses its spoken language. Otherwise,"
+                " dictation listens only during the hold."
             ),
         )
         self.dictation_on = SwitchRow(
@@ -597,20 +905,17 @@ class SettingsPage(Page):
         card.add(
             Row(
                 _tr("Language"),
-                pc_or_mac(
-                    _tr(
-                        "Detect types whatever language you speak, each time you"
-                        " hold the key. Set one - English, Mandarin… - and it's"
-                        " always heard as that: a short phrase is never taken for"
-                        " another. The tray's menu switches it too."
-                    ),
-                    # a Mac's icon sits in the menu bar, not a tray (451)
-                    _tr(
-                        "Detect types whatever language you speak, each time you"
-                        " hold the key. Set one - English, Mandarin… - and it's"
-                        " always heard as that: a short phrase is never taken for"
-                        " another. The menu bar's menu switches it too."
-                    ),
+                " ".join(
+                    (
+                        _tr(
+                            "Choose a language or use {detect} when dictation"
+                            " records its own audio."
+                        ).format(detect=detect_name()),
+                        pc_or_mac(
+                            _tr("The tray's menu switches it too."),
+                            _tr("The menu bar's menu switches it too."),
+                        ),
+                    )
                 ),
                 self.dictation_language,
             )
@@ -692,6 +997,10 @@ class SettingsPage(Page):
         elif self._key_taken_shown:
             self._dictation_note("")
         self._key_taken_shown = on and taken
+        self.hold_keys.show_dictation(on, key)
+        for card in self.respeak_cards:
+            card.show_dictation(on, key, taken)
+        self._show_keys()
 
     def dictation_key_not_taken(self, wanted: str) -> None:
         """Another program has the key the learner pressed: the one before
@@ -706,11 +1015,9 @@ class SettingsPage(Page):
         """A key pressed in the box (or Reset): refused with why, or asked
         for (`dictation_key_wanted`) - unless it's the key already."""
         key = DictationKey.parse(pressed) if pressed else None
-        own = (
-            DictationKey.parse(f"{_own_hotkey_modifiers()}+{k.lower()}")
-            for k in self._hotkeys
-        )
-        refused = refusal(key, [k for k in own if k]) if key else None
+        own = [k for n, k in self.hotkeys_card.keys.items() if k and n != DICTATE]
+        # re-speaking's own key is one of the app's too (567)
+        refused = refusal(key, own) if key else None
         if key is None or refused is not None:
             self._dictation_note(refusal_words(refused))
             return
@@ -745,6 +1052,8 @@ class SettingsPage(Page):
         head.setContentsMargins(0, 0, 0, 0)
         head.addWidget(heading)
         names = {
+            #: Settings' section of the presets for use cases (conversation, video...)
+            "presets": _tr("Presets"),
             "look": _tr("Look"),
             "links": _tr("Word links"),
             #: Settings' section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese
@@ -752,6 +1061,8 @@ class SettingsPage(Page):
             "timing": _tr("Timing"),
             "speech": _tr("Speech"),
             "dictation": _tr("Dictation"),
+            #: Settings' section of keys pressed anywhere: lock, pause, back to live...
+            "hotkeys": _tr("Hotkeys"),
             "app": _tr("App"),
             "lab": _tr("Lab"),
         }
@@ -841,7 +1152,7 @@ class SettingsPage(Page):
             assert column is not None
             left = column.mapTo(self, QPoint(0, 0)).x()
             width = column.width()
-            narrow = self.sections.sizeHint().width() > width
+            narrow = self.sections.sizeHint().width() > self.head_room()
             if narrow != self.sections.isHidden():
                 self.sections.setHidden(narrow)
                 self.section_picker.setHidden(not narrow)
@@ -855,6 +1166,29 @@ class SettingsPage(Page):
         finally:
             self._placing = False
         self._place_pinned()
+
+    def head_room(self) -> int:
+        """The column's width once the page has settled - the room the tabs
+        are judged by. The scroll bar's room is always kept at the right,
+        the bar's or the gutter's (`Page._keep_gutter`), but the column
+        passes through other widths as the head's height moves the viewport
+        and the bar comes and goes: judged by those, with the tabs a little
+        narrower than the column, the tabs and the dropdown took turns 128
+        times in one switch to Speech at the window's narrowest - 160 ms
+        (polyglotic-hq 567)."""
+        column = self.content.parentWidget()
+        assert column is not None
+        scroll = self.verticalScrollBar()
+        # the gutter's (its hint) or the bar's own, the wider: a pixel or two apart
+        extent = self.style().pixelMetric(
+            QStyle.PixelMetric.PM_ScrollBarExtent, None, scroll
+        )
+        bar = max(scroll.sizeHint().width(), extent)
+        row = self._row  # its margins, and its spacing either side of the column:
+        # a few pixels narrower than the column, never wider
+        sides = row.contentsMargins().left() + MARGIN + bar + 2 * max(0, row.spacing())
+        inside = self.width() - 2 * self.frameWidth() - sides
+        return min(column.maximumWidth(), inside)
 
     def _place_pinned(self) -> None:
         """The card the learner is in, by name, under the sections - once
@@ -940,6 +1274,16 @@ class SettingsPage(Page):
         self.language_later.setObjectName("settings.language_later")
         self.language_later.setHidden(True)
         line.addWidget(self.language_later)
+        self.language_restart = _button(_tr("Restart now"), "settings.language_restart")
+        self.language_restart.setProperty("kind", "primary")
+        self.language_restart.clicked.connect(self.language_restart_wanted)
+        self.language_restart.setHidden(True)
+        line.addWidget(self.language_restart)
+        self.language_defer = _button(_tr("Later"), "settings.language_defer")
+        self.language_defer.setProperty("kind", "ghost")
+        self.language_defer.clicked.connect(self._defer_language_restart)
+        self.language_defer.setHidden(True)
+        line.addWidget(self.language_defer)
         rows.addLayout(line)
         # a machine draft says so, and asks (decision 0087; `show_draft`) - on
         # a line of its own, so a long language's words fit at the Largest
@@ -968,78 +1312,233 @@ class SettingsPage(Page):
         self.language_draft.setHidden(not draft)
         self.language_wrong.setHidden(not draft)
 
+    def show_running_language(self, running: str, system_language: str) -> None:
+        """The interface language this copy started in, and the one "Like this
+        PC" resolves to (polyglotic-hq 658): picking the same effective
+        language needs no restart."""
+        self._running_language = running
+        self._system_language = system_language
+
     def _language_picked(self, index: int) -> None:
         code = str(self.language_picker.itemData(index) or "")
-        self.language_later.setHidden(False)
+        effective = code or self._system_language
+        needs_restart = (
+            not self._running_language or effective != self._running_language
+        )
+        self.language_later.setHidden(not needs_restart)
+        self.language_restart.setHidden(not needs_restart)
+        self.language_defer.setHidden(not needs_restart)
         self.interface_language_chosen.emit(code)
+
+    def _defer_language_restart(self) -> None:
+        """Later: keep the chosen language for the next start and hide the
+        restart buttons."""
+        self.language_restart.setHidden(True)
+        self.language_defer.setHidden(True)
+        self.language_later.setHidden(False)
 
     def _section_layout(self, key: str) -> QVBoxLayout:
         column = self.section[key].layout()
         assert isinstance(column, QVBoxLayout)
         return column
 
-    def _captions(
-        self, look: LookView, timing: TimingView, speech: LanguagesView
-    ) -> None:
-        """Every caption window's settings, in 248's order (section 2.2),
-        each group in the section a learner comes to it for (304)."""
-        self.look = LookPanel(look, notes=True, preview=True, languages=speech)
-        # a row per language, its faces downloaded on choice (482)
-        self.faces = FacesPanel(look, speech, self._downloads, notes=True)
-        self.word_links = WordLinksPanel(look, notes=True, learning=True)
-        self.word_links.learning_wanted.connect(self.learning_wanted)
-        self.quiet = QuietViewPanel(look, notes=True)  # beside word links (477)
-        self.reading = ReadingLinesPanel(look, notes=True)
-        self.timing = TimingPanel(timing, languages=speech)
-        self.behaviour = BehaviourPanel(look, notes=True, hidden_windows=True)
-        # Spoken language here sets every window's own, and the second
-        # languages are the ones each window's "When they already speak ..." sets
-        # (248's F28; polyglotic-hq 263: each caption window has its own)
-        self.speech = LanguagesPanel(speech, speech=True)
-        self.sound = SoundCard(self._sound) if self._sound is not None else None
-        self.reset = ResetCard(look)  # the look's: Look's last
-        # experimental: a section of its own, last (284)
-        self.lab = LabPanel(look, languages=speech)
-        placed: dict[str, tuple[QWidget, ...]] = {
-            "look": (self.look, self.faces, self.reset),
+    def _make(self, key: str) -> None:
+        """Caption section `key`'s cards (`CAPTION_CARDS`) - every caption
+        window's settings, in 248's order (section 2.2), each group in the
+        section a learner comes to it for (304) - made the first time the
+        section is shown or one of its cards is asked for, not with the
+        page: the start makes the page unseen, and its six caption sections
+        were about 39 ms of it, which took the start at 30,000 words met
+        over its budget (polyglotic-hq 544)."""
+        if key not in CAPTION_CARDS or key in self._made:
+            return
+        self._made.add(key)
+        look, timing, speech = self._views
+        placed: tuple[tuple[QWidget, Glyph], ...]
+        if key == "presets":
+            self._presets_panel = PresetsPanel(self._presets)
+            self._preset_panel = PresetPanel(self._presets)
+            placed = (
+                (self._presets_panel, Glyph.FILL),
+                (self._preset_panel, Glyph.LOOK),
+            )
+        elif key == "look":
+            self._look = LookPanel(look, notes=True, preview=True, languages=speech)
+            # a row per language, its faces downloaded on choice (482)
+            self._faces = FacesPanel(look, speech, self._downloads, notes=True)
+            self._reset = ResetCard(look)  # the look's: Look's last
+            # independent caption and translation sizes, every window's (655)
+            self._translation_size = TranslationSizeCard(
+                self._translation_now, self._caption_now
+            )
+            self._translation_size.caption_chosen.connect(self.caption_size_chosen)
+            self._translation_size.chosen.connect(self.translation_size_chosen)
+            placed = (
+                (self._look, Glyph.LOOK),
+                (self._translation_size, Glyph.TEXT_SIZE),
+                (self._faces, Glyph.FONTS),
+                (self._reset, Glyph.RESET),
+            )
+        elif key == "links":
             # Look was 2,557 px with no landmark: links and readings are
             # sections of their own (449's design 4A, 470); the quiet view,
             # word links' other way of showing words (it turns them off),
             # beside them (477)
-            "links": (self.word_links, self.quiet),
-            "readings": (self.reading,),
-            "timing": (self.timing, self.behaviour),
+            self._word_links = WordLinksPanel(look, notes=True, learning=True)
+            self._word_links.learning_wanted.connect(self.learning_wanted)
+            self._quiet = QuietViewPanel(look, notes=True)
+            placed = ((self._word_links, Glyph.LINKS), (self._quiet, Glyph.QUIET))
+        elif key == "readings":
+            self._reading = ReadingLinesPanel(look, notes=True)
+            placed = ((self._reading, Glyph.READINGS),)
+        elif key == "timing":
+            self._timing = TimingPanel(timing, languages=speech, presets=self._presets)
+            self._behaviour = BehaviourPanel(look, notes=True, hidden_windows=True)
+            placed = ((self._timing, Glyph.TIMING), (self._behaviour, Glyph.BEHAVIOUR))
+        elif key == "speech":
             # the speakers and the mic first, as Home's Sound (372): one view
-            "speech": (
-                (self.sound, self.speech) if self.sound is not None else (self.speech,)
-            ),
-            "lab": (self.lab,),
-        }
-        marks: dict[QWidget, Glyph] = {
-            self.look: Glyph.LOOK,
-            self.faces: Glyph.FONTS,
-            self.word_links: Glyph.LINKS,
-            self.quiet: Glyph.QUIET,
-            self.reading: Glyph.READINGS,
-            self.reset: Glyph.RESET,
-            self.timing: Glyph.TIMING,
-            self.behaviour: Glyph.BEHAVIOUR,
-            self.speech: Glyph.SPEECH,
-            self.lab: Glyph.LAB,
-        }
-        if self.sound is not None:
-            marks[self.sound] = Glyph.SPEAKER
-        for key, panels in placed.items():
-            column = self._section_layout(key)
-            for panel in panels:
-                column.addWidget(self._marked(panel, marks[panel]))
+            self._sound_card = (
+                SoundCard(self._sound) if self._sound is not None else None
+            )
+            # Spoken language here sets every window's own, and the second
+            # languages are the ones each window's "When they already speak
+            # ..." sets (248's F28; polyglotic-hq 263: each caption window
+            # has its own)
+            self._speech = LanguagesPanel(speech, speech=True)
+            placed = ((self._speech, Glyph.SPEECH),)
+            if self._sound_card is not None:
+                placed = ((self._sound_card, Glyph.SPEAKER), *placed)
+        else:  # experimental: a section of its own, last (284)
+            self._lab = LabPanel(look, languages=speech)
+            self._lab.load_wanted.connect(self.lab_load_wanted)
+            placed = ((self._lab, Glyph.LAB),)
+        column = self._section_layout(key)
+        for card, glyph in placed:
+            column.addWidget(self._marked(card, glyph))
+
+    @property
+    def presets(self) -> PresetsPanel:
+        self._make("presets")
+        return self._presets_panel
+
+    @property
+    def preset(self) -> PresetPanel:
+        self._make("presets")
+        return self._preset_panel
+
+    def _show_preset_line(self) -> None:
+        """Settings > Presets is where a learner saves a Settings draft."""
+        named = bool(self._presets.value.name)
+        self.preset_line.setVisible(named and self._current == "presets")
+
+    def _naming(self) -> None:
+        """Save as new preset… asked from a section without the line: it
+        shows on Presets, where the new one will be listed."""
+        if self._presets.naming.value and self._current != "presets":
+            self.show_section("presets")
+
+    @property
+    def look(self) -> LookPanel:
+        self._make("look")
+        return self._look
+
+    @property
+    def faces(self) -> FacesPanel:
+        self._make("look")
+        return self._faces
+
+    @property
+    def translation_size(self) -> TranslationSizeCard:
+        """Look's translation size (593)."""
+        self._make("look")
+        return self._translation_size
+
+    @property
+    def reset(self) -> ResetCard:
+        self._make("look")
+        return self._reset
+
+    @property
+    def word_links(self) -> WordLinksPanel:
+        self._make("links")
+        return self._word_links
+
+    @property
+    def quiet(self) -> QuietViewPanel:
+        self._make("links")
+        return self._quiet
+
+    @property
+    def reading(self) -> ReadingLinesPanel:
+        self._make("readings")
+        return self._reading
+
+    @property
+    def timing(self) -> TimingPanel:
+        self._make("timing")
+        return self._timing
+
+    @property
+    def behaviour(self) -> BehaviourPanel:
+        self._make("timing")
+        return self._behaviour
+
+    @property
+    def speech(self) -> LanguagesPanel:
+        self._make("speech")
+        return self._speech
+
+    @property
+    def sound(self) -> SoundCard | None:
+        self._make("speech")
+        return self._sound_card
+
+    @property
+    def lab(self) -> LabPanel:
+        self._make("lab")
+        return self._lab
+
+    def offer_dictation(self, offered: bool, *, speakers: bool = False) -> None:
+        """The Dictation section, or none on an OS that has no dictation yet
+        (Linux, until polyglotic-hq 546's slice 8; 574): its tab, its line in
+        the dropdown and its HoldKeys card in Hotkeys hidden, and Look shown
+        if it was on."""
+        self._dictation_offered = offered
+        self._speaker_typing_offered = offered or speakers
+        index = SECTIONS.index("dictation")
+        self.sections.buttons[index].setVisible(self._speaker_typing_offered)
+        view = self.section_picker.view()
+        if isinstance(view, QListView):
+            view.setRowHidden(index, not self._speaker_typing_offered)
+        self.dictation_card.setVisible(offered)
+        self.hold_keys.setVisible(offered)
+        self.hotkeys_for_others.setVisible(self._speaker_typing_offered)
+        for card in self.respeak_cards:
+            card.respeak_way.setVisible(offered)
+        self._show_keys()
+        if not self._speaker_typing_offered and self._current == "dictation":
+            self.show_section("look")
+
+    def use_speaker_clipboard(self) -> None:
+        for card in self.respeak_cards:
+            card.use_speaker_clipboard()
 
     def show_section(self, key: str) -> None:
         """Section `key` (one of `SECTIONS`, or a former name: `FORMER`),
         at the top."""
+        self._show(key)
+
+    def _show(self, key: str, make: bool = True) -> None:
+        """`show_section`; `make`: its cards made first, if they aren't."""
         key = FORMER.get(key, key)
         if key not in self.section:
             raise ValueError(key)
+        self._current = key
+        if make and key in CAPTION_CARDS and key not in self._made:
+            # made hidden, so they're shown with it, in this frame: added to
+            # a box on show, Qt shows each card only once the event loop turns
+            self.section[key].setVisible(False)
+            self._make(key)
         self.sections.set_value(key)
         blocked = self.section_picker.blockSignals(True)
         self.section_picker.setCurrentIndex(SECTIONS.index(key))
@@ -1047,6 +1546,7 @@ class SettingsPage(Page):
         self._styled(self.section[key])  # before it's shown: polished once
         for each, box in self.section.items():
             box.setVisible(each == key)
+        self._show_preset_line()
         self.verticalScrollBar().setValue(0)
         self._place_pinned()
 
@@ -1103,17 +1603,70 @@ class SettingsPage(Page):
         self._show_chosen(self.language_picker, code)
 
     def showEvent(self, event: QShowEvent) -> None:
-        self.refresh()  # a hotkey another program had is shown as not available
+        if self._current in CAPTION_CARDS and self._current not in self._made:
+            self.show_section(self._current)  # first shown: its cards made now
         self.show_typing_permission()  # given in System Settings meanwhile (438)
         super().showEvent(event)
 
-    def refresh(self) -> None:
-        """Each hotkey as Windows writes it in the app's language - "Strg+Alt+L"
-        in German, as Home and the dictation card have it (polyglotic-hq 300)."""
-        native = QKeySequence.SequenceFormat.NativeText
-        for key, value in self.hotkey_values.items():
-            shortcut = self._hotkeys[key].shortcut().toString(native)
-            value.setText(shortcut or _tr("another program has it"))
+    def show_command(self, command: str) -> None:
+        """How a desktop shortcut starts this app (`polyglotic` or the AppImage
+        path), shown in Hotkeys when global hotkeys aren't available (647)."""
+        self.hotkeys_card.set_command(command)
+
+    def show_hotkeys(
+        self,
+        keys: Mapping[str, str],
+        taken: Collection[str],
+        *,
+        unavailable: bool = False,
+    ) -> None:
+        """Each hotkey's key now, by its name, as kept ("" none); `taken`:
+        those another program has; `unavailable`: this desktop doesn't allow
+        global hotkeys (GNOME Wayland, `NoHotkeys`)."""
+        self._hotkey_keys = dict(keys)
+        self._hotkeys_taken = frozenset(taken)
+        self._hotkeys_unavailable = unavailable
+        self._show_keys()
+
+    def _show_keys(self) -> None:
+        dictation = (
+            self.dictation_key.key
+            if self._dictation_offered
+            and (
+                self.dictation_on.switch.isChecked()
+                or self.dictation_for_others.uses_dictation_key
+            )
+            else None
+        )
+        respeak = (
+            self.dictation_for_others.own_key if self._speaker_typing_offered else None
+        )
+        self.hotkeys_card.show_keys(
+            self._hotkey_keys,
+            self._hotkeys_taken,
+            dictation,
+            respeak,
+            unavailable=self._hotkeys_unavailable,
+        )
+        keys = self.hotkeys_card.keys
+        for card in self.respeak_cards:
+            card.hotkeys = {
+                n: k for n, k in keys.items() if n not in (DICTATE, RESPEAK)
+            }
+
+    def show_respeaking(
+        self, on: bool, key: str, taken: bool = False, what: str = "original"
+    ) -> None:
+        """Speaker typing preferences and whether another program has its key."""
+        for card in self.respeak_cards:
+            card.show_respeaking(on, key, taken, what)
+        self._show_keys()
+
+    def respeak_key_not_taken(self, wanted: str) -> None:
+        """Another program has the key pressed for re-speaking: the one
+        before is kept."""
+        for card in self.respeak_cards:
+            card.not_taken(wanted)
 
     def set_version(self, version: str, channel: str, store: bool = False) -> None:
         """This copy's version and update channel - or, for the Microsoft
@@ -1139,16 +1692,23 @@ class SettingsPage(Page):
     def show_update(self, found: str, version: str | None = None) -> None:
         """What the last look for an update found (`core.releases.updates.
         Found`'s value) and, when one is ready, its version - with Restart
-        now (polyglotic-hq 299)."""
+        now (Quit now on Linux) or Open folder when the app's folder isn't
+        writable (polyglotic-hq 299, 640)."""
+        ready = (
+            update_ready_linux()
+            if on_linux()
+            else _tr("Version {version} is ready. Restart to install it.")
+        )
         texts = {
             "up_to_date": _tr("Polyglotic is up to date."),
-            "ready": _tr("Version {version} is ready. Restart to install it."),
+            "ready": ready,
             "no_feed": _tr(
                 "Couldn't reach the update server. Polyglotic looks again later."
             ),
             "not_downloaded": _tr(
                 "The update couldn't be downloaded. Polyglotic tries again later."
             ),
+            "not_writable": not_writable_notice(),
             "metered": _tr(
                 "Version {version} is available. Your connection is metered, so "
                 "it waits: Home offers to download it anyway."
@@ -1161,7 +1721,9 @@ class SettingsPage(Page):
         text = texts.get(found, "").format(version=version or "")
         self.update_found.setText(text)
         self.update_found.setHidden(not text)
+        self.restart_now.setText(quit_now_label() if on_linux() else _tr("Restart now"))
         self.restart_now.setHidden(found != "ready" or version is None)
+        self.open_app_folder.setHidden(found != "not_writable")
 
     def set_notices(self, text: str | None) -> None:
         """The third-party notices' text, or None if this copy has none."""

@@ -88,6 +88,8 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
         traditional=record.traditional,
         reading=record.reading,
         meanings=record.meanings,
+        sense_classes=record.sense_classes,
+        sense_prefixes=record.sense_prefixes,
         frequency_rank=record.frequency_rank,
         levels=record.levels,
         is_name=record.headword[:1].isupper() and len(record.headword) > 1,
@@ -217,6 +219,15 @@ class EnglishDictionary:
         """Always: nothing is loaded up front (`ChineseDictionary.ready`)."""
         return True
 
+    @property
+    def has_sense_classes(self) -> bool:
+        return getattr(self._file, "has_sense_classes", True)
+
+    def class_entries(self, word: str) -> list[DictionaryEntry]:
+        """Whole forms only. WordNet can omit the numerical use of a number."""
+        found = list(self._entries(word.replace("’", "'"), for_classes=True).values())
+        return [] if any(entry.spells_a_number for entry in found) else found
+
     def lookup(self, word: str, inside: bool = False) -> list[DictionaryEntry]:
         """The entries for `word` as written, trying lower case too
         ("Running" at the start of a sentence): its lemma's entry first if
@@ -237,7 +248,9 @@ class EnglishDictionary:
         entries = list(found.values())
         return names_first(entries, word) if inside else entries
 
-    def _entries(self, word: str) -> dict[str, DictionaryEntry]:
+    def _entries(
+        self, word: str, *, for_classes: bool = False
+    ) -> dict[str, DictionaryEntry]:
         """`word` as written, then in lower case, then - written in lower
         case and found neither way - capitalised: ECDICT has "North",
         "I" and "Mr" only so, and a lower-case caption's "north", "i'm"
@@ -251,16 +264,19 @@ class EnglishDictionary:
         if word.islower() and (len(word) > 1 or word == "i"):
             tried.append(word.capitalize())
         for form in dict.fromkeys(tried):
+            if for_classes and found and form != word.lower():
+                break
             lemma = self._file.lemma(form)
             for record in [
                 *(self._file.records(lemma) if lemma else ()),
                 *self._file.records(form),
             ]:
-                found.setdefault(
-                    record.entry_id,
-                    explained(entry_from_record(record), self._meanings),
-                )
-            if found:
+                if record.entry_id not in found:
+                    entry = entry_from_record(record)
+                    found[record.entry_id] = (
+                        entry if for_classes else explained(entry, self._meanings)
+                    )
+            if found and not for_classes:
                 break
         return found
 

@@ -27,19 +27,31 @@ hear the speakers (`hears_the_app`) - hear silence from `HUSH_BEFORE_SEC`
 before it to `HUSH_AFTER_SEC` after it: their speech detector, their buffer
 and so the speech sent. An app captioned on its own never hears this app.
 
-**What's dictated is dictation's alone** (polyglotic-hq 299): while the
-dictation key is held, and its tail after (`dictation_holds`,
-`dictation_lets_go`), the mic's captions hear silence - the same as a hush,
-for the mic only - so a dictation is never also a "You" line, nor counted
-twice. A "You" line under way as the key goes down is finished with what
-was said before it: the silence ends its speech, as a pause would.
+**Typing can follow captions** (polyglotic-hq 703): a typing hold watches
+the finished requests of a matching source without changing its audio,
+timing or queue. The legacy re-speaking feature still hushes the mic's
+own captions while it captures speech for another source.
+
+**Sound without speech is counted** (polyglotic-hq 549, decision 0256):
+each source's frames also go to its `SoundUnheard`, and each stretch over
+3 s of sound that speech detection never heard as speech goes to the
+caption timelines (`perf.trace`) - once it ends, and as it stands once a
+second while it goes on - so a gap with nothing sent can be told from
+silence. Levels and times only.
+
+**Songs mode** (decision 0287, polyglotic-hq 595; `set_songs`): the
+sources `main` names - a known music player's, on Detect, with the Lyrics
+switch on (`core.listening.songs.heard_as_songs`) - have their frames
+through their own `SongsMode` after speech detection: sound that goes on
+unheard is sent as speech a piece at a time, so singing under a band is
+captioned. Every other source is heard as before.
 """
 
 import logging
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 from typing import Protocol
 
 import numpy as np
@@ -48,6 +60,7 @@ from polyglotic_desktop.core.listening.check import SourceActivity
 from polyglotic_desktop.core.listening.delays import CAPTION_LOG
 from polyglotic_desktop.core.listening.pending import PendingSpeech
 from polyglotic_desktop.core.listening.recent_speech import HeldSpeech, RecentSpeech
+from polyglotic_desktop.core.listening.songs import SongsMode
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.timing import (
     VAD_SAMPLE_RATE,
@@ -58,11 +71,18 @@ from polyglotic_desktop.core.listening.timing import (
     TimingRules,
     TranscriptionRequest,
 )
+from polyglotic_desktop.perf import trace
 from polyglotic_desktop.platform.audio_buffer import AudioBuffer
 from polyglotic_desktop.platform.mic_bleed import MicBleed, log_line
 from polyglotic_desktop.platform.opus import encode_ogg_opus
+from polyglotic_desktop.platform.sound_unheard import SoundUnheard
 from polyglotic_desktop.platform.speech_detection import Audio, FrameResult
-from polyglotic_desktop.ports.capture import NOT_ALLOWED, AudioCapture, SourceCategory
+from polyglotic_desktop.ports.capture import (
+    APP_CLOSED,
+    NOT_ALLOWED,
+    AudioCapture,
+    SourceCategory,
+)
 
 SOUND_PEAK = 0.001
 """A frame of audio whose loudest sample is above this (about -60 dB) is
@@ -82,13 +102,25 @@ for the mic - Bluetooth speakers add 0.1-0.3 s."""
 HUSHES_KEPT_SEC = 60.0
 """A hush older than this is forgotten: audio arrives within a second."""
 UNTIL_LET_GO = float("inf")
-"""The end of a dictation's span while its key is still held."""
+"""The end of a re-speaking span while its key is still held."""
+SOUNDING_EVERY_SEC = 1.0
+"""A stretch of sound without speech going on is given to the caption
+timelines as it stands this often, for a problem report sent during it."""
 
 
 class FrameDetector(Protocol):
     """Speech detection for one stream (`SpeechDetector`, or a stand-in)."""
 
     def feed(self, start: float, audio: Audio) -> list[FrameResult]: ...
+
+
+@dataclass(eq=False, slots=True)
+class CaptionSpan:
+    """Finished-caption requests watched from the start of one typing hold."""
+
+    source: SourceId
+    start: float
+    requests: list[TranscriptionRequest] = field(default_factory=list)
 
 
 class SpeechPipeline:
@@ -103,6 +135,7 @@ class SpeechPipeline:
         outputs_playing: Callable[[], int | None] = lambda: None,
         new_mic_detector: Callable[[], FrameDetector] | None = None,
         preparing: Callable[[], None] = lambda: None,
+        dropped: Callable[[CaptionId], None] = lambda caption_id: None,
     ) -> None:
         """`on_ready` is called (on a capture thread) whenever something new
         is waiting; `take` returns it. Each finished caption `take` hands
@@ -113,7 +146,12 @@ class SpeechPipeline:
         most `MIC_GAIN_MAX`, decision 0145); `new_detector` every other
         source's, and the mic's when it's not given. `preparing` is called as
         each source is added, before its first audio: the speech model
-        starts loading then, not at the app's start (polyglotic-hq 513)."""
+        starts loading then, not at the app's start (polyglotic-hq 513).
+        `dropped` is called (on whichever thread dropped it, the lock let
+        go) with each caption whose finished speech waited too long or was
+        held through a planned window: its finished caption won't come
+        (`PendingSpeech.take_dropped`; polyglotic-hq 557)."""
+        self._dropped = dropped
         self._preparing = preparing
         self._outputs_playing = outputs_playing
         self.recent = recent or RecentSpeech(time.monotonic)
@@ -124,6 +162,8 @@ class SpeechPipeline:
         self._on_ready = on_ready
         self._lock = threading.Lock()
         self._captures: dict[SourceId, AudioCapture] = {}
+        self._restarts_taken: dict[SourceId, int] = {}  # `take_restarts`
+        self._restarts_left = 0  # removed captures' restarts not yet taken
         self._buffers: dict[SourceId, AudioBuffer] = {}
         self._references: list[tuple[AudioBuffer, AudioCapture]] = []
         self._activity: dict[SourceId, SourceActivity] = {}
@@ -132,15 +172,21 @@ class SpeechPipeline:
         self._hushes: tuple[tuple[float, float], ...] = ()
         """When the app's own sound plays, margins included (`hush`):
         replaced whole, so a capture thread reads it without a lock."""
-        self._dictated: tuple[tuple[float, float], ...] = ()
-        """When dictation has the mic (`dictation_holds`): the mic's captions
-        hear silence then. Replaced whole, as `_hushes`."""
+        self._respoken: tuple[tuple[float, float], ...] = ()
+        """When legacy re-speaking has the mic, the mic's captions hear silence."""
+        self._caption_spans: set[CaptionSpan] = set()
         self._hush_lock = threading.Lock()  # for the writers
+        self._unheard: dict[SourceId, SoundUnheard] = {}
+        self._songs: frozenset[SourceId] = frozenset()
+        """The sources heard in songs mode (`set_songs`): replaced whole, so
+        a capture thread reads it without a lock."""
 
     def activity(self) -> dict[SourceId, SourceActivity]:
         """Per source: when it started, when sound and speech were first
-        and last heard (`time.monotonic` seconds), and whether its capture
-        says the OS doesn't allow it (`NOT_ALLOWED`). From any thread."""
+        and last heard (`time.monotonic` seconds), whether its capture
+        says the OS doesn't allow it (`NOT_ALLOWED`), and whether it has
+        stopped: failed, and waiting to try again (`stopped`). From any
+        thread."""
         with self._lock:
             found = dict(self._activity)
             captures = dict(self._captures)
@@ -148,6 +194,8 @@ class SpeechPipeline:
             capture = captures.get(source_id)
             if capture is not None and capture.error == NOT_ALLOWED:
                 found[source_id] = replace(act, not_allowed=True)
+            elif capture is not None and stopped(capture):
+                found[source_id] = replace(act, stopped=True)
         return found
 
     def add_source(
@@ -169,52 +217,80 @@ class SpeechPipeline:
         )
         the_mic = source.category is SourceCategory.MIC
         new_detector = self._new_mic_detector if the_mic else self._new_detector
+        unheard = SoundUnheard(source.category.value)
+        songs = SongsMode()  # on while `set_songs` names the source (0287)
+        sounding_at = [0.0]  # when the stretch under way was last given
         with self._lock:
             self.timing.add_source(source, bleed)
 
         def on_audio(start: float, samples: bytes) -> None:
             nonlocal detector
+            delivered = time.perf_counter()  # the capture's lag: perf.trace
             if detector is None:  # on the capture's thread, not the caller's
                 detector = new_detector()
             audio = np.frombuffer(samples, dtype=np.float32)
             if hears_the_app and self._hushes:
                 audio = _silenced(start, audio, self._hushes)
-            if the_mic and self._dictated:  # dictation's alone (299)
-                audio = _silenced(start, audio, self._dictated)
+            if the_mic and self._respoken:
+                audio = _silenced(start, audio, self._respoken)
             buffer.append(start, audio)
             frames = detector.feed(start, audio)
+            songs.on = source.id in self._songs
+            if songs.on:
+                frames = [
+                    replace(f, speech=songs.frame(f.speech, f.peak)) for f in frames
+                ]
             self._note(source.id, audio, any(f.speech for f in frames))
             if not frames:
                 return
+            _count_unheard(unheard, frames, sounding_at)
             with self._lock:
-                decisions = [
-                    decision
+                heard = [
+                    (decision, frame.end)
                     for frame in frames
                     for decision in self.timing.frame(
                         source.id, frame.end, frame.speech, frame.level
                     )
                 ]
+                for decision, _ in heard:
+                    if (
+                        isinstance(decision, TranscriptionRequest)
+                        and decision.kind is SpeechKind.FINISHED
+                    ):
+                        for span in self._caption_spans:
+                            if (
+                                decision.source.id == span.source
+                                and decision.speech_end > span.start
+                            ):
+                                span.requests.append(decision)
                 self._hearing = self.timing.hearing()
             if bleed is not None:
                 self._log_checked(bleed)
-            if not decisions:
+            if not heard:
                 return
+            decisions = [decision for decision, _ in heard]
+            _traced(heard, delivered, time.perf_counter())
             # cut and encoded with the lock free: a request's speech is in
             # its source's buffer already (the buffer has its own lock) - this
             # source's, or another's that a turn cut finished
-            ready = [
-                (decision, self._speech(decision, buffer, source.id))
-                for decision in decisions
-            ]
+            ready = []
+            for decision in decisions:
+                speech = self._speech(decision, buffer, source.id)
+                ready.append((decision, speech))
+                if isinstance(decision, TranscriptionRequest):
+                    trace.tracer().encoded(trace_key(decision), time.perf_counter())
             with self._lock:
                 for decision, speech in ready:
                     self._pending.put(decision, speech)
+                gone = self._pending.take_dropped()
+            self._tell_dropped(gone)
             self._on_ready()
 
         with self._lock:
             self._activity[source.id] = SourceActivity(time.monotonic())
         self._captures[source.id] = capture
         self._buffers[source.id] = buffer
+        self._unheard[source.id] = unheard
         capture.start(on_audio)
         return buffer
 
@@ -253,24 +329,56 @@ class SpeechPipeline:
             kept = tuple(h for h in self._hushes if h[1] > start - HUSHES_KEPT_SEC)
             self._hushes = (*kept, span)
 
-    def dictation_holds(self, start: float) -> None:
-        """The dictation key went down at `start` (`time.perf_counter`, the
-        captures' clock): the mic is dictation's from then until
-        `dictation_lets_go` - the mic's captions hear silence. From any
-        thread (polyglotic-hq 299)."""
+    def respeaking_holds(self, start: float) -> None:
+        """Legacy re-speaking has the mic from start on the capture clock."""
         with self._hush_lock:
-            kept = tuple(d for d in self._dictated if d[1] > start - HUSHES_KEPT_SEC)
-            self._dictated = (*kept, (start, UNTIL_LET_GO))
+            kept = tuple(d for d in self._respoken if d[1] > start - HUSHES_KEPT_SEC)
+            self._respoken = (*kept, (start, UNTIL_LET_GO))
 
-    def dictation_lets_go(self, at: float) -> None:
-        """Dictation's mic closes at `at` (the captures' clock: the key's
-        release and its tail, or now for a hold dropped): the mic's captions
-        hear it again from then. From any thread."""
+    def respeaking_lets_go(self, at: float) -> None:
+        """The legacy re-speaking recorder closes at this capture time."""
         with self._hush_lock:
-            self._dictated = tuple(
+            self._respoken = tuple(
                 (low, at if high == UNTIL_LET_GO else high)
-                for low, high in self._dictated
+                for low, high in self._respoken
             )
+
+    def watch_captions(self, source: SourceId, start: float) -> CaptionSpan | None:
+        """Watch an active caption capture from start on the capture clock."""
+        with self._lock:
+            if not self.timing.captioning(source) or not self._can_capture(source):
+                return None
+            span = CaptionSpan(source, start)
+            self._caption_spans.add(span)
+            return span
+
+    def finished_captions(
+        self, span: CaptionSpan, end: float
+    ) -> tuple[TranscriptionRequest, ...] | None:
+        """Finish watching once all requests for the held span are decided."""
+        with self._lock:
+            if (
+                span in self._caption_spans
+                and self._can_capture(span.source)
+                and not self.timing.finished_before(span.source, end)
+            ):
+                return None
+            self._caption_spans.discard(span)
+            return tuple(r for r in span.requests if r.speech_start < end)
+
+    def unwatch_captions(self, span: CaptionSpan) -> None:
+        with self._lock:
+            self._caption_spans.discard(span)
+
+    def caption_level(self, source: SourceId) -> float:
+        buffer = self._buffers.get(source)
+        return (buffer.peak() or 0.0) if buffer is not None else 0.0
+
+    def _can_capture(self, source: SourceId) -> bool:
+        capture = self._captures.get(source)
+        return capture is not None and (
+            capture.capturing is not None or capture.error is None
+        )
 
     def add_reference(self, capture: AudioCapture) -> AudioBuffer:
         """Captures audio only to compare with the mic (decision 0004): it
@@ -284,22 +392,53 @@ class SpeechPipeline:
         self._references.append((buffer, capture))
         return buffer
 
+    @staticmethod
+    def _retire(capture: AudioCapture) -> None:
+        # Mac streams can take hundreds of milliseconds to close. They can
+        # revoke delivery immediately and finish on their own capture thread.
+        retire = getattr(capture, "retire", capture.stop)
+        retire()
+
     def remove_reference(self, buffer: AudioBuffer) -> None:
         """Stops the reference capture `add_reference` returned `buffer` for."""
         for kept in [r for r in self._references if r[0] is buffer]:
-            kept[1].stop()
+            self._retire(kept[1])
             self._references.remove(kept)
 
     def remove_source(self, source_id: SourceId) -> None:
         capture = self._captures.pop(source_id, None)
         if capture is not None:
-            capture.stop()
+            self._retire(capture)
         self._buffers.pop(source_id, None)
+        unheard = self._unheard.pop(source_id, None)
+        if unheard is not None:
+            stretch = unheard.stop()
+            if stretch is not None:
+                trace.tracer().unheard(id(unheard), stretch)
         with self._lock:
+            taken = self._restarts_taken.pop(source_id, 0)
+            if capture is not None:
+                self._restarts_left += capture.restarts - taken
             self._activity.pop(source_id, None)
             self.timing.remove_source(source_id)
+            self._caption_spans = {
+                span for span in self._caption_spans if span.source != source_id
+            }
             self.recent.remove_source(source_id)
             self._hearing = self.timing.hearing()
+
+    def take_restarts(self) -> int:
+        """How many times the sources' captures failed and started again by
+        themselves, or tried to (`AudioCapture.restarts`), since this was
+        last called - removed sources' too: each listening session's
+        summary counts them (polyglotic-hq 566). From any thread."""
+        with self._lock:
+            taken, self._restarts_left = self._restarts_left, 0
+            for source_id, capture in list(self._captures.items()):
+                restarts = capture.restarts
+                taken += restarts - self._restarts_taken.get(source_id, 0)
+                self._restarts_taken[source_id] = restarts
+        return taken
 
     def hold_speech(self, holding: bool) -> None:
         """False while the server is away for a planned maintenance window:
@@ -307,6 +446,8 @@ class SpeechPipeline:
         polyglotic-hq 319). From any thread."""
         with self._lock:
             self._pending.hold(holding)
+            gone = self._pending.take_dropped()
+        self._tell_dropped(gone)
 
     def take(self) -> Ready | None:
         """The next decision to send, with its speech; None if none waits."""
@@ -314,7 +455,15 @@ class SpeechPipeline:
             ready = self._pending.take()
             if ready is not None:
                 self._keep_recent(*ready)
-            return ready
+            gone = self._pending.take_dropped()
+        self._tell_dropped(gone)
+        return ready
+
+    def _tell_dropped(self, caption_ids: list[CaptionId]) -> None:
+        """`dropped` for each caption whose finished speech was dropped -
+        called with the lock let go."""
+        for caption_id in caption_ids:
+            self._dropped(caption_id)
 
     def get(self, caption_id: CaptionId) -> HeldSpeech | None:
         """A finished caption's audio as sent, or None: not held any more
@@ -372,6 +521,11 @@ class SpeechPipeline:
             self.timing.paused_sources = sources
             self._hearing = self.timing.hearing()
 
+    def set_songs(self, sources: frozenset[SourceId]) -> None:
+        """These sources heard in songs mode (decision 0287), every other
+        as speech only - from their next audio. From any thread."""
+        self._songs = sources
+
     def set_timing(
         self,
         rules: TimingRules,
@@ -422,6 +576,56 @@ class SpeechPipeline:
             decision.speech_start, decision.speech_end, before, pad_after=after
         )
         return encode_ogg_opus(audio) if audio is not None else None
+
+
+def trace_key(request: TranscriptionRequest) -> trace.SpeechKey:
+    """A request's key in the caption timelines (`perf.trace`)."""
+    return trace.speech_key(
+        request.caption_id, request.kind.value, request.section, request.speech_end
+    )
+
+
+def _traced(
+    heard: list[tuple[Decision, float]], delivered: float, detected: float
+) -> None:
+    """Each request's first stages in the caption timelines: its audio
+    delivered at `delivered` (the frame that made it ended at `heard`),
+    decided at `detected`."""
+    tracer = trace.tracer()
+    for decision, frame_end in heard:
+        if isinstance(decision, TranscriptionRequest):
+            tracer.decided(trace_key(decision), delivered, detected, frame_end)
+
+
+def _count_unheard(
+    unheard: SoundUnheard, frames: list[FrameResult], sounding_at: list[float]
+) -> None:
+    """`frames` counted for stretches of sound without speech: each that
+    ends goes to the caption timelines, and the one under way as it stands
+    every `SOUNDING_EVERY_SEC` (`sounding_at`: when it last went)."""
+    tracer = trace.tracer()
+    for frame in frames:
+        ended = unheard.frame(frame)
+        if ended is not None:
+            tracer.unheard(id(unheard), ended)
+            sounding_at[0] = 0.0
+    if frames[-1].end - sounding_at[0] >= SOUNDING_EVERY_SEC:
+        going = unheard.open()
+        if going is not None:
+            tracer.sounding(id(unheard), going)
+            sounding_at[0] = frames[-1].end
+
+
+def stopped(capture: AudioCapture) -> bool:
+    """Whether `capture` has stopped: it captures nothing and says why - it
+    failed, and tries again by itself (decision 0266) - rather than not
+    being allowed (`NOT_ALLOWED`) or being over because its app closed
+    (`APP_CLOSED`)."""
+    return capture.capturing is None and capture.error not in (
+        None,
+        NOT_ALLOWED,
+        APP_CLOSED,
+    )
 
 
 def _silenced(

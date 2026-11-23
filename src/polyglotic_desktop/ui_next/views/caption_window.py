@@ -38,7 +38,7 @@ values, today's Captions page). `Notices` picks the one line a window
 shows over its top band.
 """
 
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
 
@@ -78,12 +78,17 @@ FINE_STEP = 0.05
 """A caption window's text size on its settings' slider: 5 %, to land
 between A- and A+'s steps."""
 
-TRANSLATION_SIZES = (0.5, 2.0)
-"""A translation's text size, as a share of what was said's: 50 to 200 %
-(the user, 2026-11-13: "need to a way to make the translation font size
-smaller"; 2026-11-14: "maximal logical customisation"), in TEXT_STEP's
-steps; 100 %, the same, is the default. Either line is still drawn within
-CAPTION_TEXT_SIZES (`CaptionLayout`)."""
+TRANSLATION_SIZES = CAPTION_TEXT_SIZES
+"""A translation's independent text size: 60 to 400 %, the same range as
+what was said (`CAPTION_TEXT_SIZES`; polyglotic-hq 655). Changing one never
+changes the other."""
+
+LEGACY_TRANSLATION_SHARES = (
+    0.5,
+    2.0,
+)  # constant: pre-655 relative translation_size bounds
+"""Range of pre-655 relative `translation_size` shares, kept for migrating
+old settings files and writing rollback-safe legacy shares."""
 
 
 ORIGINAL_ONLY = ""
@@ -126,6 +131,17 @@ class WindowChoices:
         return Language(self.spoken_language) if self.spoken_language else None
 
     def to_stored(self) -> dict[str, object]:
+        low, high = LEGACY_TRANSLATION_SHARES
+        legacy_share = round(
+            min(
+                high,
+                max(
+                    low,
+                    self.translation_size / max(self.text_size, CAPTION_TEXT_SIZES[0]),
+                ),
+            ),
+            2,
+        )
         return {
             "translate_into": self.translate_into,
             "text_size": self.text_size,
@@ -133,13 +149,17 @@ class WindowChoices:
             "position": self.preset.value,
             "geometry": self.geometry.as_list() if self.geometry else None,
             "spoken_language": self.spoken_language or DETECT,
-            "translation_size": self.translation_size,
+            "translation_size": legacy_share,
+            "translation_text_size": self.translation_size,
         }
 
     @classmethod
     def from_stored(cls, stored: object, base: "WindowChoices") -> "WindowChoices":
         """A window's stored choices: anything missing or not valid takes
-        `base`'s."""
+        `base`'s. A file from before 655 holds no `translation_text_size`:
+        its single `text_size` (and any pre-655 relative `translation_size`
+        share) becomes an independent `translation_size` keeping the exact
+        same rendered size on update."""
         if not isinstance(stored, Mapping):
             return base
         found: dict[str, object] = {}
@@ -163,29 +183,48 @@ class WindowChoices:
         spoken = stored.get("spoken_language")
         if spoken == DETECT or spoken in SPOKEN_LANGUAGES:
             found["spoken_language"] = None if spoken == DETECT else spoken
-        share = translation_size(stored.get("translation_size"))
-        if share is not None:
-            found["translation_size"] = share
+        if "translation_text_size" in stored:
+            independent = translation_size(stored.get("translation_text_size"))
+            if independent is not None:
+                found["translation_size"] = independent
+        else:
+            legacy = _legacy_translation_share(stored.get("translation_size"))
+            if size is not None or legacy is not None:
+                caption = size if size is not None else base.text_size
+                share = legacy if legacy is not None else 1.0
+                low, high = TRANSLATION_SIZES
+                found["translation_size"] = round(
+                    min(high, max(low, caption * share)), 2
+                )
         return replace(base, **found)  # type: ignore[arg-type]
 
 
 @dataclass(frozen=True, slots=True)
 class JoinedChoices:
-    """The joined window (109's 2a): whether the windows are joined - the
-    learner's choice, kept until "Separate windows", so a new app adds a
-    column - and the joined window's own place. Each window's own is kept
-    apart, for separating."""
+    """The joined window (109's 2a): whether the windows are joined - so a
+    new app adds a column - and the joined window's own place. Each
+    window's own is kept apart, for separating.
 
-    on: bool = False
+    Joined by default: a second app's window joins the first's as it opens
+    (the user, 2026-11-20, polyglotic-hq 554: "windows should start joined
+    by default when new windows are added"); one window alone shows on its
+    own. "Separate windows" is the learner's choice (`chosen`), kept: new
+    windows then open on their own until "Join windows"."""
+
+    on: bool = True
     preset: Preset = Preset.BOTTOM_CENTRE
     geometry: Rect | None = None
     shares: tuple[float, ...] = ()
     """Each column's share of its width, as the dividers were dragged
     (polyglotic-hq 284); () or another number of columns: equal."""
+    chosen: bool = False
+    """The learner joined or separated the windows: `on` is theirs, kept.
+    Until then it follows the default."""
 
     def to_stored(self) -> dict[str, object]:
         return {
             "on": self.on,
+            "chosen": self.chosen,
             "position": self.preset.value,
             "geometry": self.geometry.as_list() if self.geometry else None,
             "shares": [round(s, 4) for s in self.shares],
@@ -193,12 +232,15 @@ class JoinedChoices:
 
     @classmethod
     def from_stored(cls, stored: object) -> "JoinedChoices":
-        """Anything missing or not valid: separate windows, the defaults."""
+        """Anything missing or not valid: the defaults. Joined or separate
+        as the learner chose; never chosen, the default (joined). Versions
+        before 554 kept no record of a choice, and saved "on" false for
+        everyone who never joined: separate counts as chosen only where
+        the windows had been joined - a joined window's place or its
+        columns' widths kept."""
         if not isinstance(stored, Mapping):
             return cls()
         found: dict[str, object] = {}
-        if isinstance(stored.get("on"), bool):
-            found["on"] = stored["on"]
         if stored.get("position") in {p.value for p in Preset}:
             found["preset"] = Preset(stored["position"])
         geometry = rect_from(stored.get("geometry"))
@@ -215,6 +257,11 @@ class JoinedChoices:
             and all(0 < s < 1 for s in shares)
         ):
             found["shares"] = tuple(float(s) for s in shares)
+        on, chosen = stored.get("on"), stored.get("chosen")
+        if not isinstance(chosen, bool):  # before 554
+            chosen = on is True or geometry is not None or "shares" in found
+        if chosen and isinstance(on, bool):
+            found["on"], found["chosen"] = on, True
         return cls(**found)  # type: ignore[arg-type]
 
 
@@ -246,8 +293,17 @@ class StoredWindows:
     recent_spoken: tuple[str, ...] = ()
     declined_spoken: dict[str, tuple[str, ...]] = field(default_factory=dict)
     reading_hinted: bool = False
+    respeaking_hinted: bool = False
     set_up: bool = False
     start_like_this: bool = False
+    kept_languages: dict[str, str] = field(default_factory=dict)
+    """While every window shows the original only (a preset's Show,
+    polyglotic-hq 556): each window's translation language from before, by
+    its key, given back when translations show again."""
+    preset_sizes: dict[str, tuple[float, float]] = field(default_factory=dict)
+    """Each preset's remembered (caption_size, translation_size) pair (655),
+    saved when the learner adjusts a size or leaves a preset so switching back
+    restores it while untouched presets start from their tuned defaults."""
 
     def spoken_declined(self, key: str, code: str) -> None:
         """The window of `key` was asked to always hear `code` and the
@@ -267,7 +323,14 @@ class StoredWindows:
         isn't chosen and no window is kept but the sample's (478)."""
         return not self.set_up and all(key == SAMPLE for key in self.by_key)
 
-    def for_new(self, index: int, key: str = "", set_up: bool = False) -> WindowChoices:
+    def for_new(
+        self,
+        index: int,
+        key: str = "",
+        set_up: bool = False,
+        music_player: bool = False,
+        my_speech: bool | None = None,
+    ) -> WindowChoices:
         """The `index`-th window, new to the list (its key `key`): the last
         one's language, text size and translation size, at its default
         place, my speech off - and its spoken language with "Start new
@@ -276,7 +339,12 @@ class StoredWindows:
         the overlays' position - where the first was put, for the first.
         Where the first window's set-up is offered (`set_up`: `main`'s), a
         new learner's first window shows my speech (`first_window`; not the
-        sample's), and the set-up shows its switch (478)."""
+        sample's), and the set-up shows its switch (478). When the active
+        preset names `my_speech` (Conversation: True; Video: False), a new
+        window follows it (651; still off on the sample). A music player's
+        window (`music_player`) starts on Detect whatever the others name:
+        told a language, the speech model turns music into words like
+        "The." (polyglotic-hq 558, 568) - its own window can still name one."""
         first = set_up and self.first_window and key != SAMPLE
         last = self.last
         if not self.first_use:
@@ -293,6 +361,12 @@ class StoredWindows:
                 Preset.BOTTOM_CENTRE if last.preset is Preset.CUSTOM else last.preset
             )
             choices = replace(last, preset=preset, geometry=None)
+        if music_player:
+            choices = replace(choices, spoken_language=None)
+        if key == SAMPLE:
+            return replace(choices, show_mic=False)
+        if my_speech is not None:
+            return replace(choices, show_mic=my_speech)
         return replace(choices, show_mic=True) if first else choices
 
     def only_offered(self, offered: Collection[str]) -> "StoredWindows":
@@ -313,17 +387,24 @@ class StoredWindows:
         return replace(self, by_key=by_key, last=last)
 
     def to_stored(self) -> dict[str, object]:
-        return {
+        stored: dict[str, object] = {
             "windows": {k: c.to_stored() for k, c in self.by_key.items()},
             "last": self.last.to_stored(),
             "joined": self.joined.to_stored(),
             "looked_up": self.looked_up,
             "reading_hinted": self.reading_hinted,
+            "respeaking_hinted": self.respeaking_hinted,
             "recent_spoken": list(self.recent_spoken),
             "declined_spoken": {k: list(v) for k, v in self.declined_spoken.items()},
             "set_up": self.set_up,
             "start_like_this": self.start_like_this,
+            "kept_languages": dict(self.kept_languages),
         }
+        if self.preset_sizes:
+            stored["preset_sizes"] = {
+                k: [a, b] for k, (a, b) in self.preset_sizes.items()
+            }
+        return stored
 
     @classmethod
     def from_stored(
@@ -348,6 +429,7 @@ class StoredWindows:
             joined=JoinedChoices.from_stored(own.get("joined")),
             looked_up=own.get("looked_up") is True,
             reading_hinted=own.get("reading_hinted") is True,
+            respeaking_hinted=own.get("respeaking_hinted") is True,
             recent_spoken=with_recent(
                 (c for c in recent if isinstance(c, str))
                 if isinstance(recent, list)
@@ -366,7 +448,33 @@ class StoredWindows:
             # as my default (478)
             set_up=own.get("set_up") is True or ("set_up" not in own and bool(by_key)),
             start_like_this=own.get("start_like_this") is True,
+            kept_languages=_kept_languages(own.get("kept_languages")),
+            preset_sizes=_preset_sizes(own.get("preset_sizes")),
         )
+
+
+def _preset_sizes(value: object) -> dict[str, tuple[float, float]]:
+    """Each preset's saved (caption_size, translation_size) pair, validated."""
+    if not isinstance(value, Mapping):
+        return {}
+    found: dict[str, tuple[float, float]] = {}
+    for key, pair in value.items():
+        if not isinstance(pair, list | tuple) or len(pair) != 2:
+            continue
+        cap, trans = text_size(pair[0]), translation_size(pair[1])
+        if cap is not None and trans is not None:
+            found[str(key)] = (cap, trans)
+    return found
+
+
+def _kept_languages(value: object) -> dict[str, str]:
+    """The windows' languages kept while the original only shows (556):
+    a window's key to a language's code; anything else left out."""
+    if not isinstance(value, Mapping):
+        return {}
+    return {
+        str(k): v for k, v in value.items() if isinstance(v, str) and 0 < len(v) <= 10
+    }
 
 
 def text_size(value: object) -> float | None:
@@ -381,9 +489,20 @@ def text_size(value: object) -> float | None:
     return None
 
 
+def _legacy_translation_share(value: object) -> float | None:
+    """A pre-655 stored relative translation share (50 to 200 %), if valid."""
+    if (
+        isinstance(value, int | float)
+        and not isinstance(value, bool)
+        and LEGACY_TRANSLATION_SHARES[0] <= value <= LEGACY_TRANSLATION_SHARES[1]
+    ):
+        return round(float(value), 2)
+    return None
+
+
 def translation_size(value: object) -> float | None:
-    """A stored translation size, if it is one (TRANSLATION_SIZES), to two
-    places."""
+    """A stored independent translation size, if it is one (TRANSLATION_SIZES),
+    to two places."""
     if (
         isinstance(value, int | float)
         and not isinstance(value, bool)
@@ -439,6 +558,36 @@ class TextEdge(StrEnum):
     """An outline all round: the most readable over a busy, bright video."""
 
 
+class MarksIn(StrEnum):
+    """Which line of a clause the learner's words are marked in - word
+    introductions, saved words, the quiet view's chosen words (polyglotic-hq
+    526; the user, 2026-11-19: words were highlighted in the translation)."""
+
+    LEARNED = "learned"
+    """The line in the language being learned: what was said when its
+    language is learned, else its translation when that is. The default."""
+    BOTH = "both"
+    """Every line in a language the learner learns (as before 526)."""
+    SAID = "said"
+    """What was said only."""
+
+
+def rows_marked(
+    rows: Sequence[tuple[int, bool, bool]], marks_in: MarksIn
+) -> frozenset[int]:
+    """Which of a caption's rows get the learner's marks. `rows`: each
+    row's clause, whether it is what was said, and whether its language is
+    one the learner learns."""
+    learned = {n for n, (_, _, learns) in enumerate(rows) if learns}
+    if marks_in is MarksIn.BOTH:
+        return frozenset(learned)
+    said = {n for n in learned if rows[n][1]}
+    if marks_in is MarksIn.SAID:
+        return frozenset(said)
+    covered = {rows[n][0] for n in said}  # clauses whose own words are learned
+    return frozenset(said | {n for n in learned if rows[n][0] not in covered})
+
+
 @dataclass(frozen=True, slots=True)
 class CaptionLook:
     """How every caption window looks (the Look panel; today's Captions
@@ -446,7 +595,7 @@ class CaptionLook:
     (None: Polyglotic (Default)), what shows above and in each caption, and when
     a quiet window fades (seconds; None: never)."""
 
-    opacity: float = 0.72
+    opacity: float = 0.88  # Classic's, the app's (0.72 until polyglotic-hq 584)
     background: str = "#0a0c10"
     original: str = "#ffffff"
     translation: str = "#ffd76e"
@@ -499,9 +648,11 @@ class CaptionLook:
     (polyglotic-hq 511, DECISIONS #200: "only over new words")."""
     reading_system: ReadingSystem = ReadingSystem.PINYIN
     """Chinese's reading line in pinyin or zhuyin (395)."""
-    reading_colour: ReadingColour = ReadingColour.LINK
-    """What colour a reading is drawn in (polyglotic-hq 395): its word link's
-    by default, so word links on show a word and its pinyin alike (446)."""
+    reading_colour: ReadingColour = ReadingColour.GREY
+    """What colour a reading is drawn in (polyglotic-hq 395): a muted grey
+    by default, its word link's where one joins it, so word links on show
+    a word and its pinyin alike (446) and the rest sit behind their text
+    (532)."""
     reading_custom: str = "#9ad0ff"
     """The colour picked for readings, with `reading_colour` CUSTOM (kept
     while another is chosen, so Custom brings it back)."""
@@ -520,13 +671,14 @@ class CaptionLook:
     """Which words the quiet view shows in blue: the union of what's
     ticked - our curriculum (the default), the learning load, saved words
     (DECISIONS #201)."""
+    marks_in: MarksIn = MarksIn.LEARNED
+    """Which line of a clause the learner's words are marked in."""
     curriculum_size: int = CURRICULUM_SIZE
     """How many words our curriculum's active set holds (473: 50)."""
     translation_in_link_colours: bool = True
     """Linked words in the translation take their link's colour - each on
     its own (431: the user, 2026-11-17, "toggleable separately"). With
-    both, and pinyin in its word link's colour, a word, its pinyin and its
-    translation all match. Both on by default (the user, 2026-11-17, 446:
+    both to colour each side by its own word class. Both on by default (the user, 2026-11-17, 446:
     "default this setting to be on"): with word links off they change
     nothing."""
     contrast: int = 0
@@ -624,6 +776,8 @@ class Notice(StrEnum):
     STOPPED = "stopped"
     PLUS_ENDED = "plus_ended"
     """The server closed listening because Plus ended (4009; polyglotic-hq 185)."""
+    ALLOWANCE_EXHAUSTED = "allowance_exhausted"
+    CROSS_BORDER_CONSENT_REQUIRED = "cross_border_consent_required"
     MINUTES_USED = "minutes_used"
     """Today's free minutes are used (the server says none are left)."""
     FAILING = "failing"
@@ -636,7 +790,6 @@ class Notice(StrEnum):
 
 COUNTING = (
     Notice.RECONNECTING,
-    Notice.SERVER_BUSY,
     Notice.OFFLINE,
     Notice.CANT_REACH,
     Notice.SERVER_RESTARTING,
@@ -660,7 +813,7 @@ def slowed_now(before: bool, busy: bool, timing: CaptionMode) -> bool:
     shows them - Quick preview or Live updates; Steady has none, so
     nothing changes for that learner and nothing is said (087 section 5.5:
     the fact, never noise over a game)."""
-    return busy and not before and timing is not CaptionMode.STEADY
+    return busy and not before and timing is not CaptionMode.WHOLE
 
 
 NOTICE_SEC = 6.0

@@ -41,7 +41,7 @@ ranks (a pack has no levels: the line is a number of words, DECISIONS
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import replace
 
-from polyglotic_desktop.core.lexicon import compounds
+from polyglotic_desktop.core.lexicon import compounds, furigana
 from polyglotic_desktop.core.lexicon.english import entry_from_record as english_entry
 from polyglotic_desktop.core.lexicon.entries import (
     DictionaryEntry,
@@ -107,6 +107,27 @@ class BasicDictionary:
         """Always: nothing is read up front (`ChineseDictionary.ready`)."""
         return True
 
+    @property
+    def has_sense_classes(self) -> bool:
+        return getattr(self._file, "has_sense_classes", True)
+
+    def class_entries(self, word: str, split: SplitWord) -> list[DictionaryEntry]:
+        """Entries from the exact token and trusted routes, with its reading."""
+        found = self._lookup_split(word, split, for_classes=True)
+        if self.language != "ja" or not found:
+            return found
+        readings = {
+            furigana.hiragana(entry.reading or entry.headword) for entry in found
+        }
+        if len(readings) == 1 and not split.kana:
+            return found
+        kana = furigana.hiragana(split.kana)
+        return [
+            entry
+            for entry in found
+            if kana and furigana.hiragana(entry.reading or entry.headword) == kana
+        ]
+
     def words(self, text: str) -> list[tuple[int, int]]:
         """(start, end) of each word in `text`, by the word split."""
         return [(w.start, w.end) for w in self._split.words(text)]
@@ -136,12 +157,19 @@ class BasicDictionary:
     def lookup_split(self, word: str, split: SplitWord) -> list[DictionaryEntry]:
         """The entries for `word` as the word split saw it in its line
         (see the module's order), best first."""
+        return self._lookup_split(word, split)
+
+    def _lookup_split(
+        self, word: str, split: SplitWord, *, for_classes: bool = False
+    ) -> list[DictionaryEntry]:
         word = word.replace("’", "'")
         found: dict[str, DictionaryEntry] = {}
+        entry = entry_from_record if for_classes else self._entry
 
         def add(records: Sequence[EntryRecord]) -> None:
             for record in records:
-                found.setdefault(record.entry_id, self._entry(record))
+                if record.entry_id not in found:
+                    found[record.entry_id] = entry(record)
 
         for lemma in split.lemmas:
             add(self._file.records(lemma))
@@ -150,9 +178,9 @@ class BasicDictionary:
             if inflected_from:
                 add(self._file.records(inflected_from))
             add(self._file.records(form))
-            if found:
+            if found and not for_classes:
                 break
-        for guess in split.guesses:
+        for guess in () if for_classes else split.guesses:
             for form in dict.fromkeys((guess, guess.lower())):
                 if found:
                     break

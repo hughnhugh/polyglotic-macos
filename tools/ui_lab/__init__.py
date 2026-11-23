@@ -13,6 +13,9 @@ project 108's design, built from its `tour.py` in project 110).
   (`perf.budgets`): with `--gate`, a timed action whose median is over its
   budget, or any one run over the slot budget (50 ms), fails the run - CI's
   "UI lab" job.
+- **Learner caption operations** use the production caption settings and
+  a seeded card stack. Their timings are gated and the photos are saved
+  for diagnosis.
 - **The code checks** (`checks.py`) look at every window a state shows:
   clipped text, text under 12 px, a character drawn as a box, Chinese in
   a Japanese face, contrast, accessible names, keyboard reach, horizontal

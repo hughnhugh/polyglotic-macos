@@ -27,7 +27,8 @@ from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.ports.capture import SourceCategory
 
-HOLD_SECONDS = 120.0
+HOLD_MINUTES: int = 2
+HOLD_SECONDS = HOLD_MINUTES * 60.0
 """How long finished speech is held, per source (DECISIONS.md #42)."""
 MAX_BYTES_PER_SOURCE = 4_000_000
 """About 25 minutes at Ogg Opus 24 kbps: a bound, never reached at 2 minutes."""

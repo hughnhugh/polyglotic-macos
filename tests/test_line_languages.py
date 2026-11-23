@@ -147,7 +147,7 @@ def test_the_chinese_line_is_written_in_the_learners_script() -> None:
 def test_the_chinese_line_is_saved_as_chinese() -> None:
     caption = mandarin_caption(english_clause(ZH), CHINESE_CLAUSE)
     rows = list(csv.reader(io.StringIO(as_csv([caption], [EN, ZH], seconds=SECONDS))))
-    assert rows[1][4:] == [
+    assert rows[1][5:] == [
         SAID + "对，最后就回到这里。",
         SAID + " Right, and then back to here.",
         LINE + "对，最后就回到这里。",

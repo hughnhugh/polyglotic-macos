@@ -105,10 +105,12 @@ def test_quitting_stops_the_run() -> None:
 def test_back_on_every_screen_after_the_first_keeping_what_was_entered(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Your data is the first screen now - no language, no level (293)."""
+    """Step 1 is Your language (658), then Your data, then Sign in; Back
+    keeps what was entered on each screen."""
     store = MemorySettingsStore()
     built = Built()
     script = [
+        ("LanguagePicker", next_),  # keeps OS language (en): no restart
         ("ConsentDialog", agree()),
         ("SignInDialog", back),
         (
@@ -120,7 +122,7 @@ def test_back_on_every_screen_after_the_first_keeping_what_was_entered(
     seen = scripted(monkeypatch, script)
     started = first_run(store, built, None, never_code, windows_languages=["en-AU"])
     assert script == []
-    assert [with_back for _, with_back in seen] == [False, True, False, True]
+    assert [with_back for _, with_back in seen] == [False, True, True, True, True]
     assert store.values.get("learning") is None  # none asked: chosen on Learning
     assert started.tools.is_chinese and started.tools is built.made[False]
     assert started.tools.vocabulary.line is None  # none asked: Home's line asks
@@ -174,7 +176,7 @@ def test_no_level_is_asked(qapp: QApplication, monkeypatch: pytest.MonkeyPatch) 
 def test_signed_in_the_code_isnt_asked(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    scripted(monkeypatch, [("ConsentDialog", agree())])
+    scripted(monkeypatch, [("LanguagePicker", next_), ("ConsentDialog", agree())])
     started = first_run(MemorySettingsStore(), Built(), None, None)
     assert not started.code_asked
     assert started.new  # nothing saved before: no What's new (345)

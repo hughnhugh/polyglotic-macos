@@ -5,8 +5,11 @@ and stops at the first broken link, naming its likely fix:
 
 1. signed in and connected;
 2. something is ticked to caption (an app, everything the PC plays, the mic);
-3. sound from it in the last 30 seconds - or, at once, that the OS doesn't
-   allow the app to hear it (macOS' permissions: polyglotic-hq 411);
+3. sound from it in the last 30 seconds - or, at once, that a capture has
+   stopped (it failed, and tries again by itself: polyglotic-hq 557,
+   decision 0266 - the check said "quiet" while it was dead), or that the
+   OS doesn't allow the app to hear it (macOS' permissions: polyglotic-hq
+   411);
 4. speech heard in that sound;
 5. captions drawn - and not failing on the server (`failing`: several
    finished captions in a row answered `processing_failed`, as the caption
@@ -35,7 +38,7 @@ from typing import Literal
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.unreachable import Unreachable
 
-SOUND_WINDOW = 30.0
+SOUND_WINDOW: int = 30
 """Seconds: sound or speech older than this no longer counts as "now"."""
 CAPTION_WINDOW = 60.0
 """Seconds: a caption drawn within this long ago counts as captions working."""
@@ -69,6 +72,8 @@ class Problem(StrEnum):
     APP_QUIET = "app_quiet"
     SYSTEM_QUIET = "system_quiet"
     MIC_QUIET = "mic_quiet"
+    CAPTURE_STOPPED = "capture_stopped"  # failed, trying again (557)
+    MIC_STOPPED = "mic_stopped"
     SOUND_NOT_ALLOWED = "sound_not_allowed"  # the Mac's permission (411)
     MIC_NOT_ALLOWED = "mic_not_allowed"
     NO_SPEECH = "no_speech"
@@ -94,13 +99,15 @@ class SourceActivity:
     started, and when sound and speech were first and last heard.
     `not_allowed`: its capture gets only silence because the learner hasn't
     allowed the app to hear it (`ports.capture.NOT_ALLOWED`: macOS'
-    permissions, polyglotic-hq 411)."""
+    permissions, polyglotic-hq 411). `stopped`: its capture failed and
+    captures nothing until it tries again by itself (decision 0266)."""
 
     started: float
     first_sound: float | None = None
     last_sound: float | None = None
     last_speech: float | None = None
     not_allowed: bool = False
+    stopped: bool = False
 
 
 @dataclass(frozen=True)
@@ -199,6 +206,13 @@ def _heard(facts: Facts, speech: bool) -> list[tuple[Ticked, SourceActivity]]:
 
 
 def _sound(facts: Facts) -> Link:
+    for source in facts.ticked:  # even beside another heard: its captions stopped
+        act = facts.activity.get(source.id)
+        if act is not None and act.stopped:
+            problem = (
+                Problem.MIC_STOPPED if source.kind == "mic" else Problem.CAPTURE_STOPPED
+            )
+            return Link(Step.SOUND, Status.BROKEN, problem, source.name)
     heard = _heard(facts, speech=False)
     if heard:
         return Link(Step.SOUND, Status.OK, source=heard[0][0].name)

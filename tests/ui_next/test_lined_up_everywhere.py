@@ -8,7 +8,6 @@ from dataclasses import replace
 
 import pytest
 import shiboken6
-from PySide6.QtGui import QAccessible
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.ui_next.test_caption_window import MIC as WINDOW_MIC
 from tests.ui_next.test_caption_window import Store, areas, window_of
@@ -235,16 +234,17 @@ def test_the_look_remembers_what_lined_up_turned_on() -> None:
 def test_the_button_shows_and_asks(qapp: QApplication) -> None:
     window = window_of(qapp)
     MADE.append(window)
-    button = window.buttons["aligned"]
+    # its strip button went with the presets' dropdown (polyglotic-hq 556):
+    # the action stays, what a click on it asked
+    button = window.controls["aligned"]
     assert window.glyphs["aligned"] is Glyph.ALIGNED
-    assert not window.controls["aligned"].icon().isNull()
-    said = QAccessible.queryAccessibleInterface(button)
-    assert said.text(QAccessible.Text.Name) == "Line up the parts"
+    assert not button.icon().isNull()
+    assert button.text() == "Line up the parts"
     assert "every window" in button.toolTip()
     assert not button.isChecked()
     asked: list[bool] = []
     window.aligned_wanted.connect(asked.append)
-    button.click()
+    button.trigger()
     assert asked == [True]
     window.set_look(replace(window.look, lab=CaptionLab(flow=True, aligned=True)))
     assert button.isChecked()
@@ -264,13 +264,13 @@ def test_every_window_and_the_lab_agree(qapp: QApplication) -> None:
     windows.set_captioned(THREE[:2])
     first, second = windows.windows.values()
     try:
-        first.buttons["aligned"].click()
+        first.controls["aligned"].trigger()
         assert look.value.lab == CaptionLab(flow=True, aligned=True)
-        assert second.buttons["aligned"].isChecked()
+        assert second.controls["aligned"].isChecked()
         panel.refresh()
         assert panel.aligned.switch.isChecked() and panel.flow.switch.isChecked()
         assert panel.fill.value() is Fill.CLAUSES  # however captions fill
         panel.aligned.switch.click()
-        assert not first.buttons["aligned"].isChecked()
+        assert not first.controls["aligned"].isChecked()
     finally:
         windows.close()

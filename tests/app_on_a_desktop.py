@@ -209,6 +209,12 @@ class Driven(QApplication):
                 assert picked is not None
                 desktop.settings.update(**picked)
             return
+        if windows.joined_window is not None:
+            # three windows of their own, as a learner who separated them has:
+            # they start joined (polyglotic-hq 554), and Quit is checked with
+            # several of the app's windows up (141, 215)
+            windows.separate()
+            return
         shown = [int(w.winId()) for w in windows.windows.values() if w.isVisible()]
         if shown:
             _write(OUT / "captions.json", {"windows": shown})
@@ -221,7 +227,7 @@ class Driven(QApplication):
             agree = getattr(question, "agree", None)
             if agree is not None:
                 agree.setChecked(True)  # the yes to the agreement
-        if name in ("LevelPicker", "ConsentDialog"):
+        if name in ("LanguagePicker", "LevelPicker", "ConsentDialog"):
             question.accept()
         else:  # the sign-in, or anything not expected: closed
             question.reject()

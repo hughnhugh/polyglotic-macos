@@ -104,7 +104,7 @@ def test_a_chinese_window_asks_for_pinyin(qapp: QApplication) -> None:
         window = window_of(qapp, captions=0, spoken_language=spoken)
         try:
             window.links_wanted.connect(lambda on, found: asked.append((on, found)))
-            window.buttons["links"].click()
+            window.controls["links"].trigger()  # the dropdown's (556)
             assert asked[-1] == (True, readings)
         finally:
             window.close()
@@ -126,4 +126,7 @@ def test_a_new_install_shows_it_all_once_links_are_on() -> None:
     look = CaptionLook()
     assert look.word_links is WordLinks.OFF  # off until the learner clicks
     assert look.said_in_link_colours and look.translation_in_link_colours
-    assert look.reading_colour is ReadingColour.LINK
+    assert look.reading_colour is ReadingColour.GREY  # links' colours where linked
+    view = LookView(look)
+    view.set_links_shown(True, ("zh",))
+    assert view.value.reading_colour is ReadingColour.GREY  # kept (532)

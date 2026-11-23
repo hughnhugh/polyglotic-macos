@@ -9,7 +9,13 @@ from tests.ui.fakes import MemorySettingsStore
 
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.main import caption_look
-from polyglotic_desktop.ui.settings import FOLLOW_DEFAULT, AppSettings, Settings
+from polyglotic_desktop.ui.settings import (
+    FOLLOW_DEFAULT,
+    OLD_OPACITY,
+    OPACITY,
+    AppSettings,
+    Settings,
+)
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.panels import LINKS_WHEN_ON, LookView
 
@@ -85,7 +91,26 @@ def test_reset_to_defaults_is_the_new_learners_look() -> None:
     first = caption_look(AppSettings())
     view = LookView(CaptionLook(word_links=WordLinks.OFF, opacity=0.3), first=first)
     view.reset()
-    assert view.value.word_links is WordLinks.ARROWS and view.value.opacity == 0.72
+    assert view.value.word_links is WordLinks.ARROWS and view.value.opacity == OPACITY
     plain = LookView(CaptionLook(word_links=WordLinks.COLOURS))
     plain.reset()  # no app defaults given (the UI lab's): the plain look
     assert plain.value.word_links is WordLinks.OFF
+
+
+def test_a_panel_nobody_moved_follows_the_new_default() -> None:
+    """How solid the panel is: 72 % until polyglotic-hq 584, 88 % since -
+    for whoever never moved it (a file with the record of changes that
+    doesn't name it, or one from before the record at the old default);
+    a panel the learner chose stays theirs, even at 72 %."""
+    stored = AppSettings().to_stored()
+    assert OPACITY == 0.88 and OLD_OPACITY == 0.72
+    untouched = stored | {"opacity": OLD_OPACITY, "changed": []}
+    assert AppSettings.from_stored(untouched).opacity == OPACITY
+    for chosen in (OLD_OPACITY, 0.5, 1.0):
+        mine = stored | {"opacity": chosen, "changed": ["opacity"]}
+        assert AppSettings.from_stored(mine).opacity == chosen
+    before_the_record = {k: v for k, v in stored.items() if k != "changed"}
+    old = AppSettings.from_stored(before_the_record | {"opacity": OLD_OPACITY})
+    assert old.opacity == OPACITY and "opacity" not in old.changed
+    moved = AppSettings.from_stored(before_the_record | {"opacity": 0.6})
+    assert moved.opacity == 0.6 and "opacity" in moved.changed

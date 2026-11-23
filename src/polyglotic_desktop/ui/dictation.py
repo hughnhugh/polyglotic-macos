@@ -6,10 +6,9 @@ decides, on the interface's thread:
 - **the key** (`key_down` / `key_up`, from the key's own thread): the mic
   opened at the press - after asking `main` for a listening session
   (`session`, False when signed out: "Sign in to dictate") - and closed
-  `TAIL_SEC` after the release; a press under 0.3 s drops it. While it's
-  open the mic is dictation's alone (`mic_held`): the mic's captions hear
-  silence, so what's dictated is never also a "You" line (polyglotic-hq
-  299);
+  `TAIL_SEC` after the release; a press under 0.3 s drops it. When the
+  caption pipeline already hears the source, the hold follows its finished
+  lines and uses the captions' results without opening this recorder (703);
 - **the pieces** the mic hands on (`HeldMic`): each one's request and
   speech to `send` (`main` puts them where the listening session takes
   speech), the window that had the keyboard noted for it;
@@ -39,9 +38,11 @@ long it took - never the words or the audio.
 import logging
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, QTimer, Signal, Slot
 
+from polyglotic_desktop.core.listening.caption_hold import CaptionResults
 from polyglotic_desktop.core.listening.captions import CaptionUpdate, Language
 from polyglotic_desktop.core.listening.dictation import (
     MAX_HOLD_SEC,
@@ -52,7 +53,7 @@ from polyglotic_desktop.core.listening.dictation import (
     Stage,
     ToType,
 )
-from polyglotic_desktop.core.listening.timing import TranscriptionRequest
+from polyglotic_desktop.core.listening.timing import CaptionId, TranscriptionRequest
 from polyglotic_desktop.ports.capture import HeldMic, MicPiece
 from polyglotic_desktop.ports.system import KeyboardWindow, KeyState, TypeText
 from polyglotic_desktop.ui.app import ConnectionState
@@ -79,6 +80,19 @@ UNANSWERED: dict[ConnectionState, Said] = {
 says then; Home's state line says why (polyglotic-hq 299). Connecting,
 listening - and not connected, before a press opens a session - may be
 answered."""
+
+
+@dataclass(slots=True)
+class HeldCaptions:
+    """A typing hold borrowing one of the caption pipeline's sources."""
+
+    results: CaptionResults
+    finished: Callable[[float], tuple[TranscriptionRequest, ...] | None]
+    stop: Callable[[], None]
+    level: Callable[[], float]
+    text: Callable[[tuple[CaptionUpdate, ...]], str]
+    end: float | None = None
+    piece: CaptionId | None = None
 
 
 class Dictating(QObject):
@@ -108,26 +122,41 @@ class Dictating(QObject):
         mic_held: Callable[[bool, float], None] = lambda _held, _tail: None,
         forget_unsent: Callable[[], None] = lambda: None,
         typing_allowed: Callable[[], bool] = lambda: True,
+        *,
+        holds: Dictation | None = None,
+        from_speakers: bool = False,
+        type_text_for: Callable[[str, int], bool] | None = None,
+        window_is_ours: Callable[[int], bool] = lambda _window: False,
+        copy_text: Callable[[str], None] | None = None,
+        share_captions: Callable[[float], HeldCaptions | None] = lambda _start: None,
     ) -> None:
         """`send`: a piece's request and its speech, to the listening
         session. `session(True)`: dictation needs a listening session now -
         False if it can't have one (signed out); `session(False)`: it no
         longer does. `clock`: monotonic seconds. `mic_held(True, 0)`: the
-        mic is dictation's from now; `mic_held(False, tail)`: it's let go
-        `tail` seconds from now (polyglotic-hq 299). `forget_unsent`: the
+        mic is in use for dictation; `mic_held(False, tail)`: it's let go
+        `tail` seconds from now. `forget_unsent`: the
         pieces given up that still wait to be sent are dropped.
+        `share_captions`: use an existing caption capture for the hold, if
+        one covers this audio. It uses the same clock as the capture.
         `typing_allowed`: whether the OS lets the app type (a Mac's
         Accessibility, polyglotic-hq 438) - asked when typing fails, so the
         sign says why."""
         super().__init__(parent)
         self.settings = settings
-        self.dictation = Dictation()
+        self.dictation = holds if holds is not None else Dictation()
+        self._from_speakers = from_speakers
+        self._window_is_ours = window_is_ours
+        self._copy_text = copy_text
         self._mic, self._send = mic, send
-        self._type, self._window, self._keys = type_text, keyboard_window, keys
+        self._type = type_text_for or (lambda text, _window: type_text(text))
+        self._window, self._keys = keyboard_window, keys
         self._session, self._clock = session, clock
         self._mic_held = mic_held
         self._forget_unsent = forget_unsent
         self._typing_allowed = typing_allowed
+        self._share_captions = share_captions
+        self._shared: dict[int, HeldCaptions] = {}
         self._unanswered: Said | None = None
         """Why the listening session can't answer now; None: it may."""
         self._live: set[int] = set()
@@ -154,7 +183,9 @@ class Dictating(QObject):
         self._overdue = QTimer(self, interval=OVERDUE_MS)
         self._overdue.timeout.connect(self._check_overdue)
         self._longest = QTimer(self, singleShot=True, interval=int(MAX_HOLD_SEC * 1000))
-        self._longest.timeout.connect(self._key_up)
+        self._longest.timeout.connect(
+            self._key_other if from_speakers else self._key_up
+        )
         # a second over: a timer may fire a little early
         self._idle = QTimer(
             self, singleShot=True, interval=int(SESSION_IDLE_SEC * 1000) + 1000
@@ -180,6 +211,21 @@ class Dictating(QObject):
         """The server's answer to a piece (the session's thread)."""
         self._answer.emit(update)
 
+    @Slot(object)
+    def caption_received(self, update: CaptionUpdate) -> None:
+        for hold in self._shared.values():
+            hold.results.received(update)
+
+    @Slot(object)
+    def caption_applied(self, update: CaptionUpdate) -> None:
+        for hold in self._shared.values():
+            hold.results.applied(update)
+
+    @Slot(str)
+    def caption_dropped(self, caption_id: str) -> None:
+        for hold in self._shared.values():
+            hold.results.dropped(CaptionId(caption_id))
+
     def connection_changed(self, state: ConnectionState) -> None:
         """The listening session's state, on the interface thread: one no
         answer comes in (`UNANSWERED`) gives a hold under way up at once."""
@@ -199,12 +245,14 @@ class Dictating(QObject):
     def stop(self) -> None:
         """Dictation turned off, or the app ending: the mic closed, what
         waits dropped quietly."""
-        for timer in (self._level, self._esc, self._overdue, self._longest):
+        for timer in (self._level, self._esc, self._overdue, self._longest, self._idle):
             timer.stop()
         self._drop_mic()
         self._live.clear()
+        self._targets.clear()
         self._waiting_to_type.clear()
         self._key_held = False
+        self._last_activity = None
         if self.dictation.cancel():
             self.dictation.said = None
         self.sign_changed.emit(Stage.IDLE.value, 0.0)
@@ -213,7 +261,9 @@ class Dictating(QObject):
 
     @Slot()
     def _key_down(self) -> None:
-        if not self.settings.value.dictation:
+        value = self.settings.value
+        enabled = value.type_theirs if self._from_speakers else value.dictation
+        if self._key_held or not enabled:
             return
         self._key_held = True
         now = self._clock()
@@ -229,9 +279,13 @@ class Dictating(QObject):
         if not self.dictation.press(now):
             return
         hold = self.dictation.hold
-        self._live.add(hold)
         self._pressed_at = now
-        self._mic.open(hold, self._piece.emit)
+        shared = self._share_captions(now)
+        if shared is None:
+            self._live.add(hold)
+            self._mic.open(hold, self._piece.emit)
+        else:
+            self._shared[hold] = shared
         self._mic_held(True, 0.0)
         self._level.start()
         self._esc.start()
@@ -250,15 +304,33 @@ class Dictating(QObject):
                 self._show()
             return
         hold = self.dictation.hold
-        held = self._clock() - self._pressed_at
-        if self.dictation.release(self._clock()):
-            self._targets[hold] = self._window()
-            self._mic.close(TAIL_SEC)
-            self._mic_held(False, TAIL_SEC)
+        now = self._clock()
+        held = now - self._pressed_at
+        if self.dictation.release(now):
+            window = self._window()
+            if (
+                self._copy_text is None
+                and self._from_speakers
+                and self._window_is_ours(window)
+            ):
+                self._drop_capture(hold)
+                self.dictation.nothing_cut(hold)
+                self.dictation.not_typed(Said.OWN_WINDOW)
+                self._done()
+                return
+            tail = 0.0 if self._from_speakers else TAIL_SEC
+            shared = self._shared.get(hold)
+            if shared is None:
+                self._targets[hold] = window
+                self._mic.close(tail)
+            else:
+                shared.end = now + tail
+                shared.piece = self.dictation.wait_for_captions(now, window)
+            self._mic_held(False, tail)
             self._overdue.start()
+            self._check_caption_holds()
         else:
-            self._drop_mic()
-            self._live.discard(hold)
+            self._drop_capture(hold)
             log.info("dictation: %s (%.1f s held)", Said.TOO_SHORT.value, held)
         self._type_waiting()
         self._show()
@@ -270,8 +342,7 @@ class Dictating(QObject):
         hold = self.dictation.hold
         if not self.dictation.withdraw():
             return
-        self._drop_mic()
-        self._live.discard(hold)
+        self._drop_capture(hold)
         self._targets.pop(hold, None)
         self._level.stop()
         self._longest.stop()
@@ -323,14 +394,42 @@ class Dictating(QObject):
         self._last_activity = self._clock()
         self._done()
 
+    def _check_caption_holds(self) -> None:
+        """Take the shown lines once the source and its answers reach release."""
+        completed = []
+        for hold, shared in self._shared.items():
+            if shared.end is None or shared.piece is None:
+                continue
+            requests = shared.finished(shared.end)
+            lines = None if requests is None else shared.results.lines(requests)
+            if lines is None:
+                continue
+            self._waiting_to_type.extend(
+                self.dictation.answer_text(shared.piece, shared.text(lines))
+            )
+            completed.append(hold)
+        for hold in completed:
+            self._shared.pop(hold).stop()
+        if completed:
+            if not self._key_held:
+                self._type_waiting()
+            self._done()
+
     def _type_waiting(self) -> None:
         """The text ready, typed in order - each only into the window it
         was meant for."""
         ready, self._waiting_to_type = self._waiting_to_type, []
         for text in ready:
-            if self._window() != text.target:
+            if self._copy_text is not None:
+                self._copy_text(text.text)
+                self.dictation.not_typed(Said.COPIED)
+                continue
+            window = self._window()
+            if self._from_speakers and self._window_is_ours(window):
+                self.dictation.not_typed(Said.OWN_WINDOW)
+            elif window != text.target or (self._from_speakers and not text.target):
                 self.dictation.not_typed(Said.WINDOW_CHANGED)
-            elif not self._type(text.text):
+            elif not self._type(text.text, text.target):
                 self.dictation.not_typed(
                     Said.NOT_TYPED if self._typing_allowed() else Said.NOT_ALLOWED
                 )
@@ -349,12 +448,17 @@ class Dictating(QObject):
             self._level.stop()
             self._longest.stop()
             self._done()
+        else:
+            self._check_caption_holds()
 
     @Slot()
     def _check_overdue(self) -> None:
         if self.dictation.overdue(self._clock()):
             self._forget_unsent()
             self._targets.clear()
+            for hold, shared in list(self._shared.items()):
+                if shared.end is not None:
+                    self._shared.pop(hold).stop()
             self._done()
         elif self.dictation.stage is Stage.IDLE:
             self._overdue.stop()
@@ -362,7 +466,7 @@ class Dictating(QObject):
     @Slot()
     def _show_level(self) -> None:
         if self.dictation.stage is Stage.LISTENING:
-            self.sign_changed.emit(Stage.LISTENING.value, self._mic.level())
+            self.sign_changed.emit(Stage.LISTENING.value, self._capture_level())
 
     @Slot()
     def _session_idle(self) -> None:
@@ -385,10 +489,25 @@ class Dictating(QObject):
         self._done()
 
     def _drop_mic(self) -> None:
-        """The mic closed with nothing more to hear: the mic's captions
-        hear it again at once."""
+        """Cancel the recorder and every outstanding caption hold."""
         self._mic.drop()
+        for hold in self._shared.values():
+            hold.stop()
+        self._shared.clear()
         self._mic_held(False, 0.0)
+
+    def _drop_capture(self, hold: int) -> None:
+        shared = self._shared.pop(hold, None)
+        if shared is None:
+            self._mic.drop()
+            self._live.discard(hold)
+        else:
+            shared.stop()
+        self._mic_held(False, 0.0)
+
+    def _capture_level(self) -> float:
+        shared = self._shared.get(self.dictation.hold)
+        return self._mic.level() if shared is None else shared.level()
 
     def _done(self) -> None:
         """Something finished: the sign told, and - once nothing is under
@@ -405,7 +524,7 @@ class Dictating(QObject):
     def _show(self) -> None:
         stage = self.dictation.stage
         if stage is Stage.LISTENING:
-            self.sign_changed.emit(stage.value, self._mic.level())
+            self.sign_changed.emit(stage.value, self._capture_level())
         elif stage is Stage.WORKING:
             self.sign_changed.emit(stage.value, 0.0)
         else:

@@ -9,6 +9,7 @@ learning data, and a new install.
 
 import itertools
 import json
+import logging
 from collections.abc import Sequence
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -33,6 +34,7 @@ from polyglotic_desktop.core.shared import (
     WordStatusChanged,
 )
 from polyglotic_desktop.ports.consent import Agreement, ConsentChoice
+from polyglotic_desktop.ports.outbox import Waiting
 
 INSTALL = "3c5e7a9b-1d2f-4e6a-8b0c-2d4f6a8c0e1f"
 AT = datetime(2026, 11, 4, 9, 15, 2, 120000, tzinfo=UTC)
@@ -1062,3 +1064,104 @@ def test_new_learning_data_syncs_from_the_start_once() -> None:
         "type": "learning_sync",
         "since": "40",
     }
+
+
+def test_rows_this_version_cant_read_are_dropped_counted_and_logged(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """polyglotic-hq 557 (529's B2): a learning event, exposure day or usage
+    event another version wrote that this one can't read raised at every
+    session's open, and the listening session stopped. Each is dropped from
+    the outbox and counted (`unreadable_dropped`); the rest still go, and
+    the log says the kind and how many - never what they held."""
+    rig = Rig()
+    rig.exchange.choose_consent(usage=True, crashes=False, exposures=True)
+    rig.exchange.learning(WordLookedUp(WORD, AT))
+    rig.exchange.usage("caption_rated", {"thumbs": "up"}, AT)
+    secret = '{"entry_id": "cedict:secret", "kind": "from_the_future"}'
+    for kind, item_id in (("learning", "l-bad"), ("usage", "u-bad")):
+        rig.outbox.add(Waiting(kind, item_id, secret), 100)
+    rig.outbox.add(Waiting("exposures", "e-bad", "not JSON at all"), 100)
+    with caplog.at_level(logging.WARNING, logger="polyglotic_desktop.connection"):
+        sent = rig.open()
+    assert types(sent) == ["consent", "learning", "usage", "learning_sync"]
+    assert len(sent[1]["events"]) == 1 and len(sent[2]["events"]) == 1
+    assert {w.id for w in rig.outbox.waiting()}.isdisjoint({"l-bad", "u-bad", "e-bad"})
+    assert rig.outbox.note("unreadable_dropped") == "3"
+    said = [r.getMessage() for r in caplog.records]
+    assert "1 waiting learning item(s) this version can't read dropped (1 ever)" in said
+    assert "1 waiting usage item(s) this version can't read dropped (3 ever)" in said
+    assert not any("secret" in line for line in said)
+
+
+def test_rows_dropped_unread_go_in_the_next_summary_once() -> None:
+    """polyglotic-hq 566: the listening session's summary counts the rows
+    dropped unread since the last summary - those dropped as the app
+    started, before any listening, too - each once. Kept in the outbox's
+    notes, so a restart of the app doesn't lose or repeat them."""
+    rig = Rig()
+    assert rig.exchange.take_unreadable() == 0
+    for item_id in ("l-bad", "l-worse"):
+        rig.outbox.add(Waiting("learning", item_id, "not JSON at all"), 100)
+    rig.open()  # a sync session as the app starts drops them
+    assert rig.exchange.take_unreadable() == 2
+    assert rig.exchange.take_unreadable() == 0
+    assert Rig(rig.outbox).exchange.take_unreadable() == 0  # the app started again
+    rig.outbox.save_note("unreadable_dropped", "1")  # the notes started again
+    assert rig.exchange.take_unreadable() == 0
+    rig.outbox.save_note("unreadable_dropped", "4")
+    assert rig.exchange.take_unreadable() == 3
+
+
+@pytest.mark.parametrize("kept", ["{not JSON", '["a list"]', "null", '{"cedict": 40}'])
+def test_damaged_cursors_start_again_once_and_the_session_opens(
+    kept: str, caplog: pytest.LogCaptureFixture
+) -> None:
+    """polyglotic-hq 566 (from 557): the cursors are JSON in the outbox's
+    notes, read with no try. One damaged on disk raised at every session's
+    open - after decision 0266 every minute, for good. It is cleared and
+    said once by its name, and the dictionary syncs from the start."""
+    outbox = SqliteOutbox(":memory:")
+    first = Rig(outbox)
+    first.open()
+    first.exchange.heard(state("50"))
+    first.exchange.closed()
+    outbox.save_note("learning_cursors", kept)
+    rig = Rig(outbox)
+    with caplog.at_level(logging.WARNING, logger="polyglotic_desktop.connection"):
+        assert rig.open()[-1] == {"type": "learning_sync"}  # from the start
+        rig.exchange.heard(state("60"))
+        rig.exchange.closed()
+        assert Rig(outbox).open()[-1] == {"type": "learning_sync", "since": "60"}
+    said = [r.getMessage() for r in caplog.records]
+    assert said == [
+        "the outbox's learning_cursors note couldn't be read; started again"
+    ]
+
+
+@pytest.mark.parametrize("kept", ["[not JSON", '{"cedict": 1}', "null", "[1, 2]"])
+def test_damaged_dictionaries_out_start_again_and_every_cursor_with_them(
+    kept: str, caplog: pytest.LogCaptureFixture
+) -> None:
+    """566: the dictionaries out since their last sync, damaged, raised as
+    the app started (`dictionary_whole`) and at every open. Which were out
+    is lost, so every dictionary syncs from the start, once: none misses a
+    word saved elsewhere while it was out."""
+    outbox = SqliteOutbox(":memory:")
+    english = Rig(outbox, "ecdict")
+    english.open()
+    english.exchange.heard(state("40", ENGLISH))
+    english.exchange.closed()
+    outbox.save_note("learning_dictionaries_out", kept)
+    rig = Rig(outbox)
+    with caplog.at_level(logging.WARNING, logger="polyglotic_desktop.connection"):
+        rig.exchange.dictionary_whole()
+        assert rig.open()[-1] == {"type": "learning_sync"}
+        rig.exchange.dictionary_out()  # noted again as it should be
+        rig.exchange.closed()
+    assert Rig(outbox, "ecdict").open()[-1] == {"type": "learning_sync"}
+    assert outbox.note("learning_dictionaries_out") == '["cedict"]'
+    said = [r.getMessage() for r in caplog.records]
+    assert said == [
+        "the outbox's learning_dictionaries_out note couldn't be read; started again"
+    ]

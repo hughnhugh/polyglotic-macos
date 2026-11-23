@@ -28,7 +28,7 @@ from importlib.resources import files
 from pathlib import Path
 
 from PySide6.QtCore import QRectF, Qt
-from PySide6.QtGui import QIcon, QImage, QPainter, QPixmap
+from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 
 ICONS = Path(str(files("polyglotic_desktop.ui") / "assets" / "icons"))
@@ -102,4 +102,38 @@ def _template(state: TrayState) -> QIcon:
     for size in MENU_BAR_SIZES:
         icon.addPixmap(QPixmap.fromImage(render(f"tray-template-{state}", size)))
     icon.setIsMask(True)
+    return icon
+
+
+IDLE_DOT_SHARE = 0.38
+"""Fraction of the tray tile occupied by the idle dot (0–0.5), legible at 16 px."""
+IDLE_RING_SHARE = 0.07
+"""Clear margin around the dot as a fraction of the tile (0–0.1)."""
+
+
+@cache
+def with_idle_dot(base: QIcon, amber: str) -> QIcon:
+    """Badge every native size. On a Mac the cutout separates the template dot."""
+    icon = QIcon()
+    for size in base.availableSizes():
+        image = (
+            base.pixmap(size)
+            .toImage()
+            .convertToFormat(QImage.Format.Format_ARGB32_Premultiplied)
+        )
+        side = image.width()
+        dot = side * IDLE_DOT_SHARE
+        ring = side * IDLE_RING_SHARE
+        circle = QRectF(side - dot, side - dot, dot, dot)
+        painter = QPainter(image)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(Qt.GlobalColor.black if base.isMask() else QColor(amber))
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Clear)
+        painter.drawEllipse(circle.adjusted(-ring, -ring, ring, ring))
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
+        painter.drawEllipse(circle)
+        painter.end()
+        icon.addPixmap(QPixmap.fromImage(image))
+    icon.setIsMask(base.isMask())
     return icon

@@ -18,6 +18,7 @@ from polyglotic_desktop.platform.speech_detection import (
     GAIN_TARGET_PEAK,
     MIC_GAIN_MAX,
     MODEL_SHA256,
+    QUIET_RESET_SEC,
     SILENCE_RESET_SEC,
     DetectionGain,
     ModelOnDemand,
@@ -177,6 +178,49 @@ def test_a_moment_of_zeros_inside_speech_keeps_the_state() -> None:
     detector.feed(0.0, _talk(2.0, 8))
     detector.feed(2.0, np.zeros(FRAME_SAMPLES * 2, dtype=np.float32))
     assert detector.probability(after) != pytest.approx(expected, abs=1e-6)
+
+
+def _not_speech(frames: int) -> np.ndarray:
+    """Sound the model hears as not speech, never exact zeros: noise, as a
+    song's band or a game's music never goes digitally silent."""
+    rng = np.random.default_rng(0)
+    return rng.normal(0, 0.01, frames * FRAME_SAMPLES).astype(np.float32)
+
+
+def test_after_a_long_stretch_heard_as_not_speech_the_model_starts_afresh() -> None:
+    """A song's band never goes digitally silent, so the reset after zeros
+    never comes. Carried through it, the state stopped the model hearing the
+    singing after a song's intro, though the same stretch started afresh was
+    heard (536: Swansong's 2:00-2:20, 0 % speech carried, 42 % afresh).
+    After QUIET_RESET_SEC of frames heard as not speech, the next frame is
+    judged as at the start of a stream."""
+    model = load_model()
+    after = _talk(0.1, 7)[:FRAME_SAMPLES]
+    expected = SpeechDetector(model).probability(after)
+
+    detector = SpeechDetector(model)
+    frames = int(np.ceil(QUIET_RESET_SEC * SR / FRAME_SAMPLES))
+    results = detector.feed(0.0, _not_speech(frames))
+    assert len(results) == frames
+    assert not any(r.speech for r in results)
+    assert detector.probability(after) == pytest.approx(expected, abs=1e-6)
+    # the frame it happened after says so (polyglotic-hq 549: the
+    # stretches of sound without speech count it)
+    assert [r.reset for r in results] == [False] * (frames - 1) + [True]
+
+
+def test_a_shorter_stretch_heard_as_not_speech_keeps_the_state() -> None:
+    """A pause in speech, or a few seconds of a song's band, shorter than
+    QUIET_RESET_SEC: the state carries on, as it always did."""
+    model = load_model()
+    after = _talk(0.1, 7)[:FRAME_SAMPLES]
+    expected = SpeechDetector(model).probability(after)
+
+    detector = SpeechDetector(model)
+    frames = int(np.ceil(QUIET_RESET_SEC * SR / FRAME_SAMPLES)) - 1
+    results = detector.feed(0.0, _not_speech(frames))
+    assert detector.probability(after) != pytest.approx(expected, abs=1e-6)
+    assert not any(r.reset for r in results)
 
 
 def _frame(peak: float) -> np.ndarray:

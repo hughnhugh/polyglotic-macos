@@ -4,6 +4,9 @@ per line, forgotten on a Learning change. Made-up captions, the sample
 dictionary. (Here rather than in tests/ui_next: the learning tools are
 today's `ui.learning.LearningTools`, which `main` hands over.)"""
 
+from dataclasses import replace
+
+import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QTextCharFormat
 from PySide6.QtWidgets import QApplication
@@ -15,19 +18,46 @@ from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY
-from polyglotic_desktop.core.listening.captions import Language
+from polyglotic_desktop.core.listening.captions import Language, WordClass
 from polyglotic_desktop.core.listening.display import (
     DisplayOptions,
     RowKind,
     WordLinks,
 )
 from polyglotic_desktop.core.shared import WordStatus
+from polyglotic_desktop.main import caption_look
+from polyglotic_desktop.ui import use_presets
 from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, clause, finished, live
+from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.caption_layout import LINK_MARK
-from polyglotic_desktop.ui_next.caption_marks import IN_DECK, CaptionMarks, Panel
+from polyglotic_desktop.ui_next.caption_marks import (
+    IN_DECK,
+    LINK_COLORS,
+    CaptionMarks,
+    Panel,
+    link_colours,
+)
+from polyglotic_desktop.ui_next.caption_window import marks_panel
 from polyglotic_desktop.ui_next.views.captions import CaptionLines
-from polyglotic_desktop.ui_next.views.presets import BY_KEY, contrast
+from polyglotic_desktop.ui_next.views.presets import (
+    BY_KEY,
+    LOOKS,
+    PRESETS,
+    _mix,
+    ciede2000,
+    contrast,
+    with_look,
+)
+from polyglotic_desktop.ui_next.views.tone import caption_text_colour
+from polyglotic_desktop.ui_next.word_classes import (
+    APART_FROM_TEXT,
+    CLASS_ALTERNATES,
+    CLASS_COLOURS,
+    CLASS_CONTRAST,
+    class_backing,
+    class_colour,
+)
 
 EN = Language("en")
 
@@ -129,6 +159,114 @@ def test_word_links_are_underlined_in_their_links_colour(qapp: QApplication) -> 
         for _, _, f in linked
     )
     assert len(linked) == sum(len(row.links) for row in line.rows) == 2
+
+
+def test_hover_pairing_colours_skip_classics_gold_neighbours() -> None:
+    classic = BY_KEY["classic"]
+    panel = Panel(classic.background, classic.original, classic.translation)
+    assert link_colours(panel) == tuple(
+        c for c in LINK_COLORS if c not in ("#ff9f43", "#acbf60")
+    )
+
+
+@pytest.mark.parametrize(
+    "preset", [use_presets.EVERYDAY, use_presets.LEARNING, use_presets.VIDEO]
+)
+@pytest.mark.parametrize("vibrance", [-100, 0, 100])
+def test_a_links_colour_is_never_its_lines_own(preset: str, vibrance: int) -> None:
+    look = caption_look(use_presets.chosen(AppSettings(), preset))
+    looks = [look, *(with_look(look, recommended.key) for recommended in LOOKS)]
+    looks.extend(
+        replace(
+            look,
+            original=p.original,
+            translation=p.translation,
+            background=p.background,
+            opacity=p.opacity,
+        )
+        for p in PRESETS
+    )
+    for chosen in looks:
+        panel = marks_panel(replace(chosen, vibrance=vibrance))
+        for row in (RowKind.ORIGINAL, RowKind.TRANSLATION):
+            text = caption_text_colour(panel.own(row), panel.background, vibrance)
+            swatches = {
+                pos: class_colour(pos, panel.background, panel.opacity, text)
+                for pos in CLASS_COLOURS
+            }
+            assert ciede2000(swatches[WordClass.NOUN], swatches[WordClass.NUMBER]) >= 20
+            assert ciede2000(swatches[WordClass.PRONOUN], swatches[None]) >= 25
+            for pos, swatch in swatches.items():
+                assert swatch in (CLASS_COLOURS[pos], *CLASS_ALTERNATES[pos]), (
+                    panel,
+                    row,
+                    pos,
+                )
+                assert ciede2000(swatch, text) >= APART_FROM_TEXT, (panel, row, pos)
+                backing = class_backing(swatch, panel.background, panel.opacity)
+                if panel.opacity == 0:
+                    assert backing is not None
+                backdrops = (
+                    [backing]
+                    if backing is not None
+                    else [
+                        _mix(scene, panel.background, panel.opacity)
+                        for scene in ("#000000", "#ffffff")
+                    ]
+                )
+                assert all(
+                    contrast(swatch, under) >= CLASS_CONTRAST for under in backdrops
+                )
+
+
+@pytest.mark.parametrize("style", [WordLinks.COLOURS, WordLinks.ARROWS])
+def test_classified_and_unclassified_links_keep_every_endpoint(
+    qapp: QApplication, style: WordLinks
+) -> None:
+    pairs = (("Il", "He"), ("mange", "eats"), ("vite", "quickly"), ("pommes", "apples"))
+    plain = clause("Il mange vite des pommes", "He eats apples quickly", pairs)
+    classes = (WordClass.PRONOUN, WordClass.VERB, WordClass.ADVERB, WordClass.NOUN)
+    tagged = replace(
+        plain,
+        links={
+            EN: tuple(
+                replace(link, original_pos=pos, translation_pos=pos)
+                for link, pos in zip(plain.links[EN], classes, strict=True)
+            )
+        },
+    )
+    view = CaptionLines((APP,), EN, keep=10, options=DisplayOptions(word_links=style))
+    view.apply(finished("plain", plain, language=Language("fr")))
+    view.apply(finished("tagged", tagged, language=Language("fr")))
+    marks = CaptionMarks(None)
+    panel = panel_of("classic")
+    marks.set_look(style, WordIntroductions.A_FEW, panel)
+    first, second = view.lines
+    for index, row in enumerate(first.rows):
+        missing, present = marks(first, index), marks(second, index)
+        expected = [(link.start, link.end, link.link) for link in row.links]
+        assert len(expected) == len(pairs)
+        for drawn in (missing, present):
+            assert [
+                (start, end, fmt.property(LINK_MARK)) for start, end, fmt in drawn
+            ] == expected
+        assert {fmt.underlineColor().name() for _, _, fmt in missing} == {
+            class_colour(None, panel.background, panel.opacity, panel.own(row.kind))
+        }
+        adverb = next(
+            link for link in second.rows[index].links if link.pos is WordClass.ADVERB
+        )
+        swatch = next(
+            fmt.underlineColor().name()
+            for _, _, fmt in present
+            if fmt.property(LINK_MARK) == adverb.link
+        )
+        expected_swatch = (
+            CLASS_COLOURS[WordClass.ADVERB]
+            if row.kind is RowKind.ORIGINAL
+            else CLASS_ALTERNATES[WordClass.ADVERB][0]
+        )
+        assert swatch == expected_swatch
 
 
 def test_a_new_caption_with_highlights_within_its_budget(qapp: QApplication) -> None:

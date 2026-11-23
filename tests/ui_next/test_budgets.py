@@ -23,7 +23,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from tests import budget_judge
 from tests.budget_judge import Sampled, sampled, within
 from tests.ui.fakes import chinese_tools
-from tests.ui_next.made_up import EN, finished_updates
+from tests.ui_next.made_up import EN, arriving, finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.perf import budgets
@@ -73,11 +73,6 @@ def transcript(qapp: QApplication) -> Iterator[CaptionSurface]:
     surface.close()
 
 
-ARRIVING = 40
-"""New captions for 10 timed arrivals: a warm-up pass and the timed one,
-in each of two tries."""
-
-
 def resize_steps(surface: CaptionSurface, qapp: QApplication) -> Sampled:
     """A drag: 30 resize steps, each painted, every one a new width."""
     width, height = surface.width(), surface.height()
@@ -113,7 +108,7 @@ def test_a_text_size_change(transcript: CaptionSurface, qapp: QApplication) -> N
 def test_a_new_caption_in_a_caption_window(
     caption_window: CaptionSurface, qapp: QApplication
 ) -> None:
-    updates = iter(finished_updates(ARRIVING, start=CAPTIONS))
+    updates = arriving(10, start=CAPTIONS)
 
     def arrive() -> None:
         caption_window.view.apply(next(updates))
@@ -125,7 +120,7 @@ def test_a_new_caption_in_a_caption_window(
 def test_a_new_caption_with_its_transcript_showing(
     caption_window: CaptionSurface, transcript: CaptionSurface, qapp: QApplication
 ) -> None:
-    updates = iter(finished_updates(ARRIVING, start=CAPTIONS))
+    updates = arriving(10, start=CAPTIONS)
 
     def arrive() -> None:
         update = next(updates)
@@ -183,7 +178,7 @@ def test_w1_a_text_size_step(w1: CaptionWindow, qapp: QApplication) -> None:
 
 
 def test_w1_a_new_caption(w1: CaptionWindow, qapp: QApplication) -> None:
-    updates = iter(finished_updates(ARRIVING, start=CAPTIONS))
+    updates = arriving(10, start=CAPTIONS)
 
     def arrive() -> None:
         w1.view.apply(next(updates))

@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol
 
+from polyglotic_desktop.ports.word_classes import SenseClasses
+
 
 class DictionaryProblem(StrEnum):
     """Why the learner's dictionary is out. Content-free: the log and
@@ -52,6 +54,10 @@ class EntryRecord:
     meanings: tuple[str, ...]
     frequency_rank: int | None = None
     levels: tuple[tuple[str, int], ...] = ()
+    sense_classes: tuple[SenseClasses, ...] = ()
+    """One value per meaning, or empty for a pack without class evidence."""
+    sense_prefixes: tuple[int, ...] = ()
+    """Lengths of legacy class labels identified by the builder, by ordinal."""
 
 
 class DictionaryFile(Protocol):

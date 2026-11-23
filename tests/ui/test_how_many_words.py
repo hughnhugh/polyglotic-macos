@@ -11,7 +11,7 @@ from polyglotic_desktop.core.learning.languages import LearningLanguages
 from polyglotic_desktop.core.learning.levels import KnownLine, LinkChoice
 from polyglotic_desktop.core.shared import Level
 from polyglotic_desktop.ui.level_picker import LevelPicker
-from polyglotic_desktop.ui.settings import AppSettings, added_language_changes
+from polyglotic_desktop.ui.settings import AppSettings, learning_changes
 from polyglotic_desktop.ui_next.views import known_words
 from polyglotic_desktop.ui_next.views.known_words import Choice
 from polyglotic_desktop.ui_next.views.words import level_line
@@ -157,15 +157,17 @@ def test_adding_the_language_in_use_asks_how_many_words_once(
     assert answers == []  # asked
     assert tools.vocabulary.line == KnownLine.words(2000)
     assert store.values["learning"] == tools.language
-    # and its links start past what's known, from now on
+    # and every word of it is linked (polyglotic-hq 555; past what's known
+    # from 323 until then)
     assert built.desktop.settings.value.choices_for(tools.language).links is (
-        LinkChoice.PAST_KNOWN
+        LinkChoice.EVERY
     )
-    assert tools.choices.links is LinkChoice.PAST_KNOWN
+    assert tools.choices.links is LinkChoice.EVERY
     # another language added: nothing asked (no level of its own to set here)
     languages = built.desktop.settings.value.learning_languages
     built.hub.learning.languages_wanted.emit(languages.added("vi"))
-    assert built.desktop.settings.value.choices_for("vi").links is LinkChoice.PAST_KNOWN
+    assert built.desktop.settings.value.choices_for("vi").links is LinkChoice.EVERY
+    assert "vi" not in built.desktop.settings.value.language_choices  # none written
     built.close()
 
 
@@ -206,17 +208,30 @@ def test_change_your_level_opens_on_the_level_now_and_makes_it_words(
     built.close()
 
 
-def test_a_language_learned_before_keeps_every_word_linked() -> None:
-    """Only a language added from now on starts with links past what's
-    known: one already learned has no choice written for it, and one
-    stopped and added again keeps the choice it had."""
+def test_a_language_added_links_every_word() -> None:
+    """A language added writes no choice of links for it: every word is
+    linked, as in a language learned before (polyglotic-hq 555; 323 wrote
+    "past what you know" for each language added until then). One stopped
+    and added again keeps the choice it had."""
     value = AppSettings.from_stored({"learning": "zh", "also_learning": ["ja"]})
-    languages = value.learning_languages
-    changes = added_language_changes(value, languages.added("vi"))
-    assert changes["language_choices"] == {"vi": {"links": "past_known"}}
-    assert "language_choices" not in added_language_changes(value, languages)
+    changes = learning_changes(value.learning_languages.added("vi"))
+    assert "language_choices" not in changes
     kept = AppSettings.from_stored(
         {"learning": "zh", "language_choices": {"ko": {"links": "off"}}}
     )
-    again = added_language_changes(kept, kept.learning_languages.added("ko"))
+    again = learning_changes(kept.learning_languages.added("ko"))
     assert "language_choices" not in again
+    assert kept.choices_for("ko").links is LinkChoice.OFF
+
+
+def test_the_choices_scroll_on_the_dialogs_own_background(qapp: QApplication) -> None:
+    """Its choices are in a scroll area for a short screen (polyglotic-hq
+    524), which paints nothing of its own: Qt's `setWidget` turns the
+    choices' background on, and a dark theme's light text sat on Qt's
+    light grey (the UI lab's contrast check, 1.03:1)."""
+    picker = picker_for("zh", None)
+    holder = picker.choices.widget()
+    assert holder is not None and not holder.autoFillBackground()
+    assert not picker.choices.viewport().autoFillBackground()
+    assert len(holder.findChildren(QRadioButton)) == 9
+    picker.deleteLater()

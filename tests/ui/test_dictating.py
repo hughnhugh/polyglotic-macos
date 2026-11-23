@@ -196,9 +196,8 @@ def test_a_stray_tap_drops_the_mic(rig: Rig) -> None:
     assert rig.signs[-1] == Said.TOO_SHORT.value
 
 
-def test_the_mic_is_dictations_alone_from_the_press_to_its_tail(rig: Rig) -> None:
-    """While the key is held, and its tail after, the mic is dictation's:
-    the mic's captions are told to hear nothing then (polyglotic-hq 299) -
+def test_mic_use_is_reported_for_the_hold_and_the_tail(rig: Rig) -> None:
+    """The hold reports its microphone use for selection reading.
     at once again for a hold dropped, a tap, Esc or a shortcut."""
     rig.dictating.key_down()
     assert rig.mic_held == [(True, 0.0)]
@@ -545,7 +544,7 @@ def test_the_sign_says_listening_working_and_why_nothing_was_typed(
         sign.show_state(Said.TYPED.value)  # typed: nothing to say
         assert not sign.isVisible()
         for said in Said:
-            if said is not Said.TYPED:
+            if said not in (Said.TYPED, Said.OWN_WINDOW, Said.COPIED):
                 assert said_text(said.value), said
     finally:
         shiboken6.delete(sign)

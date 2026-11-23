@@ -33,7 +33,7 @@ from polyglotic_desktop.ui_next import home as home_page
 from polyglotic_desktop.ui_next.caption_window import notice_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.help_page import HelpPage
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import pc_mac_or_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.caption_window import Notice, Notices
 from polyglotic_desktop.ui_next.views.home import (
     HomeState,
@@ -87,6 +87,10 @@ def test_the_server_down_said_on_home_the_windows_and_the_tray(
     )
     assert desktop.state_title == "Can't reach Polyglotic's server"  # the tray's
     assert home.notice.isHidden()  # the banner's order is untouched (208)
+    # the site's status page, from outside the app (540, 563)
+    assert home.status_page.isVisibleTo(built.home)
+    assert home.status_page.text() == "Server status"
+    assert home.status_page.property("url") == "https://polyglotic.io/status/"
     # each try keeps the reason, as "Reconnecting" was kept (133)
     listener._show_status(Status(SessionState.CONNECTING))
     assert home.title_label.text() == "Can't reach Polyglotic's server"
@@ -95,6 +99,7 @@ def test_the_server_down_said_on_home_the_windows_and_the_tray(
     listener._show_status(Status(SessionState.LISTENING))
     assert home.title_label.text() == "Listening"
     assert desktop.unreachable is None
+    assert not home.status_page.isVisibleTo(built.home)
     window._tick()
     assert window.notice.isHidden()  # nothing to say
 
@@ -121,7 +126,7 @@ def test_what_the_learner_can_fix_says_see_home_on_the_windows(
     assert built.home.state.title_label.text() == pc_or_mac(
         "Check this PC's date and time", "Check this Mac's date and time"
     )
-    assert pc_or_mac("Time & language", "Date & Time") in (
+    assert pc_mac_or_linux("Time & language", "Date & Time", "Date & Time") in (
         built.home.state.detail.text()
     )
     window = windows.windows["Web Browser"]
@@ -164,11 +169,13 @@ def test_the_date_a_wrong_clock_says_is_on_home(
         stopped_date.currentDate(), QLocale.FormatType.LongFormat
     )
     assert built.home.state.detail.text().startswith(
-        pc_or_mac(
+        pc_mac_or_linux(
             f"this PC says it's {today}, which can't be right. Turn on Set time"
             " automatically",
             f"this Mac says it's {today}, which can't be right. Turn on Set time"
             " and date automatically",
+            f"this PC says it's {today}, which can't be right. Turn on automatic"
+            " date and time",  # 571
         )
     )
 
@@ -343,3 +350,24 @@ def test_an_unstable_connection_isnt_said_beside_why_the_server_cant_be_reached(
     listener._show_status(Status(SessionState.LISTENING))
     assert banner.text() == "Connection unstable - captions may come late"
     assert not banner.isHidden()
+
+
+@pytest.mark.parametrize("why", list(Unreachable))
+def test_the_status_page_is_offered_where_the_problem_may_be_ours(
+    qapp: QApplication, why: Unreachable
+) -> None:
+    """Polyglotic-hq 563 (540's status page): while the server may be
+    down - ours, or no telling - Home offers the site's status page; not
+    while this PC is offline (it won't open), its network or clock is in
+    the way, or the account is refused."""
+    state = HomeState(
+        ListeningState.WAITING, retry_at=108.0, chosen=True, unreachable=why
+    )
+    offered = {
+        Unreachable.NO_ANSWER,
+        Unreachable.DOWN,
+        Unreachable.RESTARTING,
+        Unreachable.SERVER_ERROR,
+        Unreachable.MAINTENANCE,
+    }
+    assert state_line(state, 100.0).status_page is (why in offered)

@@ -100,6 +100,69 @@ def test_a_combination_says_when_it_goes_down_and_when_any_of_its_keys_comes_up(
         key.stop()
 
 
+def test_repeated_wm_hotkey_while_held_stays_one_hold() -> None:
+    """Real keyboards send repeated WM_HOTKEY notifications while a key is held
+    (651): they must not queue extra down/up pairs after release."""
+    keys, calls = Keys(), Calls()
+    key = HoldKey(
+        UNUSUAL, calls("down"), calls("up"), key_down=keys, poll=0.005, release_polls=3
+    )
+    if not key.start():
+        pytest.skip("Ctrl+Alt+Shift+Pause can't be registered here")
+    try:
+        keys.down = {CTRL, ALT, SHIFT, PAUSE}
+        key.post()
+        calls.wait_for("down")
+        for _ in range(6):
+            key.post()
+            time.sleep(0.01)
+        assert calls.said == ["down"]
+        keys.down.clear()
+        calls.wait_for("down", "up")
+        time.sleep(0.06)
+        assert calls.said == ["down", "up"]
+    finally:
+        key.stop()
+
+
+def test_a_brief_async_key_state_drop_does_not_split_a_hold() -> None:
+    """A single false poll from GetAsyncKeyState mid-hold must not end the hold
+    early (651); release requires consecutive up polls."""
+    calls = Calls()
+    polls = 0
+    released = threading.Event()
+
+    def flaky_key_down(vk: int) -> bool:
+        nonlocal polls
+        if released.is_set():
+            return False
+        if vk == PAUSE:
+            polls += 1
+            # Drop one poll every 4 polls while still held
+            return polls % 4 != 0
+        return True
+
+    key = HoldKey(
+        UNUSUAL,
+        calls("down"),
+        calls("up"),
+        key_down=flaky_key_down,
+        poll=0.005,
+        release_polls=3,
+    )
+    if not key.start():
+        pytest.skip("Ctrl+Alt+Shift+Pause can't be registered here")
+    try:
+        key.post()
+        calls.wait_for("down")
+        time.sleep(0.08)
+        assert calls.said == ["down"]
+        released.set()
+        calls.wait_for("down", "up")
+    finally:
+        key.stop()
+
+
 def test_stop_ends_the_key_even_while_held() -> None:
     down = threading.Event()
     key = HoldKey(UNUSUAL, down.set, lambda: None, key_down=lambda _vk: True)

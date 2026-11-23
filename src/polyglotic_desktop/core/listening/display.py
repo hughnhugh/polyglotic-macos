@@ -14,8 +14,8 @@ From the proof of concept's `ui/overlay.py` (`caption_lines`,
   says the language it is written in, for its font and reading line
   (polyglotic-hq 427).
 - **Word links** are drawn only on settled clauses, never on a live
-  caption's last (its words are still changing); one link - one colour -
-  per counterpart, so a word said twice for the same thing shares it;
+  caption's last (its words are still changing). The link number tracks
+  a counterpart for hover and arrows; each end has its own word class;
   "key words" leaves out minor links; if a cap is set, the surest stay,
   key links first; numbered in reading order **across the whole
   caption** - each clause's after the ones before it - so no two links
@@ -60,6 +60,7 @@ from enum import StrEnum
 from polyglotic_desktop.core.listening.captions import (
     Clause,
     Language,
+    WordClass,
     WordLink,
     line_language,
 )
@@ -70,6 +71,7 @@ from polyglotic_desktop.core.listening.established import (
 )
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
+from polyglotic_desktop.ports.word_classes import ClassEvidenceFor
 
 LIVE_TRAIL = " …"
 """How a live caption's last row ends: the speech is still going on."""
@@ -132,6 +134,11 @@ class ReadingColour(StrEnum):
     """Its line's: what was said's colour, or the translation's."""
     LINK = "link"
     """Its word's link colour, where a link joins it; elsewhere its line's."""
+    GREY = "grey"
+    """A muted grey, under its text; its word's link colour where a link
+    joins it - the default (polyglotic-hq 532, the user, 2026-11-19: "the
+    default pinyin/alternate reading font colour on quiet mode (maybe even
+    arrowlink default) should be greyish")."""
     CUSTOM = "custom"
     """One colour the learner picks."""
 
@@ -165,20 +172,24 @@ class DisplayOptions:
     link_detail: LinkDetail = LinkDetail.MOST
     max_links: int | None = None  # per clause; None: every link (for now)
     preview: bool = False  # live captions are Quick preview's provisional line
+    trail: bool = True
+    """A live caption's last row trails off (`LIVE_TRAIL`). Off in the
+    paced modes: their words come one by one, and the next is always on
+    its way (polyglotic-hq 526)."""
 
 
 @dataclass(frozen=True, slots=True)
 class LinkedWords:
     """Words of a row - `text[start:end]` - linked to words of the other
     row of its clause. `link` numbers the link within the caption, in
-    reading order (within the clause, as `numbered_links` gives it); the
-    overlay colours it by number. `key`: a key link (content words), not a
-    minor one."""
+    reading order. `pos` is the class of this end of the link.
+    `key`: a key link (content words), not a minor one."""
 
     start: int
     end: int
     link: int
     key: bool = True
+    pos: WordClass | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -241,6 +252,83 @@ def translation_shown(
                 text, clause.written_in.get(second) or second, second
             )
     return None
+
+
+def with_link_classes(
+    caption: Caption,
+    target: Language,
+    second: Language | None,
+    evidence_for: ClassEvidenceFor,
+) -> Caption:
+    """Resolve each finished clause once, before links are grouped or filtered."""
+    clauses = []
+    for n, clause in enumerate(caption.clauses):
+        shown = translation_shown(clause, caption.language, target, second)
+        if shown is None or (caption.live and n == len(caption.clauses) - 1):
+            clauses.append(clause)
+            continue
+        links = clause.links.get(shown.target, ())
+        valid = [
+            link
+            for link in links
+            if _fits(link.original, len(clause.original))
+            and _fits(link.translation, len(shown.text))
+        ]
+        original = (
+            _resolved_classes(
+                clause.original, caption.language, valid, evidence_for, translated=False
+            )
+            if caption.language is not None and len(caption.languages_heard) <= 1
+            else {}
+        )
+        translated = _resolved_classes(
+            shown.text, shown.language, valid, evidence_for, translated=True
+        )
+        if original or translated:
+            classes = tuple(
+                replace(
+                    link,
+                    original_pos=original.get(link.original, link.original_pos),
+                    translation_pos=translated.get(
+                        link.translation, link.translation_pos
+                    ),
+                )
+                for link in links
+            )
+            if classes != links:
+                clause = replace(clause, links={**clause.links, shown.target: classes})
+        clauses.append(clause)
+    return (
+        replace(caption, clauses=tuple(clauses))
+        if tuple(clauses) != caption.clauses
+        else caption
+    )
+
+
+def _resolved_classes(
+    text: str,
+    language: Language,
+    links: Sequence[WordLink],
+    evidence_for: ClassEvidenceFor,
+    *,
+    translated: bool,
+) -> dict[Span, WordClass | None]:
+    choices: dict[Span, set[WordClass | None]] = {}
+    for link in links:
+        span, pos = (
+            (link.translation, link.translation_pos)
+            if translated
+            else (link.original, link.original_pos)
+        )
+        choices.setdefault(span, set()).add(pos)
+    return (
+        {
+            span: evidence.resolve(_agreed_class(choices[span]))
+            for span, evidence in evidence_for(text, language, choices.keys()).items()
+        }
+        if choices
+        else {}
+    )
 
 
 def caption_rows(
@@ -313,7 +401,7 @@ def caption_rows(
                     else 0,
                 )
             )
-    if caption.live and rows:
+    if caption.live and rows and options.trail:
         end = rows[-1]
         rows[-1] = replace(end, text=end.text + LIVE_TRAIL)
     return rows
@@ -338,42 +426,79 @@ def numbered_links(
     said twice). "Key words" leaves out minor links. With `cap`, the
     surest stay - key links first. Numbered in reading order of the
     original. Spans outside the texts' lengths, if given, are dropped."""
-    groups: dict[tuple[int, int], tuple[list[tuple[int, int]], bool, float]] = {}
-    for link in links:
-        if detail is LinkDetail.KEY and not link.key:
-            continue
-        if not (
-            _fits(link.original, original_length)
-            and _fits(link.translation, translation_length)
-        ):
-            continue
-        spans, key, confidence = groups.get(link.translation, ([], False, 0.0))
-        spans.append(link.original)
-        groups[link.translation] = (
-            spans,
-            key or link.key,
-            max(confidence, link.confidence),
-        )
-    kept = sorted(groups.items(), key=lambda g: (not g[1][1], -g[1][2]))
+    kept = group_links(
+        [link for link in links if detail is LinkDetail.MOST or link.key],
+        original_length,
+        translation_length,
+    )
+    kept.sort(key=lambda group: (not group.key, -group.confidence))
     if cap is not None:
         kept = kept[:cap]
-    kept.sort(key=lambda g: min(g[1][0]))
+    kept.sort(key=lambda group: group.original[0])
     original = sorted(
         (
-            LinkedWords(a, b, number, key)
-            for number, (_, (spans, key, _)) in enumerate(kept)
-            for a, b in spans
+            LinkedWords(a, b, number, group.key, pos)
+            for number, group in enumerate(kept)
+            for (a, b), pos in zip(group.original, group.original_pos, strict=True)
         ),
         key=lambda w: (w.start, w.end),
     )
     translation = sorted(
         (
-            LinkedWords(c, d, number, key)
-            for number, ((c, d), (_, key, _)) in enumerate(kept)
+            LinkedWords(*group.translation, number, group.key, group.translation_pos)
+            for number, group in enumerate(kept)
         ),
         key=lambda w: (w.start, w.end),
     )
     return tuple(original), tuple(translation)
+
+
+@dataclass(frozen=True, slots=True)
+class GroupedLink:
+    """One counterpart and its linked original spans, in reading order."""
+
+    original: tuple[Span, ...]
+    translation: Span
+    key: bool
+    confidence: float
+    original_pos: tuple[WordClass | None, ...]
+    translation_pos: WordClass | None
+
+
+def _agreed_class(choices: set[WordClass | None]) -> WordClass | None:
+    return next(iter(choices)) if len(choices) == 1 else None
+
+
+def group_links(
+    links: Sequence[WordLink],
+    original_length: int | None,
+    translation_length: int | None,
+) -> list[GroupedLink]:
+    groups: dict[Span, list[WordLink]] = {}
+    for link in links:
+        if _fits(link.original, original_length) and _fits(
+            link.translation, translation_length
+        ):
+            groups.setdefault(link.translation, []).append(link)
+    found = []
+    for translation, matching in groups.items():
+        matching.sort(key=lambda link: link.original)
+        original_classes: dict[Span, set[WordClass | None]] = {}
+        for link in matching:
+            original_classes.setdefault(link.original, set()).add(link.original_pos)
+        found.append(
+            GroupedLink(
+                tuple(link.original for link in matching),
+                translation,
+                any(link.key for link in matching),
+                max(0.0, max(link.confidence for link in matching)),
+                tuple(
+                    _agreed_class(original_classes[link.original]) for link in matching
+                ),
+                _agreed_class({link.translation_pos for link in matching}),
+            )
+        )
+    return found
 
 
 def _fits(span: tuple[int, int], length: int | None) -> bool:
@@ -393,6 +518,7 @@ class Counterpart:
 
     words: str
     language: Language | None
+    pos: WordClass | None = None
 
 
 def counterpart(
@@ -434,27 +560,32 @@ def counterpart(
         language: Language | None = partner.language
         kept = partner.target or partner.language
         mine, other = clause.original, clause.translations.get(kept, "")
-        pairs = [(k.original, k.translation) for k in clause.links.get(kept, ())]
+        pairs = [
+            (k.original, k.translation, k.original_pos)
+            for k in clause.links.get(kept, ())
+        ]
     else:
         if row.language is None:
             return None
         language = caption.language
         kept = row.target or row.language
         mine, other = clause.translations.get(kept, ""), clause.original
-        pairs = [(k.translation, k.original) for k in clause.links.get(kept, ())]
+        pairs = [
+            (k.translation, k.original, k.translation_pos)
+            for k in clause.links.get(kept, ())
+        ]
     start, end = span
-    found = sorted(
-        {
-            theirs
-            for ours, theirs in pairs
-            if _fits(ours, len(mine))
-            and _fits(theirs, len(other))
-            and ours[0] < end
-            and start < ours[1]
-        }
-    )
-    words = _pieces(other, found)
-    return Counterpart(words, language) if words else None
+    matches = [
+        (theirs, pos)
+        for ours, theirs, pos in pairs
+        if _fits(ours, len(mine))
+        and _fits(theirs, len(other))
+        and ours[0] < end
+        and start < ours[1]
+    ]
+    words = _pieces(other, sorted({theirs for theirs, _ in matches}))
+    pos = _agreed_class({pos for _, pos in matches})
+    return Counterpart(words, language, pos) if words else None
 
 
 def _pieces(text: str, spans: Sequence[tuple[int, int]]) -> str:

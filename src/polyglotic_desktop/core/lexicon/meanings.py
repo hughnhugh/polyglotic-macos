@@ -9,7 +9,7 @@ import re
 from collections.abc import Sequence
 
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary, has_han
-from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
+from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, DictionarySense
 from polyglotic_desktop.core.lexicon.pinyin import mark_pinyin
 
 # CC-CEDICT's measure words: "CL:個|个[ge4],臺|台[tai2]"
@@ -17,18 +17,24 @@ _MEASURE_WORD = re.compile(r"(?:([^|\[,]+)\|)?([^|\[,]+)\[([^\]]+)\]")
 
 
 def definitions(entry: DictionaryEntry) -> tuple[list[str], list[str]]:
+    senses, measure_words = display_senses(entry)
+    return [sense.gloss for sense in senses], measure_words
+
+
+def display_senses(entry: DictionaryEntry) -> tuple[list[DictionarySense], list[str]]:
     """(definitions, measure words): CC-CEDICT's "CL:個|个[ge4]" meanings
     pulled out as "个 gè" (simplified, with tone marks)."""
-    found: list[str] = []
+    found: list[DictionarySense] = []
     measure_words: list[str] = []
-    for meaning in entry.meanings:
+    for sense in entry.senses:
+        meaning = sense.gloss
         if meaning.startswith("CL:"):
             measure_words += [
                 f"{simplified} {mark_pinyin(pinyin)}"
                 for _, simplified, pinyin in _MEASURE_WORD.findall(meaning[3:])
             ]
         else:
-            found.append(meaning)
+            found.append(sense)
     return found, measure_words
 
 

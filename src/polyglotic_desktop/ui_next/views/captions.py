@@ -45,10 +45,12 @@ from polyglotic_desktop.core.listening.display import (
     DisplayOptions,
     RowKind,
     caption_rows,
+    with_link_classes,
 )
 from polyglotic_desktop.core.listening.history import Caption, CaptionHistory
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
 from polyglotic_desktop.core.listening.timing import CaptionId
+from polyglotic_desktop.ports.word_classes import ClassEvidenceFor
 from polyglotic_desktop.ui_next.views.pour import matching_cuts
 from polyglotic_desktop.ui_next.views.scroll import Scroll
 
@@ -100,6 +102,11 @@ _YOU = SourceLabel("You", "#7c9cff")
 """The user's own mic's label unless named: blue, as "You" always was."""
 
 
+NAMED_AGAIN_SEC = 60.0
+"""With `Labels.language_once`: the language is named again on a caption
+that starts this long after the one before."""
+
+
 @dataclass(frozen=True, slots=True)
 class Line:
     """A caption as a surface shows it. `key` stays the same through the
@@ -109,7 +116,9 @@ class Line:
     italic until its finished caption. `label`: the small line above it
     (`Labels`), in `label_color` ("#rrggbb"); empty for none. `heard`: the
     languages spoken in it; `checked`: the best model's version, which the
-    learner said is right ("Looks wrong?") - a transcript says both."""
+    learner said is right ("Looks wrong?") - a transcript says both.
+    `respoken`: the learner re-spoke it for its source (polyglotic-hq
+    567): its label and heading say so."""
 
     key: int
     source: SourceId
@@ -119,6 +128,7 @@ class Line:
     provisional: bool
     started_at: datetime
     caption_id: CaptionId = _NO_ID
+    respoken: bool = False
     label: str = ""
     label_color: str = ""
     heard: tuple[Language, ...] = ()
@@ -130,6 +140,8 @@ class Line:
     """By clause: where its original and its translation can both be
     cut (`views.pour.matching_cuts`) - only when the surface pours
     line by line (`CaptionLines.set_cuts`); empty otherwise."""
+    link_context: Caption | None = None
+    """The caption with the same endpoint classes used for marks and lookup."""
 
 
 @dataclass(frozen=True)
@@ -139,7 +151,13 @@ class Labels:
     ("You", `you`), for the others with `show_source` - and the language
     spoken, with `show_language` (`spoken` names it: "Mandarin",
     "Mandarin + English"); and, with `delay`, how long the caption took to
-    show (`delay` says it: polyglotic-hq 271, off unless the learner asks)."""
+    show (`delay` says it: polyglotic-hq 271, off unless the learner asks).
+    `language_once`: the language is named when it changes - on the first
+    caption, when a caption's languages differ from the one before, and
+    after `NAMED_AGAIN_SEC` of nothing - not over every caption
+    (polyglotic-hq 526, DECISIONS #230 item 3). `respoken`: the word a
+    re-spoken caption is marked with ("re-spoken", polyglotic-hq 567) - its
+    source then named whatever `show_source` says, so whose it is shows."""
 
     sources: Mapping[SourceId, SourceLabel] = field(default_factory=dict)
     show_source: bool = False
@@ -147,26 +165,64 @@ class Labels:
     you: SourceLabel = _YOU
     spoken: Callable[[Sequence[Language]], str] | None = None
     delay: Callable[[CaptionDelay], str] | None = None
+    language_once: bool = False
+    source_once: bool = False
+    """With `language_once`: the source too is named when it changes or
+    after `NAMED_AGAIN_SEC`, not over every caption (Steady's cards, each a
+    line: decision 0260)."""
+    respoken: str = ""
 
-    def of(self, caption: Caption, took: CaptionDelay | None = None) -> tuple[str, str]:
+    def of(
+        self,
+        caption: Caption,
+        took: CaptionDelay | None = None,
+        before: Caption | None = None,
+    ) -> tuple[str, str]:
         """The label's text and colour for `caption`; `took`: its delay, if
-        known."""
+        known; `before`: the caption above it, if any."""
         parts = []
         color = ""
         source = self.sources.get(caption.source_id)
         if source is None and caption.by_you:
             source = self.you
-        if source is not None and (self.show_source or caption.by_you):
-            parts.append(source.name)
+        again = True
+        if self.language_once and self.source_once and before is not None:
+            gap = (caption.started_at - before.started_at).total_seconds()
+            again = before.source_id != caption.source_id or gap > NAMED_AGAIN_SEC
+        marked = caption.respoken and bool(self.respoken)
+        if source is not None and (self.show_source or caption.by_you or marked):
+            if again or marked:  # a re-spoken caption always says whose it is
+                parts.append(source.name)
             color = source.color
+        if marked:
+            parts.append(self.respoken)
         heard = caption.languages_heard or (
             (caption.language,) if caption.language else ()
         )
-        if self.show_language and heard and self.spoken is not None:
+        named = self.show_language and heard and self.spoken is not None
+        if named and self.language_once and before is not None:
+            was = before.languages_heard or (
+                (before.language,) if before.language else ()
+            )
+            gap = (caption.started_at - before.started_at).total_seconds()
+            named = heard != was or gap > NAMED_AGAIN_SEC
+        if named and self.spoken is not None:
             parts.append(self.spoken(heard))
         if self.delay is not None and took is not None:
             parts.append(self.delay(took))
         return "  ".join(parts), color
+
+
+@dataclass(frozen=True)
+class LineDisplay:
+    """The choices that determine the lines built from a caption history."""
+
+    target: Language | None
+    second: Language | None
+    options: DisplayOptions
+    labels: Labels
+    cuts: bool
+    models: bool
 
 
 class CaptionLines:
@@ -206,8 +262,6 @@ class CaptionLines:
         self.keep = keep
         """Lines kept: no surface shows more of this view's than these."""
         self._finished_only = finished_only
-        self._cuts = cuts
-        self._models = False
         self._modelled: tuple[Language | None, Language | None] = (None, None)
         self.scroll = Scroll()
         self.revision = 0
@@ -216,10 +270,14 @@ class CaptionLines:
             if clock is not None
             else CaptionHistory(yours, max_captions=keep, keep_earlier=keep_earlier)
         )
-        self._target = target
-        self._second = second
-        self._options = options or DisplayOptions()
-        self._labels = labels or Labels()
+        self._display = LineDisplay(
+            target,
+            second,
+            options or DisplayOptions(),
+            labels or Labels(),
+            cuts,
+            models=False,
+        )
         self._text_size = _clamped(text_size, sizes)
         self._lines: tuple[Line, ...] = ()
         self._built: dict[int, tuple[Caption, Line]] = {}
@@ -227,6 +285,7 @@ class CaptionLines:
         """How long each caption's latest update took to show - its own
         speech's only (`CaptionUpdate.times`); the newest `DELAYS_KEPT`."""
         self._history_version = self._history.version
+        self.class_evidence: ClassEvidenceFor | None = None
 
     # -- what shows -----------------------------------------------------------------
 
@@ -239,19 +298,27 @@ class CaptionLines:
         """The caption a line shows, by the line's key: its clauses in every
         language, for a lookup's context line."""
         found = self._built.get(key)
-        return found[0] if found else None
+        return (found[1].link_context or found[0]) if found else None
+
+    def refresh_link_classes(self) -> bool:
+        """Refresh displayed endpoint evidence after a dictionary change."""
+        return self.class_evidence is not None and self._rebuild(
+            everything=False, reclassify=True
+        )
 
     @property
     def target(self) -> Language | None:
         """The one translation shown; None: captions only."""
-        return self._target
+        return self._display.target
 
     @property
     def fallbacks(self) -> tuple[Language, ...]:
         """The translation target and the second language - in that order,
         those set: the dictionaries a lookup tries after its row's
         (polyglotic-hq 337)."""
-        return tuple(x for x in (self._target, self._second) if x is not None)
+        return tuple(
+            x for x in (self._display.target, self._display.second) if x is not None
+        )
 
     @property
     def text_size(self) -> float:
@@ -276,7 +343,9 @@ class CaptionLines:
 
     # -- from the session ----------------------------------------------------------
 
-    def apply(self, update: CaptionUpdate) -> bool:
+    def apply(
+        self, update: CaptionUpdate, *, hold_live_translation: bool = False
+    ) -> bool:
         """A caption update; True if what shows changed. Other sources'
         updates are ignored."""
         if update.source_id not in self.sources:
@@ -286,7 +355,7 @@ class CaptionLines:
             self._delays[update.caption_id] = took
             while len(self._delays) > DELAYS_KEPT:
                 del self._delays[next(iter(self._delays))]
-        self._history.apply(update)
+        self._history.apply(update, hold_live_translation=hold_live_translation)
         return self._history_changed()
 
     def use_checked(
@@ -313,45 +382,36 @@ class CaptionLines:
         polyglotic-hq 309). Nothing shown changes for it."""
         self._history.set_settle_after(seconds)
 
+    def set_display(self, display: LineDisplay) -> None:
+        """Project the history once with all the window's current choices."""
+        if display != self._display:
+            self._display = display
+            self._rebuild(everything=True)
+
     def set_language(
         self, target: Language | None, second: Language | None = None
     ) -> None:
         """The one translation shown (None: captions only), and the second
         language."""
-        if (target, second) == (self._target, self._second):
-            return
-        self._target, self._second = target, second
-        self._rebuild(everything=True)
+        self.set_display(replace(self._display, target=target, second=second))
 
     def set_options(self, options: DisplayOptions) -> None:
-        if options == self._options:
-            return
-        self._options = options
-        self._rebuild(everything=True)
+        self.set_display(replace(self._display, options=options))
 
     def set_cuts(self, on: bool) -> None:
         """Whether each line says where its clauses and their translations
         can both be cut (`Line.cuts`): for a surface that pours them line
         by line (the Lab's, polyglotic-hq 309)."""
-        if on == self._cuts:
-            return
-        self._cuts = on
-        self._rebuild(everything=True)
+        self.set_display(replace(self._display, cuts=on))
 
     def set_models(self, on: bool) -> None:
         """Whether each line carries its caption's model, for a surface
         laid out by the one layout (polyglotic-hq 340)."""
-        if on == self._models:
-            return
-        self._models = on
-        self._rebuild(everything=True)
+        self.set_display(replace(self._display, models=on))
 
     def set_labels(self, labels: Labels) -> None:
         """What the line above each caption says."""
-        if labels == self._labels:
-            return
-        self._labels = labels
-        self._rebuild(everything=True)
+        self.set_display(replace(self._display, labels=labels))
 
     def set_limits(self, keep: int, keep_for: float | None = None) -> None:
         """Lines kept from now on: at most `keep`, and with `keep_for` only
@@ -383,24 +443,45 @@ class CaptionLines:
             return False
         return self._rebuild(everything=False)
 
-    def _rebuild(self, everything: bool) -> bool:
+    def _rebuild(self, everything: bool, *, reclassify: bool = False) -> bool:
         """The lines from the history's captions: a caption's line is
         reused while the caption is the same version (and, unless
         `everything`, the language and options are unchanged). False if no
         line changed (a live update, where only finished captions show)."""
         built: dict[int, tuple[Caption, Line]] = {}
         lines = []
+        above: Caption | None = None
         for caption in self._history.captions:
             if self._finished_only and caption.live:
                 continue
             found = None if everything else self._built.get(caption.key)
-            if found is not None and found[0] is caption:
+            if found is not None and found[0] is caption and not reclassify:
                 line = found[1]
             else:
                 line = self._line(caption)
+            if self._display.labels.language_once:
+                # its label follows from the caption above: found each time
+                was = self._built.get(caption.key)
+                if (
+                    was is not None
+                    and self._display.labels.source_once
+                    and not everything
+                ):
+                    # a card's label never comes or goes: the line above it
+                    # leaving the list doesn't name it again (552)
+                    label = (was[1].label, was[1].label_color)
+                else:
+                    label = self._display.labels.of(
+                        caption, self._delays.get(caption.caption_id), above
+                    )
+                if (line.label, line.label_color) != label:
+                    line = replace(line, label=label[0], label_color=label[1])
+            if reclassify and found is not None and line == found[1]:
+                line = found[1]
+            above = caption
             built[caption.key] = (caption, line)
             lines.append(line)
-        self._modelled = (self._target, self._second)
+        self._modelled = (self._display.target, self._display.second)
         self._history_version = self._history.version
         kept = tuple(lines)
         if not everything and _same(kept, self._lines):
@@ -411,32 +492,43 @@ class CaptionLines:
         return True
 
     def _line(self, caption: Caption) -> Line:
-        if self._target is None:  # captions only: each clause's original
-            options = replace(self._options, show_original=True)
+        display = self._display
+        contextual = (
+            with_link_classes(
+                caption, display.target, display.second, self.class_evidence
+            )
+            if display.target is not None and self.class_evidence is not None
+            else caption
+        )
+        if display.target is None:  # captions only: each clause's original
+            options = replace(display.options, show_original=True)
             rows = caption_rows(caption, _NO_TRANSLATION, None, options)
         else:
-            rows = caption_rows(caption, self._target, self._second, self._options)
+            rows = caption_rows(
+                contextual, display.target, display.second, display.options
+            )
         model = None
-        if self._models:
+        if display.models:
             before = self._built.get(caption.key)
-            old = before[1].model if before is not None else None
+            same_languages = self._modelled == (display.target, display.second)
+            old = before[1].model if before is not None and same_languages else None
             if (
                 before is not None
-                and before[0] is caption
+                and (before[1].link_context or before[0]) == contextual
                 and old is not None
-                and self._modelled == (self._target, self._second)
             ):
                 model = old  # the same caption: a label or an option changed
             else:
-                model = caption_model(caption, self._target, self._second, old)
-        label, color = self._labels.of(caption, self._delays.get(caption.caption_id))
+                model = caption_model(contextual, display.target, display.second, old)
+        label, color = display.labels.of(caption, self._delays.get(caption.caption_id))
         return Line(
             key=caption.key,
             source=caption.source_id,
             by_you=caption.by_you,
+            respoken=caption.respoken,
             rows=tuple(rows),
             live=caption.live,
-            provisional=caption.live and self._options.preview,
+            provisional=caption.live and display.options.preview,
             started_at=caption.started_at,
             caption_id=caption.caption_id,
             label=label,
@@ -445,12 +537,13 @@ class CaptionLines:
             or ((caption.language,) if caption.language else ()),
             checked=caption.checked,
             model=model,
-            cuts=_cuts(caption, rows) if self._cuts else (),
+            cuts=_cuts(caption, rows, model) if display.cuts else (),
+            link_context=contextual if contextual is not caption else None,
         )
 
 
 def _cuts(
-    caption: Caption, rows: Sequence[CaptionRow]
+    caption: Caption, rows: Sequence[CaptionRow], model: CaptionModel | None = None
 ) -> tuple[tuple[tuple[int, int], ...], ...]:
     """By clause, where a settled clause shown with its translation can be
     cut in both (`matching_cuts`, from its word links - whether or not
@@ -466,6 +559,14 @@ def _cuts(
             or row.language is None
             or (caption.live and n == last)
         ):
+            continue
+        if (
+            model is not None
+            and row.language == row.target
+            and row.text == model.clauses[n].translation
+        ):
+            # The one layout already matched these same texts and word links.
+            found[n] = model.clauses[n].cuts
             continue
         clause = caption.clauses[n]
         links = [

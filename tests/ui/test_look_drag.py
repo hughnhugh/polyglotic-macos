@@ -126,7 +126,9 @@ def test_a_step_of_a_look_drag_within_a_frame(qapp: QApplication, reads: Reads) 
     def step() -> None:
         panel.background.setValue(next(values))
 
-    within(budgets.FRAME, lambda: sampled(qapp, [step] * 8))
-    panel.close()
-    panel.deleteLater()
-    built.close()
+    try:
+        within(budgets.FRAME, lambda: sampled(qapp, [step] * 8))
+    finally:
+        panel.close()
+        panel.deleteLater()
+        built.close()

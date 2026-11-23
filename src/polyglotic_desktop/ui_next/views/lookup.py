@@ -75,9 +75,10 @@ from polyglotic_desktop.core.lexicon.english import (
     inside_sentence,
     names_first,
 )
-from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
+from polyglotic_desktop.core.lexicon.entries import DictionaryEntry, DictionarySense
 from polyglotic_desktop.core.lexicon.meanings import (
     definitions,
+    display_senses,
     meaning_of,
     short_meaning,
 )
@@ -296,8 +297,12 @@ class Reading:
     words."""
 
     reading: str
-    senses: tuple[str, ...]
+    definitions: tuple[DictionarySense, ...]
     measure_words: tuple[str, ...] = ()
+
+    @property
+    def senses(self) -> tuple[str, ...]:
+        return tuple(sense.gloss for sense in self.definitions)
 
 
 @dataclass(frozen=True)
@@ -378,6 +383,7 @@ class Card:
     (polyglotic-hq 328) - hovered or pinned, whatever else the card
     shows; "" for none, and for a part looked into (Back returns it)."""
     counterpart_language: str = ""
+    word_class: str | None = None
     """The counterpart's language code, for its font ("" if unknown)."""
     answered_by: str = ""
     """The language whose dictionary answered, when it isn't the row's -
@@ -450,7 +456,10 @@ def with_counterpart(
     if found is None:
         return context
     return replace(
-        context, counterpart=found.words, counterpart_language=found.language or ""
+        context,
+        counterpart=found.words,
+        counterpart_language=found.language or "",
+        word_class=found.pos,
     )
 
 
@@ -739,6 +748,7 @@ class Lookup:
                 found,
                 counterpart=shown.context.counterpart,
                 counterpart_language=shown.context.counterpart_language,
+                word_class=shown.context.word_class,
             )
         offer = self.offer
         asked = offer.asks_about(shown.language) if offer and self.pinned else None
@@ -891,7 +901,7 @@ class Lookup:
                 # the form's own, where the pack marks it ("руку": "ру́ку")
                 own = self.learner.form_reading(word, language)
                 reading = own if n == 0 else said(entry)
-            senses = definitions(entry)[0]
+            senses = display_senses(entry)[0]
             readings.append(
                 Reading(reading, tuple(senses[: SENSES if self.pinned else 1]))
             )
@@ -908,7 +918,7 @@ class Lookup:
         )
 
     def _reading(self, entry: DictionaryEntry, word: str, pinned: bool) -> Reading:
-        senses, measure_words = definitions(entry)
+        senses, measure_words = display_senses(entry)
         if self.is_chinese:
             reading = entry.reading
         else:  # IPA; and the entry's word, if it isn't the word looked up

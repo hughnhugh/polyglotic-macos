@@ -37,7 +37,7 @@ from polyglotic_desktop.core.listening.selection import (
     selected,
     selected_text,
 )
-from polyglotic_desktop.ui_next.caption_layout import LaidLine, span_rects
+from polyglotic_desktop.ui_next.caption_layout import LaidLine
 from polyglotic_desktop.ui_next.copying import copy_key_is_ours, copy_quietly
 from polyglotic_desktop.ui_next.views.captions import Line
 from polyglotic_desktop.ui_next.views.sentences import Piece
@@ -122,7 +122,10 @@ def place_at(placed: Placed, pos: QPointF, top: float) -> Place | None:
                     continue
                 char = text_line.xToCursor(pos.x() - origin.x())
                 place = Place(
-                    line.key, row.row.clause, min(max(char, 0), length), row.row.kind
+                    line.key,
+                    row.row.clause,
+                    min(row.source_index(char), row.start + length),
+                    row.row.kind,
                 )
                 best = ((down, across), place)
     return best[1] if best is not None else None
@@ -162,7 +165,7 @@ def word_rects(laid: LaidLine, words: Sequence[Words]) -> list[QRectF]:
         row = rows.get((each.clause, each.side))
         if row is None:
             continue
-        for rect in span_rects(row.layout, each.start, each.end):
+        for rect in row.rectangles(each.start, each.end):
             found.append(rect.translated(0.0, row.top).adjusted(*PADDING))
     return found
 

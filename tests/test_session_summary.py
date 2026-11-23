@@ -20,6 +20,8 @@ from polyglotic_desktop.core.listening.captions import (
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.summary import (
     ListeningSessionEnded,
+    PresetStep,
+    SessionAction,
     SessionSummary,
     words,
 )
@@ -121,14 +123,16 @@ def test_the_caption_mode_is_the_learners(mode: CaptionMode) -> None:
     in - `steady`, `preview` or `live` (project 064) - with or without
     anything captioned."""
     interval = mode.live_update_interval(2.0)
-    assert SessionSummary(interval, mode=mode).ended(5.0).caption_mode == mode.value
+    # The v1 telemetry contract groups both instant-original modes under live.
+    expected = "live" if mode is CaptionMode.SCROLLING else mode.value
+    assert SessionSummary(interval, mode=mode).ended(5.0).caption_mode == expected
     summary = SessionSummary(interval, target=EN, mode=mode)
     summary.speech_sent(finished("c1", 0.0, 3.0), at=3.6)
     summary.caption_updated(update("c1", CaptionKind.FINISHED, "好"), at=4.5)
     ended = summary.ended(at=10.0)
-    assert (ended.captions, ended.caption_mode) == (1, mode.value)
+    assert (ended.captions, ended.caption_mode) == (1, expected)
     assert ended.live_interval_seconds == interval
-    assert listening.session_ended(ended)["caption_mode"] == mode.value
+    assert listening.session_ended(ended)["caption_mode"] == expected
 
 
 def test_rewrites_count_words_shown_live_that_didnt_survive() -> None:
@@ -198,6 +202,7 @@ def test_a_session_with_nothing_captioned_is_summarised_too() -> None:
         "lookups": 0,
         "saves": 0,
         **NOTHING_DONE,
+        **NOTHING_RECOVERED,
     }  # no delays: optional in the tracking plan since S2b; no capture: not told
 
 
@@ -225,6 +230,13 @@ NOTHING_DONE = {
 }
 """What the learner did (project 134): always in the summary, 0 or no if nothing."""
 
+NOTHING_RECOVERED = {
+    "capture_restarts": 0,
+    "session_failures": 0,
+    "unreadable_dropped": 0,
+}
+"""What the app recovered from by itself (566): always in the summary, 0 if nothing."""
+
 
 def test_the_event_has_exactly_the_tracking_plans_properties() -> None:
     summary = ListeningSessionEnded(
@@ -247,9 +259,35 @@ def test_the_event_has_exactly_the_tracking_plans_properties() -> None:
     # the copy from before the server's example counted lookups and saves
     # (polyglotic-server, 051) lacks them; the refreshed copy has these
     counts = {"lookups": 6, "saves": 2}
-    assert listening.session_ended(summary) == expected["props"] | counts | NOTHING_DONE
+    assert (
+        listening.session_ended(summary)
+        == expected["props"] | counts | NOTHING_DONE | NOTHING_RECOVERED
+    )
     off = ListeningSessionEnded(**{**summary.__dict__, "live_interval_seconds": None})
     assert "live_interval_seconds" not in listening.session_ended(off)  # optional
+
+
+def test_the_summary_counts_what_the_app_recovered_from() -> None:
+    """polyglotic-hq 566 (from 557; decision 0266): a session that failed
+    inside the app and tried again, captures that restarted and waiting
+    rows dropped unread were only in the log, which is seen only when a
+    tester sends a report. The summary counts them: the session's own
+    failures here, the others as `ended` is told them."""
+    summary = SessionSummary(1.5, EN)
+    summary.session_failed()
+    summary.session_failed()
+    summary.reconnected()  # the server closing it: not a failure
+    ended = summary.ended(20.0, capture_restarts=3, unreadable_dropped=1)
+    recovered = (ended.session_failures, ended.capture_restarts)
+    assert recovered + (ended.unreadable_dropped, ended.reconnects) == (2, 3, 1, 1)
+    props = listening.session_ended(ended)
+    assert {name: props[name] for name in NOTHING_RECOVERED} == {
+        "capture_restarts": 3,
+        "session_failures": 2,
+        "unreadable_dropped": 1,
+    }
+    nothing = SessionSummary(None).ended(1.0)
+    assert (nothing.capture_restarts, nothing.session_failures) == (0, 0)
 
 
 def test_lookups_and_saves_are_counted_per_session() -> None:
@@ -314,3 +352,47 @@ def test_a_known_apps_name_never_goes_with_its_speech() -> None:
     header = listening.speech_header(finished("c1", 0.0, 2.0, discord))
     assert "discord" not in header.model_dump_json()
     assert protocol.dump(header)["source"] == {"id": "app-1", "category": "call"}
+
+
+def test_preset_steps_are_counted_with_the_changes_they_carried() -> None:
+    """polyglotic-hq 587: saves, saves as new and discards, each with how
+    many settings it carried - numbers only, and nothing at all from a
+    session without one (a server from before drops a summary with them)."""
+    quiet = listening.session_ended(SessionSummary(live_interval=None).ended(5.0))
+    assert not any(name.startswith("preset_") for name in quiet)
+    summary = SessionSummary(live_interval=None)
+    summary.preset_step(PresetStep.SAVED, 3)
+    summary.preset_step(PresetStep.SAVED, 1)
+    summary.preset_step(PresetStep.DISCARDED, 2)
+    sent = listening.session_ended(summary.ended(5.0))
+    assert {k: v for k, v in sent.items() if k.startswith("preset_")} == {
+        "preset_saves": 2,
+        "preset_saves_as": 0,
+        "preset_discards": 1,
+        "preset_changes_saved": 4,
+        "preset_changes_saved_as": 0,
+        "preset_changes_discarded": 2,
+    }
+
+
+def test_songs_mode_is_counted_only_where_it_was_used() -> None:
+    """polyglotic-hq 595: how long a music player was heard in songs mode,
+    and how often the Lyrics switch was turned - numbers only, and left
+    out of a session that had neither (a server without them in its plan
+    drops only the sessions that used it)."""
+    quiet = listening.session_ended(SessionSummary(None, started=0.0).ended(60.0))
+    assert "lyrics_seconds" not in quiet and "lyrics_switches" not in quiet
+
+    summary = SessionSummary(None, started=0.0)
+    summary.songs(True, 10.0)
+    summary.songs(False, 25.0)
+    summary.did(SessionAction.LYRICS_SWITCHED)
+    summary.songs(True, 40.0)  # on again until the session ends
+    props = listening.session_ended(summary.ended(60.0))
+    assert props["lyrics_seconds"] == 35.0 and props["lyrics_switches"] == 1
+
+    switched = SessionSummary(None, started=0.0)  # on and off, never heard
+    switched.did(SessionAction.LYRICS_SWITCHED)
+    switched.did(SessionAction.LYRICS_SWITCHED)
+    ended = switched.ended(60.0)
+    assert ended.lyrics_seconds == 0.0 and ended.lyrics_switches == 2

@@ -9,8 +9,8 @@ repos:
     hooks:
       - id: check-added-large-files
         # The speech-detection model (decision 0003) and Simplified Chinese's
-        # caption face (decision 0223), committed on purpose.
-        exclude: ^src/polyglotic_desktop/(platform/data/silero_vad_16k_op15\.onnx|ui/assets/fonts/NotoSansSC-Medium\.ttf)$
+        # caption faces (decisions 0223, 0249), committed on purpose.
+        exclude: ^src/polyglotic_desktop/(platform/data/silero_vad_16k_op15\.onnx|ui/assets/fonts/(NotoSansSC-Medium|MaShanZheng-Regular)\.ttf)$
       - id: check-merge-conflict
       - id: check-json
       - id: check-toml

@@ -149,6 +149,20 @@ def slot(preset: Preset, area: Rect, size: Size, index: int = 0) -> Rect:
     return clamped(Rect(x, y, width, height), area)
 
 
+MAX_SUBTITLE_WIDTH = 1600
+"""Video's subtitles are at most this wide (polyglotic-hq 556): wider, a
+line is too long to read at a glance."""
+
+
+def subtitle_slot(area: Rect, width_share: float, height: int, index: int = 0) -> Rect:
+    """Where Video's subtitles go (polyglotic-hq 556): the bottom centre of
+    `area`, `width_share` of its width (at most MAX_SUBTITLE_WIDTH), `height`
+    tall, BOTTOM_MARGIN up - over a player's controls, as Bottom centre is -
+    the `index`-th of several stacked upwards."""
+    width = min(MAX_SUBTITLE_WIDTH, round(area.width * width_share))
+    return slot(Preset.BOTTOM_CENTRE, area, Size(width, height), index)
+
+
 def clamped(rect: Rect, area: Rect) -> Rect:
     """`rect` inside `area`: moved in, and made smaller only if it's bigger
     than the area."""
@@ -158,7 +172,9 @@ def clamped(rect: Rect, area: Rect) -> Rect:
     return Rect(x, y, width, height)
 
 
-def edges_at(x: float, y: float, width: int, height: int) -> Edge:
+def edges_at(
+    x: float, y: float, width: int, height: int, edge_zone: int = EDGE_ZONE
+) -> Edge:
     """The edges a press at (`x`, `y`) inside a window of that size would
     resize: two in a CORNER_ZONE square at a corner, one within EDGE_ZONE
     of an edge, none elsewhere."""
@@ -168,13 +184,13 @@ def edges_at(x: float, y: float, width: int, height: int) -> Edge:
     if (left or right) and (top or bottom):  # a corner
         found = (Edge.LEFT if left else Edge.RIGHT) | (Edge.TOP if top else Edge.BOTTOM)
     else:
-        if x < EDGE_ZONE:
+        if x < edge_zone:
             found |= Edge.LEFT
-        elif x >= width - EDGE_ZONE:
+        elif x >= width - edge_zone:
             found |= Edge.RIGHT
-        if y < EDGE_ZONE:
+        if y < edge_zone:
             found |= Edge.TOP
-        elif y >= height - EDGE_ZONE:
+        elif y >= height - edge_zone:
             found |= Edge.BOTTOM
     return found
 
@@ -192,11 +208,14 @@ def resized(
 
     The opposite edges stay put. A centred preset's width changes on both
     sides equally, so the window stays centred (a corner too: x mirrored,
-    y anchored as for any window). Stops at `minimum` and at `area`'s
-    edges."""
+    y anchored as for any window) - while it is centred on `area`: one
+    that isn't (a joined window placed against the screen's side) widens
+    from where it is, as any other, rather than stopping at twice its
+    nearer side's room (polyglotic-hq 586). Stops at `minimum` and at
+    `area`'s edges."""
     x, width = start.x, start.width
     if edges & (Edge.LEFT | Edge.RIGHT):
-        if preset.centred:
+        if preset.centred and centred_on(start, area):
             grow = 2 * dx if edges & Edge.RIGHT else -2 * dx
             centre = start.x + start.width / 2
             room = 2 * min(centre - area.x, area.right - centre)
@@ -215,7 +234,14 @@ def resized(
     elif edges & Edge.TOP:
         top = min(max(start.y + dy, area.y), start.bottom - minimum.height)
         y, height = top, start.bottom - top
-    return Rect(x, y, width, height)
+    # A joined strip can ask for more room than this entire display.
+    # Keep the same screen bound that JoinedWindow applies to its Qt minimum.
+    return clamped(Rect(x, y, width, height), area)
+
+
+def centred_on(rect: Rect, area: Rect) -> bool:
+    """Whether `rect` is centred across `area`, to a pixel."""
+    return abs(rect.centre[0] - area.centre[0]) <= 1
 
 
 def moved(start: Rect, dx: int, dy: int, area: Rect) -> Rect:

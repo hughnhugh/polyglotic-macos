@@ -119,6 +119,29 @@ def test_sound_from_another_source_counts_over_one_not_allowed() -> None:
     assert statuses(f) == ["ok"] * 5
 
 
+def test_a_capture_that_stopped_is_named_at_once_even_beside_sound() -> None:
+    """polyglotic-hq 557 (529's B1): a capture whose thread died said
+    "{name} is quiet" - nothing playing - while nothing could be heard from
+    it. A stopped capture is its own problem, named at once, and even when
+    another source is heard: that source's captions coming don't bring
+    this one's back."""
+    stopped = SourceActivity(NOW - 300, NOW - 200, NOW - 40, NOW - 40, stopped=True)
+    assert first_broken(facts(activity={APP: stopped})) == (
+        Step.SOUND,
+        Problem.CAPTURE_STOPPED,
+    )
+    [link] = [x for x in run_check(facts(activity={APP: stopped})) if x.problem]
+    assert link.source == "Discord"
+    mic = Ticked(MIC, "You", "mic")
+    heard = SourceActivity(NOW - 300, NOW - 200, NOW - 5, NOW - 6)
+    f = facts(ticked=[mic, DISCORD], activity={MIC: heard, APP: stopped})
+    assert first_broken(f) == (Step.SOUND, Problem.CAPTURE_STOPPED)
+    assert "sound: broken (capture_stopped)" in summary(run_check(f))
+    # the mic's own words, as for a mic not allowed: its name is "You"
+    f = facts(ticked=[mic], activity={MIC: stopped})
+    assert first_broken(f) == (Step.SOUND, Problem.MIC_STOPPED)
+
+
 def test_sound_without_speech() -> None:
     music = {APP: SourceActivity(NOW - 300, NOW - 200, NOW - 5, NOW - 100)}
     assert first_broken(facts(activity=music)) == (Step.SPEECH, Problem.NO_SPEECH)

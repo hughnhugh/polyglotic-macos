@@ -115,7 +115,7 @@ def rail_panels(show_mic: bool) -> list[Callable[[], QWidget]]:
     own = WindowLanguageView(WindowLanguage("Discord", "en", show_mic))
     return [
         partial(LanguagesPanel, LanguagesView(SESSION), own),
-        partial(TimingPanel, TimingView(Timing(CaptionMode.STEADY, 2.0))),
+        partial(TimingPanel, TimingView(Timing(CaptionMode.WHOLE, 2.0))),
         partial(LookPanel, LookView(CaptionLook())),
     ]
 
@@ -295,6 +295,16 @@ def scrolled_back(lab: Lab) -> QWidget:
     return shown
 
 
+def respoken(lab: Lab) -> QWidget:
+    """Lines the learner said again for the app (polyglotic-hq 567): theirs,
+    marked re-spoken in the heading."""
+    found = Transcript(APP, EN, mic=MIC, clock=made_up_clock())
+    updates = finished(CAPTIONS, APP)
+    for n, update in enumerate(updates):
+        found.apply(replace(update, respoken=n % 3 == 1))
+    return window(lab, lines=found)
+
+
 def my_speech(lab: Lab) -> QWidget:
     shown = window(lab, show_mic=True)
     newest = shown.transcript.all_lines[-2]
@@ -432,6 +442,7 @@ STATES = [
         ("empty", empty),
         ("scrolled_back", scrolled_back),
         ("my_speech", my_speech),
+        ("respoken", respoken),
         ("paused", paused),
         ("minimum", minimum),
         ("rail_popover", rail_popover),

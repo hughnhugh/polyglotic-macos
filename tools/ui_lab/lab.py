@@ -58,6 +58,8 @@ from polyglotic_desktop.ui import interface_language
 from polyglotic_desktop.ui_next import caption_windows, style
 from polyglotic_desktop.ui_next.caption_layout import LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
+from polyglotic_desktop.ui_next.glyphs import Glyph
+from polyglotic_desktop.ui_next.home import PlayingWave
 from polyglotic_desktop.ui_next.views.arrivals import SLIDE_MAX_SEC
 from tools import busy_pc
 from tools.ui_lab import checks, design, goldens, reference
@@ -271,12 +273,14 @@ class Lab:
 @dataclass(frozen=True)
 class State:
     """A state of the interface: `gated` if its budgets fail the run.
-    `scene`: photographed over a stand-in video (a caption window)."""
+    `scene`: photographed over a stand-in video (a caption window).
+    `visual_checks`: judge the picture as well as recording it."""
 
     name: str
     run: Callable[[Lab], QWidget]
     gated: bool
     scene: bool = False
+    visual_checks: bool = True
 
 
 def arrived(app: QApplication) -> None:
@@ -456,23 +460,25 @@ def _run_states(
             lab.result.first_try, lab.result.tries = first, tries
             lab.result.busy = busy
         arrived(app)
+        for wave in widget.findChildren(PlayingWave):
+            wave.timer.stop()
+            wave.frame = Glyph.SPEAKING  # same frame for the photograph and its checks
+            wave.update()
         photo = photograph(widget, state.scene)
         photo.save(str(out / f"{state.name}.png"))
         lab.result.photo = photo
         before = diff = None
-        if golden_store is not None and state.gated:
-            lab.result.golden, before, diff = goldens.compare(
-                state.name, photo, golden_store
-            )
-        inspected = checks.inspect(
-            state.name, widget, partial(_as_seen, widget if state.scene else None)
-        )
-        lab.result.findings = inspected.findings
-        lab.result.notes = inspected.notes
-        lab.result.words = inspected.words
-        lab.result.design = design.inspect(
-            widget, partial(_as_seen, widget if state.scene else None)
-        )
+        if state.visual_checks:
+            if golden_store is not None and state.gated:
+                lab.result.golden, before, diff = goldens.compare(
+                    state.name, photo, golden_store
+                )
+            as_seen = partial(_as_seen, widget if state.scene else None)
+            inspected = checks.inspect(state.name, widget, as_seen)
+            lab.result.findings = inspected.findings
+            lab.result.notes = inspected.notes
+            lab.result.words = inspected.words
+            lab.result.design = design.inspect(widget, as_seen)
         if shown is not None:
             shown(state.name, widget)
         _close(app, lab, widget)

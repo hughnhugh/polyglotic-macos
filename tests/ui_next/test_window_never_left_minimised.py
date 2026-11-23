@@ -16,6 +16,7 @@ from collections.abc import Iterator
 import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
+from tests.ui_next.made_up import SEPARATE
 from tests.ui_next.test_caption_window import Clock, _settle, window_of
 from tests.ui_next.test_joined_window import THREE, areas, joined
 
@@ -47,6 +48,7 @@ def test_a_window_windows_minimised_is_back_at_once(
 @pytest.fixture
 def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
     found = CaptionWindows(None, MIC, areas)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     found.set_labels({APP: SourceLabel("Discord", "#4dd0e1")}, "You")
     found.set_captioned(THREE)
     yield found

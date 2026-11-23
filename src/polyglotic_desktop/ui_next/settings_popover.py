@@ -2,27 +2,20 @@
 hold, beside its settings button (the user, 2026-11-07: a minimal strip
 and a settings popover, instead of project 109's chips on the band).
 
-In order: Captioning (the app), They speak (Detect, or the language
-its app speaks: any the speech model hears - `spoken_list`, 317), Translate into (a language, or Original only), "When
-they already speak ..." (its second language - only where a line can already be in
-the window's language: polyglotic-hq 248's IA.md 1.9; 263; named by the
-window's language, 465), Show my speech
-here, the caption timing (for every window: one line, its choices under
-it while open - a shortcut, the rest in Settings), Panel | Strip, Text size
-(A- / A+, moved here from the hover strip for word links: the user's
+Seven rows (polyglotic-hq 593, 585's section 6; the user, 2026-11-21: "A
+lot of these caption window settings don't need to exist now"):
+Captioning (the app), its languages on one line - "Detect → English ▾",
+which opens They speak (Detect, or the language its app speaks: any the
+speech model hears - `spoken_list`, 317), Lyrics for a music player on Detect, Translate into (a language, or
+Original only) and "When they already speak ..." (its second language -
+only where a line can already be in the window's language: polyglotic-hq
+248's IA.md 1.9; 263; named by the window's language, 465) under it - Text
+size (A- / A+, moved here from the hover strip for word links: the user's
 rehearsal feedback F9, 249; with a slider between them in 5 % steps, 60 to
-400 %: polyglotic-hq 305), Translation size (A-, a slider and A+: the
-translation's text as a share of what was said's, 50 to 200 %, and "Same
-as what was said"; shown while it has a translation; 305), Colour linked
-words in what was said and in the translation (two switches, each on its
-own, for every window, as in Settings: 431), Blue words in the quiet
-view (our curriculum, the learning load, saved words: three ticks, for
-every window, as in Settings: 477), Copy all
-captions (to the clipboard, as the transcript's Copy writes them:
-polyglotic-hq 333; Copy the newest caption went in 339), Open transcript, Join windows, Stop
-captioning, and All caption settings... - Settings > Captions in the
-main window, where every window's look, word links and timing are
-(248's F11: it replaced the small Look window). No Position: a window
+400 %: polyglotic-hq 305), Open transcript, Join windows, Stop captioning,
+and All caption settings... - Settings > Captions in the main window,
+where every window's look, word links and timing are (248's F11: it
+replaced the small Look window). No Position: a window
 is moved by hand, and keeps its place (the user's rehearsal feedback
 F8, 249). Changes apply at once - there is
 no OK or Cancel. Every row's words start at the same place (`INSET`);
@@ -47,19 +40,23 @@ In a joined window (109's 2a) a column's popover holds only what is that
 app's own (`COLUMN_ROWS`), and the window's own popover the rest: All
 caption settings... and Separate windows (`WINDOW_ROWS`).
 
-**It never takes focus from the app underneath** (a full-screen game can
-minimise when it loses focus):
+**A mouse-opened popover leaves focus with the app underneath** (a
+full-screen game can minimise when it loses focus):
 - it is a top-level tool window with `Qt.WindowDoesNotAcceptFocus` -
   on Windows, `WS_EX_NOACTIVATE` on its native window, so a click in it
   doesn't activate it (checked on a real window, 2026-11-07: Windows'
   foreground window stayed the same, and Qt had no active window) - and
   `WA_ShowWithoutActivating`; it is never raised (Qt's `raise_()`
   activates a window); the caption window is the same;
-- nothing in it takes the keyboard, or opens a menu or another window:
-  the language list opens inside it.
+- its language lists expand inside it. The caption controls hotkey can
+  explicitly open a focusable chooser and dropdowns for keyboard use.
 
 So it never has the keyboard, and Windows doesn't tell it about clicks in
-other apps. **Esc or a click elsewhere closes it** from two places: an
+other apps. **On Linux it does take the keyboard** while it's open
+(`above_all.POPOVERS_TAKE_THE_KEYBOARD`, polyglotic-hq 570): an ordinary
+window, brought forward and given the keyboard as it opens, closed by Esc
+or as soon as another window takes the keyboard back - a click anywhere
+else. The app can't read keys or clicks meant for other apps there. **Esc or a click elsewhere closes it** from two places: an
 event filter on this app (a click on any of its other widgets, or Esc
 while one of them has the keyboard), and - while it's open, and only then
 - a look every 40 ms at whether Esc or a mouse button is held anywhere
@@ -77,6 +74,9 @@ from typing import TYPE_CHECKING, cast
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QRectF, Qt, QTimer
 from PySide6.QtGui import QAction, QColor, QCursor, QPainter, QPaintEvent, QWheelEvent
 from PySide6.QtWidgets import (
+    QAbstractButton,
+    QAbstractItemView,
+    QAbstractSlider,
     QApplication,
     QHBoxLayout,
     QLabel,
@@ -89,9 +89,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.ports.system import KeyState  # theirs: the OS's
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.above_all import ABOVE_ALL, POPOVERS_TAKE_THE_KEYBOARD
 from polyglotic_desktop.ui_next.controls import (
     INSET,
     SWITCH,
@@ -100,6 +100,7 @@ from polyglotic_desktop.ui_next.controls import (
     TickButton,
 )
 from polyglotic_desktop.ui_next.languages import (
+    in_sentence,
     language_name,
     not_offered_note,
     target_languages,
@@ -115,6 +116,7 @@ from polyglotic_desktop.ui_next.views.caption_window import (
 )
 from polyglotic_desktop.ui_next.views.captions import CAPTION_TEXT_SIZES
 from polyglotic_desktop.ui_next.views.placement import Rect
+from polyglotic_desktop.ui_next.word_classes import WordClassLegend
 
 if TYPE_CHECKING:
     from polyglotic_desktop.ui_next.caption_window import CaptionWindow
@@ -132,49 +134,59 @@ LIST_HEIGHT = 180
 TEXT, DIM, SURFACE, LINE, ACCENT = "#e9ecf2", "#a0a8b6", "#191d24", "#2a303b", "#7c9cff"
 INK = (ACCENT, DIM, SURFACE)
 """The row buttons' tick and switch: the accent, dimmed, and the knob on it."""
+RECOMMENDED_TAG_RADIUS = 6
+"""Logical px (2, 3, 6, 8, 9, 10, 12 design scale): corner radius of the quiet Recommended tag in popovers (638)."""
+RECOMMENDED_TAG_INSET = (1, 6)
+"""Logical px (0..10): vertical and horizontal padding of the Recommended tag (638)."""
+RECOMMENDED_TAG_BG = "rgba(124, 156, 255, 0.16)"
+"""Subtle accent tint behind the Recommended tag on the dark popover surface (638)."""
+RECOMMENDED_TAG_BORDER = "rgba(124, 156, 255, 0.34)"
+"""Quiet border around the Recommended tag on the dark popover surface (638)."""
+RECOMMENDED_TAG_INK = "#c7d6ff"
+"""Soft tinted text colour for the Recommended tag (>8:1 contrast on SURFACE; 638)."""
 
+BAR_ROWS = ("bar_timing", "bar_languages", "bar_presets")
+"""Chips in their overflow order. The keyboard shortcut also shows the mic toggle."""
+KEYBOARD_BAR_ROWS = (*BAR_ROWS, "bar_mic", "bar_word_classes")
+"""Every control on the caption bar, reached through the keyboard shortcut."""
 ROWS = (
     "app",
-    "spoken",
-    "language",
-    "second",
-    "show_mic",
-    "timing",
+    *BAR_ROWS,
     "text_size",
     "translation_size",
-    "said_colours",
-    "translation_colours",
-    "quiet_words",
-    "copy_all",
     "transcript",
     "join",
     "stop",
     "all_settings",
 )
-"""The popover's rows, top to bottom."""
+"""The popover's rows, top to bottom (polyglotic-hq 593, 635, 655): its app,
+any bar chips folded away at narrow widths (`BAR_ROWS`: timing, languages,
+preset - shown only when overflowed or reached by keyboard), independent
+Caption size and Translation size (with Match), and its actions. Join windows
+shows only with two or more windows."""
 COLUMN_ROWS = (
     "app",
-    "spoken",
-    "language",
-    "second",
-    "show_mic",
-    "timing",
+    *BAR_ROWS,
     "text_size",
     "translation_size",
-    "said_colours",
-    "translation_colours",
-    "quiet_words",
-    "copy_all",
     "transcript",
     "stop",
 )
 """A joined window's column's popover: what is that app's own (109's 2a)."""
 WINDOW_ROWS = ("separate", "all_settings")
 """The joined window's own popover: what is the whole window's."""
-LANGUAGE_ROWS = ("spoken", "language", "second", "start_like_this", "ask_set_up")
+LANGUAGE_ROWS = (
+    "spoken",
+    "lyrics",
+    "language",
+    "second",
+    "start_like_this",
+    "ask_set_up",
+)
 """What the bar's language chip opens (465): the window's three language
 choices, whether new windows start like it, and whether a window that
-opens asks them (478: where the set-up comes back)."""
+opens asks them (478: where the set-up comes back) - and, under They
+speak, a music player's Lyrics switch (595)."""
 
 
 def _style() -> str:
@@ -183,11 +195,20 @@ def _style() -> str:
 QWidget {{ color: {TEXT}; font-size: {style.px(12)}px; }}
 QLabel {{ padding-left: {INSET}px; }}
 QLabel[note="true"] {{ color: {DIM}; font-size: {style.px(12)}px; }}
+QLabel[recommended="true"] {{
+  color: {RECOMMENDED_TAG_INK};
+  background: {RECOMMENDED_TAG_BG};
+  border: 1px solid {RECOMMENDED_TAG_BORDER};
+  border-radius: {RECOMMENDED_TAG_RADIUS}px;
+  padding: {RECOMMENDED_TAG_INSET[0]}px {RECOMMENDED_TAG_INSET[1]}px;
+  font-size: {style.px(12)}px;
+}}
 QPushButton {{ background: transparent; border: 1px solid transparent; border-radius: 6px;
   padding: 4px 8px; text-align: left; }}
 QPushButton[tick="true"] {{ padding-left: {INSET - 1 + style.px(TICK)}px; }}
 QPushButton[switch="true"] {{ padding-right: {SWITCH[0] + 14}px; }}
 QPushButton:hover {{ background: rgba(255,255,255,0.10); }}
+QPushButton:focus {{ border-color: {ACCENT}; }}
 QPushButton:disabled {{ color: #6c7484; }}
 QPushButton[segment="true"] {{ border: 1px solid {LINE}; padding: 3px 10px; text-align: center; }}
 QPushButton[segment="true"]:checked {{ background: rgba(124,156,255,0.28); }}
@@ -214,30 +235,39 @@ def _tr(text: str) -> str:
 def _chip_text(value: str, open_: bool) -> str:
     """A value chip's words: the choice made, and an arrow - down to open
     its choices, up while they're open (as the lookup card's Save to)."""
-    return f"{value} {'▴' if open_ else '▾'}"
+    return f"{style.button_text(value)} {'▴' if open_ else '▾'}"
+
+
+def size_badge(size: float) -> str:
+    return _tr("{percent}%").format(percent=round(size * 100))
 
 
 def second_title(language: str) -> str:
     """The second language's row, named by the window's language (465)."""
     #: A caption window's row: what to do with lines already spoken in
     #: {language}, the language this window translates into
-    return _tr("When they already speak {language}").format(language=language)
+    return in_sentence(_tr("When they already speak {language}"), language=language)
 
 
 def second_tip(language: str) -> str:
     """What the second language's row does, for its tooltip."""
-    return _tr(
-        "{language} is this window's language, so those lines get no "
-        "translation. Translate them into a second language too, or leave "
-        "them as they are."
-    ).format(language=language)
+    return in_sentence(
+        _tr(
+            "{language} is this window's language, so those lines get no "
+            "translation. Translate them into a second language too, or leave "
+            "them as they are."
+        ),
+        language=language,
+    )
 
 
 def second_text(code: str | None) -> str:
     """The second language chosen, as its chip says it."""
     if not code:
         return _tr("Leave as they are")
-    return _tr("Also translate into {language}").format(language=language_name(code))
+    return in_sentence(
+        _tr("Also translate into {language}"), language=language_name(code)
+    )
 
 
 def app_choice_text(choice: AppChoice) -> str:
@@ -260,12 +290,19 @@ def app_choice_tip(choice: AppChoice) -> str:
 
 
 def beside(
-    anchor: QRect, size: tuple[int, int], area: Rect, from_left: bool = False
+    anchor: QRect,
+    size: tuple[int, int],
+    area: Rect,
+    from_left: bool = False,
+    clear_of: QRect | None = None,
 ) -> QPoint:
     """Where a popover of `size` goes beside the button at `anchor`: under
     it, its right edge with the button's (`from_left`: its left edge with
     the button's - the language chip's, 465) - or above it when there's no
-    room below; moved in to stay on the work area."""
+    room below; moved in to stay on the work area. `clear_of`: a window it
+    mustn't cover where there's room elsewhere - its own caption window, on
+    Linux, which is drawn above it there (570) - so below or above that
+    window, else beside it."""
     width, height = size
     x = anchor.left() if from_left else anchor.right() + 1 - width
     y = anchor.bottom() + 1 + GAP
@@ -273,7 +310,22 @@ def beside(
         y = anchor.top() - GAP - height
     x = min(max(x, area.x), area.right - width)
     y = min(max(y, area.y), area.bottom - height)
-    return QPoint(x, y)
+    if clear_of is None or not QRect(x, y, width, height).intersects(clear_of):
+        return QPoint(x, y)
+    side_y = min(max(anchor.top(), area.y), area.bottom - height)
+    for at in (
+        QPoint(x, clear_of.bottom() + 1 + GAP),  # below the window
+        QPoint(x, clear_of.top() - GAP - height),  # above it
+        QPoint(clear_of.right() + 1 + GAP, side_y),  # right of it
+        QPoint(clear_of.left() - GAP - width, side_y),  # left of it
+    ):
+        inside = (
+            area.x <= at.x() <= area.right - width
+            and area.y <= at.y() <= area.bottom - height
+        )
+        if inside:
+            return at
+    return QPoint(x, y)  # no room clear of it: over it, as before
 
 
 class _Follows(QObject):
@@ -326,6 +378,23 @@ class SizeSlider(QSlider):
         event.ignore()
 
 
+FLAGS = (
+    Qt.WindowType.Tool
+    | Qt.WindowType.FramelessWindowHint
+    | Qt.WindowType.WindowStaysOnTopHint
+    | Qt.WindowType.WindowDoesNotAcceptFocus
+    | ABOVE_ALL
+)
+"""A popover that never takes the keyboard (Windows, a Mac)."""
+KEYBOARD_FLAGS = (
+    Qt.WindowType.Dialog
+    | Qt.WindowType.FramelessWindowHint
+    | Qt.WindowType.WindowStaysOnTopHint
+)
+"""A popover that takes the keyboard while it's open (Linux, 570): a window
+the window manager manages, so it can be given the keyboard."""
+
+
 class SettingsPopover(QWidget):
     """The settings of one caption window, beside its settings button - or
     of a joined window's column, or of the joined window (`rows`)."""
@@ -338,12 +407,13 @@ class SettingsPopover(QWidget):
     ) -> None:
         super().__init__(
             window,  # its own window, owned by the caption window: goes with it
-            Qt.WindowType.Tool
-            | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.WindowDoesNotAcceptFocus,
+            KEYBOARD_FLAGS if POPOVERS_TAKE_THE_KEYBOARD else FLAGS,
         )
-        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.takes_the_keyboard = POPOVERS_TAKE_THE_KEYBOARD
+        """It takes the keyboard while it's open (Linux, 570)."""
+        self._had_the_keyboard = False
+        if not self.takes_the_keyboard:
+            self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         # on a Mac a tool window hides while the app isn't active - and the
         # app is never active while the learner is in another (polyglotic-hq 429)
         self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
@@ -362,6 +432,7 @@ class SettingsPopover(QWidget):
         self.setFixedWidth(style.px(self.width_at_100))
         self.owner = window
         self.keys = keys
+        self.keyboard = False
         self._anchor = QRect()
         self._poll = QTimer(self, interval=POLL_MS)
         self._poll.timeout.connect(self._look_at_keys)
@@ -374,8 +445,6 @@ class SettingsPopover(QWidget):
             row.setObjectName(f"settings_popover.{name}")
             self.rows[name] = row
             column.addWidget(row)
-        for child in self.findChildren(QWidget):
-            child.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # nothing takes the keyboard
 
     # -- the rows ----------------------------------------------------------------------
 
@@ -449,6 +518,34 @@ class SettingsPopover(QWidget):
         column.addLayout(line)
         return row, column, chip
 
+    def _bar_chip(self, open_chip: Callable[..., None]) -> QPushButton:
+        button = QPushButton(self)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.clicked.connect(lambda: open_chip(keyboard=self.keyboard))
+        return button
+
+    def _bar_timing_row(self) -> QPushButton:
+        return self._bar_chip(self._window.toggle_timings)
+
+    def _bar_languages_row(self) -> QPushButton:
+        return self._bar_chip(self._window.toggle_languages)
+
+    def _bar_presets_row(self) -> QPushButton:
+        return self._bar_chip(self._window.toggle_presets)
+
+    def _bar_word_classes_row(self) -> WordClassLegend:
+        legend = WordClassLegend(self, copyable=False)
+        legend.expanded.connect(self._fit)
+        return legend
+
+    def _bar_mic_row(self) -> QPushButton:
+        button = SwitchButton(self, INK)
+        button.setProperty("switch", True)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setCheckable(True)
+        button.clicked.connect(lambda on: self._window.set_show_mic(bool(on)))
+        return button
+
     def _language_row(self) -> QWidget:
         row, column, self.language = self._value_row(
             _tr("Translate into"), "language_button", self._toggle_languages
@@ -469,6 +566,7 @@ class SettingsPopover(QWidget):
             item.setData(Qt.ItemDataRole.UserRole, code)
             self.languages.addItem(item)
         self.languages.itemClicked.connect(self._language_chosen)
+        self.languages.itemActivated.connect(self._language_chosen)
         self.languages.hide()
         column.addWidget(self.languages)
         # under the list while it's open, as the rail says it (DECISIONS.md #40)
@@ -489,6 +587,7 @@ class SettingsPopover(QWidget):
         found.setMaximumHeight(style.px(LIST_HEIGHT))
         found.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
         found.itemClicked.connect(chosen)
+        found.itemActivated.connect(chosen)
         found.hide()
         return found
 
@@ -537,6 +636,23 @@ class SettingsPopover(QWidget):
         )
         self.spoken_fallback.hide()
         column.addWidget(self.spoken_fallback)
+        return row
+
+    def _lyrics_row(self) -> QWidget:
+        """Lyrics: songs mode for music players heard on Detect, on or off -
+        the learner's one setting, as in Settings > Captions > Speech
+        (polyglotic-hq 595, decision 0287). Shown only in a music player's
+        window while it hears Detect (`CaptionWindow.offers_lyrics`)."""
+        row = QWidget(self)
+        column = QVBoxLayout(row)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(0)
+        column.addWidget(self._wide(self.owner.controls["lyrics"], switch=True))
+        note = QLabel(_tr("Captions singing too: the music is sent while it plays"))
+        note.setProperty("note", True)
+        note.setWordWrap(True)
+        note.setContentsMargins(0, 0, 0, 2)
+        column.addWidget(note)
         return row
 
     def _second_row(self) -> QWidget:
@@ -621,29 +737,6 @@ class SettingsPopover(QWidget):
             self._window.app_wanted.emit(name)
         self.refresh()
 
-    def _said_colours_row(self) -> QWidget:
-        """Linked words in what was said in their link's colour, for every
-        window - as Settings > Captions > Word links (431)."""
-        return self._wide(self.owner.controls["said_colours"], switch=True)
-
-    def _translation_colours_row(self) -> QWidget:
-        """And in the translation, on its own (431)."""
-        return self._wide(self.owner.controls["translation_colours"], switch=True)
-
-    def _quiet_words_row(self) -> QWidget:
-        """Which words the quiet view shows in blue - our curriculum, words
-        at your edge, the learning load, saved words: each ticked or not, for every window,
-        as in Settings (477). In here, not on a menu of the strip's button:
-        nothing on a caption window opens a menu (it would take the focus)."""
-        row = QWidget(self)
-        column = QVBoxLayout(row)
-        column.setContentsMargins(0, 0, 0, 0)
-        column.setSpacing(0)
-        column.addWidget(QLabel(_tr("Blue words in the quiet view")))
-        for which in ("curriculum", "edge", "load", "saved"):
-            column.addWidget(self._button(self.owner.controls[f"quiet_{which}"], row))
-        return row
-
     def _start_like_this_row(self) -> QWidget:
         """Start new windows like this: a new window takes this one's
         spoken language too, not Detect (465)."""
@@ -655,65 +748,34 @@ class SettingsPopover(QWidget):
         (478)."""
         return self._wide(self.owner.controls["ask_set_up"], switch=True)
 
-    def _show_mic_row(self) -> QWidget:
-        row = QWidget(self)
-        column = QVBoxLayout(row)
-        column.setContentsMargins(0, 0, 0, 0)
-        column.setSpacing(0)
-        column.addWidget(self._wide(self.owner.controls["show_mic"], switch=True))
-        note = QLabel(
-            _tr("Your microphone is sent to the server only while this is on")
-        )
-        note.setProperty("note", True)
-        note.setWordWrap(True)
-        note.setContentsMargins(0, 0, 0, 2)  # the whole width: no word alone on a line
-        column.addWidget(note)
-        return row
-
-    def _timing_row(self) -> QWidget:
-        """Timing, for every window, on one line: the timing now on a chip,
-        its three choices ticked under it while open - a shortcut, as
-        Translate into's (248's Q8 A); all of it is in Settings > Captions."""
-        row, column, self.timing = self._value_row(
-            f"{_tr('Timing')}  <span style='color:{DIM}'>"
-            f"{_tr('for every window')}</span>",
-            "timing_button",
-            self._toggle_timings,
-        )
-        self.timing.setToolTip(
-            _tr(
-                "When captions appear, for every window. The full choice is in Settings."
-            )
-        )
-        self.timings = QWidget(row)
-        choices = QVBoxLayout(self.timings)
-        choices.setContentsMargins(0, 0, 0, 0)
-        choices.setSpacing(1)
-        for mode in CaptionMode:
-            button = self._button(self.owner.controls[mode.value], self.timings)
-            button.clicked.connect(self._timing_chosen)  # after its action's
-            choices.addWidget(button)
-        self.timings.hide()
-        column.addWidget(self.timings)
-        return row
-
     def _sized(
         self,
         title: str,
         names: tuple[str, str],
         said: tuple[str, str],
         slider: QSlider,
-    ) -> tuple[QWidget, QVBoxLayout]:
-        """A size's row: its title and the size now, then A-, a slider and
-        A+ - the slider for landing between A- and A+'s steps."""
+        trailing: QWidget | None = None,
+    ) -> tuple[QWidget, QLabel]:
+        """A size's row: its title and language/size readout (with an optional
+        compact trailing button such as Match), then A-, a slider and A+."""
         row = QWidget(self)
         column = QVBoxLayout(row)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(3)
-        column.addWidget(QLabel(title))
+        heading = QLabel(title, row)
+        if trailing is not None:
+            header = QHBoxLayout()
+            header.setContentsMargins(0, 0, 0, 0)
+            header.setSpacing(6)  # constant: matches popover row spacing
+            header.addWidget(heading)
+            header.addStretch(1)
+            header.addWidget(trailing)
+            column.addLayout(header)
+        else:
+            column.addWidget(heading)
         line = QHBoxLayout()
         line.setContentsMargins(INSET - 1, 0, 0, 0)
-        line.setSpacing(6)
+        line.setSpacing(6)  # constant: matches popover row spacing
         smaller = self._button(self.owner.controls[names[0]], row, True)
         bigger = self._button(self.owner.controls[names[1]], row, True)
         smaller.setAccessibleName(said[0])  # not "A-"
@@ -724,53 +786,52 @@ class SettingsPopover(QWidget):
         line.addWidget(slider, 1)
         line.addWidget(bigger)
         column.addLayout(line)
-        return row, column
+        return row, heading
 
     def _text_size_row(self) -> QWidget:
-        """A-, a slider and A+, and the size now (this window's; Ctrl+wheel
-        too): 60 to 400 %, the slider in 5 % steps (305)."""
+        """Caption size: A-, a slider and A+, with a percentage readout."""
         self.text_slider = SizeSlider(*CAPTION_TEXT_SIZES, FINE_STEP, self)
         self.text_slider.setObjectName("settings_popover.text_size_slider")
         self.text_slider.valueChanged.connect(
             lambda _: self._window.set_text_size(self.text_slider.chosen())
         )
-        row, _ = self._sized(
-            _tr("Text size"),
+        row, self.text_size = self._sized(
+            _tr("Caption size"),
             ("smaller", "bigger"),
-            (_tr("Smaller text"), _tr("Bigger text")),
+            (_tr("Smaller caption size"), _tr("Bigger caption size")),
             self.text_slider,
         )
-        self.text_size = cast(QLabel, row.findChild(QLabel))
         return row
 
     def _translation_size_row(self) -> QWidget:
-        """The translation's A-, slider and A+, its size now - a share of
-        what was said's, 50 to 200 %, this window's own - and "Same as what
-        was said" (305)."""
-        self.translation_slider = SizeSlider(*TRANSLATION_SIZES, TEXT_STEP, self)
-        self.translation_slider.setObjectName("settings_popover.translation_slider")
+        """Translation size: independent of caption size (60 to 400 %, slider
+        in 5 % steps), with a small Match button to match caption size (655)."""
+        self.translation_slider = SizeSlider(*TRANSLATION_SIZES, FINE_STEP, self)
+        self.translation_slider.setObjectName(
+            "settings_popover.translation_size_slider"
+        )
         self.translation_slider.valueChanged.connect(
             lambda _: self._window.set_translation_size(
                 self.translation_slider.chosen()
             )
         )
-        row, column = self._sized(
+        self.translation_match = self._button(
+            self.owner.controls["translation_same"], self, True
+        )
+        self.translation_match.setAccessibleName(
+            _tr("Match translation size to caption size")
+        )
+        row, self.translation_size = self._sized(
             _tr("Translation size"),
             ("translation_smaller", "translation_bigger"),
-            (_tr("Smaller translation"), _tr("Bigger translation")),
+            (_tr("Smaller translation size"), _tr("Bigger translation size")),
             self.translation_slider,
+            trailing=self.translation_match,
         )
-        self.translation_size = cast(QLabel, row.findChild(QLabel))
-        same = self._button(self.owner.controls["translation_same"], row)
-        same.setProperty("tick", False)
-        column.addWidget(same)
         return row
 
     def _all_settings_row(self) -> QWidget:
         return self._wide(self.owner.controls["all_settings"])
-
-    def _copy_all_row(self) -> QWidget:
-        return self._wide(self.owner.controls["copy_all"])
 
     def _transcript_row(self) -> QWidget:
         return self._wide(self.owner.controls["transcript"])
@@ -795,8 +856,13 @@ class SettingsPopover(QWidget):
     def refresh(self) -> None:
         """Shows the window's choices (the actions follow by themselves): each
         chip its value, with the arrow turned while its choices are open."""
+        legend = self.rows.get("bar_word_classes")
+        if isinstance(legend, WordClassLegend):
+            legend.set_look(self._window.look)
         if "spoken" in self.rows:
             self._show_spoken()
+        if "lyrics" in self.rows:
+            self.rows["lyrics"].setVisible(self._window.offers_lyrics)
         if "second" in self.rows:
             self._show_second()
         if "language" in self.rows:
@@ -808,41 +874,49 @@ class SettingsPopover(QWidget):
                 item = self.languages.item(index)
                 item.setSelected(item.data(Qt.ItemDataRole.UserRole) == chosen)
             self.not_offered.setHidden(self.languages.isHidden())
-        if "timing" in self.rows:
-            now = next(
-                (
-                    action.text()
-                    for mode in CaptionMode
-                    if (action := self.owner.controls[mode.value]).isChecked()
-                ),
-                "",
-            )
-            self.timing.setText(_chip_text(now, self.timings.isVisible()))
         if "text_size" in self.rows:
             self.text_slider.show_size(self._window.view.text_size)
-            size = _tr("{percent}%").format(
-                percent=round(self._window.view.text_size * 100)
-            )
+            badge = size_badge(self._window.view.text_size)
             self.text_size.setText(
-                f"{_tr('Text size')}  <span style='color:{DIM}'>{size}</span>"
+                f"{_tr('Caption size')}  <span style='color:{DIM}'>{badge}</span>"
             )
         if "translation_size" in self.rows:
-            self.translation_slider.show_size(self._window.choices.translation_size)
-            share = _tr("{percent}%").format(
-                percent=round(self._window.choices.translation_size * 100)
-            )
-            self.translation_size.setText(
-                f"{_tr('Translation size')}  <span style='color:{DIM}'>{share}</span>"
-            )
-            self.rows["translation_size"].setVisible(
-                self._window.choices.target is not None
-            )
+            has_target = self._window.choices.target is not None
+            self.rows["translation_size"].setVisible(has_target)
+            if has_target:
+                trans = self._window.choices.translation_size
+                self.translation_slider.show_size(trans)
+                badge = size_badge(trans)
+                self.translation_size.setText(
+                    f"{_tr('Translation size')}  <span style='color:{DIM}'>{badge}</span>"
+                )
         if "app" in self.rows:
             self.rows["app"].setVisible(bool(self._window.app_choices()))
             self.app.setText(_chip_text(self._window.label.name, self.apps.isVisible()))
             self.no_app.setHidden(self.apps.isHidden())
         if "join" in self.rows:
             self.rows["join"].setVisible(self._window.windows > 1)
+        if "bar_timing" in self.rows:
+            for name, chip in zip(
+                BAR_ROWS,
+                (self._window.timing_chip, self._window.chip, self._window.preset_chip),
+                strict=True,
+            ):
+                row = cast(QPushButton, self.rows[name])
+                value = chip.accessibleName()
+                row.setText(style.button_text(value))
+                row.setAccessibleName(value)
+                row.setVisible(self.keyboard or chip.isHidden())
+        if "bar_mic" in self.rows:
+            mic_row = cast(QPushButton, self.rows["bar_mic"])
+            on = self._window.choices.show_mic
+            mic_row.setText(style.button_text(_tr("Caption what I say")))
+            mic_row.setChecked(on)
+            mic_row.setAccessibleName(_tr("Caption what I say"))
+            tip = self._window.mic_button.toolTip()
+            mic_row.setToolTip(tip)
+            mic_row.setAccessibleDescription(tip)
+            mic_row.setVisible(self._window.mic_offered())
         self._fit()
 
     def _show_spoken(self) -> None:
@@ -879,7 +953,7 @@ class SettingsPopover(QWidget):
 
     def _spoken_chosen(self, code: str | None) -> None:
         self.spoken_choices.close_list()
-        self._window.set_spoken_language(code)
+        self._window.choose_bar_language("spoken_language", code or "")
         self.refresh()
 
     def _toggle_second(self) -> None:
@@ -920,35 +994,54 @@ class SettingsPopover(QWidget):
                 self.languages.scrollToItem(selected[0])
         self.refresh()
 
-    def _toggle_timings(self) -> None:
-        self.timings.setVisible(not self.timings.isVisible())
-        self.refresh()
-
-    def _timing_chosen(self) -> None:
-        self.timings.hide()
-        self.refresh()
-
     def _language_chosen(self, item: QListWidgetItem) -> None:
         self.languages.hide()
-        self._window.set_language(str(item.data(Qt.ItemDataRole.UserRole)))
+        self._window.choose_bar_language(
+            "translate_into", str(item.data(Qt.ItemDataRole.UserRole))
+        )
         self.refresh()
 
     # -- opening, placing, closing ---------------------------------------------------------
 
-    def open_beside(self, anchor: QRect) -> None:
-        """Shown beside the settings button at `anchor` (global), without
-        taking the keyboard or the focus."""
+    def open_beside(self, anchor: QRect, *, keyboard: bool = False) -> None:
+        """Show beside `anchor`. A shortcut can explicitly request focus."""
+        if keyboard != self.keyboard:
+            self.keyboard = keyboard
+            takes_focus = keyboard or self.takes_the_keyboard
+            self.setWindowFlag(Qt.WindowType.WindowDoesNotAcceptFocus, not takes_focus)
+            self.setAttribute(
+                Qt.WidgetAttribute.WA_ShowWithoutActivating, not takes_focus
+            )
         self._anchor = QRect(anchor)
         if self._styled_at != style.text_scale():  # Windows' changed since
             self._styled_at = style.text_scale()
             self.setStyleSheet(_style())
             self.setFixedWidth(style.px(self.width_at_100))
         # the lists inside it: shut at each open
-        for opened in ("languages", "apps", "spoken_choices", "second_choices"):
+        for opened in (
+            "languages",
+            "apps",
+            "spoken_choices",
+            "second_choices",
+        ):
             if hasattr(self, opened):
                 getattr(self, opened).hide()
         self.refresh()
         self.show()  # always on top, and above its window: no raise_(), which activates
+        if self.takes_the_keyboard:  # Linux: Esc and clicks elsewhere reach it (570)
+            self._had_the_keyboard = False
+            self.raise_()
+            self.activateWindow()
+        if keyboard:
+            if not self.takes_the_keyboard:
+                self.activateWindow()
+            for child in self.findChildren(QWidget):
+                if (
+                    child.isVisibleTo(self)
+                    and child.focusPolicy() == Qt.FocusPolicy.StrongFocus
+                ):
+                    child.setFocus(Qt.FocusReason.ShortcutFocusReason)
+                    break
         app = QApplication.instance()
         if app is not None:
             app.installEventFilter(self)
@@ -956,6 +1049,11 @@ class SettingsPopover(QWidget):
             self.keys("escape")  # forget a press from before it opened
             self.keys("mouse")
             self._poll.start()
+
+    def follow_anchor(self, anchor: QRect) -> None:
+        if self._anchor != anchor:
+            self._anchor = anchor
+            self._put()
 
     def _fit(self) -> None:
         """Its size to what shows - `WIDTH`, or what its rows need if more
@@ -973,6 +1071,12 @@ class SettingsPopover(QWidget):
         assert layout is not None
         for each in self.findChildren(QWidget):
             each.updateGeometry()  # its size afresh, in the layout it's in
+            if isinstance(each, (QAbstractButton, QAbstractItemView, QAbstractSlider)):
+                each.setFocusPolicy(
+                    Qt.FocusPolicy.StrongFocus
+                    if self.keyboard
+                    else Qt.FocusPolicy.NoFocus
+                )
         for laid in self.findChildren(QLayout):
             laid.invalidate()
         layout.activate()  # and the least height it allows, from them
@@ -988,7 +1092,11 @@ class SettingsPopover(QWidget):
             return
         area = self.owner.area_at(self._anchor)
         size = (self.width(), self.height())
-        self.move(beside(self._anchor, size, area, self.from_left))
+        clear_of = None
+        if self.takes_the_keyboard:  # Linux: its window is drawn above it (570)
+            window = self.owner.window()
+            clear_of = QRect(window.mapToGlobal(QPoint(0, 0)), window.size())
+        self.move(beside(self._anchor, size, area, self.from_left, clear_of))
 
     def hideEvent(self, event: object) -> None:
         self._poll.stop()
@@ -1008,13 +1116,45 @@ class SettingsPopover(QWidget):
         if keys("escape") or (keys("mouse") and self._outside(QCursor.pos())):
             self.close()
 
+    def event(self, event: QEvent) -> bool:
+        """Taking the keyboard (Linux): closed once another window has it."""
+        kind = event.type()
+        if self.takes_the_keyboard and kind == QEvent.Type.WindowActivate:
+            self._had_the_keyboard = True
+        elif (
+            self.takes_the_keyboard
+            and kind == QEvent.Type.WindowDeactivate
+            and self._had_the_keyboard
+            and self.isVisible()
+        ):
+            self._had_the_keyboard = False
+            self.close()
+        return super().event(event)
+
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         kind = event.type()
-        if (
-            kind == QEvent.Type.KeyPress
-            and getattr(event, "key", lambda: None)() == Qt.Key.Key_Escape
-        ):
-            self.close()
+        if kind == QEvent.Type.KeyPress:
+            key = getattr(event, "key", lambda: None)()
+            if key == Qt.Key.Key_Escape:
+                self.close()
+                return (
+                    self.keyboard
+                    and isinstance(watched, QWidget)
+                    and (watched is self or self.isAncestorOf(watched))
+                )
+            if (
+                self.keyboard
+                and key in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+                and isinstance(watched, (QAbstractButton, QListWidget))
+                and self.isAncestorOf(watched)
+            ):
+                if isinstance(watched, QAbstractButton):
+                    watched.click()
+                elif (item := watched.currentItem()) is not None:
+                    # Cocoa uses Return to edit a list item. These lists offer
+                    # read-only choices, so Return confirms the highlighted one.
+                    watched.itemActivated.emit(item)
+                return True
         elif kind == QEvent.Type.MouseButtonPress and isinstance(watched, QWidget):
             inside = watched is self or self.isAncestorOf(watched)
             position = getattr(event, "globalPosition", None)

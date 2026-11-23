@@ -23,6 +23,12 @@ says to add one, and opens the OS's speech settings. Read in a basic voice
 card going stops the reading - after "Saved", it waits for the reading to
 end.
 
+A selection within one clause - a set phrase like 一石二鳥, too long to
+open a lookup card by itself (522) - has a third row, "Look it up": the
+card goes and the lookup card opens on the phrase, as a click on a word
+opens it (polyglotic-hq 533). Across clauses or captions there's no
+phrase to look up, and no such row.
+
 Like the settings popover and the lookup card it **never takes focus** -
 a tool window with `Qt.WindowDoesNotAcceptFocus`, shown without
 activating, never raised - so a full-screen game keeps the keyboard; its
@@ -48,7 +54,13 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.core.learning.saved_words import Category, CategoryId
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.languages import learned_name, own_name
+from polyglotic_desktop.ui_next.above_all import ABOVE_ALL
+from polyglotic_desktop.ui_next.languages import (
+    an_before,
+    in_sentence,
+    learned_name,
+    own_name,
+)
 from polyglotic_desktop.ui_next.lookup_card import (
     better_voice_steps,
     dismiss_text,
@@ -82,6 +94,12 @@ def saved_to_text(category: str) -> str:
     return _tr("Saved to {category}").format(category=category)
 
 
+def look_up_text() -> str:
+    """The card's button that looks the selected phrase up (polyglotic-hq
+    533)."""
+    return _tr("Look it up")
+
+
 def say_it_text() -> str:
     """ "Say it", before the languages: the card's, and the transcript's
     menu's (polyglotic-hq 495)."""
@@ -96,13 +114,18 @@ def stop_text() -> str:
 def say_in_text(language: str) -> str:
     """A side's button in words, for its tooltip and a screen reader."""
     name = learned_name(_learned(language))
-    return _tr("Say it in {language}").format(language=name)
+    return in_sentence(_tr("Say it in {language}"), language=name)
 
 
 def add_voice_text(language: str) -> str:
     """A side's button when the PC has no voice for its language."""
     name = learned_name(_learned(language))
-    return _tr("Add a {language} voice").format(language=name)
+    if an_before(name):
+        #: "an" before a language name said with a vowel first: "Add an English voice". Translate as "Add a {language} voice"
+        said = _tr("Add an {language} voice")
+    else:
+        said = _tr("Add a {language} voice")
+    return in_sentence(said, language=name)
 
 
 def _learned(language: str) -> str:
@@ -165,7 +188,8 @@ class SentenceCard(QWidget):
             Qt.WindowType.Tool
             | Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.WindowDoesNotAcceptFocus,
+            | Qt.WindowType.WindowDoesNotAcceptFocus
+            | ABOVE_ALL,
         )
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
@@ -199,6 +223,18 @@ class SentenceCard(QWidget):
         self._say_row.addStretch(1)
         self.sides: list[tuple[QPushButton, SideAloud]] = []
         """The Say it row's buttons, a side each (polyglotic-hq 495)."""
+        self.look_up = QPushButton(self)
+        """Looks the selected phrase up (533): shown when `offer` has one."""
+        self.look_up.setObjectName("sentence_card.look_up")
+        self.look_up.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.look_up.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.look_up.clicked.connect(self._looked_up)
+        self.look_up.hide()
+        self._look: Callable[[], None] | None = None
+        look_row = QHBoxLayout()
+        look_row.addWidget(self.look_up)
+        look_row.addStretch(1)
+        rows.addLayout(look_row)
         self.reading: SelectionReading | None = None
         self._owner: object = owner
         self.better = QLabel(self)
@@ -239,13 +275,19 @@ class SentenceCard(QWidget):
         at: QPoint,
         area: QRect,
         sides: Sequence[SideAloud] = (),
+        look_up: Callable[[], None] | None = None,
     ) -> None:
         """Shows the card at `at` (the mouse, on the screen): a button per
         category; a click calls `save` with its ID, which returns the
         category's name it went into ("" if it couldn't be saved). `sides`:
-        what can be read aloud (with `reading`); none, no Say it row."""
+        what can be read aloud (with `reading`); none, no Say it row.
+        `look_up`: opens the lookup card on the selected phrase, after the
+        card goes; None, no Look it up row (a selection across clauses)."""
         self._gone.stop()
         self._save = save
+        self._look = look_up
+        self.look_up.setText(look_up_text())
+        self.look_up.setVisible(look_up is not None)
         for button in self.buttons:
             self._row.removeWidget(button)
             button.deleteLater()
@@ -299,7 +341,7 @@ class SentenceCard(QWidget):
             state = reading.state(self._owner, side)
             button.setText(side_text(state, side.language))
             if state is Say.NO_VOICE:
-                tip = no_voice_steps(side.language)
+                tip = no_voice_steps(side.language, reading.system_voice())
             elif state is Say.SPEAKING:
                 tip = f"{stop_text()} (Esc)"
             else:
@@ -339,6 +381,15 @@ class SentenceCard(QWidget):
     def _say(self, side: SideAloud) -> None:
         if self.reading is not None:
             self.reading.toggle(self._owner, side)
+
+    def _looked_up(self) -> None:
+        """Look it up: the card goes (its reading too), and the phrase's
+        lookup card opens in its place - never both at once (522)."""
+        look, self._look = self._look, None
+        self._gone.stop()
+        self.hide()
+        if look is not None:
+            look()
 
     def _chosen(self, category_id: CategoryId) -> None:
         if self._save is None:

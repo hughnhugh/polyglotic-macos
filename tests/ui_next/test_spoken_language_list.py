@@ -160,8 +160,8 @@ def test_settings_finds_a_language_as_it_is_typed_and_enter_chooses_it(
 def test_the_popover_list_never_takes_the_keyboard(window: CaptionWindow) -> None:
     window.hovered = True
     window._show_band(True)
-    window.toggle_settings()
-    popover = window.popover
+    window.toggle_languages()
+    popover = window.languages
     assert popover is not None
     assert not popover.spoken_choices.built  # not until opened
     popover.spoken.click()

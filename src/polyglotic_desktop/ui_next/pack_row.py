@@ -34,8 +34,8 @@ from polyglotic_desktop.core.lexicon.pack_download import (
 )
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.copying import Text
-from polyglotic_desktop.ui_next.languages import learned_name
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.languages import in_sentence, learned_name
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.learning import PackLine
 
 
@@ -97,9 +97,14 @@ def progress_text(code: str, progress: PackProgress) -> str:
             + _trying_again(progress)
         )
     if problem is Problem.METERED:
+        left = size_text(max(0, progress.total - progress.done))
+        if on_linux():  # NetworkManager's setting, not Windows' (571)
+            return _tr(
+                "Paused: this connection is set as metered. {size} left to download."
+            ).format(size=left)
         return _tr(
             "Paused: Windows says this connection is metered. {size} left to download."
-        ).format(size=size_text(max(0, progress.total - progress.done)))
+        ).format(size=left)
     if problem is Problem.NO_ROOM:
         return pc_or_mac(
             _tr("Not enough room on this PC: it needs {size} free."),
@@ -113,9 +118,12 @@ def progress_text(code: str, progress: PackProgress) -> str:
     if problem is Problem.FILE_REFUSED:
         return _tr("Refused: the file didn't match our list, so it was deleted.")
     if problem is Problem.UNREADABLE:
-        return _tr(
-            "Refused: the file isn't the {language} dictionary, so it was deleted."
-        ).format(language=name)
+        return in_sentence(
+            _tr(
+                "Refused: the file isn't the {language} dictionary, so it was deleted."
+            ),
+            language=name,
+        )
     if problem is Problem.NEEDS_NEWER_APP:
         return _tr("Its dictionary needs a newer Polyglotic. Update the app to get it.")
     if problem is Problem.NOT_OFFERED:
@@ -291,16 +299,20 @@ class PackRow(QWidget):
 
 def ready_notice(code: str) -> str:
     """Home's notice, once, when a pack the learner asked for is in."""
-    return _tr(
-        "The {language} dictionary is ready: look up words in {language} captions."
-    ).format(language=learned_name(code))
+    return in_sentence(
+        _tr(
+            "The {language} dictionary is ready: look up words in {language} captions."
+        ),
+        language=learned_name(code),
+    )
 
 
 def failed_notice(code: str) -> str:
     """Home's notice, once, when it stopped without it (Learning says why)."""
-    return _tr(
-        "The {language} dictionary couldn't be downloaded: see Learning."
-    ).format(language=learned_name(code))
+    return in_sentence(
+        _tr("The {language} dictionary couldn't be downloaded: see Learning."),
+        language=learned_name(code),
+    )
 
 
 def remove_question(code: str, size: int) -> tuple[str, str, str, str]:
@@ -308,17 +320,21 @@ def remove_question(code: str, size: int) -> tuple[str, str, str, str]:
     words, and its two answers."""
     name = learned_name(code)
     return (
-        _tr("Remove the {language} dictionary too?").format(language=name),
-        pc_or_mac(
-            _tr(
-                "It frees {size} on this PC. It downloads again if you learn "
-                "{language} later."
+        in_sentence(_tr("Remove the {language} dictionary too?"), language=name),
+        in_sentence(
+            pc_or_mac(
+                _tr(
+                    "It frees {size} on this PC. It downloads again if you learn "
+                    "{language} later."
+                ),
+                _tr(
+                    "It frees {size} on this Mac. It downloads again if you learn "
+                    "{language} later."
+                ),
             ),
-            _tr(
-                "It frees {size} on this Mac. It downloads again if you learn "
-                "{language} later."
-            ),
-        ).format(size=size_text(size), language=name),
+            size=size_text(size),
+            language=name,
+        ),
         _tr("Remove it"),
         _tr("Keep it"),
     )

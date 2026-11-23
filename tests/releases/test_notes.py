@@ -14,6 +14,7 @@ from polyglotic_desktop.core.releases.notes import (
     unseen,
     version_order,
 )
+from polyglotic_desktop.core.releases.updates import whats_new
 
 FILE = """# Release notes
 
@@ -70,6 +71,20 @@ def test_the_repos_own_notes_read() -> None:
     found = sections(text)
     assert [n.version for n in found][-1] == "0.1.0"
     assert all(n.markdown for n in found)
+
+
+def test_the_speaker_typing_line_says_what_f8_does_on_home() -> None:
+    """Home's first sentence tells people which key to hold and what it does."""
+    text = (Path(__file__).parents[2] / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+    [section] = [part for part in text.split("\n## ") if "\n- Hold F8" in part]
+    said = [
+        line
+        for line in whats_new(section, lines=99)
+        if line.startswith(("Hold F8", "Re-speaking:"))
+    ]
+    assert said == [
+        "Hold F8 to type what someone said through your speakers into another app."
+    ]
 
 
 def test_the_newest_released_version_is_what_a_copy_from_source_is() -> None:

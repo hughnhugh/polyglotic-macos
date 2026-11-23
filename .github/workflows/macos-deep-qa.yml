@@ -1,0 +1,56 @@
+name: Mac desktop QA
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: GitHub-hosted Apple silicon Mac
+        type: choice
+        options: [macos-15, macos-26]
+        default: macos-26
+      scenario:
+        description: Desktop scenario to exercise
+        type: choice
+        options: [windows, audio-permission, capture-choice, settings, bundle, ui-lab-en, ui-lab-zh]
+        default: windows
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 60
+    env:
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
+      SCENARIO: ${{ inputs.scenario }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+      - run: uv sync --locked
+      - run: uv run --no-sync python -m tools.i18n build
+      - name: Run the selected scenario
+        shell: bash
+        run: |
+          case "$SCENARIO" in
+            windows) uv run --with pyobjc-framework-Quartz==13.0 python -m tools.macos_window_qa out/windows ;;
+            audio-permission) uv run --with pyobjc-framework-Quartz==13.0 python -m tools.macos_audio_permission_qa out/permission ;;
+            capture-choice) uv run --no-sync python -m tools.capture_choice_qa out/capture-choice ;;
+            settings) uv run --no-sync python -m tools.macos_sweep_evidence out/settings ;;
+            bundle) bash tools/package/macos_qa.sh bundle ;;
+            ui-lab-en) uv run --no-sync python -m tools.macos_ui_lab en ;;
+            ui-lab-zh) uv run --no-sync python -m tools.macos_ui_lab zh_CN ;;
+          esac
+      - name: Keep the pictures and measurements
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: desktop-${{ inputs.runner }}-${{ inputs.scenario }}-${{ github.run_id }}
+          path: out/
+          retention-days: 1
+          if-no-files-found: error

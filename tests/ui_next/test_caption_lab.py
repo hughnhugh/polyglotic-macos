@@ -21,6 +21,7 @@ from tests.ui_next.test_settings_captions_page import MADE as PAGES
 from tests.ui_next.test_settings_captions_page import page_with
 from tools.ui_lab.lab import SCENE
 
+from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import LinkLine
 from polyglotic_desktop.main import caption_look, look_settings
 from polyglotic_desktop.ui.settings import AppSettings
@@ -269,6 +270,7 @@ def test_the_settings_page_has_the_lab_in_its_own_section_last(
 ) -> None:
     page = page_with()
     assert list(page.section)[-1] == "lab"  # its own, last (304)
+    page.show_section("lab")  # its card made when it's first shown (544)
     column = page.section["lab"].layout()
     assert column is not None
     last = column.itemAt(column.count() - 1)
@@ -347,7 +349,11 @@ def test_text_still_being_spoken_looks_as_the_lab_says(
 def test_a_live_caption_is_laid_out_italic_and_upright_once_finished(
     qapp: QApplication,
 ) -> None:
-    look = CaptionLook(lab=CaptionLab(unfinished=Unfinished.ITALIC))
+    # in Chinese's sans, which slanted before 526, not its calligraphy (532)
+    look = CaptionLook(
+        lab=CaptionLab(unfinished=Unfinished.ITALIC),
+        faces=(("zh", "Noto Sans SC Captions"),),
+    )
     engine = CaptionLayout(caption_style(look))
     window = window_of(qapp, captions=1, look=look)
     try:
@@ -355,9 +361,11 @@ def test_a_live_caption_is_laid_out_italic_and_upright_once_finished(
         line = window.view.lines[-1]
         assert line.live and not line.provisional
         laid = engine.laid(line, 600, 1.0)
-        assert laid.rows[0].layout.font().italic()
-        finished = replace(line, live=False)
-        assert not engine.laid(finished, 600, 1.0).rows[0].layout.font().italic()
+        slanted = {row.row.language: row.layout.font().italic() for row in laid.rows}
+        assert not slanted[Language("zh")]  # Chinese is never slanted (526)
+        assert slanted[Language("en")]
+        finished = engine.laid(replace(line, live=False), 600, 1.0)
+        assert not any(row.layout.font().italic() for row in finished.rows)
     finally:
         window.close()
 

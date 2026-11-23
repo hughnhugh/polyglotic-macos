@@ -21,6 +21,7 @@ from typing import NewType
 
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionId, WithdrawalReason
+from polyglotic_desktop.ports.word_classes import WordClass as WordClass  # noqa: PLC0414
 
 Language = NewType("Language", str)
 """A language code, lower case: `en`, `zh`, `yue`, `zh-hant` (protocol.md)."""
@@ -48,6 +49,20 @@ class WordLink:
     translation: tuple[int, int]
     key: bool
     confidence: float
+    original_pos: WordClass | None = None
+    translation_pos: WordClass | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class WordTime:
+    """When a word of a clause's original was said, as the server heard it
+    (server decision 0099; this app's 0247): its span in the original,
+    `[start, end)` in code points, and `start` and `end` in seconds on the
+    clock `SpeechTimes` is on."""
+
+    original: tuple[int, int]
+    start: float
+    end: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,12 +73,14 @@ class Clause:
     way, or the clause already in that language). `written_in`, by the
     same key: the language each translation is written in, as the server
     says (server decision 0097) - missing from an older server's
-    (`line_language`)."""
+    (`line_language`). `words`: when each word of the original was said,
+    where the server says (`WordTime`; none from a server that doesn't)."""
 
     original: str
     translations: Mapping[Language, str] = field(default_factory=dict)
     links: Mapping[Language, tuple[WordLink, ...]] = field(default_factory=dict)
     written_in: Mapping[Language, Language] = field(default_factory=dict)
+    words: tuple[WordTime, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,6 +93,9 @@ class SpeechTimes:
     speech_end: float
     sent: float
     received: float
+    seq: int | None = None
+    """The speech frame's number in the caption timelines (perf.trace):
+    the stages after the answer are marked under it."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,7 +111,9 @@ class CaptionUpdate:
     the session when it sent that speech itself (None otherwise).
     `established`: a live update's established text - characters of its
     clauses' originals counted in order (`established`; 0: none, as from a
-    server before it)."""
+    server before it). `respoken`: the learner re-spoke it for its source
+    (polyglotic-hq 567) - the app's own mark, set as it arrives, never the
+    server's."""
 
     caption_id: CaptionId
     source_id: SourceId
@@ -104,6 +126,12 @@ class CaptionUpdate:
     processing_ms: int | None = None
     times: SpeechTimes | None = None
     established: int = 0
+    respoken: bool = False
+    continues: CaptionId | None = None
+    """On the wire, the earlier audio ID whose words these clauses include."""
+    display_member: CaptionId | None = None
+    """In the views, the later audio ID when revising or restoring its
+    earlier line. Its place can be folded away and opened again."""
 
 
 HAN_NOT_MANDARIN = frozenset({"ja", "yue"})

@@ -39,9 +39,10 @@ SAMPLE = SourceId("sample")
 app itself (polyglotic-hq 176). Its category is `other`: the server learns
 no more of it than of an app."""
 DICTATION = SourceId("dictation")
-"""The learner's mic while they hold the dictation key (polyglotic-hq 283,
-decision 0073): its category is `mic`, its text is typed into another
-program - never a caption line (`core.listening.dictation`)."""
+TYPE_THEIRS = SourceId("type_theirs")
+TYPED_SOURCES = frozenset({DICTATION, TYPE_THEIRS})
+"""Held clips that are only typed when there is no active caption source
+for the same audio (polyglotic-hq 703)."""
 
 
 @dataclass(frozen=True, slots=True)

@@ -72,6 +72,7 @@ it.
 
 from collections.abc import Collection, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 
 from PySide6.QtGui import QColor, QTextCharFormat
 
@@ -83,7 +84,8 @@ from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.lexicon.english import inside_sentence, is_capitalised
 from polyglotic_desktop.core.listening.display import LIVE_TRAIL, RowKind, WordLinks
 from polyglotic_desktop.core.shared import EntryId, WordInLine
-from polyglotic_desktop.ui_next.caption_layout import LINK_MARK, Mark
+from polyglotic_desktop.ui_next.caption_layout import LINK_CONTRAST, LINK_MARK, Mark
+from polyglotic_desktop.ui_next.views.caption_window import MarksIn, rows_marked
 from polyglotic_desktop.ui_next.views.captions import Line
 from polyglotic_desktop.ui_next.views.known_colours import (
     STEPS,
@@ -95,11 +97,13 @@ from polyglotic_desktop.ui_next.views.links import RowLinks, hidden_links
 from polyglotic_desktop.ui_next.views.lookup import Learner
 from polyglotic_desktop.ui_next.views.presets import (
     AA_TEXT,
+    ciede2000,
     colour_difference,
     readable_on,
     readable_through,
 )
-from polyglotic_desktop.ui_next.views.tone import vibrant
+from polyglotic_desktop.ui_next.views.tone import caption_text_colour, vibrant
+from polyglotic_desktop.ui_next.word_classes import APART_FROM_TEXT, class_colour
 
 LINK_COLORS = (
     "#ff9f43",
@@ -113,15 +117,16 @@ LINK_COLORS = (
     "#e617d1",
     "#acbf60",
 )
-"""A colour per link, not a text colour (white, yellow and saved words'
-colours already mean something), ordered so neighbours are far apart in
-hue. Every two at least 13 apart in CIEDE2000 as drawn, on every preset's
+"""Pairing tints for hover. Underlines and optional text colours use
+word class swatches. Hover tints are ordered so neighbours are far apart
+in hue. Every two at least 13 apart in CIEDE2000 as drawn, on every preset's
 panel, as lines and as words (`tests/ui_next/test_link_colours_told_apart`;
 polyglotic-hq 446: the user found orange and the brown that was last, 11
 apart, "not that distinguishable"). 446 changed three: the brown to an
 olive, the lime to a green and the magenta a little pinker. The vibrance
 slider (481) leaves them as they are: muted or made vivid, two pairs fell
-under 13 (`tests/ui_next/test_tone_on_captions.py`)."""
+under 13 (`tests/ui_next/test_tone_on_captions.py`). On a look whose text
+is near one of them, it is skipped there (`link_colours`, 554)."""
 UNFAMILIAR = "#ffd27a"
 """Dots under a word new to the learner."""
 IN_DECK = "#7ee0a8"
@@ -185,6 +190,8 @@ class Panel:
     opacity: float = 1.0
     """How solid the panel is: the blue is made readable on it seen over a
     light or a black video too (`readable_through`, as links' colours)."""
+    marks_in: MarksIn = MarksIn.LEARNED
+    """Which line of a clause the learner's words are marked in (526)."""
     quiet_words: frozenset[ChosenWords] = DEFAULT_CHOSEN
     """Which words are chosen: our curriculum's set, the load's words,
     saved words, words at your edge (the learner's vocabulary says which a
@@ -196,6 +203,42 @@ class Panel:
 
     def own(self, kind: RowKind) -> str:
         return self.original if kind is RowKind.ORIGINAL else self.translation
+
+
+def link_colours(panel: Panel) -> tuple[str, ...]:
+    """The word links' colours on `panel`, in `LINK_COLORS`' order: those
+    too close to its rows' own colours as a word is drawn in them
+    (`APART_FROM_TEXT`) skipped, so the next takes their turn - a linked
+    word mustn't read as one of its line's other words (polyglotic-hq 554).
+    Both rows', as a link joins a word of each in one colour."""
+    return _link_colours(
+        panel.background, panel.opacity, panel.original, panel.translation
+    )
+
+
+def link_colour(panel: Panel, link: int) -> str:
+    """Link number `link`'s colour on `panel` (`link_colours`)."""
+    colours = link_colours(panel)
+    return colours[link % len(colours)]
+
+
+@lru_cache(maxsize=64)
+def _link_colours(
+    background: str, opacity: float, original: str, translation: str
+) -> tuple[str, ...]:
+    kept = tuple(
+        colour
+        for colour in LINK_COLORS
+        if all(
+            ciede2000(
+                readable_through(colour, background, opacity, 1.0, LINK_CONTRAST),
+                row,
+            )
+            >= APART_FROM_TEXT
+            for row in (original, translation)
+        )
+    )
+    return kept or LINK_COLORS  # text in colours like every one of them
 
 
 def _said(line: Line, index: int) -> list[tuple[int, int, str]]:
@@ -329,11 +372,17 @@ class CaptionMarks:
             self._learning(line, learner, marks, entries)
         if self.word_links in (WordLinks.COLOURS, WordLinks.ARROWS):
             hidden = self._hidden_links(line, entries)
+            background, opacity = self.panel.background, self.panel.opacity
             for index, row in enumerate(line.rows):
+                if not row.links:
+                    continue
+                text_colour = caption_text_colour(
+                    self.panel.own(row.kind), background, self.panel.vibrance
+                )
                 for linked in row.links:
                     if (row.clause, linked.link) in hidden:
                         continue
-                    color = LINK_COLORS[linked.link % len(LINK_COLORS)]
+                    color = class_colour(linked.pos, background, opacity, text_colour)
                     marks[index].append(
                         (
                             linked.start,
@@ -393,6 +442,21 @@ class CaptionMarks:
                     )
                 )
         return hidden_links(line.rows, says)
+
+    def _rows_marked(self, line: Line, learner: Learner) -> frozenset[int]:
+        """The rows of `line` the quiet view's words are marked in
+        (`views.caption_window.rows_marked`, by `Panel.marks_in`)."""
+        return rows_marked(
+            [
+                (
+                    row.clause,
+                    row.kind is RowKind.ORIGINAL,
+                    learner.of(row.language).learns(row.language),
+                )
+                for row in line.rows
+            ],
+            self.panel.marks_in,
+        )
 
     def _learning(
         self,
@@ -488,9 +552,10 @@ class CaptionMarks:
         one kind in one language - as `Vocabulary.lit` takes them (496)."""
         saved = ChosenWords.SAVED in self.panel.quiet_words
         found: dict[int, tuple[Learner, str, list[WordInLine]]] = {}
+        marked = self._rows_marked(line, learner)
         for index, row in enumerate(line.rows):
             ours = learner.of(row.language)
-            if not ours.learns(row.language):
+            if index not in marked:
                 continue
             text = row.text.removesuffix(LIVE_TRAIL)
             words = ours.words_in(text, said=_said(line, index))

@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QWidget
 from tests.ui_next.made_up import finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
+from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_window import STRIP, CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -24,6 +25,7 @@ from polyglotic_desktop.ui_next.strip_tips import (
 )
 from polyglotic_desktop.ui_next.views.caption_window import WindowChoices
 from polyglotic_desktop.ui_next.views.placement import Rect
+from polyglotic_desktop.ui_next.word_classes import legend_html
 
 AREA = Rect(0, 0, 1920, 1040)
 SCREEN = QRect(0, 0, 1920, 1040)
@@ -79,7 +81,8 @@ def rest(window: CaptionWindow) -> None:
 
 def test_every_strip_button_says_what_it_does_on_hover(window: CaptionWindow) -> None:
     """The user's preview-1 feedback (2026-11-16): hovering an icon said
-    nothing. Each button's own tooltip, the same words as before."""
+    nothing. Each button's own tooltip, the same words as before - each
+    one shown (Fill the width isn't on the strip: polyglotic-hq 555, 556)."""
     said = {}
     for name in STRIP:
         button = window.buttons[name]
@@ -89,7 +92,10 @@ def test_every_strip_button_says_what_it_does_on_hover(window: CaptionWindow) ->
         said[name] = labels_shown()
         leave(button)
         assert labels_shown() == []
-    assert said == {name: [window.controls[name].toolTip()] for name in STRIP}
+    expected = {name: [window.controls[name].toolTip()] for name in STRIP}
+    expected["links"] = [legend_html(window.look, window.controls["links"].toolTip())]
+    assert said == expected
+    assert "Noun" in said["links"][0] and "Class unavailable" in said["links"][0]
     assert said["stop"] == ["Stop captioning Discord"]
     assert said["lock"] == [
         keys("Lock - clicks pass through to what's underneath, Ctrl+Alt+L")
@@ -99,26 +105,46 @@ def test_every_strip_button_says_what_it_does_on_hover(window: CaptionWindow) ->
 def test_moving_to_the_next_button_says_it_at_once_and_a_press_hides_it(
     window: CaptionWindow,
 ) -> None:
-    enter(window.buttons["links"])
+    enter(window.buttons["lock"])
     rest(window)
-    leave(window.buttons["links"])
-    enter(window.buttons["fill"])
+    leave(window.buttons["lock"])
+    enter(window.buttons["stop"])
     assert labels_shown() == []  # the last one went as the mouse left
     rest(window)
-    assert labels_shown() == [window.controls["fill"].toolTip()]
+    assert labels_shown() == [window.controls["stop"].toolTip()]
     press = QMouseEvent(
         QEvent.Type.MouseButtonPress, QPointF(4, 4), QPointF(4, 4),
         Qt.MouseButton.LeftButton, Qt.MouseButton.LeftButton,
         Qt.KeyboardModifier.NoModifier,
     )  # fmt: skip
-    QApplication.sendEvent(window.buttons["fill"], press)
+    QApplication.sendEvent(window.buttons["stop"], press)
     assert labels_shown() == []
-    leave(window.buttons["fill"])
+    leave(window.buttons["stop"])
+
+
+def test_each_chip_icon_says_its_full_value_and_opens_its_dropdown(
+    window: CaptionWindow,
+) -> None:
+    window.set_timing(CaptionMode.INSTANT)
+    window.resize(window._minimum().width, window.height())
+    for chip, name, popup in (
+        (window.chip, "Languages: Detect → English", "languages"),
+        (window.preset_chip, "Preset: Everyday", "presets"),
+        (window.timing_chip, "Timing: Instant", "timings"),
+    ):
+        assert chip.isVisible() and not chip.icon().isNull() and chip.text() == ""
+        enter(chip)
+        rest(window)
+        assert labels_shown() == [name]
+        leave(chip)
+        chip.click()
+        assert getattr(window, popup).isVisible()
+        window.close_settings()
 
 
 def test_from_one_button_to_the_next_while_one_shows(window: CaptionWindow) -> None:
     """Like Qt's tooltips: once one shows, the next is said without the wait."""
-    enter(window.buttons["links"])
+    enter(window.buttons["lock"])
     rest(window)
     enter(window.buttons["settings"])  # its enter before the last one's leave
     assert labels_shown() == [window.controls["settings"].toolTip()]
@@ -126,30 +152,33 @@ def test_from_one_button_to_the_next_while_one_shows(window: CaptionWindow) -> N
 
 
 def test_a_changed_tip_is_the_one_said(window: CaptionWindow) -> None:
-    """Word links with what was said hidden say why they're off."""
-    window.set_look(window.look.__class__(show_original=False))
-    enter(window.buttons["links"])
+    """A button's tip as it is when it's said, changed since it was made
+    (Word links with what was said hidden said why they were off, until
+    their strip button went into the presets' dropdown: polyglotic-hq 556)."""
+    window.controls["stop"].setToolTip("Stop captioning it, said afresh")
+    enter(window.buttons["stop"])
     rest(window)
-    assert labels_shown() == [window.controls["links"].toolTip()]
-    assert "Show the original" in labels_shown()[0]
-    leave(window.buttons["links"])
+    assert labels_shown() == ["Stop captioning it, said afresh"]
+    leave(window.buttons["stop"])
 
 
-def test_the_mic_mark_says_my_speech_is_shown_here(window: CaptionWindow) -> None:
+def test_the_mic_button_says_whether_own_speech_is_on_or_off(
+    window: CaptionWindow,
+) -> None:
+    mic = window.mic_button
+    enter(mic)
+    rest(window)
+    assert labels_shown() == ["Caption what I say: off"]
+    leave(mic)
     window.set_show_mic(True)
-    tag = window.tag
-    enter(tag, x=tag.width() - 4)
+    enter(mic)
     rest(window)
-    mic = (
-        "Your speech is shown here: your microphone is sent to the server only "
-        "while this is on"
-    )
-    assert labels_shown() == [mic]
-    leave(tag)
-    enter(tag, x=20)
+    assert labels_shown() == ["Caption what I say: on"]
+    leave(mic)
+    enter(window.tag, x=20)
     rest(window)
     assert labels_shown() == ["Discord"]
-    leave(tag)
+    leave(window.tag)
 
 
 def test_the_label_never_takes_the_focus_or_the_mouse(window: CaptionWindow) -> None:

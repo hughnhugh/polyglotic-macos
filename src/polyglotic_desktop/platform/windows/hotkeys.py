@@ -1,4 +1,4 @@
-"""System-wide hotkeys: Ctrl+Alt+L, P and H work even while a game has focus.
+"""System-wide hotkeys: Ctrl+Alt+L, P, H and J - or the keys the learner chose - work even while a game has focus.
 
 A Qt shortcut only fires while one of the app's windows has the keyboard;
 Windows' `RegisterHotKey` fires whatever has it. The proof of concept
@@ -8,11 +8,14 @@ of their own with its own message loop, so this module needs no Qt:
 `GlobalHotkeys` calls each binding on that thread, and `main` hands the
 call to the interface's thread.
 
-A combination another app has already registered can't be taken: `start`
-says which, and the rest still work, and the log names which of ours they
-were ("Ctrl+Alt+H": polyglotic-hq 291 - a tester's log said only "1
-hotkey(s)"). Windows doesn't say which app has it, and nothing pressed is
-ever logged.
+Each is a combination as `core.listening.dictation_keys.DictationKey`
+keeps it ("ctrl+alt+l", "f9": polyglotic-hq 567, decision 0273): any key
+`HoldKey` takes, with any modifiers - but a modifier alone, which Windows
+can't register. A combination another app has already registered can't be
+taken: `start` says which, and the rest still work, and the log names
+which of ours they were ("Ctrl+Alt+H": polyglotic-hq 291 - a tester's log
+said only "1 hotkey(s)"). Windows doesn't say which app has it, and
+nothing pressed is ever logged.
 
 `HoldKey` is dictation's key or combination, held (polyglotic-hq 283,
 289; decision 0081): the same `RegisterHotKey` for when a key goes down,
@@ -27,15 +30,18 @@ import logging
 import threading
 from collections.abc import Callable, Mapping
 
-from polyglotic_desktop.core.listening.dictation_keys import DictationKey, Modifier
+from polyglotic_desktop.core.listening.dictation_keys import (
+    HOLD_RELEASE_POLLS,
+    DictationKey,
+    Modifier,
+)
 
 log = logging.getLogger(__name__)
 
 MOD_ALT, MOD_CONTROL, MOD_SHIFT = 0x0001, 0x0002, 0x0004
 MOD_NOREPEAT = 0x4000  # held down, it fires once
-CTRL_ALT = MOD_CONTROL | MOD_ALT
 WM_QUIT, WM_HOTKEY = 0x0012, 0x0312
-_PM_NOREMOVE = 0x0000
+_PM_NOREMOVE, _PM_REMOVE = 0x0000, 0x0001
 
 _user32 = ctypes.WinDLL("user32", use_last_error=True)
 _user32.RegisterHotKey.argtypes = [
@@ -71,37 +77,44 @@ _user32.PostThreadMessageW.argtypes = [
 _user32.PostThreadMessageW.restype = ctypes.wintypes.BOOL
 
 
-def combination(modifiers: int, key: str) -> str:
-    """A combination's name as Windows' own menus write it: "Ctrl+Alt+L"."""
-    names = [
-        name
-        for flag, name in (
-            (MOD_CONTROL, "Ctrl"),
-            (MOD_ALT, "Alt"),
-            (MOD_SHIFT, "Shift"),
-        )
-        if modifiers & flag
-    ]
-    return "+".join([*names, key])
+def combination(key: str) -> str:
+    """A combination as Windows' own menus write it: "Ctrl+Alt+L"."""
+    parsed = DictationKey.parse(key)
+    if parsed is None:
+        return key
+    names = {"ctrl": "Ctrl", "alt": "Alt", "shift": "Shift", "win": "Win"}
+    return "+".join(
+        names.get(part)
+        or (part.upper() if len(part) == 1 or part[1:].isdigit() else part)
+        .replace("_", " ")
+        .title()
+        for part in parsed.parts
+    )
+
+
+def registered(key: str) -> tuple[int, int]:
+    """`key`'s modifiers and virtual key, as `RegisterHotKey` takes them.
+    Raises `ValueError` for a key that can't be registered: not a key kept,
+    or a modifier alone."""
+    parsed = DictationKey.parse(key)
+    if parsed is None or parsed.key is None or parsed.key not in VK_KEYS:
+        raise ValueError(f"not a hotkey: {key!r}")
+    modifiers = 0
+    for modifier in parsed.modifiers:
+        modifiers |= MODIFIER_KEYS[modifier][0]
+    return modifiers, VK_KEYS[parsed.key]
 
 
 class GlobalHotkeys:
-    """Hotkeys for the whole system, each a modifier combination plus one
-    letter or digit, on a thread of their own."""
+    """Hotkeys for the whole system, each a combination as kept
+    ("ctrl+alt+l"), on a thread of their own."""
 
-    def __init__(
-        self,
-        bindings: Mapping[str, Callable[[], None]],
-        modifiers: int = CTRL_ALT,
-    ) -> None:
-        """`bindings`: a letter or digit (upper case) -> what to call, on the
-        hotkeys' thread, when its combination is pressed."""
-        for key in bindings:
-            if len(key) != 1 or not (key.isascii() and key.isupper() or key.isdigit()):
-                raise ValueError(f"not a letter or digit key: {key!r}")
+    def __init__(self, bindings: Mapping[str, Callable[[], None]]) -> None:
+        """`bindings`: a combination as kept -> what to call, on the
+        hotkeys' thread, when it's pressed."""
         self._keys = list(bindings)
+        self._codes = [registered(key) for key in bindings]
         self._calls = dict(enumerate(bindings.values(), start=1))
-        self._modifiers = modifiers
         self._thread: threading.Thread | None = None
         self._thread_id = 0
         self._ready = threading.Event()
@@ -140,18 +153,18 @@ class GlobalHotkeys:
         # before it, a stop's WM_QUIT would be lost
         _user32.PeekMessageW(ctypes.byref(msg), None, 0, 0, _PM_NOREMOVE)
         self._thread_id = threading.get_native_id()
-        registered = []
-        for hotkey_id, key in enumerate(self._keys, start=1):
-            if _user32.RegisterHotKey(
-                None, hotkey_id, self._modifiers | MOD_NOREPEAT, ord(key)
-            ):
-                registered.append(hotkey_id)
+        done = []
+        for hotkey_id, (key, (modifiers, vk)) in enumerate(
+            zip(self._keys, self._codes, strict=True), start=1
+        ):
+            if _user32.RegisterHotKey(None, hotkey_id, modifiers | MOD_NOREPEAT, vk):
+                done.append(hotkey_id)
             else:
                 self.taken.append(key)
         if self.taken:
             log.warning(
                 "hotkey(s) already taken by another app: %s",
-                ", ".join(combination(self._modifiers, key) for key in self.taken),
+                ", ".join(combination(key) for key in self.taken),
             )
         self._ready.set()
         try:
@@ -166,7 +179,7 @@ class GlobalHotkeys:
                 except Exception:  # a failing action must not end the hotkeys
                     log.exception("a hotkey's action failed")
         finally:
-            for hotkey_id in registered:
+            for hotkey_id in done:
                 _user32.UnregisterHotKey(None, hotkey_id)
 
 
@@ -273,6 +286,7 @@ class HoldKey:
         *,
         key_down: Callable[[int], bool] = _key_down,
         poll: float = POLL_SEC,
+        release_polls: int | None = None,
     ) -> None:
         """`key`: a `DictationKey` as kept ("ctrl+alt+d", "right_ctrl").
         `key_down`: whether a virtual key is down now (Windows', or a
@@ -301,6 +315,12 @@ class HoldKey:
         self._others = tuple(vk for vk in OTHER_VKS if vk not in own)
         self._on_down, self._on_up, self._on_other = on_down, on_up, on_other
         self._key_down, self._poll = key_down, poll
+        self._release_polls = max(
+            1,
+            int(HOLD_RELEASE_POLLS.configured)
+            if release_polls is None
+            else release_polls,
+        )
         self._thread: threading.Thread | None = None
         self._thread_id = 0
         self._ready = threading.Event()
@@ -339,6 +359,17 @@ class HoldKey:
     def _other_down(self) -> bool:
         return any(self._key_down(vk) for vk in self._others)
 
+    def _drain_hotkeys(self) -> bool:
+        """Remove any queued WM_HOTKEY messages for this key; True if any arrived."""
+        msg = ctypes.wintypes.MSG()
+        found = False
+        while _user32.PeekMessageW(
+            ctypes.byref(msg), None, WM_HOTKEY, WM_HOTKEY, _PM_REMOVE
+        ):
+            if msg.wParam == _HOLD_ID:
+                found = True
+        return found
+
     def _run(self) -> None:
         """A registered key: down when Windows says, up when a key is."""
         msg = ctypes.wintypes.MSG()
@@ -356,11 +387,23 @@ class HoldKey:
             return
         try:
             while _user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
-                if msg.message != WM_HOTKEY:
+                if msg.message != WM_HOTKEY or msg.wParam != _HOLD_ID:
                     continue
+                self._drain_hotkeys()
                 self._call(self._on_down)
-                while not self._stopping.is_set() and self._all_down():
+                up_polls = 0
+                while not self._stopping.is_set():
                     self._stopping.wait(self._poll)
+                    if self._stopping.is_set():
+                        break
+                    repeated = self._drain_hotkeys()
+                    if self._all_down() or repeated:
+                        up_polls = 0
+                    else:
+                        up_polls += 1
+                        if up_polls >= self._release_polls:
+                            break
+                self._drain_hotkeys()
                 self._call(self._on_up)
         finally:
             _user32.UnregisterHotKey(None, _HOLD_ID)

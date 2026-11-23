@@ -19,10 +19,10 @@ import pytest
 
 from polyglotic_desktop.main import check_parity, os_adapters
 from polyglotic_desktop.platform.macos import hotkeys, startup, voices
+from polyglotic_desktop.platform.macos.hold_key import KEY_CODES
 from polyglotic_desktop.platform.macos.hotkeys import (
     CONTROL_COMMAND,
     EXISTS,
-    KEY_CODES,
     SIGNATURE,
     MacHotkeys,
     Refused,
@@ -32,6 +32,12 @@ from polyglotic_desktop.platform.speaking import Clip
 from polyglotic_desktop.ports.speaker import Voice
 
 # --- hotkeys ------------------------------------------------------------------
+
+
+def mac(letter: str) -> str:
+    """⌃⌘ and the letter, as kept: Qt's names, "ctrl" Command and "win"
+    Control on a Mac (polyglotic-hq 429)."""
+    return f"ctrl+win+{letter.lower()}"
 
 
 class FakeCarbon:
@@ -62,27 +68,27 @@ class FakeCarbon:
 
     def press(self, key: str, signature: int = SIGNATURE) -> None:
         for ref_key, _modifiers, hotkey_id in self.registered.values():
-            if ref_key == KEY_CODES[key]:
+            if ref_key == KEY_CODES[key.lower()]:
                 for listener in list(self.listeners):
                     listener(signature, hotkey_id)
 
 
 def test_the_hotkeys_are_control_command_and_the_letter() -> None:
     carbon = FakeCarbon()
-    keys = MacHotkeys(
-        {"L": lambda: None, "P": lambda: None, "H": lambda: None}, carbon=carbon
-    )
+    keys = MacHotkeys({mac(k): lambda: None for k in "LPH"}, carbon=carbon)
     assert keys.start() == []
     taken = sorted((code, mods) for code, mods, _ in carbon.registered.values())
-    assert taken == sorted((KEY_CODES[k], CONTROL_COMMAND) for k in "LPH")
-    assert (KEY_CODES["L"], KEY_CODES["P"], KEY_CODES["H"]) == (0x25, 0x23, 0x04)
-    assert combination(CONTROL_COMMAND, "L") == "⌃⌘L"
+    assert taken == sorted((KEY_CODES[k], CONTROL_COMMAND) for k in "lph")
+    assert (KEY_CODES["l"], KEY_CODES["p"], KEY_CODES["h"]) == (0x25, 0x23, 0x04)
+    assert combination(mac("L")) == "⌃⌘L"
 
 
 def test_a_pressed_hotkey_calls_its_binding_only() -> None:
     carbon = FakeCarbon()
     pressed: list[str] = []
-    keys = MacHotkeys({k: partial(pressed.append, k) for k in "LPH"}, carbon=carbon)
+    keys = MacHotkeys(
+        {mac(k): partial(pressed.append, k) for k in "LPH"}, carbon=carbon
+    )
     keys.start()
     carbon.press("P")
     carbon.press("H", signature=hotkeys.four("XXXX"))  # another app's: not ours
@@ -92,10 +98,12 @@ def test_a_pressed_hotkey_calls_its_binding_only() -> None:
 def test_a_combination_another_app_has_is_said_and_the_rest_work(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    carbon = FakeCarbon(taken={(KEY_CODES["H"], CONTROL_COMMAND)})
+    carbon = FakeCarbon(taken={(KEY_CODES["h"], CONTROL_COMMAND)})
     pressed: list[str] = []
-    keys = MacHotkeys({k: partial(pressed.append, k) for k in "LPH"}, carbon=carbon)
-    assert keys.start() == ["H"]
+    keys = MacHotkeys(
+        {mac(k): partial(pressed.append, k) for k in "LPH"}, carbon=carbon
+    )
+    assert keys.start() == [mac("H")]
     assert "⌃⌘H" in caplog.text  # the log names it, as on Windows (291)
     carbon.press("L")
     assert pressed == ["L"]
@@ -106,8 +114,8 @@ def test_two_sets_of_hotkeys_never_call_each_others() -> None:
     carbon = FakeCarbon()
     first: list[str] = []
     second: list[str] = []
-    MacHotkeys({"L": lambda: first.append("L")}, carbon=carbon).start()
-    MacHotkeys({"P": lambda: second.append("P")}, carbon=carbon).start()
+    MacHotkeys({mac("L"): lambda: first.append("L")}, carbon=carbon).start()
+    MacHotkeys({mac("P"): lambda: second.append("P")}, carbon=carbon).start()
     carbon.press("P")
     assert (first, second) == ([], ["P"])
 
@@ -119,7 +127,9 @@ def test_a_failing_action_doesnt_end_the_hotkeys() -> None:
     def fails() -> None:
         raise RuntimeError("an action's bug")
 
-    keys = MacHotkeys({"L": fails, "P": lambda: pressed.append("P")}, carbon=carbon)
+    keys = MacHotkeys(
+        {mac("L"): fails, mac("P"): lambda: pressed.append("P")}, carbon=carbon
+    )
     keys.start()
     carbon.press("L")
     carbon.press("P")
@@ -128,23 +138,29 @@ def test_a_failing_action_doesnt_end_the_hotkeys() -> None:
 
 def test_stop_gives_every_hotkey_back() -> None:
     carbon = FakeCarbon()
-    keys = MacHotkeys({k: lambda: None for k in "LPH"}, carbon=carbon)
+    keys = MacHotkeys({mac(k): lambda: None for k in "LPH"}, carbon=carbon)
     keys.start()
     keys.stop()
     assert carbon.registered == {} and carbon.listeners == []
     keys.stop()  # twice: nothing more
 
 
-def test_only_letters_and_digits_are_hotkeys() -> None:
-    with pytest.raises(ValueError, match="not a letter or digit"):
-        MacHotkeys({"l": lambda: None})  # as Windows': upper case
+def test_any_key_with_modifiers_is_a_hotkey_but_a_modifier_alone() -> None:
+    """polyglotic-hq 567: the learner's own keys, placed as dictation's."""
+    carbon = FakeCarbon()
+    MacHotkeys({"shift+f9": lambda: None}, carbon=carbon).start()
+    assert [(c, m) for c, m, _ in carbon.registered.values()] == [(101, 0x200)]
+    assert combination("alt+shift+f9") == "⌥⇧F9"
+    for bad in ("right_ctrl", "ctrl+win", "f21", "L"):
+        with pytest.raises(ValueError, match="not a hotkey"):
+            MacHotkeys({bad: lambda: None})
 
 
 def test_post_presses_without_a_keyboard() -> None:
     called = threading.Event()
-    keys = MacHotkeys({"L": called.set}, carbon=FakeCarbon())
+    keys = MacHotkeys({mac("L"): called.set}, carbon=FakeCarbon())
     keys.start()
-    keys.post("L")
+    keys.post(mac("L"))
     assert called.is_set()
 
 
@@ -298,7 +314,7 @@ def test_macos_lists_its_voices() -> None:
 def test_macos_takes_and_gives_back_the_hotkeys() -> None:
     """Carbon from ctypes: ⌃⌘L, P and H taken, given back, taken again."""
     for _ in range(2):
-        keys = MacHotkeys({k: lambda: None for k in "LPH"})
+        keys = MacHotkeys({mac(k): lambda: None for k in "LPH"})
         assert keys.start() == []
         keys.stop()
 

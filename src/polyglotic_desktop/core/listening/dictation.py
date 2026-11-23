@@ -50,6 +50,7 @@ from polyglotic_desktop.core.listening.history import is_cjk, join_text
 from polyglotic_desktop.core.listening.sources import DICTATION, Source
 from polyglotic_desktop.core.listening.spoken import SPOKEN_LANGUAGES
 from polyglotic_desktop.core.listening.timing import (
+    FINAL_MAX_SEC,
     CaptionId,
     SpeechKind,
     TranscriptionRequest,
@@ -102,6 +103,8 @@ class Said(StrEnum):
     NO_ANSWER = "no_answer"
     NO_SERVER = "no_server"  # the session can't be answered now (299)
     WINDOW_CHANGED = "window_changed"
+    OWN_WINDOW = "own_window"
+    COPIED = "copied"
     NOT_TYPED = "not_typed"  # the OS took none of it
     NOT_ALLOWED = "not_allowed"  # the OS hasn't given the app leave to type (438)
     SIGN_IN = "sign_in"
@@ -123,21 +126,33 @@ class ToType:
     target: int
 
 
+MANDARIN_STOP = "。"
+"""A standalone Mandarin fragment loses its final stop when continued."""
+
+
 @dataclass(slots=True)
 class _Piece:
     caption_id: CaptionId
     hold: int
-    sent: float
+    expires: float
     target: int
     last: bool  # the hold's last piece
+    continues: CaptionId | None = None
     text: str | None = None  # "" when nothing worth typing was heard
 
 
 class Dictation:
     """The learner's holds of the dictation key and their pieces, in order."""
 
-    def __init__(self, new_id: Callable[[], CaptionId] | None = None) -> None:
+    def __init__(
+        self,
+        new_id: Callable[[], CaptionId] | None = None,
+        source: Source = DICTATION_SOURCE,
+        text_of: Callable[[CaptionUpdate], str] | None = None,
+    ) -> None:
         self._new_id = new_id or (lambda: CaptionId(str(uuid.uuid4())))
+        self._source = source
+        self._text_of = text_of
         self.hold = 0
         """The current (or last) hold's number, from 1."""
         self._pressed: float | None = None
@@ -145,6 +160,8 @@ class Dictation:
         self._released = False
         """The key came up on a hold whose last piece isn't cut yet."""
         self._waiting: list[_Piece] = []
+        self._previous: tuple[CaptionId, int] | None = None
+        """Only the preceding piece's ID and prefix length, never its text."""
         self._typed: set[int] = set()
         """The holds some of whose text was typed."""
         self.said: Said | None = None
@@ -193,13 +210,27 @@ class Dictation:
         from `start` to `end` on the app's clock, while held or after the
         key came up (`last`): the request to send for it."""
         hold = self.hold if hold is None else hold
-        piece = _Piece(self._new_id(), hold, now, target, last)
+        piece = self._wait_piece(hold, target, last, now + ANSWER_WITHIN_SEC)
+        return TranscriptionRequest(
+            piece.caption_id, SpeechKind.FINISHED, self._source, start, end
+        )
+
+    def wait_for_captions(self, now: float, target: int) -> CaptionId:
+        """Reserve the held caption text's place in the typing order.
+
+        A caption can keep recording after release until the normal timing
+        finishes it. Leave time for that finish and the server's answer.
+        """
+        return self._wait_piece(
+            self.hold, target, True, now + FINAL_MAX_SEC + ANSWER_WITHIN_SEC
+        ).caption_id
+
+    def _wait_piece(self, hold: int, target: int, last: bool, expires: float) -> _Piece:
+        piece = _Piece(self._new_id(), hold, expires, target, last)
         self._waiting.append(piece)
         if last and hold == self.hold:
             self._released = False
-        return TranscriptionRequest(
-            piece.caption_id, SpeechKind.FINISHED, DICTATION_SOURCE, start, end
-        )
+        return piece
 
     def nothing_cut(self, hold: int | None = None, mic_failed: bool = False) -> None:
         """Hold number `hold`'s last piece (the current one's if None) had
@@ -235,16 +266,46 @@ class Dictation:
         if piece is None:
             return []
         language = chosen or update.language
-        piece.text = (
-            dictated_text([c.original for c in update.clauses], language, australian)
-            if update.kind is CaptionKind.FINISHED
-            else ""
-        )
+        # Type what they said sends one independent clip per hold.
+        piece.continues = update.continues if self._text_of is None else None
+        if update.kind is not CaptionKind.FINISHED:
+            piece.text = ""
+        elif self._text_of is not None:
+            piece.text = self._text_of(update)
+        else:
+            piece.text = dictated_text(
+                [c.original for c in update.clauses], language, australian
+            )
+        return self._take_answers()
+
+    def answer_text(self, caption_id: CaptionId, text: str) -> list[ToType]:
+        """A shared hold's text is ready from the caption window's answers."""
+        for piece in self._waiting:
+            if piece.caption_id == caption_id:
+                piece.text = text
+                return self._take_answers()
+        return []
+
+    def _take_answers(self) -> list[ToType]:
         ready = []
         while self._waiting and self._waiting[0].text is not None:
             done = self._waiting.pop(0)
-            if done.text:
-                ready.append(ToType(done.text, done.target))
+            text = done.text or ""
+            if done.continues is not None:
+                # A caption window revises its earlier line. Dictation has
+                # already typed that piece, possibly into a different window.
+                previous = self._previous
+                text = (
+                    text[previous[1] :]
+                    if previous and previous[0] == done.continues
+                    else ""
+                )
+            self._previous = (
+                done.caption_id,
+                len(text.rstrip().removesuffix(MANDARIN_STOP)),
+            )
+            if text:
+                ready.append(ToType(text, done.target))
                 self._typed.add(done.hold)
             if done.last:
                 self._over(done.hold)
@@ -281,7 +342,7 @@ class Dictation:
     def overdue(self, now: float) -> bool:
         """A piece unanswered for `ANSWER_WITHIN_SEC`: it and every piece
         after it are given up (`said` NO_ANSWER). True if any were."""
-        if not self._waiting or now - self._waiting[0].sent < ANSWER_WITHIN_SEC:
+        if not self._waiting or now < self._waiting[0].expires:
             return False
         self._waiting, self._released = [], False
         self._typed.clear()

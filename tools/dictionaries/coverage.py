@@ -6,7 +6,11 @@ finds (polyglotic-hq project 157's rule for the basic tier).
 Reads `probe/<code>.txt` (100 FLEURS sentences per language), splits each
 with the pack's word split, and looks each content word up the way a
 caption's word is looked up (`BasicDictionary`). Words without a letter
-(numbers) aren't counted. `packs` runs it after each build, records the
+(numbers) aren't counted. A word the pack hasn't got whole but whose card
+shows it by its parts, every part found, counts as found, in every
+language (German's Arbeitsplatz is Arbeit + Platz; Korean's 국립공원 is
+국립 + 공원): Thai's, Vietnamese's and Cantonese's word splits already cut
+such a word into the pack's words (polyglotic-hq DECISIONS #227, 533). `packs` runs it after each build, records the
 share in the file's `info` and fails below the tier's floor; CI runs it
 again (`.github/workflows/dictionary-packs.yml`).
 
@@ -147,6 +151,8 @@ class Coverage:
     found: int
     counted: int
     misses: Counter[str]
+    by_parts: int = 0
+    """How many of `found` the card shows by their parts (`measure`)."""
 
     @property
     def share(self) -> float:
@@ -155,8 +161,8 @@ class Coverage:
     def __str__(self) -> str:
         commonest = ", ".join(f"{w} ({n})" for w, n in self.misses.most_common(12))
         return (
-            f"{100 * self.share:.1f} % of {self.counted} content words found; "
-            f"commonest misses: {commonest}"
+            f"{100 * self.share:.1f} % of {self.counted} content words found "
+            f"({self.by_parts} by their parts); commonest misses: {commonest}"
         )
 
 
@@ -183,7 +189,9 @@ def sentences(language: str) -> list[str]:
 def measure(
     dictionary: BasicDictionary, split: WordSplit, lines: Iterable[str]
 ) -> Coverage:
-    found = counted = 0
+    """How many of `lines`' content words a caption's lookup finds: whole,
+    or shown by its parts with every part found (`shown_by_parts`)."""
+    found = counted = by_parts = 0
     misses: Counter[str] = Counter()
     for line in lines:
         for word in split.words(line):
@@ -193,9 +201,21 @@ def measure(
             counted += 1
             if dictionary.lookup_split(text, word):
                 found += 1
+            elif shown_by_parts(dictionary, text):
+                found += 1
+                by_parts += 1
             else:
                 misses[text] += 1
-    return Coverage(found, counted, misses)
+    return Coverage(found, counted, misses, by_parts)
+
+
+def shown_by_parts(dictionary: BasicDictionary, word: str) -> bool:
+    """Whether the card shows `word`, which the pack hasn't got whole, by
+    its parts, each a word the pack has (`core.lexicon.compounds`): a
+    hyphenated word's piece the pack hasn't got (T-Rex's "Rex") leaves it
+    not found."""
+    parts = dictionary.parts(word)
+    return bool(parts) and all(part.found for part in parts)
 
 
 def probe(pack_file: Path, language: str) -> Coverage:

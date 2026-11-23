@@ -27,6 +27,7 @@ from tests.ui_next.test_link_colours_told_apart import (
     ciede2000,
 )
 
+from polyglotic_desktop.core.listening.captions import Language, WordClass
 from polyglotic_desktop.core.listening.display import RowKind, WordLinks
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.main import caption_look, look_settings
@@ -69,6 +70,7 @@ from polyglotic_desktop.ui_next.views.presets import (
 )
 from polyglotic_desktop.ui_next.views.tone import FLOOR, SOFTEST, chroma, vibrant
 from polyglotic_desktop.ui_next.views.transcript import Transcript, TranscriptChoices
+from polyglotic_desktop.ui_next.word_classes import CLASS_ALTERNATES, CLASS_COLOURS
 
 INKS = {
     "newest": 1.0,
@@ -284,13 +286,24 @@ def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
     tools = chinese_tools()
     shown = CaptionWindows(None, MIC, lambda: [Rect(0, 0, 1920, 1040)], learner=tools)
     shown.set_captioned([("app", APP)])
+    linked = clause(
+        "这个电脑真的很好。",
+        "This computer is really good.",
+        (("电脑", "computer"), ("真的", "really"), ("很好", "good")),
+    )
+    en = Language("en")
+    classes = (WordClass.NOUN, WordClass.ADVERB, WordClass.ADJECTIVE)
     shown.apply(
         finished(
             "c1",
-            clause(
-                "这个电脑真的很好。",
-                "This computer is really good.",
-                (("电脑", "computer"), ("真的", "really"), ("很好", "good")),
+            replace(
+                linked,
+                links={
+                    en: tuple(
+                        replace(link, original_pos=pos, translation_pos=pos)
+                        for link, pos in zip(linked.links[en], classes, strict=True)
+                    )
+                },
             ),
         )
     )
@@ -316,7 +329,12 @@ def test_word_links_keep_their_colours_at_every_vibrance(
     look = CaptionLook(word_links=WordLinks.COLOURS)
     windows.set_look(look)
     today = _link_colours(windows)
-    assert today and today <= set(LINK_COLORS)
+    assert today == {
+        CLASS_COLOURS[WordClass.NOUN],
+        CLASS_COLOURS[WordClass.ADVERB],
+        CLASS_ALTERNATES[WordClass.ADVERB][0],
+        CLASS_COLOURS[WordClass.ADJECTIVE],
+    }
     windows.set_look(replace(look, vibrance=vibrance))
     assert _link_colours(windows) == today
 
@@ -528,7 +546,8 @@ def test_the_thickness_slider_steps_through_the_weights_by_name(
     assert (view.value.thickness, now()) == (600, "Semibold")
     assert thickness.toolTip().startswith("Semibold. ")
     QTest.keyClick(thickness, Qt.Key.Key_Home)
-    assert (view.value.thickness, now()) == (300, "Light")
+    # the app's faces have nothing lighter: Medium is the light end (532)
+    assert (view.value.thickness, now()) == (500, "Medium")
     QTest.keyClick(thickness, Qt.Key.Key_End)
     assert view.value.thickness == 700
     view.reset()

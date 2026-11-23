@@ -13,6 +13,7 @@ import pytest
 from pytest import MonkeyPatch
 from tests.lexicon.sample import FakeDictionaryFile
 from tests.lexicon.test_basic import SPANISH, FakeSplit
+from tests.lexicon.test_compounds import german
 from tests.tools.test_packs import sources
 from tools.dictionaries import coverage, packs
 from tools.dictionaries.packs import PACKS
@@ -34,6 +35,20 @@ def test_the_probe_counts_content_words_with_letters() -> None:
     assert result.misses == {"y": 1, "Wallace": 1}
     assert f"{result.share:.3f}" == "0.667"
     assert "66.7 % of 6 content words" in str(result)
+
+
+def test_a_word_the_card_shows_by_its_parts_counts_as_found() -> None:
+    """polyglotic-hq DECISIONS #227: a word the pack hasn't got whole, but
+    whose card shows it by its parts with every part found, is found - as
+    Thai's, Vietnamese's and Cantonese's word splits already count it."""
+    d = german()
+    line = "Internetmaterialien Arbeitsplatz T-Rex Kovelun Haus"
+    result = coverage.measure(d, FakeSplit(), [line])
+    # Internet + materialien and Arbeits + platz are shown by their parts;
+    # T-Rex's "Rex" isn't in the pack, and Kovelun has no parts
+    assert (result.found, result.counted, result.by_parts) == (3, 5, 2)
+    assert result.misses == {"T-Rex": 1, "Kovelun": 1}
+    assert "(2 by their parts)" in str(result)
 
 
 def test_a_pack_records_its_coverage_and_says_if_it_passes(

@@ -18,11 +18,13 @@ import ssl
 import threading
 import time
 from collections.abc import Awaitable, Callable
+from http import HTTPStatus
 from typing import Any
 
 from tests.test_protocol import example
 from websockets.asyncio.server import Server, ServerConnection, serve
 from websockets.exceptions import ConnectionClosed
+from websockets.http11 import Request, Response
 
 from polyglotic_desktop.connection import protocol
 
@@ -86,7 +88,13 @@ async def replacing(server: "FakeServer", websocket: ServerConnection) -> None:
 
 
 class FakeServer:
-    def __init__(self, port: int = 0, tls: ssl.SSLContext | None = None) -> None:
+    def __init__(
+        self,
+        port: int = 0,
+        tls: ssl.SSLContext | None = None,
+        *,
+        http_replies: dict[str, object] | None = None,
+    ) -> None:
         """`tls`: a server context, for `https://` (wss) - 313's tests."""
         self.script: list[Behaviour] = []
         self.welcome = welcome_message()
@@ -107,6 +115,7 @@ class FakeServer:
         self._open: set[ServerConnection] = set()
         self._port = port
         self._tls = tls
+        self._http_replies = http_replies
         self._loop = asyncio.new_event_loop()
         self._ready = threading.Event()
         self._server: Server | None = None
@@ -128,11 +137,21 @@ class FakeServer:
                 self._port,
                 ping_interval=None,
                 ssl=self._tls,
+                process_request=self._http if self._http_replies is not None else None,
             )
             self._ready.set()
 
         self._loop.run_until_complete(start())
         self._loop.run_forever()
+
+    def _http(self, connection: ServerConnection, request: Request) -> Response | None:
+        if request.headers.get("Upgrade", "").lower() == "websocket":
+            return None
+        if self._http_replies is not None and request.path in self._http_replies:
+            return connection.respond(
+                HTTPStatus.OK, json.dumps(self._http_replies[request.path])
+            )
+        return connection.respond(HTTPStatus.NOT_FOUND, '{"error":"unavailable"}')
 
     async def _handle(self, websocket: ServerConnection) -> None:
         self.connections += 1

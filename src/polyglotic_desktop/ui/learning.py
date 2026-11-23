@@ -20,7 +20,7 @@ whichever is main. Their changes reach the main one's `changed` and
 
 import bisect
 import threading
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
 from PySide6.QtCore import QObject, Signal, Slot
@@ -49,6 +49,7 @@ from polyglotic_desktop.core.lexicon.chinese import (
     as_names,
     has_han,
 )
+from polyglotic_desktop.core.lexicon.class_evidence import for_spans
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.english import word_at as english_word_at
 from polyglotic_desktop.core.lexicon.entries import DictionaryEntry
@@ -63,6 +64,7 @@ from polyglotic_desktop.core.shared import (
 from polyglotic_desktop.ports.anki_deck import AnkiDeckWriter
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ports.learning import SetAsideLearningData
+from polyglotic_desktop.ports.word_classes import ClassSpan, WordClassEvidence
 
 _BASIC_KNOWLEDGE = Knowledge.by_line(UNKNOWN_LEVEL_LINKS_FROM)
 """What the learner knows in a basic dictionary's language: a line alone
@@ -324,6 +326,25 @@ class LearningTools(QObject):
         if own in self.basic and self.choices_of(own) is not None:
             return own
         return language
+
+    def word_class_evidence(
+        self,
+        text: str,
+        language: str,
+        spans: Collection[ClassSpan],
+        *,
+        ready_packs: Collection[str] | None = None,
+    ) -> Mapping[ClassSpan, WordClassEvidence]:
+        code = learned_code(language)
+        dictionary = self.basic.get(code)
+        if dictionary is not None:
+            if ready_packs is not None and code not in ready_packs:
+                return {}
+            return for_spans(dictionary, text, code, spans)
+        tools = self.of(code)
+        if tools.language != code:
+            return {}
+        return for_spans(tools.dictionary, text, code, spans)
 
     def has_dictionary(self, language: str | None) -> bool:
         """Whether a word in `language` can be looked up here: its full

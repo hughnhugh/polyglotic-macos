@@ -1,0 +1,125 @@
+# The desktop's manners on Linux (polyglotic-hq 546's slice 4, 571), proved
+# on GitHub's own Ubuntu runners: only on the public Linux copy (a snapshot
+# pushed to a `linux-copy-571*` branch of hughnhugh/polyglotic-linux-spike),
+# where GitHub's runners are free - never in this private repo, whose
+# runners are the PC's: every job checks the repo is public.
+#
+# On each desktop (tools/linux_manners.sh): the app from source, signed in
+# to a stand-in server, and
+# - GNOME (mutter, no tray - as Fedora's GNOME is): closing the window asks
+#   once, then hides it; a start from the launcher brings it back; Quit at
+#   the foot of its sidebar ends the app;
+# - Xfce (its panel's status tray) and KDE (KDE's watcher, in fedora:45):
+#   the tray's menu read over D-Bus as the desktop's tray reads it - every
+#   item there - and Pause captions clicked from there.
+#
+# Nothing here reaches the live server: no invite, no token, no secret.
+# The artifact is kept 1 day.
+name: Linux manners
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["linux-copy-571*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-manners-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  manners:
+    name: On ${{ matrix.name }}
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - desktop: gnome
+            name: GNOME (no tray)
+            scheme: prefer-dark
+          - desktop: ubuntu
+            name: Ubuntu's GNOME (AppIndicator)
+            scheme: prefer-light
+          - desktop: xfce
+            name: Xfce
+            scheme: prefer-light
+          - desktop: kde
+            name: KDE Plasma (Fedora 45)
+            scheme: ""
+    env:
+      OUT: ${{ github.workspace }}/out
+      POLYGLOTIC_COLOR_SCHEME: ${{ matrix.scheme }}
+      POLYGLOTIC_LINUX_DESKTOP: "1"
+      UV_PYTHON: "3.12.15"
+      UV_PYTHON_PREFERENCE: only-managed
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The desktop's parts, the sound server, the keyring and Qt's libraries
+        if: ${{ matrix.desktop != 'kde' }}
+        run: |
+          sudo apt-get update -q
+          more="mutter xwayland"
+          if [ "${{ matrix.desktop }}" = ubuntu ]; then
+            more="gnome-shell gnome-shell-extension-appindicator xwayland"
+          fi
+          if [ "${{ matrix.desktop }}" = xfce ]; then
+            more="xvfb xfwm4 xfce4-panel xfconf xdotool imagemagick"
+          fi
+          sudo apt-get install -y -q --no-install-recommends $more \
+            pipewire pipewire-pulse pipewire-bin wireplumber libpulse0 pulseaudio-utils \
+            dbus-bin dbus-daemon dbus-x11 gnome-keyring libglib2.0-bin \
+            xdg-desktop-portal xdg-desktop-portal-gtk dconf-service dconf-gsettings-backend desktop-file-utils \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
+            libwayland-client0 libwayland-cursor0 libwayland-egl1 \
+            libegl1 libgl1 libfontconfig1 libdbus-1-3 fonts-noto-core fonts-noto-cjk
+          {
+            . /etc/os-release; echo "$PRETTY_NAME, kernel $(uname -r)"
+            dpkg-query -W -f='${Package} ${Version}\n' $more pipewire gnome-keyring 2>/dev/null
+          } | tee versions.txt
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: true
+
+      - name: Install (fails if uv.lock is out of date)
+        if: ${{ matrix.desktop != 'kde' }}
+        run: uv sync --locked && uv run --no-sync python -m tools.i18n build
+
+      - name: The tray, or the launcher, on ${{ matrix.name }}
+        run: bash tools/linux_manners.sh ${{ matrix.desktop }} "$OUT"
+
+      - name: What it found
+        if: ${{ always() }}
+        run: |
+          cp versions.txt "$OUT/" 2>/dev/null || true
+          d="$OUT/${{ matrix.desktop }}"
+          if [ -f "$d/checks.json" ]; then
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); [print(('- pass ' if c['ok'] else '- **FAIL** ') + c['check'] + ' ' + c['detail'][:160]) for c in d['checks']]; print('- facts:', json.dumps(d['facts'])[:2500])" "$d/checks.json" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          name: manners-${{ matrix.desktop }}-${{ github.run_id }}
+          path: |
+            ${{ env.OUT }}/versions.txt
+            ${{ env.OUT }}/*.log
+            ${{ env.OUT }}/*.json
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.png
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.json
+            ${{ env.OUT }}/${{ matrix.desktop }}/*.log
+            ${{ env.OUT }}/${{ matrix.desktop }}/data/logs/*.log
+            ${{ env.OUT }}/session/*.txt
+            ${{ env.OUT }}/session/*.log
+          retention-days: 1

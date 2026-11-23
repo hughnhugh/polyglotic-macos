@@ -1,10 +1,8 @@
 """Caption timing as the learner's choice (polyglotic-hq project 064;
-DECISIONS.md #4 and #107): Quick preview by default (desktop decision
-0242, polyglotic-hq 522, the user, 2026-11-18; Steady from 2026-11-09,
-project 260; Quick preview from 2026-11-07, project 176), Steady, or
-Live updates - in the settings (and for settings saved by earlier
-versions), and in what the speech pipeline follows (the Timing panel:
-tests/ui_next)."""
+DECISIONS.md #4, #107 and #230): Instant by default (626), with
+Whole captions, Steady and Calm - in the settings
+(and for settings saved by earlier versions), and in what the speech
+pipeline follows (the Timing panel: tests/ui_next)."""
 
 import pytest
 from PySide6.QtWidgets import QApplication
@@ -14,6 +12,7 @@ from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
 from polyglotic_desktop.core.listening.timing import (
     LIVE_UPDATE_INTERVAL_SEC,
     MAX_WAIT_FOR_TEXT_SEC,
+    OFFERED_MODES,
     PREVIEW_AFTER_SEC,
     CaptionMode,
     CaptionTiming,
@@ -24,24 +23,57 @@ from polyglotic_desktop.platform.speech_pipeline import SpeechPipeline
 from polyglotic_desktop.ui.settings import FOLLOW_DEFAULT, AppSettings, Settings
 
 
-def test_a_new_install_has_quick_preview() -> None:
+def test_a_new_install_has_instant() -> None:
     value = AppSettings.from_stored({})
-    assert value.caption_mode is CaptionMode.PREVIEW
-    assert value.live_interval == PREVIEW_AFTER_SEC  # its dim first line
-    assert value.caption_mode_chosen is None  # the default, not a choice
-    assert AppSettings().caption_mode is CaptionMode.PREVIEW
+    assert value.caption_mode is CaptionMode.INSTANT
+    assert value.live_interval == value.live_update_interval
+    assert value.caption_mode_chosen is None
+    assert AppSettings().caption_mode is CaptionMode.INSTANT
 
 
-def test_one_who_never_chose_moves_to_quick_preview_and_a_choice_stays() -> None:
-    """Settings saved while Steady was the default (260 to 522): the mode
-    followed was Steady, but nothing was chosen - that learner is on Quick
-    preview now. One who chose Steady keeps it."""
+def test_one_who_never_chose_moves_to_instant_and_a_choice_stays() -> None:
+    """An implicit default follows Instant. Explicit choices survive."""
     never_chose = {"caption_mode_chosen": None, "caption_timing": "steady"}
-    assert AppSettings.from_stored(never_chose).caption_mode is CaptionMode.PREVIEW
+    assert AppSettings.from_stored(never_chose).caption_mode is CaptionMode.INSTANT
+    never_chose = {"caption_mode_chosen": None, "caption_timing": "preview"}
+    assert AppSettings.from_stored(never_chose).caption_mode is CaptionMode.INSTANT
     chose = {"caption_mode_chosen": "steady", "caption_timing": "steady"}
-    assert AppSettings.from_stored(chose).caption_mode is CaptionMode.STEADY
+    assert AppSettings.from_stored(chose).caption_mode is CaptionMode.WHOLE
     chose_live = {"caption_mode_chosen": "live", "caption_timing": "live"}
-    assert AppSettings.from_stored(chose_live).caption_mode is CaptionMode.LIVE
+    assert AppSettings.from_stored(chose_live).caption_mode is CaptionMode.INSTANT
+
+
+def test_one_who_chose_quick_preview_is_on_steady_as_a_choice() -> None:
+    """Quick preview is retired (decision 0246): a learner who chose it has
+    Steady, and as their choice - a later default doesn't move them."""
+    value = AppSettings.from_stored({"caption_mode_chosen": "preview"})
+    assert value.caption_mode_chosen == "words"
+    assert value.caption_mode is CaptionMode.STEADY
+    again = AppSettings.from_stored(value.to_stored())
+    assert again.caption_mode_chosen == "words"
+
+
+def test_steadys_options_are_kept_and_say_how_its_words_are_played_out() -> None:
+    from polyglotic_desktop.core.listening.playout import (
+        DELAY_SEC,
+        EAGER_DELAY_SEC,
+        Ahead,
+        PlayoutRules,
+    )
+
+    assert AppSettings().playout_rules == PlayoutRules(DELAY_SEC, 1, Ahead.WAITING)
+    value = AppSettings.from_stored(
+        AppSettings(steady_newest_word=True, steady_words_ahead="waiting").to_stored()
+    )
+    assert value.playout_rules == PlayoutRules(EAGER_DELAY_SEC, 0, Ahead.WAITING)
+    assert (
+        AppSettings.from_stored({"steady_words_ahead": "far"}).steady_words_ahead
+        == "waiting"  # the default (554)
+    )
+    calm = AppSettings(caption_mode_chosen="calm")
+    assert calm.caption_mode is CaptionMode.CALM
+    assert calm.playout_rules.established_only
+    assert calm.live_interval == LIVE_UPDATE_INTERVAL_SEC
 
 
 def test_the_default_moves_everyone_who_hasnt_chosen(
@@ -55,9 +87,9 @@ def test_the_default_moves_everyone_who_hasnt_chosen(
     chosen = AppSettings.from_stored(
         AppSettings(caption_mode_chosen="steady").to_stored()
     )
-    monkeypatch.setattr(settings, "default_caption_mode", lambda: CaptionMode.LIVE)
-    assert unchosen.caption_mode is CaptionMode.LIVE
-    assert chosen.caption_mode is CaptionMode.STEADY
+    monkeypatch.setattr(settings, "default_caption_mode", lambda: CaptionMode.CALM)
+    assert unchosen.caption_mode is CaptionMode.CALM
+    assert chosen.caption_mode is CaptionMode.WHOLE
 
 
 def test_moving_the_longest_wait_isnt_choosing_a_mode(qapp: QApplication) -> None:
@@ -70,13 +102,13 @@ def test_moving_the_longest_wait_isnt_choosing_a_mode(qapp: QApplication) -> Non
         timing.set_max_wait(5.0)
         assert settings.value.max_wait_for_text == 5.0
         assert settings.value.caption_mode_chosen is None  # still the default's
-        timing.set_mode(CaptionMode.STEADY)
+        timing.set_mode(CaptionMode.WHOLE)
         assert settings.value.caption_mode_chosen == "steady"
         timing.set_max_wait(4.0)
         assert settings.value.caption_mode_chosen == "steady"  # kept
-        timing.set_mode(CaptionMode.PREVIEW)  # chosen, though the default
-        assert settings.value.caption_mode_chosen == "preview"
-        assert timing_of(settings.value).mode is CaptionMode.PREVIEW
+        timing.set_mode(CaptionMode.STEADY)  # chosen, though the default
+        assert settings.value.caption_mode_chosen == "words"
+        assert timing_of(settings.value).mode is CaptionMode.STEADY
     finally:
         built.close()
 
@@ -87,9 +119,10 @@ def test_moving_the_longest_wait_isnt_choosing_a_mode(qapp: QApplication) -> Non
         # a version before 176 saved Steady, the default then, chosen or
         # not: it follows today's default
         ({"caption_timing": "steady"}, None),
-        # Quick preview and Live updates were chosen: they stay
-        ({"caption_timing": "preview"}, CaptionMode.PREVIEW),
-        ({"caption_timing": "live", "live_update_interval": 3.0}, CaptionMode.LIVE),
+        # Quick preview and Live updates were chosen: Instant stays, and
+        # Quick preview, retired, is Steady
+        ({"caption_timing": "preview"}, CaptionMode.STEADY),
+        ({"caption_timing": "live", "live_update_interval": 3.0}, CaptionMode.INSTANT),
         # whatever the interval, once there were modes
         ({"caption_timing": "steady", "live_update_interval": 0.5}, None),
         # nothing valid to go on: the default
@@ -112,10 +145,10 @@ def test_settings_before_176_keep_only_a_mode_that_was_chosen(
         # default (1.0 s since polyglotic-hq 494)
         ({"live_update_interval": 1.5}, None, LIVE_UPDATE_INTERVAL_SEC),
         # Off - finished captions only - was: Steady is the nearest mode
-        ({"live_update_interval": None}, CaptionMode.STEADY, LIVE_UPDATE_INTERVAL_SEC),
+        ({"live_update_interval": None}, CaptionMode.WHOLE, LIVE_UPDATE_INTERVAL_SEC),
         # another interval was chosen: it stays, with Live updates
-        ({"live_update_interval": 0.5}, CaptionMode.LIVE, 0.5),
-        ({"live_update_interval": 10.0}, CaptionMode.LIVE, 10.0),
+        ({"live_update_interval": 0.5}, CaptionMode.INSTANT, 0.5),
+        ({"live_update_interval": 10.0}, CaptionMode.INSTANT, 10.0),
         # nothing valid to go on: the default
         ({"live_update_interval": "fast"}, None, LIVE_UPDATE_INTERVAL_SEC),
         ({"live_update_interval": 99.0}, None, LIVE_UPDATE_INTERVAL_SEC),
@@ -132,7 +165,7 @@ def test_settings_from_before_modes_keep_only_an_interval_that_was_chosen(
 
 
 def test_a_mode_once_chosen_is_kept_whatever_the_interval() -> None:
-    for mode in CaptionMode:
+    for mode in OFFERED_MODES:
         stored = AppSettings(caption_mode_chosen=mode.value, live_update_interval=0.5)
         value = AppSettings.from_stored(stored.to_stored())
         assert (value.caption_mode_chosen, value.caption_mode) == (mode, mode)
@@ -147,7 +180,7 @@ def test_a_mode_once_chosen_is_kept_whatever_the_interval() -> None:
 def test_older_versions_read_the_mode_followed() -> None:
     """Versions before 176 read `caption_timing` (RELEASING.md section 5):
     it holds the mode the app follows, chosen or not."""
-    assert AppSettings().to_stored()["caption_timing"] == "preview"
+    assert AppSettings().to_stored()["caption_timing"] == "live"
     chosen = AppSettings(caption_mode_chosen="steady").to_stored()
     assert (chosen["caption_timing"], chosen["caption_mode_chosen"]) == (
         "steady",
@@ -161,10 +194,13 @@ class _Detector:
 
 
 def test_the_pipeline_follows_a_mode_chosen_while_listening() -> None:
-    timing = CaptionTiming(None, rules=CaptionMode.STEADY.rules)
+    timing = CaptionTiming(None, rules=CaptionMode.WHOLE.rules)
     pipeline = SpeechPipeline(_Detector, timing)  # type: ignore[arg-type]
-    pipeline.set_timing(CaptionMode.LIVE.rules, 2.0, 3.0)
-    assert (timing.rules, timing.live_update_interval) == (CaptionMode.LIVE.rules, 2.0)
+    pipeline.set_timing(CaptionMode.INSTANT.rules, 2.0, 3.0)
+    assert (timing.rules, timing.live_update_interval) == (
+        CaptionMode.INSTANT.rules,
+        2.0,
+    )
     pipeline.set_timing(CaptionMode.PREVIEW.rules, PREVIEW_AFTER_SEC, 4.0)
     assert timing.rules == CaptionMode.PREVIEW.rules
     assert timing.live_update_interval == PREVIEW_AFTER_SEC
@@ -183,14 +219,19 @@ def test_the_longest_wait_for_text_is_3s_and_kept_within_2_to_6s() -> None:
         assert AppSettings.from_stored(stored).max_wait_for_text == 3.0
 
 
-def test_steady_s_lines_are_translated_and_dim_as_quick_preview_s() -> None:
-    """Steady's only live updates - the longest wait's - are provisional
-    lines as Quick preview's: translated, dim, replaced (277)."""
+def test_whole_captions_lines_are_translated_and_dim() -> None:
+    """Whole captions' only live updates - the longest wait's - are
+    provisional lines: translated, dim, replaced (277). The paced modes'
+    live updates are the caption itself, and always translated: a clause
+    shows its translation as it ends (526)."""
     from polyglotic_desktop.main import caption_look, listening_settings
 
-    for mode in ("steady", "preview"):
+    value = AppSettings(caption_mode_chosen="steady", translate_live=False)
+    assert caption_look(value).preview
+    assert listening_settings(value).translate_live
+    for mode in ("words", "calm"):
         value = AppSettings(caption_mode_chosen=mode, translate_live=False)
-        assert caption_look(value).preview
+        assert not caption_look(value).preview
         assert listening_settings(value).translate_live
     live = AppSettings(caption_mode_chosen="live", translate_live=False)
     assert not caption_look(live).preview
@@ -217,7 +258,8 @@ def test_live_updates_come_every_second_by_default() -> None:
     assert LIVE_UPDATE_INTERVAL_SEC == 1.0
     assert AppSettings().live_update_interval == 1.0
     assert (
-        CaptionMode.LIVE.live_update_interval(AppSettings().live_update_interval) == 1.0
+        CaptionMode.INSTANT.live_update_interval(AppSettings().live_update_interval)
+        == 1.0
     )
 
 
@@ -256,6 +298,32 @@ def test_an_interval_left_at_its_default_follows_todays(
     value = AppSettings.from_stored({"learning": "zh", **stored})
     assert value.live_update_interval == interval
     assert value.caption_mode_chosen == "live"
+
+
+def test_steadys_words_ahead_are_faint_until_the_learner_changes_them() -> None:
+    """The user, 2026-11-20 (polyglotic-hq 554): "Default faint ahead,
+    acquisition is preferable for me but probably default to both". Faint
+    words ahead by default - for a learner who never chose, as a file from
+    the preview holds them ("none", not in the record of changes) - and
+    Both stays the path; a learner's own choice is kept."""
+    from polyglotic_desktop.core.listening.playout import Ahead, ReadingPath
+    from polyglotic_desktop.main import timing_of
+    from polyglotic_desktop.ui_next.views.panels import Timing
+
+    assert "steady_words_ahead" in FOLLOW_DEFAULT
+    assert AppSettings().playout_rules.ahead is Ahead.WAITING
+    assert timing_of(AppSettings()).words_ahead is Ahead.WAITING
+    assert Timing().words_ahead is Ahead.WAITING
+    assert AppSettings().caption_path == ReadingPath.BOTH.value
+    store = MemorySettingsStore({})
+    settings = Settings(store)
+    settings.update(opacity=0.6)
+    preview = {**store.values, "steady_words_ahead": "none"}  # never chosen
+    assert AppSettings.from_stored(preview).steady_words_ahead == "waiting"
+    settings.update(steady_words_ahead="none")  # the learner's Off
+    changed = store.values["changed"]
+    assert isinstance(changed, list) and "steady_words_ahead" in changed
+    assert AppSettings.from_stored(store.values).steady_words_ahead == "none"
 
 
 def test_an_interval_follows_the_default_until_changed() -> None:

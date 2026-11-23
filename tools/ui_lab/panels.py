@@ -18,7 +18,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem, Step
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.core.listening.sources import SourceId
-from polyglotic_desktop.core.listening.timing import CaptionMode
+from polyglotic_desktop.core.listening.timing import OFFERED_MODES, CaptionMode
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui import theme as todays_theme
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
@@ -141,10 +141,10 @@ def timing(mode: CaptionMode, value: Timing | None = None) -> Callable[[Lab], QW
         view = TimingView(value or Timing(mode, 1.5))
         panel = TimingPanel(view)
         shown = page(lab, style.px(HALF), panel)
-        modes = [CaptionMode.STEADY, CaptionMode.PREVIEW, CaptionMode.LIVE]
+        modes = list(OFFERED_MODES)
         lab.time(
             "caption_timing",
-            lambda: panel.mode.choose(modes[(modes.index(view.value.mode) + 1) % 3]),
+            lambda: panel.mode.choose(modes[(modes.index(view.value.mode) + 1) % 4]),
             repeat=6,
             budget=budgets.CLICK,
         )
@@ -216,7 +216,7 @@ def fonts_card(lab: Lab) -> QWidget:
 
 def fonts_downloading(lab: Lab) -> QWidget:
     """The Fonts card while faces come down (polyglotic-hq 482): Mandarin in
-    Traditional characters, its default Noto Sans TC downloading; Japanese on
+    Traditional characters, its default LXGW WenKai TC downloading (532); Japanese on
     Klee One, chosen, paused on a metered connection; Cantonese on its
     default, here; the others' sizes in their lists."""
     look = LookView(CaptionLook(faces=(("ja", "Klee One Captions"),)))
@@ -225,14 +225,14 @@ def fonts_downloading(lab: Lab) -> QWidget:
             spoken="zh", in_use=("ja", "yue"), mandarin_script="traditional"
         )
     )
-    sizes = {"notosanstc": 3_120_000, "kleeone": 3_500_000, "notoseriftc": 4_080_000}
+    sizes = {"lxgwwenkaitc": 4_210_000, "kleeone": 3_500_000, "notoseriftc": 4_080_000}
     downloads = DownloadsView(
         FaceDownloads(
             sizes=sizes,
             here=frozenset({"notosanshk"}),
             progress={
-                "notosanstc": PackProgress(
-                    "font:notosanstc", Step.DOWNLOADING, 1_400_000, 3_120_000
+                "lxgwwenkaitc": PackProgress(
+                    "font:lxgwwenkaitc", Step.DOWNLOADING, 1_400_000, 4_210_000
                 ),
                 "kleeone": PackProgress(
                     "font:kleeone",
@@ -317,12 +317,16 @@ STATES = [
     for name, run in (
         ("speech", speech),
         ("languages_this_window", languages_this_window),
-        ("timing_steady", timing(CaptionMode.STEADY)),
-        ("timing_preview", timing(CaptionMode.PREVIEW)),
-        ("timing_live", timing(CaptionMode.LIVE)),
+        ("timing_steady", timing(CaptionMode.WHOLE)),
+        ("timing_words", timing(CaptionMode.STEADY)),
+        ("timing_calm", timing(CaptionMode.CALM)),
+        ("timing_live", timing(CaptionMode.INSTANT)),
         # Live updates every 6 s, the longest wait 3 s: the 3 s is followed,
         # and the panel says so (295)
-        ("timing_live_slower", timing(CaptionMode.LIVE, Timing(CaptionMode.LIVE, 6.0))),
+        (
+            "timing_live_slower",
+            timing(CaptionMode.INSTANT, Timing(CaptionMode.INSTANT, 6.0)),
+        ),
         ("look_rail", look_rail),
         ("change_everywhere", change_everywhere),
         ("fonts", fonts_card),

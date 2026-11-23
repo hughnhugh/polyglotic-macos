@@ -583,6 +583,95 @@ def test_an_arrow_ends_over_its_counterparts_pinyin_not_through_it(
         assert tip.y() <= pinyin_top + 2.0
 
 
+@pytest.mark.parametrize("scrolling", [False, True])
+def test_video_paints_readings_and_word_links_in_the_same_rows(
+    qapp: QApplication, scrolling: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polyglotic_desktop.ui_next.video import Video
+
+    engine, line = en_zh(None)
+    ready = False
+    engine.readings = lambda text, lang: made_up(text, lang) if ready else None
+    tips = []
+    draw = QPainter.drawPath
+
+    def note(painter: QPainter, path: QPainterPath) -> None:
+        tips.append(path.pointAtPercent(1.0) + painter.worldTransform().map(QPointF()))
+        draw(painter, path)
+
+    monkeypatch.setattr(QPainter, "drawPath", note)
+    marks = CaptionMarks(None)
+    marks.set_look(WordLinks.ARROWS, WordIntroductions.OFF)
+    video = Video()
+
+    def grab(now: float):
+        image = QImage(240, 160, QImage.Format.Format_ARGB32)
+        painter = QPainter(image)
+        try:
+            return video.paint(
+                painter,
+                engine,
+                Ink(),
+                marks,
+                lambda *_: None,
+                [line],
+                1.0,
+                image.width(),
+                image.height(),
+                now,
+                scrolling=scrolling,
+                languages=(EN, ZH),
+            )
+        finally:
+            painter.end()
+
+    before = grab(0)
+    before_y = before[0][1].rows[-1].top + before[0][2].y()
+    ready = True
+    # A dictionary becoming ready replaces the caption window's engine.
+    engine = CaptionLayout(engine.style, readings=made_up)
+    after = grab(0.1)
+    _, laid, rect = after[0]
+    meant = laid.rows[-1]
+    assert meant.top + rect.y() + meant.layout.lineAt(0).y() == pytest.approx(before_y)
+    assert meant.above and tips
+    origin = rect.topLeft() + QPointF(0, meant.top)
+    assert meant.above_font is not None
+    metrics = QFontMetricsF(meant.above_font)
+    for mark in meant.above:
+        assert mark.y < meant.layout.lineAt(0).y()
+        at = origin + QPointF(mark.x + metrics.horizontalAdvance(mark.text) / 2, mark.y)
+        found = char_under([(meant, origin)], at)
+        assert found is not None and found[2] == meant.start + mark.start
+
+
+def test_video_lookup_can_find_the_later_wrap_of_the_same_clause(
+    qapp: QApplication,
+) -> None:
+    from polyglotic_desktop.ui_next.video import Video
+
+    engine, line = en_zh(None)
+    window = read_window(qapp, CaptionLab(), 0, translate_into=ZH)
+    video = Video()
+    image = QImage(132, 275, QImage.Format.Format_ARGB32)
+    painter = QPainter(image)
+    try:
+        window.canvas.placed = video.paint(
+            painter, engine, Ink(), None, lambda *_: None, [line],
+            1.0, image.width(), image.height(), 0.0, languages=(EN, ZH),
+            lines_shown=3,
+        )  # fmt: skip
+    finally:
+        painter.end()
+
+    _, laid, _ = window.canvas.placed[0]
+    wraps = [row for row in laid.rows if row.row.kind is RowKind.ORIGINAL]
+    assert len(wraps) > 1 and wraps[-1].start > 0
+    last = wraps[-1]
+    found = window.word_at(Marked(line.key, last.index, last.start, last.start + 3))
+    assert found is not None and found.word == last.row.text[:3]
+
+
 @pytest.mark.parametrize("flow", [None, PAIRED], ids=["today", "paired"])
 def test_a_point_over_a_reading_is_over_its_character(
     qapp: QApplication, flow: FlowOptions | None

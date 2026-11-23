@@ -45,6 +45,7 @@ from polyglotic_desktop.core.learning.load import (
     ADD_SIZES,
     SIZES,
     STEPS,
+    WEEK,
     Counting,
     LoadRules,
     Stage,
@@ -76,6 +77,10 @@ actions for one word, and "I know these" for the words next to enter."""
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate("LearningLoad", text)
+
+
+def _trn(text: str, n: int) -> str:
+    return QCoreApplication.translate("LearningLoad", text, None, n)
 
 
 def stage_name(stage: Stage) -> str:
@@ -467,9 +472,9 @@ class LoadCard(Card):
             return
         progress, rules = view.progress, view.rules
         self.summary.setText(
-            _tr(
-                "In your load: {words} of {size}. Ready to check: {ready}. "
-                "Graduated in the last 7 days: {week}."
+            _trn(
+                "In your load: {words} of {size}. Ready to check: {ready}. Graduated in the last %Ln day(s): {week}.",
+                WEEK.days,
             ).format(
                 words=progress.words,
                 size=progress.size,

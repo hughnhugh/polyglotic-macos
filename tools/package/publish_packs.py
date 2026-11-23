@@ -154,6 +154,7 @@ SPLITS = {
     "id": "clitics",
     "ms": "clitics",
     "tr": "turkish",
+    "ko": "korean",
     "fa": "joiners",
     "tl": "affixes",
     "cs": "affixes",
@@ -176,7 +177,9 @@ not 90.8, 90.6 and 90.1; polyglotic-hq 387). An app with either has every
 split before it. One from before `thai` would take a Thai phrase, written
 without spaces, as one word (polyglotic-hq 389); one from before `han`
 would take a Cantonese line as one word (polyglotic-hq 450), and has no
-Cantonese in its basic languages."""
+Cantonese in its basic languages. One from before `korean` finds
+Korean's nouns only without their particles, and its verbs only in their
+tables' forms (polyglotic-hq 510)."""
 WIKTIONARY_AND_WORDFREQ = (
     "Wiktionary's contributors (via kaikki.org) and wordfreq; CC BY-SA 4.0"
 )

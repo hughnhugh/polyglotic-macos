@@ -26,10 +26,9 @@ took its recommendation, D with B as its no-motion form (DECISIONS.md
 Step is also what step and slide becomes with Windows' animation effects
 off (`effective`): pixel for pixel the same.
 
-A preview line becoming its finished caption keeps its key, so it isn't
-new: in B its rows change where they are and the stack jumps by the
-translation's height; in D that growth slides too, the translation rising
-into view from below.
+A preview line becoming its finished caption keeps its key. The rows
+reflow with the newest caption anchored at the foot. Newly shown
+captions and newly revealed paced lines start a slide.
 
 With Windows' high contrast nothing steps back (`older_alphas`): every
 line keeps full contrast. Nor while the learner has scrolled back: they're
@@ -40,6 +39,8 @@ Python, no Qt: times are seconds on whatever clock the window keeps.
 
 from dataclasses import dataclass, field
 from enum import StrEnum
+
+from polyglotic_desktop.ui_next.views.cards import ease
 
 OLDER_ALPHA = 0.72
 OLDER_TRANSLATION_ALPHA = 0.82
@@ -140,7 +141,10 @@ class Slide:
 
     def offset(self, now: float) -> float:
         """How far below its place the stack is drawn at `now`."""
-        return self.from_px * _left(self.started, self.seconds, now)
+        # Keep the speech-paced duration. Easing into a long move avoids
+        # the abrupt first frame of a cubic ease-out and gets a new row
+        # clear of the lower edge sooner as the stack comes to rest.
+        return self.from_px * (1.0 - ease((now - self.started) / self.seconds))
 
     def done(self, now: float) -> bool:
         return now - self.started >= self.seconds

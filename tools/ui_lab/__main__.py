@@ -12,7 +12,9 @@ python -m tools.ui_lab seen                  # the strings shown most: build/ui-
 python -m tools.ui_lab languages [--jobs 4]  # every other language, its checks gated
 
 Approving never removes a golden; `prune` is the only step that does
-(polyglotic-hq 258).
+(polyglotic-hq 258). On the user's PC, off CI, the command waits for the
+shared Qt lock and 3.0 GB free, and holds the lock while it runs
+(`tools/qt_lock.py`, polyglotic-hq 563).
 """
 
 import argparse
@@ -23,6 +25,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from functools import partial
 from pathlib import Path
 
@@ -30,9 +33,10 @@ from PySide6.QtWidgets import QWidget
 
 from polyglotic_desktop.ui import interface_language
 from polyglotic_desktop.ui_next import languages, style
-from tools import start_record, timing_record
+from tools import qt_lock, start_record, timing_record
 from tools.i18n import __main__ as i18n
 from tools.ui_lab import (
+    bar_timing,
     caption_window,
     design,
     first_run,
@@ -42,8 +46,10 @@ from tools.ui_lab import (
     judge,
     known,
     lab,
+    learner_captions,
     lookup,
     new_parts,
+    open_beta,
     pages,
     panels,
     presets,
@@ -52,6 +58,8 @@ from tools.ui_lab import (
     seen,
     text_sizes,
     transcript,
+    typing_holds,
+    use_presets,
 )
 
 COMMANDS = ("approve", "prune", "judge", "seen", "languages", "design")
@@ -64,7 +72,15 @@ def new_states() -> list[lab.State]:
     new += joined_window.STATES + transcript.STATES
     new += panels.STATES + presets.STATES
     new += home.STATES + pages.STATES + qt_parts.STATES + first_run.STATES
+    new += open_beta.STATES
+    new += use_presets.STATES + bar_timing.STATES + learner_captions.STATES
+    new += typing_holds.STATES
     return new + text_sizes.STATES
+
+
+def visual_states() -> list[lab.State]:
+    """States used by checks, golden approval and the strings inventory."""
+    return [state for state in new_states() if state.visual_checks]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -162,7 +178,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     at_100 = args.text_size == 100 and args.app_text_size == "normal"
     golden_store = goldens.GOLDENS if at_100 and english else None
-    states = at_app_text_size(new_states(), args.app_text_size)
+    selected = visual_states() if args.checks_only else new_states()
+    states = at_app_text_size(selected, args.app_text_size)
     if args.at_normal:  # not text_sizes' own states, built at the other sizes
         other_sizes = {s.name for s in text_sizes.STATES}
         states = [s for s in states if s.name not in other_sizes]
@@ -198,6 +215,7 @@ def main(argv: list[str] | None = None) -> int:
     for line in differ:
         print(f"golden - {line}", file=sys.stderr)
     # the design detector, gated where its baseline was made: English at 100 %
+    # and the app's Normal
     new_design = design_gate(results) if golden_store is not None else []
     for line in new_design:
         print(f"design - {line}", file=sys.stderr)
@@ -248,8 +266,9 @@ def design_gate(results: list[lab.Result]) -> list[str]:
 
 def design_run(out: Path, accept: bool) -> int:
     """Every state, and `out/design.md`: the design detector's findings,
-    new ones marked. `accept`: every finding now becomes the baseline."""
-    results = lab.run(new_states(), out)
+    new ones marked. `accept`: every finding now becomes the baseline. At
+    the app's Normal text size, as the gate judges them (`design_gate`)."""
+    results = lab.run(at_app_text_size(visual_states(), "normal"), out)
     (out / "design.md").write_text(judge.design_markdown(results), encoding="utf-8")
     found = [(r.state, f) for r in results if r.gated for f in r.design]
     if accept:
@@ -319,7 +338,7 @@ def see(out: Path) -> int:
     interface_language.install(app, interface_language.ENGLISH)
     style.use_interface_language(interface_language.ENGLISH)
     _asked, found, shown = seen.recorder(app)  # installed last: asked first
-    lab.run(new_states(), out, shown=shown)
+    lab.run(visual_states(), out, shown=shown)
     print(f"{seen.SEEN}: {seen.write(found)} strings shown")
     return 0
 
@@ -444,7 +463,7 @@ def at_app_text_size(states: list[lab.State], size: str) -> list[lab.State]:
         style.use_app_text_size(size)
         return run(each)
 
-    return [lab.State(s.name, partial(begun, s.run), s.gated, s.scene) for s in states]
+    return [replace(s, run=partial(begun, s.run)) for s in states]
 
 
 def chosen(states: list[lab.State], only: list[str] | None) -> list[lab.State]:
@@ -463,9 +482,10 @@ def chosen(states: list[lab.State], only: list[str] | None) -> list[lab.State]:
 def approve(out: Path, only: list[str] | None = None) -> int:
     """Every state of the new interface run - or only those `only` names -
     and each picture that differs from its golden (or has none) becomes its
-    golden. No golden is removed: `prune` does that."""
-    states = new_states()
-    results = lab.run(chosen(states, only), out)
+    golden. No golden is removed: `prune` does that. At the app's Normal
+    text size, as the gate photographs them, whatever this process had."""
+    states = visual_states()
+    results = lab.run(at_app_text_size(chosen(states, only), "normal"), out)
     pictures = {r.state: r.photo for r in results if r.photo is not None}
     changes = goldens.approve(pictures)
     for line in changes:
@@ -486,12 +506,26 @@ def approve(out: Path, only: list[str] | None = None) -> int:
 def prune() -> int:
     """The goldens whose state is gone, removed - by the states' names, so
     nothing is drawn and a state that failed to draw keeps its golden."""
-    changes = goldens.remove_stale(s.name for s in new_states())
+    changes = goldens.remove_stale(s.name for s in visual_states())
     for line in changes:
         print(line)
     print(f"{len(changes)} golden(s) removed." if changes else "No golden is stale.")
     return 0
 
 
+def locked(argv: list[str] | None = None) -> int:
+    """`main`, holding the shared Qt lock on the user's PC once it's free
+    and the PC has 3.0 GB free (`tools/qt_lock.py`, polyglotic-hq 563);
+    `languages`' runs, each its own process, run under it. Off the PC, or
+    on CI, `main` at once."""
+    args = sys.argv[1:] if argv is None else argv
+    try:
+        with qt_lock.held(" ".join(["tools.ui_lab", *args])):
+            return main(argv)
+    except qt_lock.GaveUp as why:
+        print(why, file=sys.stderr)
+        return 2
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(locked())

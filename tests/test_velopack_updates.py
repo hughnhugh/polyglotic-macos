@@ -2,6 +2,8 @@
 options passed for a change of channel, and - for real - nothing to update
 when run from source."""
 
+import os
+import sys
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -11,10 +13,14 @@ import velopack
 from polyglotic_desktop.adapters import velopack_updates
 from polyglotic_desktop.adapters.velopack_updates import (
     MAX_DELTAS,
+    NOT_WRITABLE,
+    AppImage,
     VelopackUpdater,
+    cache_folder,
     download_size,
     feed_source,
     run_installer_hooks,
+    this_appimage,
 )
 from polyglotic_desktop.ports.updates import DownloadFailed, FeedUnreachable, Update
 
@@ -70,8 +76,8 @@ class FakeManager:
     fails: ClassVar[str] = ""
     """"check" or "download": that call raises, as Velopack's do."""
 
-    def __init__(self, source: str, options: Any) -> None:
-        self.source, self.options = source, options
+    def __init__(self, source: str, options: Any, locator: Any = None) -> None:
+        self.source, self.options, self.locator = source, options, locator
         self.calls: list[str] = []
         FakeManager.made.append(self)
 
@@ -339,3 +345,252 @@ def test_a_package_refused_at_the_download_is_named_in_the_log(
         " short)" in caplog.text
     )
     assert fake_velopack.made[0].calls == []
+
+
+# -- Linux: the AppImage (polyglotic-hq 550) -------------------------------------------
+
+
+def test_an_appimage_is_found_only_on_linux_inside_one(tmp_path: Path) -> None:
+    """The AppImage's runtime sets $APPIMAGE and $APPDIR; from source, on
+    Windows or on a Mac there's none, and Velopack finds its own paths."""
+    inside = {"APPIMAGE": "/home/a/Apps/Polyglotic.AppImage", "APPDIR": "/tmp/.mount_x"}
+    assert this_appimage(inside, "win32") is None
+    assert this_appimage(inside, "darwin") is None
+    assert this_appimage({"APPDIR": "/tmp/.mount_x"}, "linux") is None
+    assert this_appimage({}, "linux") is None
+    found = this_appimage(inside, "linux", home=tmp_path)
+    assert found == AppImage(
+        Path("/home/a/Apps/Polyglotic.AppImage"),
+        Path("/tmp/.mount_x"),
+        tmp_path / ".cache" / "Polyglotic" / "packages",
+    )
+
+
+def test_each_users_packages_are_in_their_own_cache(tmp_path: Path) -> None:
+    """547: Velopack's own folder, /var/tmp/velopack/Polyglotic/packages, is
+    the first user's alone (755), so a second user's update couldn't
+    download. Each user's go in $XDG_CACHE_HOME (an absolute path only, as
+    the XDG rules say), else ~/.cache."""
+    assert cache_folder({"XDG_CACHE_HOME": "/srv/c"}, tmp_path) == Path("/srv/c")
+    assert cache_folder({"XDG_CACHE_HOME": "rel/c"}, tmp_path) == tmp_path / ".cache"
+    assert cache_folder({}, tmp_path) == tmp_path / ".cache"
+    env = {"APPIMAGE": "/a/Polyglotic.AppImage", "APPDIR": "/m", "XDG_CACHE_HOME": "/c"}
+    found = this_appimage(env, "linux", home=tmp_path)
+    assert found is not None
+    assert found.packages == Path("/c/Polyglotic/packages")
+
+
+def test_velopack_is_given_the_appimages_paths_with_this_users_packages(
+    tmp_path: Path,
+) -> None:
+    appimage = AppImage(
+        tmp_path / "Polyglotic.AppImage", tmp_path / "mount", tmp_path / "packages"
+    )
+    locator = appimage.locator()
+    assert (tmp_path / "packages").is_dir()  # made for Velopack
+    assert Path(locator.RootAppDir) == tmp_path / "Polyglotic.AppImage"
+    assert Path(locator.PackagesDir) == tmp_path / "packages"
+    tools = tmp_path / "mount" / "usr" / "bin"
+    assert Path(locator.UpdateExePath) == tools / "UpdateNix"
+    assert Path(locator.ManifestPath) == tools / "sq.version"
+    assert Path(locator.CurrentBinaryDir) == tools
+    assert locator.IsPortable is False
+
+
+class Hooks:
+    """`atexit.register`, kept to call by hand."""
+
+    def __init__(self) -> None:
+        self.hooked: list[Any] = []
+
+    def __call__(self, hook: Any) -> None:
+        self.hooked.append(hook)
+
+
+def appimage_updater(tmp_path: Path, hooks: Hooks, writable: bool = True) -> Any:
+    class Here(AppImage):
+        def writable(self) -> bool:
+            return writable
+
+    here = Here(tmp_path / "Polyglotic.AppImage", tmp_path / "m", tmp_path / "pk")
+    return VelopackUpdater(FEED, appimage=here, at_exit=hooks)
+
+
+def test_on_linux_a_downloaded_update_applies_as_the_app_exits(
+    fake_velopack: type[FakeManager], tmp_path: Path
+) -> None:
+    """Velopack's start-up looks for downloads in its own folder, not this
+    user's, so the next start wouldn't apply one: it's applied once the app
+    has exited - the file replaced in place, not started again."""
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    hooks = Hooks()
+    updater = appimage_updater(tmp_path, hooks)
+    update = updater.find(None, False)
+    updater.download(update)
+    (manager,) = fake_velopack.made
+    assert Path(manager.locator.PackagesDir) == tmp_path / "pk"
+    assert len(hooks.hooked) == 1  # once, however many downloads
+    updater.download(update)
+    assert len(hooks.hooked) == 1
+    hooks.hooked[0]()
+    assert manager.calls == [
+        "download 0.2.0",
+        "download 0.2.0",
+        "at exit 0.2.0 silent=True restart=False",
+    ]
+    hooks.hooked[0]()  # nothing pending now
+    assert len(manager.calls) == 3
+
+
+def test_off_linux_a_downloaded_update_waits_for_the_next_start(
+    fake_velopack: type[FakeManager],
+) -> None:
+    """Windows' and a Mac's: Velopack's start-up applies it, as before."""
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    hooks = Hooks()
+    updater = VelopackUpdater(FEED, at_exit=hooks)
+    update = updater.find(None, False)
+    assert update is not None
+    updater.download(update)
+    assert hooks.hooked == []
+    assert fake_velopack.made[0].locator is None
+
+
+@pytest.mark.parametrize("asked", ["restart now", "update required"])
+def test_an_update_the_app_asked_for_isnt_applied_again_at_exit(
+    fake_velopack: type[FakeManager], tmp_path: Path, asked: str
+) -> None:
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    hooks = Hooks()
+    updater = appimage_updater(tmp_path, hooks)
+    update = updater.find(None, False)
+    updater.download(update)
+    if asked == "restart now":
+        updater.apply_at_exit(update, restart=True)
+    else:
+        updater.restart_into(update)
+    hooks.hooked[0]()
+    (manager,) = fake_velopack.made
+    assert manager.calls[1:] == [
+        "at exit 0.2.0 silent=True restart=True"
+        if asked == "restart now"
+        else "restart 0.2.0"
+    ]
+
+
+def test_a_folder_the_learner_cant_change_is_refused_before_downloading(
+    fake_velopack: type[FakeManager],
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """547: Velopack moves the new AppImage over the old; in a folder the
+    learner can't write (/opt, another user's) that fails after the whole
+    download. Refused first, with what to do in the log - never the
+    folder's own name."""
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    hooks = Hooks()
+    updater = appimage_updater(tmp_path, hooks, writable=False)
+    update = updater.find(None, False)
+    with pytest.raises(DownloadFailed) as refused:
+        updater.download(update)
+    assert str(refused.value) == NOT_WRITABLE
+    assert fake_velopack.made[0].calls == []
+    assert hooks.hooked == []
+    assert "move Polyglotic.AppImage into a folder of your own" in caplog.text
+    assert str(tmp_path) not in caplog.text
+
+
+def test_an_update_that_cant_be_applied_at_exit_is_logged_not_raised(
+    fake_velopack: type[FakeManager],
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    hooks = Hooks()
+    updater = appimage_updater(tmp_path, hooks)
+    update = updater.find(None, False)
+    updater.download(update)
+
+    def refuse(*_a: object, **_k: object) -> None:
+        raise PermissionError("Permission denied")
+
+    monkeypatch.setattr(fake_velopack.made[0], "wait_exit_then_apply_updates", refuse)
+    hooks.hooked[0]()  # the app is ending: nothing raised
+    assert "update 0.2.0 not applied (PermissionError)" in caplog.text
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32" or getattr(os, "geteuid", lambda: 1)() == 0,
+    reason="POSIX permissions (root writes anywhere)",
+)
+def test_a_read_only_folder_cant_take_the_new_file(tmp_path: Path) -> None:
+    folder = tmp_path / "opt"
+    folder.mkdir()
+    file = folder / "Polyglotic.AppImage"
+    file.write_bytes(b"")
+    here = AppImage(file, tmp_path / "m", tmp_path / "pk")
+    assert here.writable()
+    folder.chmod(0o555)
+    try:
+        assert not here.writable()
+    finally:
+        folder.chmod(0o755)
+
+
+def test_not_writable_is_a_specific_download_failure(
+    fake_velopack: type[FakeManager], tmp_path: Path
+) -> None:
+    """640: NotWritable subclasses DownloadFailed so core tells a read-only
+    folder apart from a network or hash failure."""
+    from polyglotic_desktop.ports.updates import NotWritable
+
+    fake_velopack.feed = {None: FakeInfo("0.2.0", False)}
+    updater = appimage_updater(tmp_path, Hooks(), writable=False)
+    update = updater.find(None, False)
+    with pytest.raises(NotWritable) as refused:
+        updater.download(update)
+    assert isinstance(refused.value, DownloadFailed)
+    assert str(refused.value) == NOT_WRITABLE
+
+
+def test_appimage_uses_its_manifests_channel_for_the_signed_feed(
+    fake_velopack: type[FakeManager], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """640: a rehearsal AppImage carries linux-x64-rehearsal in Velopack's
+    sq.version while keeping a protocol channel in release.json, so the
+    signed feed verifies and fetches linux-x64-rehearsal."""
+    from nacl.signing import SigningKey
+    from tests.test_signed_feed import public
+
+    from polyglotic_desktop.adapters.signed_feed import VerifiedFeed
+
+    mount = tmp_path / "mount"
+    (mount / "usr" / "bin").mkdir(parents=True)
+    (mount / "usr" / "bin" / "sq.version").write_text(
+        "<package><metadata><version>0.1.10</version>"
+        "<channel>linux-x64-rehearsal</channel></metadata></package>",
+        encoding="utf-8",
+    )
+    here = AppImage(tmp_path / "Polyglotic.AppImage", mount, tmp_path / "pk")
+    assert here.channel() == "linux-x64-rehearsal"
+
+    refreshed: list[str] = []
+
+    def refresh(
+        self: VerifiedFeed,
+        channel: str,
+        version: str,
+        switching: bool,
+        package: bool = True,
+    ) -> Path:
+        refreshed.append(channel)
+        return self.folder_for(channel)
+
+    monkeypatch.setattr(VerifiedFeed, "refresh", refresh)
+    key = public(SigningKey.generate())
+    updater = VelopackUpdater(
+        FEED, (key,), "linux-x64-alpha", "0.1.10", tmp_path / "v", appimage=here
+    )
+    assert updater.find(None, False) is None
+    assert refreshed == ["linux-x64-rehearsal"]

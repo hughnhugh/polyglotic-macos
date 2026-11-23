@@ -28,8 +28,8 @@ stretch at the next short pause), and turn cuts (finishing a caption
 sooner when another source starts speaking).
 
 The app doesn't use those defaults: it follows the learner's
-`CaptionMode` - Steady, Quick preview (the default: `default_caption_mode`,
-desktop decision 0242) or Live updates - each a
+`CaptionMode` - Instant (the default, project 626), Whole captions,
+Steady or Calm - each a
 set of these rules that projects 021, 037 and 046 measured, and each
 joining only onto fragments - and the learner's longest wait for text
 (`max_wait`, 3s unless they choose 2-6s; polyglotic-hq 277): in every
@@ -226,76 +226,122 @@ class TimingRules:
 
 
 class CaptionMode(StrEnum):
-    """How captions are timed: the learner's choice on the Captions page
-    (polyglotic-hq DECISIONS.md #4 and #107; until they choose,
-    `default_caption_mode`). Each mode is a set of `TimingRules` and a live-update
-    interval (`rules`, `live_update_interval`); in all three, joins only
-    repair fragments (FRAGMENT_SEC)."""
+    """How captions are timed and shown: the learner's choice on the
+    Captions page (polyglotic-hq DECISIONS.md #4, #107 and #230; until they
+    choose, `default_caption_mode`). Each mode is a set of `TimingRules`
+    and a live-update interval (`rules`, `live_update_interval`); in all of
+    them, joins only repair fragments (FRAGMENT_SEC). Steady and Calm show
+    their live updates through the playout (`paced`; `playout`, decision
+    0245).
 
-    STEADY = "steady"
-    """Each caption once, finished: at a 0.6s pause, or at a breath once
-    it has run a while (`BREATH_CUTS`: 3s, cut at 6s). Project 033's Y:
-    the least GPU work, the first words a median ~3.6s after the speaker
-    starts. No live updates of its own - only the longest wait for text's
-    (polyglotic-hq 277): a provisional line once a caption has run that
-    long, and again each time it runs that long more, replaced by the
-    finished caption. Nothing sooner."""
+    The values are what the settings keep, so two are older than their
+    names (decision 0246): Whole captions was called Steady until
+    2026-11-20 and keeps "steady"; Instant was Live updates and keeps
+    "live"."""
+
+    STEADY = "words"
+    """Word by word, in the speaker's rhythm, a constant delay behind: live
+    updates every `LIVE_UPDATE_INTERVAL_SEC`, their words shown through
+    the playout - each at the moment it was said plus the delay, the
+    newest held back until it is confirmed (polyglotic-hq 526)."""
+    WHOLE = "steady"
+    """Whole captions: each caption once, finished - at a 0.6s pause, or
+    at a breath once it has run a while (`BREATH_CUTS`: 3s, cut at 6s).
+    Project 033's Y: the least GPU work, the first words a median ~3.6s
+    after the speaker starts. No live updates of its own - only the
+    longest wait for text's (polyglotic-hq 277): a provisional line once a
+    caption has run that long, and again each time it runs that long more,
+    replaced by the finished caption. Nothing sooner."""
     PREVIEW = "preview"
-    """Quick preview: Steady, plus provisional live updates on the growing
-    schedule - 1.5 and 3s into each piece of a caption (the breath cut's
-    6s limit comes before the schedule's 6s) - all replaced by the
-    finished caption. Project 033's Z had one, 1.5s in
-    (the first words at ~1.9s, ~1.4-1.7x Steady's work); since 260 (the
-    user's F34: "not do anything for an extended period of time and then
-    suddenly update all of the speech at once") it keeps updating through
-    long speech."""
-    LIVE = "live"
-    """Live updates every few seconds (the learner's interval) while
-    someone talks, finished at a 0.8s pause: the proof of concept's
-    timing, kept as an option - except that joins only repair fragments,
-    and that long speech is finished in pieces as Steady's is
+    """Quick preview, retired 2026-11-20 (decision 0246): not offered, and
+    a learner who chose it is on Steady (`ui.settings`). Its rules stay
+    until polyglotic-hq DECISIONS #230 is answered: Whole captions, plus
+    provisional live updates on the growing schedule - 1.5 and 3s into
+    each piece of a caption - all replaced by the finished caption."""
+    INSTANT = "live"
+    """Every live update shown as it comes, every few seconds (the
+    learner's interval) while someone talks, finished at a 0.8s pause: the
+    proof of concept's timing, kept as an option - except that joins only
+    repair fragments, and that long speech is finished in pieces
     (`BREATH_CUTS`: at a breath once it has run 3s, cut at 6s), so a
     finished caption never rewrites more than its own line or two
     (decision 0088; the proof of concept redid up to 20s at once)."""
+    SCROLLING = "scrolling"
+    """Video uses live originals and translations in scrolling rows."""
+    CALM = "calm"
+    """Steady, showing only the words the server calls established: later
+    (about as late as Whole captions), and the fewest shown words ever
+    changed."""
 
     @property
     def rules(self) -> TimingRules:
         return _MODE_RULES[self]
 
     @property
+    def usage_value(self) -> str:
+        """The original speech timing in the existing version-1 tracking plan."""
+        return (
+            CaptionMode.INSTANT.value if self is CaptionMode.SCROLLING else self.value
+        )
+
+    @property
+    def paced(self) -> bool:
+        """Whether the mode's live updates are shown through the playout."""
+        return self in (CaptionMode.STEADY, CaptionMode.CALM)
+
+    @property
     def provisional_lines(self) -> bool:
         """Whether the mode's live updates are provisional lines - dim,
-        translated, replaced by the finished caption: Steady's (the longest
-        wait for text's only) and Quick preview's. Live updates' are the
-        caption itself, rewriting."""
-        return self is not CaptionMode.LIVE
+        translated, replaced by the finished caption: Whole captions' (the
+        longest wait for text's only) and Quick preview's. The other
+        modes' are the caption itself."""
+        return self in (CaptionMode.WHOLE, CaptionMode.PREVIEW)
+
+    @property
+    def live_translated(self) -> bool:
+        """Whether the mode's live updates are always translated: the
+        provisional lines (polyglotic-hq 268, 277), and the paced modes',
+        whose clauses show their translation as they end. Instant's are
+        as the learner's "Translate live captions" says."""
+        return self.provisional_lines or self.paced
 
     def live_update_interval(self, chosen: float) -> float | None:
         """The live-update interval the mode follows, given the learner's
-        `chosen` one (which only Live updates uses): None for Steady,
-        PREVIEW_AFTER_SEC for Quick preview."""
-        if self is CaptionMode.STEADY:
+        `chosen` one (which only Instant uses): None for Whole captions,
+        PREVIEW_AFTER_SEC for Quick preview, `LIVE_UPDATE_INTERVAL_SEC`
+        for the paced modes (what the playout's delay was measured at)."""
+        if self is CaptionMode.WHOLE:
             return None
         if self is CaptionMode.PREVIEW:
             return PREVIEW_AFTER_SEC
+        if self.paced:
+            return LIVE_UPDATE_INTERVAL_SEC
         return chosen
 
 
+OFFERED_MODES = (
+    CaptionMode.INSTANT,
+    CaptionMode.WHOLE,
+    CaptionMode.STEADY,
+    CaptionMode.CALM,
+)
+"""The modes a learner can choose, in the order shown: Quick preview is
+retired (decision 0246)."""
+
+
 def default_caption_mode() -> CaptionMode:
-    """The caption mode of a learner who hasn't chosen one: Quick preview,
-    for everyone (decision 0242, polyglotic-hq 522: the user, 2026-11-18,
-    "quick preview is our desired mode to optimise"; Steady from
-    2026-11-09, #107, and Quick preview from 2026-11-07, #4, before that).
-    The one place it's decided: a smarter preview (project 183's) would be
-    decided here too - every learner who hasn't chosen follows it, and a
-    choice made stays (decision 0055)."""
-    return CaptionMode.PREVIEW
+    """Instant for a learner who follows the app's default (project 626)."""
+    return CaptionMode.INSTANT
 
 
+_INSTANT_BREATH = BreathCut(after=3.0, pause=0.3, limit=6.0)
 BREATH_CUTS: Mapping[CaptionMode, BreathCut] = {
-    CaptionMode.STEADY: BreathCut(after=3.0, pause=0.3, limit=6.0),
+    CaptionMode.WHOLE: BreathCut(after=3.0, pause=0.3, limit=6.0),
     CaptionMode.PREVIEW: BreathCut(after=3.0, pause=0.3, limit=6.0),
-    CaptionMode.LIVE: BreathCut(after=3.0, pause=0.3, limit=6.0),
+    CaptionMode.INSTANT: _INSTANT_BREATH,
+    CaptionMode.SCROLLING: _INSTANT_BREATH,
+    CaptionMode.STEADY: BreathCut(after=3.0, pause=0.3, limit=6.0),
+    CaptionMode.CALM: BreathCut(after=3.0, pause=0.3, limit=6.0),
 }
 """Each mode's breath cut - where it's tuned, `after` and `limit` above all
 (polyglotic-hq 260): the mode's rules take it from here. 3s, a 0.3s pause,
@@ -311,21 +357,28 @@ whole stretch, up to the long-speech split's 20s - 14 to 22 clauses
 rewritten at once. In pieces, text more than a line or two up never
 changes."""
 
-_STEADY_RULES = TimingRules(
+_WHOLE_RULES = TimingRules(
     silence_hangover=STEADY_HANGOVER_SEC,
-    breath_cut=BREATH_CUTS[CaptionMode.STEADY],
+    breath_cut=BREATH_CUTS[CaptionMode.WHOLE],
     join_only_under=FRAGMENT_SEC,
 )
+_INSTANT_RULES = TimingRules(
+    breath_cut=BREATH_CUTS[CaptionMode.INSTANT], join_only_under=FRAGMENT_SEC
+)
 _MODE_RULES = {
-    CaptionMode.STEADY: _STEADY_RULES,
+    CaptionMode.WHOLE: _WHOLE_RULES,
     CaptionMode.PREVIEW: replace(
-        _STEADY_RULES,
+        _WHOLE_RULES,
         schedule=LiveSchedule.GROWING,
         breath_cut=BREATH_CUTS[CaptionMode.PREVIEW],
     ),
-    CaptionMode.LIVE: TimingRules(
-        breath_cut=BREATH_CUTS[CaptionMode.LIVE], join_only_under=FRAGMENT_SEC
+    CaptionMode.INSTANT: _INSTANT_RULES,
+    CaptionMode.SCROLLING: _INSTANT_RULES,
+    # the paced modes are fed as Instant is: the playout was measured on its updates
+    CaptionMode.STEADY: replace(
+        _INSTANT_RULES, breath_cut=BREATH_CUTS[CaptionMode.STEADY]
     ),
+    CaptionMode.CALM: replace(_INSTANT_RULES, breath_cut=BREATH_CUTS[CaptionMode.CALM]),
 }
 
 
@@ -425,6 +478,7 @@ class _SourceState:
     segment: _SpeechSegment | None = None
     silence_frames: int = 0
     sent_until: float | None = None  # the end of the last finished caption sent
+    heard_until: float | None = None  # end of its last speech-detection frame
 
 
 @dataclass(frozen=True, slots=True)
@@ -553,6 +607,21 @@ class CaptionTiming:
         """Nothing is sent for `source_id` now: paused, or paused on its own."""
         return self.paused or source_id in self.paused_sources
 
+    def captioning(self, source_id: SourceId) -> bool:
+        """Whether this source is following speech and may issue captions."""
+        return source_id in self._sources and not self._silent(source_id)
+
+    def finished_before(self, source_id: SourceId, end: float) -> bool:
+        """Has the source decided all captions for speech starting before end?"""
+        if not self.captioning(source_id):
+            return True
+        state = self._sources[source_id]
+        return (
+            state.heard_until is not None
+            and state.heard_until >= end
+            and (state.segment is None or state.segment.start >= end)
+        )
+
     def add_source(self, source: Source, bleed: MicBleedCheck | None = None) -> None:
         """Starts following `source`. `bleed` is checked before anything is
         sent for it (the mic's check against what the PC played)."""
@@ -572,8 +641,10 @@ class CaptionTiming:
         for quieter audio; None: not known, and a cut at a limit falls where
         the limit does). Returns the decisions it leads to (usually none)."""
         self._refill(end)
+        state = self._sources[source_id]
+        state.heard_until = end
         decisions = self._heard(source_id, end, speech, level)
-        if self._sources[source_id].segment is None:
+        if state.segment is None:
             self._waiting.discard(source_id)  # no speech, no turn to wait for
         if self._budget is not None:
             for decision in decisions:

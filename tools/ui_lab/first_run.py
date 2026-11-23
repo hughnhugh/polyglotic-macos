@@ -12,8 +12,9 @@ from collections.abc import Callable
 from PySide6.QtWidgets import QWidget
 
 from polyglotic_desktop.main import window_theme
-from polyglotic_desktop.ui import theme
+from polyglotic_desktop.ui import interface_language, theme
 from polyglotic_desktop.ui.consent import ConsentDialog
+from polyglotic_desktop.ui.language_picker import LanguagePicker
 from polyglotic_desktop.ui.level_picker import LevelPicker
 from polyglotic_desktop.ui.sign_in import SignInDialog
 from polyglotic_desktop.ui_next import style
@@ -69,6 +70,14 @@ def level(mode: str) -> Callable[[Lab], QWidget]:
     return run
 
 
+def language(mode: str) -> Callable[[Lab], QWidget]:
+    def run(lab: Lab) -> QWidget:
+        picker = LanguagePicker(interface_language.picker(), "de")
+        return _shown(lab, picker, "margin", mode)
+
+    return run
+
+
 def code(mode: str) -> Callable[[Lab], QWidget]:
     def run(lab: Lab) -> QWidget:
         return _shown(lab, SignInDialog(lambda typed: None), "margin", mode)
@@ -77,6 +86,10 @@ def code(mode: str) -> Callable[[Lab], QWidget]:
 
 
 STATES = [
+    *(
+        State(f"ui_next.first_run_language_{mode}", language(mode), gated=True)
+        for mode in ("light", "dark")
+    ),
     *(
         State(
             f"ui_next.first_run_consent_{name}_{mode}", consent(name, mode), gated=True

@@ -49,6 +49,10 @@ class Scroll:
 
     def __init__(self) -> None:
         self.anchor: Anchor | None = None
+        self.sticky = False
+        """Held until `follow` is asked for: text that shrinks below the
+        held line (a caption withdrawn or set again) never lets go of it
+        (Steady's cards: a window scrolled back went live by itself)."""
 
     @property
     def following(self) -> bool:
@@ -73,10 +77,13 @@ class Scroll:
             return []
         if self.anchor is not None:
             start = _index(lines, self.anchor.key)
-            held = _down(lines, start, self.anchor.offset, height, view_height, gap)
+            held = _down(
+                lines, start, self.anchor.offset, height, view_height, gap, self.sticky
+            )
             if held is not None:
                 return held
-            self.anchor = None
+            if not self.sticky:
+                self.anchor = None
         return _up(lines, height, view_height, gap)
 
     def scroll_by[L: Keyed](
@@ -104,8 +111,12 @@ class Scroll:
             if below > 0:
                 break
             offset, index = below, index + 1
+        # Scrolling towards the newest can end a sticky hold. A reflow
+        # alone can't put the reader back at live.
+        sticky = dy > 0 and self.sticky and not self.following
         self.anchor = Anchor(lines[index].key, offset)
-        self.placed(lines, height, view_height, gap)  # follows if at the end
+        if _down(lines, index, offset, height, view_height, gap, sticky) is None:
+            self.follow()
 
 
 def _index(lines: Sequence[Keyed], key: int) -> int:
@@ -137,9 +148,11 @@ def _down[L: Keyed](
     height: Callable[[L], float],
     view_height: float,
     gap: float,
+    sticky: bool,
 ) -> list[Placed[L]] | None:
     """Held: the line at `start` with its top at `offset`, newer ones below
-    it to the bottom of the view; None if the newest line's bottom shows."""
+    it to the bottom of the view. When the end fits, retain a sticky reading
+    position while it still shows text. Otherwise follow the end."""
     shown: list[Placed[L]] = []
     y = offset
     index = start
@@ -150,6 +163,6 @@ def _down[L: Keyed](
             shown.append(Placed(line, y))
         y += h + gap
         index += 1
-    if index == len(lines) and y - gap <= view_height:
+    if index == len(lines) and y - gap <= view_height and not (sticky and shown):
         return None
     return shown

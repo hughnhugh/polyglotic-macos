@@ -82,6 +82,22 @@ def test_a_feed_check_that_failed_is_named(caplog: pytest.LogCaptureFixture) -> 
     )
 
 
+def test_another_platforms_channel_is_logged_and_ignored(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """579: the packed Linux app, told Windows' channel by a stand-in
+    server, offered Windows' 0.1.9."""
+    updater = FakeUpdater({UpdateCheck(ALPHA, True): Update("0.1.9", downgrade=True)})
+    updates = BackgroundUpdates(Updates(updater, "linux-x64-alpha"))
+    updates.follow(ALPHA)
+    settle(updates)
+    updates.at_exit()
+    assert updater.calls == []  # no look at Windows' feed, nothing downloaded
+    assert (
+        "updates: the server named another platform's channel: ignored" in caplog.text
+    )
+
+
 def test_the_servers_channel_is_followed_and_looked_at_once(qapp: QApplication) -> None:
     updater = FakeUpdater({UpdateCheck(BETA, True): Update("0.1.0", downgrade=True)})
     updates = BackgroundUpdates(Updates(updater, ALPHA))

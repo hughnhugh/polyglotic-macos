@@ -16,6 +16,7 @@ selection. The caption windows stay near-black glass whatever the theme
 too; `apply(choice, name)` also loads the theme's heading face. No
 stylesheet is set on the whole app (decision 0031)."""
 
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from importlib.resources import files
 from pathlib import Path
@@ -235,8 +236,19 @@ SOURCE_COLORS = (
 )
 
 
+os_mode: Callable[[], str | None] | None = None
+"""The OS's own light or dark where Qt doesn't read it - Linux's settings
+portal (polyglotic-hq 571: Qt said light on a GNOME that prefers dark) -
+"light", "dark" or None (no preference: Qt's). `main` sets it; None: Qt's."""
+
+
 def system_theme() -> str:
-    """Windows' own app mode: "light" or "dark" (dark if it doesn't say)."""
+    """The OS's own app mode: "light" or "dark" (dark if it doesn't say) -
+    `os_mode`'s where it says one, else Qt's (Windows', a Mac's)."""
+    if os_mode is not None:
+        found = os_mode()
+        if found in ("light", "dark"):
+            return found
     hints = QGuiApplication.styleHints()
     return "light" if hints.colorScheme() is Qt.ColorScheme.Light else "dark"
 

@@ -716,9 +716,10 @@ def moved_by_use(key: str) -> bool:
 KNOWN = {
     "Settings > links / toggle Quiet view": (
         "polyglotic-hq 523's finding: Settings > Links' Quiet view on, then off,"
-        " leaves word links off and six languages' reading lines on (LookView."
-        "set_quiet alone puts the lines back: the switch's own path doesn't);"
-        " a fix is proposed"
+        " left word links off - put back since 555 - and the reading lines the"
+        " default gives written down as chosen (the same lines, but no longer"
+        " following the default: the record of changes keeps them); a fix is"
+        " proposed"
     ),
 }
 """Controls known not to put back what they change, each with why and
@@ -872,7 +873,7 @@ def first_run() -> kit.Step:
         name = type(question).__name__
         if name == "ConsentDialog" and getattr(question, "agree", None) is not None:
             question.agree.setChecked(True)  # type: ignore[attr-defined]
-        if name in ("ConsentDialog", "LevelPicker"):
+        if name in ("LanguagePicker", "ConsentDialog", "LevelPicker"):
             question.accept()  # type: ignore[attr-defined]
         else:
             question.close()
@@ -899,22 +900,44 @@ def run(argv: list[str] | None = None) -> int:
     parser.add_argument("--dictionaries", default="build/dictionaries")
     parser.add_argument("--limit", type=float, default=900.0, help="seconds")
     args = parser.parse_args(argv)
-    kit.OUT = args.out
+    run_app(args.out, args.dictionaries, Driver(args.limit))
+    write()
+    checks = verdict(SWEEP, kit.RESULTS["checks"])
+    (kit.OUT / "sweep-checks.json").write_text(
+        json.dumps({"checks": checks}, indent=1, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    for c in checks:
+        print(f"{c['outcome']} {c['check']}: {c['said']}", flush=True)
+    return 1 if any(c["outcome"] == FAIL for c in checks) else 0
+
+
+def run_app(
+    out: Path,
+    dictionaries: str,
+    driver: kit.Driver,
+    *,
+    http_replies: dict[str, object] | None = None,
+    native_keys: bool = False,
+    native_system_audio: bool = False,
+    replay_mic_permission: bool = False,
+) -> None:
+    """Start the real app with replay audio and the local stand-in server."""
+    kit.OUT = out
     kit.OUT.mkdir(parents=True, exist_ok=True)
     data = kit.OUT / "data"
     kit.seed_settings(data)
     from tests import fake_server
 
     from polyglotic_desktop import main as app
-    from polyglotic_desktop.platform.replay import join, read_clip
+    from polyglotic_desktop.platform.replay import ReplayCapture, join, read_clip
     from polyglotic_desktop.platform.sample import sample_file
 
     sample = sample_file("zh")
     assert sample is not None
     audio = join([read_clip(sample)], gap=1.0)
     fake_server.caption_for = kit.caption_for
-    server = fake_server.FakeServer()
-    driver = Driver(args.limit)
+    server = fake_server.FakeServer(http_replies=http_replies)
 
     class Driven(QApplication):
         def __init__(self, qt_argv: list[str]) -> None:
@@ -926,9 +949,21 @@ def run(argv: list[str] | None = None) -> int:
 
     def os_adapters(system: str = sys.platform) -> Any:
         found = swapped(system)
+        if replay_mic_permission:
+            found = dataclasses.replace(found, mic_permission=None)
         if system != "darwin":
             return found
         own = real(system)
+        if native_system_audio:
+            found = dataclasses.replace(found, system_capture=own.system_capture)
+        if native_keys:
+            found = dataclasses.replace(
+                found,
+                hold_key=own.hold_key,
+                hotkeys=own.hotkeys,
+                mic_capture=lambda _device: ReplayCapture(audio),
+                speaker_capture=lambda _device: ReplayCapture(audio),
+            )
         return dataclasses.replace(
             found,
             on_top=own.on_top,
@@ -960,7 +995,9 @@ def run(argv: list[str] | None = None) -> int:
                 "--data",
                 str(data),
                 "--dictionaries",
-                args.dictionaries,
+                dictionaries,
+                "--packs-from",
+                server.url + "/packs",
             ]
         )
     except SystemExit:
@@ -969,15 +1006,6 @@ def run(argv: list[str] | None = None) -> int:
         kit.check("the app started", False, traceback.format_exc()[-1500:])
     kit.write_results()
     server.stop()
-    write()
-    checks = verdict(SWEEP, kit.RESULTS["checks"])
-    (kit.OUT / "sweep-checks.json").write_text(
-        json.dumps({"checks": checks}, indent=1, ensure_ascii=False, default=str),
-        encoding="utf-8",
-    )
-    for c in checks:
-        print(f"{c['outcome']} {c['check']}: {c['said']}", flush=True)
-    return 1 if any(c["outcome"] == FAIL for c in checks) else 0
 
 
 def main(argv: list[str] | None = None) -> int:

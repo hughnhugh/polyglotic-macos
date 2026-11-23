@@ -59,6 +59,7 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.above_all import set_click_through
 from polyglotic_desktop.ui_next.caption_window import (
     BAND_IN_MS,
     BAND_OUT_MS,
@@ -78,11 +79,13 @@ from polyglotic_desktop.ui_next.caption_window import (
     notice_style,
     preset_name,
     restore_minimised,
+    say_resized,
     to_qrect,
     to_rect,
     work_areas,
 )
 from polyglotic_desktop.ui_next.glyphs import Glyph, icon
+from polyglotic_desktop.ui_next.resize_handle import CURSORS, GRIP, PanelResizeCursor
 from polyglotic_desktop.ui_next.settings_popover import (
     WINDOW_ROWS,
     KeyState,
@@ -143,6 +146,7 @@ class JoinedWindow(QWidget):
         self.keys = keys
         self.popover: SettingsPopover | None = None
         self._areas = areas
+        self.resize_hint: PanelResizeCursor | None = None
         self._drag: _Drag | None = None
         self._divider: tuple[int, float, tuple[float, ...]] | None = None
         """A divider being dragged: its index, where the press was (x on the
@@ -189,6 +193,7 @@ class JoinedWindow(QWidget):
                 window.set_locked(self.locked)
             self._widen()
             self.restyle()  # its controls on its columns' panel
+            self._keep_minimum()
             self.lay_out()
             for window in windows:
                 window.show()
@@ -323,6 +328,7 @@ class JoinedWindow(QWidget):
         self.notice.setStyleSheet(notice_style())
         self._draw_glyphs()
         self.bar.adjustSize()
+        self._keep_minimum()  # its columns' strips, at the text size now
         self._place_bar()
         self.place_notice()  # measured again, at the text size now
 
@@ -434,7 +440,11 @@ class JoinedWindow(QWidget):
             self.leaveEvent(None)
 
     def leaveEvent(self, event: object) -> None:
+        if self.resize_hint is not None:
+            self.resize_hint.hide()
         self._still_over.stop()
+        for column in self.columns:  # a view the mouse held goes live
+            column.let_go()  # (as each column's own leave does: 543, 554, 583)
         self._band_in.stop()
         if self._drag is None:
             self._band_out.start()
@@ -455,7 +465,43 @@ class JoinedWindow(QWidget):
     def _minimum(self) -> Size:
         least = least_size(MIN_PANEL)
         count = max(1, len(self.columns))
-        return Size(max(least.width, placement.MIN_COLUMN * count), least.height)
+        column = max(
+            [placement.MIN_COLUMN, *(self._column_least(c) for c in self.columns)]
+        )
+        height = max(
+            (
+                c.subtitle_height(c.choices.text_size, c.choices.translation_size)
+                if c.video_enabled
+                else least.height
+                for c in self.columns
+            ),
+            default=least.height,
+        )
+        return Size(max(least.width, column * count), height)
+
+    def _column_least(self, column: CaptionWindow) -> int:
+        """`column`'s narrowest: its strip's least width inside the corner
+        zones, and the window's controls beside it on the last column
+        (`controls_width`) - at Windows' 200 % and the app's Normal (2.25,
+        decision 0244) the last column's buttons were squashed past its
+        MIN_COLUMN (polyglotic-hq 524). The minimum includes the chip icons.
+        Columns share the width equally unless dragged, so each gets at
+        least as much as the widest one needs."""
+        return column.strip_least() + self.controls_width(column)
+
+    def strips_changed(self) -> None:
+        """Keep the window and Qt's minimum wide enough for all columns
+        when the mic mark or report button changes (polyglotic-hq 635)."""
+        self._widen()
+        self._keep_minimum()
+
+    def _keep_minimum(self) -> None:
+        """Qt keeps it at least `_minimum` wide - a resize of the lab's or
+        Windows' own too - but no wider than its screen's work area: a strip
+        too big for any screen is squashed rather than off it."""
+        least = min(self._minimum().width, self._area().width)
+        if self.minimumWidth() != least:
+            self.setMinimumWidth(least)
 
     def _set_place(self, rect: Rect) -> None:
         if rect != self._place():
@@ -522,11 +568,10 @@ class JoinedWindow(QWidget):
         if locked == self.locked:
             return
         self.locked = locked
-        visible = self.isVisible()
-        self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, locked)
-        if visible:
-            self.show()  # changing window flags hides it
+        set_click_through(self, locked)  # re-mapped, never live (550)
         if locked:
+            if self.resize_hint is not None:
+                self.resize_hint.hide()
             self._band_in.stop()
             self.show_bands(False)
             for column in self.columns:
@@ -536,7 +581,8 @@ class JoinedWindow(QWidget):
 
     def edges_at(self, pos: QPointF) -> Edge:
         """The edges a press at `pos` (in the window) resizes."""
-        return placement.edges_at(pos.x(), pos.y(), self.width(), self.height())
+        zone = GRIP if QApplication.platformName() == "cocoa" else placement.EDGE_ZONE
+        return placement.edges_at(pos.x(), pos.y(), self.width(), self.height(), zone)
 
     def divider_at(self, pos: QPointF) -> int | None:
         """The divider between two columns at `pos` (in the window), which
@@ -624,7 +670,9 @@ class JoinedWindow(QWidget):
         drag, self._drag = self._drag, None
         if drag is None or not drag.moved:
             return
-        if not drag.edges:
+        if drag.edges:
+            say_resized("joined window", drag, self._place(), self._minimum())
+        else:
             self.choices = replace(self.choices, preset=drag.snapped)
         self._saved()
         self._sync_controls()
@@ -636,6 +684,13 @@ class JoinedWindow(QWidget):
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         self.lay_out()
+
+    def moveEvent(self, event: object) -> None:
+        """A column's set-up still asked goes with the window (554): the
+        column itself doesn't move in it, so it hears no move of its own."""
+        for column in self.columns:
+            if column.set_up is not None:
+                column.set_up.follow()
 
     def changeEvent(self, event: QEvent) -> None:
         super().changeEvent(event)
@@ -652,6 +707,11 @@ class JoinedWindow(QWidget):
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         if not self.dragging and self.columns and not self.columns[0].hovered:
             self.came_over()  # its arrival lost (272)
+        if not self.dragging and not self.locked:
+            edges = self.edges_at(event.position())
+            self.setCursor(CURSORS.get(edges, Qt.CursorShape.SizeAllCursor))
+            if self.resize_hint is not None:
+                self.resize_hint.follow(event.position(), edges)
         self.drag_to(event.globalPosition())
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:

@@ -20,7 +20,7 @@ from datetime import UTC, datetime
 from functools import partial
 
 from PySide6.QtCore import QCoreApplication, QPoint, QRect
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QAbstractScrollArea, QScrollArea, QWidget
 from tests.learning.fakes import Clock, MemoryLearningStore
 from tests.lexicon.sample import chinese_sample, english_sample
@@ -42,12 +42,14 @@ from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem
 from polyglotic_desktop.core.lexicon.pack_download import Step as PackStep
 from polyglotic_desktop.core.listening.check import Facts, SourceActivity, Ticked
 from polyglotic_desktop.core.listening.sources import SourceId
+from polyglotic_desktop.core.listening.timing import default_caption_mode
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, Level, WordStatus
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.perf.budgets import Budget
 from polyglotic_desktop.ui import interface_language
 from polyglotic_desktop.ui import theme as todays_theme
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.help_page import HelpPage
@@ -55,9 +57,10 @@ from polyglotic_desktop.ui_next.learning_page import LearningPage
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
 from polyglotic_desktop.ui_next.main_window import (
     FLOOR,
+    FLOOR_SCALE,
     FRAME,
     MainWindow,
-    minimum_size,
+    roomy_size,
 )
 from polyglotic_desktop.ui_next.settings_page import SECTIONS, SettingsPage
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
@@ -74,6 +77,7 @@ from polyglotic_desktop.ui_next.views.panels import (
     Timing,
     TimingView,
 )
+from polyglotic_desktop.ui_next.views.preset_menu import PresetsView
 from polyglotic_desktop.ui_next.views.presets import PRESETS
 from polyglotic_desktop.ui_next.word_bands import BY_FREQUENCY, BY_LEVEL
 from polyglotic_desktop.ui_next.words_page import WordsPage
@@ -226,6 +230,16 @@ def window_with(
     return window
 
 
+def scroll_holding(widget: QWidget) -> QScrollArea | None:
+    """The scroll area `widget` is in: its nearest ancestor that is one. Not
+    the window's first: since polyglotic-hq 524 that is the sidebar's, and
+    w4_words_sentences scrolled it instead of the page (541)."""
+    parent = widget.parentWidget()
+    while parent is not None and not isinstance(parent, QScrollArea):
+        parent = parent.parentWidget()
+    return parent
+
+
 def no_horizontal_scrollbar(window: MainWindow) -> None:
     for scroll in window.findChildren(QScrollArea):
         if scroll.isVisible():
@@ -350,9 +364,10 @@ def words_sentences(lab: Lab) -> QWidget:
     settled = time.monotonic() + 0.4  # the field's clear button fades in
     while time.monotonic() < settled:
         lab.pump()
-    scroll = page.findChild(QScrollArea) or window.findChild(QScrollArea)
-    if scroll is not None:
-        scroll.ensureWidgetVisible(card, 0, 0)
+    scroll = scroll_holding(card)
+    assert scroll is not None, "Saved sentences isn't in a scroll area"
+    scroll.ensureWidgetVisible(card, 0, 0)
+    assert scroll.verticalScrollBar().value() > 0, "Saved sentences wasn't scrolled to"
     lab.pump()
     return window
 
@@ -393,13 +408,6 @@ def english_tools() -> LearningTools:
         words = tools.words_in("she keeps running to them, and they run")
         vocabulary.caption_finished(f"en{n}", words, False)
     return tools
-
-
-FLOOR_SCALE = 1.8
-"""The largest text size (Windows' times the app's) every page fits the
-window's floor at: Windows' 150 % with the app's Larger, 125 % with its
-Largest. Larger still - Windows' 200 % - the Words tables and the caption
-preview are wider than the floor's page (polyglotic-hq 354's report)."""
 
 
 def sideways(window: MainWindow) -> list[str]:
@@ -443,9 +451,10 @@ def at_floor(lab: Lab) -> QWidget:
     scrolls sideways, in the interface language and text size the lab runs
     at (polyglotic-hq 354: 16 of 21 languages did, by up to 153 px) - up to
     FLOOR_SCALE. Words full, three apps captioned; shown on Home. Over
-    FLOOR_SCALE (CI's Windows 200 % run) it's photographed as tall as its
-    minimum, still at the floor's width: 520 px is shorter than its sidebar
-    there (354's report), which isn't what this state is about."""
+    FLOOR_SCALE (CI's Windows 200 % run) it's photographed as tall as it
+    opens (`roomy_size`), still at the floor's width: 520 px is shorter
+    than its sidebar there (354's report), which isn't what this state is
+    about. Home must still fit that width at 200 %."""
     built = hub(
         lab,
         {"apps": ["Discord", "Video Player", "Web Browser"], "learning": "zh"},
@@ -459,15 +468,16 @@ def at_floor(lab: Lab) -> QWidget:
     if style.text_scale() <= FLOOR_SCALE:
         assert not found, f"pages scroll sideways at the floor: {'; '.join(found)}"
     else:
-        window.fit_to(QRect(0, 0, FLOOR[0] + FRAME, minimum_size()[1] + FRAME))
+        window.fit_to(QRect(0, 0, FLOOR[0] + FRAME, roomy_size()[1] + FRAME))
     window.go_to("home")
     lab.pump()
+    no_horizontal_scrollbar(window)
     return window
 
 
 def words_minimum(lab: Lab) -> QWidget:
-    window, _page = _full_words(lab, minimum_size())
-    assert (window.width(), window.height()) == minimum_size()
+    window, _page = _full_words(lab, roomy_size())
+    assert (window.width(), window.height()) == roomy_size()
     return window
 
 
@@ -553,7 +563,12 @@ def account(signed_in: bool) -> Callable[[Lab], QWidget]:
 
 
 def settings(
-    section: str, size: tuple[int, int] | None = None, scrolled_into: int = -1
+    section: str,
+    size: tuple[int, int] | None = None,
+    scrolled_into: int = -1,
+    presets: PresetsView | None = None,
+    timing: TimingView | None = None,
+    pick_language: str | None = None,
 ) -> Callable[[Lab], QWidget]:
     """Settings on `section` (one of `SECTIONS`: 304's six, and 470's Word
     links and Readings) - at `size` if given (the window's minimum) - the views made
@@ -562,30 +577,37 @@ def settings(
     its own title under the pinned sections, which name it (470)."""
 
     def run(lab: Lab) -> QWidget:
-        hotkeys = {}
-        for key, text, keys in (
-            ("L", _app("Lock all caption windows"), "Ctrl+Alt+L"),
-            ("P", _app("Pause captions"), "Ctrl+Alt+P"),
-            ("H", _app("Hide all caption windows"), "Ctrl+Alt+H"),
-        ):
-            action = QAction(text)
-            action.setShortcut(QKeySequence(keys))
-            hotkeys[key] = action
         tell_us = QAction(_app("Tell us"))
         tell_us.setObjectName("settings.work_with_us")
         look = LookView(CaptionLook())
         page = SettingsPage(
             [("margin", "Margin"), ("glaze", "Glaze"), ("signal", "Signal")],
-            hotkeys,
             tell_us,
             interface_language.picker(),
             look=look,
-            timing=TimingView(Timing()),
+            timing=timing or TimingView(Timing(default_caption_mode())),
             speech=LanguagesView(SessionLanguages(in_use=("en",))),
+            presets=presets,
         )
-        page.keep = (hotkeys, tell_us)  # type: ignore[attr-defined]
+        page.keep = (tell_us,)  # type: ignore[attr-defined]
+        if section == "dictation":
+            defaults = AppSettings()
+            page.show_dictation(
+                defaults.dictation,
+                defaults.dictation_key,
+                defaults.dictation_language,
+                defaults.dictation_australian,
+            )
+            page.show_respeaking(defaults.type_theirs, defaults.respeak_key)
         page.show_theme("margin", "dark")
+        page.show_running_language(
+            interface_language.in_use(lab.app), interface_language.ENGLISH
+        )
         page.show_interface_language("")
+        if pick_language is not None:
+            index = page.language_picker.findData(pick_language)
+            if index >= 0:
+                page.language_picker.setCurrentIndex(index)
         # a machine draft's "Tell us what reads wrong", as main shows it
         page.show_draft(interface_language.is_draft(interface_language.in_use(lab.app)))
         page.set_version("0.4.0", "win-x64-alpha")
@@ -604,6 +626,11 @@ def settings(
                 budget=budgets.CLICK,
             )
             look.set_preset("classic")
+            lab.pump()
+        if section == "hotkeys":  # every key in one place (567): one changed, one
+            # cleared, one another program has, and a key refused as pressed
+            page.show_hotkeys({"hide": "", "copy": "ctrl+alt+c"}, {"pause"})
+            page.hotkeys_card.lines["bigger"].box.pressed_key.emit("ctrl+c")
             lab.pump()
         if section == "lab":  # its own section, at its top (304)
             look.set_lab(CaptionLab(new_for=3.0, new_fade=NewFade.GRADUAL, older=0.55))
@@ -1035,9 +1062,18 @@ STATES = [
         ("settings_timing", settings("timing")),
         ("settings_speech", settings("speech")),
         ("settings_dictation", settings("dictation")),
+        ("settings_hotkeys", settings("hotkeys")),
+        (
+            "settings_hotkeys_scrolled",
+            settings("hotkeys", roomy_size(), scrolled_into=1),
+        ),
         ("settings_app", settings("app")),
         ("settings_app_scrolled", settings("app", scrolled_into=2)),
-        ("settings_minimum", settings("look", minimum_size())),
+        (
+            "settings_language_restart",
+            settings("app", pick_language="de"),
+        ),
+        ("settings_minimum", settings("look", roomy_size())),
         ("settings_lab", settings("lab")),
         ("help", help_page),
         ("help_learning_set_aside", help_learning_set_aside),

@@ -44,6 +44,8 @@ class FakeLock:
 class FakeOs:
     """The OS's adapters `this_copy` and `main`'s first lines use."""
 
+    qt_platform = None  # Qt's own choice, as on Windows
+
     def __init__(self, data: Path, held: bool) -> None:
         self.data = data
         self.lock = FakeLock(held)
@@ -205,6 +207,65 @@ def _no_os(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("the OS's adapters weren't to be asked")
 
     monkeypatch.setattr(main, "os_adapters", never)
+
+
+@pytest.mark.parametrize(
+    ("told", "code"),
+    [
+        (one_copy.Told.DONE, 0),
+        (one_copy.Told.NOT_YET, 1),
+        (one_copy.Told.NO_COPY, 1),
+    ],
+)
+def test_a_command_is_told_to_the_copy_that_runs_and_this_start_ends(
+    monkeypatch: pytest.MonkeyPatch,
+    data: Path,
+    told: one_copy.Told,
+    code: int,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """`--lock` (570): asked of the copy for this data folder, whatever the
+    lock says - never run, never shown, nothing opened."""
+    fake = _os(monkeypatch, data, held=False)  # no copy holds it: still not run
+    asked: list[tuple[str, str]] = []
+
+    def tell(name: str, command: str) -> one_copy.Told:
+        asked.append((name, command))
+        return told
+
+    monkeypatch.setattr(one_copy, "tell", tell)
+
+    ended = _exit_code(partial(main.this_copy, ["--data", str(data), "--lock"]))
+
+    assert ended == code
+    assert asked == [(one_copy.copy_name(data, one_copy.user()), "lock")]
+    assert fake.names == []  # the lock isn't taken: this start never runs
+    assert not data.exists()
+    assert ("nothing done" in capsys.readouterr().err) is (code == 1)
+
+
+def test_one_command_at_a_time() -> None:
+    assert main.arguments(["--pause"]).command == "pause"
+    assert main.arguments([]).command is None
+    with pytest.raises(SystemExit):
+        main.arguments(["--lock", "--hide"])
+
+
+def test_each_command_is_a_hotkey_by_its_name(qapp: QApplication) -> None:
+    """The copy that runs does each as its hotkey's press does
+    (`DesktopApp.hotkey_pressed`, by the hotkey's name)."""
+    from tests.ui.fakes import make_app
+
+    from polyglotic_desktop.core.listening.hotkeys import Hotkey
+
+    app = make_app()
+    assert set(one_copy.COMMANDS) <= {hotkey.value for hotkey in Hotkey}
+    assert set(one_copy.COMMANDS) <= set(app.hotkeys)
+    app.lock_windows.setChecked(False)
+    app.hotkey_pressed.emit("lock")
+    qapp.processEvents()
+    assert app.lock_windows.isChecked()
+    app.close()
 
 
 @pytest.mark.parametrize(

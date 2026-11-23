@@ -29,15 +29,23 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton
 
+from polyglotic_desktop.core.shared.open_beta import Account
 from polyglotic_desktop.core.shared.papers import (
     PLUS,
     PRIVACY_NOTICE,
     TESTER_AGREEMENT,
 )
-from polyglotic_desktop.ui_next.controls import Card, label, page_button, right_row
+from polyglotic_desktop.ui_next.controls import (
+    Card,
+    Flow,
+    label,
+    page_button,
+    right_row,
+)
 from polyglotic_desktop.ui_next.home import Page, sign_in_needed
 from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.plan import get_plus_text, plan_text
+from polyglotic_desktop.ui_next.upgrade import billing_line
 from polyglotic_desktop.ui_next.views.plan import PlanLine
 
 SHORT_ID = 8
@@ -73,40 +81,54 @@ class AccountPage(Page):
         super().__init__(_tr("Account"))
         self.sign_in = self._action("account.sign_in", _tr("Sign in"))
         self.sign_out = self._action("account.sign_out", _tr("Sign out"))
-        self.have_code = self._action("account.have_code", _tr("I have a code"))
+        self.have_code = self._action("account.have_code", _tr("Redeem a code"))
+        self.add_email = self._action("account.add_email", _tr("Add an email"))
+        self.upgrade = self._action("account.upgrade", _tr("Upgrade"))
+        self.restore_purchase = self._action(
+            "account.restore_purchase", _tr("Restore purchase")
+        )
         self.your_data = self._action("account.your_data", _tr("Choose what to share"))
         self.delete_learning = self._action(
             "account.delete_learning", _tr("Delete learning data…")
         )
 
         this_pc = Card(pc_or_mac(_tr("This PC"), _tr("This Mac")))
-        row = QHBoxLayout()
-        row.setSpacing(8)
+        row = Flow()
         self.state = label("", wrap=True)
         self.state.setObjectName("account.state")
-        row.addWidget(self.state, 1)
+        row.add_widget(self.state, stretch=1)
         self.sign_in_button = _button(self.sign_in)
         self.sign_out_button = _button(self.sign_out)
         self.have_code_button = _button(self.have_code)
+        self.add_email_button = _button(self.add_email)
         row.addWidget(self.sign_in_button)
         row.addWidget(self.have_code_button)
+        row.addWidget(self.add_email_button)
         row.addWidget(self.sign_out_button)
         this_pc.add(row)
         self.account_id = label("", "Dim", wrap=True)
         this_pc.add(self.account_id)
+        this_pc.add(right_row(_button(self.restore_purchase)))
         self.content.addWidget(this_pc)
 
         self.plan_card = Card(_tr("Plus"))
-        row = QHBoxLayout()
-        row.setSpacing(8)
+        plan_row = QHBoxLayout()
+        plan_row.setSpacing(8)
         self.plan = label("", wrap=True)
         self.plan.setObjectName("account.plan")
-        row.addWidget(self.plan, 1)
+        plan_row.addWidget(self.plan, 1)
         self.get_plus = page_button(get_plus_text(), plus, "account.get_plus")
-        row.addWidget(self.get_plus)
-        self.plan_card.add(row)
+        plan_row.addWidget(self.get_plus)
+        self.plan_card.add(plan_row)
         self.plan_card.hide()  # until a session brings the plan
         self.content.addWidget(self.plan_card)
+
+        self.beta_card = Card(_tr("Your plan"))
+        self.beta_plan = label("", wrap=True)
+        self.beta_card.add(self.beta_plan)
+        self.beta_card.add(right_row(_button(self.upgrade)))
+        self.beta_card.hide()
+        self.content.addWidget(self.beta_card)
 
         shared = Card(
             _tr("Your data"),
@@ -158,6 +180,7 @@ class AccountPage(Page):
         )
         self.content.addWidget(papers)
         self.content.addStretch(1)
+        self._email_sign_in = True
         self.set_signed_in(False)
 
     def _action(self, name: str, text: str) -> QAction:
@@ -185,24 +208,55 @@ class AccountPage(Page):
         card.add(right_row(*buttons))
         self.content.insertWidget(self.content.count() - 1, card)
 
+    def use_email_sign_in(self, available: bool) -> None:
+        self._email_sign_in = available
+        self.restore_purchase.setVisible(available)
+        if self.sign_in.isVisible():
+            self.set_signed_in(False)
+
     def set_signed_in(self, signed_in: bool) -> None:
         self.state.setText(
             pc_or_mac(_tr("Signed in on this PC."), _tr("Signed in on this Mac."))
             if signed_in
-            else _tr("Not signed in - {needed}.").format(needed=sign_in_needed())
+            else _tr("Not signed in - {needed}.").format(
+                needed=sign_in_needed(self._email_sign_in)
+            )
         )
         self.sign_in.setVisible(not signed_in)
         self.sign_out.setVisible(signed_in)
         self.have_code.setVisible(signed_in)
+        self.add_email.setVisible(False)
         self.delete_learning.setEnabled(signed_in)
         # the buttons follow their actions; set here too for the first show
         self.sign_in_button.setHidden(signed_in)
         self.sign_out_button.setHidden(not signed_in)
         self.have_code_button.setHidden(not signed_in)
+        self.add_email_button.hide()
         if not signed_in:
             self.account_id.clear()
             self.account_id.setHidden(True)
             self.show_plan(None)
+            self.show_beta_account(None)
+
+    def show_beta_account(self, account: Account | None) -> None:
+        show_plan = (
+            account is not None and account.registered and account.plan != "alpha"
+        )
+        self.beta_card.setVisible(show_plan)
+        self.upgrade.setVisible(
+            account is not None and account.registered and account.plan != "alpha"
+        )
+        if account is not None:
+            self.plan_card.hide()
+            if show_plan:
+                self.beta_plan.setText(billing_line(account))
+            if account.email is not None:
+                self.state.setText(account.email)
+            elif not account.registered:
+                self.state.setText(_tr("Signed in with an invite code"))
+            self.add_email.setVisible(not account.registered)
+            self.add_email_button.setVisible(not account.registered)
+            self.show_account(account.id)
 
     def show_plan(self, line: PlanLine | None) -> None:
         """The account's plan in one line, and "Get Plus" when it ends with

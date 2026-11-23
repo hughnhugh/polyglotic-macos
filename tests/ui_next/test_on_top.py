@@ -11,7 +11,7 @@ from collections.abc import Iterator, Sequence
 import pytest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import chinese_tools
-from tests.ui_next.made_up import finished_updates
+from tests.ui_next.made_up import SEPARATE, finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
@@ -67,6 +67,7 @@ def windows(qapp: QApplication, band: Band, clock: Clock) -> Iterator[CaptionWin
         learner=chinese_tools(),
         on_top=band,
     )
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     found.set_captioned([("app", APP), ("other", OTHER_APP)])
     qapp.processEvents()
     yield found

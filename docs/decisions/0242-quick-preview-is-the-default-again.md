@@ -1,6 +1,6 @@
 # 0242 Quick preview is the default again, for everyone who hasn't chosen
 
-- **Status:** accepted; replaces the default in [0055](0055-steady-is-the-default-again.md) (its "a choice stays" rule is kept)
+- **Status:** replaced by [0246](0246-steady-is-word-by-word-and-the-default-quick-preview-retires.md); it replaced the default in [0055](0055-steady-is-the-default-again.md) (its "a choice stays" rule is kept)
 - **Date:** 2026-11-18
 - **Decided by:** the user, after trying 0.1.9's preview 1 (2026-11-18,
   polyglotic-hq project 522's brief: "I guess quick preview is our desired

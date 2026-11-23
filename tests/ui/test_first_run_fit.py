@@ -16,7 +16,9 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QWidget
 
 from polyglotic_desktop.main import window_theme
+from polyglotic_desktop.ui import interface_language
 from polyglotic_desktop.ui.consent import WINDOW_FRAME, ConsentDialog
+from polyglotic_desktop.ui.language_picker import LanguagePicker
 from polyglotic_desktop.ui.level_picker import LevelPicker
 from polyglotic_desktop.ui.sign_in import SignInDialog
 from polyglotic_desktop.ui_next import style
@@ -33,6 +35,7 @@ class LaptopScreen:
 
 
 FIRST_RUN: dict[str, Callable[[], QDialog]] = {
+    "your language": lambda: LanguagePicker(interface_language.picker(), "de"),
     "the level, learning Chinese": lambda: LevelPicker(
         "Chinese", known_words.choices("zh"), known_words.not_sure("zh")
     ),
@@ -63,6 +66,7 @@ def text_size(qapp: QApplication) -> Iterator[Callable[[int], None]]:
     style.use_text_scale(1.0)
 
 
+@pytest.mark.parametrize("size", ["smaller", "normal"])
 @pytest.mark.parametrize("percent", [100, 125, 150])
 @pytest.mark.parametrize("screen", list(FIRST_RUN))
 def test_every_first_run_screen_fits_a_150_percent_laptop(
@@ -71,7 +75,12 @@ def test_every_first_run_screen_fits_a_150_percent_laptop(
     text_size: Callable[[int], None],
     screen: str,
     percent: int,
+    size: str,
 ) -> None:
+    """At Windows' text sizes, times the app's - Normal, the default, is 1.3
+    since polyglotic-hq 524: at 150 % (1.95) the level picker, 580 px wide
+    whatever its text, was 793 px tall."""
+    style.use_app_text_size(size)
     text_size(percent)
     dialog = FIRST_RUN[screen]()
     dialog.setStyleSheet(style.stylesheet(window_theme()))

@@ -24,8 +24,13 @@ Windows recorded them (their QPC position, the same clock as
 - **Whole system and mic** follow the device the user chose, or Windows'
   default as it changes, as the proof of concept did (`_sync_devices`,
   `_wanted`): checked every `DEVICE_POLL_SEC`; a chosen device that's
-  unplugged falls back to the default until it's back; a device that
-  failed to open isn't retried until another one is wanted.
+  unplugged falls back to the default until it's back.
+- **Failures:** a capture that fails to open is tried again, and one that
+  hits an error nobody foresaw (in the callback, say) starts again, after
+  `platform.capture_restarts.Backoff`'s wait; each open, failure and stop
+  is logged by the capture's `KIND` and the error's type and code
+  (polyglotic-hq 557, decision 0266: such a thread ended for good, and
+  quietly, and an app's failed open was never tried again).
 - **Silence:** loopback delivers nothing while nothing plays, so gaps are
   filled with zeros (`platform.timeline.Timeline`, shared with macOS), and
   the audio a source delivers is continuous.
@@ -33,6 +38,7 @@ Windows recorded them (their QPC position, the same clock as
 
 import contextlib
 import ctypes
+import logging
 import sys
 import threading
 import time
@@ -40,6 +46,7 @@ from collections.abc import Callable
 from ctypes import POINTER, byref, c_uint32, c_uint64, c_void_p, wintypes
 
 from polyglotic_desktop.core.listening.timing import VAD_SAMPLE_RATE
+from polyglotic_desktop.platform.capture_restarts import Backoff, why
 from polyglotic_desktop.platform.timeline import BYTES_PER_SAMPLE as _BYTES_PER_SAMPLE
 from polyglotic_desktop.platform.timeline import (
     MAX_FILL_SEC,  # noqa: F401 - its tests read it here
@@ -62,11 +69,14 @@ from polyglotic_desktop.platform.windows.devices import (
     default_device,
 )
 from polyglotic_desktop.ports.capture import (
+    APP_CLOSED,
     AppCaptureSupport,
     AppCaptureTrial,
     AudioCallback,
     TrialOutcome,
 )
+
+log = logging.getLogger(__name__)
 
 DEVICE_POLL_SEC = 1.0
 BUFFER_SEC = 1.0  # WASAPI's buffer: room for a slow consumer
@@ -348,13 +358,19 @@ class _Stream:
 
 class _Capture:
     """The thread that runs one capture: opens its stream, delivers audio
-    through a `Timeline`, and reopens it when it should move device."""
+    through a `Timeline`, and reopens it when it should move device - or,
+    after a failure, when `Backoff` says (decision 0266)."""
+
+    KIND = "a"
+    """What kind of capture it is, for the log: never an app's or a
+    device's name."""
 
     def __init__(self) -> None:
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._capturing: str | None = None
         self._error: str | None = None
+        self._restarts = 0  # failures it tried again after (566)
 
     @property
     def capturing(self) -> str | None:
@@ -363,6 +379,10 @@ class _Capture:
     @property
     def error(self) -> str | None:
         return self._error
+
+    @property
+    def restarts(self) -> int:
+        return self._restarts
 
     def start(self, on_audio: AudioCallback) -> None:
         if self._thread is not None:
@@ -400,42 +420,89 @@ class _Capture:
         """Another check while streaming, `seconds` after the last."""
 
     def _run(self, on_audio: AudioCallback) -> None:
+        stops = Backoff()
         try:
-            self._deliver(on_audio)
-        except Exception as e:  # noqa: BLE001 - the thread must not die quietly
-            # Something other than the device failed - the callback, say.
-            # Report it (the exception's type, never its text: it could hold
-            # anything) so `capturing` doesn't go on claiming audio flows.
-            self._error = f"Capture stopped: {type(e).__name__}"
+            while not self._stop.is_set():
+                began = time.monotonic()
+                try:
+                    self._deliver(on_audio)
+                    return  # stopped, or the app closed
+                except Exception as e:  # the thread must not die (decision 0266)
+                    # Something other than the device failed - the callback,
+                    # say. Said by the exception's type, never its text (it
+                    # could hold anything), so `capturing` doesn't go on
+                    # claiming audio flows; then it starts again.
+                    self._capturing = None
+                    self._error = f"Capture stopped: {type(e).__name__}"
+                    wait = stops.failed(time.monotonic() - began)
+                    self._restarts += 1
+                    log.warning(
+                        "%s capture stopped (%s); starting again in %.0fs",
+                        self.KIND,
+                        why(e),
+                        wait,
+                        exc_info=True,
+                    )
+                    self._stop.wait(wait)
         finally:
             self._capturing = None
 
     def _deliver(self, on_audio: AudioCallback) -> None:
         ensure_com()
         timeline = Timeline()
+        opens, losses = Backoff(), Backoff()
         failed: str | None = None
+        again_at = 0.0  # when `failed` is tried again
         while not self._stop.is_set():
             target = self._target()
-            if target is None or target == failed:
+            if target is None or (target == failed and time.monotonic() < again_at):
                 self._capturing = None
                 self._stop.wait(DEVICE_POLL_SEC)
                 continue
             try:
                 stream, name = self._open(target)
             except OSError as e:
-                failed, self._capturing, self._error = target, None, str(e)
+                wait = opens.failed()
+                self._restarts += 1
+                failed, again_at = target, time.monotonic() + wait
+                self._capturing, self._error = None, str(e)
+                log.warning(
+                    "%s capture couldn't open (%s); trying again in %.0fs",
+                    self.KIND,
+                    why(e),
+                    wait,
+                )
                 continue
+            log.info(
+                "%s capture open%s",
+                self.KIND,
+                f" after {opens.failures} failed tries" if opens.failures else "",
+            )
+            opens = Backoff()
             failed, self._capturing, self._error = None, name, None
+            opened = time.monotonic()
             try:
                 self._pump(stream, target, timeline, on_audio)
             except OSError as e:  # the device went away mid-stream: reopen
+                # not at once every time: a stream that fails as it opens
+                # would spin, and fill the log (a run of a minute resets it)
                 self._error = str(e)
+                wait = losses.failed(time.monotonic() - opened)
+                self._restarts += 1
+                log.info(
+                    "%s capture lost its stream (%s); reopening in %.0fs",
+                    self.KIND,
+                    why(e),
+                    wait,
+                )
+                self._stop.wait(wait)
             finally:
                 stream.close()
             if self._gone():
                 for piece in timeline.ending():
                     on_audio(*piece)
-                self._error = "The app has closed."
+                self._error = APP_CLOSED
+                log.info("%s capture over: its app closed", self.KIND)
                 return
 
     def _pump(
@@ -527,6 +594,8 @@ class AppCapture(_Capture):
     (`peak`, from HEARD_PEAK) while it got only silence, or nothing at all.
     Without one - Windows 11 - it does exactly what it did."""
 
+    KIND = "app"
+
     def __init__(
         self,
         process_id: int,
@@ -587,6 +656,7 @@ class EverythingElseCapture(_Capture):
     capture as the app list changes."""
 
     NAME = "everything else"
+    KIND = "everything else"
 
     def __init__(self, process_id: int, trial: AppCaptureTrial | None = None) -> None:
         """`trial`: as `AppCapture`'s, told only of Windows refusing it -
@@ -612,16 +682,21 @@ class _DeviceCapture(_Capture):
     _flow: Flow
     _loopback: bool
 
-    def __init__(self, device_id: str | None = None) -> None:
+    def __init__(
+        self, device_id: str | None = None, *, strict_device: bool = False
+    ) -> None:
         super().__init__()
         self.device_id = device_id
         """The device the user chose, or None for Windows' default."""
+        self._strict_device = strict_device
 
     def _target(self) -> str | None:
         def plugged_in() -> list[str]:
             return [d.id for d in active_devices(self._flow)]
 
         def default() -> str | None:
+            if self._strict_device and self.device_id is not None:
+                return None
             device = default_device(self._flow)
             return device.id if device else None
 
@@ -637,6 +712,7 @@ class _DeviceCapture(_Capture):
 class SystemCapture(_DeviceCapture):
     """Everything the PC plays on an output device (loopback)."""
 
+    KIND = "system"
     _flow = Flow.OUTPUT
     _loopback = True
 
@@ -644,5 +720,6 @@ class SystemCapture(_DeviceCapture):
 class MicCapture(_DeviceCapture):
     """A microphone."""
 
+    KIND = "mic"
     _flow = Flow.INPUT
     _loopback = False

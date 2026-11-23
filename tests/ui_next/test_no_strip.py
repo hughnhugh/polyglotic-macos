@@ -7,6 +7,7 @@ from collections.abc import Iterator
 
 import pytest
 from PySide6.QtWidgets import QApplication
+from tests.ui_next.made_up import SEPARATE
 from tests.ui_next.test_caption_window import Store
 from tests.ui_next.test_joined_window import THREE, areas, joined
 
@@ -37,6 +38,7 @@ SAVED_AS_STRIP: dict[str, object] = {
 @pytest.fixture
 def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
     found = CaptionWindows(Store(SAVED_AS_STRIP), MIC, areas)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     found.set_labels({APP: SourceLabel("Discord", "#4dd0e1")}, "You")
     found.set_captioned(THREE)
     qapp.processEvents()

@@ -17,9 +17,9 @@ Polyglotic's own processes are never an app to caption (polyglotic-hq 368):
 this process, and any copy of the app by its executable's name.
 """
 
-import contextlib
 import ctypes
 import functools
+import logging
 import os
 import plistlib
 import sys
@@ -239,16 +239,29 @@ class _Snapshot:
         self._lock = threading.Lock()
         self._at = -SNAPSHOT_SEC
         self._found: list[AudioProcess] = []
+        self.failed = False
 
     def __call__(self) -> list[AudioProcess]:
+        return self.read()[0]
+
+    def read(self) -> tuple[list[AudioProcess], bool]:
         with self._lock:
             now = time.monotonic()
             if now - self._at >= SNAPSHOT_SEC:
                 found: list[AudioProcess] = []
-                with contextlib.suppress(OSError, RuntimeError):
+                try:
                     found = self._read()
+                except (OSError, RuntimeError) as error:
+                    if not self.failed:
+                        logging.getLogger(__name__).warning(
+                            "Core Audio process list unavailable (%s)",
+                            type(error).__name__,
+                        )
+                    self.failed = True
+                else:
+                    self.failed = False
                 self._found, self._at = found, now
-            return self._found
+            return self._found, self.failed
 
 
 audio_processes = _Snapshot()
@@ -259,4 +272,7 @@ class MacAppList:
     """The `AppList` port on macOS."""
 
     def playing_apps(self) -> list[PlayingApp]:
-        return playing_apps(audio_processes(), os.getpid())
+        found, failed = audio_processes.read()
+        if failed:
+            raise OSError("Core Audio process list unavailable")
+        return playing_apps(found, os.getpid())

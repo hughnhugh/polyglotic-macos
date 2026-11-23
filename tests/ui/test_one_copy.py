@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QApplication, QDialog, QWidget
 
 from polyglotic_desktop.ui import one_copy
 from polyglotic_desktop.ui.one_copy import SecondStarts, Start, ask_to_show, copy_name
+from polyglotic_desktop.ui.os_words import pc_mac_or_linux
 
 ROOT = Path(__file__).resolve().parents[2]
 ASK = """
@@ -77,6 +78,54 @@ def _in_another_process(qapp: QApplication, script: str, *args: str) -> str:
 
 def _asked(qapp: QApplication, name: str, wait: float = 5.0) -> str:
     return _in_another_process(qapp, ASK, name, str(wait))
+
+
+TELL = """
+import sys
+from polyglotic_desktop.ui.one_copy import tell
+print(tell(sys.argv[1], sys.argv[2]).value)
+"""
+
+
+# --- A start with a command: what a hotkey does (570) ------------------------------
+
+
+def test_a_command_is_done_as_its_hotkey_does_and_the_window_stays(
+    qapp: QApplication, starts: SecondStarts, name: str
+) -> None:
+    """`polyglotic --lock` from a shortcut of the desktop's own: the copy
+    that runs locks, as Ctrl+Alt+L does, and its main window isn't brought
+    forward."""
+    done: list[str] = []
+    shown: list[str] = []
+    starts.do_with(done.append)
+    starts.show_with(lambda: shown.append("shown"))
+
+    for command in ("lock", "pause", "hide"):
+        assert _in_another_process(qapp, TELL, name, command) == "done"
+
+    assert done == ["lock", "pause", "hide"]
+    assert shown == []
+
+
+def test_a_copy_still_asking_its_first_questions_does_nothing_yet(
+    qapp: QApplication, starts: SecondStarts, name: str
+) -> None:
+    assert _in_another_process(qapp, TELL, name, "lock") == "not yet"
+    done: list[str] = []
+    starts.do_with(done.append)
+    assert done == []  # the command isn't kept for later: a hotkey isn't either
+
+
+def test_a_command_with_no_copy_running_ends_at_once(name: str) -> None:
+    began = time.monotonic()
+    assert one_copy.tell(name, "hide") is one_copy.Told.NO_COPY
+    assert time.monotonic() - began < 2
+
+
+def test_only_the_hotkeys_commands_are_asked() -> None:
+    with pytest.raises(ValueError):
+        one_copy.tell("Polyglotic-test-570", "quit")
 
 
 # --- The copy that runs answers a second start ---------------------------------
@@ -381,4 +430,10 @@ def test_a_user_the_os_wont_name_still_starts(monkeypatch: pytest.MonkeyPatch) -
 
 def test_the_not_responding_box_says_what_to_do() -> None:
     said = one_copy.not_answering()
-    assert "already open" in said and "Task Manager" in said
+    assert "already open" in said
+    assert (
+        pc_mac_or_linux(
+            "Task Manager", "force quit Polyglotic (⌥⌘Esc)", "System Monitor"
+        )
+        in said
+    )

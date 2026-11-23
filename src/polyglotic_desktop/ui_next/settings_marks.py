@@ -64,7 +64,9 @@ class GlyphTile(QWidget):
         if self.tile:
             painter.setPen(QPen(QColor(theme["BORDER"]), 1))
             painter.setBrush(QColor(theme["SURFACE_2"]))
-            radius = style.px(8)
+            # with the tile, up to the stylesheet's largest corner (12 px): the
+            # app's Largest (1.75 since decision 0244) made it 14, off its scale
+            radius = min(style.px(8), 12)
             painter.drawRoundedRect(
                 QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), radius, radius
             )

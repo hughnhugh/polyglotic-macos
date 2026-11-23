@@ -6,7 +6,9 @@
   "session_id": "2b4d6f8a-0c1e-4a3b-9d5f-7e9a1c3b5d7f",
   "cohort": "alpha",
   "channel": "win-x64-alpha",
-  "features": {},
+  "features": {
+    "word_times": false
+  },
   "minutes_left": null,
   "limits": {
     "speech_frame_bytes": 262144,

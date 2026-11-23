@@ -1,0 +1,536 @@
+# Polyglotic tracking plan
+#
+# Every usage-statistics and service event: its properties with their
+# types, whether it is service data or usage statistics, and the metric it
+# feeds. Started 2026-11-04 from project 012's starter list (polyglotic-hq:
+# projects/012-measuring-experience/REPORT.md, Findings 6). Rules are in
+# polyglotic-hq ENGINEERING.md ("Measuring the experience") and DOMAIN.md
+# ("Data and privacy"); tests/test_tracking_plan.py checks this file.
+#
+# The rules, in short:
+# - Names: object_action, snake_case, past tense (caption_rated).
+# - Property types are numbers, IDs and fixed lists - never free text.
+#   Allowed: integer, number, boolean, enum (with `values`), uuid,
+#   version (like 0.1.0), language_code (like en, zh, zh-hant),
+#   country_code (two letters from Cloudflare's CF-IPCountry; XX unknown),
+#   os (an app's `os` as protocol.md has it: windows-11, android-36),
+#   channel (an update channel: win-x64-alpha, android-arm64-beta).
+# - Nothing is Windows-only (project 051, from project 050): `os` and
+#   `channel` are patterns, not lists of Windows' values, and the session
+#   summaries carry a content-free `platform` (windows, macos, linux,
+#   android, ios - core.releases' PLATFORMS). Draft events, so their
+#   types changed without a new `v`; nothing had shipped.
+# - The captioned app is a category (source_category), never its name -
+#   except a well-known app on the fixed list below (`known_app`, in
+#   listening_session_ended: usage statistics, sent only with the user's
+#   consent). An app not on the list never leaves the PC as a name, and
+#   no service event names one (polyglotic-hq DECISIONS.md #30, the user,
+#   2026-11-05).
+# - Each event carries a version `v`. Adding an optional property keeps
+#   `v`; anything else (removing, renaming, changing a type or a meaning)
+#   is a new `v` or a new name. History is never edited.
+# - kind: service = needed to caption and count minutes, not optional;
+#   usage = usage statistics, sent only with the user's consent.
+# - sent_by: app = the app sends it in a `usage` message (protocol.md);
+#   server = the server records it itself.
+# - status: draft = in the first version, property details settled during
+#   the MVP build; later = not built yet (kept so the list is complete).
+#
+# The server checks every event against this file before keeping it
+# (core.usage.tracking): anything not here, or of the wrong type, is
+# dropped from the app and is a bug from the server.
+
+metrics:
+  # Agreed in ENGINEERING.md ("Measuring the experience"), 2026-11-04.
+  activation:
+    source: ENGINEERING.md
+    definition: Within 7 days of installing, a session with 10+ minutes of captions and at least one lookup.
+  weekly_learner:
+    source: ENGINEERING.md
+    definition: Someone who listened at least 30 minutes and looked up or saved a word that week. The headline number.
+  caption_delay_as_seen:
+    source: ENGINEERING.md
+    definition: End of speech, detected on the PC, to the finished caption on screen - p50 and p95 per session.
+  rewrite_rate:
+    source: ENGINEERING.md
+    definition: Words shown in live updates that didn't survive into the finished caption, divided by the finished caption's words; the same for translations.
+  dropped_captions:
+    source: ENGINEERING.md
+    definition: Speech sent with no finished caption back within 10s, or an error, per listening hour.
+  caption_hangs:
+    source: polyglotic-hq 543
+    definition: A caption source showing nothing new for over 2 s while its speech goes on, per listening hour, with the segment that held each (from the sound to the screen).
+  reconnects:
+    source: ENGINEERING.md
+    definition: Reconnections per listening hour; sessions ended by an error.
+  listening_minutes:
+    source: ENGINEERING.md
+    definition: Minutes of speech captioned, per session and per week.
+  apps_captioned:
+    source: polyglotic-hq DECISIONS.md #30
+    definition: Which well-known apps people caption most (listening sessions and minutes by known app), from those who share usage statistics - so we know which apps to support well.
+  lookups_and_saves_per_hour:
+    source: ENGINEERING.md
+    definition: Lookups and saved words per listening hour - counts only, no words.
+  caption_mode_chosen:
+    source: ENGINEERING.md
+    definition: Share of sessions in each caption mode - steady (the default), preview (Quick preview) or live (polyglotic-hq DECISIONS.md #4).
+  crash_free_sessions:
+    source: ENGINEERING.md
+    definition: 1 - (crash reports / sessions), per app version.
+  weekly_user_states:
+    source: ENGINEERING.md
+    definition: Current, at risk, reactivated, dormant - per user, per week.
+  # Proposed in project 012's metrics table; not yet in ENGINEERING.md.
+  time_to_first_caption:
+    source: project 012
+    definition: Install to the first finished caption on screen.
+  caption_rating:
+    source: project 012
+    definition: Thumbs up or down after 1 in 10 sessions; an alarm, not a score.
+  # Proposed here (2026-11-04) so every starter event names a metric; to be
+  # agreed or dropped with the user.
+  version_adoption:
+    source: proposed by project 013
+    definition: Share of active installs on each app version and channel (protocol.md rule 4 - raise min_app_version once most have updated).
+  settings_chosen:
+    source: proposed by project 013
+    definition: Which sources, capture modes, translation and overlay settings people use, per week.
+  capacity_planning:
+    source: proposed by project 017 (the orchestrator's scaling hooks, 2026-11-04)
+    definition: Listening hours per user, sessions by start hour (UTC), the share of call speech, live-update intervals and where users are (country) - to size the GPU fleet and know when to add GPUs.
+  consent_rate:
+    source: proposed by project 013
+    definition: Share of installs that said yes to usage statistics, to crash reports, and to sharing exposure counts.
+  small_model_misses:
+    source: proposed by project 101
+    definition: Lines learners flag as looking wrong ("Looks wrong?"), by language, by how the best model's check came out and by the learner's answer - where the small models fail. Counts only, never the words.
+  # Added by polyglotic-hq project 134 (2026-11-07; DECISIONS.md #58, decided
+  # by the user): computed on the server (core.usage.product; decision 0037).
+  listening_economics:
+    source: polyglotic-hq DECISIONS.md #58 (project 134)
+    definition: Weighted session hours (an allocation, decision 0102), model-seconds and speech-seconds per active learner and per listening hour, by capture mode as the server tells it from the source categories (apps on their own, one app with everything else - an app's and the `system` category heard together - everything the PC plays), by how many apps were captioned, by caption timing; requests a minute; their cost at the card price the cost dashboard uses. From the server's own session records (service data) - every account.
+  per_app_vs_whole_system:
+    source: polyglotic-hq DECISIONS.md #58 (project 134)
+    definition: How learners caption - one or more apps on their own or everything the PC plays - how long at each number of apps (0-3), how often they switch, and what they do in each (lookups, saves, transcripts opened, Looks wrong?, Original only, their own speech, the joined window). From those who share usage statistics.
+
+events:
+  app_installed:
+    v: 1
+    status: draft
+    context: releases
+    kind: usage
+    sent_by: app
+    description: The app's first run on this PC.
+    feeds: [activation, time_to_first_caption, weekly_user_states]
+    properties:
+      app_version: {type: version}
+      os_version: {type: os}
+      channel: {type: channel}
+
+  consent_chosen:
+    v: 1
+    status: draft
+    context: accounts
+    kind: service
+    sent_by: app
+    description: >-
+      The user's choices at first run or in settings; the record of those
+      choices. Service data, so it is sent even when usage statistics are
+      off: carried by the protocol's `consent` message (not a `usage`
+      event), and recorded by the server per install. With it, from
+      2026-11-08 (polyglotic-hq project 185), the version of the tester
+      agreement the user accepted on that PC and when (the record's
+      agreement_at, not a property).
+    feeds: [consent_rate]
+    properties:
+      usage: {type: boolean}
+      crashes: {type: boolean}
+      exposures: {type: boolean}
+      agreement: {type: enum, values: [tester-2026-11-08], required: false}
+
+  session_connected:
+    v: 1
+    status: draft
+    context: listening
+    kind: service
+    sent_by: server
+    description: An app connected and was welcomed (protocol.md, hello / welcome).
+    feeds: [weekly_user_states, version_adoption, crash_free_sessions, reconnects]
+    properties:
+      app_version: {type: version}
+      protocol: {type: integer}
+      channel: {type: channel}
+
+  session_closed:
+    v: 1
+    status: draft
+    context: listening
+    kind: service
+    sent_by: server
+    description: >-
+      A welcomed session ended, and why, with its content-free summary for
+      capacity planning: the start hour (UTC), how long it lasted, minutes of
+      finished speech, the kind of source most of it came from, how many
+      live updates, and the country (from Cloudflare; never the IP
+      address). Also read by the abuse watch (decision 0030): per account,
+      only hours, installs, countries and takeovers, to open a human look -
+      nothing is slowed. Sessions refused before `welcome` (update required, auth,
+      server busy) are counted as service metrics instead. `platform`
+      (optional, project 051): the app's platform, the first part of
+      `hello.os` - recorded by every server since.
+      For the economics of listening (optional; polyglotic-hq project 134,
+      2026-11-07; listening sessions only): `speech_frames`, the speech
+      frames processed (its requests); `model_seconds`, the time they spent
+      in the speech model and the translator (the stage clock's union, so
+      concurrent calls count once); `listener_seconds`, its weight over its
+      time as admission counts it (1 for video, 2 while a call is recent,
+      times the model level's weight) - in hours, its weighted session
+      hours (an allocation, not the cards' time: decision 0102); `capture_mode`,
+      from the categories of its finished speech - `whole_system`
+      (everything the PC plays), `apps` (apps on their own),
+      `apps_plus_rest` (one app with everything else the PC plays,
+      DECISIONS.md #59: two sources here, an app's category and `system`,
+      heard together - a caption from one that finished between the
+      other's first and last; polyglotic-hq project 144), `mic_only`,
+      `none` (nothing captioned), a list that grows - the mode most of its
+      finished speech came from; `apps_heard`, how many
+      apps' speech was captioned (sources of an app's category, by their
+      ids - never a name).
+      `dictation_minutes` (optional; polyglotic-hq 297, 2026-11-13): of
+      `speech_minutes`, the learner's dictation - the source the app names
+      `dictation` (protocol.md), typed where the cursor is, never a caption.
+    feeds: [reconnects, dropped_captions, listening_minutes, capacity_planning, listening_economics]
+    properties:
+      app_version: {type: version}
+      protocol: {type: integer}
+      close_reason:
+        type: enum
+        values: [closed_by_app, connection_lost, timed_out, server_restarting, ended_by_server, taken_over, limit_reached, protocol_violation, server_error]
+      purpose: {type: enum, values: [listen, sync]}
+      start_hour_utc: {type: integer}
+      duration_seconds: {type: integer}
+      speech_minutes: {type: number}
+      source_category: {type: enum, values: [browser, video, call, game, music, system, other, mic, none]}
+      live_updates: {type: integer}
+      country: {type: country_code}
+      platform: {type: enum, values: [windows, macos, linux, android, ios], required: false}
+      speech_frames: {type: integer, required: false}
+      model_seconds: {type: number, required: false}
+      listener_seconds: {type: number, required: false}
+      capture_mode: {type: enum, values: [apps, apps_plus_rest, whole_system, mic_only, none], required: false}
+      apps_heard: {type: integer, required: false}
+      dictation_minutes: {type: number, required: false}
+
+  listening_session_ended:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: >-
+      The app's once-per-session summary; per-caption detail never leaves
+      the app. Project 012 marks minutes as service data: the server counts
+      minutes itself from the speech it receives (Usage and plans), so this
+      event is the app's view and is sent only with consent. A session with
+      no finished caption is described too (project 028; S2b, 2026-11-05):
+      `captions` 0, `source_category` none, no delays - its dropped
+      captions and reconnects are what such a session has to say.
+      `lookups` and `saves` (optional; added by S2b 2026-11-05) count the
+      lookups shown and words saved during the session - numbers only. They
+      are the only usage statistics about lookups and saves:
+      polyglotic-hq DECISIONS.md #20 (accepted 2026-11-05) chose counts per
+      listening session over one event per lookup, as the learning data
+      already holds entry IDs and times. The per-lookup events
+      (word_looked_up, word_saved) were removed before any tester
+      installed; a server drops them if an app sends them.
+      `platform` (optional, project 051): the app's platform, as for
+      session_closed.
+      `known_app` (optional; project 054, 2026-11-05): of the session's
+      sources that are well-known apps, the one most of its speech came
+      from - Discord, Zoom, Chrome... from the desktop's known-apps list,
+      as lower-case ids. Left out when no source was a known app: an app
+      not on the list is only its source_category (polyglotic-hq
+      DECISIONS.md #30, the user, 2026-11-05: "recording categories and
+      name of known apps is fine"). A new app is listed here before an app
+      sends it - an unlisted value drops the whole event.
+      `caption_mode`: the learner's caption timing as the session started -
+      steady (each caption once, finished; the default), preview (Steady
+      plus one provisional line, "Quick preview"; added by polyglotic-hq
+      project 064, 2026-11-05) or live (live updates every few seconds).
+      Since the desktop's decision 0246 (2026-11-20) the app's values
+      name its modes as they are now, so two are added (polyglotic-hq
+      556, which found the summaries of both dropped): words (Steady -
+      word by word at the speaker's pace, the default) and calm
+      (established words only); steady is now Whole captions, live
+      Instant, and preview is retired.
+      Per app vs whole system (optional; polyglotic-hq project 134,
+      2026-11-07, DECISIONS.md #58): `capture_mode`, what the learner chose
+      to caption for most of the session - apps (each on its own),
+      apps_plus_rest (one app, and everything else the PC plays in a
+      window of its own: added by polyglotic-hq project 139, 2026-11-07,
+      DECISIONS.md #59), whole_system (everything the PC plays) or none
+      (nothing chosen, or only their own speech); a list that grows. The
+      number of apps is kept apart from the mode: `apps_0_seconds` to
+      `apps_3_seconds`, how long the session had that many apps captured
+      on their own (everything the PC plays is 0 apps; everything else
+      beside an app isn't one); `apps_max`, the most at once.
+      `apps_seconds`, `apps_plus_rest_seconds` (139),
+      `whole_system_seconds`: how long in each mode; `mode_switches`,
+      changes between them. What the learner did: `transcripts_opened`,
+      `lines_flagged` ("Looks wrong?" asked), `original_only` (a caption
+      window showed the original only), `joined_window` (the joined window
+      was on), `my_speech_seconds` ("Show my speech here" on). Numbers and
+      booleans only - never an app's name or a window's text.
+    feeds: [caption_delay_as_seen, rewrite_rate, dropped_captions, reconnects, listening_minutes, caption_mode_chosen, activation, weekly_learner, capacity_planning, lookups_and_saves_per_hour, apps_captioned, per_app_vs_whole_system]
+    properties:
+      speech_minutes: {type: number}
+      captions: {type: integer}
+      source_category: {type: enum, values: [browser, video, call, game, music, system, other, mic, none]}
+      caption_mode: {type: enum, values: [live, steady, preview, words, calm]}
+      delay_p50_ms: {type: integer, required: false}
+      delay_p95_ms: {type: integer, required: false}
+      rewrite_ratio: {type: number}
+      erasure_ratio: {type: number}
+      dropped: {type: integer}
+      reconnects: {type: integer}
+      live_interval_seconds: {type: number, required: false}
+      lookups: {type: integer, required: false}
+      saves: {type: integer, required: false}
+      platform: {type: enum, values: [windows, macos, linux, android, ios], required: false}
+      capture_mode: {type: enum, values: [apps, apps_plus_rest, whole_system, none], required: false}
+      apps_seconds: {type: number, required: false}
+      whole_system_seconds: {type: number, required: false}
+      apps_plus_rest_seconds: {type: number, required: false}
+      mode_switches: {type: integer, required: false}
+      apps_max: {type: integer, required: false}
+      apps_0_seconds: {type: number, required: false}
+      apps_1_seconds: {type: number, required: false}
+      apps_2_seconds: {type: number, required: false}
+      apps_3_seconds: {type: number, required: false}
+      my_speech_seconds: {type: number, required: false}
+      transcripts_opened: {type: integer, required: false}
+      lines_flagged: {type: integer, required: false}
+      original_only: {type: boolean, required: false}
+      joined_window: {type: boolean, required: false}
+      known_app: {type: enum, required: false, values: [aimp, apex-legends, apple-music, arc, brave, chromium, counter-strike-2, deezer, discord, dota-2, elden-ring, final-fantasy-xiv, firefox, foobar2000, fortnite, genshin-impact, google-chrome, grand-theft-auto-v, honkai-star-rail, internet-explorer, itunes, kakaotalk, kodi, kugou, league-of-legends, librewolf, line, media-player, microsoft-edge, microsoft-teams, minecraft, movies-tv, mpc-be, mpc-hc, mpv, mumble, musicbee, netease-cloud-music, opera, overwatch-2, plex, potplayer, pubg-battlegrounds, qq, qq-music, roblox, rocket-league, signal, skype, slack, spotify, steam, teamspeak, teamspeak-3, telegram, tidal, valorant, viber, vivaldi, vlc, waterfox, webex, wechat, whatsapp, windows-media-player, world-of-warcraft, zen-browser, zoom]}
+
+  caption_timeline_summarised:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: >-
+      Where a listening session's caption time went, from the sound to the
+      screen (polyglotic-hq 543, desktop decision 0255; the user,
+      2026-11-20: "I want complete visibility ... ideally for clients too
+      so we understand the behaviour"). Sent once per listening session,
+      beside listening_session_ended, only with consent; each caption
+      update's timeline stays in the app (the last 5 minutes go with
+      "Report a problem" only when the learner sends one). `updates`: the
+      speech frames the timing asked for; `shown`: those a caption window
+      showed; `drops`: the rest (overtaken in the app or on the server,
+      lost). Each segment's p50 and p95 in whole milliseconds, over the
+      session's shown updates - `capture` (the sound to the capture
+      callback), `detect` (speech detection and the timing), `app_queue`
+      (waiting for the send loop), `network` (the round trip less the
+      server's time), `server_queue` (waiting behind other frames on the
+      server), `server_work`, `interface_queue` (the answer waiting for
+      the interface thread), `window_hold` (a caption window keeping it -
+      the mouse over it, the Lab's gap) and `total` (the sound to the
+      screen); a segment with no values is left out. `hangs`: a source
+      showing nothing new for over 2 s while its speech went on; each put
+      down to one cause, counted as `hangs_<cause>` (left out when 0):
+      `dropped`, `not_asked` (nothing was asked in between - a pause, the
+      caption mode's schedule), or the segment that held it longest; or
+      `sound_unheard` (polyglotic-hq 549, desktop decision 0256): a source
+      played sound (-45 dBFS or louder) for over 3 s and speech detection
+      heard none of it as speech - music, a game's sound, or speech it
+      missed; added in v1 as an optional property. `bursts`: 3 or more updates shown within 0.3 s. `held_mouse`,
+      `held_gap`: updates a caption window kept waiting, and why.
+      `interface_stalls`: the interface thread busy over 50 ms. Times and
+      counts only - never text, audio or an app's name.
+    feeds: [caption_hangs, caption_delay_as_seen]
+    properties:
+      # as listening_session_ended's: the app sends words (Steady, the
+      # default) and calm since desktop decision 0246 (polyglotic-hq 556, 562)
+      caption_mode: {type: enum, values: [live, steady, preview, words, calm]}
+      live_interval_seconds: {type: number, required: false}
+      listening_seconds: {type: number}
+      platform: {type: enum, values: [windows, macos, linux, android, ios], required: false}
+      updates: {type: integer}
+      shown: {type: integer}
+      hangs: {type: integer}
+      bursts: {type: integer}
+      drops: {type: integer}
+      held_mouse: {type: integer}
+      held_gap: {type: integer}
+      interface_stalls: {type: integer}
+      capture_p50_ms: {type: integer, required: false}
+      capture_p95_ms: {type: integer, required: false}
+      detect_p50_ms: {type: integer, required: false}
+      detect_p95_ms: {type: integer, required: false}
+      app_queue_p50_ms: {type: integer, required: false}
+      app_queue_p95_ms: {type: integer, required: false}
+      network_p50_ms: {type: integer, required: false}
+      network_p95_ms: {type: integer, required: false}
+      server_queue_p50_ms: {type: integer, required: false}
+      server_queue_p95_ms: {type: integer, required: false}
+      server_work_p50_ms: {type: integer, required: false}
+      server_work_p95_ms: {type: integer, required: false}
+      interface_queue_p50_ms: {type: integer, required: false}
+      interface_queue_p95_ms: {type: integer, required: false}
+      window_hold_p50_ms: {type: integer, required: false}
+      window_hold_p95_ms: {type: integer, required: false}
+      total_p50_ms: {type: integer, required: false}
+      total_p95_ms: {type: integer, required: false}
+      hangs_dropped: {type: integer, required: false}
+      hangs_not_asked: {type: integer, required: false}
+      hangs_pause: {type: integer, required: false}
+      hangs_capture: {type: integer, required: false}
+      hangs_detect: {type: integer, required: false}
+      hangs_encode: {type: integer, required: false}
+      hangs_app_queue: {type: integer, required: false}
+      hangs_send: {type: integer, required: false}
+      hangs_network: {type: integer, required: false}
+      hangs_server_queue: {type: integer, required: false}
+      hangs_server_work: {type: integer, required: false}
+      hangs_interface_queue: {type: integer, required: false}
+      hangs_apply: {type: integer, required: false}
+      hangs_window_hold: {type: integer, required: false}
+      hangs_paint: {type: integer, required: false}
+      hangs_unknown: {type: integer, required: false}
+      hangs_sound_unheard: {type: integer, required: false}
+
+  first_caption_shown:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: The first finished caption shown on this install.
+    feeds: [time_to_first_caption, activation]
+    properties:
+      seconds_since_install: {type: number}
+
+  source_selected:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: >-
+      The learner changed what to caption. Redefined for the new interface
+      by polyglotic-hq project 134 (2026-11-07) before any app sent it, so
+      without a new `v` (a draft): `capture_mode` - apps (each on its
+      own), apps_plus_rest (one app and everything else; project 139),
+      whole_system (everything the PC plays) or none, a list that grows
+      like listening_session_ended's; `apps`, how many apps are
+      picked (0-3); `my_speech`, whether "Show my speech here" is on;
+      `source_category`, the category of an app just added (left out
+      otherwise). A category, never the app's name.
+    feeds: [settings_chosen, activation, per_app_vs_whole_system]
+    properties:
+      capture_mode: {type: enum, values: [apps, apps_plus_rest, whole_system, none]}
+      apps: {type: integer}
+      my_speech: {type: boolean}
+      source_category: {type: enum, values: [browser, video, call, game, music, other], required: false}
+
+  translation_toggled:
+    v: 1
+    status: draft
+    context: translation
+    kind: usage
+    sent_by: app
+    description: Translation turned on or off for a target language.
+    feeds: [settings_chosen]
+    properties:
+      "on": {type: boolean}
+      target_lang: {type: language_code}
+
+  caption_rated:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: The user answered the thumbs prompt shown after 1 in 10 sessions.
+    feeds: [caption_rating]
+    properties:
+      thumbs: {type: enum, values: [up, down]}
+
+  line_flagged:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: The learner flagged a finished line as looking wrong and it was checked with the best model (project 101; server decision 0031). Sent when the comparison closes. The line's language, its source's category (left out when the line's audio wasn't held any more - the app knew its source from it), how the check came out and the learner's answer (none - closed without one) - never its words, its translation or its audio, and nothing is kept on the server.
+    feeds: [small_model_misses]
+    properties:
+      language: {type: language_code}
+      source_category: {type: enum, values: [browser, video, call, game, music, system, other, mic], required: false}
+      outcome: {type: enum, values: [differs, same, no_words, best_unavailable, try_later, not_held, failed]}
+      answer: {type: enum, values: [best_right, both_fine, both_wrong, none]}
+
+  overlay_changed:
+    v: 1
+    status: draft
+    context: listening
+    kind: usage
+    sent_by: app
+    description: An overlay setting changed. Settings and values are fixed lists, settled during the build.
+    feeds: [settings_chosen]
+    properties:
+      setting: {type: enum, values: [locked, font_size, rows, position]}
+      value: {type: enum, values: ["on", "off", smaller, larger, fewer, more, top, bottom]}
+
+  app_updated:
+    v: 1
+    status: draft
+    context: releases
+    kind: usage
+    sent_by: app
+    description: The app started for the first time after an update.
+    feeds: [version_adoption, crash_free_sessions]
+    properties:
+      from_version: {type: version}
+      to_version: {type: version}
+      channel: {type: channel}
+
+  history_exported:
+    v: 1
+    status: later
+    context: learning
+    kind: usage
+    sent_by: app
+    description: Caption history saved to a file (only if built).
+    feeds: [settings_chosen]
+    properties:
+      format: {type: enum, values: [txt, srt, csv]}
+
+  limit_reached:
+    v: 1
+    status: later
+    context: usage
+    kind: service
+    sent_by: server
+    description: A user reached a plan limit (once plans exist).
+    feeds: [listening_minutes]
+    properties:
+      plan: {type: enum, values: [free, paid]}
+      limit_kind: {type: enum, values: [minutes_per_week, minutes_per_month]}
+
+  subscription_cancelled:
+    v: 1
+    status: later
+    context: usage
+    kind: service
+    sent_by: server
+    description: A paid plan was cancelled (once billing exists). The reason is one in-app question with fixed answers.
+    feeds: [weekly_user_states]
+    properties:
+      reason: {type: enum, values: [too_expensive, not_using_it, missing_feature, quality, billing_failed, other]}
+      plan: {type: enum, values: [paid]}
+      months_paid: {type: integer}

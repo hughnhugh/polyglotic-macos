@@ -1,0 +1,1877 @@
+{
+ "rule": "The paced modes' playout (decision 0245) and the two zones' handoff (0251)",
+ "code": [
+  "src/polyglotic_desktop/core/listening/playout.py",
+  "src/polyglotic_desktop/ui_next/views/zones.py"
+ ],
+ "constants": {
+  "delay": 1.75,
+  "eager_delay": 1.5,
+  "min_gap": 0.06,
+  "estimate_late": 0.3,
+  "live_lines_monologue": 3,
+  "live_lines_conversation": 2,
+  "conversation_within": 60.0,
+  "pause": 5.0
+ },
+ "tokens": [
+  {
+   "text": "one two three",
+   "tokens": [
+    {
+     "text": "one ",
+     "key": "one",
+     "units": 2.0,
+     "start": 0
+    },
+    {
+     "text": "two ",
+     "key": "two",
+     "units": 1.0,
+     "start": 4
+    },
+    {
+     "text": "three",
+     "key": "three",
+     "units": 1.0,
+     "start": 8
+    }
+   ]
+  },
+  {
+   "text": "Good morning, everyone.",
+   "tokens": [
+    {
+     "text": "Good ",
+     "key": "good",
+     "units": 1.0,
+     "start": 0
+    },
+    {
+     "text": "morning, ",
+     "key": "morning",
+     "units": 2.0,
+     "start": 5
+    },
+    {
+     "text": "everyone.",
+     "key": "everyone",
+     "units": 3.0,
+     "start": 14
+    }
+   ]
+  },
+  {
+   "text": "Well - no; it's a state-of-the-art thing...",
+   "tokens": [
+    {
+     "text": "Well - ",
+     "key": "well",
+     "units": 1.0,
+     "start": 0
+    },
+    {
+     "text": "no; ",
+     "key": "no",
+     "units": 1.0,
+     "start": 7
+    },
+    {
+     "text": "it's ",
+     "key": "its",
+     "units": 1.0,
+     "start": 11
+    },
+    {
+     "text": "a ",
+     "key": "a",
+     "units": 1.0,
+     "start": 16
+    },
+    {
+     "text": "state-of-the-art ",
+     "key": "stateoftheart",
+     "units": 3.0,
+     "start": 18
+    },
+    {
+     "text": "thing...",
+     "key": "thing",
+     "units": 1.0,
+     "start": 35
+    }
+   ]
+  },
+  {
+   "text": "“Quoted,” she said.",
+   "tokens": [
+    {
+     "text": "“Quoted,” ",
+     "key": "quoted",
+     "units": 2.0,
+     "start": 0
+    },
+    {
+     "text": "she ",
+     "key": "she",
+     "units": 1.0,
+     "start": 10
+    },
+    {
+     "text": "said.",
+     "key": "said",
+     "units": 1.0,
+     "start": 14
+    }
+   ]
+  },
+  {
+   "text": "It cost 3.50 in 2024.",
+   "tokens": [
+    {
+     "text": "It ",
+     "key": "it",
+     "units": 1.0,
+     "start": 0
+    },
+    {
+     "text": "cost ",
+     "key": "cost",
+     "units": 1.0,
+     "start": 3
+    },
+    {
+     "text": "3.",
+     "key": "3",
+     "units": 1.0,
+     "start": 8
+    },
+    {
+     "text": "50 ",
+     "key": "50",
+     "units": 2.0,
+     "start": 10
+    },
+    {
+     "text": "in ",
+     "key": "in",
+     "units": 1.0,
+     "start": 13
+    },
+    {
+     "text": "2024.",
+     "key": "2024",
+     "units": 4.0,
+     "start": 16
+    }
+   ]
+  },
+  {
+   "text": "你好，世界。",
+   "tokens": [
+    {
+     "text": "你",
+     "key": "你",
+     "units": 1.0,
+     "start": 0
+    },
+    {
+     "text": "好，",
+     "key": "好",
+     "units": 1.0,
+     "start": 1
+    },
+    {
+     "text": "世",
+     "key": "世",
+     "units": 1.0,
+     "start": 3
+    },
+    {
+     "text": "界。",
+     "key": "界",
+     "units": 1.0,
+     "start": 4
+    }
+   ]
+  },
+  {
+   "text": "我用Python写code。",
+   "tokens": [
+    {
+     "text": "我",
+     "key": "我",
+     "units": 1.0,
+     "start": 0
+    },
+    {
+     "text": "用",
+     "key": "用",
+     "units": 1.0,
+     "start": 1
+    },
+    {
+     "text": "Python",
+     "key": "python",
+     "units": 2.0,
+     "start": 2
+    },
+    {
+     "text": "写",
+     "key": "写",
+     "units": 1.0,
+     "start": 8
+    },
+    {
+     "text": "code。",
+     "key": "code",
+     "units": 1.0,
+     "start": 9
+    }
+   ]
+  },
+  {
+   "text": "  leading and trailing  ",
+   "tokens": [
+    {
+     "text": "  leading ",
+     "key": "leading",
+     "units": 2.0,
+     "start": 0
+    },
+    {
+     "text": "and ",
+     "key": "and",
+     "units": 1.0,
+     "start": 10
+    },
+    {
+     "text": "trailing  ",
+     "key": "trailing",
+     "units": 2.0,
+     "start": 14
+    }
+   ]
+  },
+  {
+   "text": "",
+   "tokens": []
+  }
+ ],
+ "cases": [
+  {
+   "name": "the default: words in the speaker's rhythm, a delay behind, the newest held back",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 11.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 12.0,
+     "clauses": [
+      {
+       "original": "one two three four five six"
+      }
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 10.0,
+     "end": 12.6,
+     "clauses": [
+      {
+       "original": "one two three four five six seven.",
+       "translation": "un a sept."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 11.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 7,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.783333,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four",
+     "established": 18,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 13.116667,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 23,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 13.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six",
+     "established": 27,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 14.05,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "one two three four five six seven.",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "the newest word shown too, 1.5 s behind",
+   "rules": {
+    "delay": 1.5,
+    "hold_back": 0,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 11.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 12.0,
+     "clauses": [
+      {
+       "original": "one two three four five six"
+      }
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 10.0,
+     "end": 12.6,
+     "clauses": [
+      {
+       "original": "one two three four five six seven.",
+       "translation": "un a sept."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 11.7,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 11.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 7,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.533333,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four",
+     "established": 18,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.866667,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 23,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 13.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six",
+     "established": 27,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 13.8,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "one two three four five six seven.",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a finished caption alone: every word, then the server's own update",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 22.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 20.0,
+     "end": 22.0,
+     "clauses": [
+      {
+       "original": "Good morning, everyone.",
+       "translation": "Bonjour a tous."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 22.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "Good",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 22.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "Good morning,",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 23.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "Good morning, everyone.",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "the server's word times are used when it sends them",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 33.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 30.0,
+     "end": 33.0,
+     "clauses": [
+      {
+       "original": "slow then quick quick",
+       "translation": "lent puis vite vite",
+       "words": [
+        [
+         0,
+         4,
+         30.0,
+         31.6
+        ],
+        [
+         5,
+         9,
+         31.8,
+         32.2
+        ],
+        [
+         10,
+         15,
+         32.3,
+         32.6
+        ],
+        [
+         16,
+         21,
+         32.7,
+         33.0
+        ]
+       ]
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 33.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "slow",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 33.55,
+     "caption": "c1",
+     "kind": "live",
+     "text": "slow then",
+     "established": 9,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 34.05,
+     "caption": "c1",
+     "kind": "live",
+     "text": "slow then quick",
+     "established": 15,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 34.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "slow then quick quick",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a rewrite of words not yet shown is never seen",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 41.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 40.0,
+     "end": 41.0,
+     "clauses": [
+      {
+       "original": "the whether is"
+      }
+     ]
+    },
+    {
+     "at": 42.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 40.0,
+     "end": 42.0,
+     "clauses": [
+      {
+       "original": "the weather is fine today"
+      }
+     ]
+    },
+    {
+     "at": 42.5,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 40.0,
+     "end": 42.4,
+     "clauses": [
+      {
+       "original": "The weather is fine today."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 41.7,
+     "caption": "c1",
+     "kind": "live",
+     "text": "the",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 42.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "the weather",
+     "established": 11,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 42.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "the weather is",
+     "established": 14,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 42.5,
+     "caption": "c1",
+     "kind": "live",
+     "text": "The weather is",
+     "established": 14,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 42.783333,
+     "caption": "c1",
+     "kind": "live",
+     "text": "The weather is fine",
+     "established": 19,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 43.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "The weather is fine today.",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a clause's translation comes with its last word",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 53.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 50.0,
+     "end": 53.0,
+     "clauses": [
+      {
+       "original": "One two, ",
+       "translation": "Un deux,"
+      },
+      {
+       "original": "three four.",
+       "translation": "trois quatre."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 53.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 53.25,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two, ",
+     "established": 9,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 53.85,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two, three",
+     "established": 14,
+     "translated": [
+      true,
+      false
+     ]
+    },
+    {
+     "at": 54.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "One two, three four.",
+     "established": 0,
+     "translated": [
+      true,
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Acquisition: each clause's translation 2 s after its last word",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 2.0
+   },
+   "heard": [
+    {
+     "at": 53.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 50.0,
+     "end": 53.0,
+     "clauses": [
+      {
+       "original": "One two, ",
+       "translation": "Un deux,"
+      },
+      {
+       "original": "three four.",
+       "translation": "trois quatre."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 53.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 53.25,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two,",
+     "established": 8,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 53.85,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two, three",
+     "established": 14,
+     "translated": [
+      false,
+      false
+     ]
+    },
+    {
+     "at": 54.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "One two, three four.",
+     "established": 0,
+     "translated": [
+      false,
+      false
+     ]
+    },
+    {
+     "at": 55.25,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "One two, three four.",
+     "established": 0,
+     "translated": [
+      true,
+      false
+     ]
+    },
+    {
+     "at": 56.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "One two, three four.",
+     "established": 0,
+     "translated": [
+      true,
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Calm: only the established words while the caption is live",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": true,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 61.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 60.0,
+     "end": 61.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ],
+     "established": 4
+    },
+    {
+     "at": 62.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 60.0,
+     "end": 62.0,
+     "clauses": [
+      {
+       "original": "one two three four five"
+      }
+     ],
+     "established": 14
+    },
+    {
+     "at": 62.6,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 60.0,
+     "end": 62.5,
+     "clauses": [
+      {
+       "original": "One two three four five."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 61.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 62.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 7,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 62.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 62.6,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 62.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "One two three four",
+     "established": 18,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 63.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "One two three four five.",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "name": "words ahead, waiting: the words heard wait faint (text past `established`)",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "waiting",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 11.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 12.0,
+     "clauses": [
+      {
+       "original": "one two three four five six"
+      }
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 10.0,
+     "end": 12.6,
+     "clauses": [
+      {
+       "original": "one two three four five six seven.",
+       "translation": "un a sept."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 11.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 8,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 14,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 14,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 12.783333,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 19,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 13.116667,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 24,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 13.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 28,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 14.05,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "one two three four five six seven.",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "words ahead, all: the newest word too",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "all",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 11.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 10.0,
+     "end": 12.0,
+     "clauses": [
+      {
+       "original": "one two three four five six"
+      }
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 10.0,
+     "end": 12.6,
+     "clauses": [
+      {
+       "original": "one two three four five six seven.",
+       "translation": "un a sept."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 11.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 11.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six",
+     "established": 8,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six",
+     "established": 14,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 12.7,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 14,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 12.783333,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 19,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 13.116667,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 24,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 13.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three four five six seven.",
+     "established": 28,
+     "translated": [
+      true
+     ]
+    },
+    {
+     "at": 14.05,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "one two three four five six seven.",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Chinese: a character at a time, punctuation with the word before",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 72.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 70.0,
+     "end": 72.0,
+     "clauses": [
+      {
+       "original": "你好，世界。",
+       "translation": "Hello, world."
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 72.1,
+     "caption": "c1",
+     "kind": "live",
+     "text": "你",
+     "established": 1,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 72.45,
+     "caption": "c1",
+     "kind": "live",
+     "text": "你好，",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 72.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "你好，世",
+     "established": 4,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 73.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "你好，世界。",
+     "established": 0,
+     "translated": [
+      true
+     ]
+    }
+   ]
+  },
+  {
+   "name": "two sources at once keep their own rhythm",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 81.1,
+     "caption": "c1",
+     "source": "app",
+     "kind": "finished",
+     "start": 80.0,
+     "end": 81.0,
+     "clauses": [
+      {
+       "original": "one two three"
+      }
+     ]
+    },
+    {
+     "at": 81.3,
+     "caption": "m1",
+     "source": "mic",
+     "kind": "finished",
+     "start": 80.2,
+     "end": 81.2,
+     "clauses": [
+      {
+       "original": "yes indeed"
+      }
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 81.95,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 81.983333,
+     "caption": "m1",
+     "kind": "live",
+     "text": "yes",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 82.2,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 7,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 82.45,
+     "caption": "c1",
+     "kind": "finished",
+     "text": "one two three",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 82.65,
+     "caption": "m1",
+     "kind": "finished",
+     "text": "yes indeed",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a caption that replaces another carries on from the words shown",
+   "rules": {
+    "delay": 1.75,
+    "hold_back": 1,
+    "ahead": "none",
+    "established_only": false,
+    "translation_after": 0.0
+   },
+   "heard": [
+    {
+     "at": 91.6,
+     "caption": "c1",
+     "source": "app",
+     "kind": "live",
+     "start": 90.0,
+     "end": 91.5,
+     "clauses": [
+      {
+       "original": "one two three four"
+      }
+     ]
+    },
+    {
+     "at": 93.1,
+     "caption": "c2",
+     "source": "app",
+     "kind": "finished",
+     "start": 90.0,
+     "end": 93.0,
+     "clauses": [
+      {
+       "original": "one two three four five six."
+      }
+     ],
+     "replaces": [
+      "c1"
+     ]
+    }
+   ],
+   "shown": [
+    {
+     "at": 92.05,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one",
+     "established": 3,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 92.35,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two",
+     "established": 7,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 92.65,
+     "caption": "c1",
+     "kind": "live",
+     "text": "one two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 93.1,
+     "caption": "c2",
+     "kind": "live",
+     "text": "one two three",
+     "established": 13,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 93.25,
+     "caption": "c2",
+     "kind": "live",
+     "text": "one two three four",
+     "established": 18,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 93.85,
+     "caption": "c2",
+     "kind": "live",
+     "text": "one two three four five",
+     "established": 23,
+     "translated": [
+      false
+     ]
+    },
+    {
+     "at": 94.45,
+     "caption": "c2",
+     "kind": "finished",
+     "text": "one two three four five six.",
+     "established": 0,
+     "translated": [
+      false
+     ]
+    }
+   ]
+  }
+ ],
+ "zones": [
+  {
+   "name": "one speaker: three live lines",
+   "steps": [
+    {
+     "heard": "app",
+     "at": 0.0
+    },
+    {
+     "live_lines": 10.0
+    }
+   ],
+   "answers": [
+    null,
+    3
+   ]
+  },
+  {
+   "name": "two speakers within a minute: two live lines; three again once one is quiet",
+   "steps": [
+    {
+     "heard": "app",
+     "at": 0.0
+    },
+    {
+     "heard": "you",
+     "at": 20.0
+    },
+    {
+     "live_lines": 30.0
+    },
+    {
+     "live_lines": 60.0
+    },
+    {
+     "live_lines": 60.5
+    },
+    {
+     "heard": "app",
+     "at": 100.0
+    },
+    {
+     "live_lines": 100.0
+    }
+   ],
+   "answers": [
+    null,
+    null,
+    2,
+    2,
+    3,
+    null,
+    3
+   ]
+  },
+  {
+   "name": "a caption hands off when its last line rolls out of the zone",
+   "steps": [
+    {
+     "handoff": [
+      [
+       1,
+       0,
+       false
+      ],
+      [
+       2,
+       1,
+       false
+      ],
+      [
+       3,
+       2,
+       true
+      ]
+     ],
+     "lines": 3,
+     "live_lines_shown": 3
+    },
+    {
+     "handoff": [
+      [
+       1,
+       0,
+       false
+      ],
+      [
+       2,
+       2,
+       false
+      ],
+      [
+       3,
+       3,
+       true
+      ]
+     ],
+     "lines": 4,
+     "live_lines_shown": 3
+    },
+    {
+     "handoff": [
+      [
+       2,
+       2,
+       false
+      ],
+      [
+       3,
+       5,
+       true
+      ]
+     ],
+     "lines": 6,
+     "live_lines_shown": 3
+    }
+   ],
+   "answers": [
+    {
+     "settled": []
+    },
+    {
+     "settled": [
+      1
+     ]
+    },
+    {
+     "settled": [
+      1,
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a caption still being spoken never hands off",
+   "steps": [
+    {
+     "handoff": [
+      [
+       1,
+       0,
+       true
+      ]
+     ],
+     "lines": 5,
+     "live_lines_shown": 3
+    }
+   ],
+   "answers": [
+    {
+     "settled": []
+    }
+   ]
+  },
+  {
+   "name": "with two live lines a caption hands off a line sooner",
+   "steps": [
+    {
+     "handoff": [
+      [
+       1,
+       0,
+       false
+      ],
+      [
+       2,
+       2,
+       true
+      ]
+     ],
+     "lines": 3,
+     "live_lines_shown": 2
+    }
+   ],
+   "answers": [
+    {
+     "settled": [
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a 5 s pause settles everything, and the next caption starts a paragraph",
+   "steps": [
+    {
+     "handoff": [
+      [
+       1,
+       0,
+       false
+      ],
+      [
+       2,
+       1,
+       false
+      ]
+     ],
+     "lines": 2,
+     "live_lines_shown": 3
+    },
+    {
+     "pause": [
+      1,
+      2
+     ]
+    },
+    {
+     "pause": []
+    }
+   ],
+   "answers": [
+    {
+     "settled": []
+    },
+    {
+     "settled": [
+      1,
+      2
+     ],
+     "ended": [
+      2
+     ]
+    },
+    {
+     "settled": [
+      1,
+      2
+     ],
+     "ended": [
+      2
+     ]
+    }
+   ]
+  }
+ ]
+}

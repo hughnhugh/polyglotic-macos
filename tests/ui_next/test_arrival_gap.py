@@ -133,16 +133,15 @@ def test_none_waits_longer_than_the_longest_wait_for_text(
 def test_the_mouse_still_holds_them_and_they_go_on_paced(
     qapp: QApplication,
 ) -> None:
-    """Nothing moves under the mouse (109's rule): what arrives while it
-    moves over the window waits; when it leaves, they come the gap apart."""
+    """Nothing moves under the mouse (109's rule): the view holds, and
+    what arrives while it's on the words comes in the gap apart all the
+    same - the mouse never holds a caption (583)."""
     window, clock = paced(qapp, 0.5)
     try:
         before = ids(window)
         window._hold()
         for update in finished_updates(2, start=2):
             window.receive(update)
-        assert ids(window) == before
-        window.let_in()
         assert ids(window) == [*before, "app-00002"]
         clock.now += 0.5
         window._let_paced()

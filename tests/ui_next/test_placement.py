@@ -105,6 +105,35 @@ def test_an_uncentred_window_resizes_from_the_edge_dragged_only() -> None:
     assert after == Rect(10, 770, 730, 180)
 
 
+def test_a_centred_preset_off_centre_widens_from_where_it_is() -> None:
+    """polyglotic-hq 586: a bottom centre joined window placed against the
+    screen's left (x 0, 1920 wide on a 2560 screen) couldn't widen at all -
+    its centre's nearer side had no room. Off centre, the dragged edge
+    follows the mouse and the other stays."""
+    wide = Rect(0, 0, 2560, 1392)
+    start = Rect(0, 1002, 1920, 300)
+    right = resized(start, Edge.RIGHT, 200, 0, Preset.BOTTOM_CENTRE, MIN, wide)
+    assert right == Rect(0, 1002, 2120, 300)
+    left = resized(start, Edge.LEFT, 100, 0, Preset.BOTTOM_CENTRE, MIN, wide)
+    assert left == Rect(100, 1002, 1820, 300)
+    centred = Rect(320, 1002, 1920, 300)  # on the screen's centre: both sides
+    both = resized(centred, Edge.RIGHT, 100, 0, Preset.BOTTOM_CENTRE, MIN, wide)
+    assert both == Rect(220, 1002, 2120, 300)
+
+
+def test_an_inward_drag_cannot_make_a_full_width_window_wider_than_its_display() -> (
+    None
+):
+    # The macOS 15 runner: two columns' buttons wanted 1088 points on a 1024-point screen.
+    area = Rect(0, 25, 1024, 681)
+    frame = Rect(0, 103, 1024, 168)
+    for preset in (Preset.BOTTOM_CENTRE, Preset.CUSTOM):
+        assert (
+            resized(frame, Edge.RIGHT, -120, 0, preset, Size(1088, 120), area) == frame
+        )
+        assert resized(frame, Edge.LEFT, 120, 0, preset, Size(1088, 120), area) == frame
+
+
 def test_the_drag_stops_at_the_minimum() -> None:
     start = Rect(480, 770, 960, 180)
     after = resized(start, Edge.TOP | Edge.RIGHT, -900, 500, Preset.CUSTOM, MIN, AREA)

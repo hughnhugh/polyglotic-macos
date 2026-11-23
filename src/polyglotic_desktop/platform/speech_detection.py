@@ -18,6 +18,33 @@ this is the small part of it the app needs (from polyglotic-hq project
   silence between them, and 7 of 56 English clips - the quietest, peaking
   around -30 to -50 dBFS - lost their first 1.5-5s of speech, two of them
   all of it; the same clips on a fresh state were heard from 0.4-1.4s in;
+- sound heard as not speech for `QUIET_RESET_SEC` forgets the model's
+  state and context too (decision 0254), the gain carrying on: a song's
+  band is never digitally silent, and carried through it the state
+  stopped the model hearing the singing once a song's intro was over -
+  polyglotic-hq 536 (2026-11-20, CC BY songs) sent 0-7 % of three
+  English songs, their intros only, where 20 s stretches of the
+  same songs started afresh were heard at up to 42 %; instrumentals stay
+  at 0 % either way;
+- **speech over music** (decision 0267): Silero hears speech over a bed
+  of music as music. polyglotic-hq 558 (2026-11-20) put FLEURS speech in
+  four languages over nine CC BY beds, each clip at the same level: with
+  the bed as loud as the speech, 19 of 36 mixes had over 2 s of speech
+  unheard in a row (up to 20 s); 5 dB under it, 6 of 36 (up to 6 s). So,
+  for every source but the mic (`beds=False`: its room is decision
+  0145's):
+  - the model hears each frame with each frequency's floor taken out
+    (`FloorFilter`): a bed of music is mostly floor, and speech rises over
+    it syllable by syllable;
+  - under a steady bed of sound - every frame of the last `BED_HOLD_SEC`
+    peaking at `BED_PEAK` or louder - a frame is speech at
+    `BED_THRESHOLD`, not `SPEECH_THRESHOLD`. Speech alone keeps 0.5 where
+    its pauses are quiet; recorded with noise it can count as a bed too
+    (4-49 % of the frames of 558's FLEURS speech, brought up to one
+    level), and it was heard and sent as before.
+  On 558's bench: 5 dB under, none of 36 over 2 s (the longest 1.7 s);
+  as loud, 11 of 36; speech alone and sound effects as before; music
+  alone sent 1.0 s a minute instead of 0.3;
 - the model hears each frame through a gain (`DetectionGain`, decision
   0039): audio whose loudest sample in the last `GAIN_HOLD_SEC` is
   quieter than `GAIN_TARGET_PEAK` (-20 dBFS) is raised towards it, by at
@@ -73,6 +100,44 @@ SILENCE_RESET_SEC = 0.25
 docstring): longer than the zeros a codec can leave between words, so the
 state carries on through speech, and far shorter than a pause between
 sentences."""
+QUIET_RESET_SEC = 5.0
+"""Sound heard as not speech this long starts the model's state and context
+afresh, the gain carrying on (desktop decision 0254, polyglotic-hq 536): a
+song's band, or a game's music, is never digitally silent, so the reset
+above never comes, and carried through it the state stopped the model
+hearing the singing after a song's intro. Far longer than a pause in
+speech; at 2 s, a song's instrumental had its first frames heard as
+speech."""
+_QUIET_RESET_FRAMES = int(np.ceil(QUIET_RESET_SEC * VAD_SAMPLE_RATE / FRAME_SAMPLES))
+BED_PEAK = 10 ** (-45 / 20)
+"""A frame whose loudest sample reaches this (-45 dBFS) is sound, as a bed
+of music is (decision 0267); the quiet between words in a clean recording
+dips under it."""
+BED_HOLD_SEC = 2.0
+"""Every frame of this long at `BED_PEAK` or louder is a steady bed of sound
+(decision 0267): longer than speech in a clean recording runs without a
+quiet moment between words."""
+_BED_HOLD_FRAMES = int(np.ceil(BED_HOLD_SEC * VAD_SAMPLE_RATE / FRAME_SAMPLES))
+BED_THRESHOLD = 0.25
+"""Under a steady bed of sound a frame is speech at this probability or
+above, not `SPEECH_THRESHOLD` (decision 0267, polyglotic-hq 558): Silero
+gives speech over music a lower probability than speech alone. 0.2 heard
+a little more under a bed as loud as the speech, and sent more of music
+alone; 0.3 left 4.3 s of Cantonese unheard 5 dB over an orchestral bed."""
+FLOOR_SUBTRACT = 2.0
+"""Each frequency's floor is taken out of what the model hears this many
+times over (decision 0267), so a bed's own swells stay under it too; 3
+heard no more speech on 558's bench."""
+FLOOR_KEEP = 0.1
+"""The least of each frequency's power the model hears (-10 dB), the usual
+floor of spectral subtraction: taken out entirely, what is left rings
+("musical noise"). Not tuned on 558's bench."""
+FLOOR_RISE_DB_PER_SEC = 3.0
+"""How fast a frequency's floor follows its sound up (decision 0267): far
+slower than a word rises, so a word never becomes floor, while a bed that
+gets louder is followed within seconds. Sound quieter than the floor sets
+it at once. 6 dB/s was no better on part of 558's bench."""
+_HOP = FRAME_SAMPLES // 2
 _SILENCE_RESET_FRAMES = int(
     np.ceil(SILENCE_RESET_SEC * VAD_SAMPLE_RATE / FRAME_SAMPLES)
 )
@@ -187,29 +252,88 @@ class DetectionGain:
         return frame * np.float32(min(self._most, GAIN_TARGET_PEAK / peak))
 
 
+class FloorFilter:
+    """What the model hears of one stream with each frequency's floor taken
+    out (decision 0267). The floor is the lowest each frequency's smoothed
+    power has been, rising at `FLOOR_RISE_DB_PER_SEC`; `FLOOR_SUBTRACT`
+    times it is taken out, never below `FLOOR_KEEP`. 512-sample windows
+    every 256 samples (square-root Hann, overlap-add), so the model hears
+    each frame 16 ms late - well inside a caption's 0.2 s margins. Frames
+    are returned as new arrays - the audio given is never changed."""
+
+    def __init__(self) -> None:
+        self._window = np.sqrt(np.hanning(FRAME_SAMPLES + 1)[:FRAME_SAMPLES])
+        self._rise = 10 ** (FLOOR_RISE_DB_PER_SEC * (_HOP / VAD_SAMPLE_RATE) / 10)
+        self.reset()
+
+    def reset(self) -> None:
+        """Forgets the audio heard so far."""
+        self._input = np.zeros(FRAME_SAMPLES)
+        self._output = np.zeros(FRAME_SAMPLES)
+        self._smooth: npt.NDArray[np.float64] | None = None
+        self._floor: npt.NDArray[np.float64] | None = None
+
+    def apply(self, frame: Audio) -> Audio:
+        """The next frame of the stream, as the model is to hear it."""
+        first = self._hop(frame[:_HOP].astype(np.float64))
+        second = self._hop(frame[_HOP:].astype(np.float64))
+        return np.concatenate([first, second]).astype(np.float32)
+
+    def _hop(self, hop: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        self._input = np.concatenate([self._input[_HOP:], hop])
+        spectrum = np.fft.rfft(self._input * self._window)
+        power = np.abs(spectrum) ** 2
+        if self._smooth is None or self._floor is None:
+            self._smooth = power.copy()
+            self._floor = power.copy()
+        self._smooth = 0.7 * self._smooth + 0.3 * power
+        self._floor = np.where(
+            self._smooth < self._floor, self._smooth, self._floor * self._rise
+        )
+        kept = np.maximum(
+            FLOOR_KEEP, 1.0 - FLOOR_SUBTRACT * self._floor / np.maximum(power, 1e-20)
+        )
+        out = np.fft.irfft(spectrum * np.sqrt(kept), FRAME_SAMPLES) * self._window
+        self._output = np.concatenate([self._output[_HOP:], np.zeros(_HOP)]) + out
+        return self._output[:_HOP].copy()
+
+
 @dataclass(frozen=True, slots=True)
 class FrameResult:
     """One frame's speech detection: when it ended (the app's clock),
     whether it was speech, and its `level` - its loudness as captured (root
     mean square, before the gain): where a caption is cut while the speech
-    goes on (`CaptionTiming.frame`, polyglotic-hq 291)."""
+    goes on (`CaptionTiming.frame`, polyglotic-hq 291). `reset`: the model's
+    state was forgotten after this frame, `QUIET_RESET_SEC` heard as not
+    speech (decision 0254) - what the stretches of sound without speech
+    count (`platform.sound_unheard`, polyglotic-hq 549). `peak`: its
+    loudest sample as captured, as a fraction of full scale - what songs
+    mode counts as sound (`core.listening.songs`, decision 0287)."""
 
     end: float
     speech: bool
     level: float | None = None
+    reset: bool = False
+    peak: float | None = None
 
 
 class SpeechDetector:
     """Speech detection for one stream of 16kHz mono audio."""
 
     def __init__(
-        self, model: "ort.InferenceSession", gain_max: float = GAIN_MAX
+        self,
+        model: "ort.InferenceSession",
+        gain_max: float = GAIN_MAX,
+        beds: bool = True,
     ) -> None:
         """`gain_max`: the most quiet audio is raised for the model -
-        MIC_GAIN_MAX for the mic (decision 0145)."""
+        MIC_GAIN_MAX for the mic (decision 0145). `beds`: each frame heard
+        through a `FloorFilter`, and speech at `BED_THRESHOLD` under a
+        steady bed of sound (decision 0267) - False for the mic."""
         self._model = model
         self._sample_rate = np.array(VAD_SAMPLE_RATE, dtype=np.int64)
         self._gain = DetectionGain(gain_max)
+        self._floor = FloorFilter() if beds else None
         self.reset()
 
     def reset(self) -> None:
@@ -217,26 +341,54 @@ class SpeechDetector:
         self._afresh()
         self._leftover: Audio = np.zeros(0, dtype=np.float32)
         self._silent_frames = 0
+        self._sound_frames = 0
 
     def _afresh(self) -> None:
-        """The model's state and context, and the gain, as at the start of
-        a stream."""
+        """The model's state and context, the gain and the floor filter, as
+        at the start of a stream."""
+        self._forget()
+        self._gain.reset()
+        if self._floor is not None:
+            self._floor.reset()
+
+    def _forget(self) -> None:
+        """The model's state and context as at the start of a stream."""
         self._state = np.zeros((2, 1, 128), dtype=np.float32)
         self._context = np.zeros((1, CONTEXT_SAMPLES), dtype=np.float32)
-        self._gain.reset()
+        self._not_speech_frames = 0
 
-    def _is_speech(self, frame: Audio) -> bool:
-        """The next frame's verdict, heard through the gain - after
-        `SILENCE_RESET_SEC` of digital silence, not run through the model,
-        the stream started afresh."""
+    @property
+    def under_a_bed(self) -> bool:
+        """Whether a steady bed of sound plays (decision 0267): every frame
+        of the last `BED_HOLD_SEC` peaked at `BED_PEAK` or louder. Never on
+        the mic's stream."""
+        return self._floor is not None and self._sound_frames >= _BED_HOLD_FRAMES
+
+    def _is_speech(self, frame: Audio, peak: float) -> tuple[bool, bool]:
+        """The next frame's verdict, heard through the floor filter (not on
+        the mic) and the gain - after `SILENCE_RESET_SEC` of digital
+        silence, not run through the model, the stream started afresh; after
+        `QUIET_RESET_SEC` of sound heard as not speech, the model's state
+        forgotten (the second value: True); under a steady bed of sound,
+        speech at `BED_THRESHOLD` (decision 0267). `peak`: the frame's
+        loudest sample."""
         if frame.any():
             self._silent_frames = 0
         else:
             self._silent_frames += 1
             if self._silent_frames >= _SILENCE_RESET_FRAMES:
                 self._afresh()
-                return False
-        return self.probability(self._gain.apply(frame)) >= SPEECH_THRESHOLD
+                return False, False
+        loud = peak >= BED_PEAK
+        self._sound_frames = self._sound_frames + 1 if loud else 0
+        threshold = BED_THRESHOLD if self.under_a_bed else SPEECH_THRESHOLD
+        heard = frame if self._floor is None else self._floor.apply(frame)
+        speech = self.probability(self._gain.apply(heard)) >= threshold
+        self._not_speech_frames = 0 if speech else self._not_speech_frames + 1
+        if self._not_speech_frames >= _QUIET_RESET_FRAMES:
+            self._forget()
+            return speech, True
+        return speech, False
 
     def probability(self, frame: Audio) -> float:
         """The speech probability (0-1) of the next 512-sample frame, as
@@ -264,5 +416,7 @@ class SpeechDetector:
             frame = buffer[i * FRAME_SAMPLES : (i + 1) * FRAME_SAMPLES]
             end = first_end + i * FRAME_SAMPLES / VAD_SAMPLE_RATE
             level = float(np.sqrt(np.mean(np.square(frame, dtype=np.float64))))
-            results.append(FrameResult(end, self._is_speech(frame), level))
+            peak = float(np.max(np.abs(frame)))
+            speech, reset = self._is_speech(frame, peak)
+            results.append(FrameResult(end, speech, level, reset, peak))
         return results

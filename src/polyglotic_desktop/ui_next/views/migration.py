@@ -94,7 +94,7 @@ def todays_values(stored: Mapping[str, object]) -> WindowChoices:
         base = replace(base, translate_into=targets[0])
     size = text_size(stored.get("text_scale"))
     if size is not None:
-        base = replace(base, text_size=size)
+        base = replace(base, text_size=size, translation_size=size)
     if isinstance(stored.get("caption_mic"), bool):
         base = replace(base, show_mic=bool(stored["caption_mic"]))
     if stored.get("spoken_language") in SPOKEN_LANGUAGES:  # None: Detect

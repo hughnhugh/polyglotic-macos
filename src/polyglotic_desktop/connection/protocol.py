@@ -40,10 +40,16 @@ Channel = Literal[
     "macos-arm64-alpha",
     "macos-arm64-beta",
     "macos-arm64-stable",
+    "linux-x64-alpha",
+    "linux-x64-beta",
+    "linux-x64-stable",
 ]
 MacOs = Annotated[str, StringConstraints(pattern=r"^macos-[1-9][0-9]{0,2}$")]
 """`macos-<major version>` (`macos-26`), as protocol.md's `os` allows."""
-Os = Literal["windows-10", "windows-11"] | MacOs
+LinuxOs = Annotated[str, StringConstraints(pattern=r"^linux-[1-9][0-9]{0,2}$")]
+"""`linux-<the kernel's major version>` (`linux-6`), as protocol.md's `os`
+allows (the server's own smoke test says hello as `linux-6`)."""
+Os = Literal["windows-10", "windows-11"] | MacOs | LinuxOs
 Purpose = Literal["listen", "sync"]
 Category = Literal[
     "browser", "video", "call", "game", "music", "system", "other", "mic"
@@ -96,6 +102,10 @@ class Hello(Message):
     resume: str | None = None
     """The listening session lost to the network, to resume (server
     decision 0040); left out on a first connection."""
+    time_zone: str | None = None
+    """IANA time zone for the account's allowance refill."""
+    live_translation: bool | None = None
+    """Project 694's optional listening capability, including on resume."""
 
 
 class Settings(Message):
@@ -107,6 +117,7 @@ class Settings(Message):
     second_languages: dict[str, str] = {}
     spelling_hints: tuple[str, ...] = Field(default=(), repr=False)
     translate_live: bool = True
+    join_pause_fragments: bool = False
 
 
 class Source(Message):
@@ -142,6 +153,9 @@ class SpeechHeader(Message):
     cut_after: bool | None = None
     """The speech goes on after `speech_end`: no margin there, and the
     caption's text is left open at its end. None: left out (false)."""
+    seq: int | None = None
+    """The app's number for this frame in the session: the answer's
+    `trace` names it (the server's decision 0104; perf.trace)."""
 
 
 class RecheckHeader(Message):
@@ -409,6 +423,42 @@ class Plan(PlanState):
     type: Literal["plan"] = "plan"
 
 
+class AllowanceUpdate(Message):
+    type: Literal["allowance_update"] = "allowance_update"
+    allowance_percent: int = Field(strict=True, ge=0, le=100)
+    percent_left: int | None = Field(None, strict=True, ge=0, le=100)
+    resets_at: datetime | None = None
+
+    @property
+    def left(self) -> int:
+        """The percentage left: `percent_left` (the open beta's round 2),
+        or the older `allowance_percent` from a server before it."""
+        return (
+            self.percent_left
+            if self.percent_left is not None
+            else self.allowance_percent
+        )
+
+
+class AllowanceExhausted(Message):
+    type: Literal["allowance_exhausted"] = "allowance_exhausted"
+    allowance_percent: Literal[0] = 0
+    resets_at: datetime | None = None
+
+    @property
+    def left(self) -> int:
+        return 0
+
+
+class RegistrationRequired(Message):
+    type: Literal["registration_required"] = "registration_required"
+
+
+class CrossBorderConsentRequired(Message):
+    type: Literal["cross_border_consent_required"] = "cross_border_consent_required"
+    wording_version: str
+
+
 class MaintenanceWindow(Message):
     """A planned maintenance window (server decision 0066): listening is
     refused from `starts_at` until `ends_at` - protocol.md's times, UTC."""
@@ -493,6 +543,19 @@ class Link(Message):
     translation: tuple[int, int]
     key: bool
     confidence: float
+    original_pos: str | None = None
+    translation_pos: str | None = None
+
+
+class WordTime(Message):
+    """When a word of a clause's original was said (server decision 0099,
+    this app's 0247): its span in the original, and `start` and `end` in
+    seconds on this app's own clock - the one its speech frames'
+    `speech_start` is on."""
+
+    original: tuple[int, int]
+    start: float
+    end: float
 
 
 class Clause(Message):
@@ -502,6 +565,29 @@ class Clause(Message):
     # each translation's own language, keyed as `translations` (server
     # decision 0097; optional, additive - an older server sends none)
     written_in: dict[str, str] | None = None
+    # when each word of `original` was said, in order (server decision
+    # 0099; optional, additive - no server sends it yet). Read by nothing
+    # yet: polyglotic-hq 526's spoken pace will (decision 0247)
+    words: tuple[WordTime, ...] | None = Field(default=None, repr=False)
+
+
+class UnansweredSpeech(Message):
+    """A numbered live update the server won't answer, and why."""
+
+    seq: int
+    why: str
+
+
+class UpdateTrace(Message):
+    """Where an answer's server time went (the server's decision 0104):
+    whole milliseconds, counts and the app's frame numbers only."""
+
+    seq: int
+    waited_ms: int = 0
+    queued: int = 0
+    stages_ms: dict[str, int] = {}
+    server_ms: int = 0
+    unanswered: tuple[UnansweredSpeech, ...] = ()
 
 
 class CaptionUpdate(Message):
@@ -516,10 +602,27 @@ class CaptionUpdate(Message):
     languages_heard: tuple[str, ...] | None = None
     clauses: tuple[Clause, ...] | None = None
     replaces: tuple[str, ...] | None = None
+    continues: str | None = None
     processing_ms: int | None = None
     established: int | None = None
     """Live updates: characters of the clauses' originals, counted in order,
     the server says are established (polyglotic-server decision 0095)."""
+    trace: UpdateTrace | None = None
+    """For a frame the app numbered (`SpeechHeader.seq`), from a server
+    since 2026-11-20: where its server time went (perf.trace)."""
+
+
+class TranslatedClause(Message):
+    translations: dict[str, str] = Field(repr=False)
+    written_in: dict[str, str] = Field(default={}, repr=False)
+
+
+class LiveTranslation(Message):
+    type: Literal["live_translation"] = "live_translation"
+    source_id: str
+    caption_id: str
+    seq: int
+    clauses: tuple[TranslatedClause, ...] = Field(repr=False)
 
 
 class RecheckResult(Message):
@@ -637,6 +740,7 @@ FROM_SERVER: dict[str, type[Message]] = {
     "pong": Pong,
     "pace": Pace,
     "caption_update": CaptionUpdate,
+    "live_translation": LiveTranslation,
     "recheck_result": RecheckResult,
     "minutes": Minutes,
     "notice": Notice,
@@ -646,6 +750,10 @@ FROM_SERVER: dict[str, type[Message]] = {
     "learning_deleted": LearningDeleted,
     "plan": Plan,
     "limit_reached": LimitReached,
+    "allowance_update": AllowanceUpdate,
+    "allowance_exhausted": AllowanceExhausted,
+    "registration_required": RegistrationRequired,
+    "cross_border_consent_required": CrossBorderConsentRequired,
     "maintenance": Maintenance,
 }
 """The server's messages this app reads; others are ignored (versioning

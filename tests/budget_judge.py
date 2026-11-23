@@ -19,13 +19,17 @@ action, not the worst moment of a busy PC (polyglotic-hq project 140).
   start: `busy_pc.CALM`, decision 0103) and read the load during its own
   runs (`Sampled.busy`). A failure where every reading was busy is its own
   outcome, "over on a busy PC", told apart from "over" (a calm PC: the code)
-  at a glance - it still fails.
-- **Beside main's record** (decision 0136, polyglotic-hq 344): on Windows,
-  CI's runs on main keep every judgement's median and longest run
-  (`keep_mains_record`, `tools/timing_record.py`); on a pull request a test
+  at a glance. The shared Linux pull request runner reports a timing notice
+  if the last try misses only the frame median (Polyglotic HQ 711). All
+  frame samples are subject to the slot limit.
+- **Beside main's record** (decision 0136, polyglotic-hq 344): on Windows
+  and Linux (`BESIDE_MAIN_ON`), CI's runs on main keep every judgement's
+  median and longest run (`keep_mains_record`, `tools/timing_record.py`),
+  each system its own record; on a pull request a test
   still over after its tries, but not `timing_record.SLOWER` than main's
   record, is "over its budget as main is" - named, a warning on the run's
-  page, not failed. Main's own runs are held to the budget alone.
+  page, not failed. Frame budgets and the starts use their own judging.
+  Main's own runs are held to the budget alone.
 - Each judgement is recorded in `JUDGED`: pytest's summary lists every
   one's median and longest run, the warm-up's too (`tests/conftest.py`),
   and in CI the run's page shows the table.
@@ -87,6 +91,8 @@ class Judged:
     as_main: str = ""
     """Over its budget, but not slower than main's record, which this says
     (decision 0136): not failed."""
+    notice: str = ""
+    """An over-budget median reported for review on the shared Linux runner."""
 
     @property
     def on_a_busy_pc(self) -> bool:
@@ -108,6 +114,8 @@ class Judged:
             first += f"; {busy_pc.describe(self.busy[-1])}"
         if self.as_main:
             return f"{OVER_AS_MAIN_IS}: {self.as_main} ({first})"
+        if self.notice:
+            return f"timing notice: {self.notice} ({first})"
         if self.passed:
             return f"ok on try {n} ({first})"
         if self.on_a_busy_pc:
@@ -199,8 +207,21 @@ def _load(sample: Sampled) -> float | None:
     return sample.busy if sample.busy is not None else busy_pc.busy_share()
 
 
+def _frame_budget_is_advisory(budget: Budget) -> bool:
+    """The shared Linux PR runner has a slower frame median (HQ 711)."""
+    return (
+        budget == budgets.FRAME
+        and sys.platform == "linux"
+        and os.environ.get("GITHUB_ACTIONS") == "true"
+        and os.environ.get("RUNNER_ENVIRONMENT") == "self-hosted"
+        and os.environ.get("GITHUB_EVENT_NAME") == "pull_request"
+    )
+
+
 def within(
-    budget: Budget, take: Callable[[], Sampled], busy_from: float = busy_pc.SATURATED
+    budget: Budget,
+    take: Callable[[], Sampled],
+    busy_from: float = busy_pc.SATURATED,
 ) -> None:
     """`take`'s samples within `budget`: the median within it and no run
     over `longest_allowed`. If over, they're taken once more, and again
@@ -208,7 +229,9 @@ def within(
     test says - up to `busy_pc.MOST_TRIES` (decisions 0040, 0103); the test
     fails only if the last try is over too, and says what every try found
     and how busy the PC was: "over on a busy PC" if every reading said
-    busy, else "over"."""
+    busy, else "over". On the shared Linux PR runner, a frame median miss
+    within the slot limit is reported as a timing notice.
+    """
     tries = [take()]
     busy: list[float | None] = []
     while not fits(budget, tries[-1]) and len(tries) < busy_pc.MOST_TRIES:
@@ -217,26 +240,36 @@ def within(
             if not busy_pc.saturated(busy[-1], busy_from):
                 break
         tries.append(take())
-    passed = fits(budget, tries[-1])
+    last = tries[-1]
+    passed = fits(budget, last)
     if not passed and len(busy) < len(tries) - 1:
-        busy.append(_load(tries[-1]))  # the last try's: to say how busy
+        busy.append(_load(last))  # the last try's: to say how busy
     test = os.environ.get("PYTEST_CURRENT_TEST", "").split(" (")[0]
-    as_main = "" if passed else beside_main(test, budget, tries[-1])
+    as_main = "" if passed else beside_main(test, budget, last)
+    notice = ""
+    if (
+        not passed
+        and _frame_budget_is_advisory(budget)
+        and last.longest <= longest_allowed(budget)
+    ):
+        notice = "frame median over budget on the shared Linux pull request runner"
     judged = Judged(
         test,
         budget,
         tuple(tries),
-        passed or bool(as_main),
+        passed or bool(as_main or notice),
         tuple(busy),
         busy_from,
         as_main,
+        notice,
     )
     JUDGED.append(judged)
-    if as_main:
-        line = f"{test} {budget.name}: {judged.verdict()}"
-        print(f"\n{OVER_AS_MAIN_IS} - {line}", file=sys.stderr)
+    if as_main or notice:
+        title = "Timing notice" if notice else "Over its budget as main is"
+        line = f"{test} {budget.name}: {last.describe()} - {judged.verdict()}"
+        print(f"\n{title} - {line}", file=sys.stderr)
         if os.environ.get("GITHUB_ACTIONS"):
-            print(f"::warning title=Over its budget as main is::{line}")
+            print(f"::warning title={title}::{line}")
         return
     assert passed, (
         (
@@ -251,9 +284,17 @@ def within(
     )
 
 
-RECORD_KIND = "pytest-win32"
-"""Main's record of the budget tests: this PC's Windows runs only (the
-Linux job's are another machine's)."""
+BESIDE_MAIN_ON = ("win32", "linux")
+"""Where CI keeps main's record of the budget tests: the PC's Windows
+runners, and its Linux runner - a container on the same PC, 2 CPUs, where
+a look drag's step measured 7.4-10 ms against its 8 (polyglotic-hq 563:
+it failed four pull requests on 2026-11-20 that hadn't touched it, and
+main's own run passed it on a second try at 7.4)."""
+
+RECORD_KIND = f"pytest-{sys.platform}"
+"""Main's record of the budget tests on this system: Windows' and Linux's
+are kept apart (the drag's step: 5.9 ms on Windows, 7.4-10 on Linux, the
+same day)."""
 
 
 NOT_BESIDE_MAIN = (budgets.START_FROM_SOURCE, budgets.START_PACKED)
@@ -262,10 +303,15 @@ main's, a start 200 ms slower (304's first wheel guard) would barely fail."""
 
 
 def beside_main(test: str, budget: Budget, last: Sampled) -> str:
-    """For a test over its budget on a pull request, on Windows: main's
-    record of it, if the last try isn't `timing_record.SLOWER` - the words
-    for the verdict - else "" (it fails)."""
-    if sys.platform != "win32" or start_record.on_main() or budget in NOT_BESIDE_MAIN:
+    """For a comparable test over budget on Windows or Linux:
+    main's record of it, if the last try isn't `timing_record.SLOWER` - the
+    words for the verdict - else "" (it fails)."""
+    if (
+        sys.platform not in BESIDE_MAIN_ON
+        or start_record.on_main()
+        or budget == budgets.FRAME
+        or budget in NOT_BESIDE_MAIN
+    ):
         return ""
     record = timing_record.load(RECORD_KIND)
     main = record.timings.get(test) if record else None
@@ -280,9 +326,9 @@ def beside_main(test: str, budget: Budget, last: Sampled) -> str:
 
 
 def keep_mains_record() -> bool:
-    """On CI's run of main, on Windows: every judgement's last try kept as
-    main's record (decision 0136). False if not kept."""
-    if sys.platform != "win32" or not start_record.on_main() or not JUDGED:
+    """On CI's run of main, on Windows or Linux: every judgement's last try
+    kept as main's record (decision 0136). False if not kept."""
+    if sys.platform not in BESIDE_MAIN_ON or not start_record.on_main() or not JUDGED:
         return False
     new = {
         j.test: timing_record.Timing(j.tries[-1].median, j.tries[-1].longest)
@@ -331,8 +377,9 @@ def summary_markdown() -> str:
             " more - up to twice more again while the PC measures saturated"
             " (decision 0040) - and the first is shown with the last. A test"
             ' over in every try while every reading said busy is "over on a'
-            ' busy PC" (decision 0103): still a failure. The warm-up (a first'
-            " pass of the same actions) is recorded, not judged."
+            ' busy PC" (decision 0103). On the shared Linux pull request runner,'
+            " a frame median miss within the slot limit is a timing notice. The warm-up"
+            " (a first pass of the same actions) is recorded, not judged."
         ),
         "",
         "| Test | Budget | Median | Longest | Warm-up longest | |",

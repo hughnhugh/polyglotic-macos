@@ -6,15 +6,26 @@ at its opacity over a light video and a black one - as a link's line
 (its colour at 90 %) and as a word in its link's colour (`link_ink`,
 moved to be readable: 431's rule)."""
 
-import math
 from itertools import combinations
 
 import pytest
 from PySide6.QtGui import QColor
 
 from polyglotic_desktop.ui_next.caption_layout import Ink, link_ink
-from polyglotic_desktop.ui_next.caption_marks import LINK_COLORS
-from polyglotic_desktop.ui_next.views.presets import PRESETS, VIDEOS, ColourPreset, _mix
+from polyglotic_desktop.ui_next.caption_marks import (
+    APART_FROM_TEXT,
+    LINK_COLORS,
+    Panel,
+    link_colours,
+)
+from polyglotic_desktop.ui_next.views.presets import (
+    PRESETS,
+    VIDEOS,
+    ColourPreset,
+    _mix,
+)
+from polyglotic_desktop.ui_next.views.presets import ciede2000 as colours_apart
+from polyglotic_desktop.ui_next.views.presets import ciede2000_lab as ciede2000
 
 TOLD_APART = 13.0
 """The least CIEDE2000 between any two link colours as drawn: over the
@@ -41,53 +52,6 @@ def _lab(colour: str) -> tuple[float, float, float]:
         for t in xyz
     )
     return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
-
-
-def ciede2000(
-    lab1: tuple[float, float, float], lab2: tuple[float, float, float]
-) -> float:
-    """CIEDE2000 (Sharma, Wu and Dalal, 2005), its weights all 1."""
-    (l1, a1, b1), (l2, a2, b2) = lab1, lab2
-    c_bar = (math.hypot(a1, b1) + math.hypot(a2, b2)) / 2
-    g = 0.5 * (1 - math.sqrt(c_bar**7 / (c_bar**7 + 25**7)))
-    a1p, a2p = (1 + g) * a1, (1 + g) * a2
-    c1p, c2p = math.hypot(a1p, b1), math.hypot(a2p, b2)
-    h1p = math.degrees(math.atan2(b1, a1p)) % 360 if c1p else 0.0
-    h2p = math.degrees(math.atan2(b2, a2p)) % 360 if c2p else 0.0
-    if c1p * c2p == 0:
-        dhp = 0.0
-    elif abs(h2p - h1p) <= 180:
-        dhp = h2p - h1p
-    else:
-        dhp = h2p - h1p - 360 if h2p > h1p else h2p - h1p + 360
-    d_l, d_c = l2 - l1, c2p - c1p
-    d_h = 2 * math.sqrt(c1p * c2p) * math.sin(math.radians(dhp / 2))
-    l_bar, c_barp = (l1 + l2) / 2, (c1p + c2p) / 2
-    if c1p * c2p == 0:
-        h_bar = h1p + h2p
-    elif abs(h1p - h2p) <= 180:
-        h_bar = (h1p + h2p) / 2
-    else:
-        h_bar = (h1p + h2p + (360 if h1p + h2p < 360 else -360)) / 2
-    t = (
-        1
-        - 0.17 * math.cos(math.radians(h_bar - 30))
-        + 0.24 * math.cos(math.radians(2 * h_bar))
-        + 0.32 * math.cos(math.radians(3 * h_bar + 6))
-        - 0.20 * math.cos(math.radians(4 * h_bar - 63))
-    )
-    theta = 30 * math.exp(-(((h_bar - 275) / 25) ** 2))
-    r_c = 2 * math.sqrt(c_barp**7 / (c_barp**7 + 25**7))
-    s_l = 1 + 0.015 * (l_bar - 50) ** 2 / math.sqrt(20 + (l_bar - 50) ** 2)
-    s_c = 1 + 0.045 * c_barp
-    s_h = 1 + 0.015 * c_barp * t
-    r_t = -math.sin(math.radians(2 * theta)) * r_c
-    return math.sqrt(
-        (d_l / s_l) ** 2
-        + (d_c / s_c) ** 2
-        + (d_h / s_h) ** 2
-        + r_t * (d_c / s_c) * (d_h / s_h)
-    )
 
 
 @pytest.mark.parametrize(
@@ -136,3 +100,25 @@ def test_every_two_link_colours_are_told_apart(
         if (found := min(map(ciede2000, drawn[a], drawn[b]))) < TOLD_APART
     ]
     assert close == []
+
+
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.key)
+def test_no_link_colour_is_drawn_near_the_text_of_the_rows_it_links(
+    preset: ColourPreset,
+) -> None:
+    """polyglotic-hq 554 (the user, 2026-11-20: "make the font colours
+    slightly more dynamic to not take same or similar colours to font
+    colour"): on every preset a word in its link's colour, as drawn
+    (`link_ink`), is at least APART_FROM_TEXT from both rows' own colours -
+    Classic's gold had orange at 18.8 and olive at 18.0, Ember's orange
+    its own orange at 1.9 - and enough colours are left for a line's links."""
+    panel = Panel(
+        preset.background, preset.original, preset.translation, opacity=preset.opacity
+    )
+    kept = link_colours(panel)
+    assert len(kept) >= 7
+    ink = Ink(panel=preset.background, panel_opacity=preset.opacity)
+    for colour in kept:
+        for row in (preset.original, preset.translation):
+            word = link_ink(QColor(colour), ink, QColor(row)).name()
+            assert colours_apart(word, row) >= APART_FROM_TEXT, (colour, row)

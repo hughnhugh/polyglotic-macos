@@ -17,13 +17,21 @@ raised Ember's, Paper's and Quiet's panels to it). They differ in
 brightness or warmth, not only hue, so colour-blind viewers can tell the
 rows apart (248's section 6.1). The colours are 248's `contrast.py`'s.
 
+Three of them are also recommended looks (`LOOKS`, polyglotic-hq 532:
+the user, preview 1, "this theme and settings are nice, this should be a
+recommended preset, paper should be another, broadcast another"): a
+whole look - colours, caption text, readings and Chinese faces - picked
+in one click and changed as freely after.
+
 Holds no caption text.
 """
 
+import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
+from polyglotic_desktop.core.listening.display import ReadingColour, ReadingSize
+from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, TextEdge
 
 AA_TEXT = 4.5
 """WCAG 2.2's 1.4.3 for normal text: every preset's text at least this
@@ -42,7 +50,7 @@ class ColourPreset:
 
 
 PRESETS: tuple[ColourPreset, ...] = (
-    ColourPreset("classic", "#ffffff", "#ffd76e", "#0a0c10", 0.72),
+    ColourPreset("classic", "#ffffff", "#ffd76e", "#0a0c10", 0.88),
     ColourPreset("broadcast", "#ffffff", "#ffe600", "#000000", 1.0),
     ColourPreset("teletext", "#ffffff", "#5ee3ff", "#000000", 1.0),
     ColourPreset("ember", "#dcecff", "#ffa64d", "#0b1a33", 0.88),
@@ -58,9 +66,129 @@ Ember's panel 85 -> 88 %, Paper's 94 -> 96 % and Quiet's 55 -> 85 % (284):
 the least that keeps every caption, older ones included, at 4.5:1 over a
 light video (#f3f5f7) and a black one. Quiet stays muted in its colours;
 its see-through panel couldn't (a white scene behind 55 % left its
-yellow at 2.1:1)."""
+yellow at 2.1:1). Classic's 72 -> 88 % (584): the app's default look,
+its text and translation at 7:1 over a white scene (`ui.settings.OPACITY`)."""
 
 BY_KEY = {preset.key: preset for preset in PRESETS}
+
+
+@dataclass(frozen=True)
+class RecommendedLook:
+    """A whole look (532): a colour preset's colours and panel, the caption
+    text (contrast, vibrance, thickness, what's around the letters), the
+    readings' size and colour, and Chinese's faces - each language named
+    in `faces` set to its family, every other language's left as chosen."""
+
+    key: str
+    colours: str
+    """Its colour preset's key (`BY_KEY`)."""
+    opacity: float
+    contrast: int
+    vibrance: int
+    thickness: int
+    edge: TextEdge
+    reading_size: ReadingSize
+    reading_colour: ReadingColour
+    faces: tuple[tuple[str, str], ...]
+
+    @property
+    def preset(self) -> ColourPreset:
+        return BY_KEY[self.colours]
+
+
+CHINESE = ("zh", "zh-hant")
+"""The languages a look sets the faces of: Mandarin in Simplified and in
+Traditional characters (`CaptionLook.faces`' codes)."""
+
+LOOKS: tuple[RecommendedLook, ...] = (
+    RecommendedLook(
+        "quiet",
+        "quiet",
+        0.96,
+        100,
+        100,
+        600,
+        TextEdge.SHADOW,
+        ReadingSize.MEDIUM,
+        ReadingColour.GREY,
+        (("zh", "Ma Shan Zheng Captions"), ("zh-hant", "LXGW WenKai TC Captions")),
+    ),
+    RecommendedLook(
+        "paper",
+        "paper",
+        0.96,
+        50,
+        0,
+        500,
+        TextEdge.NONE,
+        ReadingSize.MEDIUM,
+        ReadingColour.GREY,
+        (("zh", "Polyglotic Kai"), ("zh-hant", "LXGW WenKai TC Captions")),
+    ),
+    RecommendedLook(
+        "broadcast",
+        "broadcast",
+        1.0,
+        100,
+        0,
+        700,
+        TextEdge.NONE,
+        ReadingSize.MEDIUM,
+        ReadingColour.GREY,
+        (("zh", "Noto Sans SC Captions"), ("zh-hant", "Noto Sans TC Captions")),
+    ),
+)
+"""The three (532), in the user's order:
+
+- **Quiet** - the user's own picture of preview 1 (2026-11-18): soft grey
+  and amber, contrast and vibrance at the top, Semibold, a soft shadow,
+  grey readings at Medium (its picture's pinyin is that size; Small's
+  are 11 px at the captions' first text size), Chinese in calligraphy
+  (Ma Shan Zheng; LXGW WenKai TC).
+  Its panel 96 % solid, not its colour preset's 85 %: over a busy window
+  85 % let a window's edges through at 15 % of their contrast, and they
+  read as the captions' own (the user's picture, preview 1); 93 % still
+  showed them (532's pictures). A blur behind the panel would keep it
+  see-through - Windows can, the app can't draw it itself.
+- **Paper** - dark ink on cream, a little crisper, Medium, no edge (a
+  shadow on cream reads as a smudge), grey readings at Medium, Chinese
+  in a textbook's handwritten kai (Polyglotic Kai, LXGW WenKai TC).
+- **Broadcast** - white and yellow on solid black, as on TV: crisp, Bold,
+  readings at Medium, Chinese in the plain sans (Noto Sans SC, TC).
+"""
+
+LOOKS_BY_KEY = {look.key: look for look in LOOKS}
+
+
+def with_look(look: CaptionLook, key: str) -> CaptionLook:
+    """`look` as the recommended look `key` makes it: what it sets, and
+    nothing else changed."""
+    chosen = LOOKS_BY_KEY[key]
+    preset = chosen.preset
+    faces = {**dict(look.faces), **dict(chosen.faces)}
+    return replace(
+        look,
+        original=preset.original,
+        translation=preset.translation,
+        background=preset.background,
+        opacity=chosen.opacity,
+        contrast=chosen.contrast,
+        vibrance=chosen.vibrance,
+        thickness=chosen.thickness,
+        edge=chosen.edge,
+        reading_size=chosen.reading_size,
+        reading_colour=chosen.reading_colour,
+        faces=tuple(sorted(faces.items())),
+    )
+
+
+def look_of(look: CaptionLook) -> RecommendedLook | None:
+    """The recommended look `look` is, everything it sets as it set it -
+    or None: changed since, or never picked."""
+    for chosen in LOOKS:
+        if with_look(look, chosen.key) == look:
+            return chosen
+    return None
 
 
 def preset_of(look: CaptionLook) -> ColourPreset | None:
@@ -127,6 +255,60 @@ def colour_difference(a: str, b: str) -> float:
     (about 2.3 is just noticeable side by side; thin text needs far more)."""
     return float(
         sum((p - q) ** 2 for p, q in zip(_lab(a), _lab(b), strict=True)) ** 0.5
+    )
+
+
+def ciede2000(a: str, b: str) -> float:
+    """How far apart two "#rrggbb" colours look as CIEDE2000 has it (its
+    weights all 1): nearer the eye than `colour_difference` across hues -
+    the told-apart rule for word links' colours (polyglotic-hq 446, 554)."""
+    return ciede2000_lab(_lab(a), _lab(b))
+
+
+def ciede2000_lab(
+    lab1: tuple[float, float, float], lab2: tuple[float, float, float]
+) -> float:
+    """CIEDE2000 between two CIELAB colours (Sharma, Wu and Dalal, 2005)."""
+    (l1, a1, b1), (l2, a2, b2) = lab1, lab2
+    c_bar = (math.hypot(a1, b1) + math.hypot(a2, b2)) / 2
+    g = 0.5 * (1 - math.sqrt(c_bar**7 / (c_bar**7 + 25**7)))
+    a1p, a2p = (1 + g) * a1, (1 + g) * a2
+    c1p, c2p = math.hypot(a1p, b1), math.hypot(a2p, b2)
+    h1p = math.degrees(math.atan2(b1, a1p)) % 360 if c1p else 0.0
+    h2p = math.degrees(math.atan2(b2, a2p)) % 360 if c2p else 0.0
+    if c1p * c2p == 0:
+        dhp = 0.0
+    elif abs(h2p - h1p) <= 180:
+        dhp = h2p - h1p
+    else:
+        dhp = h2p - h1p - 360 if h2p > h1p else h2p - h1p + 360
+    d_l, d_c = l2 - l1, c2p - c1p
+    d_h = 2 * math.sqrt(c1p * c2p) * math.sin(math.radians(dhp / 2))
+    l_bar, c_barp = (l1 + l2) / 2, (c1p + c2p) / 2
+    if c1p * c2p == 0:
+        h_bar = h1p + h2p
+    elif abs(h1p - h2p) <= 180:
+        h_bar = (h1p + h2p) / 2
+    else:
+        h_bar = (h1p + h2p + (360 if h1p + h2p < 360 else -360)) / 2
+    t = (
+        1
+        - 0.17 * math.cos(math.radians(h_bar - 30))
+        + 0.24 * math.cos(math.radians(2 * h_bar))
+        + 0.32 * math.cos(math.radians(3 * h_bar + 6))
+        - 0.20 * math.cos(math.radians(4 * h_bar - 63))
+    )
+    theta = 30 * math.exp(-(((h_bar - 275) / 25) ** 2))
+    r_c = 2 * math.sqrt(c_barp**7 / (c_barp**7 + 25**7))
+    s_l = 1 + 0.015 * (l_bar - 50) ** 2 / math.sqrt(20 + (l_bar - 50) ** 2)
+    s_c = 1 + 0.045 * c_barp
+    s_h = 1 + 0.015 * c_barp * t
+    r_t = -math.sin(math.radians(2 * theta)) * r_c
+    return math.sqrt(
+        (d_l / s_l) ** 2
+        + (d_c / s_c) ** 2
+        + (d_h / s_h) ** 2
+        + r_t * (d_c / s_c) * (d_h / s_h)
     )
 
 

@@ -11,7 +11,11 @@ hint it carries. Then, until stopped:
   the listener - and `minutes`, `pace` and `notice` likewise; a finished
   caption that failed on the server (`processing_failed`) is told too, and
   so is a stalled connection - finished speech unanswered, or the server
-  silent, for too long (core.listening.unstable) - and its end;
+  silent, for too long (core.listening.unstable) - and its end. Every
+  finished caption that won't come - failed or refused on the server,
+  given up, or never sent - is told by its id (`caption_dropped`), so the
+  app ends its live caption: it stayed provisional for good (polyglotic-hq
+  557, 529's B3);
 - **keepalive:** `ping` every `limits.ping_seconds` (25); 60 seconds
   without any message from the server is a dead connection, closed and
   opened again;
@@ -19,7 +23,12 @@ hint it carries. Then, until stopped:
   back off and try again, or stop until the user acts (a new invite code,
   an update). A token the server refuses is forgotten. Waiting, the
   status says why the server couldn't be reached or ended the session,
-  when that's known (`connection.failures`; polyglotic-hq 251);
+  when that's known (`connection.failures`; polyglotic-hq 251). A
+  listening session that fails in the app itself - an exception nobody
+  foresaw, in the session or in reading the credentials - is logged by
+  the exception's type and where (never its text) and tries again after
+  `Reconnects.after_failure`'s wait: it stopped for good until the
+  learner changed sources (polyglotic-hq 557, 529's B2; decision 0266);
 - **learning data, consent, usage and exposures:** what the
   `DataExchange` has waiting goes out on every session, and its answers
   (`received`, `learning_state`, `learning_deleted`) go back to it.
@@ -141,6 +150,7 @@ from polyglotic_desktop.core.listening.settings import ListeningSettings
 from polyglotic_desktop.core.listening.sources import Capture
 from polyglotic_desktop.core.listening.summary import (
     ListeningSessionEnded,
+    PresetStep,
     SessionAction,
     SessionSummary,
 )
@@ -156,6 +166,8 @@ from polyglotic_desktop.core.listening.unreachable import Unreachable, after_res
 from polyglotic_desktop.core.listening.unstable import stalled
 from polyglotic_desktop.core.shared import LearningEvent, WordLookedUp, WordSaved
 from polyglotic_desktop.core.shared.client import USER_AGENT
+from polyglotic_desktop.perf import trace
+from polyglotic_desktop.perf.trace_summary import SessionTimelines
 from polyglotic_desktop.ports.credentials import CredentialStore, DeviceCredentials
 
 log = logging.getLogger(__name__)
@@ -244,6 +256,10 @@ class SessionListener(Protocol):
 
     def minutes_changed(self, used: float, left: float | None) -> None: ...
 
+    def allowance_changed(
+        self, allowance: protocol.AllowanceUpdate | protocol.AllowanceExhausted
+    ) -> None: ...
+
     def notice(self, code: str) -> None:
         """Something to show, by protocol.md's code; unknown codes may come."""
         ...
@@ -258,6 +274,12 @@ class SessionListener(Protocol):
         """A finished caption failed on the server (`error`
         `processing_failed`): it is counted dropped; several in a row mean
         captions are failing there (core.listening.failing)."""
+        ...
+
+    def caption_dropped(self, caption_id: CaptionId) -> None:
+        """A caption's finished caption won't come: it failed or was refused
+        on the server, was given up, or was never sent. Its live caption, if
+        shown, is to end with what it shows (polyglotic-hq 557)."""
         ...
 
     def rechecked(self, result: RecheckResult) -> None:
@@ -334,11 +356,15 @@ class ListeningSession:
         capture: Capture | None = None,
         maintenance: Maintenance | None = None,
         wall_clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+        capture_restarts: Callable[[], int] | None = None,
+        time_zone: str | None = None,
     ) -> None:
         """`live_interval` is the live-update interval followed (None:
         none), `caption_mode` the learner's caption mode and `capture` what
         is captured as it starts (None: not known yet), for the session's
-        summary. `maintenance`: the planned maintenance window the app
+        summary; so is `capture_restarts`, the captures' restarts since it
+        was last called (the speech pipeline's `take_restarts`; polyglotic-hq
+        566). `maintenance`: the planned maintenance window the app
         holds as it starts (kept between starts; polyglotic-hq 319);
         `wall_clock`: this PC's time, which the window is placed against."""
         self._url = session_url(server)
@@ -347,6 +373,9 @@ class ListeningSession:
         its dates (connection.tls)."""
         self._exchange = exchange
         self._purpose: protocol.Purpose = purpose
+        self._live_translation = False
+        self._time_zone = time_zone
+        self._capture_restarts = capture_restarts
         self.unanswered = UnansweredSpeech()
         """Finished speech sent and not yet answered, across reconnects."""
         self._handed: list[Handed] = []
@@ -390,10 +419,26 @@ class ListeningSession:
         self._stalled = False  # as last told (`connection_stalled`)
         self._listening = False
         self._closed_with: int | None = None
+        self._terminal: Refusal | None = None
         self._limits = protocol.Limits()
         self._stopped_for = StopReason.CLOSED  # what `stop` was asked for
-        self._mode = caption_mode.value if caption_mode is not None else None
+        self._mode = caption_mode.usage_value if caption_mode is not None else None
+        self._live_interval = live_interval
+        self.preset_usage: dict[str, protocol.UsageValue] = {}
+        """The preset in use as the session started, as its summary's
+        optional properties (`ui.use_presets.usage`, polyglotic-hq 556):
+        sent with it, with consent to usage statistics."""
+        # the session's caption timelines, summarised for its usage
+        # statistics (perf.trace; polyglotic-hq 543)
+        self._timelines = SessionTimelines(trace.tracer())
         self._speech_sent: dict[tuple[str, str], tuple[float, float, float]] = {}
+        # each numbered frame's speech times and when it went (perf.trace):
+        # its answer names it, so a live update's round trip is its own
+        self._sent_by_seq: dict[int, tuple[float, float, float]] = {}
+        # each caption's latest numbered frame of each kind: what an answer
+        # from a server that doesn't echo the number (before its decision
+        # 0104) is taken to answer, as the caption log always took it
+        self._latest_seq: dict[tuple[str, str], int] = {}
         """Speech sent and not yet answered, by caption and kind: its start
         and end and when it went, for its answer's times (the latest live
         update's; `SPEECH_TIMES_KEPT` at most)."""
@@ -417,6 +462,8 @@ class ListeningSession:
         """Opens the session on a thread of its own."""
         if self._thread is not None:
             raise RuntimeError("the session has already started")
+        if self._purpose == "listen":
+            self._timelines.start()
         self._thread = threading.Thread(
             target=asyncio.run, args=(self._main(),), name="session", daemon=True
         )
@@ -530,6 +577,15 @@ class ListeningSession:
         """The learner did something the session's summary counts."""
         self._call(lambda: self._summary.did(action))
 
+    def preset_step(self, step: PresetStep, changes: int) -> None:
+        """A step on the chosen preset, counted in the summary (587)."""
+        self._call(lambda: self._summary.preset_step(step, changes))
+
+    def songs(self, on: bool) -> None:
+        """Songs mode came on or went off (its summary's `lyrics_seconds`)."""
+        at = time.perf_counter()
+        self._call(lambda: self._summary.songs(on, at))
+
     def ended(self) -> ListeningSessionEnded | None:
         """The session's summary, once it has stopped (None for a sync
         session)."""
@@ -538,7 +594,29 @@ class ListeningSession:
         left = self._held_back.left_to_log()
         if left is not None:
             self._log_held_back(left.waited, left.refused)
-        return self._summary.ended(time.perf_counter())
+        self._timelines.stop()
+        restarts = self._capture_restarts
+        exchange = self._exchange
+        return self._summary.ended(
+            time.perf_counter(),
+            capture_restarts=restarts() if restarts is not None else 0,
+            unreadable_dropped=exchange.take_unreadable() if exchange else 0,
+        )
+
+    def timelines(self) -> dict[str, protocol.UsageValue] | None:
+        """Where the session's caption time went, as the tracking plan's
+        `caption_timeline_summarised` - once it has stopped (`ended`); None
+        for a sync session, or one that sent nothing and had no sound go
+        unheard (polyglotic-hq 549: a session that heard no speech at all
+        in sound that went on is the one to see)."""
+        summary = self._timelines.summary
+        if self._purpose != "listen" or not (
+            summary.updates or summary.unheard.stretches
+        ):
+            return None
+        return listening.timeline_summarised(
+            self._timelines, self._mode, self._live_interval
+        )
 
     def _call(self, action: Callable[[], None]) -> None:
         loop = self._loop
@@ -563,7 +641,16 @@ class ListeningSession:
 
     async def _keep_open(self) -> None:
         while not self._stop.is_set():
-            credentials = self._credentials.load()
+            began = time.monotonic()
+            try:
+                credentials = self._credentials.load()
+            except Exception as error:
+                if self._purpose != "listen":
+                    raise  # a sync session stops; the next one tries again
+                await self._wait_after(
+                    self._failed("reading the sign-in", began, error)
+                )
+                continue
             if credentials is None:
                 self._status(
                     Status(SessionState.STOPPED, stopped=StopReason.SIGN_IN_NEEDED)
@@ -578,13 +665,21 @@ class ListeningSession:
                 with contextlib.suppress(asyncio.CancelledError):
                     await session
                 break
-            await session  # a listening session closes itself, normally
+            try:
+                ended = await session  # a listening session closes itself, normally
+            except Exception as error:
+                stopping.cancel()
+                if self._purpose != "listen" or self._stop.is_set():
+                    raise
+                await self._wait_after(self._failed("the session", began, error))
+                continue
             stopping.cancel()
-            ended = session.result()
             if ended.lasted > 0 or self._lost_at is None:
                 self._lost_at = time.monotonic()  # away from now, till welcomed
             if self._stop.is_set():
                 break
+            if ended.new_hello:
+                continue
             step = self._reconnects.after(ended)
             if self._purpose == "sync" and not isinstance(step, Stop):
                 log.info("sync session ended (close %s)", ended.close_code)
@@ -642,6 +737,31 @@ class ListeningSession:
         self._status(
             Status(SessionState.STOPPED, stopped=self._stopped_for, close_code=NORMAL)
         )
+
+    def _failed(self, what: str, began: float, error: Exception) -> float:
+        """`what` failed in the app itself with `error`, `began` (monotonic)
+        being when this attempt started: logged by the error's type and
+        where (the log file's `ContentFreeLog` - never its text), and how
+        long to wait before trying again (decision 0266)."""
+        step = self._reconnects.after_failure(time.monotonic() - began)
+        self._summary.session_failed()  # counted in its summary (566)
+        log.error(
+            "%s failed (%d in a row); trying again in %.1fs",
+            what,
+            self._reconnects.failures,
+            step.seconds,
+            exc_info=error,
+        )
+        if self._lost_at is None:
+            self._lost_at = time.monotonic()  # away from now, till welcomed
+        return step.seconds
+
+    async def _wait_after(self, seconds: float) -> None:
+        """Waiting to try again after a failure: said, and over early if
+        the session is stopped."""
+        self._status(Status(SessionState.WAITING, retry_in=seconds))
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(self._stop.wait(), seconds)
 
     def _unreachable(self, ended: Ended) -> Unreachable | None:
         """Why the server couldn't be reached, or ended the session - a
@@ -787,7 +907,11 @@ class ListeningSession:
     async def _open(
         self, websocket: ClientConnection, credentials: DeviceCredentials
     ) -> Ended:
+        self._live_translation = (
+            self._purpose == "listen" and self._settings.live_translation
+        )
         hello = protocol.Hello(
+            live_translation=self._live_translation or None,
             app_version=self._app.app_version,
             install_id=credentials.install_id,
             channel=self._app.channel,
@@ -795,6 +919,7 @@ class ListeningSession:
             purpose=self._purpose,
             auth=protocol.HelloAuth(device_token=credentials.device_token),
             resume=self._resume,
+            time_zone=self._time_zone,
         )
         await websocket.send(protocol.encode(hello))
         try:
@@ -809,6 +934,8 @@ class ListeningSession:
             log.info("the server refused the session: %s", message.type)
             if isinstance(message, protocol.LimitReached) and message.plan:
                 self._notify(self._listener.plan_changed, message.plan)
+            if isinstance(message, protocol.AllowanceExhausted):
+                self._notify(self._listener.allowance_changed, message)
             if (
                 isinstance(message, protocol.ServerBusy)
                 and message.reason == "maintenance"
@@ -855,6 +982,7 @@ class ListeningSession:
         install_id: str,
     ) -> Ended:
         self._closed_with = None
+        self._terminal = None
         self._limits = welcome.limits
         self._welcomes += 1
         if self._welcomes > 1:
@@ -933,9 +1061,20 @@ class ListeningSession:
             if failure is not None:
                 raise failure
         lasted = time.monotonic() - welcomed
+        if self._terminal is not None:
+            return Ended(self._closed_with, self._terminal, lasted)
         if self._stop.is_set() or any(t.get_name() == "settled" for t in done):
             await websocket.close(NORMAL)
             return Ended(NORMAL, lasted=lasted)
+        if (
+            self._closed_with is None
+            and self._purpose == "listen"
+            and self._live_translation != self._settings.live_translation
+        ):
+            # A hello capability changed. Resume immediately with the new
+            # choice. Unanswered finished speech is retained across the close.
+            await websocket.close(NORMAL)
+            return Ended(NORMAL, lasted=lasted, new_hello=True)
         if self._closed_with is None:  # the watch: no message for too long
             log.info("no message from the server for %.0fs", self._timings.dead_after)
             with contextlib.suppress(Exception):
@@ -944,6 +1083,7 @@ class ListeningSession:
         return Ended(self._closed_with, lasted=lasted)
 
     async def _receive(self, websocket: ClientConnection) -> None:
+        translations = listening.LiveTranslations(SPEECH_TIMES_KEPT)
         while True:
             try:
                 data = await websocket.recv()
@@ -955,13 +1095,36 @@ class ListeningSession:
             if isinstance(message, protocol.CaptionUpdate):
                 if message.kind != "live":
                     self.unanswered.answered(message.caption_id, message.replaces or ())
-                update = self._timed(listening.caption_update(message))
+                update = self._timed(listening.caption_update(message), message.trace)
+                if self._live_translation:
+                    translations.original(
+                        update, message.trace.seq if message.trace else None
+                    )
                 self._summary.caption_updated(update, time.perf_counter())
                 self._notify(self._listener.caption_updated, update)
+            elif isinstance(message, protocol.LiveTranslation):
+                if self._live_translation and self._settings.live_translation:
+                    translated = translations.translated(message)
+                    if translated is not None:
+                        self._notify(self._listener.caption_updated, translated)
             elif isinstance(message, protocol.Pace):
                 self._notify(self._listener.pace_changed, message.live_interval_min)
             elif isinstance(message, protocol.Minutes):
                 self._notify(self._listener.minutes_changed, message.used, message.left)
+            elif isinstance(message, protocol.AllowanceUpdate):
+                self._notify(self._listener.allowance_changed, message)
+            elif isinstance(
+                message,
+                (
+                    protocol.AllowanceExhausted,
+                    protocol.RegistrationRequired,
+                    protocol.CrossBorderConsentRequired,
+                ),
+            ):
+                self._terminal = message
+                if isinstance(message, protocol.AllowanceExhausted):
+                    self._notify(self._listener.allowance_changed, message)
+                return
             elif isinstance(message, protocol.Notice):
                 if message.code in ANNOUNCED_GOING_AWAY:
                     self._going_away_told = True  # its close 1001 is the restart
@@ -987,9 +1150,15 @@ class ListeningSession:
                 if message.caption_id is not None and self._answers_finished_speech(
                     message.code, message.caption_id, message.kind
                 ):
+                    ended = self._ends_the_caption(message)
                     self.unanswered.answered(message.caption_id)
                     self._summary.failed(CaptionId(message.caption_id))
                     self._speech_sent.pop((message.caption_id, "finished"), None)
+                    if ended:
+                        self._notify(
+                            self._listener.caption_dropped,
+                            CaptionId(message.caption_id),
+                        )
                 if message.caption_id is not None:
                     caption_log.info(
                         delays.line(
@@ -1012,6 +1181,20 @@ class ListeningSession:
                     )
                 if self._exchange is not None:
                     self._exchange.heard(message)
+
+    def _ends_the_caption(self, message: protocol.Error) -> bool:
+        """Whether an `error` naming a caption means its finished caption
+        won't come, so its live caption ends (557): it refused or failed the
+        finished speech - said so (`kind`), only ever said of finished
+        speech (`FINISHED_SPEECH_ONLY`), or, from a server that doesn't say,
+        about a caption whose finished speech awaits its answer. Not a live
+        update refused before its finished speech was sent: that comes."""
+        if message.kind is not None:
+            return message.kind == "finished"
+        return (
+            message.code in FINISHED_SPEECH_ONLY
+            or message.caption_id in self.unanswered
+        )
 
     def _refuses_a_live_update(self, message: protocol.Error) -> bool:
         """Whether an `error` is the server refusing a live update at its
@@ -1076,6 +1259,11 @@ class ListeningSession:
                 self._wake.clear()
                 if self._settings_changed.is_set():
                     self._settings_changed.clear()
+                    if (
+                        self._purpose == "listen"
+                        and self._live_translation != self._settings.live_translation
+                    ):
+                        return
                     settings = listening.settings(self._settings, self._limits.targets)
                     await websocket.send(protocol.encode(settings))
                 if self._exchange is not None:
@@ -1084,18 +1272,19 @@ class ListeningSession:
                         await websocket.send(message)
                 again, self._again = self._again, []
                 for frame in again + self._take_handed():
-                    await websocket.send(frame)
+                    await websocket.send(self._resend(frame))
                 rechecks, self._rechecks = self._rechecks, []
                 for asked, frame in rechecks:
                     if time.monotonic() - asked < ANSWER_WITHIN_SEC:
                         await websocket.send(frame)
                 while (item := self._take_speech()) is not None:
                     decision, speech = item
+                    seq = self._numbered(decision)
                     out = listening.outgoing(
-                        decision, speech, self._settings, self._limits.targets
+                        decision, speech, self._settings, self._limits.targets, seq
                     )
                     if out is None:
-                        self._not_sent(decision, "no_audio")
+                        self._not_sent(decision, "no_audio", seq)
                         continue
                     if (
                         isinstance(out, bytes)
@@ -1104,7 +1293,7 @@ class ListeningSession:
                         log.warning(
                             "a %d-byte speech frame is over the limit", len(out)
                         )
-                        self._not_sent(decision, "over_frame_limit")
+                        self._not_sent(decision, "over_frame_limit", seq)
                         continue
                     if (
                         isinstance(decision, TranscriptionRequest)
@@ -1122,8 +1311,9 @@ class ListeningSession:
                             )
                     else:  # withdrawn: the server answers nothing more for it
                         self.unanswered.withdrawn(decision.caption_id)
-                    self._sending(decision, out)
+                    self._sending(decision, out, seq)
                     await websocket.send(out)
+                    trace.tracer().mark(seq, "sent")
         except ConnectionClosed as closed:
             self._closed_with = _close_code(closed)
 
@@ -1144,7 +1334,7 @@ class ListeningSession:
         try:
             again, self._again = self._again, []
             for frame in again + self._take_handed():
-                await websocket.send(frame)
+                await websocket.send(self._resend(frame))
             while (item := self._take_speech()) is not None:
                 decision, speech = item
                 if (
@@ -1152,8 +1342,9 @@ class ListeningSession:
                     and decision.kind is SpeechKind.LIVE
                 ):
                     continue
+                seq = self._numbered(decision) if self._live_translation else None
                 out = listening.outgoing(
-                    decision, speech, self._settings, self._limits.targets
+                    decision, speech, self._settings, self._limits.targets, seq
                 )
                 if out is None or (
                     isinstance(out, bytes)
@@ -1165,8 +1356,9 @@ class ListeningSession:
                 ):
                     self.unanswered.sending(decision.caption_id, decision.replaces, out)
                     self._summary.speech_sent(decision, time.perf_counter())
-                self._sending(decision, out)
+                self._sending(decision, out, seq)
                 await websocket.send(out)
+                trace.tracer().mark(seq, "sent")
             while (
                 len(self.unanswered)
                 and not receive.done()
@@ -1179,6 +1371,24 @@ class ListeningSession:
             log.info(
                 "stopped with %d finished caption(s) unanswered", len(self.unanswered)
             )
+
+    def _resend(self, frame: bytes) -> bytes:
+        """A retried finished frame keeps its caption but has a fresh wire revision."""
+        if not self._live_translation:
+            return frame
+        h, audio = protocol.read_speech_frame(frame)
+        now = time.perf_counter()
+        seq = trace.tracer().sending(
+            trace.speech_key(h.caption_id, h.kind, h.section, h.speech_end),
+            h.source.category,
+            h.speech_end - h.speech_start,
+            now,
+        )
+        self._remember_sent(
+            h.caption_id, h.kind, h.speech_start, h.speech_end, now, seq
+        )
+        trace.tracer().mark(seq, "sent")
+        return protocol.speech_frame(h.model_copy(update={"seq": seq}), audio)
 
     def _take_handed(self) -> list[bytes]:
         """On the session's thread: finished speech handed over since last
@@ -1243,6 +1453,7 @@ class ListeningSession:
             caption_log.info(delays.line("dropped", caption_id, why="maintenance"))
             self._speech_sent.pop((caption_id, "finished"), None)
             self._summary.failed(CaptionId(caption_id))
+            self._notify(self._listener.caption_dropped, CaptionId(caption_id))
 
     def _give_up(self) -> None:
         """Finished speech that won't be answered stops being waited for,
@@ -1252,10 +1463,31 @@ class ListeningSession:
             caption_log.info(delays.line("dropped", caption_id, why=why.value))
             self._speech_sent.pop((caption_id, "finished"), None)
             self._summary.failed(CaptionId(caption_id))
+            self._notify(self._listener.caption_dropped, CaptionId(caption_id))
 
     # --- The caption log, and each update's times (core.listening.delays) ----
 
-    def _sending(self, decision: Decision, out: bytes | str) -> None:
+    def _numbered(self, decision: Decision) -> int | None:
+        """A transcription request the send loop just took: its number in
+        the caption timelines (perf.trace), sent in its header. None for a
+        withdrawal."""
+        if not isinstance(decision, TranscriptionRequest):
+            return None
+        return trace.tracer().sending(
+            trace.speech_key(
+                decision.caption_id,
+                decision.kind.value,
+                decision.section,
+                decision.speech_end,
+            ),
+            decision.source.category.value,
+            decision.speech_end - decision.speech_start,
+            time.perf_counter(),
+        )
+
+    def _sending(
+        self, decision: Decision, out: bytes | str, seq: int | None = None
+    ) -> None:
         """Speech (or a withdrawal) is about to go: logged, and its times
         kept for its answer."""
         if not isinstance(decision, TranscriptionRequest):
@@ -1263,13 +1495,14 @@ class ListeningSession:
             return
         now = time.perf_counter()
         kind = decision.kind.value
-        self._speech_sent[(decision.caption_id, kind)] = (
+        self._remember_sent(
+            decision.caption_id,
+            kind,
             decision.speech_start,
             decision.speech_end,
             now,
+            seq,
         )
-        while len(self._speech_sent) > SPEECH_TIMES_KEPT:
-            del self._speech_sent[next(iter(self._speech_sent))]
         caption_log.info(
             delays.line(
                 "sent",
@@ -1285,22 +1518,74 @@ class ListeningSession:
             )
         )
 
-    def _not_sent(self, decision: Decision, why: str) -> None:
+    def _remember_sent(
+        self,
+        caption_id: str,
+        kind: str,
+        start: float,
+        end: float,
+        now: float,
+        seq: int | None,
+    ) -> None:
+        self._speech_sent[(caption_id, kind)] = (
+            start,
+            end,
+            now,
+        )
+        while len(self._speech_sent) > SPEECH_TIMES_KEPT:
+            del self._speech_sent[next(iter(self._speech_sent))]
+        if seq is not None:
+            self._sent_by_seq[seq] = (start, end, now)
+            self._latest_seq[(caption_id, kind)] = seq
+            while len(self._latest_seq) > SPEECH_TIMES_KEPT:
+                del self._latest_seq[next(iter(self._latest_seq))]
+            while len(self._sent_by_seq) > SPEECH_TIMES_KEPT:
+                del self._sent_by_seq[next(iter(self._sent_by_seq))]
+
+    def _not_sent(self, decision: Decision, why: str, seq: int | None = None) -> None:
+        trace.tracer().dropped(seq, f"not_sent:{why}")
         kind = (
             decision.kind.value if isinstance(decision, TranscriptionRequest) else None
         )
         caption_log.info(
             delays.line("dropped", decision.caption_id, kind=kind, why=why)
         )
+        if kind == SpeechKind.FINISHED.value:  # never sent: it won't come
+            self._notify(self._listener.caption_dropped, decision.caption_id)
 
-    def _timed(self, update: CaptionUpdate) -> CaptionUpdate:
+    def _timed(
+        self, update: CaptionUpdate, traced: protocol.UpdateTrace | None = None
+    ) -> CaptionUpdate:
         """`update` with its speech's times, if this session sent that
-        speech; its answer logged."""
+        speech; its answer logged, and marked in the caption timelines
+        with the server's `traced` times (perf.trace)."""
         now = time.perf_counter()
         live = update.kind is CaptionKind.LIVE
         key = (str(update.caption_id), "live" if live else "finished")
         sent = self._speech_sent.get(key) if live else self._speech_sent.pop(key, None)
-        times = None if sent is None else SpeechTimes(*sent, received=now)
+        latest = self._latest_seq.get(key) if live else self._latest_seq.pop(key, None)
+        seq = None
+        if traced is not None and traced.seq in self._sent_by_seq:
+            seq = traced.seq  # the very frame it answers, not the latest sent
+            sent = self._sent_by_seq.pop(seq)
+            trace.tracer().answered(
+                seq,
+                now,
+                {
+                    "waited": traced.waited_ms,
+                    "queued": traced.queued,
+                    "server": traced.server_ms,
+                    **traced.stages_ms,
+                },
+                {n.seq: n.why for n in traced.unanswered},
+            )
+        elif traced is None and latest is not None and sent is not None:
+            seq = latest  # an older server: the latest sent, as before
+            server = None if update.processing_ms is None else update.processing_ms
+            trace.tracer().answered(
+                seq, now, None if server is None else {"processing": server}
+            )
+        times = None if sent is None else SpeechTimes(*sent, received=now, seq=seq)
         if not live:
             for caption_id in (update.caption_id, *update.replaces):
                 self._speech_sent.pop((str(caption_id), "live"), None)

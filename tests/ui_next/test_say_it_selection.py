@@ -8,6 +8,7 @@ held; with no voice says how to add one. The transcript's selection menu
 has it too. A stand-in reader: nothing is played. Real windows, offscreen;
 made-up captions."""
 
+import sys
 from collections.abc import Iterator, Sequence
 from typing import cast
 
@@ -26,10 +27,15 @@ from polyglotic_desktop.core.listening.display import RowKind
 from polyglotic_desktop.ports.speaker import Ended, Quality, Sounding, Spoken, Voice
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.os_words import pc_or_mac
 from polyglotic_desktop.ui_next.selection_reading import SelectionReading
 from polyglotic_desktop.ui_next.sentence_card import SentenceCard
 from polyglotic_desktop.ui_next.transcripts import Transcripts
-from polyglotic_desktop.ui_next.views.speech import SPEECH_SETTINGS, BetterVoice
+from polyglotic_desktop.ui_next.views.speech import (
+    MAC_SPEECH_SETTINGS,
+    SPEECH_SETTINGS,
+    BetterVoice,
+)
 
 windows = cards.windows  # a window of 40 made-up captions, Chinese into English
 keys = cards.keys
@@ -267,19 +273,52 @@ def test_with_no_voice_the_button_says_how_to_add_one(
     say_it: SelectionReading,
     reader: Reader,
     settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(sys, "platform", "win32")  # Windows' words (Linux's: below)
     reader.installed = (DAVID,)
     card = offered(windows, say_it)
     said = buttons(card)[0]
     assert said.text() == "+ Add a Chinese voice"
-    assert "Add voices" in said.toolTip()
+    assert pc_or_mac("Add voices", "Manage Voices") in said.toolTip()
     said.click()
-    assert settings.opened == [SPEECH_SETTINGS] and reader.read_ == []
+    opened = pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS)
+    assert settings.opened == [opened] and reader.read_ == []
     reader.installed = (HUIHUI, DAVID)  # added in Windows' settings
     QApplication.sendEvent(say_it._recheck, QEvent(QEvent.Type.Timer))
     say_it._look_again()
     settle(qapp)
     assert said.text() == "▶ 中文"
+    card.hide()
+
+
+@pytest.mark.parametrize(
+    ("installed", "why"),
+    [
+        ((DAVID,), "the system's speech-dispatcher has none"),
+        ((), "speech-dispatcher, which isn't installed or didn't start"),
+    ],
+)
+def test_on_linux_no_voice_says_why_and_opens_nothing(
+    qapp: QApplication,
+    windows: CaptionWindows,
+    say_it: SelectionReading,
+    reader: Reader,
+    settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+    installed: tuple[Voice, ...],
+    why: str,
+) -> None:
+    """591: Linux has no speech settings page - the button's tip says why
+    there's no voice, and a click opens nothing."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    reader.installed = installed
+    card = offered(windows, say_it)
+    said = buttons(card)[0]
+    assert said.text() == "+ Add a Chinese voice"
+    assert why in said.toolTip() and "Windows" not in said.toolTip()
+    said.click()
+    assert settings.opened == [] and reader.read_ == []
     card.hide()
 
 
@@ -372,7 +411,9 @@ def test_the_card_says_a_better_voice_can_be_added_until_silenced(
     windows: CaptionWindows,
     basic: tuple[SelectionReading, list[str]],
     reader: Reader,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(sys, "platform", "darwin")  # a Mac's basic voice and steps
     say_it, quiet = basic
     card = offered(windows, say_it)
     assert not card.better.isVisible()
@@ -406,7 +447,9 @@ def test_the_transcript_says_it_in_a_box(
     qapp: QApplication,
     both: tuple[CaptionWindows, Transcripts],
     basic: tuple[SelectionReading, list[str]],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(sys, "platform", "darwin")  # a Mac's basic voice and steps
     say_it, quiet = basic
     both[1].use_say_it(say_it)
     shown = listed(both[1])

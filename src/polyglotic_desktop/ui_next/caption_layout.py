@@ -21,8 +21,9 @@ Sizes and fonts come from `CaptionStyle`; colours from `Ink`, at paint
 time. Holds caption text in its layouts: never log them.
 """
 
+import math
 from collections import OrderedDict
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
 
@@ -91,13 +92,16 @@ from polyglotic_desktop.ui_next.views.pour import (
 from polyglotic_desktop.ui_next.views.presets import readable_through
 from polyglotic_desktop.ui_next.views.tone import (
     EDGE_PASSES,
+    OUTLINE_SOLID,
     edge_colour,
     floor_alpha,
     floored,
     ratio,
+    reading_grey,
     strength,
     vibrant,
 )
+from polyglotic_desktop.ui_next.word_classes import class_backing
 
 LATIN_FAMILIES = fonts.own("latin")
 CJK_FAMILIES = {script: fonts.own(script) for script in ("zh", "zh-hant", "yue", "ja")}
@@ -105,6 +109,11 @@ CJK_FAMILIES = {script: fonts.own(script) for script in ("zh", "zh-hant", "yue",
 what isn't a caption: a lookup card's words, Learning's. Captions are in
 their language's faces (`fonts.caption_families`)."""
 
+
+LATIN_LANGUAGE = "en"
+"""Whose face a brushed line's Latin runs take (`CaptionLayout._latin`):
+English's - the Latin word in a line of Chinese is almost always English,
+and English is every window's first translation."""
 
 RUBIES_KEPT = 600
 """Rows whose reading lines are kept measured, per engine."""
@@ -177,11 +186,14 @@ class CaptionStyle:
     live caption (the Lab's Text still being spoken, 284)."""
     italic_all: bool = False
     """Every line in italic, finished or not: the quiet view's (477)."""
-    translation_size: float = 1.0
-    """A translation row's text, as a share of what was said's (a caption
-    window's own Translation size, polyglotic-hq 305): 1.0, the same. Kept
-    within CAPTION_TEXT_SIZES of the base size: 50 % of 60 % is drawn at
-    60 %, never under the app's 12 px; 200 % of 400 % at 400 %."""
+    translation_size: float | None = None
+    """A translation row's independent text size (`CAPTION_TEXT_SIZES`: 60 to
+    400 %; polyglotic-hq 655). None: follow the caption's `text_size` (a
+    transcript, or callers without separate sizes)."""
+    translation_factor: float = 1.0
+    """Multiplier applied on top of the translation's size by modes that
+    emphasize the translation (Quiet view's `QUIET_TRANSLATION`, Follow
+    path's `FOLLOW_TRANSLATION_SCALE`)."""
     own_right: bool = False
     own_tint: bool = False
     own_bar: bool = False
@@ -218,6 +230,11 @@ class CaptionStyle:
     respelling_past: bool = True
     """English's respelling only over the words past what the learner
     knows - its own choice (polyglotic-hq 511)."""
+
+    fixed_script_size: bool = False
+    """Use the chosen pixel sizes for every script in Video (686)."""
+    smooth_track_fonts: bool = False
+    """Shape the live Video tracks at fractional advances for continuous horizontal motion."""
 
     @property
     def follows_known(self) -> bool:
@@ -275,8 +292,9 @@ class Ink:
     quiet: bool = False
     """The quiet view (polyglotic-hq 477): every line as faint as Quick
     preview's (`QUIET_ALPHA`) - live, provisional and finished alike - and
-    every reading in the translation's gold, but those over a word its
-    marks colour (the chosen words' blue), which take that colour."""
+    every reading in a muted grey (`grey`; the translation's gold until
+    532), but those over a word its marks colour (the chosen words'
+    blue), which take that colour."""
     contrast: int = 0
     """The contrast slider (`views.tone`, polyglotic-hq 481): every line's
     ink soft or crisp (`drawn_ink`), and the ratios its colours are moved
@@ -316,6 +334,58 @@ class LaidRow:
     point over a reading is over its characters (`char_under`), a hovered
     word's highlight and an arrow's tip reach over it (369)."""
 
+    start: int = 0
+    """First character in the full source row for a whole-line page fragment."""
+    painted_from: Line | None = None
+    """The source snapshot of a Video fragment held across a revision."""
+
+    def source_index(self, cursor: int) -> int:
+        """A Qt UTF-16 cursor in the visible text as a source character."""
+        return self.start + _codepoints(self.row.text, cursor)
+
+    def rectangles(self, start: int, end: int) -> list[QRectF]:
+        """The visible part of a source word, in this row's coordinates."""
+        first = max(0, start - self.start)
+        last = max(0, end - self.start)
+        return span_rects(
+            self.layout, _units(self.row.text, 0, first), _units(self.row.text, 0, last)
+        )
+
+
+Linked = tuple[int, int, QColor, int]
+"""Characters `[start, end)` of a row a word link underlines, in its
+colour, and the link's number in the clause."""
+
+
+_LinkTone = tuple[str | None, float, float, float]
+
+
+Coloured = tuple[int, int, QColor]
+"""Characters `[start, end)` of a row drawn in a colour of their own."""
+
+
+@dataclass(slots=True)
+class _BarPaint:
+    tone: tuple[float, str | None, float] | None = None
+    strokes: list[tuple[QColor, QRectF, float]] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class _LaidLinks:
+    """Word-link paint data owned by a stable layout."""
+
+    bars: dict[int, tuple[list[Linked], list[tuple[QColor, QRectF]], _BarPaint]] = (
+        field(default_factory=dict)
+    )
+    words: dict[int, tuple[_LinkTone, list[Linked], list[Coloured]]] = field(
+        default_factory=dict
+    )
+    readings: dict[int, tuple[_LinkTone, list[Linked], list[QColor | None]]] = field(
+        default_factory=dict
+    )
+    visible: list[tuple[int, list[Linked]]] = field(default_factory=list)
+    arrows: list[tuple[QColor, float, QPainterPath]] = field(default_factory=list)
+
 
 @dataclass(frozen=True, slots=True)
 class LaidLine:
@@ -343,6 +413,40 @@ class LaidLine:
     is that pair's top. 0: it starts below the caption before."""
     open: Open | None = None
     """The line pair it ends in, if the next caption may carry on there."""
+    link_paint: _LaidLinks | None = field(default=None, compare=False, repr=False)
+
+
+def reserve_translation_space(laid: LaidLine, spaces: Mapping[int, float]) -> LaidLine:
+    """Keep space below each clause in the layout of separate rows.
+
+    The original and any translation keep their shaped text and row indices.
+    A translation subtracts the height it already occupies from its slot.
+    """
+    rows = []
+    breaks: list[float] = []
+    start, added = 0, 0.0
+    original_end = 0.0
+    for index, row in enumerate(laid.rows):
+        stop = start + max(1, row.layout.lineCount())
+        rows.append(replace(row, top=row.top + added) if added else row)
+        breaks.extend(end + added for end in laid.breaks[start:stop])
+        start = stop
+        end = laid.breaks[stop - 1]
+        clause = row.row.clause
+        if row.row.kind is RowKind.ORIGINAL:
+            original_end = end
+        another = (
+            index + 1 < len(laid.rows) and laid.rows[index + 1].row.clause == clause
+        )
+        if not another:
+            extra = max(0.0, spaces.get(clause, 0.0) - (end - original_end))
+            breaks[-1] += extra
+            added += extra
+    if not added:
+        return laid
+    return replace(
+        laid, rows=tuple(rows), breaks=tuple(breaks), height=laid.height + added
+    )
 
 
 Mark = tuple[int, int, QTextCharFormat]
@@ -359,6 +463,7 @@ class _Kept:
     """A line's layouts while its rows stay the same, by (width, text size)."""
 
     __slots__ = (
+        "card",
         "composed",
         "cuts",
         "label",
@@ -374,10 +479,11 @@ class _Kept:
         self.provisional = line.provisional
         self.live = line.live
         self.label = line.label
-        self.sized: OrderedDict[tuple[int, float, Open | None], LaidLine] = (
-            OrderedDict()
-        )
-        self.composed: OrderedDict[tuple[int, float, Open | None], Flowed] = (
+        self.card: tuple[float, Flowed, LaidLine] | None = None
+        self.sized: OrderedDict[
+            tuple[int, float, Open | None, float, bool, bool], LaidLine
+        ] = OrderedDict()
+        self.composed: OrderedDict[tuple[int, float, Open | None, float], Flowed] = (
             OrderedDict()
         )
 
@@ -418,8 +524,8 @@ class CaptionLayout:
         self.lines_kept = lines_kept
         self.laid_out = 0  # rows laid out since made: what tests count
         self._kept: OrderedDict[int, _Kept] = OrderedDict()
-        self._fonts: dict[tuple[tuple[str, ...], int, bool], QFont] = {}
-        self._flows: OrderedDict[tuple[float, bool], Flow] = OrderedDict()
+        self._fonts: dict[tuple[tuple[str, ...], int, bool, QFont.Weight], QFont] = {}
+        self._flows: OrderedDict[tuple[float, bool, float], Flow] = OrderedDict()
         self.readings = readings
         """Where a row's readings come from (369): what `style.reading_lines`
         needs; None: no reading lines."""
@@ -467,11 +573,96 @@ class CaptionLayout:
         text: str,
         text_size: float,
         italic: bool,
+        fit: float = 1.0,
     ) -> Above | None:
         """The room a side's reading line needs, for the one layout."""
         row = CaptionRow(text, side, language, 0, True)
-        found = self._ruby(row, self._font(row, text_size, italic))
+        found = self._ruby(row, self._font(row, text_size, italic, fit=fit))
         return Above(found.before, found.after, found.band) if found else None
+
+    def subtitle_room(
+        self, side: RowKind, size: float, language: Language | None
+    ) -> tuple[float, float, float]:
+        """The text height, reserved reading band and room below a Video row."""
+        row = CaptionRow("", side, language, 0, True)
+        font = self._font(row, size, False)
+        band = 0.0
+        if reading_lines.language_of(
+            language
+        ) in self.style.reading_lines and not reading_lines.marked(language):
+            above = reading_lines.reading_font(
+                font, self.style.reading_share, self.style.reading_weight
+            )
+            band = reading_lines.band_height(above)
+        below = self._link_room(font) if self.style.link_room else 0.0
+        return QFontMetricsF(font).height(), band, below
+
+    def subtitle_label_height(self, size: float) -> float:
+        return (
+            QFontMetricsF(self._label_font(size)).height() + self.style.label_gap * size
+        )
+
+    def subtitle_part(self, row: LaidRow, first: int, end: int) -> LaidRow:
+        """Shape a wrapped track fragment with its own reading overhangs."""
+        line = row.layout.lineAt(0)
+        part = visible_row(row, first, end, -line.position())
+        if not row.above:
+            return part
+        font = row.layout.font()
+        full = self._ruby(row.row, font)
+        assert full is not None
+        reads = [
+            replace(reading, start=reading.start - first, end=reading.end - first)
+            for reading in full.readings
+            if first <= reading.start and reading.end <= end
+        ]
+        ruby = reading_lines.ruby(
+            part.row.text,
+            reads,
+            font,
+            self.style.reading_share,
+            self.style.reading_weight,
+            band=bool(full.band),
+        )
+        layout, _ = _laid_text(
+            part.row.text,
+            font,
+            0,
+            ruby=ruby,
+            latin=self._latin(part.row, font),
+            wrap=False,
+        )
+        return replace(
+            part,
+            layout=layout,
+            above=reading_lines.placed(layout, part.row.text, ruby),
+            above_font=ruby.font,
+            band=ruby.band,
+        )
+
+    def subtitle_arrows(
+        self,
+        painter: QPainter,
+        line: Line,
+        rows: Sequence[tuple[Line, LaidRow]],
+        at: QPointF,
+        ink: Ink,
+        marks: Marks | None,
+    ) -> None:
+        if not (self.style.arrows and marks):
+            return
+        linked = [
+            (row, QPointF(0, row.top), split_marks(_row_marks(snapshot, row, marks))[2])
+            for snapshot, row in rows
+        ]
+        _flow_arrows(
+            painter,
+            at,
+            linked,
+            strength(_line_alpha(line, ink), ink.contrast),
+            self.style,
+            None,
+        )
 
     def _fresh(self) -> None:
         """A face came since the rows were laid out (`caption_faces`): every
@@ -488,22 +679,68 @@ class CaptionLayout:
         return len(self._kept)
 
     def laid(
-        self, line: Line, width: int, text_size: float, entry: Open | None = None
+        self,
+        line: Line,
+        width: int,
+        text_size: float,
+        entry: Open | None = None,
+        *,
+        fit: float = 1.0,
+        single_rows: bool = False,
+        separate_rows: bool = False,
     ) -> LaidLine:
         """`line` laid out `width` pixels wide at `text_size`: from the
         cache unless its rows changed or it wasn't laid out so before.
         `entry`: the line pair the caption before left open (`left_open`),
-        for this one to carry on in (the one layout's run-on)."""
+        for this one to carry on in (the one layout's run-on). `fit`:
+        proportional shrink/recede factor (1.0 normally). Video uses single_rows
+        for a live track and separate_rows to wrap each language for paging."""
         kept = self._keeping(line)
-        size = (width, text_size, entry)
+        size = (width, text_size, entry, fit, single_rows, separate_rows)
         found = kept.sized.get(size)
         if found is not None:
             kept.sized.move_to_end(size)
             return found
-        found = kept.sized[size] = self._lay_out(line, width, text_size, entry)
+        found = self._lay_out(
+            line, width, text_size, entry, fit, single_rows, separate_rows
+        )
+        if found.poured and not single_rows and not separate_rows:
+            found = replace(found, link_paint=_LaidLinks())
+        kept.sized[size] = found
         if len(kept.sized) > self.SIZES_KEPT:
             kept.sized.popitem(last=False)
         return found
+
+    def laid_card(self, line: Line, width: int, text_size: float) -> LaidLine:
+        """A left-aligned card at a new width. If its runs still fall at the
+        same positions, its shaped text and word-link geometry still fit."""
+        if self.style.flow is None or line.model is None:
+            return self.laid(line, width, text_size)
+        kept = self._keeping(line)
+        previous = kept.card
+        if (
+            previous is not None
+            and previous[0] == text_size
+            and previous[2].width == width
+        ):
+            return previous[2]
+        flow = self._composed(kept, line, width, text_size, None)
+        if previous is not None:
+            old_size, old_flow, old = previous
+            # Labels and any Qt fallback rows (_rest) wrap independently.
+            if (
+                old_size == text_size
+                and not line.label
+                and old.height == old_flow.height
+                and old_flow.lines == flow.lines
+                and old_flow.height == flow.height
+            ):
+                laid = replace(old, width=float(width), open=flow.open)
+                kept.card = text_size, flow, laid
+                return laid
+        laid = replace(self._lay_out(line, width, text_size), link_paint=_LaidLinks())
+        kept.card = text_size, flow, laid
+        return laid
 
     def left_open(
         self, line: Line, width: int, text_size: float, entry: Open | None = None
@@ -536,9 +773,10 @@ class CaptionLayout:
         width: int,
         text_size: float,
         entry: Open | None,
+        fit: float = 1.0,
     ) -> Flowed:
         """`line`'s caption composed by the one layout, from its own top."""
-        size = (width, text_size, entry)
+        size = (width, text_size, entry, fit)
         found = kept.composed.get(size)
         if found is not None:
             kept.composed.move_to_end(size)
@@ -548,7 +786,7 @@ class CaptionLayout:
         assert model is not None and options is not None
         right = line.by_you and style.own_right
         found = kept.composed[size] = self._flow(
-            text_size, _italic(line, style)
+            text_size, _italic(line, style), fit
         ).compose(
             [model], float(max(10, width)), options, right, trail=False, entry=entry
         )
@@ -566,15 +804,7 @@ class CaptionLayout:
         marks: Marks | None = None,
     ) -> None:
         """Draws `laid` (the layout of `line`) with its top left at `at`."""
-        today = ink.alpha * (
-            QUIET_ALPHA
-            if ink.quiet
-            else ink.provisional_alpha
-            if line.provisional
-            else ink.live_alpha
-            if line.live
-            else 1.0
-        )
+        today = _line_alpha(line, ink)
         alpha = strength(today, ink.contrast)  # dots, lines, arrows: as faint
         own = self.style if line.by_you else None
         if own is not None and (own.own_tint or own.own_bar):
@@ -606,29 +836,25 @@ class CaptionLayout:
                 continue  # out of view, marks included: dots sit below a row's
                 # box, and a row under the hover band leaked them into the gap
             original = row.row.kind is RowKind.ORIGINAL
-            color = QColor(ink.original if original else ink.translation)
-            # established text, drawn as final (decision 0228): as the row
-            # would be on a finished caption - its line's ink, and the tone
-            # it's drawn in (481), without the dimming of text being spoken
-            done = ink.alpha * (QUIET_ALPHA if ink.quiet else 1.0)
-            done = done if original else min(1.0, done * ink.translation_alpha)
-            final = drawn_ink(color, done, ink)
+            base = ink.original if original else ink.translation
             unfinished = line.live or line.provisional
-            if ink.unfinished is not None and unfinished:
-                color = QColor(ink.unfinished)
+            colour = (
+                ink.unfinished if unfinished and ink.unfinished is not None else base
+            )
             row_today = today if original else min(1.0, today * ink.translation_alpha)
-            color = drawn_ink(color, row_today, ink)  # the quiet view's: readable
+            color = drawn_ink(colour, row_today, ink)
             established = row.row.established if unfinished else None
-            if established and established >= len(
-                row.row.text.removesuffix(LIVE_TRAIL)
-            ):
-                color, established = final, None  # all of it
+            if established:
+                # Settled characters in a live row keep their final ink (0228).
+                done = ink.alpha * (QUIET_ALPHA if ink.quiet else 1.0)
+                done = done if original else min(1.0, done * ink.translation_alpha)
+                final = drawn_ink(base, done, ink)
+                if established >= len(row.row.text.removesuffix(LIVE_TRAIL)):
+                    color, established = final, None
             if ink.edge is not TextEdge.NONE:
                 _edge(painter, row, top_left, color, ink.edge)
             painter.setPen(color)
-            selections, dotted, links = split_marks(
-                marks(line, row.index) if marks else ()
-            )
+            selections, dotted, links = split_marks(_row_marks(line, row, marks))
             if established:
                 selections.insert(0, _coloured_range(0, established, final))
             coloured = (
@@ -636,7 +862,11 @@ class CaptionLayout:
                 if original
                 else ink.translation_in_link_colours
             )
-            words = _coloured_words(links, ink, color) if coloured and links else []
+            words = (
+                _coloured_words(links, ink, color, laid.link_paint, row.index)
+                if coloured and links
+                else []
+            )
             correcting = ink.correction is not None and original and row.row.corrected
             if words and not selections and not correcting:
                 in_colours(painter, row.layout, top_left, color, words)
@@ -652,13 +882,13 @@ class CaptionLayout:
                 row.layout.draw(painter, top_left, selections)
             if row.above and row.above_font is not None and ink.quiet:
                 faint = min(1.0, today * ink.translation_alpha)
-                gold = drawn_ink(ink.translation, faint, ink, reading_lines.ALPHA)
+                quiet = drawn_ink(grey(ink), faint, ink, reading_lines.ALPHA)
                 reading_lines.draw(
                     painter,
                     row.above,
                     row.above_font,
                     top_left,
-                    gold,
+                    quiet,
                     _coloured_readings(row.above, selections),
                 )
             elif row.above and row.above_font is not None:
@@ -668,16 +898,27 @@ class CaptionLayout:
                     row.above_font,
                     top_left,
                     color,
-                    _reading_colours(row.above, links, ink, color),
+                    _reading_colours(
+                        row.above, links, ink, color, laid.link_paint, row.index
+                    ),
                 )
             if row.trails:
                 _trails(painter, row, top_left, color)
             if dotted:
                 _dots(painter, row.layout, top_left, dotted, alpha)
             if links:
-                _underlines(painter, row.layout, top_left, links, alpha, self.style)
+                _underlines(
+                    painter,
+                    row,
+                    top_left,
+                    links,
+                    alpha,
+                    self.style,
+                    laid.link_paint,
+                    ink,
+                )
             if self.style.arrows and laid.poured:
-                flowed.append((row, top_left, links))
+                flowed.append((row, QPointF(0, row.top), links))
             elif self.style.arrows:
                 if row.row.starts_clause:
                     above = _ends(row.layout, top_left, links, self.style, upper=True)
@@ -685,10 +926,17 @@ class CaptionLayout:
                     _arrows(painter, row, top_left, links, above, alpha, self.style)
 
         if flowed:
-            _flow_arrows(painter, flowed, alpha, self.style)
+            _flow_arrows(painter, at, flowed, alpha, self.style, laid.link_paint)
 
     def _lay_out(
-        self, line: Line, width: int, text_size: float, entry: Open | None = None
+        self,
+        line: Line,
+        width: int,
+        text_size: float,
+        entry: Open | None = None,
+        fit: float = 1.0,
+        single_rows: bool = False,
+        separate_rows: bool = False,
     ) -> LaidLine:
         style = self.style
         rows = []
@@ -696,45 +944,56 @@ class CaptionLayout:
         y = 0.0
         label = None
         right = line.by_you and style.own_right
-        flows = style.flow is not None and line.model is not None
+        flows = (
+            not (single_rows or separate_rows)
+            and style.flow is not None
+            and line.model is not None
+        )
         if flows and entry is not None:
             # it carries on in the caption before's line pair: that one's
             # label says whose both are
             composed = self._composed(
-                self._keeping(line), line, width, text_size, entry
+                self._keeping(line), line, width, text_size, entry, fit
             )
-            poured, y, breaks = self._flowed(line, composed, width, text_size, 0.0)
+            poured, y, breaks = self._flowed(line, composed, width, text_size, 0.0, fit)
             return LaidLine(
                 poured, y, None, float(width), True, breaks, entry.height, composed.open
             )
         if line.label and not (line.by_you and style.own_label is OwnLabel.NONE):
-            font = self._label_font(text_size)
+            font = self._label_font(text_size * fit)
             label, height = _laid_text(line.label, font, width, right)
-            y = height + style.label_gap * text_size
+            y = height + style.label_gap * text_size * fit
             if line.by_you and style.own_label is OwnLabel.BADGE:
                 y += BADGE_PAD[1] * 2  # the badge's room, above and below
         if flows:
-            composed = self._composed(self._keeping(line), line, width, text_size, None)
-            poured, y, breaks = self._flowed(line, composed, width, text_size, y)
+            composed = self._composed(
+                self._keeping(line), line, width, text_size, None, fit
+            )
+            poured, y, breaks = self._flowed(line, composed, width, text_size, y, fit)
             return LaidLine(
                 poured, y, label, float(width), True, breaks, open=composed.open
             )
-        if style.fill is not Fill.CLAUSES:
-            poured, y, breaks = self._poured(line, width, text_size, y)
+        if not (single_rows or separate_rows) and style.fill is not Fill.CLAUSES:
+            poured, y, breaks = self._poured(line, width, text_size, y, fit)
             return LaidLine(poured, y, label, float(width), True, breaks)
         for index, row in enumerate(line.rows):
             if index:
                 gap = style.clause_gap if row.starts_clause else style.row_gap
                 if style.arrows:  # every pair: a row doesn't jump as links come
                     gap += ARROW_CLAUSE_GAP if row.starts_clause else ARROW_ROW_GAP
-                y += gap * text_size
+                y += gap * text_size * fit
             italic = _italic(line, style)
-            font = self._font(row, text_size, italic)
+            font = self._font(row, text_size, italic, fit=fit)
             ruby = self._ruby(row, font)
-            layout, height = _laid_text(row.text, font, width, right, ruby)
+            latin = self._latin(row, font)
+            layout, height = _laid_text(
+                row.text, font, width, right, ruby, latin, wrap=not single_rows
+            )
             full = font
-            if row.kind is RowKind.TRANSLATION and style.translation_size != 1.0:
-                full = self._font(row, text_size, italic, own_size=False)
+            if row.kind is RowKind.TRANSLATION and (
+                style.translation_size is not None or style.translation_factor != 1.0
+            ):
+                full = self._font(row, text_size, italic, own_size=False, fit=fit)
             rows.append(
                 LaidRow(
                     row,
@@ -754,22 +1013,70 @@ class CaptionLayout:
             y += height + (self._link_room(font) if style.link_room else 0.0)
             ends.append(y)
             self.laid_out += 1
+        if single_rows and len({row.row.clause for row in rows}) > 1:
+            return self._subtitle_tracks(rows, width, label, text_size)
         return LaidLine(tuple(rows), y, label, float(width), breaks=tuple(ends))
 
-    def _flow(self, text_size: float, italic: bool) -> Flow:
+    def _subtitle_tracks(
+        self, rows: list[LaidRow], width: int, label: QTextLayout | None, size: float
+    ) -> LaidLine:
+        """Join successive clauses on each side's baseline. Each keeps its
+        own text layout and source index for lookup, marks and timed words."""
+        tracks: dict[tuple[RowKind, str | None], list[LaidRow]] = {}
+        for row in rows:
+            key = row.row.kind, row.row.target
+            tracks.setdefault(key, []).append(row)
+        y = rows[0].top
+        result: list[LaidRow] = []
+        for track in tracks.values():
+            lines = [row.layout.lineAt(0) for row in track]
+            ascent = max(
+                line.ascent() + row.band for line, row in zip(lines, track, strict=True)
+            )
+            below = max(line.height() - line.ascent() for line in lines)
+            rtl = cursor_x(lines[0], lines[0].textLength()) < cursor_x(lines[0], 0)
+            order = reversed(track) if rtl else iter(track)
+            x = 0.0
+            positioned = {}
+            for row in order:
+                line = row.layout.lineAt(0)
+                dy = ascent - line.ascent() - line.y()
+                line.setPosition(line.position() + QPointF(x, dy))
+                marks = tuple(
+                    replace(mark, x=mark.x + x, y=mark.y + dy) for mark in row.above
+                )
+                positioned[row.index] = replace(row, top=y, above=marks)
+                x = line.naturalTextRect().right() + self.style.clause_gap * size
+            result.extend(positioned[row.index] for row in track)
+            links = (
+                max(self._link_room(row.layout.font()) for row in track)
+                if self.style.link_room
+                else 0.0
+            )
+            y += ascent + below + links + self.style.row_gap * size
+        return LaidLine(
+            tuple(result),
+            y - self.style.row_gap * size,
+            label,
+            float(width),
+            poured=True,
+        )
+
+    def _flow(self, text_size: float, italic: bool, fit: float = 1.0) -> Flow:
         """The composer for a text size: it keeps each clause's measured
         widths, so a resize step measures nothing."""
-        key = (text_size, italic)
+        key = (text_size, italic, fit)
         found = self._flows.get(key)
         if found is None:
             style = self.style
             row_gap = style.row_gap + (ARROW_ROW_GAP if style.arrows else 0.0)
             pair_gap = style.clause_gap + (ARROW_CLAUSE_GAP if style.arrows else 0.0)
+            gap_scale = text_size * fit
             found = self._flows[key] = Flow(
-                _FlowFonts(self, text_size, italic),
-                Gaps(row_gap * text_size, pair_gap * text_size),
+                _FlowFonts(self, text_size, italic, fit),
+                Gaps(row_gap * gap_scale, pair_gap * gap_scale),
                 lambda side, language, text: self._above(
-                    side, language, text, text_size, italic
+                    side, language, text, text_size, italic, fit
                 ),
             )
             if len(self._flows) > self.SIZES_KEPT:
@@ -778,7 +1085,13 @@ class CaptionLayout:
         return found
 
     def _flowed(
-        self, line: Line, flowed: Flowed, width: int, text_size: float, top: float
+        self,
+        line: Line,
+        flowed: Flowed,
+        width: int,
+        text_size: float,
+        top: float,
+        fit: float = 1.0,
     ) -> tuple[tuple[LaidRow, ...], float, tuple[float, ...]]:
         """`line`'s caption as the one layout composed it (`flowed`,
         `views.flow`), from `top` down. As a poured caption, each row - a
@@ -791,7 +1104,7 @@ class CaptionLayout:
         italic = _italic(line, style)
         right = line.by_you and style.own_right
         index = {(row.clause, row.kind): n for n, row in enumerate(line.rows)}
-        fonts_ = [self._font(row, text_size, italic) for row in line.rows]
+        fonts_ = [self._font(row, text_size, italic, fit=fit) for row in line.rows]
         rubies = [
             self._ruby(row, font) for row, font in zip(line.rows, fonts_, strict=True)
         ]
@@ -810,7 +1123,9 @@ class CaptionLayout:
                 row = line.rows[n]
                 layout = layouts.get(n)
                 if layout is None:
-                    layout = layouts[n] = _begun(row.text, fonts_[n], rubies[n])
+                    layout = layouts[n] = _begun(
+                        row.text, fonts_[n], rubies[n], self._latin(row, fonts_[n])
+                    )
                 text_line = layout.createLine()
                 if not text_line.isValid():
                     continue
@@ -821,11 +1136,7 @@ class CaptionLayout:
                 end = run.words.end
                 if end >= len(clause.text(run.words.side)):
                     end = len(row.text)  # with a live caption's trail
-                columns = _units(row.text, run.words.start, end)
-                if columns > 0:
-                    text_line.setNumColumns(columns)
-                else:
-                    text_line.setLineWidth(1)
+                _break_at(text_line, row.text, end)
                 row_top = tops.setdefault(n, flow_line.top)
                 text_line.setPosition(
                     QPointF(
@@ -856,12 +1167,14 @@ class CaptionLayout:
             layout = layouts.get(n)
             ruby = rubies[n]
             if layout is None:
-                layout = _begun(row.text, fonts_[n], ruby)
+                layout = _begun(row.text, fonts_[n], ruby, self._latin(row, fonts_[n]))
             y = _rest(layout, y, tops.setdefault(n, y), width, right)
             layout.endLayout()
             full = fonts_[n]
-            if row.kind is RowKind.TRANSLATION and style.translation_size != 1.0:
-                full = self._font(row, text_size, italic, own_size=False)
+            if row.kind is RowKind.TRANSLATION and (
+                style.translation_size is not None or style.translation_factor != 1.0
+            ):
+                full = self._font(row, text_size, italic, own_size=False, fit=fit)
             marks = tuple(trails.get(n, ()))
             rows.append(
                 LaidRow(
@@ -882,7 +1195,12 @@ class CaptionLayout:
         return tuple(rows), y, tuple(ends)
 
     def _poured(
-        self, line: Line, width: int, text_size: float, top: float
+        self,
+        line: Line,
+        width: int,
+        text_size: float,
+        top: float,
+        fit: float = 1.0,
     ) -> tuple[tuple[LaidRow, ...], float, tuple[float, ...]]:
         """`line`'s rows poured into lines `width` wide from `top` down
         (`views.pour`), and where they end. Each row keeps a layout of its
@@ -894,17 +1212,21 @@ class CaptionLayout:
         by line without the New layout, had none)."""
         style = self.style
         italic = _italic(line, style)
-        fonts_ = [self._font(row, text_size, italic) for row in line.rows]
+        fonts_ = [self._font(row, text_size, italic, fit=fit) for row in line.rows]
         rubies = [
             self._ruby(row, font) for row, font in zip(line.rows, fonts_, strict=True)
         ]
         metrics = [QFontMetricsF(font) for font in fonts_]
+        latins = [
+            self._latin(row, font) for row, font in zip(line.rows, fonts_, strict=True)
+        ]
+        latin_metrics = [None if f is None else QFontMetricsF(f) for f in latins]
         measured: dict[tuple[int, str], float] = {}
 
         def measure(row: int, text: str) -> float:
             found = measured.get((row, text))
             if found is None:
-                found = metrics[row].horizontalAdvance(text)
+                found = _advance(metrics[row], latin_metrics[row], text)
                 ruby = rubies[row]
                 at = line.rows[row].text.find(text) if ruby is not None else -1
                 if ruby is not None and text and at >= 0:
@@ -917,8 +1239,10 @@ class CaptionLayout:
 
         lines = self._pour(line, float(max(10, width)), measure)
         layouts = [
-            _begun(row.text, font, ruby)
-            for row, font, ruby in zip(line.rows, fonts_, rubies, strict=True)
+            _begun(row.text, font, ruby, latin)
+            for row, font, ruby, latin in zip(
+                line.rows, fonts_, rubies, latins, strict=True
+            )
         ]
         tops: dict[int, float] = {}
         trails: dict[int, list[QPointF]] = {}
@@ -928,7 +1252,7 @@ class CaptionLayout:
         ends: list[float] = []
         for n, poured in enumerate(lines):
             if n:
-                y += gaps[poured.gap] * text_size
+                y += gaps[poured.gap] * text_size * fit
             y = self._place(
                 poured, line, layouts, fonts_, rubies, y, tops, trails, width, right
             )
@@ -940,8 +1264,10 @@ class CaptionLayout:
             y = _rest(layout, y, tops.setdefault(index, y), width, right)
             layout.endLayout()
             full = fonts_[index]
-            if row.kind is RowKind.TRANSLATION and style.translation_size != 1.0:
-                full = self._font(row, text_size, italic, own_size=False)
+            if row.kind is RowKind.TRANSLATION and (
+                style.translation_size is not None or style.translation_factor != 1.0
+            ):
+                full = self._font(row, text_size, italic, own_size=False, fit=fit)
             marks = tuple(trails.get(index, ()))
             rows.append(
                 LaidRow(
@@ -1003,11 +1329,7 @@ class CaptionLayout:
             text_line = layouts[piece.row].createLine()
             if not text_line.isValid():
                 continue
-            columns = _units(line.rows[piece.row].text, piece.start, piece.end)
-            if columns > 0:
-                text_line.setNumColumns(columns)
-            else:
-                text_line.setLineWidth(1)
+            _break_at(text_line, line.rows[piece.row].text, piece.end)
             made.append((piece, text_line))
         ascent = max((t.ascent() for _, t in made), default=0.0)
         below = max((t.height() - t.ascent() for _, t in made), default=0.0)
@@ -1043,7 +1365,7 @@ class CaptionLayout:
     def _label_font(self, text_size: float) -> QFont:
         px = max(8, round(self.style.label_px * min(text_size, 1.6)))
         families = tuple(style.UI_FAMILIES)  # the interface's words: an app, a language
-        key = (families, -px, False)
+        key = (families, -px, False, QFont.Weight.DemiBold)
         font = self._fonts.get(key)
         if font is None:
             font = self._fonts[key] = QFont()
@@ -1053,18 +1375,51 @@ class CaptionLayout:
         return font
 
     def _font(
-        self, row: CaptionRow, text_size: float, italic: bool, own_size: bool = True
+        self,
+        row: CaptionRow,
+        text_size: float,
+        italic: bool,
+        own_size: bool = True,
+        fit: float = 1.0,
     ) -> QFont:
-        """`row`'s font at `text_size` - a translation's at its share of it
-        (`own_size`), kept within CAPTION_TEXT_SIZES - in its language's
-        faces (`fonts.caption_families`; 482), at its script's size, and
-        upright whatever is asked if its script or face is never slanted
-        (Arabic's: 479)."""
+        """`row`'s font at `text_size` - a translation's at its own independent
+        `style.translation_size` when set (`own_size`), scaled by
+        `style.translation_factor` and `fit`, kept within CAPTION_TEXT_SIZES -
+        in its language's faces (`fonts.caption_families`; 482), at its
+        script's measured visual-height scale (`fonts.size`), and upright
+        whatever is asked if its script or face is never slanted."""
         language = caption_language(row)
-        share = self.style.translation_size
-        if own_size and row.kind is RowKind.TRANSLATION and share != 1.0:
-            low, high = CAPTION_TEXT_SIZES
-            text_size = min(high, max(low, text_size * share))
+        if own_size and row.kind is RowKind.TRANSLATION:
+            base = (
+                self.style.translation_size
+                if self.style.translation_size is not None
+                else text_size
+            )
+            sized = base * self.style.translation_factor * fit
+            if (
+                self.style.translation_size is not None
+                or self.style.translation_factor != 1.0
+            ):
+                low, high = CAPTION_TEXT_SIZES
+                sized = min(high, max(low, sized))
+        else:
+            sized = text_size * fit
+        families = self._families(language)
+        italic = italic and not fonts.upright(language, families[0])
+        script_scale = 1.0 if self.style.fixed_script_size else fonts.size(language)
+        px = max(8, round(self.style.text_px * sized * script_scale))
+        weight = self.style.weight
+        if (
+            self.style.smooth_track_fonts
+            and row.kind is RowKind.TRANSLATION
+            and weight == QFont.Weight.Medium
+        ):
+            weight = QFont.Weight.Normal
+        return self._made(families, px, italic, weight)
+
+    def _families(self, language: str | None) -> tuple[str, ...]:
+        """The families `language`'s captions are drawn in: the learner's
+        face for it, else its default, and the rest (`fonts.caption_families`)."""
         chosen = self._chosen.get(language or "", self.style.family or "")
         families = fonts.caption_families(language, chosen or None)
         # a weight's own faces before the OS's Latin ones they're cut from (481)
@@ -1072,16 +1427,45 @@ class CaptionLayout:
         if faces and LATIN_FAMILIES and LATIN_FAMILIES[0] in families:
             at = families.index(LATIN_FAMILIES[0])
             families = (*families[:at], *faces, *families[at:])
-        italic = italic and not fonts.upright(language, families[0])
-        px = max(8, round(self.style.text_px * text_size * fonts.size(language)))
-        key = (families, px, italic)
+        return families
+
+    def _latin(self, row: CaptionRow, font: QFont) -> QFont | None:
+        """The font the Latin runs of `row`, in `font`, are drawn in, if its
+        face is brushed (`fonts.brushed`; 551: "focus" came out in Ma Shan
+        Zheng's cursive): the Latin captions' faces - English's, as Look
+        sets them (`LATIN_LANGUAGE`) - at the size Latin text is drawn
+        beside it, in its weight, upright as it is. None for any other
+        face: its own Latin letters serve."""
+        families = font.families()
+        if not families or not fonts.brushed(families[0]):
+            return None
+        scale = (
+            1.0 if self.style.fixed_script_size else fonts.size(caption_language(row))
+        )
+        px = max(8, round(font.pixelSize() / scale))
+        return self._made(self._families(LATIN_LANGUAGE), px, font.italic())
+
+    def _made(
+        self,
+        families: tuple[str, ...],
+        px: int,
+        italic: bool,
+        weight: QFont.Weight | None = None,
+    ) -> QFont:
+        weight = weight or self.style.weight
+        key = (families, px, italic, weight)
         font = self._fonts.get(key)
         if font is None:
             font = self._fonts[key] = QFont()
             font.setFamilies(list(families))
             font.setPixelSize(px)
-            font.setWeight(self.style.weight)
+            font.setWeight(weight)
+            if self.style.smooth_track_fonts:
+                font.setHintingPreference(QFont.HintingPreference.PreferNoHinting)
             font.setItalic(italic)
+            face = fonts.FACES.get(families[0])
+            if face is not None and face.text_style and self.style.weight > 500:
+                font.setStyleName(face.text_style)  # never the readings' cut (532)
         return font
 
 
@@ -1094,10 +1478,6 @@ DASH_PX, DASH_STEP_PX = 5.0, 7.5
 """A dashed mark's dashes (a word in the deck): their length and spacing,
 as high as a dot; a different shape from the dots, not only a different
 colour."""
-
-Linked = tuple[int, int, QColor, int]
-"""Characters `[start, end)` of a row a word link underlines, in its
-colour, and the link's number in the clause."""
 
 Dotted = tuple[int, int, QColor, bool]
 """Characters `[start, end)` marked below the underline's place, in a
@@ -1190,11 +1570,30 @@ def link_ink(colour: QColor, ink: Ink, row: QColor, faint: float = 1.0) -> QColo
     return found
 
 
-@lru_cache(maxsize=4096)
+SHADE_ALPHA_STEP = 0.01
+"""A shade (`_shade`) is worked out for its ink's alpha (0-1) in steps of
+this, rounded down, so it never asks less than the ink drawn needs. The
+card stack draws its cards fainter as they glide and recede (552), so a
+row's alpha was seldom the same twice: the kept shades missed for about
+half a glide's linked words, 44 % of the canvas's paint time on a 5600X
+(polyglotic-hq 590). A hundredth of ink moves no shade a step anyone sees."""
+
+
 def _shade(colour: str, panel: str, opacity: float, alpha: float, ratio_: float) -> str:
-    """`readable_through`, kept: each linked word of each row is drawn in
-    one at every paint, and a link colour's shade is the same each time -
-    and the quiet view's grey and gold (`drawn_ink`)."""
+    """`readable_through` at `alpha` rounded down to a `SHADE_ALPHA_STEP`,
+    kept (`_shade_kept`): each linked word of each row is drawn in one at
+    every paint - and the quiet view's grey and gold (`drawn_ink`)."""
+    steps = math.floor(alpha / SHADE_ALPHA_STEP + 1e-6)
+    return _shade_kept(
+        colour, panel, opacity, round(steps * SHADE_ALPHA_STEP, 4), ratio_
+    )
+
+
+@lru_cache(maxsize=4096)
+def _shade_kept(
+    colour: str, panel: str, opacity: float, alpha: float, ratio_: float
+) -> str:
+    """`readable_through`, kept: a colour's shade at an alpha is the same each time."""
     return readable_through(colour, panel, opacity, alpha, ratio_)
 
 
@@ -1250,7 +1649,10 @@ def _edge(
     light text and white around dark (`views.tone.edge_colour`), as
     `edge` says - offset by its passes, grown with the text, as faint as
     the text is (481). By their glyphs, as a linked word's colour is
-    (`in_colours`): an edge isn't text to read."""
+    (`in_colours`): an edge isn't text to read. Each copy is moved by
+    whole pixels of the screen (`_whole_pixels`), so it lands on the
+    pixels the text does; an outline is solid under faint text
+    (`OUTLINE_SOLID`; 584)."""
     halo = QColor(edge_colour(colour.name()))
     scale = max(1.0, row.layout.font().pixelSize() / 21.0)
     glyphs = row.layout.glyphRuns()
@@ -1259,9 +1661,15 @@ def _edge(
         if row.above and row.above_font is not None
         else []
     )
+    ink = colour.alphaF()
+    if edge is TextEdge.OUTLINE:
+        ink = min(1.0, ink / OUTLINE_SOLID)
+    across, down = _whole_pixels(painter)
     for dx, dy, share in EDGE_PASSES[edge]:
-        where = QPointF(at.x() + dx * scale, at.y() + dy * scale)
-        halo.setAlphaF(share * colour.alphaF())
+        where = QPointF(
+            at.x() + _snapped(dx * scale, across), at.y() + _snapped(dy * scale, down)
+        )
+        halo.setAlphaF(share * ink)
         painter.setPen(halo)
         for run in glyphs:
             painter.drawGlyphRun(where, run)
@@ -1269,6 +1677,24 @@ def _edge(
             painter.setPen(reading_lines.faint(halo))
             for run in readings:
                 painter.drawGlyphRun(where, run)
+
+
+def _whole_pixels(painter: QPainter) -> tuple[float, float]:
+    """How many of the screen's pixels one of the painter's is, across and
+    down (the screen's scale, and a card's squash on the drum)."""
+    to_device = painter.deviceTransform()
+    return abs(to_device.m11()) or 1.0, abs(to_device.m22()) or 1.0
+
+
+def _snapped(offset: float, pixels: float) -> float:
+    """`offset` (in the painter's pixels) as the nearest whole number of the
+    screen's (`pixels` to one of the painter's), at least one either way
+    if it isn't none: an edge's copy moved by a fraction of a pixel is
+    drawn a fraction off the text's own pixels - spread over two, soft."""
+    if offset == 0.0:
+        return 0.0
+    whole = max(1.0, round(abs(offset) * pixels))
+    return math.copysign(whole, offset) / pixels
 
 
 def _label_colour(line: Line, ink: Ink) -> QColor:
@@ -1279,18 +1705,28 @@ def _label_colour(line: Line, ink: Ink) -> QColor:
     return QColor(vibrant(line.label_color, ink.vibrance))
 
 
-Coloured = tuple[int, int, QColor]
-"""Characters `[start, end)` of a row drawn in a colour of their own."""
-
-
-def _coloured_words(links: Sequence[Linked], ink: Ink, row: QColor) -> list[Coloured]:
+def _coloured_words(
+    links: list[Linked],
+    ink: Ink,
+    row: QColor,
+    cache: _LaidLinks | None = None,
+    index: int = 0,
+) -> list[Coloured]:
     """A row's linked words in their links' colours
     (`Ink.said_in_link_colours`, `Ink.translation_in_link_colours`), in
     the row's order."""
+    if cache is not None:
+        tone = (ink.panel, ink.panel_opacity, ink.contrast, row.alphaF())
+        kept = cache.words.get(index)
+        if kept is not None and kept[0] == tone and kept[1] == links:
+            return kept[2]
     found = [
         (start, end, link_ink(colour, ink, row)) for start, end, colour, _ in links
     ]
-    return sorted(found, key=lambda word: word[:2])
+    found.sort(key=lambda word: word[:2])
+    if cache is not None:
+        cache.words[index] = tone, links, found
+    return found
 
 
 def _coloured_range(start: int, end: int, colour: QColor) -> QTextLayout.FormatRange:
@@ -1371,29 +1807,55 @@ def _runs(layout: QTextLayout, spans: tuple[tuple[int, int], ...]) -> Runs:
 
 def _reading_colours(
     readings: Sequence[reading_lines.Placed],
-    links: Sequence[Linked],
+    links: list[Linked],
     ink: Ink,
     row: QColor,
+    cache: _LaidLinks | None = None,
+    index: int = 0,
 ) -> list[QColor | None]:
     """Each reading's own colour, as `Ink.reading_colour` says - None for
     its row's: its word link's where a link joins its character, or the
     colour picked (395) - whether or not the words are (431: the user,
-    2026-11-17, "toggleable separately")."""
+    2026-11-17, "toggleable separately"); with Grey (532), a muted grey
+    where no link joins it."""
     if ink.reading_colour is ReadingColour.CUSTOM and ink.reading is not None:
         picked = QColor(ink.reading)
         picked.setAlphaF(row.alphaF() * picked.alphaF())
         return [picked] * len(readings)
-    if ink.reading_colour is not ReadingColour.LINK or not links:
+    greyed = ink.reading_colour is ReadingColour.GREY
+    if not greyed and (ink.reading_colour is not ReadingColour.LINK or not links):
         return []
+    # In Link mode a row's readings share the text's palette and alpha.
+    tone = (ink.panel, ink.panel_opacity, ink.contrast, row.alphaF())
+    if cache is not None and not greyed:
+        kept = cache.readings.get(index)
+        if kept is not None and kept[0] == tone and kept[1] == links:
+            return kept[2]
+    muted = link_ink(grey(ink), ink, row, reading_lines.ALPHA) if greyed else None
     found: list[QColor | None] = []
     for reading in readings:
         colour = next(
             (c for start, end, c, _ in links if start <= reading.start < end), None
         )
         found.append(
-            None if colour is None else link_ink(colour, ink, row, reading_lines.ALPHA)
+            muted if colour is None else link_ink(colour, ink, row, reading_lines.ALPHA)
         )
+    if cache is not None and not greyed:
+        cache.readings[index] = tone, links, found
     return found
+
+
+READING_GREY = "#a3a6ab"
+"""Readings' grey without a panel to work it from (`grey`)."""
+
+
+def grey(ink: Ink) -> QColor:
+    """Readings' muted grey on `ink`'s panel (`views.tone.reading_grey`;
+    polyglotic-hq 532): between the panel and what was said, no colour of
+    its own - before it's made readable where it's drawn."""
+    if ink.panel is None:
+        return QColor(READING_GREY)
+    return QColor(reading_grey(ink.panel, ink.original.name()))
 
 
 def _coloured_readings(
@@ -1440,7 +1902,7 @@ def char_under(
                 index = text_line.xToCursor(
                     pos.x() - origin.x(), QTextLine.CursorPosition.CursorOnCharacter
                 )
-                return row, origin, index
+                return row, origin, row.source_index(index)
     return None
 
 
@@ -1522,38 +1984,85 @@ def _dots(
     painter.restore()
 
 
+LINK_EDGE = 0.25
+"""Edge thickness as a fraction of underline height (0–1). A quarter
+keeps a visible backing over video without overpowering the class colour."""
+
+
 def _underlines(
     painter: QPainter,
-    layout: QTextLayout,
+    row: LaidRow,
     at: QPointF,
     links: list[Linked],
     alpha: float,
     style: CaptionStyle,
+    cache: _LaidLinks | None,
+    ink: Ink,
 ) -> None:
     """Word links' underlines under characters `[start, end)` of `layout`
     (drawn at `at`): below the font's descent - under the descenders, never
     through them - `style.link_gap` further, `style.link_px` thick, both
     scaled with the text (F14)."""
-    scale = max(0.5, layout.font().pixelSize() / 21.0)
-    thick = style.link_px * scale
+    kept = cache.bars.get(row.index) if cache is not None else None
+    if kept is None or kept[0] != links:
+        kept = links, _link_bars(row.layout, links, style), _BarPaint()
+        if cache is not None:
+            cache.bars[row.index] = kept
+    _, bars, paint = kept
+    tone = (alpha, ink.panel, ink.panel_opacity)
+    if paint.tone != tone:
+        paint.tone = tone
+        paint.strokes = _bar_strokes(bars, alpha, ink)
     painter.save()
     painter.setPen(Qt.PenStyle.NoPen)
-    for start, end, color, _ in links:
+    for brush, rect, radius in paint.strokes:
+        painter.setBrush(brush)
+        painter.drawRoundedRect(rect.translated(at), radius, radius)
+    painter.restore()
+
+
+def _bar_strokes(
+    bars: list[tuple[QColor, QRectF]], alpha: float, ink: Ink
+) -> list[tuple[QColor, QRectF, float]]:
+    strokes = []
+    for color, rect in bars:
         bar = QColor(color)
-        bar.setAlphaF(bar.alphaF() * alpha)
-        painter.setBrush(bar)
+        bar_alpha = alpha
+        if ink.panel is not None:
+            name = color.name()
+            backing = class_backing(name, ink.panel, ink.panel_opacity)
+            if backing is not None:
+                edge = QColor(backing)
+                edge.setAlphaF(alpha)
+                margin = rect.height() * LINK_EDGE
+                border = rect.adjusted(-margin, -margin, margin, margin)
+                strokes.append((edge, border, border.height() / 2))
+            elif alpha < 1.0 and ink.panel_opacity > 0:
+                bar_alpha = max(alpha, floor_alpha(name, ink.panel, ink.panel_opacity))
+        bar.setAlphaF(bar.alphaF() * bar_alpha)
+        strokes.append((bar, rect, rect.height() / 2))
+    return strokes
+
+
+def _link_bars(
+    layout: QTextLayout, links: list[Linked], style: CaptionStyle
+) -> list[tuple[QColor, QRectF]]:
+    bars = []
+    scale = max(0.5, layout.font().pixelSize() / 21.0)
+    thick = style.link_px * scale
+    for start, end, color, _ in links:
         for i in range(layout.lineCount()):
             text_line = layout.lineAt(i)
             a = max(start, text_line.textStart())
             b = min(end, text_line.textStart() + text_line.textLength())
             if a >= b:
                 continue
-            x1 = at.x() + cursor_x(text_line, a)
-            x2 = at.x() + cursor_x(text_line, b)
+            x1 = cursor_x(text_line, a)
+            x2 = cursor_x(text_line, b)
             bottom = text_line.y() + text_line.ascent() + text_line.descent()
-            y = at.y() + bottom + style.link_gap * scale
-            painter.drawRoundedRect(QRectF(x1, y, x2 - x1, thick), thick / 2, thick / 2)
-    painter.restore()
+            y = bottom + style.link_gap * scale
+            bars.append((color, QRectF(x1, y, x2 - x1, thick)))
+    return bars
 
 
 def _ends(
@@ -1629,11 +2138,37 @@ def _arrows(
     painter.restore()
 
 
+def _line_alpha(line: Line, ink: Ink) -> float:
+    return ink.alpha * (
+        QUIET_ALPHA
+        if ink.quiet
+        else ink.provisional_alpha
+        if line.provisional
+        else ink.live_alpha
+        if line.live
+        else 1.0
+    )
+
+
+def _row_marks(line: Line, row: LaidRow, marks: Marks | None) -> Sequence[Mark]:
+    ranges = marks(line, row.index) if marks else ()
+    if ranges and (row.start or row.row.text != line.rows[row.index].text):
+        end = row.start + len(row.row.text)
+        return [
+            (max(a, row.start) - row.start, min(b, end) - row.start, fmt)
+            for a, b, fmt in ranges
+            if a < end and b > row.start
+        ]
+    return ranges
+
+
 def _flow_arrows(
     painter: QPainter,
+    at: QPointF,
     rows: list[tuple[LaidRow, QPointF, list[Linked]]],
     alpha: float,
     style: CaptionStyle,
+    cache: _LaidLinks | None,
 ) -> None:
     """Arrows in the one layout (340): a curve from each linked word of
     what was said down to its counterpart, wherever both are - drawn when
@@ -1641,6 +2176,33 @@ def _flow_arrows(
     lines of a line pair), in any way of filling the window. A link whose
     ends are further apart keeps its colour alone: a curve across other
     lines would cut through their text."""
+    visible = [(row.index, links) for row, _, links in rows]
+    if cache is not None and cache.visible == visible:
+        curves = cache.arrows
+    else:
+        curves = _arrow_curves(rows, style)
+        if cache is not None:
+            cache.visible, cache.arrows = visible, curves
+    pen = QPen()
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    painter.save()
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    painter.setBrush(Qt.BrushStyle.NoBrush)
+    painter.translate(at)
+    for color, width, curve in curves:
+        tint = QColor(color)
+        tint.setAlphaF(tint.alphaF() * 0.9 * alpha)
+        pen.setColor(tint)
+        pen.setWidthF(width)
+        painter.setPen(pen)
+        painter.drawPath(curve)
+    painter.restore()
+
+
+def _arrow_curves(
+    rows: list[tuple[LaidRow, QPointF, list[Linked]]], style: CaptionStyle
+) -> list[tuple[QColor, float, QPainterPath]]:
+    curves = []
     said: dict[tuple[int, int], list[tuple[QRectF, QColor, float]]] = {}
     for row, at, links in rows:
         if row.row.kind is not RowKind.ORIGINAL:
@@ -1652,16 +2214,10 @@ def _flow_arrows(
                 said.setdefault((row.row.clause, link), []).append(
                     (rect.translated(at), color, drop)
                 )
-    pen = QPen()
-    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
-    painter.save()
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setBrush(Qt.BrushStyle.NoBrush)
     for row, at, links in rows:
         if row.row.kind is not RowKind.TRANSLATION:
             continue
         scale = max(0.5, (row.full_px or row.layout.font().pixelSize()) / 21.0)
-        pen.setWidthF(ARROW_PX * scale)
         for start, end, _, link in links:
             for rect in span_rects(row.layout, start, end):
                 under = rect.translated(at)
@@ -1670,10 +2226,6 @@ def _flow_arrows(
                     gap = under.top() - over.bottom()
                     if not -1.0 <= gap < over.height():
                         continue  # not the line just above
-                    tint = QColor(color)
-                    tint.setAlphaF(tint.alphaF() * 0.9 * alpha)
-                    pen.setColor(tint)
-                    painter.setPen(pen)
                     a = QPointF(over.center().x(), over.bottom() + drop)
                     b = QPointF(under.center().x(), under.top() + 1.0 * scale)
                     bend = (b.y() - a.y()) * 0.6
@@ -1681,17 +2233,82 @@ def _flow_arrows(
                     curve.cubicTo(
                         QPointF(a.x(), a.y() + bend), QPointF(b.x(), b.y() - bend), b
                     )
-                    painter.drawPath(curve)
-    painter.restore()
+                    curves.append((color, ARROW_PX * scale, curve))
+    return curves
+
+
+def row_text_width(
+    engine: "CaptionLayout", text: str, side: RowKind, text_size: float
+) -> float:
+    """`text`'s width in px as `engine` draws a row of `side` at
+    `text_size`: Chinese in the Chinese face, the rest in the other
+    (`views.cards` sizes its cards with it)."""
+    fonts = _FlowFonts(engine, text_size, False)
+    wide, run = 0.0, ""
+    for char in [*text, None]:
+        if char is not None and (not run or _han(run[0]) == _han(char)):
+            run += char
+            continue
+        if run:
+            language = Language("zh") if _han(run[0]) else None
+            wide += fonts.font(side, language, run).width(run)
+        run = char or ""
+    return wide
+
+
+def centre_rows(
+    laid: LaidLine, width: float, kept: dict[RowKind, float] | None = None
+) -> None:
+    """Each side of `laid` - what was said, its translation - stood in the
+    middle of `width` by itself, its readings with it (subtitles: decision
+    0260). Asked again of rows already there, it moves nothing. With
+    `kept` (a card still growing: each side's left edge as it first
+    stood), a side keeps its left edge as words come - moved left only as
+    far as it must to stay within `width` - and a side new to it is
+    centred and noted there (polyglotic-hq 583: a centred line moved every
+    word already read as each word came)."""
+    for side in RowKind:
+        rows = [row for row in laid.rows if row.row.kind is side]
+        lines = [
+            row.layout.lineAt(i) for row in rows for i in range(row.layout.lineCount())
+        ]
+        if not lines:
+            continue
+        left = min(line.naturalTextRect().left() for line in lines)
+        right = max(line.naturalTextRect().right() for line in lines)
+        to = (width - (right - left)) / 2.0
+        if kept is not None:
+            if side in kept:
+                to = max(0.0, min(kept[side], width - (right - left)))
+            kept[side] = to
+        by = to - left
+        if abs(by) < 0.5:
+            continue
+        for line in lines:
+            line.setPosition(line.position() + QPointF(by, 0.0))
+        for row in rows:
+            if row.above:
+                moved = tuple(replace(each, x=each.x + by) for each in row.above)
+                object.__setattr__(row, "above", moved)
+            if row.trails:
+                trails = tuple(QPointF(p.x() + by, p.y()) for p in row.trails)
+                object.__setattr__(row, "trails", trails)
+
+
+def _han(char: str) -> bool:
+    return "\u3400" <= char <= "\u9fff"
 
 
 class _FlowFont:
     """One font's measuring for the composer (`views.flow.Font`); it keeps
     the widths it measured - a caption's words come again and again."""
 
-    def __init__(self, font: QFont, link_room: float) -> None:
+    def __init__(
+        self, font: QFont, link_room: float, latin: QFont | None = None
+    ) -> None:
         metrics = QFontMetricsF(font)
-        self._advance = metrics.horizontalAdvance
+        self._metrics = metrics
+        self._latin = None if latin is None else QFontMetricsF(latin)
         self._widths: dict[str, float] = {}
         self.ascent = metrics.ascent()
         self.below = metrics.height() - metrics.ascent() + link_room
@@ -1701,26 +2318,44 @@ class _FlowFont:
         if found is None:
             if len(self._widths) > 4000:
                 self._widths.clear()
-            found = self._widths[text] = self._advance(text)
+            found = self._widths[text] = _advance(self._metrics, self._latin, text)
         return found
+
+
+SUBTITLE_ROW_SCALE = 1.1
+"""Ratio of nominal row height to font height (at least 1), from Video's page layout."""
+
+
+def row_room(engine: CaptionLayout, side: RowKind, text_size: float) -> float:
+    """Estimate a subtitle row before measuring the whole page."""
+    font = _FlowFonts(engine, text_size, False).font(side, None, "x")
+    return (font.ascent + font.below) * SUBTITLE_ROW_SCALE
 
 
 class _FlowFonts:
     """The composer's measuring (`views.flow.Fonts`), in the layout's
     fonts at one text size."""
 
-    def __init__(self, engine: CaptionLayout, text_size: float, italic: bool) -> None:
+    def __init__(
+        self,
+        engine: CaptionLayout,
+        text_size: float,
+        italic: bool,
+        fit: float = 1.0,
+    ) -> None:
         self._engine, self._text_size, self._italic = engine, text_size, italic
+        self._fit = fit
         self._fonts: dict[int, _FlowFont] = {}
 
     def font(self, side: RowKind, language: Language | None, text: str) -> _FlowFont:
         engine = self._engine
         row = CaptionRow(text, side, language, 0, True)
-        font = engine._font(row, self._text_size, self._italic)
+        font = engine._font(row, self._text_size, self._italic, fit=self._fit)
         found = self._fonts.get(id(font))
         if found is None:
             room = engine._link_room(font) if engine.style.link_room else 0.0
-            found = self._fonts[id(font)] = _FlowFont(font, room)
+            latin = engine._latin(row, font)
+            found = self._fonts[id(font)] = _FlowFont(font, room, latin)
         return found
 
 
@@ -1805,17 +2440,27 @@ def _above(
 
 
 def _laid_text(
-    text: str, font: QFont, width: int, right: bool = False, ruby: Ruby | None = None
+    text: str,
+    font: QFont,
+    width: int,
+    right: bool = False,
+    ruby: Ruby | None = None,
+    latin: QFont | None = None,
+    *,
+    wrap: bool = True,
 ) -> tuple[QTextLayout, float]:
     """`text` laid out in `font`, wrapped at `width` - lined up on the
     right, with `right`; and its height. `ruby`: its reading line (364) -
     its characters take the room their readings need, and each line has
-    the readings' band above it."""
+    the readings' band above it. `latin`: its Latin runs' font (551)."""
     layout = QTextLayout(text, font)
-    if ruby is not None:
-        reading_lines.spaced(layout, ruby)
+    _formatted(layout, text, ruby, latin)
     option = QTextOption()
-    option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+    option.setWrapMode(
+        QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere
+        if wrap
+        else QTextOption.WrapMode.NoWrap
+    )
     if right:
         option.setAlignment(Qt.AlignmentFlag.AlignRight)
     layout.setTextOption(option)
@@ -1826,7 +2471,16 @@ def _laid_text(
         text_line = layout.createLine()
         if not text_line.isValid():
             break
-        if ruby is None:
+        if not wrap:
+            # A full natural line gives bidi cursor and lookup coordinates
+            # across the entire sentence, including words outside the viewport.
+            text_line.setNumColumns(_units(text, 0, len(text)))
+            lead = (
+                reading_lines.lead(text, ruby, text_line.textStart()) if ruby else 0.0
+            )
+            height += ruby.band if ruby else 0.0
+            text_line.setPosition(QPointF(lead, height))
+        elif ruby is None:
             text_line.setLineWidth(max(10, width))
             text_line.setPosition(QPointF(0, height))
         else:
@@ -1838,6 +2492,55 @@ def _laid_text(
         height += text_line.height()
     layout.endLayout()
     return layout, height
+
+
+def _formatted(
+    layout: QTextLayout, text: str, ruby: Ruby | None, latin: QFont | None
+) -> None:
+    """`layout` (not yet begun) given its formats: the Latin runs of a
+    brushed line in `latin` (`fonts.latin_runs`; 551), and the room its
+    readings need (`reading_lines.rooms`)."""
+    ranges = [] if latin is None else _latin_ranges(text, latin)
+    if ruby is not None:
+        ranges += reading_lines.rooms(ruby)
+    if ranges:
+        layout.setFormats(ranges)
+
+
+def _latin_ranges(text: str, latin: QFont) -> list[QTextLayout.FormatRange]:
+    """`text`'s Latin runs, in `latin`: only what `latin` sets - its
+    families, size, weight and slant - so a run's room for a reading
+    beside it stays (`reading_lines.rooms`)."""
+    runs = fonts.latin_runs(text)
+    if not runs:
+        return []
+    face = QTextCharFormat()
+    face.setFont(
+        latin,
+        QTextCharFormat.FontPropertiesInheritanceBehavior.FontPropertiesSpecifiedOnly,
+    )
+    found = []
+    for start, end in runs:
+        part = QTextLayout.FormatRange()
+        part.start = _units(text, 0, start)
+        part.length = _units(text, start, end)
+        part.format = face
+        found.append(part)
+    return found
+
+
+def _advance(metrics: QFontMetricsF, latin: QFontMetricsF | None, text: str) -> float:
+    """`text`'s width in a row's font (`metrics`), its Latin runs in their
+    own (`latin`; 551) - as the row's layout draws it."""
+    runs = fonts.latin_runs(text) if latin is not None else ()
+    if latin is None or not runs:
+        return metrics.horizontalAdvance(text)
+    width, at = 0.0, 0
+    for start, end in runs:
+        width += metrics.horizontalAdvance(text[at:start])
+        width += latin.horizontalAdvance(text[start:end])
+        at = end
+    return width + metrics.horizontalAdvance(text[at:])
 
 
 def _cjk_share(text: str) -> float:
@@ -1908,13 +2611,15 @@ def _pairs(line: Line) -> list[Pair]:
     return pairs
 
 
-def _begun(text: str, font: QFont, ruby: Ruby | None = None) -> QTextLayout:
+def _begun(
+    text: str, font: QFont, ruby: Ruby | None = None, latin: QFont | None = None
+) -> QTextLayout:
     """A layout of `text` in `font`, begun: its lines are made and placed
     one by one (a poured row's, `CaptionLayout._poured`). `ruby`: its
-    characters take the room their readings need (364)."""
+    characters take the room their readings need (364); `latin`: its Latin
+    runs' font (551)."""
     layout = QTextLayout(text, font)
-    if ruby is not None:
-        reading_lines.spaced(layout, ruby)
+    _formatted(layout, text, ruby, latin)
     option = QTextOption()
     option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
     layout.setTextOption(option)
@@ -1937,6 +2642,167 @@ def _rest(
         x = max(0.0, width - text_line.naturalTextWidth()) if right else 0.0
         text_line.setPosition(QPointF(x, y - top))
         y += text_line.height()
+
+
+def _break_at(line: QTextLine, text: str, end: int) -> None:
+    """End a shaped line at the word boundary chosen by the composer.
+    Qt counts shaped columns for setNumColumns, but returns textLength in
+    UTF-16 units. A ligature can otherwise pull the next word's first
+    letter onto this line."""
+    length = _units(text, 0, end) - line.textStart()
+    if length <= 0:
+        line.setLineWidth(1)
+        return
+    line.setNumColumns(length)
+    if end == len(text) or line.textLength() <= length:
+        return
+    low, high = 1, length - 1
+    while low < high:
+        middle = (low + high + 1) // 2
+        line.setNumColumns(middle)
+        if line.textLength() > length:
+            high = middle - 1
+        else:
+            low = middle
+    line.setNumColumns(low)
+
+
+def _codepoints(text: str, units: int) -> int:
+    """Qt UTF-16 offset as a Python character offset."""
+    if text.isascii():
+        return min(len(text), units)
+    return len(
+        text.encode("utf-16-le")[: 2 * units].decode("utf-16-le", errors="ignore")
+    )
+
+
+def panned_row(
+    row: LaidRow, offset: float, width: float, *, left_edge: float = 0.0
+) -> LaidRow | None:
+    """Paint the complete graphemes in the horizontal viewport, keeping their
+    source indices for selection and their shaped position along the line."""
+    layout = row.layout
+    line = layout.lineAt(0)
+    left = left_edge - offset - layout.position().x()
+    right = left + width
+    ink = line.naturalTextRect()
+    if ink.left() >= left and ink.right() <= right:
+        return visible_row(row, 0, len(row.row.text), QPointF(offset, 0))
+    if ink.right() <= left or ink.left() >= right:
+        return None
+    reverse = cursor_x(line, line.textLength()) < cursor_x(line, 0)
+    start, end = sorted((line.xToCursor(left), line.xToCursor(right)))
+    first_x, last_x = cursor_x(line, start), cursor_x(line, end)
+    if first_x > right if reverse else first_x < left:
+        start = layout.nextCursorPosition(start)
+    if last_x < left if reverse else last_x > right:
+        end = layout.previousCursorPosition(end)
+    if start >= end:
+        return None
+    first = _codepoints(row.row.text, start)
+    stop = _codepoints(row.row.text, end)
+    x = min(cursor_x(line, start), cursor_x(line, end))
+    advance = x - line.x()
+    visible = visible_row(row, first, stop, QPointF(offset + advance, 0))
+    # Reading marks already carry their positions along the full row.
+    if visible.above and advance:
+        visible = replace(
+            visible,
+            above=tuple(replace(mark, x=mark.x - advance) for mark in visible.above),
+        )
+    return visible
+
+
+def visible_row(row: LaidRow, first: int, end: int, offset: QPointF) -> LaidRow:
+    """Shape the visible characters at their full row's line breaks.
+
+    A page can start at a later visual line. Keep its source offset for
+    selection, word links and lookup. A word opening a new visual line
+    can move on its own without changing the engine's cached layout.
+    """
+    original = row.row.text
+    if first == 0 and end >= len(original) and offset.isNull():
+        return row
+    text = original[first:end]
+    full = row.layout
+    layout = QTextLayout(text, full.font())
+    layout.setTextOption(full.textOption())
+    first_unit = _units(original, 0, first)
+    end_unit = _units(original, 0, end)
+    formats = []
+    for fmt in full.formats():
+        start = max(fmt.start, first_unit)
+        stop = min(fmt.start + fmt.length, end_unit)
+        if stop > start:
+            fmt.start, fmt.length = start - first_unit, stop - start
+            formats.append(fmt)
+    layout.setFormats(formats)
+    layout.setPosition(full.position())
+    layout.setCacheEnabled(True)
+    layout.beginLayout()
+    first_line = full.lineForTextPosition(first_unit)
+    y = first_line.y() if first and first_line.isValid() else 0.0
+    last_start = first
+    for i in range(full.lineCount()):
+        source = full.lineAt(i)
+        start_unit = source.textStart()
+        stop_unit = start_unit + source.textLength()
+        if stop_unit <= first_unit:
+            continue
+        if start_unit >= end_unit:
+            break
+        qt_line = layout.createLine()
+        if not qt_line.isValid():
+            break
+        last = _codepoints(original, min(stop_unit, end_unit))
+        _break_at(qt_line, text, last - first)
+        pos = source.position() - QPointF(0, y)
+        if last == end:
+            pos += offset
+        qt_line.setPosition(pos)
+        last_start = _codepoints(original, start_unit)
+    layout.endLayout()
+    above = tuple(
+        replace(
+            mark,
+            start=mark.start - first,
+            end=mark.end - first if mark.end >= 0 else -1,
+            x=mark.x + (offset.x() if mark.start >= last_start else 0.0),
+            y=mark.y - y + (offset.y() if mark.start >= last_start else 0.0),
+        )
+        for mark in row.above
+        if first <= mark.start < end
+    )
+    shown = replace(
+        row.row,
+        text=text,
+        links=tuple(
+            replace(
+                link,
+                start=max(first, link.start) - first,
+                end=min(end, link.end) - first,
+            )
+            for link in row.row.links
+            if link.start < end and link.end > first
+        ),
+        established=None
+        if row.row.established is None
+        else max(0, min(end, row.row.established) - first),
+        corrected=tuple(
+            (max(first, a) - first, min(end, b) - first)
+            for a, b in row.row.corrected
+            if a < end and b > first
+        ),
+    )
+    return replace(
+        row,
+        row=shown,
+        layout=layout,
+        start=row.start + first,
+        top=row.top + y,
+        above=above,
+        trails=(),
+    )
 
 
 def _units(text: str, start: int, end: int) -> int:

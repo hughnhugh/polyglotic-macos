@@ -90,7 +90,7 @@ def test_there_is_no_copy_the_newest_caption(
     popover = window.popover
     assert popover is not None and popover.isVisible()
     texts = [r.text() for r in popover.rows.values() if isinstance(r, QPushButton)]
-    assert "Copy all captions" in texts
+    assert "Copy all captions" not in texts  # the transcript's Copy all (593)
     assert not any("newest" in text for text in texts)
     popover.hide()
 
@@ -194,21 +194,20 @@ def test_with_nothing_finished_it_says_so_and_leaves_the_clipboard(
         window.deleteLater()
 
 
-def test_the_settings_offer_both_and_close_once_copied(
+def test_copy_all_left_the_menu_for_the_transcripts_own(
     window: CaptionWindow, qapp: QApplication
 ) -> None:
-    assert ROWS.index("copy_all") < ROWS.index("transcript")
-    assert "copy_all" in COLUMN_ROWS
+    """polyglotic-hq 593 (585's section 6): Copy all captions left the
+    caption window's menu - the transcript's Copy all does it, one step
+    further away for something done rarely."""
+    assert "copy_all" not in ROWS and "copy_all" not in COLUMN_ROWS
     window.hovered = True
     window._show_band(True)
     window.buttons["settings"].click()
     popover = window.popover
     assert popover is not None and popover.isVisible()
-    row = popover.rows["copy_all"]
-    assert isinstance(row, QPushButton) and row.text() == "Copy all captions"
-    row.click()
-    assert not popover.isVisible()
-    assert copied().count("    English: ") == 5
+    assert "copy_all" not in popover.rows
+    window.close_settings()
 
 
 def test_a_joined_column_copies_its_own_and_the_window_says_so(

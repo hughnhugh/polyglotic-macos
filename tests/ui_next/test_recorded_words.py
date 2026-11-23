@@ -19,7 +19,7 @@ from polyglotic_desktop.platform.recorded_voices import (
     Recordings,
     clip_of_ogg,
 )
-from polyglotic_desktop.platform.speaking import Clip
+from polyglotic_desktop.platform.speaking import Clip, Made
 from polyglotic_desktop.ports.speaker import RECORDED, Voice
 from polyglotic_desktop.ui_next.word_speech import WordSpeech
 
@@ -115,6 +115,13 @@ def test_another_kind_of_file_isnt_read_and_the_newest_is(tmp_path: Path) -> Non
     assert audio_beside([tmp_path], "wiktru") is None
 
 
+def rate(made: Made) -> int:
+    """A sound's rate: a recording is always a sound, never said by a
+    voice itself (591)."""
+    assert isinstance(made, Clip)
+    return made.rate
+
+
 def test_a_recorded_word_is_played_and_the_rest_fall_to_the_pcs_voice(
     tmp_path: Path,
 ) -> None:
@@ -128,16 +135,16 @@ def test_a_recorded_word_is_played_and_the_rest_fall_to_the_pcs_voice(
     assert voices.found()[1:] == (ZIRA, HORTENSE)  # ours first
     assert recordings.has(ours, "homme") and not recordings.has(ours, "femme")
     # recorded: played, the PC's voice not asked
-    assert voices.synthesize("homme", ours, 1.0).rate == RATE and not os_voices.asked
+    assert rate(voices.synthesize("homme", ours, 1.0)) == RATE and not os_voices.asked
     # at any pace: the recording, never the PC's voice (518: the same sound
     # at every press)
-    assert voices.synthesize("homme", ours, 0.7).rate == RATE and not os_voices.asked
+    assert rate(voices.synthesize("homme", ours, 0.7)) == RATE and not os_voices.asked
     # not recorded: the PC's French voice
     voices.synthesize("femme", ours, 1.0)
     assert os_voices.asked == [("femme", "os-fr", 1.0)]
     # a PC with no French voice: the recording at its own pace; nothing for the rest
     alone = RecordedVoices(OsVoices(ZIRA), recordings)
-    assert alone.synthesize("homme", ours, 0.7).rate == RATE
+    assert rate(alone.synthesize("homme", ours, 0.7)) == RATE
     with pytest.raises(OSError):
         alone.synthesize("femme", ours, 1.0)
     # the pack removed: its voice goes

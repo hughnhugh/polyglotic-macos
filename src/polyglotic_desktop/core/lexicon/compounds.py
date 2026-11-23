@@ -23,6 +23,8 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from polyglotic_desktop.core.lexicon import korean_forms
+
 LINKS: dict[str, tuple[str, ...]] = {"de": ("", "s", "es", "n", "en", "e", "er", "ens")}
 """The languages that write compounds closed up, and what may stand
 between two parts (German's linking letters: Arbeit-s-platz,
@@ -77,7 +79,72 @@ def parts(word: str, language: str, find: Find) -> list[Part]:
     """`word`'s parts, in order - [] if it has none the pack has."""
     if "-" in word.strip("-"):
         return _hyphenated(word, language, find)
+    if language == "ko":
+        return _korean(word, find)
     return _closed(word, language, find)
+
+
+def _korean(word: str, find: Find) -> list[Part]:
+    """A Korean word's parts (polyglotic-hq 516): Korean closes compounds up
+    (국립공원, national park; 연구진, research team) and Wiktionary lists
+    few. Its noun - the word without its particles, or the word - is cut
+    into words of two syllables or more, then a one-syllable suffix or
+    word read by hand (`korean_forms.COMPOUND_ENDS`: -성, -ness; 층, floor:
+    바깥층) at its end, or a prefix (`korean_forms.COMPOUND_STARTS`: 대-) at its
+    start - a prefix only where no cut without one will do; never into
+    single syllables alone, any of which is some word (국, soup; 공, ball). Its particles are no parts: they are no words of a caption's
+    own, as 학교에서's 에서 isn't. A word the pack has with its particles on
+    (공원은) has no parts: its lookup finds it."""
+    nouns = korean_forms.nouns(word)
+    if any(find(noun, True) is not None for noun in nouns):
+        return []
+    for noun in [*nouns, word]:
+        inside = _korean_noun(noun, find)
+        if inside:
+            return inside
+    return []
+
+
+def _korean_noun(noun: str, find: Find) -> list[Part]:
+    """`noun` cut as `_korean` says - the fewest parts, then the commonest;
+    [] if it can't be cut so."""
+    best: dict[int, _Cut | None] = {len(noun): (0, 0.0, ())}
+
+    def rest(start: int) -> _Cut | None:
+        if start in best:
+            return best[start]
+        found: _Cut | None = None
+        for end in range(start + 1, len(noun) + 1):
+            if start == 0 and end == len(noun):
+                continue  # the whole word is no part of itself
+            text = noun[start:end]
+            weighs = 1
+            if len(text) > 1:
+                form, rank = text, find(text, False)
+            elif end == len(noun) and text in korean_forms.COMPOUND_ENDS:
+                form = (
+                    korean_forms.COMPOUND_ENDS[text] or text
+                )  # -성 (-ness); 층 (floor)
+                rank = find(form, False)
+            elif start == 0 and text in korean_forms.COMPOUND_STARTS:
+                # 대- (great): after any cut without a prefix
+                form = korean_forms.COMPOUND_STARTS[text] or text
+                rank, weighs = find(form, False), 2
+            else:
+                continue
+            if rank is None:
+                continue
+            tail = rest(end)
+            if tail is None or tail[0] + weighs > MAX_PARTS:
+                continue
+            count = tail[0] + weighs
+            mean = (tail[1] * tail[0] + math.log(rank)) / count
+            found = _better(found, (count, mean, (Part(start, end, form), *tail[2])))
+        best[start] = found
+        return found
+
+    cut = rest(0)
+    return list(cut[2]) if cut is not None and cut[0] > 1 else []
 
 
 def spellings(text: str, language: str) -> tuple[str, ...]:

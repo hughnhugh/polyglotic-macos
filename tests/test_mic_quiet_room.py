@@ -49,7 +49,7 @@ def model() -> "InferenceSession":
 def _sent(detector: SpeechDetector, audio: np.ndarray) -> list[TranscriptionRequest]:
     """The finished captions Steady's rules send from the mic for `audio`,
     fed as capture feeds it, with a second of hiss after."""
-    timing = CaptionTiming(None, rules=CaptionMode.STEADY.rules)
+    timing = CaptionTiming(None, rules=CaptionMode.WHOLE.rules)
     timing.add_source(MIC)
     tail = _noise(1.0, HISS_DBFS, alpha=0.5, seed=4)
     audio = np.concatenate([audio, tail])

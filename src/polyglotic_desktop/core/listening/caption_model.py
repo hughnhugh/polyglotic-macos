@@ -45,11 +45,13 @@ import itertools
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
-from polyglotic_desktop.core.listening.captions import Clause, Language, WordLink
+from polyglotic_desktop.core.listening.captions import Clause, Language, WordClass
 from polyglotic_desktop.core.listening.display import (
+    GroupedLink,
     LinkDetail,
     RowKind,
     TranslationShown,
+    group_links,
     translation_shown,
 )
 from polyglotic_desktop.core.listening.history import Caption
@@ -167,6 +169,7 @@ class Words:
     clause: int
     start: int
     end: int
+    pos: WordClass | None = None
 
     def meets(self, other: "Words") -> bool:
         return (
@@ -181,7 +184,7 @@ class Words:
 class Link:
     """Words of what was said and of its translation that say the same
     thing. `number` is the link's in the whole caption, in reading order -
-    a layout colours it by number. `original` can be several places (a word
+    a layout pairs its ends by number. `original` can be several places (a word
     said twice for the same thing). `key`: content words, not a pronoun or
     a particle; `confidence` from 0 to 1 (the surest of its pairs)."""
 
@@ -195,18 +198,6 @@ class Link:
         """Whether one of its ends shares a character with `words`."""
         ends = self.original if words.side is RowKind.ORIGINAL else self.translation
         return any(end.meets(words) for end in ends)
-
-
-@dataclass(frozen=True, slots=True)
-class _Pairs:
-    """A clause's links grouped, one per counterpart: the original's
-    spans, the translation's span, key, confidence - in reading order of
-    the original."""
-
-    original: tuple[Span, ...]
-    translation: Span
-    key: bool
-    confidence: float
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -225,7 +216,7 @@ class ClauseModel:
     settled: bool
     original_units: tuple[Unit, ...]
     translation_units: tuple[Unit, ...]
-    pairs: tuple[_Pairs, ...]
+    pairs: tuple[GroupedLink, ...]
     cuts: tuple[tuple[int, int], ...]
     source: Clause
 
@@ -327,8 +318,20 @@ def caption_model(
                     len(links),
                     pairs.key,
                     pairs.confidence,
-                    tuple(Words(RowKind.ORIGINAL, n, a, b) for a, b in pairs.original),
-                    (Words(RowKind.TRANSLATION, n, *pairs.translation),),
+                    tuple(
+                        Words(RowKind.ORIGINAL, n, a, b, pos)
+                        for (a, b), pos in zip(
+                            pairs.original, pairs.original_pos, strict=True
+                        )
+                    ),
+                    (
+                        Words(
+                            RowKind.TRANSLATION,
+                            n,
+                            *pairs.translation,
+                            pairs.translation_pos,
+                        ),
+                    ),
                 )
             )
     return CaptionModel(
@@ -354,11 +357,14 @@ def _clause_model(
     translation = shown.text if shown is not None else None
     original_units = units(clause.original)
     translation_units = units(translation) if translation else ()
-    pairs: tuple[_Pairs, ...] = ()
+    pairs: tuple[GroupedLink, ...] = ()
     cuts: tuple[tuple[int, int], ...] = ()
     if settled and shown is not None and translation:
         sent = clause.links.get(shown.target, ())
-        pairs = _grouped(sent, len(clause.original), len(translation))
+        groups = group_links(sent, len(clause.original), len(translation))
+        pairs = tuple(
+            sorted(groups, key=lambda pair: (pair.original[0], pair.translation))
+        )
         cuts = matching_cuts(
             clause.original,
             translation,
@@ -377,29 +383,3 @@ def _clause_model(
         cuts,
         clause,
     )
-
-
-def _grouped(
-    links: Sequence[WordLink], original_length: int, translation_length: int
-) -> tuple[_Pairs, ...]:
-    """A clause's links, one per counterpart in the translation (original
-    words that say the same thing share it), in reading order of the
-    original. Spans outside the texts are dropped."""
-    groups: dict[Span, tuple[list[Span], bool, float]] = {}
-    for link in links:
-        (a, b), (c, d) = link.original, link.translation
-        if not (0 <= a < b <= original_length and 0 <= c < d <= translation_length):
-            continue
-        spans, key, confidence = groups.get(link.translation, ([], False, 0.0))
-        spans.append(link.original)
-        groups[link.translation] = (
-            spans,
-            key or link.key,
-            max(confidence, link.confidence),
-        )
-    found = [
-        _Pairs(tuple(sorted(spans)), translation, key, confidence)
-        for translation, (spans, key, confidence) in groups.items()
-    ]
-    found.sort(key=lambda pairs: (pairs.original[0], pairs.translation))
-    return tuple(found)

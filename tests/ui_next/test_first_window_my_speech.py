@@ -8,6 +8,7 @@ from collections.abc import Callable, Iterator
 import pytest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import FakeAppList, MemorySettingsStore
+from tests.ui_next.made_up import SEPARATE
 
 from polyglotic_desktop.core.listening.sources import SAMPLE, SourceId
 from polyglotic_desktop.main import MicAsked, mic_refused_text, wire_caption_windows
@@ -77,6 +78,18 @@ def test_a_learner_with_windows_keeps_what_they_chose() -> None:
     assert not moved.by_key["Discord.exe"].show_mic
 
 
+def test_preset_defaults_conversation_on_and_video_off_for_new_windows() -> None:
+    """651: Conversation defaults new windows to own speech on, Video defaults
+    them off (even on the first window), while SAMPLE stays off."""
+    fresh = StoredWindows()
+    assert fresh.for_new(0, "VLC", set_up=True, my_speech=False).show_mic is False
+    assert fresh.for_new(0, "Discord.exe", set_up=True, my_speech=True).show_mic is True
+    fresh.by_key["Discord.exe"] = WindowChoices(show_mic=False)  # explicit choice
+    assert fresh.for_new(1, "Zoom", set_up=True, my_speech=True).show_mic is True
+    assert fresh.for_new(1, "VLC", set_up=True, my_speech=False).show_mic is False
+    assert fresh.for_new(0, SAMPLE, set_up=True, my_speech=True).show_mic is False
+
+
 # -- in the windows and the set-up --------------------------------------------------
 
 
@@ -95,6 +108,7 @@ class Store:
 @pytest.fixture
 def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
     found = CaptionWindows(Store({"targets": ["en"]}), MIC, areas, offer_set_up=True)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     yield found
     found.close()
 

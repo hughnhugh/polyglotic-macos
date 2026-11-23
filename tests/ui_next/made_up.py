@@ -1,6 +1,8 @@
 """Made-up caption updates for the new interface's tests, from the
 recorded conversation (`ui.recorded_captions`) - never real calls."""
 
+import time
+from collections.abc import Iterator
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
@@ -15,13 +17,19 @@ from polyglotic_desktop.core.listening.captions import (
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.ui.recorded_captions import APP, recorded_captions
+from polyglotic_desktop.ui_next.views.caption_window import JoinedChoices
+from tools import busy_pc
 
 if TYPE_CHECKING:
+    from polyglotic_desktop.ui_next.caption_window import CaptionWindow
     from polyglotic_desktop.ui_next.words_page import WordsPage
 
 EN = Language("en")
 ZH = Language("zh")
 OTHER_APP = SourceId("other-app")
+SEPARATE = JoinedChoices(on=False, chosen=True)
+"""The learner's own "Separate windows": windows start joined since
+polyglotic-hq 554, and a test of windows on their own says so."""
 
 
 def finished_updates(
@@ -43,6 +51,30 @@ def finished_updates(
         )
         for n in range(start, start + count)
     ]
+
+
+def arriving(
+    per_pass: int, source: SourceId = APP, start: int = 0
+) -> Iterator[CaptionUpdate]:
+    """New finished captions for a timed arrival of `per_pass` captions, for
+    every try the budget judge may take: a warm-up pass and the timed one in
+    each of `busy_pc.MOST_TRIES` tries - up to 4 on a busy runner, not 2
+    (polyglotic-hq 577, 578: 40 for 10 arrivals ran out on a third try, and
+    the test failed with StopIteration rather than its budget's reason).
+    Made up front, so the timed arrivals don't time their making."""
+    return iter(finished_updates(per_pass * 2 * busy_pc.MOST_TRIES, source, start))
+
+
+def at_one_moment(window: "CaptionWindow") -> None:
+    """`window` on a clock that stands still from now: the captions a test
+    gives it arrive at one moment, as on a fast PC, and step into place.
+    On a busy runner a pause of 0.1 s or more between two of them made the
+    later one slide in - drawn below the window's foot, with nothing above
+    it - and a point found on the words, or a press there, missed them
+    (polyglotic-hq 578: the hold tests 3 runs in 9, the drag tests now and
+    then, on GitHub's machines). A test of the motion moves its own clock."""
+    still = time.monotonic()
+    window.clock = lambda: still
 
 
 def live_update(caption_id: str, source: SourceId = APP) -> CaptionUpdate:

@@ -13,7 +13,9 @@ from PySide6.QtWidgets import QApplication, QLineEdit, QWidget
 from tests.ui_next.test_lookup_view import COMPUTER, CONTEXT, learner
 from tests.ui_next.test_say_it import AREA, has, pin
 
+from polyglotic_desktop.core.lexicon.entries import DictionarySense
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
+from polyglotic_desktop.ui_next.os_words import hotkeys_here as keys
 from polyglotic_desktop.ui_next.views.lookup import (
     Card,
     Lookup,
@@ -53,9 +55,9 @@ def test_each_reading_a_line_and_nothing_empty() -> None:
         Shows.ENTRY,
         pinned=True,
         readings=(
-            Reading("xíng", ("to walk", "OK")),
-            Reading("háng", ("row", "profession")),
-            Reading("", ("a sense with no reading",)),
+            Reading("xíng", (DictionarySense("to walk"), DictionarySense("OK"))),
+            Reading("háng", (DictionarySense("row"), DictionarySense("profession"))),
+            Reading("", (DictionarySense("a sense with no reading"),)),
             Reading("hàng", ()),
         ),
     )
@@ -85,7 +87,7 @@ def runs(card: LookupCard) -> list[str]:
 def test_a_pinned_card_copies_its_word_and_says_copied(card: LookupCard) -> None:
     pin(card, "电脑")
     assert has(card, "copy") and "Copy" in runs(card)
-    assert card.tip("copy") == "Copy the word, its reading and meaning (Ctrl+C)"
+    assert card.tip("copy") == keys("Copy the word, its reading and meaning (Ctrl+C)")
     card.do("copy")
     assert QGuiApplication.clipboard().text() == "电脑 電腦\ndiàn nǎo: computer"
     assert "✓ Copied" in runs(card) and "Copy" not in runs(card)

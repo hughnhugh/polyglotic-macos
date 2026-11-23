@@ -14,6 +14,16 @@
 # with its Info.plist from the build (POLYGLOTIC_INFO_PLIST: the permission
 # prompts' wording, the identifier) and Qt's cocoa platform plugin; the
 # build's own files go in its Contents/Resources (build.py's Layout).
+#
+# On Linux (polyglotic-hq 550) the folder is `Polyglotic`, with `Polyglotic`
+# in it, built on Ubuntu 22.04 for glibc 2.35 and newer (tools/package/
+# linux_build.sh) and packed as an AppImage by Velopack. Qt's X11 plugin
+# (libqxcb) and the xcb libraries it needs - libxcb-cursor0 above all, which
+# Ubuntu's, Fedora's and openSUSE's desktops don't install - come with it;
+# fontconfig and FreeType don't (LINUX_SYSTEM): the system's own read the
+# system's own font settings, which Ubuntu 22.04's copies misread on Fedora
+# (547: 45 complaints at each start). Qt's input-method plugins stay, for
+# typing Chinese and Japanese into the app's own boxes through IBus.
 
 import json
 import os
@@ -29,6 +39,7 @@ VERSION_FILE = os.environ.get("POLYGLOTIC_VERSION_FILE")  # Windows'
 ICON = os.environ.get("POLYGLOTIC_ICON")  # .ico on Windows, .icns on macOS
 INFO_PLIST = os.environ.get("POLYGLOTIC_INFO_PLIST")  # macOS's, as JSON
 MACOS = sys.platform == "darwin"
+LINUX = sys.platform.startswith("linux")
 # the interface languages Qt has its own words for (build.py's QT_LANGUAGES)
 QT_LANGUAGES = os.environ.get("POLYGLOTIC_QT_LANGUAGES", "zh_CN zh_TW").split()
 
@@ -69,16 +80,31 @@ EXCLUDES = [
 # 0034) - and plugins for networking, TLS and image formats the app
 # doesn't use. Matched against the path inside the bundle: Qt's files are
 # under PySide6/ on Windows and PySide6/Qt/ on macOS, whose windowing
-# plugin is cocoa (libqcocoa) and whose widget style (styles/) stays.
+# plugin is cocoa (libqcocoa) and whose widget style (styles/) stays. On
+# Linux the windowing plugin is xcb (libqxcb), and the input methods
+# (platforminputcontexts: IBus, compose) stay.
+INPUT_METHODS = "" if LINUX else "|platforminputcontexts"
+# Linux's file dialogs (polyglotic-hq 574, decision 0280): Qt's platform
+# theme for the desktop portal stays, so Save transcript and the export for
+# Anki open the desktop's own dialog through the portal; Qt's GTK 3 theme
+# doesn't (it would load the system's GTK beside the app's own GLib)
+PLATFORM_THEMES = "" if LINUX else "|platformthemes"
 DROP = [
     r"(^|[\\/])opengl32sw\.dll$",
     r"PySide6[\\/](Qt[\\/])?translations[\\/](?!qtbase_("
     + "|".join(re.escape(q) for q in QT_LANGUAGES)
     + r")\.qm$)",
     r"PySide6[\\/](Qt[\\/])?plugins[\\/](tls|networkinformation|generic"
-    r"|imageformats|iconengines|platforminputcontexts|platformthemes)[\\/]",
+    + INPUT_METHODS
+    + PLATFORM_THEMES
+    + r")[\\/]",
+    # Keep Qt's SVG plugins (checkbox ticks in style.py use QSS image: url("...svg"),
+    # polyglotic-hq 647); drop every other imageformat/iconengine plugin.
+    r"PySide6[\\/](Qt[\\/])?plugins[\\/]imageformats[\\/](?!qsvg\.|libqsvg\.)",
+    r"PySide6[\\/](Qt[\\/])?plugins[\\/]iconengines[\\/](?!qsvgicon\.|libqsvgicon\.)",
+    r"PySide6[\\/](Qt[\\/])?plugins[\\/]platformthemes[\\/](?!libqxdgdesktopportal)",
     r"PySide6[\\/](Qt[\\/])?plugins[\\/]platforms[\\/]"
-    r"(?!qwindows|qoffscreen|libqcocoa|libqoffscreen)",
+    r"(?!qwindows|qoffscreen|libqcocoa|libqoffscreen|libqxcb)",
     # (not Qt6Svg: the icons are drawn from their SVG masters, ui.icons)
     r"PySide6[\\/]Qt6(Pdf|Qml|Quick|OpenGL|VirtualKeyboard)\w*\.dll$",
     # sounddevice's wheel for macOS carries PortAudio for Windows too, which
@@ -96,6 +122,13 @@ if MACOS:
     from PyInstaller.utils.hooks import collect_dynamic_libs
 
     NATIVE = collect_dynamic_libs("catap")
+
+
+# Linux: the system's own, never Ubuntu 22.04's copies (547: Fedora's fonts
+# misread by them) - every desktop has both.
+LINUX_SYSTEM = [r"^libfontconfig\.so", r"^libfreetype\.so"]
+if LINUX:
+    DROP += LINUX_SYSTEM
 
 
 def keep(entry) -> bool:
@@ -139,7 +172,7 @@ exe = EXE(  # noqa: F821
     upx=False,  # packers make antivirus false alarms likelier (project 005)
     version=VERSION_FILE,  # Windows' file properties: name and version
     # the app's own icon, from its SVG masters (ui.icons); macOS's is the bundle's
-    icon=None if MACOS else ICON,
+    icon=None if MACOS or LINUX else ICON,  # Linux's is the AppImage's (pack.sh)
     target_arch="arm64" if MACOS else None,  # Apple silicon only
 )
 

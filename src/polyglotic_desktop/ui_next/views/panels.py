@@ -44,23 +44,31 @@ from polyglotic_desktop.core.listening.display import (
     ReadingSystem,
     WordLinks,
 )
+from polyglotic_desktop.core.listening.playout import (
+    TRANSLATION_AFTER_SEC,
+    Ahead,
+    ReadingPath,
+)
 from polyglotic_desktop.core.listening.settling import SETTLE_AFTER_SEC
 from polyglotic_desktop.core.listening.timing import (
-    BREATH_CUTS,
-    GROWING_OFFSETS_SEC,
     LIVE_UPDATE_INTERVAL_SEC,
     MAX_WAIT_FOR_TEXT_SEC,
-    PREVIEW_AFTER_SEC,
     CaptionMode,
 )
 from polyglotic_desktop.ui_next.views.arrivals import Arrival
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
+    MarksIn,
     TextEdge,
 )
 from polyglotic_desktop.ui_next.views.lab import CaptionLab
-from polyglotic_desktop.ui_next.views.presets import BY_KEY, hex_colour, preset_of
+from polyglotic_desktop.ui_next.views.presets import (
+    BY_KEY,
+    hex_colour,
+    preset_of,
+    with_look,
+)
 from polyglotic_desktop.ui_next.views.tone import (
     CONTRAST_RANGE,
     THICKNESSES,
@@ -74,6 +82,8 @@ LIVE_CHOICES = (0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0)
 the longest wait for text (2 to 6 s) comes first, so a longer one would
 never be followed (polyglotic-hq 295)."""
 WAIT_CHOICES = (2.0, 2.5, 3.0, 4.0, 5.0, 6.0)
+TRANSLATION_AFTER_CHOICES = (1.0, 2.0, 3.0, 5.0)
+"""Acquisition's seconds between a clause and its translation, offered."""
 """The longest waits for text offered, in seconds: MAX_WAIT_RANGE, with the
 user's "2.5-3 seconds" (polyglotic-hq 270's feedback) among them."""
 SETTLE_CHOICES = (0.0, 1.0, 2.0, 3.0)
@@ -160,6 +170,9 @@ class SessionLanguages:
     chosen; None: as this PC reads Chinese (`traditional_here`; 375)."""
     traditional_here: bool = False
     """This PC reads Chinese in Traditional (Taiwan's or Hong Kong's)."""
+    lyrics: bool = False
+    """The Lyrics switch: music players heard on Detect in songs mode
+    (polyglotic-hq 595, decision 0287)."""
 
     @property
     def traditional(self) -> bool:
@@ -226,6 +239,9 @@ class LanguagesView(Shared[SessionLanguages]):
         script = "traditional" if on else "simplified"
         self.change(replace(self.value, mandarin_script=script))
 
+    def set_lyrics(self, on: bool) -> None:
+        self.change(replace(self.value, lyrics=on))
+
 
 @dataclass(frozen=True, slots=True)
 class WindowLanguage:
@@ -260,10 +276,27 @@ class Timing:
     `max_wait`, polyglotic-hq 277), and how long shown text may still
     change (`settle_after`, seconds; core.listening.settling, 309)."""
 
-    mode: CaptionMode = CaptionMode.STEADY
+    mode: CaptionMode = CaptionMode.WHOLE
     live_interval: float = LIVE_UPDATE_INTERVAL_SEC
     max_wait: float = MAX_WAIT_FOR_TEXT_SEC
     settle_after: float = SETTLE_AFTER_SEC
+    newest_word: bool = False
+    """Steady's newest word shown too, a little sooner (526)."""
+    words_ahead: Ahead = Ahead.WAITING
+    """Steady's waiting words drawn faint ahead (karaoke): on by default
+    (polyglotic-hq 554)."""
+    two_zones: bool = True
+    """Steady's live lines below and the settled transcript above (526)."""
+    path: ReadingPath = ReadingPath.BOTH
+    """What is read first in a paced mode (decision 0253)."""
+    translation_after: float = TRANSLATION_AFTER_SEC
+    """Acquisition's seconds between a clause and its translation."""
+    cards: bool = True
+    """Steady's card stack is on (decision 0260): the two zones' switch
+    then changes nothing, and isn't offered."""
+
+    video: bool = False
+    """The Video timing panel offers live or finished translations."""
 
     @property
     def live_every(self) -> float:
@@ -272,17 +305,6 @@ class Timing:
         runs longer than the longest wait without a live update, whatever
         the interval (core.listening.timing; polyglotic-hq 295)."""
         return min(self.live_interval, self.max_wait)
-
-
-PREVIEW_LINES_AT = tuple(
-    offset
-    for offset in GROWING_OFFSETS_SEC
-    if PREVIEW_AFTER_SEC <= offset < BREATH_CUTS[CaptionMode.PREVIEW].limit
-)
-"""Seconds into a caption at which Quick preview's dim lines come (1.5 and
-3): its schedule's offsets, before its breath cut's limit finishes the
-caption (core.listening.timing). Fixed - not the learner's choice - and
-shown so (polyglotic-hq 295)."""
 
 
 def interval_choices(current: float) -> list[float]:
@@ -316,6 +338,24 @@ class TimingView(Shared[Timing]):
 
     def set_settle_after(self, seconds: float) -> None:
         self.change(replace(self.value, settle_after=seconds))
+
+    def set_newest_word(self, on: bool) -> None:
+        self.change(replace(self.value, newest_word=on))
+
+    def set_words_ahead(self, ahead: Ahead) -> None:
+        self.change(replace(self.value, words_ahead=ahead))
+
+    def set_two_zones(self, on: bool) -> None:
+        self.change(replace(self.value, two_zones=on))
+
+    def set_cards(self, on: bool) -> None:
+        self.change(replace(self.value, cards=on))
+
+    def set_path(self, path: ReadingPath) -> None:
+        self.change(replace(self.value, path=path))
+
+    def set_translation_after(self, seconds: float) -> None:
+        self.change(replace(self.value, translation_after=seconds))
 
 
 # -- Look ------------------------------------------------------------------------------
@@ -357,7 +397,8 @@ def learning_view(
     "essentially this should be the one click default"): word links shown
     as `links`, linked words in their link's colour in what was said and
     in the translation, pinyin in its word link's colour (a colour the
-    learner picked stays theirs), and the reading lines of the window's
+    learner picked stays theirs, and Grey - the default, which takes the
+    link's colour where one joins a word: 532), and the reading lines of the window's
     languages (`readings`: "zh" for a Chinese window) - so a word, its
     pinyin and its translation all match.
 
@@ -373,7 +414,7 @@ def learning_view(
             said_in_link_colours=True,
             translation_in_link_colours=True,
             reading_colour=colour
-            if colour is ReadingColour.CUSTOM
+            if colour in (ReadingColour.CUSTOM, ReadingColour.GREY)
             else ReadingColour.LINK,
             reading_lines=tuple(sorted({*look.reading_lines, *readings})),
         )
@@ -422,12 +463,16 @@ def quiet_view(
     on: bool,
     readings: tuple[str, ...] = (),
     before: CaptionLook | None = None,
+    links: WordLinks = LINKS_WHEN_ON,
 ) -> CaptionLook:
     """The look with the quiet view on (polyglotic-hq 477) - word links
     off, and the reading lines of the window clicked on (`readings`: "zh"
     for a Chinese window: a reading over every word) - or off again, the
-    reading lines back as they were in `before` (the look when it was
-    turned on; not known: as they are)."""
+    word links, their colours and the reading lines back as they were in
+    `before` (the look when it was turned on), so links show as the
+    learner had them (polyglotic-hq 555; 523 found them left off). Not
+    known (turned on before a restart): word links shown as `links` -
+    on every word by default - and the rest as it is."""
     if on:
         return replace(
             look,
@@ -436,8 +481,16 @@ def quiet_view(
             reading_lines=tuple(sorted({*look.reading_lines, *readings})),
         )
     if before is None:
-        return replace(look, quiet=False)
-    return replace(look, quiet=False, reading_lines=before.reading_lines)
+        return replace(look, quiet=False, word_links=links)
+    return replace(
+        look,
+        quiet=False,
+        word_links=before.word_links,
+        said_in_link_colours=before.said_in_link_colours,
+        translation_in_link_colours=before.translation_in_link_colours,
+        reading_colour=before.reading_colour,
+        reading_lines=before.reading_lines,
+    )
 
 
 class LookView(Shared[CaptionLook]):
@@ -507,6 +560,12 @@ class LookView(Shared[CaptionLook]):
             )
         )
 
+    def set_recommended(self, key: str) -> None:
+        """A recommended look (`presets.LOOKS`, polyglotic-hq 532): its
+        colours, caption text, readings and Chinese faces at once - each
+        changed as freely after."""
+        self.change(with_look(self.value, key))
+
     def set_opacity(self, opacity: float) -> None:
         self.change(replace(self.value, opacity=round(min(1.0, max(0.0, opacity)), 2)))
 
@@ -564,16 +623,16 @@ class LookView(Shared[CaptionLook]):
         """A caption window's quiet button, or Settings' (477): the quiet
         view on - word links off, as their button turns them off, and
         `readings`, the reading lines of the window clicked - or off,
-        its reading lines back as they were."""
+        its word links and reading lines back as they were (555)."""
         if on == self.value.quiet:
             return
         look = self.value
         if on:
+            self.unquieted = look  # its word links as they were too (555)
             if look.word_links is not WordLinks.OFF:  # as their own button would
                 look = learning_view(look, False, self.links_when_on, (), self.unlinked)
                 self.unlinked = None
-            self.unquieted = look
-        self.change(quiet_view(look, on, readings, self.unquieted))
+        self.change(quiet_view(look, on, readings, self.unquieted, self.links_when_on))
         if not on:
             self.unquieted = None
 
@@ -587,6 +646,9 @@ class LookView(Shared[CaptionLook]):
     def set_curriculum_size(self, size: int) -> None:
         self.change(replace(self.value, curriculum_size=size))
 
+    def set_marks_in(self, where: MarksIn) -> None:
+        self.change(replace(self.value, marks_in=where))
+
     def set_links_shown(self, on: bool, readings: tuple[str, ...] = ()) -> None:
         """A caption window's word links button (249, F9): the whole
         learning view in one click (`learning_view`, 446) - word links the
@@ -598,7 +660,7 @@ class LookView(Shared[CaptionLook]):
         look = self.value
         if on:
             if look.quiet:  # the quiet view off first, as its own button would
-                look = quiet_view(look, False, (), self.unquieted)
+                look = quiet_view(look, False, (), self.unquieted, self.links_when_on)
                 self.unquieted = None
             self.unlinked = look
         self.change(
@@ -606,6 +668,15 @@ class LookView(Shared[CaptionLook]):
         )
         if not on:
             self.unlinked = None
+
+    def set_readings_shown(self, on: bool, readings: tuple[str, ...] = ()) -> None:
+        """The preset dropdown's Readings (polyglotic-hq 556): `readings` -
+        the reading lines of the window clicked - on beside those already
+        on, or every reading line off."""
+        lines = tuple(sorted({*self.value.reading_lines, *readings})) if on else ()
+        if on and not lines:
+            return  # nothing in that window has a reading to show
+        self.change(replace(self.value, reading_lines=lines))
 
     def set_link_detail(self, detail: LinkDetail) -> None:
         self.change(replace(self.value, link_detail=detail))

@@ -29,6 +29,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import sys
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -77,10 +78,17 @@ def kind(text_size: int, app_text_size: str, language: str) -> str:
     return f"lab-{text_size}-{app_text_size}-{language}"
 
 
-def _folder() -> Path:
-    return Path(
-        os.environ.get("POLYGLOTIC_TIMING_RECORD") or start_record.RECORD_FOLDER
-    )
+OFF_WINDOWS = Path.home() / ".polyglotic-ci"
+"""The record off Windows: CI's Linux runner's home, in its container,
+which lasts from job to job as its registration does - the job's checkout
+is cleaned for each one (polyglotic-hq 563)."""
+
+
+def _folder(system: str = sys.platform) -> Path:
+    named = os.environ.get("POLYGLOTIC_TIMING_RECORD")
+    if named:
+        return Path(named)
+    return start_record.RECORD_FOLDER if system == "win32" else OFF_WINDOWS
 
 
 def _account() -> str:

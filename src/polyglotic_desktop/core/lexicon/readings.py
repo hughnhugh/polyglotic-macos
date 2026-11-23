@@ -12,6 +12,9 @@ Plain values. A reading holds caption text's sound: never log it.
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
+RESPELLED_WORD_LIMIT = 10_000
+"""How many of the commonest English words the bundled dictionaries respell."""
+
 
 @dataclass(frozen=True, slots=True)
 class Reading:

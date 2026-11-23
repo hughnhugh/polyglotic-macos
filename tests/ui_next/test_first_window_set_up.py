@@ -13,11 +13,11 @@ from dataclasses import replace
 import pytest
 from PySide6.QtCore import QPoint
 from PySide6.QtWidgets import QAbstractButton, QApplication
-from tests.ui_next.made_up import finished_updates
+from tests.ui_next.made_up import SEPARATE, finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
-from polyglotic_desktop.ui_next.caption_set_up import placed_in
+from polyglotic_desktop.ui_next.caption_set_up import MARGIN, beside_if_short, placed_in
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, chip_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.settings_popover import LANGUAGE_ROWS
@@ -27,7 +27,7 @@ from polyglotic_desktop.ui_next.views.caption_window import (
     WindowChoices,
 )
 from polyglotic_desktop.ui_next.views.migration import stored_windows
-from polyglotic_desktop.ui_next.views.placement import Rect
+from polyglotic_desktop.ui_next.views.placement import CORNER_ZONE, Rect
 
 SECOND_APP = SourceId("app-2")
 THIRD_APP = SourceId("app-3")
@@ -57,6 +57,7 @@ def store() -> Store:
 @pytest.fixture
 def windows(qapp: QApplication, store: Store) -> Iterator[CaptionWindows]:
     found = CaptionWindows(store, MIC, areas, offer_set_up=True)
+    found.stored.joined = SEPARATE  # on their own: windows start joined (554)
     yield found
     found.close()
 
@@ -218,7 +219,12 @@ def test_it_waits_while_locked_or_hidden_and_follows_the_window(
     window.move(window.x() - 200, window.y() - 300)
     qapp.processEvents()
     assert inside.left() - 200 <= set_up.x() <= window.frameGeometry().right()
-    assert set_up.y() == window.mapToGlobal(QPoint(0, 0)).y() + window.band_bottom()
+    top = window.mapToGlobal(QPoint(0, 0)).y()
+    area = areas()[0]
+    expected = beside_if_short(
+        top, window.height(), window.band_bottom(), set_up.height(), area
+    )
+    assert set_up.y() == placed_in(Rect(0, expected, 1, set_up.height()), area)[1]
     window.hide()
     assert not set_up.isVisible() and window.set_up is set_up  # asked when shown
 
@@ -235,6 +241,129 @@ def test_not_offered_no_set_up(qapp: QApplication) -> None:
     found.set_captioned([("Discord.exe", APP)])
     assert found.windows["Discord.exe"].set_up is None
     found.close()
+
+
+# -- in a joined window (polyglotic-hq 554) ------------------------------------------
+
+
+def test_a_set_up_too_tall_for_its_window_goes_beside_it() -> None:
+    """Under the band while it fits clear of the window's foot and corners;
+    else above the window, else below it - never over its resize edges
+    (polyglotic-hq 586: a 372 px set-up hung past a 300 px window's foot)."""
+    area = Rect(0, 0, 2560, 1392)
+    assert beside_if_short(700, 600, 28, 372, area) == 728  # fits: under the band
+    tall = 600 - 28 - CORNER_ZONE  # the most that fits
+    assert beside_if_short(700, 600, 28, tall, area) == 728
+    assert beside_if_short(700, 600, 28, tall + 1, area) == 700 - MARGIN - tall - 1
+    assert beside_if_short(1002, 300, 28, 372, area) == 1002 - MARGIN - 372  # above
+    assert beside_if_short(20, 300, 28, 372, area) == 20 + 300 + MARGIN  # below
+    assert beside_if_short(20, 300, 28, 1300, area) == 48  # room nowhere: as before
+
+
+def test_the_set_up_never_covers_a_short_windows_edges(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    """The first window at its usual size, at the screen's foot: its set-up
+    is above it, clear of the window, so every edge still resizes."""
+    window = first(windows, qapp)
+    window.resize(window.width(), 300)
+    window.move(window.x(), areas()[0].bottom - 300)
+    qapp.processEvents()
+    set_up = window.set_up
+    assert set_up is not None and set_up.isVisible()
+    assert set_up.height() > 300 - window.band_bottom() - CORNER_ZONE  # too tall
+    assert not set_up.geometry().intersects(window.geometry())
+    assert set_up.geometry().bottom() < window.y()
+    window.move(window.x(), 100)
+    window.resize(window.width(), set_up.height() + 200)  # room for it: inside
+    qapp.processEvents()
+    assert set_up.y() == window.y() + window.band_bottom()
+    foot = window.y() + window.height() - CORNER_ZONE
+    assert set_up.y() + set_up.height() <= foot
+
+
+@pytest.fixture
+def joining(qapp: QApplication, store: Store) -> Iterator[CaptionWindows]:
+    """A new PC's windows as they start: joined once there are two (554)."""
+    found = CaptionWindows(store, MIC, areas, offer_set_up=True)
+    yield found
+    found.close()
+
+
+def inside(column: CaptionWindow, qapp: QApplication) -> bool:
+    """Whether its set-up shows with it: across it, under its strip - or,
+    the window too short for it, just above or below it (586) - moved as
+    far as keeps it on the work area (`placed_in`)."""
+    qapp.processEvents()
+    set_up = column.set_up
+    assert set_up is not None
+    corner = column.mapToGlobal(QPoint(0, 0))
+    area = areas()[0]
+    y = beside_if_short(
+        corner.y(), column.height(), column.band_bottom(), set_up.height(), area
+    )
+    return (
+        set_up.isVisible()
+        and corner.x() <= set_up.x()
+        and set_up.x() + set_up.width() <= corner.x() + column.width()
+        and set_up.y() == placed_in(Rect(0, y, 1, set_up.height()), area)[1]
+    )
+
+
+def test_a_second_app_joining_doesnt_take_the_first_windows_question_away(
+    joining: CaptionWindows, qapp: QApplication
+) -> None:
+    """Bug (polyglotic-hq 554): joining ended a window's set-up - "the
+    learner is past it" - and windows start joined now, so a second app's
+    window opening while the first asked took its question away for good.
+    It stays, inside the first window's column, and still answers."""
+    window = first(joining, qapp)
+    set_up = window.set_up
+    assert set_up is not None and set_up.isVisible()
+    joining.set_captioned([("Discord.exe", APP), ("Video", SECOND_APP)])
+    joined = joining.joined_window
+    assert joined is not None and window.host is joined  # joined
+    assert window.set_up is set_up and inside(window, qapp)
+    assert joining.windows["Video"].set_up is None  # one window asks at a time
+    joined.move(joined.x() - 120, joined.y() - 200)  # it goes with the window
+    assert inside(window, qapp)
+    set_up._spoken_chosen("zh")
+    assert window.choices.spoken_language == "zh"  # answered in its column
+    set_up.start.click()
+    assert window.set_up is None and not set_up.isVisible()
+
+
+def test_windows_joining_stay_where_the_first_window_was(
+    joining: CaptionWindows, qapp: QApplication
+) -> None:
+    """polyglotic-hq 572 (preview 2): with presets (desktop #976) a second
+    app's window joining placed the joined window again from the first
+    window's geometry - by then its place inside the joined window, (0, 0) -
+    so the joined window went to the screen's top left."""
+    window = first(joining, qapp)
+    at = window.geometry()
+    joining.set_captioned([("Discord.exe", APP), ("Video", SECOND_APP)])
+    joined = joining.joined_window
+    assert joined is not None and window.host is joined
+    qapp.processEvents()
+    assert joined.y() == at.y() and joined.height() == at.height()
+
+
+def test_a_window_that_opens_as_a_column_asks_its_question(
+    joining: CaptionWindows, qapp: QApplication
+) -> None:
+    """Without Use as my default every window that opens asks (478) - a
+    joined window's new column too, where it never showed (554)."""
+    window = first(joining, qapp)
+    assert window.set_up is not None
+    window.set_up.start.click()  # Start captions, not as my default
+    joining.set_captioned([("Discord.exe", APP), ("Video", SECOND_APP)])
+    video = joining.windows["Video"]
+    assert video.host is joining.joined_window  # a column
+    assert video.set_up is not None and inside(video, qapp)
+    joining.separate()  # on its own again: still asked, at its own place
+    qapp.processEvents()
+    assert video.set_up is not None and inside(video, qapp)
 
 
 # -- the language chip --------------------------------------------------------------

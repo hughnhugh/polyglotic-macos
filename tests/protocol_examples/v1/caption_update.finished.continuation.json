@@ -1,0 +1,18 @@
+{
+  "type": "caption_update",
+  "caption_id": "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c",
+  "source_id": "source-1",
+  "kind": "finished",
+  "language": "zh",
+  "languages_heard": ["zh"],
+  "clauses": [
+    {
+      "original": "目前在上海。",
+      "translations": {"en": "Currently in Shanghai."},
+      "links": {}
+    }
+  ],
+  "continues": "0a9b8c7d-6e5f-4a3b-9c2d-1e0f9a8b7c6d",
+  "replaces": [],
+  "processing_ms": 105
+}

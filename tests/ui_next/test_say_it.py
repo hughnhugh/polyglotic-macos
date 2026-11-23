@@ -391,3 +391,163 @@ def test_a_good_voice_or_a_recording_brings_no_notice(qapp: QApplication) -> Non
         card.deleteLater()
         speech.deleteLater()
         qapp.processEvents()
+
+
+ESPEAK_MANDARIN = Voice(
+    "speechd:espeak-ng:Chinese (Mandarin, latin as English)",
+    "Chinese (Mandarin, latin as English)",
+    "zh-CN",
+    Quality.BASIC,
+)
+
+
+@pytest.mark.parametrize(
+    ("voices", "why"),
+    [
+        ((DAVID,), "the system's speech-dispatcher has none"),
+        ((), "speech-dispatcher, which isn't installed or didn't start"),
+    ],
+)
+def test_on_linux_no_voice_says_why_and_opens_nothing(
+    qapp: QApplication,
+    opened: Opened,
+    monkeypatch: pytest.MonkeyPatch,
+    voices: tuple[Voice, ...],
+    why: str,
+) -> None:
+    """591: Linux has no speech settings page - the card says why there's no
+    voice, speech-dispatcher without the language or not there at all, and
+    offers no button to Windows' settings."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    speaker = Speaker(voices)
+    speech = WordSpeech(speaker, open_url=opened)
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        assert glyph(card) is glyphs.Glyph.NO_VOICE
+        card.do("say")
+        texts = [b.layout.text() for b in card._painted.blocks]
+        assert any(why in t for t in texts), texts
+        assert not any("Windows" in t for t in texts)
+        assert not has(card, "add_voice")
+        speech.add_voice()
+        assert opened.urls == [] and speaker.said == []
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
+        qapp.processEvents()
+
+
+def test_on_linux_the_basic_voice_says_so_and_that_recordings_are_natural(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """518's notice worded for Linux (591): speech-dispatcher's voice is the
+    system's basic one, and no better one is open to the app yet."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    quiet: list[str] = []
+    speaker = Speaker((ESPEAK_MANDARIN, DAVID))
+    speech = WordSpeech(
+        speaker, open_url=Opened(), better=BetterVoice(lambda: quiet, quiet.append)
+    )
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        card.do("say")
+        assert speaker.said == [("电脑", ESPEAK_MANDARIN.id, 1.0)]
+        steps = [t.text for t in card._painted.texts]
+        linux = better_voice_steps("zh")
+        assert linux in steps and "speech-dispatcher" in linux
+        assert "macOS" not in linux and "a recording" in linux
+        assert has(card, "voice_never") and has(card, "voice_dismiss")
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
+        qapp.processEvents()
+
+
+def test_recorded_word_does_not_wake_system_voices_until_needed(
+    qapp: QApplication,
+) -> None:
+    """646: when a word has a pack recording, pinning and playing it must not
+    query the OS speaker's voices (which on Linux starts speech-dispatcher)."""
+    from polyglotic_desktop.ports.speaker import RECORDED
+
+    recorded = Voice(f"{RECORDED}zh", "Kokoro", "zh-CN")
+    asks = 0
+
+    class CountingSpeaker(Speaker):
+        def voices(self) -> tuple[Voice, ...]:
+            nonlocal asks
+            asks += 1
+            return super().voices()
+
+    speaker = CountingSpeaker((ESPEAK_MANDARIN,))
+    speech = WordSpeech(
+        speaker,
+        open_url=Opened(),
+        recorded=lambda _v, word: word == "电脑",
+        recorded_voices=lambda: (recorded,),
+    )
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        assert asks == 0 and glyph(card) is glyphs.Glyph.SPEAKER
+        card.do("say")
+        assert asks == 0 and speaker.said == [("电脑", recorded.id, 1.0)]
+        # A word without a recording asks the OS speaker on demand
+        pin(card, "朋友")
+        assert asks >= 1
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
+        qapp.processEvents()
+
+
+def test_on_demand_voice_listing_keeps_rechecking_until_listed(
+    qapp: QApplication,
+) -> None:
+    """646: on Linux, speech-dispatcher starts only when a card first asks and
+    may still be starting at the first 600 ms recheck; `_recheck` keeps
+    polling until `speaker.listed` becomes True, then flips the card to READY."""
+
+    class LazySpeaker(Speaker):
+        def __init__(self) -> None:
+            super().__init__(())
+            self.listed = False
+
+    speaker = LazySpeaker()
+    speech = WordSpeech(speaker, open_url=Opened())
+    card = LookupCard(learner())
+    card.use_speech(speech)
+    try:
+        pin(card, "电脑")
+        assert glyph(card) is glyphs.Glyph.NO_VOICE
+        assert speech._recheck.isActive()
+        # Still starting on first recheck -> re-arms itself
+        speech._recheck.stop()
+        speech._recheck.timeout.emit()
+        qapp.processEvents()
+        assert glyph(card) is glyphs.Glyph.NO_VOICE
+        assert speech._recheck.isActive()
+        # Listing finishes -> flips card to SPEAKER
+        speaker.installed = (ESPEAK_MANDARIN,)
+        speaker.listed = True
+        speech._recheck.stop()
+        speech._recheck.timeout.emit()
+        qapp.processEvents()
+        assert glyph(card) is glyphs.Glyph.SPEAKER
+    finally:
+        card.close_card()
+        card.close()
+        card.deleteLater()
+        speech.deleteLater()
+        qapp.processEvents()

@@ -5,6 +5,7 @@ adds or takes one away, the keyboard does both, and the bar above the list
 does an action to them all. Made-up learning, offscreen."""
 
 from collections.abc import Iterator
+from dataclasses import replace
 
 import pytest
 from PySide6.QtCore import QEvent, Qt
@@ -16,7 +17,11 @@ from tests.ui.fakes import tools_for
 from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.shared import EntryId, Level, WordStatus
+from polyglotic_desktop.ports.word_classes import WordClass
+from polyglotic_desktop.ui.interface_language import install
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next.lookup_card import HOVER_WIDTHS, LookupCard
+from polyglotic_desktop.ui_next.style import px
 from polyglotic_desktop.ui_next.word_table import Column, WordTable
 from polyglotic_desktop.ui_next.words_page import LanguageWords, WordsPage
 
@@ -131,6 +136,60 @@ def test_the_keyboard_picks_too(words: LanguageWords) -> None:
     assert table.picked_entries() == rows
     QTest.keyClick(table, Qt.Key.Key_Escape)
     assert table.picked_entries() == []
+
+
+def test_keyboard_lookup_shows_and_reads_the_sense_classes(qapp: QApplication) -> None:
+    file = chinese_sample()
+    for record in file.records("研究"):
+        file.by_id[record.entry_id] = replace(
+            record,
+            meanings=("(noun) (academia) a detailed investigation", "to investigate"),
+            sense_classes=((WordClass.NOUN, WordClass.VERB), (WordClass.VERB,)),
+            sense_prefixes=(7, 0),
+        )
+    tools = tools_for(ChineseDictionary(file), "hsk-2025")
+    tools.vocabulary.set_level(Level("hsk-2025", 0))
+    for n in range(3):
+        tools.vocabulary.caption_finished(
+            f"c{n}", tools.words_in("。".join(WORDS)), False
+        )
+    card = LookupCard(tools)
+    page = WordsPage(tools, card)
+    page.resize(900, 900)
+    page.show()
+    settle()
+
+    table = page.first.words
+    target = shown(table).index(entry(tools, "研究"))
+    assert len(shown(table)) > 1
+    before = target - 1 if target else 1
+    table.setCurrentIndex(
+        table.words.index(before, table.words.columns.index(Column.WORD))
+    )
+    table.setFocus()
+    QTest.keyClick(table, Qt.Key.Key_Down if target else Qt.Key.Key_Up)
+    QTest.keyClick(table, Qt.Key.Key_Return)
+    assert card.isVisible()
+    assert card.accessibleName() == "研究"
+    sense = "Noun / Verb · (academia) a detailed investigation"
+    assert sense in card.accessibleDescription()
+    assert "Verb · to investigate" in card.accessibleDescription()
+    narrow = card._lay_out(card.model.card(), px(HOVER_WIDTHS[0]))
+    block = next(block for block in narrow.blocks if sense in block.layout.text())
+    assert block.layout.lineCount() > 1
+
+    translators = install(qapp, "ja")
+    try:
+        card._render()
+        assert (
+            "名詞 / 動詞 · (academia) a detailed investigation"
+            in card.accessibleDescription()
+        )
+        assert "名詞 / 動詞" in " ".join(item.text for item in card._painted.texts)
+    finally:
+        for translator in translators:
+            qapp.removeTranslator(translator)
+        install(qapp, "en")
 
 
 def test_words_you_keep_hearing_go_into_the_deck_together(

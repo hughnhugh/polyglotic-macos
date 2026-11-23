@@ -62,6 +62,16 @@ def test_the_longest_line_is_about_seventy_characters(column: QWidget) -> None:
     assert 60 <= note.measure() / average <= 80
 
 
+def test_a_width_limited_note_keeps_enough_height_for_every_line(
+    column: QWidget,
+) -> None:
+    note = controls.label(LONG, "Faint", wrap=True)
+    note.setMaximumWidth(180)
+    shown(column, note, 700)
+    assert note.width() == 180
+    assert note.heightForWidth(700) == note.heightForWidth(180)
+
+
 def test_a_narrow_note_is_as_before(column: QWidget) -> None:
     note = controls.label(LONG, "Faint", wrap=True)
     shown(column, note, 150)  # a caption window's settings, the rail

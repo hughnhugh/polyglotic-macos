@@ -31,6 +31,14 @@ reconnects - and `ended` gives polyglotic-server's tracking plan event
   or an error;
 - `reconnects`; `live_interval_seconds`: the live-update interval the
   mode followed (None for Steady);
+- **what the app recovered from by itself** (polyglotic-hq 566, from 557;
+  decision 0266), so a tester's "it hangs" can be told apart from a
+  failure without their log: `session_failures`, the times the session
+  failed inside the app and tried again (`session_failed`; the server
+  closing it is a reconnect); `capture_restarts`, the times a capture
+  failed and started again, or tried to; `unreadable_dropped`, waiting
+  rows this version couldn't read, dropped since the last summary - the
+  last two counted by the capture and the outbox and handed to `ended`;
 - `lookups`, `saves`: lookups shown and words saved during the session -
   counts only, the only usage statistics about them (polyglotic-hq
   DECISIONS.md #20: no event per lookup or save);
@@ -49,7 +57,13 @@ reconnects - and `ended` gives polyglotic-server's tracking plan event
   learner did (`SessionAction`): transcripts opened, lines flagged
   ("Looks wrong?"), whether a source was shown in the original only, and
   whether the joined window was on. Numbers and yes/no only - never an
-  app's name.
+  app's name;
+- **songs mode** (polyglotic-hq 595, decision 0287): how long a music
+  player was heard in songs mode (`lyrics_seconds`, `songs`) and how often
+  the learner turned the Lyrics switch on or off (`lyrics_switches`,
+  `SessionAction.LYRICS_SWITCHED`) - both left out of a session that had
+  neither, so a server without them in its plan drops only the sessions
+  that used it.
 
 A session with no finished caption is summarised too (the tracking plan,
 since S2b): its dropped captions and reconnects are what it has to say.
@@ -110,6 +124,9 @@ class ListeningSessionEnded:
     dropped: int
     reconnects: int
     live_interval_seconds: float | None
+    capture_restarts: int = 0
+    session_failures: int = 0
+    unreadable_dropped: int = 0
     lookups: int = 0
     saves: int = 0
     known_app: str | None = None
@@ -131,6 +148,20 @@ class ListeningSessionEnded:
     apps_2_seconds: float | None = None
     apps_3_seconds: float | None = None
     my_speech_seconds: float | None = None
+    preset_saves: int | None = None
+    """Preset steps (587), each how many there were and how many changed
+    settings they carried in all - None, and so not sent, in a session with
+    none: a server from before 587 drops a summary with them."""
+    preset_saves_as: int | None = None
+    preset_discards: int | None = None
+    preset_changes_saved: int | None = None
+    preset_changes_saved_as: int | None = None
+    preset_changes_discarded: int | None = None
+    lyrics_seconds: float | None = None
+    """How long a music player was heard in songs mode (595); None, and
+    `lyrics_switches` too, for a session that neither had it on nor
+    switched it."""
+    lyrics_switches: int | None = None
 
 
 class SessionAction(StrEnum):
@@ -143,6 +174,20 @@ class SessionAction(StrEnum):
     """A source was shown in the original only (no translation)."""
     JOINED_WINDOW = "joined_window"
     """The joined window was on."""
+    LYRICS_SWITCHED = "lyrics_switched"
+    """The Lyrics switch turned on or off (595)."""
+
+
+class PresetStep(StrEnum):
+    """A step on the chosen preset the summary counts, with how many of its
+    settings it carried (polyglotic-hq 587): never which, nor a name."""
+
+    SAVED = "saved"
+    """Save to the preset in use."""
+    SAVED_AS = "saved_as"
+    """Save as new preset…"""
+    DISCARDED = "discarded"
+    """Discard changes."""
 
 
 APP_COUNTS = 4
@@ -203,7 +248,7 @@ class SessionSummary:
         tells it)."""
         self._live_interval = live_interval
         if mode is None:
-            mode = CaptionMode.STEADY if live_interval is None else CaptionMode.LIVE
+            mode = CaptionMode.WHOLE if live_interval is None else CaptionMode.INSTANT
         self._mode = mode
         self._target = target
         self._sent: dict[CaptionId, _Sent] = {}
@@ -214,14 +259,21 @@ class SessionSummary:
         self._erased = 0
         self._dropped = 0
         self._reconnects = 0
+        self._session_failures = 0
         self._lookups = 0
         self._saves = 0
         self._did: Counter[SessionAction] = Counter()
+        self._preset_steps: Counter[PresetStep] = Counter()
+        self._preset_changes: Counter[PresetStep] = Counter()
         self._capture = capture
         self._since = started
         self._mode_time: dict[CaptureMode, float] = {}
         self._apps_time = [0.0] * APP_COUNTS
         self._my_speech = 0.0
+        self._songs_since: float | None = None
+        """When songs mode came on, while it's on (`songs`)."""
+        self._songs_seconds: float | None = None
+        """How long songs mode was on before; None: never on."""
         self._switches = 0
         self._apps_max = capture.apps if capture is not None else 0
 
@@ -243,6 +295,21 @@ class SessionSummary:
     def did(self, action: SessionAction) -> None:
         """The learner did something the summary counts."""
         self._did[action] += 1
+
+    def preset_step(self, step: PresetStep, changes: int) -> None:
+        """A step on the chosen preset that carried `changes` settings (587)."""
+        self._preset_steps[step] += 1
+        self._preset_changes[step] += max(0, changes)
+
+    def songs(self, on: bool, at: float) -> None:
+        """Whether a music player is heard in songs mode, from `at` (595)."""
+        if on and self._songs_since is None:
+            self._songs_since = at
+        elif not on and self._songs_since is not None:
+            self._songs_seconds = (self._songs_seconds or 0.0) + max(
+                0.0, at - self._songs_since
+            )
+            self._songs_since = None
 
     def _count_time(self, at: float) -> None:
         """Adds the time since the last change to what was captured then."""
@@ -270,6 +337,26 @@ class SessionSummary:
             original_only=did[SessionAction.ORIGINAL_ONLY] > 0,
             joined_window=did[SessionAction.JOINED_WINDOW] > 0,
         )
+        steps, changes = self._preset_steps, self._preset_changes
+        if steps:
+            summary = replace(
+                summary,
+                preset_saves=steps[PresetStep.SAVED],
+                preset_saves_as=steps[PresetStep.SAVED_AS],
+                preset_discards=steps[PresetStep.DISCARDED],
+                preset_changes_saved=changes[PresetStep.SAVED],
+                preset_changes_saved_as=changes[PresetStep.SAVED_AS],
+                preset_changes_discarded=changes[PresetStep.DISCARDED],
+            )
+        if self._songs_since is not None:
+            self.songs(False, at)
+        switched = did[SessionAction.LYRICS_SWITCHED]
+        if self._songs_seconds is not None or switched:
+            summary = replace(
+                summary,
+                lyrics_seconds=round(self._songs_seconds or 0.0, 1),
+                lyrics_switches=switched,
+            )
         if self._capture is None:
             return summary
         chosen: dict[CaptureMode, float] = {
@@ -357,6 +444,11 @@ class SessionSummary:
     def reconnected(self) -> None:
         self._reconnects += 1
 
+    def session_failed(self) -> None:
+        """The session failed inside the app and is trying again (decision
+        0266) - not the server closing it, which is a reconnect."""
+        self._session_failures += 1
+
     def looked_up(self) -> None:
         """A lookup was shown during the session (hover or pinned)."""
         self._lookups += 1
@@ -365,9 +457,21 @@ class SessionSummary:
         """A word was saved during the session."""
         self._saves += 1
 
-    def ended(self, at: float) -> ListeningSessionEnded:
+    def ended(
+        self, at: float, *, capture_restarts: int = 0, unreadable_dropped: int = 0
+    ) -> ListeningSessionEnded:
         """The summary, as the session ends at `at` - with no source
-        category or delays if nothing was captioned."""
+        category or delays if nothing was captioned. `capture_restarts` and
+        `unreadable_dropped`: counted by the captures and the outbox over
+        the session."""
+        return replace(
+            self._ended(at),
+            capture_restarts=capture_restarts,
+            session_failures=self._session_failures,
+            unreadable_dropped=unreadable_dropped,
+        )
+
+    def _ended(self, at: float) -> ListeningSessionEnded:
         self._dropped += sum(
             1 for sent in self._sent.values() if at - sent.sent_at > DROPPED_AFTER_SEC
         )
@@ -377,7 +481,7 @@ class SessionSummary:
                 speech_minutes=0.0,
                 captions=0,
                 source_category=None,
-                caption_mode=self._mode.value,
+                caption_mode=self._mode.usage_value,
                 delay_p50_ms=None,
                 delay_p95_ms=None,
                 rewrite_ratio=0.0,
@@ -406,7 +510,7 @@ class SessionSummary:
             speech_minutes=round(sum(seconds.values()) / 60, 2),
             captions=len(self._finished),
             source_category=max(seconds, key=lambda c: seconds[c]),
-            caption_mode=self._mode.value,
+            caption_mode=self._mode.usage_value,
             delay_p50_ms=_percentile(self._delays, 0.5),
             delay_p95_ms=_percentile(self._delays, 0.95),
             rewrite_ratio=round(self._rewritten / words_, 3) if words_ else 0.0,

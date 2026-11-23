@@ -5,47 +5,54 @@ main caption window instead of font change")."""
 
 from dataclasses import replace
 
-from PySide6.QtGui import QAccessible, QIcon
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtGui import QIcon
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 from tests.ui_next.test_caption_window import MIC, Store, areas, window_of
 from tests.ui_next.test_joined_window import THREE
 
+from polyglotic_desktop.core.listening.captions import WordClass
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.ui_next.caption_window import STRIP, CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.glyphs import Glyph
+from polyglotic_desktop.ui_next.panels import WordLinksPanel
 from polyglotic_desktop.ui_next.settings_popover import COLUMN_ROWS, ROWS
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.presets import BY_KEY, contrast
+from polyglotic_desktop.ui_next.word_classes import (
+    CLASS_ALTERNATES,
+    CLASS_COLOURS,
+    CLASS_CONTRAST,
+    WordClassLegend,
+    class_colour,
+)
 
 
-def test_the_strip_has_word_links_and_no_text_size() -> None:
-    # "report" only shows for an alpha tester (polyglotic-hq 275)
-    # filled lines and parts lined up beside word links (polyglotic-hq 372)
-    # and the quiet view beside them (polyglotic-hq 477)
-    assert STRIP == (
-        "links", "quiet", "fill", "aligned", "lock", "report", "settings", "stop",
-    )  # fmt: skip
+def test_word_links_is_the_first_icon_in_the_strip() -> None:
+    assert STRIP == ("links", "lock", "report", "settings", "stop")
 
 
 def test_the_button_shows_and_asks_for_word_links(qapp: QApplication) -> None:
     window = window_of(qapp)
     try:
-        button = window.buttons["links"]
+        button = window.controls["links"]
+        assert window.buttons["links"].defaultAction() is button
         assert window.glyphs["links"] is Glyph.LINKS
-        assert not window.controls["links"].icon().isNull()
-        said = QAccessible.queryAccessibleInterface(button)
-        assert said.text(QAccessible.Text.Name) == "Word links"
+        assert not button.icon().isNull()
+        assert button.text() == "Word links"
         assert button.toolTip()  # what they are, in plain words
         assert not button.isChecked()  # off by default
         asked: list[bool] = []
         window.links_wanted.connect(lambda on, _: asked.append(on))
-        button.click()
+        button.trigger()
         assert asked == [True]
         window.set_look(replace(window.look, word_links=WordLinks.HOVER))
         assert button.isChecked()
-        button.click()
+        button.trigger()
         assert asked == [True, False]
     finally:
         window.close()
@@ -74,7 +81,7 @@ def test_with_what_was_said_hidden_the_button_says_why_it_does_nothing(
     words; shown again, it works as before."""
     window = window_of(qapp)
     try:
-        button = window.buttons["links"]
+        button = window.controls["links"]
         on = button.toolTip()
         asked: list[bool] = []
         window.links_wanted.connect(lambda on, _: asked.append(on))
@@ -84,7 +91,7 @@ def test_with_what_was_said_hidden_the_button_says_why_it_does_nothing(
             "Word links need what was said: turn on “Show the original above the "
             "translation” in Settings"
         )
-        button.click()
+        button.trigger()
         assert asked == []
         # dimmed: Qt's own grey of a near-white glyph stayed near white
         drawn = window.controls["links"].icon()
@@ -96,7 +103,7 @@ def test_with_what_was_said_hidden_the_button_says_why_it_does_nothing(
         assert button.isChecked() and not button.isEnabled()  # still says it's on
         window.set_look(replace(window.look, show_original=True))
         assert button.isEnabled() and button.toolTip() == on
-        button.click()
+        button.trigger()
         assert asked == [False]
     finally:
         window.close()
@@ -111,12 +118,12 @@ def test_every_window_s_button_reaches_the_look(qapp: QApplication) -> None:
     windows.links_wanted.connect(look.set_links_shown)
     windows.set_captioned(THREE[:2])
     first, second = windows.windows.values()
-    first.buttons["links"].click()
+    first.controls["links"].trigger()
     assert look.value.word_links is WordLinks.ARROWS
-    assert first.buttons["links"].isChecked() and second.buttons["links"].isChecked()
-    second.buttons["links"].click()
+    assert first.controls["links"].isChecked() and second.controls["links"].isChecked()
+    second.controls["links"].trigger()
     assert look.value.word_links is WordLinks.OFF
-    assert not first.buttons["links"].isChecked()
+    assert not first.controls["links"].isChecked()
     windows.close()
 
 
@@ -143,7 +150,7 @@ def _popover(window: CaptionWindow, qapp: QApplication) -> None:
 
 
 def test_the_text_size_is_in_the_settings_popover(qapp: QApplication) -> None:
-    assert ROWS.index("text_size") == ROWS.index("timing") + 1
+    assert ROWS.index("translation_size") == ROWS.index("text_size") + 1  # 655
     assert "text_size" in COLUMN_ROWS  # a joined window's column has its own
     window = window_of(qapp)
     try:
@@ -157,8 +164,8 @@ def test_the_text_size_is_in_the_settings_popover(qapp: QApplication) -> None:
         )
         assert smaller is not None and bigger is not None
         assert (smaller.text(), bigger.text()) == ("A-", "A+")
-        assert smaller.accessibleName() == "Smaller text"
-        assert bigger.accessibleName() == "Bigger text"
+        assert smaller.accessibleName() == "Smaller caption size"
+        assert bigger.accessibleName() == "Bigger caption size"
         heading = row.findChild(QLabel)
         assert heading is not None and "100%" in heading.text()
         bigger.click()
@@ -170,3 +177,77 @@ def test_the_text_size_is_in_the_settings_popover(qapp: QApplication) -> None:
         assert "90%" in heading.text()
     finally:
         window.close()
+
+
+def test_word_class_legend_opens_on_hover_and_from_keyboard(qapp: QApplication) -> None:
+    window = window_of(qapp)
+    try:
+        window.show()
+        window.open_bar_controls()
+        qapp.processEvents()
+        chooser = window.bar_controls
+        assert chooser is not None
+        legend = chooser.rows["bar_word_classes"]
+        assert isinstance(legend, WordClassLegend)
+        for _ in range(len(chooser.rows)):
+            focused = qapp.focusWidget()
+            assert focused is not None
+            if focused is legend.button:
+                break
+            QTest.keyClick(focused, Qt.Key.Key_Tab)
+        assert qapp.focusWidget() is legend.button
+        QTest.keyClick(legend.button, Qt.Key.Key_Space)
+        assert legend.labels.isVisible()
+        assert "Adjective" in legend.labels.text()
+        adverb = CLASS_COLOURS[WordClass.ADVERB]
+        alternate = CLASS_ALTERNATES[WordClass.ADVERB][0]
+        assert f"color:{adverb}" in legend.labels.text()
+        assert f"color:{alternate}" in legend.labels.text()
+        window.close_settings()
+
+        button = window.buttons["links"]
+        qapp.sendEvent(button, QEvent(QEvent.Type.Enter))
+        window.tips._show()
+        assert "Noun" in window.tips.label.text()
+        assert "Class unavailable" in window.tips.label.text()
+        assert window.tips.label.isVisible()
+        assert f"color:{adverb}" in window.tips.label.text()
+        assert f"color:{alternate}" in window.tips.label.text()
+
+        paper = BY_KEY["paper"]
+        window.set_look(
+            replace(
+                window.look,
+                original=paper.original,
+                translation=paper.translation,
+                background=paper.background,
+                opacity=paper.opacity,
+            )
+        )
+        window.tips._show()
+        assert (
+            f"color:{CLASS_ALTERNATES[WordClass.ADVERB][1]}" in window.tips.label.text()
+        )
+        assert f"color:{adverb}" not in window.tips.label.text()
+    finally:
+        window.close()
+
+
+def test_class_marks_keep_the_palette_over_white_at_default_panel_opacity() -> None:
+    for pos, swatch in CLASS_COLOURS.items():
+        assert class_colour(pos, "#0a0c10", 0.72, "#ffffff") == swatch
+        assert contrast(swatch, "#4f5053") >= CLASS_CONTRAST
+
+
+def test_settings_word_links_has_the_same_legend(qapp: QApplication) -> None:
+    panel = WordLinksPanel(LookView(CaptionLook()), learning=True)
+    try:
+        panel.show()
+        legend = panel.findChild(WordClassLegend)
+        assert legend is not None
+        assert legend.button.focusPolicy() != Qt.FocusPolicy.NoFocus
+        QTest.keyClick(legend.button, Qt.Key.Key_Space)
+        assert legend.labels.isVisible()
+        assert "Particle, connector or interjection" in legend.labels.text()
+    finally:
+        panel.close()

@@ -83,8 +83,8 @@ def test_the_popover_is_as_big_as_its_rows_need(at_100: QApplication) -> None:
     for scale in (1.0, 2.0):
         style.use_text_scale(scale)
         window = window_of(at_100)
-        window.toggle_settings()
-        popover = window.popover
+        window.toggle_languages()
+        popover = window.languages
         assert popover is not None
         popover.language.click()  # the languages open inside it
         at_100.processEvents()

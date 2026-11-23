@@ -230,6 +230,18 @@ def window_of(view: int) -> int:
     return int(objc.send(view, "window") or 0)
 
 
+def activate_from_status_item() -> None:
+    """Bring this accessory forward for a deliberate click on its status item."""
+    with objc.pool():
+        objc.send(
+            _app(),
+            "activateIgnoringOtherApps:",
+            True,
+            restype=None,
+            argtypes=[ctypes.c_bool],
+        )
+
+
 def be_an_accessory() -> bool:
     """The app an accessory from now on (if it isn't already: the packed
     app is, from its Info.plist); True if it is."""
@@ -260,6 +272,24 @@ class MacOnTop:
         windows, the joined window, the lookup card - numbers, which the
         window server hands out afresh, not `NSWindow`s, whose memory a
         later window may reuse. Every other panel showing is `lifted`."""
+
+    def refresh_panel_cursor(self, view: int) -> bool:
+        """Ask the active Cocoa view to apply its Qt cursor to a non-key panel.
+
+        WindowServer keeps the foreground application's pointer when another
+        application is active. The caption draws its edge indicator in that case.
+        """
+        app = _app()
+        if not _flag(app, "isActive"):
+            return False
+        objc.send(
+            view,
+            "cursorUpdate:",
+            objc.send(app, "currentEvent"),
+            restype=None,
+            argtypes=[ctypes.c_void_p],
+        )
+        return True
 
     def game_in_front(self) -> bool:
         """Always: Qt sets a window's level again whenever its flags change,

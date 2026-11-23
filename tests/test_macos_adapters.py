@@ -62,6 +62,15 @@ def test_macos_gets_a_whole_record() -> None:
             assert piece is not None and callable(piece.allowed)
         elif field.name == "mic_permission":  # the Mac's microphone (478)
             assert isinstance(piece, mic_permission.Permission)
+        elif field.name in ("qt_platform", "system_mode"):  # Qt's own (550, 571)
+            assert piece is None
+        elif field.name in (
+            "dictation",  # offered on a Mac (574: not on Linux yet)
+            "list_voices_at_start",  # pre-listed after start (646)
+        ):
+            assert piece is True
+        elif field.name in ("unlock_spot", "clipboard_typing"):
+            assert piece is False
         else:
             assert callable(piece), field.name
             assert "windows" not in getattr(piece, "__module__", ""), field.name
@@ -80,9 +89,10 @@ def test_macos_record_loads_nothing_of_windows() -> None:
     assert loaded.stdout.split() == []
 
 
-def test_linux_still_has_none() -> None:
-    with pytest.raises(NoOsAdapters, match="platform/linux"):
-        os_adapters("linux")
+def test_another_os_still_has_none() -> None:
+    """Linux has its own since polyglotic-hq 550 (tests/test_linux_adapters.py)."""
+    with pytest.raises(NoOsAdapters, match="freebsd"):
+        os_adapters("freebsd14")
 
 
 @pytest.mark.windows_only

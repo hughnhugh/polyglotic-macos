@@ -3,7 +3,8 @@ Largest - polyglotic-hq 292, decision 0084) on the main surfaces: the
 lookup card's explanations first, Settings > App, Words, Help, a
 transcript, a caption window's settings and the tray's menu.
 
-- **Smaller:** built at it - the base text at 12 px, never under (`style.px`).
+- **Smaller:** built at it - the interface at its design sizes, 0.1.9's Normal
+  (decision 0244).
 - **Largest:** a window that stays open - the main window's pages, a
   transcript - built at Normal, then switched while open
   (`switch`), as the learner does it in Settings: what doesn't follow a

@@ -48,6 +48,15 @@ from polyglotic_desktop.ports.credentials import CredentialStore, DeviceCredenti
 TIMEOUT_SEC = 15.0
 ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"  # Crockford's base32 (protocol.md)
 CODE_LENGTH = 16
+# U+FF01 through U+FF5E are the full-width counterparts of printable ASCII.
+_FULL_WIDTH_ASCII = dict(zip(range(0xFF01, 0xFF5F), range(0x21, 0x7F), strict=True))
+
+
+def narrow_code(text: str) -> str:
+    """Accept full-width ASCII from an input method and trim edge whitespace."""
+    return text.translate(_FULL_WIDTH_ASCII).strip()
+
+
 _LOOK_ALIKES = str.maketrans({"O": "0", "I": "1", "L": "1"})
 
 
@@ -55,7 +64,9 @@ def invite_code(text: str) -> str | None:
     """`text` as an invite code in four groups (`7KQM-X2PD-9VHT-C4RA`), or
     None if it can't be one: 16 characters of Crockford's base32 once
     case, spaces and dashes are set aside and look-alikes read as digits."""
-    cleaned = "".join(text.upper().replace("-", "").split()).translate(_LOOK_ALIKES)
+    cleaned = "".join(narrow_code(text).upper().replace("-", "").split()).translate(
+        _LOOK_ALIKES
+    )
     if len(cleaned) != CODE_LENGTH or any(c not in ALPHABET for c in cleaned):
         return None
     return "-".join(cleaned[i : i + 4] for i in range(0, CODE_LENGTH, 4))

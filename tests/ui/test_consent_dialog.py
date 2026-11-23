@@ -142,13 +142,16 @@ class ShortScreen:
         return QRect(0, 0, 1280, 672)
 
 
+@pytest.mark.parametrize("size", ["smaller", "normal", "largest"])
 def test_the_first_screen_fits_a_150_percent_laptop_with_continue_in_view(
-    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch, size: str
 ) -> None:
     """At 150 % on a 1920 x 1080 laptop the first screen was 721 px tall
     with 672 px above the taskbar: Continue sat under the taskbar, and
     there's no going on without it (polyglotic-hq 203). The explanation and
-    choices scroll now; the yes and Continue stay in view, nothing is cut."""
+    choices scroll now; the yes and Continue stay in view, nothing is cut -
+    at each of the app's text sizes (Normal, the default, is 1.3: 524)."""
+    style.use_app_text_size(size)
     dialog = ConsentDialog()
     dialog.setStyleSheet(style.stylesheet(window_theme()))
     monkeypatch.setattr(dialog, "screen", lambda: ShortScreen())
@@ -175,9 +178,23 @@ class TallScreen:
         return QRect(0, 0, 1920, 1040)
 
 
+TALL_SIZES = [("smaller", 1.0), ("normal", 1.0), ("normal", 1.1)]
+"""The app's text sizes, and Windows': at Normal (1.3) and Windows' 110 %
+the text is wider still - as Linux's fonts are at Normal, where the first
+screen scrolled in CI (polyglotic-hq 524) - and the screen grows wider
+rather than scroll (`ConsentDialog._fit`, `WIDEST`)."""
+
+
+@pytest.mark.parametrize(("size", "windows"), TALL_SIZES)
 def test_on_a_tall_screen_nothing_scrolls(
-    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch, size: str, windows: float
 ) -> None:
+    """At the app's default text size too (polyglotic-hq 524: at 1.3 its
+    fixed 520 px scrolled the first screen on a 1920 x 1080 screen): its
+    least width grows with its text (`TextDialog.set_least_width`), and it
+    grows wider before it scrolls."""
+    style.use_app_text_size(size)
+    style.use_text_scale(windows)
     dialog = ConsentDialog()
     dialog.setStyleSheet(style.stylesheet(window_theme()))
     monkeypatch.setattr(dialog, "screen", lambda: TallScreen())
@@ -191,8 +208,9 @@ def test_on_a_tall_screen_nothing_scrolls(
     dialog.close()
 
 
+@pytest.mark.parametrize(("size", "windows"), TALL_SIZES)
 def test_on_a_tall_screen_no_scroll_bar_flashes_at_the_first_paint(
-    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch, size: str, windows: float
 ) -> None:
     """269 and 278 saw it on real windows: the screen first painted with a
     scroll bar over its text - cutting words at the right and the
@@ -200,6 +218,8 @@ def test_on_a_tall_screen_no_scroll_bar_flashes_at_the_first_paint(
     It all fits, so no bar from the first paint on."""
     from PySide6.QtCore import QEvent, QObject
 
+    style.use_app_text_size(size)
+    style.use_text_scale(windows)
     dialog = ConsentDialog()
     dialog.setStyleSheet(style.stylesheet(window_theme()))
     monkeypatch.setattr(dialog, "screen", lambda: TallScreen())

@@ -198,6 +198,42 @@ def test_more_than_a_word_in_one_clause_gets_the_card_alone(
     offered.hide()
 
 
+def test_a_phrase_in_one_clause_is_looked_up_from_the_card(
+    windows: CaptionWindows,
+) -> None:
+    """The sentence card's "Look it up" (533): a set phrase of four
+    characters or more (一石二鳥) gets the sentence card, not a lookup
+    (522), so the card looks it up - and goes, the lookup card in its
+    place, never both at once."""
+    shown_, shared = window(windows), cards.card(windows)
+    _, start = cards.find(shown_, "画")
+    _, end = cards.find(shown_, "漂亮")
+    drag(shown_, start, QPointF(end.x() + 4, end.y()))  # 画面很漂: four
+    offered = shown_.sentence_card
+    assert offered is not None and offered.isVisible()
+    assert offered.look_up.isVisible() and offered.look_up.text() == "Look it up"
+    assert not shared.isVisible()
+    offered.look_up.click()
+    assert not offered.isVisible()
+    assert shared.isVisible() and shared.pinned
+    assert shared.model.word == "画面很漂"
+    assert shown_.held.selection is not None  # still held: a right-click copies it
+    shared.close_card()
+
+
+def test_a_selection_across_captions_has_no_look_it_up(
+    windows: CaptionWindows,
+) -> None:
+    """Across clauses or captions there's no one phrase to look up."""
+    shown_ = window(windows)
+    first, second = last_two(shown_)
+    drag(shown_, point(shown_, first.key, SAID, 0), point(shown_, second.key, SAID, 2))
+    offered = shown_.sentence_card
+    assert offered is not None and offered.isVisible()
+    assert not offered.look_up.isVisible()
+    offered.hide()
+
+
 def test_esc_lets_go_of_the_selection_and_the_card(windows: CaptionWindows) -> None:
     shown_ = window(windows)
     first, second = last_two(shown_)

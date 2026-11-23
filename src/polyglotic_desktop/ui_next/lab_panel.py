@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.releases import flags
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.caption_layout import LINK_PX
 from polyglotic_desktop.ui_next.caption_preview import CaptionPreview
@@ -444,18 +445,17 @@ class LabPanel(Panel):
             )
         )
         self.fill.changed.connect(lambda v: self._set(fill=Fill(v)))
-        self.add(
-            Row(
-                _tr("Captions fill the width"),
-                _tr(
-                    "Off: each clause on a row of its own, as now. Translation "
-                    "below: a caption's clauses run on in lines as wide as the "
-                    "window, and its translation fills the lines under them. No "
-                    "Arrows while captions fill the width."
-                ),
-                _left(self.fill),
-            )
+        self.fill_row = Row(
+            _tr("Captions fill the width"),
+            _tr(
+                "Off: each clause on a row of its own, as now. Translation "
+                "below: a caption's clauses run on in lines as wide as the "
+                "window, and its translation fills the lines under them. No "
+                "Arrows while captions fill the width."
+            ),
+            _left(self.fill),
         )
+        self.add(self.fill_row)
         self.join = Segmented(
             [
                 (Join.ELLIPSIS, _tr("Ellipsis")),
@@ -499,6 +499,10 @@ class LabPanel(Panel):
         )
         self.run_on.switch.toggled.connect(lambda on: self._set(run_on=bool(on)))
         self.add(self.run_on)
+        # captions filling the width: behind their flag, off (polyglotic-hq
+        # 555) - each of these rows pours them
+        for poured in (self.fill_row, self.join_row, self.run_on):
+            poured.setHidden(not flags.on(flags.FILL_THE_WIDTH))
         self.aligned = SwitchRow(
             _tr("Parts lined up"),
             _tr(

@@ -3,6 +3,7 @@ audio continuous, which device to capture, app categories, and tracing a
 browser's audio process to its main one. (The captures themselves were
 checked by hand on Windows 11 - project 016's report.)"""
 
+import logging
 import os
 import sys
 import time
@@ -14,6 +15,7 @@ import pytest
 if sys.platform != "win32":
     pytest.skip("Windows only", allow_module_level=True)
 
+from polyglotic_desktop.platform import capture_restarts
 from polyglotic_desktop.platform.windows import apps, capture, system
 from polyglotic_desktop.platform.windows.apps import (
     WindowsAppList,
@@ -106,6 +108,21 @@ def test_wanted_device_follows_the_proof_of_concept() -> None:
         raise OSError("no audio service")
 
     assert wanted_device("usb", broken, lambda: "jack") is None
+
+
+def test_speaker_hold_uses_the_configured_loopback_or_an_unset_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    default = AudioDevice("default", "Default speakers")
+    other = AudioDevice("headphones", "Headphones")
+    active = [default, other]
+    monkeypatch.setattr(capture, "active_devices", lambda _flow: active)
+    monkeypatch.setattr(capture, "default_device", lambda _flow: default)
+    selected = capture.SystemCapture(other.id, strict_device=True)
+    assert selected._target() == other.id
+    active.remove(other)
+    assert selected._target() is None
+    assert capture.SystemCapture(strict_device=True)._target() == default.id
 
 
 @pytest.mark.parametrize(
@@ -473,6 +490,111 @@ def test_without_a_trial_an_apps_capture_is_as_before(
         got = _run(app, lambda: False, seconds=0.3)
         assert got and asked == []
         assert any(any(audio) for audio in got) is sound
+
+
+def _said(caplog: pytest.LogCaptureFixture) -> str:
+    """What the captures logged, as the log file has it - messages only."""
+    return "\n".join(r.getMessage() for r in caplog.records)
+
+
+def test_a_capture_whose_callback_fails_starts_again_and_says_so(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """polyglotic-hq 557 (529's B1): an error nobody foresaw on the capture's
+    thread - in the speech detection its callback runs, say - ended the
+    thread for good, with nothing in the log and `error` read by nobody.
+    Now it's logged by the capture's kind and the error's type (never its
+    text), and the capture starts again after `Backoff`'s wait."""
+    monkeypatch.setattr(capture_restarts, "FIRST_SEC", 0.05)
+    app, _ = _app_capture(monkeypatch, _Packets(sound=True), None, peak=0.5)
+    got: list[bytes] = []
+    while_down: list[tuple[str | None, str | None]] = []
+
+    def on_audio(start: float, audio: bytes) -> None:
+        got.append(audio)
+        if len(got) == 3:
+            while_down.append((app.capturing, app.error))
+            raise RuntimeError("a caption's text")
+
+    caplog.set_level(logging.INFO, logger=capture.__name__)
+    app.start(on_audio)
+    try:
+        deadline = time.monotonic() + 3
+        while len(got) < 30 and time.monotonic() < deadline:
+            time.sleep(0.01)
+    finally:
+        app.stop()
+    assert len(got) >= 30, "the capture never started again"
+    assert app.error is None and app.restarts == 1  # counted for the summary (566)
+    said = _said(caplog)
+    assert "app capture stopped (RuntimeError); starting again in 0s" in said
+    assert said.count("app capture open") == 2
+    assert "caption" not in said and "My Game" not in said
+
+
+def test_an_apps_capture_that_failed_to_open_is_tried_again(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """529's B1: a failed open was never tried again for that app (its
+    target is always its name). Now it is, after `Backoff`'s wait, and each
+    failure is logged by Windows' code - never the app's name."""
+    monkeypatch.setattr(capture_restarts, "FIRST_SEC", 0.02)
+    app, _ = _app_capture(monkeypatch, _Packets(sound=True), None, peak=0.5)
+    tries: list[int] = []
+
+    def activate(process_id: int, leave_out: bool = False) -> object:
+        tries.append(process_id)
+        if len(tries) < 3:
+            raise OSError(None, "Couldn't capture My Game", None, -2004287480)
+        return object()
+
+    monkeypatch.setattr(capture, "_activate_process_loopback", activate)
+    caplog.set_level(logging.INFO, logger=capture.__name__)
+    named: list[str | None] = []
+
+    def opened() -> bool:
+        named.append(app.capturing)
+        return app.capturing is not None
+
+    _run(app, opened)
+    assert len(tries) == 3 and named[-1] == "My Game" and app.error is None
+    assert app.restarts == 2  # each failed open, for the summary (566)
+    said = _said(caplog)
+    assert said.count("app capture couldn't open (OSError 0x88890008)") == 2
+    assert "app capture open after 2 failed tries" in said
+    assert "My Game" not in said
+
+
+class _Failing(_Packets):
+    """A stream that fails as soon as it's read: the device went away."""
+
+    def packets(self) -> list[tuple[float, bytes]]:
+        raise OSError(None, "the device went away", None, -2004287480)
+
+
+def test_a_stream_that_keeps_failing_is_reopened_after_a_wait_not_at_once(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """557: a stream lost mid-way was reopened at once, every time - one that
+    fails as it opens spun, and with its line in the log would have filled
+    it. It waits `Backoff`'s time between reopenings."""
+    monkeypatch.setattr(capture_restarts, "FIRST_SEC", 0.2)
+    app, _ = _app_capture(monkeypatch, _Failing(sound=True), None, peak=0.5)
+    opens: list[int] = []
+    activate = capture._activate_process_loopback
+
+    def counted(process_id: int, leave_out: bool = False) -> object:
+        opens.append(process_id)
+        return activate(process_id, leave_out)
+
+    monkeypatch.setattr(capture, "_activate_process_loopback", counted)
+    caplog.set_level(logging.INFO, logger=capture.__name__)
+    _run(app, lambda: False, seconds=0.5)
+    assert 2 <= len(opens) <= 3  # at 0, 0.2 and 0.6 s - not hundreds
+    assert app.restarts >= len(opens) - 1  # each loss, for the summary (566)
+    assert "app capture lost its stream (OSError 0x88890008); reopening in 0s" in (
+        _said(caplog)
+    )
 
 
 def test_everything_else_tells_the_trial_only_of_a_refusal(

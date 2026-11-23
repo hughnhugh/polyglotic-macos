@@ -37,6 +37,13 @@ only what comes after them from the update (`core.listening.settling`).
 An update that comes too late is ignored: a live update for a caption
 already finished, or any update for one that was withdrawn or replaced.
 
+**A caption whose finished caption won't come ends with what it shows**
+(polyglotic-hq 557, 529's B3): its finished speech failed on the server,
+was given up, or was never sent. It stayed live - provisional - for good,
+and never reached the transcript or Copy all. `ended` gives the finished
+update that ends it, its words and translations as shown; applied like
+any other, it ends it everywhere the updates go.
+
 **Established text** (polyglotic-hq 494, decision 0228;
 `core.listening.established`): a live caption keeps how much of its start
 the server says is established - the update's count, carried over to the
@@ -55,7 +62,7 @@ Holds caption text: never log it. Not thread-safe - one thread (the UI's).
 
 import itertools
 from collections import OrderedDict, deque
-from collections.abc import Callable, Collection, Iterable
+from collections.abc import Callable, Collection, Iterable, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 
@@ -105,7 +112,8 @@ class Caption:
     its clauses' originals counted in order (0 for a finished one: all of
     it is final); `corrected`: the words this version put in place of
     words the version before showed as established, in the same count
-    (`core.listening.established`)."""
+    (`core.listening.established`). `respoken`: the learner re-spoke it
+    for its source (polyglotic-hq 567): theirs, marked so."""
 
     key: int
     caption_id: CaptionId
@@ -121,6 +129,7 @@ class Caption:
     first_shown: tuple[Clause, ...] = ()
     established: int = 0
     corrected: tuple[Span, ...] = ()
+    respoken: bool = False
 
     @property
     def original(self) -> str:
@@ -161,6 +170,20 @@ def is_cjk(char: str) -> bool:
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def newest_finished(captions: Sequence[Caption]) -> Caption | None:
+    """The newest finished caption - the one the "Copy the newest caption"
+    hotkey copies (polyglotic-hq 567) - or None."""
+    return next((c for c in reversed(captions) if not c.live), None)
+
+
+def copied_text(caption: Caption) -> str:
+    """A caption as it's copied: what was said, then its translation into
+    each language it has one in, a line each."""
+    languages = dict.fromkeys(lang for c in caption.clauses for lang in c.translations)
+    lines = [caption.original, *(caption.translation(x) for x in languages)]
+    return "\n".join(lines)
 
 
 class CaptionHistory:
@@ -210,6 +233,27 @@ class CaptionHistory:
     def caption(self, caption_id: CaptionId) -> Caption | None:
         return next((c for c in self._captions if c.caption_id == caption_id), None)
 
+    def dismissed(self, caption_id: CaptionId) -> bool:
+        """Whether a withdrawal or permanent audio join already retired this ID."""
+        return caption_id in self._gone
+
+    def ended(self, caption_id: CaptionId) -> CaptionUpdate | None:
+        """The update that ends `caption_id` when its finished caption won't
+        come (dropped): finished, with what it shows - its words, their
+        translations, its language. None if it isn't shown live: finished
+        already, gone, or never shown (nothing provisional to end)."""
+        caption = self.caption(caption_id)
+        if caption is None or not caption.live:
+            return None
+        return CaptionUpdate(
+            caption_id=caption.caption_id,
+            source_id=caption.source_id,
+            kind=CaptionKind.FINISHED,
+            clauses=caption.clauses,
+            language=caption.language,
+            languages_heard=caption.languages_heard,
+        )
+
     @property
     def settle_after(self) -> float:
         """How long shown words may still change, in seconds
@@ -256,7 +300,9 @@ class CaptionHistory:
     def is_yours(self, source_id: SourceId) -> bool:
         return source_id in self._yours
 
-    def apply(self, update: CaptionUpdate) -> Caption | None:
+    def apply(
+        self, update: CaptionUpdate, *, hold_live_translation: bool = False
+    ) -> Caption | None:
         """Applies a caption update. Returns the caption as it now stands,
         or None if it went (withdrawn) or the update came too late."""
         if update.caption_id in self._gone:
@@ -272,7 +318,16 @@ class CaptionHistory:
         replaced = () if live else update.replaces
         clauses, stable = self._settled(update, replaced, now.timestamp())
         if current is not None:
-            clauses = keep_translations(current.clauses, clauses, live)
+            # Video can finish the original before its translated packet arrives.
+            # Keep the last accepted words through a correction of that original.
+            pending_translation = (
+                hold_live_translation
+                and current.live
+                and not any(clause.translations for clause in update.clauses)
+            )
+            clauses = keep_translations(
+                current.clauses, clauses, live or pending_translation
+            )
         established = (
             kept_established(update.clauses, update.established, clauses) if live else 0
         )
@@ -294,11 +349,12 @@ class CaptionHistory:
             updated_at=now,
             established=established,
             corrected=fixed,
+            respoken=update.respoken or (current is not None and current.respoken),
         )
         placed = self._place(caption, (update.caption_id, *replaced))
         for caption_id in replaced:
             if caption_id != update.caption_id:
-                self._forget(caption_id)
+                self._forget(caption_id, permanent=caption_id != update.display_member)
         self._stable[update.caption_id] = stable
         self._heard[update.caption_id] = _speech_heard(update)
         self._drop_off_the_front()
@@ -314,7 +370,7 @@ class CaptionHistory:
         have stood."""
         ids = (update.caption_id, *replaced)
         shown = [c for c in self._captions if c.caption_id in ids]
-        if not shown:
+        if not shown or update.display_member is not None:
             return update.clauses, Stable().after("", shown_text(update.clauses), at)
         before: tuple[Clause, ...] = ()
         stable = Stable()
@@ -417,9 +473,10 @@ class CaptionHistory:
             self._captions = kept
             self.version += 1
 
-    def _forget(self, caption_id: CaptionId) -> None:
+    def _forget(self, caption_id: CaptionId, *, permanent: bool = True) -> None:
         """Remembers that a caption went, so a late update can't bring it back."""
-        self._gone[caption_id] = None
+        if permanent:
+            self._gone[caption_id] = None
         self._stable.pop(caption_id, None)
         self._heard.pop(caption_id, None)
         while len(self._gone) > _GONE_REMEMBERED:
@@ -473,5 +530,7 @@ def keep_translations(
                 written[lang] = old.written_in[lang]
             else:
                 written.pop(lang, None)
-        kept.append(Clause(clause.original, translations, links, written))
+        kept.append(
+            replace(clause, translations=translations, links=links, written_in=written)
+        )
     return tuple(kept)

@@ -15,6 +15,7 @@ from dataclasses import dataclass, replace
 
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, Level
 from polyglotic_desktop.ports.dictionary import MeaningsFile
+from polyglotic_desktop.ports.word_classes import SenseClasses
 
 _VARIANT = re.compile(r"^(old |archaic |unofficial |Japanese |erroneous )?variant of ")
 
@@ -81,6 +82,12 @@ scheme, `ENGLISH_FREQUENCY`."""
 
 
 @dataclass(frozen=True)
+class DictionarySense:
+    gloss: str
+    classes: SenseClasses = None
+
+
+@dataclass(frozen=True)
 class DictionaryEntry:
     """One headword with its reading and meanings.
 
@@ -106,6 +113,19 @@ class DictionaryEntry:
     """A number spelled out in letters (`spoken`)."""
     names_capitalised: bool = False
     """Its language capitalises a word inside a sentence only for a name."""
+    sense_classes: tuple[SenseClasses, ...] = ()
+    sense_prefixes: tuple[int, ...] = ()
+
+    @property
+    def senses(self) -> tuple[DictionarySense, ...]:
+        classes = self.sense_classes or (None,) * len(self.meanings)
+        prefixes = self.sense_prefixes or (0,) * len(self.meanings)
+        return tuple(
+            DictionarySense(gloss[prefix:], labels)
+            for gloss, labels, prefix in zip(
+                self.meanings, classes, prefixes, strict=True
+            )
+        )
 
     @property
     def idiom(self) -> bool:
@@ -238,4 +258,8 @@ def explained(entry: DictionaryEntry, meanings: MeaningsFile | None) -> Dictiona
     the dictionary has it. Only what's shown changes: its ID, rank, levels
     and whether it's a name stay the dictionary's own."""
     found = meanings.meanings(entry.entry_id) if meanings is not None else None
-    return replace(entry, meanings=found) if found else entry
+    if not found or found == entry.meanings:
+        return entry
+    # Riders currently carry no source-sense links. Their own glosses may be
+    # reordered, combined or replaced, so the base ordinals do not apply.
+    return replace(entry, meanings=found, sense_classes=(), sense_prefixes=())

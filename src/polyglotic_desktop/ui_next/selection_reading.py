@@ -35,7 +35,7 @@ from PySide6.QtGui import QColor, QDesktopServices
 from polyglotic_desktop.core.listening.display import RowKind
 from polyglotic_desktop.core.listening.read_aloud import ReadAloud, read_aloud
 from polyglotic_desktop.ports.speaker import RECORDED, Reader, Sounding, Voice
-from polyglotic_desktop.ui_next.os_words import pc_or_mac
+from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.views.sentences import SideAloud
 from polyglotic_desktop.ui_next.views.speech import (
     MAC_SPEECH_SETTINGS,
@@ -43,6 +43,7 @@ from polyglotic_desktop.ui_next.views.speech import (
     SPEECH_SETTINGS,
     BetterVoice,
     Say,
+    system_voice,
     voice_for,
 )
 
@@ -204,8 +205,14 @@ class SelectionReading(QObject):
 
     def add_voice(self) -> None:
         """Windows' speech settings, where Add voices is; a Mac's Spoken
-        Content, where Manage Voices is."""
-        self._open_url(pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS))
+        Content, where Manage Voices is. Linux has no such page: its steps
+        are in words (591)."""
+        if not on_linux():
+            self._open_url(pc_or_mac(SPEECH_SETTINGS, MAC_SPEECH_SETTINGS))
+
+    def system_voice(self) -> bool:
+        """Whether the PC's own voices answer (`views.speech.system_voice`)."""
+        return system_voice(self.reader.voices())
 
     def _sounding(self, start: float, seconds: float) -> None:
         if self.hush is not None:
@@ -229,3 +236,5 @@ class SelectionReading(QObject):
     def _look_again(self) -> None:
         if self.reader.voices() != self._seen:
             self.changed.emit()
+        elif not getattr(self.reader, "listed", True):
+            self._recheck.start()

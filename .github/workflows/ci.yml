@@ -67,6 +67,8 @@ jobs:
 
       # The runner can't install packages: unpacked into the job's own folder
       - name: Qt's system libraries
+        env:
+          POLYGLOTIC_APT_MIRROR: ${{ runner.environment == 'self-hosted' && vars.APT_MIRROR || '' }}
         run: bash tools/linux_qt_libs.sh "$RUNNER_TEMP/qt-libs" >> "$GITHUB_ENV"
 
       - name: Install (fails if uv.lock is out of date)
@@ -78,6 +80,11 @@ jobs:
       # Windows runner
       - name: Lint (ruff)
         run: uv run --no-sync ruff check --output-format=github
+
+      - name: Warn when a file gains unregistered literals (597)
+        env:
+          LITERALS_BASE: ${{ github.event.pull_request.base.sha }}
+        run: uv run --no-sync python -m tools.literals --warn --base "$LITERALS_BASE"
 
       - name: Format (ruff format --check)
         run: uv run --no-sync ruff format --check

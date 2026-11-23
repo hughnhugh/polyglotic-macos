@@ -38,6 +38,7 @@ RELEASE_FILE = "release.json"
 FROM_SOURCE_VERSION = "0.0.0"
 FIRST_CHANNEL: Channel = "win-x64-alpha"
 MAC_FIRST_CHANNEL: Channel = "macos-arm64-alpha"
+LINUX_FIRST_CHANNEL: Channel = "linux-x64-alpha"
 VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 """protocol.md's versions: `MAJOR.MINOR.PATCH`, no leading zeros."""
 
@@ -85,8 +86,13 @@ def read_release(text: str) -> Release:
 
 def first_channel(os: Os) -> Channel:
     """The first channel of the OS's builds (`os`: protocol.md's), for a copy
-    run from source: a Mac's is `macos-arm64-alpha` (polyglotic-hq 409)."""
-    return MAC_FIRST_CHANNEL if os.startswith("macos-") else FIRST_CHANNEL
+    run from source: a Mac's is `macos-arm64-alpha` (polyglotic-hq 409), a
+    Linux PC's `linux-x64-alpha` (polyglotic-hq 550)."""
+    if os.startswith("macos-"):
+        return MAC_FIRST_CHANNEL
+    if os.startswith("linux-"):
+        return LINUX_FIRST_CHANNEL
+    return FIRST_CHANNEL
 
 
 def this_release(

@@ -11,7 +11,8 @@ Languages or Captions; Words, not Vocabulary.
   learner's dictionary is out, what's wrong with it and how to fix it, in
   the lookup card's words (polyglotic-hq 199); and when their learning
   data was set aside at the start, that, where the old file is, and that
-  their words come back (polyglotic-hq 206).
+  their words come back (polyglotic-hq 206). Beside Check again, Server
+  status opens the site's status page (polyglotic-hq 540, 563).
 - **Set up** and **Questions** - 040's HELP.md, shortened; each opens
   with a click. "What we keep" says what the privacy notice v2 says, and
   under the questions the notice and the tester agreement open in the
@@ -26,7 +27,7 @@ Languages or Captions; Words, not Vocabulary.
 
 from collections.abc import Callable, Collection, Sequence
 
-from PySide6.QtCore import QPoint, Qt, QTimer, Signal
+from PySide6.QtCore import QLocale, QPoint, Qt, QTimer, Signal
 from PySide6.QtGui import QHideEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
@@ -39,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from polyglotic_desktop.core.listening.check import (
+    SOUND_WINDOW,
     Facts,
     Link,
     Problem,
@@ -48,8 +50,15 @@ from polyglotic_desktop.core.listening.check import (
     summary,
 )
 from polyglotic_desktop.core.listening.dictation_keys import DEFAULT_KEY
+from polyglotic_desktop.core.listening.recent_speech import HOLD_MINUTES
+from polyglotic_desktop.core.listening.respeaking import DEFAULT_RESPEAK_KEY
+from polyglotic_desktop.core.listening.timing import MAX_WAIT_FOR_TEXT_SEC
 from polyglotic_desktop.core.listening.unreachable import Unreachable
-from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
+from polyglotic_desktop.core.shared.papers import (
+    PRIVACY_NOTICE,
+    STATUS_PAGE,
+    TESTER_AGREEMENT,
+)
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ports.learning import SetAsideLearningData
 from polyglotic_desktop.ui_next import style
@@ -61,9 +70,19 @@ from polyglotic_desktop.ui_next.controls import (
     page_button,
 )
 from polyglotic_desktop.ui_next.dictation_key import key_words
-from polyglotic_desktop.ui_next.home import Page, unreachable_words
+from polyglotic_desktop.ui_next.home import (
+    Page,
+    server_status_text,
+    unreachable_words,
+)
 from polyglotic_desktop.ui_next.lookup_card import dictionary_out
-from polyglotic_desktop.ui_next.os_words import hotkeys_here, pc_or_mac
+from polyglotic_desktop.ui_next.os_words import (
+    hotkeys_here,
+    on_linux,
+    pc_mac_or_linux,
+    pc_or_mac,
+)
+from polyglotic_desktop.ui_next.views.caption_window import LIMIT
 
 CHECK_EVERY_MS = 2000
 KEEP_WHATS_NEW_MS = 500
@@ -84,6 +103,10 @@ HOTKEYS = frozenset("LHP")
 
 def _tr(text: str) -> str:
     return QApplication.translate("Help", text)
+
+
+def _trn(text: str, n: int) -> str:
+    return QApplication.translate("Help", text, None, n)
 
 
 class Topic(QWidget):
@@ -182,16 +205,30 @@ class HelpPage(Page):
         self.check_again.setObjectName("help.check_again")
         self.check_again.clicked.connect(self.refresh)
         buttons.addWidget(self.check_again)
+        # whether the server is up, from outside the app (polyglotic-hq 540, 563)
+        self.status_page = page_button(
+            server_status_text(), STATUS_PAGE, "help.status_page"
+        )
+        self.status_page.setProperty("kind", "ghost")
+        buttons.addWidget(self.status_page)
         buttons.addStretch(1)
         check.add(buttons)
         self.content.addWidget(check)
 
         self._hotkeys: frozenset[str] = HOTKEYS
         """Those that work here (`show_hotkeys`)."""
+        self._command = "polyglotic"
+        """How the desktop's own shortcuts start this app (`show_command`)."""
         self._set_up: list[Topic] = []
+        self._speaker_only = False
+        self._speaker_clipboard = False
         setting_up = self._topics(_tr("Set up"), set_up(), self._set_up)
         self.dictation = Topic(*dictation_topic(key_words(DEFAULT_KEY)))
         setting_up.add(self.dictation)
+        self.respeaking = Topic(
+            *respeak_topic(key_words(DEFAULT_KEY), own=key_words(DEFAULT_RESPEAK_KEY))
+        )
+        setting_up.add(self.respeaking)
         self.content.addWidget(setting_up)
         asked = self._topics(_tr("Questions"), questions())
         papers = Flow()
@@ -363,14 +400,44 @@ class HelpPage(Page):
         weren't registered (`DesktopApp.hotkeys_not_working`; polyglotic-hq
         398's preview build has none, and Help said "Ctrl+Alt+L": 400)."""
         self._hotkeys = frozenset(working)
-        for topic, (_, text) in zip(self._set_up, set_up(self._hotkeys), strict=True):
+        self._show_set_up()
+
+    def show_command(self, command: str) -> None:
+        """How a shortcut of the desktop's own starts this app - the
+        AppImage's path - for Linux's topic on them (polyglotic-hq 570)."""
+        self._command = command
+        self._show_set_up()
+
+    def _show_set_up(self) -> None:
+        topics = set_up(self._hotkeys, self._command)
+        for topic, (_, text) in zip(self._set_up, topics, strict=True):
             topic.text.setText(text)
         if self.isVisible():
             self.refresh()
 
-    def show_dictation_key(self, key: str) -> None:
-        """Dictation's key, in words ("Right Ctrl"), as its topic names it."""
-        self.dictation.text.setText(dictation_topic(key)[1])
+    def offer_dictation(
+        self, offered: bool, *, speakers: bool = False, clipboard: bool = False
+    ) -> None:
+        """Dictation's topic, or none on an OS that has no dictation yet
+        (Linux, until polyglotic-hq 546's slice 8; 574)."""
+        self.dictation.setVisible(offered)
+        self.respeaking.setVisible(offered or speakers)
+        self._speaker_only = speakers and not offered
+        self._speaker_clipboard = clipboard
+
+    def show_dictation_key(self, key: str, on: bool = True) -> None:
+        """Dictation's key, in words ("Right Ctrl"), as its topic names it,
+        and whether dictation is on (576)."""
+        self.dictation.text.setText(dictation_topic(key, on)[1])
+
+    def show_respeaking(self, key: str, on: bool, dictating: bool, own: str) -> None:
+        """Re-speaking's topic as the settings have it: `key`, dictation's
+        key in words, `own` its own key's ("" for one key for both)."""
+        if self._speaker_only:
+            own = own or key_words(DEFAULT_RESPEAK_KEY)
+        self.respeaking.text.setText(
+            respeak_topic(key, on, dictating, own, clipboard=self._speaker_clipboard)[1]
+        )
 
     def showEvent(self, event: QShowEvent) -> None:
         self._build_versions()
@@ -477,16 +544,16 @@ def words(
         return {
             Step.CONNECTED: _tr("Signed in, and connected to the server"),
             Step.TICKED: _tr("{name} is added on Home").format(name=name),
-            Step.SOUND: _tr("Sound from {name} in the last 30 seconds").format(
-                name=name
-            ),
+            Step.SOUND: _trn(
+                "Sound from {name} in the last %Ln second(s)", SOUND_WINDOW
+            ).format(name=name),
             Step.SPEECH: _tr("Speech heard"),
             Step.CAPTIONS: _tr("Captions shown"),
         }[link.step], ""
     titles = {
         Step.CONNECTED: _tr("Signed in, and connected to the server"),
         Step.TICKED: _tr("Something is added on Home"),
-        Step.SOUND: _tr("Sound from it in the last 30 seconds"),
+        Step.SOUND: _trn("Sound from it in the last %Ln second(s)", SOUND_WINDOW),
         Step.SPEECH: _tr("Speech heard"),
         Step.CAPTIONS: _tr("Captions shown"),
     }
@@ -510,16 +577,7 @@ def problem(
     line, fix = {
         Problem.SIGN_IN_NEEDED: (
             _tr("Not signed in"),
-            pc_or_mac(
-                _tr(
-                    "Sign in on Account with your invite code - the one this PC used "
-                    "before works again - or the code in your Plus email."
-                ),
-                _tr(
-                    "Sign in on Account with your invite code - the one this Mac used "
-                    "before works again - or the code in your Plus email."
-                ),
-            ),
+            _tr("Sign in with your email to continue."),
         ),
         Problem.PLUS_ENDED: (
             _tr("Plus has ended"),
@@ -531,7 +589,7 @@ def problem(
         ),
         Problem.UPDATE_NEEDED: (
             _tr("Polyglotic needs an update"),
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr(
                     "It downloads the update and restarts by itself. If it doesn't, "
                     "quit from the tray and start it again."
@@ -539,6 +597,11 @@ def problem(
                 _tr(
                     "It downloads the update and restarts by itself. If it doesn't, "
                     "quit from the menu bar and start it again."
+                ),
+                # Linux: GNOME has no tray without an extension (571)
+                _tr(
+                    "It downloads the update and restarts by itself. If it doesn't, "
+                    "quit Polyglotic and start it again."
                 ),
             ),
         ),
@@ -551,7 +614,7 @@ def problem(
         ),
         Problem.NOT_CONNECTED: (
             _tr("Not connected to the server"),
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr(
                     "Quit from the tray and start Polyglotic again. If it keeps "
                     "happening, report a problem."
@@ -560,27 +623,73 @@ def problem(
                     "Quit from the menu bar and start Polyglotic again. If it keeps "
                     "happening, report a problem."
                 ),
+                _tr(
+                    "Quit Polyglotic and start it again. If it keeps happening, "
+                    "report a problem."
+                ),
             ),
         ),
         Problem.NOTHING_TICKED: (
             _tr("Nothing is added to caption"),
             pc_or_mac(
                 _tr(
-                    "On Home, add an app (up to 3), or choose Everything the PC plays."
+                    "On Home, add an app (up to {limit}), or choose Everything the PC "
+                    "plays."
                 ),
                 _tr(
-                    "On Home, add an app (up to 3), or choose Everything the Mac plays."
+                    "On Home, add an app (up to {limit}), or choose Everything the Mac "
+                    "plays."
                 ),
-            ),
+            ).format(limit=QLocale().toString(LIMIT)),
         ),
         Problem.APP_NOT_OPEN: (
             _tr("{name} isn't open").format(name=name),
             _tr("Open it. It's captioned once it's open."),
         ),
-        Problem.APP_QUIET: (
-            _tr("{name} is quiet: no sound from it in the last 30 seconds").format(
-                name=name
+        Problem.CAPTURE_STOPPED: (  # 557: it was "quiet" while its capture was dead
+            _tr(
+                "Polyglotic stopped hearing {name} - it's starting again by itself"
+            ).format(name=name),
+            pc_mac_or_linux(
+                _tr(
+                    "Quit from the tray and start Polyglotic again. If it keeps "
+                    "happening, report a problem."
+                ),
+                _tr(
+                    "Quit from the menu bar and start Polyglotic again. If it keeps "
+                    "happening, report a problem."
+                ),
+                _tr(
+                    "Quit Polyglotic and start it again. If it keeps happening, "
+                    "report a problem."
+                ),
             ),
+        ),
+        Problem.MIC_STOPPED: (
+            _tr(
+                "Polyglotic stopped hearing your microphone - it's starting again "
+                "by itself"
+            ),
+            pc_mac_or_linux(
+                _tr(
+                    "Quit from the tray and start Polyglotic again. If it keeps "
+                    "happening, report a problem."
+                ),
+                _tr(
+                    "Quit from the menu bar and start Polyglotic again. If it keeps "
+                    "happening, report a problem."
+                ),
+                _tr(
+                    "Quit Polyglotic and start it again. If it keeps happening, "
+                    "report a problem."
+                ),
+            ),
+        ),
+        Problem.APP_QUIET: (
+            _trn(
+                "{name} is quiet: no sound from it in the last %Ln second(s)",
+                SOUND_WINDOW,
+            ).format(name=name),
             pc_or_mac(
                 _tr(
                     "Is it playing sound? Is its output going to this PC's "
@@ -594,8 +703,14 @@ def problem(
         ),
         Problem.SYSTEM_QUIET: (
             pc_or_mac(
-                _tr("The PC is quiet: nothing it plays has made sound in 30 seconds"),
-                _tr("The Mac is quiet: nothing it plays has made sound in 30 seconds"),
+                _trn(
+                    "The PC is quiet: nothing it plays has made sound in %Ln second(s)",
+                    SOUND_WINDOW,
+                ),
+                _trn(
+                    "The Mac is quiet: nothing it plays has made sound in %Ln second(s)",
+                    SOUND_WINDOW,
+                ),
             ),
             pc_or_mac(
                 _tr(
@@ -610,7 +725,10 @@ def problem(
             ),
         ),
         Problem.MIC_QUIET: (
-            _tr("Your microphone is quiet: no sound from it in 30 seconds"),
+            _trn(
+                "Your microphone is quiet: no sound from it in %Ln second(s)",
+                SOUND_WINDOW,
+            ),
             pc_or_mac(
                 _tr(
                     "Is it muted, or is another microphone chosen in the PC's "
@@ -649,22 +767,24 @@ def problem(
         ),
         Problem.PAUSED: (
             _tr("Captions are paused"),
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr("Choose Resume on Home or in the tray menu, or press Ctrl+Alt+P."),
                 _tr(
                     "Choose Resume on Home or in the menu bar's menu, or press "
                     "Ctrl+Alt+P."
                 ),
+                _tr("Choose Resume on Home, or press Ctrl+Alt+P."),
             )
             if "P" in hotkeys
-            else pc_or_mac(
+            else pc_mac_or_linux(
                 _tr("Choose Resume on Home or in the tray menu."),
                 _tr("Choose Resume on Home or in the menu bar's menu."),
+                _tr("Choose Resume on Home."),
             ),
         ),
         Problem.OVERLAYS_HIDDEN: (
             _tr("The caption windows are hidden"),
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr(
                     "Press Ctrl+Alt+H, or use Hide all on Home or the tray menu. An "
                     "app's transcript shows whether captions are arriving."
@@ -673,9 +793,13 @@ def problem(
                     "Press Ctrl+Alt+H, or use Hide all on Home or the menu bar's menu. "
                     "An app's transcript shows whether captions are arriving."
                 ),
+                _tr(
+                    "Press Ctrl+Alt+H, or use Hide all on Home. An app's transcript "
+                    "shows whether captions are arriving."
+                ),
             )
             if "H" in hotkeys
-            else pc_or_mac(
+            else pc_mac_or_linux(
                 _tr(
                     "Use Hide all on Home or the tray menu. An app's transcript "
                     "shows whether captions are arriving."
@@ -683,6 +807,10 @@ def problem(
                 _tr(
                     "Use Hide all on Home or the menu bar's menu. An app's transcript "
                     "shows whether captions are arriving."
+                ),
+                _tr(
+                    "Use Hide all on Home. An app's transcript shows whether captions "
+                    "are arriving."
                 ),
             ),
         ),
@@ -710,35 +838,47 @@ def problem(
     return line, hotkeys_here(fix)  # "⌃⌘P" on a Mac (428)
 
 
-def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
+def set_up(
+    hotkeys: Collection[str] = HOTKEYS, command: str = "polyglotic"
+) -> list[tuple[str, str]]:
     """`hotkeys`: those that work here. A topic names its hotkeys only
     while they all work; else it says where else the commands are
-    (polyglotic-hq 400)."""
+    (polyglotic-hq 400). On Linux, a topic on the desktop's own shortcuts,
+    which start the app (`command`) with --lock and the like (570)."""
     topics = [
         (
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr("Caption apps you add (Windows 11)"),
                 _tr("Caption apps you add (macOS 14.2 or later)"),
+                _tr("Caption apps you add"),  # Linux: PipeWire or PulseAudio (561)
             ),
-            pc_or_mac(
-                _tr(
-                    "On Home, add up to 3 apps with sound open; each gets a caption "
-                    "window of its own, labelled with its name. An app you added "
-                    "that isn't open is captioned when it opens. Windows 10 can't "
-                    "tell apps apart, so there everything the PC plays is captioned."
+            pc_mac_or_linux(
+                _trn(
+                    "On Home, add up to %Ln app(s) with sound open; each gets a caption "
+                    "window of its own, labelled with its name. An app you added that "
+                    "isn't open is captioned when it opens. Windows 10 can't tell apps "
+                    "apart, so there everything the PC plays is captioned.",
+                    LIMIT,
                 ),
-                _tr(
-                    "On Home, add up to 3 apps with sound open; each gets a caption "
+                _trn(
+                    "On Home, add up to %Ln app(s) with sound open; each gets a caption "
                     "window of its own, labelled with its name. An app you added that "
                     "isn't open is captioned when it opens. Before macOS 14.2 a Mac "
                     "can't tell apps apart, so there everything the Mac plays is "
-                    "captioned."
+                    "captioned.",
+                    LIMIT,
+                ),
+                _trn(
+                    "On Home, add up to %Ln app(s) with sound open; each gets a caption "
+                    "window of its own, labelled with its name. An app you added that "
+                    "isn't open is captioned when it opens.",
+                    LIMIT,
                 ),
             ),
         ),
         (
             _tr("Caption one app, and everything else apart"),
-            pc_or_mac(
+            pc_mac_or_linux(
                 _tr(
                     "With one app added on Home, turn on Also caption everything else "
                     "the PC plays: everything except that app gets a caption window of "
@@ -752,6 +892,13 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                     "With one app added on Home, turn on Also caption everything else "
                     "the Mac plays: everything except that app gets a caption window "
                     "of its own, labelled Everything else - a call in one window, the "
+                    "game or video in the other, nothing in both. It's there with one "
+                    "app at a time."
+                ),
+                _tr(
+                    "With one app added on Home, turn on Also caption everything else "
+                    "the PC plays: everything except that app gets a caption window of "
+                    "its own, labelled Everything else - a call in one window, the "
                     "game or video in the other, nothing in both. It's there with one "
                     "app at a time."
                 ),
@@ -775,23 +922,7 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                 ),
             ),
         ),
-        (
-            _tr("Caption your own microphone"),
-            pc_or_mac(
-                _tr(
-                    "Turn on Show my speech here in a caption window's settings, or "
-                    "Caption my own speech in the tray menu for every window. It's "
-                    "off until you do, and your microphone's audio goes to the "
-                    "server only while a window shows it."
-                ),
-                _tr(
-                    "Turn on Show my speech here in a caption window's settings, or "
-                    "Caption my own speech in the menu bar's menu for every window. "
-                    "It's off until you do, and your microphone's audio goes to the "
-                    "server only while a window shows it."
-                ),
-            ),
-        ),
+        (_tr("Caption your own microphone"), microphone_help()),
         (
             _tr("Move, lock and resize the caption windows"),
             _tr(
@@ -801,7 +932,7 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                 "positions on Home puts every window back."
             )
             if {"L", "H", "P"} <= set(hotkeys)
-            else pc_or_mac(
+            else pc_mac_or_linux(
                 _tr(
                     "Drag a caption window to move it, or drag its edges to resize "
                     "it. Lock all, on Home or in the tray menu, lets clicks pass "
@@ -813,6 +944,11 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                     "Lock all, on Home or in the menu bar's menu, lets clicks pass "
                     "through. Lost one? Reset positions on Home puts every window back."
                 ),
+                _tr(
+                    "Drag a caption window to move it, or drag its edges to resize it. "
+                    "Lock all, on Home, lets clicks pass through. Lost one? Reset "
+                    "positions on Home puts every window back."
+                ),
             ),
         ),
         (
@@ -822,12 +958,13 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                 "it is never the active window. Put it where it doesn't cover "
                 "what you need to see, then Lock all (Ctrl+Alt+L) so clicks go "
                 "through to the game; Hide all (Ctrl+Alt+H) in a fight. The "
-                "hotkeys work while the game has focus and can't be changed "
-                "yet. A game in exclusive full screen covers every other "
-                "window: choose its borderless or windowed full screen instead."
+                "hotkeys work while the game has focus; Settings > Hotkeys "
+                "changes them. A game in exclusive full screen covers every "
+                "other window: choose its borderless or windowed full screen "
+                "instead."
             )
             if {"L", "H"} <= set(hotkeys)
-            else pc_or_mac(
+            else pc_mac_or_linux(
                 _tr(
                     "A caption window never takes the game's keyboard or mouse: "
                     "it is never the active window. Put it where it doesn't cover "
@@ -844,18 +981,61 @@ def set_up(hotkeys: Collection[str] = HOTKEYS) -> list[tuple[str, str]]:
                     "covers every other window: choose its borderless or windowed full "
                     "screen instead."
                 ),
+                _tr(
+                    "A caption window never takes the game's keyboard or mouse: it is "
+                    "never the active window. Put it where it doesn't cover what you "
+                    "need to see, then Lock all on Home so clicks go through to the "
+                    "game. A game in exclusive full screen covers every other window: "
+                    "choose its borderless or windowed full screen instead."
+                ),
             ),
         ),
     ]
+    if on_linux():  # GNOME's Wayland session gives the app no hotkey (570)
+        topics.append(desktop_shortcuts(command))
     return [(title, hotkeys_here(text)) for title, text in topics]  # "⌃⌘L" (428)
 
 
-def dictation_topic(key: str) -> tuple[str, str]:
-    """Dictation's topic, naming its key in words ("Right Ctrl";
-    polyglotic-hq 283, 289)."""
+def desktop_shortcuts(command: str) -> tuple[str, str]:
+    """Linux's topic on shortcuts the desktop keeps (polyglotic-hq 546, 570):
+    where the app gets no hotkeys of its own (GNOME's Wayland session), a
+    custom shortcut in the desktop's keyboard settings runs the app again
+    with `--lock`, `--pause` or `--hide`, and the copy that runs does it."""
     return (
-        _tr("Dictate into any program (preview)"),
-        pc_or_mac(
+        _tr("Shortcuts of your desktop's own"),
+        _tr(
+            "Where Polyglotic's hotkeys don't work (GNOME on Wayland), add a custom "
+            "shortcut in your desktop's keyboard settings (GNOME: Settings > "
+            "Keyboard > Custom Shortcuts) with the command {command} --lock, or "
+            "--pause, or --hide. It does what the hotkey would."
+        ).format(command=command),
+    )
+
+
+def dictation_topic(key: str, on: bool = True) -> tuple[str, str]:
+    """Dictation's topic, naming its key in words ("Right Ctrl";
+    polyglotic-hq 283, 289): `on`, dictation is - on from the start
+    (decision 0220), so it says where to turn it off; else where to turn
+    it on (polyglotic-hq 576)."""
+    if on:
+        text = pc_or_mac(
+            _tr(
+                "Hold {key} and speak; let go, and your words are typed where your "
+                "cursor is. Esc cancels before they're typed. Dictation is on from "
+                "the start: turn it off in Settings > Dictation, or in the tray "
+                "menu. To use another key or combination, click the key in "
+                "Settings > Dictation and press the one you want."
+            ),
+            _tr(
+                "Hold {key} and speak; let go, and your words are typed where your "
+                "cursor is. Esc cancels before they're typed. Dictation is on from "
+                "the start: turn it off in Settings > Dictation, or in the menu "
+                "bar's menu. To use another key or combination, click the key in "
+                "Settings > Dictation and press the one you want."
+            ),
+        )
+    else:
+        text = pc_or_mac(
             _tr(
                 "Turn on Dictation in Settings > Dictation, or in the tray menu. Hold"
                 " {key} and speak; let go, and your words are typed where your cursor"
@@ -870,8 +1050,69 @@ def dictation_topic(key: str) -> tuple[str, str]:
                 "combination, click the key in Settings > Dictation and press the one "
                 "you want."
             ),
-        ).format(key=key),
+        )
+    return _tr("Dictate into any program (preview)"), text.format(key=key)
+
+
+def respeak_topic(
+    key: str,
+    on: bool = True,
+    dictating: bool = True,
+    own: str = "",
+    *,
+    clipboard: bool = False,
+) -> tuple[str, str]:
+    """Speaker typing and its current key, including the shared gesture."""
+    if not on:
+        text = _tr("Turn on Type what they said in Settings > Dictation.")
+    else:
+        gesture = (
+            _tr("Tap {key}, then hold it while they speak.")
+            if dictating and not own
+            else _tr("Hold {key} while they speak.")
+        ).format(key=own or key)
+        text = " ".join(
+            (
+                gesture,
+                _tr(
+                    "Use the words or translation from the caption window you’re watching."
+                    " Without captions, listen to the speakers selected in Settings > Speech."
+                ),
+                (
+                    _tr(
+                        "Release to copy the speech to the clipboard, then paste it where you want."
+                    )
+                    if clipboard
+                    else _tr("Focus a text field in another app before you let go.")
+                ),
+                _tr(
+                    "Choose the key and whether to type the original or its translation in Settings > Dictation."
+                ),
+            )
+        )
+    return _tr("Type what they said"), text
+
+
+def microphone_help() -> str:
+    text = _tr(
+        "Your first caption window and Conversation windows show your speech as You "
+        "by default. Use the microphone button on a window's bar to turn it on or off there."
     )
+    return text + pc_mac_or_linux(
+        " " + _tr("Dictation also uses the microphone while you hold its key."),
+        " "
+        + _tr("Dictation also uses the microphone while you hold its key.")
+        + " "
+        + _tr("macOS asks for microphone access."),
+        "",
+    )
+
+
+def _default_wait() -> str:
+    wait = MAX_WAIT_FOR_TEXT_SEC
+    if wait == int(wait):
+        return _trn("%Ln second(s)", int(wait))
+    return _tr("{seconds} s").format(seconds=QLocale().toString(wait))
 
 
 def questions() -> list[tuple[str, str]]:
@@ -879,34 +1120,35 @@ def questions() -> list[tuple[str, str]]:
         (
             _tr("What we keep"),
             pc_or_mac(
-                _tr(
-                    "Only speech leaves this PC: our server turns it into captions "
-                    "and translations, and never stores the audio, the captions or "
-                    "the translations. This PC holds the last 2 minutes of each "
-                    "app's finished speech in memory, and sends it again only when "
-                    "you ask. Your "
-                    "transcript never leaves this PC, and it's gone when you quit "
-                    "Polyglotic unless you save it. We keep your "
-                    "account, your minutes, a record of each session (never what was "
-                    "said or the app's name) and the dictionary words you look up, "
-                    "save or mark - never the sentence around them. Usage statistics "
-                    "and word counts are shared only if you turn them on (Account > "
-                    "Choose what to share), and you can delete your learning data on "
-                    "Account. The privacy notice, below, says it all."
-                ),
-                _tr(
-                    "Only speech leaves this Mac: our server turns it into captions "
-                    "and translations, and never stores the audio, the captions or the "
-                    "translations. This Mac holds the last 2 minutes of each app's "
+                _trn(
+                    "Only speech leaves this PC: our server turns it into captions and "
+                    "translations, and never stores the audio, the captions or the "
+                    "translations. This PC holds the last %Ln minute(s) of each app's "
                     "finished speech in memory, and sends it again only when you ask. "
-                    "Your transcript never leaves this Mac, and it's gone when you "
-                    "quit Polyglotic unless you save it. We keep your account, your "
-                    "minutes, a record of each session (never what was said or the "
-                    "app's name) and the dictionary words you look up, save or mark - "
-                    "never the sentence around them. Usage statistics and word counts "
-                    "are shared only if you turn them on (Account > Choose what to "
-                    "share), and you can delete your learning data on Account. The "
-                    "privacy notice, below, says it all."
+                    "Your transcript never leaves this PC, and it's gone when you quit "
+                    "Polyglotic unless you save it. We keep your account, your minutes, "
+                    "a record of each session (never what was said or the app's name) "
+                    "and the dictionary words you look up, save or mark - never the "
+                    "sentence around them. Usage statistics and word counts are shared "
+                    "only if you turn them on (Account > Choose what to share), and you "
+                    "can delete your learning data on Account. The privacy notice, "
+                    "below, says it all.",
+                    HOLD_MINUTES,
+                ),
+                _trn(
+                    "Only speech leaves this Mac: our server turns it into captions and "
+                    "translations, and never stores the audio, the captions or the "
+                    "translations. This Mac holds the last %Ln minute(s) of each app's "
+                    "finished speech in memory, and sends it again only when you ask. "
+                    "Your transcript never leaves this Mac, and it's gone when you quit "
+                    "Polyglotic unless you save it. We keep your account, your minutes, "
+                    "a record of each session (never what was said or the app's name) "
+                    "and the dictionary words you look up, save or mark - never the "
+                    "sentence around them. Usage statistics and word counts are shared "
+                    "only if you turn them on (Account > Choose what to share), and you "
+                    "can delete your learning data on Account. The privacy notice, "
+                    "below, says it all.",
+                    HOLD_MINUTES,
                 ),
             ),
         ),
@@ -921,23 +1163,29 @@ def questions() -> list[tuple[str, str]]:
             ),
         ),
         (
-            # the caption timings, the default first (desktop decision 0242,
-            # polyglotic-hq 522), each as its line in Settings > Timing says it
+            # songs are heard in part (polyglotic-hq 536, measured after #943:
+            # on Detect 12-52 % of each song heard, most lines shown right; a
+            # Mandarin song under fixed English came back as English)
+            _tr("Are songs captioned?"),
+            _tr(
+                "In part. Polyglotic is made for speech: in a song it catches "
+                "some of the lines sung, and a few come out wrong. Songs work best "
+                "with Spoken language on Detect: with a language chosen there, a song "
+                "in another language comes out as a translation into it. Music "
+                "without words isn't captioned."
+            ),
+        ),
+        (
+            # The default first (626), in the order of Settings > Timing.
             _tr("When do captions appear?"),
             _tr(
-                "Quick preview, the default: a dim first line after about 2 "
-                "seconds, then the finished caption and its translation when the "
-                "sentence ends. Steady: each sentence appears once, finished and "
-                "translated, about half a second after it ends; a small bar moves "
-                "under the captions while it's on its way, and if the speaker "
-                "talks on, a dim line shows the words so far. Live updates: words "
-                "appear as they're "
-                "said and rewrite themselves until the sentence ends. Choose one "
-                "in Settings > Timing, or in a caption window's "
-                "settings. In every one, nobody talks longer than the Longest "
-                "wait for text (3 seconds, unless you change it) before you see "
-                "text."
-            ),
+                "Instant, the default: words appear as they're said and may change "
+                "until the sentence ends. Whole captions shows each finished sentence "
+                "at once. Steady follows the speaker's pace with a short delay. "
+                "Calm waits for words the speech model is sure of. Choose a mode in "
+                "Settings > Timing or from the caption bar. The longest wait for text "
+                "is {wait} by default.",
+            ).format(wait=_default_wait()),
         ),
         (
             _tr("Look up a word, and keep it"),

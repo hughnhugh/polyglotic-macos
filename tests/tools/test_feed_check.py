@@ -172,9 +172,11 @@ def test_no_published_release_at_all_fails() -> None:
     )
 
 
-def test_the_channels_are_the_apps() -> None:
-    """The tool runs without the app installed, so it keeps its own list."""
-    assert feed_check.CHANNELS == updates.CHANNELS
+def test_the_channels_are_the_apps_windows_ones() -> None:
+    """The tool runs without the app installed, so it keeps its own list:
+    Windows' - a tag's Release publishes Windows' builds only (580)."""
+    windows = tuple(c for c in updates.CHANNELS if updates.platform_of(c) == "win-x64")
+    assert windows == feed_check.CHANNELS
 
 
 def test_the_daily_workflow_runs_the_check() -> None:
@@ -238,3 +240,209 @@ def test_a_release_without_sha256sums_is_said_as_an_error(
     )
     assert feed_check._sums("v1", "win-x64-alpha") == ""
     assert "::error::v1: no SHA256SUMS-win-x64-alpha" in capsys.readouterr().out
+
+
+def _signed_linux_feed(
+    channel: str = "linux-x64-alpha",
+    version: str = "0.1.10",
+    sign_for: str | None = None,
+) -> tuple[bytes, bytes, str, str]:
+    """A realistic Linux Velopack feed + valid Ed25519 signature made with PyNaCl."""
+    import base64
+    import json
+
+    from nacl.signing import SigningKey
+
+    from polyglotic_desktop.adapters.signed_feed import signed_message
+
+    key = SigningKey.generate()
+    pub = base64.b64encode(key.verify_key.encode()).decode()
+    pkg = f"Polyglotic-{version}-{channel}-full.nupkg"
+    feed = json.dumps(
+        {
+            "Assets": [
+                {
+                    "PackageId": "Polyglotic",
+                    "Version": version,
+                    "Type": "Full",
+                    "FileName": pkg,
+                    "SHA1": "a" * 40,
+                    "SHA256": "b" * 64,
+                    "Size": 123_456,
+                }
+            ]
+        }
+    ).encode("utf-8")
+    sig = (
+        base64.b64encode(key.sign(signed_message(sign_for or channel, feed)).signature)
+        + b"\n"
+    )
+    return feed, sig, pub, pkg
+
+
+def test_feed_keys_match_the_apps_keys() -> None:
+    """`feed_check` runs with stdlib only, so it keeps a copy of `main.FEED_KEYS`."""
+    from polyglotic_desktop import main
+
+    assert feed_check.FEED_KEYS == main.FEED_KEYS
+
+
+def test_linux_missing_feed_is_not_published_yet_not_a_failure(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    problems = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda _url: (404, b""),
+        answers=lambda _url: False,
+    )
+    assert problems == []
+    assert "not published yet" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("status", [500, 403, None])
+def test_linux_unreachable_or_error_feed_fails(status: int | None) -> None:
+    problems = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda _url: (status, b""),
+        answers=lambda _url: True,
+    )
+    assert len(problems) == 1
+    assert "releases.linux-x64-alpha.json" in problems[0]
+
+
+def test_linux_present_feed_with_valid_signature_and_appimage_passes() -> None:
+    feed_bytes, sig_bytes, pub, pkg = _signed_linux_feed()
+    files = {
+        f"{FEED}releases.linux-x64-alpha.json": (200, feed_bytes),
+        f"{FEED}releases.linux-x64-alpha.json.sig": (200, sig_bytes),
+    }
+    present = {
+        f"{FEED}Polyglotic-linux-x64-alpha.AppImage",
+        f"{FEED}{pkg}",
+    }
+    problems = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: files.get(url, (404, b"")),
+        answers=lambda url: url in present,
+        keys=(pub,),
+    )
+    assert problems == []
+
+
+def test_linux_present_feed_rejects_bad_signature_wrong_channel_or_missing_appimage() -> (
+    None
+):
+    feed_bytes, sig_bytes, pub, pkg = _signed_linux_feed()
+    present = {f"{FEED}Polyglotic-linux-x64-alpha.AppImage", f"{FEED}{pkg}"}
+
+    # Tampered feed bytes
+    tampered = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: (
+            (200, feed_bytes + b" ") if url.endswith(".json") else (200, sig_bytes)
+        ),
+        answers=lambda url: url in present,
+        keys=(pub,),
+    )
+    assert any("no key we trust signed this feed" in p for p in tampered)
+
+    # Signature made for win-x64-alpha replayed on linux-x64-alpha
+    wrong_feed, wrong_sig, wrong_pub, _ = _signed_linux_feed(sign_for="win-x64-alpha")
+    replayed = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: (
+            (200, wrong_feed) if url.endswith(".json") else (200, wrong_sig)
+        ),
+        answers=lambda url: url in present,
+        keys=(wrong_pub,),
+    )
+    assert any("no key we trust signed this feed" in p for p in replayed)
+
+    # Missing .sig
+    no_sig = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: (200, feed_bytes) if url.endswith(".json") else (404, b""),
+        answers=lambda url: url in present,
+        keys=(pub,),
+    )
+    assert "releases.linux-x64-alpha.json.sig: not served" in no_sig
+
+    # AppImage doesn't answer
+    no_appimage = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: (
+            (200, feed_bytes) if url.endswith(".json") else (200, sig_bytes)
+        ),
+        answers=lambda url: url == f"{FEED}{pkg}",
+        keys=(pub,),
+    )
+    assert no_appimage == ["Polyglotic-linux-x64-alpha.AppImage: not served"]
+
+    # Newest full package doesn't answer
+    no_pkg = feed_check.check_linux_channel(
+        "linux-x64-alpha",
+        FEED,
+        fetch=lambda url: (
+            (200, feed_bytes) if url.endswith(".json") else (200, sig_bytes)
+        ),
+        answers=lambda url: url.endswith(".AppImage"),
+        keys=(pub,),
+    )
+    assert no_pkg == [f"{pkg}: not served"]
+
+
+def test_run_checks_windows_and_linux_channels_together() -> None:
+    feed_bytes, sig_bytes, pub, pkg = _signed_linux_feed()
+    download = lambda tag, channel: sums(channel, tag.removeprefix("v"))
+    # Missing Linux feed -> still passes
+    assert (
+        feed_check.run(
+            FEED,
+            RELEASES,
+            download,
+            served_as_published,
+            fetch_bytes=lambda _url: (404, b""),
+            answers=lambda _url: False,
+            keys=(pub,),
+        )
+        == 0
+    )
+    # Present Linux feed with missing AppImage -> fails
+    assert (
+        feed_check.run(
+            FEED,
+            RELEASES,
+            download,
+            served_as_published,
+            fetch_bytes=lambda url: (
+                (200, feed_bytes) if url.endswith(".json") else (200, sig_bytes)
+            ),
+            answers=lambda url: url == f"{FEED}{pkg}",
+            keys=(pub,),
+        )
+        == 1
+    )
+    # Present Linux feed with valid sig + AppImage + package -> passes
+    assert (
+        feed_check.run(
+            FEED,
+            RELEASES,
+            download,
+            served_as_published,
+            fetch_bytes=lambda url: (
+                (200, feed_bytes) if url.endswith(".json") else (200, sig_bytes)
+            ),
+            answers=lambda url: (
+                url in {f"{FEED}Polyglotic-linux-x64-alpha.AppImage", f"{FEED}{pkg}"}
+            ),
+            keys=(pub,),
+        )
+        == 0
+    )

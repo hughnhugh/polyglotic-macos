@@ -38,7 +38,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 
-from polyglotic_desktop.core.lexicon import arabic, turkish
+from polyglotic_desktop.core.lexicon import arabic, korean_forms, turkish
 from polyglotic_desktop.core.lexicon.english import words as letter_runs
 from polyglotic_desktop.ports.word_split import SplitWord
 
@@ -407,6 +407,7 @@ CLITICS: dict[str, Callable[[str], tuple[str, ...]]] = {
     "fa": persian_bases,
     "hi": hindi_bases,
     "id": indonesian_bases,
+    "ko": korean_forms.bases,
     "ms": indonesian_bases,
     "tl": tagalog_bases,
     "tr": turkish.bases,
@@ -415,6 +416,14 @@ CLITICS: dict[str, Callable[[str], tuple[str, ...]]] = {
 it, likeliest first (guesses: tried only when nothing else is found)."""
 
 NAMES: dict[str, Callable[[str], tuple[str, ...]]] = {"tr": turkish.name_bases}
+AFTER_A_BRACKET: dict[str, Callable[[str], tuple[str, ...]]] = {
+    "ko": korean_forms.bases_after_bracket
+}
+"""Per language, the dictionary forms of a word written right after a
+closing bracket or quote, as its lemmas in its line: Korean's particle
+there is the word's inside (대성당(성지)이: -이, the subject particle, not
+이, "this"; polyglotic-hq 516)."""
+CLOSING = frozenset(")]}\"'”’」』》〉")
 """Per language whose names take their suffixes after an apostrophe, what
 a capitalised word inside a sentence may be: a name, cut no further than
 its own rules allow (Turkish's Atlantik is no form of atlamak, to jump;
@@ -446,6 +455,12 @@ def cut_elided(text: str, start: int, end: int, elided: frozenset[str]) -> int |
     return None
 
 
+NO_SIMPLEMMA = frozenset({"ko"})
+"""Languages simplemma has no data for: it raises on them, so they are
+split without it wherever it's installed (Korean's guesses are its own:
+`CLITICS`; polyglotic-hq 510)."""
+
+
 class SpacedSplit:
     """Words by letters, lemmas by simplemma, for `language` ("es").
     `simplemma`: False to split as the installed app does, without it
@@ -454,7 +469,7 @@ class SpacedSplit:
 
     def __init__(self, language: str, simplemma: bool = True) -> None:
         self.language = language
-        self.simplemma = simplemma
+        self.simplemma = simplemma and language not in NO_SIMPLEMMA
 
     def words(self, text: str) -> Sequence[SplitWord]:
         lemmatize = _lemmatizer() if self.simplemma else None
@@ -477,7 +492,13 @@ class SpacedSplit:
                 guesses = tuple(dict.fromkeys(guesses + bases(word)))
             if elided and word[-1:] in _APOSTROPHES:
                 guesses += unelided(word)
-            out.append(SplitWord(start, end, guesses=guesses))
+            attached = AFTER_A_BRACKET.get(self.language)
+            lemmas = (
+                attached(word)
+                if attached and text[start - 1 : start] in CLOSING
+                else ()
+            )
+            out.append(SplitWord(start, end, lemmas=lemmas, guesses=guesses))
         return out
 
 

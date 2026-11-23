@@ -70,6 +70,7 @@ LEVELS = load("levels.json")
 HIGHLIGHTS = load("highlights.json")
 SPLIT = load("word-split.json")
 DISPLAY = load("display.json")
+PLAYOUT = load("playout.json")
 
 
 def test_the_files_are_what_the_rules_give_now() -> None:
@@ -334,3 +335,49 @@ def test_following_top(case: dict[str, Any]) -> None:
         case["reanchor"],
     )
     assert abs(top - case["top"]) < CLOSE
+
+
+# -- the playout and the two zones (decisions 0245, 0251) ------------------------------
+
+
+@pytest.mark.parametrize("case", PLAYOUT["tokens"], ids=lambda c: repr(c["text"]))
+def test_playout_tokens(case: dict[str, Any]) -> None:
+    """Boundaries as tokens: a clause's text as the words played out."""
+    tokens = rule_cases.tokens_of(case["text"])
+    assert tokens == case["tokens"]
+    assert "".join(t["text"] for t in tokens) == case["text"]  # nothing lost
+
+
+@pytest.mark.parametrize("case", PLAYOUT["cases"], ids=lambda c: c["name"])
+def test_playout(case: dict[str, Any]) -> None:
+    shown = rule_cases.played_out(
+        rule_cases.playout_rules(case["rules"]), case["heard"]
+    )
+    assert len(shown) == len(case["shown"])
+    for got, wanted in zip(shown, case["shown"], strict=True):
+        assert got["at"] == pytest.approx(wanted["at"], abs=CLOSE)
+        assert {**got, "at": 0} == {**wanted, "at": 0}
+    # every case ends with the caption whole, and nothing shown before its time
+    heard = case["heard"]
+    last = {h["caption"]: "".join(c["original"] for c in h["clauses"]) for h in heard}
+    final = {s["caption"]: s["text"] for s in shown}
+    newest = heard[-1]["caption"]
+    assert final[newest] == last[newest]
+    assert all(s["at"] >= heard[0]["at"] for s in shown)
+
+
+@pytest.mark.parametrize("case", PLAYOUT["zones"], ids=lambda c: c["name"])
+def test_zones(case: dict[str, Any]) -> None:
+    assert rule_cases.zones_played(case["steps"]) == case["answers"]
+
+
+def test_the_playouts_constants_are_the_codes() -> None:
+    from polyglotic_desktop.core.listening import playout
+    from polyglotic_desktop.ui_next.views import zones
+
+    constants = PLAYOUT["constants"]
+    assert constants["delay"] == playout.DELAY_SEC
+    assert constants["eager_delay"] == playout.EAGER_DELAY_SEC
+    assert constants["min_gap"] == playout.MIN_GAP_SEC
+    assert constants["pause"] == zones.PAUSE_SEC
+    assert constants["live_lines_monologue"] == zones.LIVE_LINES_MONOLOGUE

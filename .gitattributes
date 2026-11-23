@@ -5,3 +5,5 @@
 *.png binary
 *.qm binary
 *.flac binary
+*.opus binary
+tools/video_motion/reference.html text eol=lf

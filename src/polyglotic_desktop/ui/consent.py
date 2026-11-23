@@ -58,6 +58,13 @@ main window leaves (`ui_next.main_window.FRAME`)."""
 MIN_SCROLL = 120
 """The least the explanation and choices get on the tiniest screen: a few
 lines, scrolling."""
+WIDEST = 680
+"""The widest it grows, in px at a text size factor of 1.0 (`TextDialog.
+at_text_size`), before its explanation scrolls on a screen with the room
+(`_fit`): at the app's Normal (1.3 since decision 0244) a screen 1040 px
+tall scrolled it at its least width in Linux's fonts, wider than Windows'
+(polyglotic-hq 524). Its paragraphs' lines stay readable at it."""
+WIDEN_STEP = 20
 
 
 def agreement_needed(current: ConsentChoice | None) -> bool:
@@ -92,7 +99,7 @@ class ConsentDialog(TextDialog):
         self._fitting = False
         self.setObjectName("ConsentDialog")
         self.setWindowTitle(self.tr("Your data"))
-        self.setMinimumWidth(520)
+        self.set_least_width(520)
         outer = QVBoxLayout(self)
         outer.setContentsMargins(24, 20, 24, 20)
         outer.setSpacing(10)
@@ -288,8 +295,10 @@ class ConsentDialog(TextDialog):
         return False
 
     def _fit(self) -> None:
-        """As tall as everything needs at this width - or, on a screen too
-        short for that, as tall as its work area leaves room for, with the
+        """As tall as everything needs at this width - or, where that's
+        taller than the screen's work area, wider first (up to `WIDEST`,
+        and nine tenths of the screen) - or, on a screen too short for even
+        that, as tall as its work area leaves room for, with the
         explanation and the choices scrolling above the yes and Continue
         (polyglotic-hq 203: at 150 % on a 1920 x 1080 laptop, 1280 x 672
         above the taskbar, the screen was 721 px tall and Continue sat under
@@ -298,17 +307,25 @@ class ConsentDialog(TextDialog):
         layout = self.layout()
         if screen is None or layout is None or self._fitting:
             return
-        # at the width it has beside a scroll bar: if it fits there, it fits
         bar = self.scroll_area.verticalScrollBar().sizeHint().width()
-        natural = self.body.heightForWidth(self.scroll_area.width() - bar)
-        if natural < 0:
-            natural = self.body.sizeHint().height()
         self._fitting = True
         try:
             self.scroll_area.setFixedHeight(0)
             layout.invalidate()
             rest = self._height(layout)
-            room = screen.availableGeometry().height() - WINDOW_FRAME
+            area = screen.availableGeometry()
+            room = area.height() - WINDOW_FRAME
+            widest = min(self.at_text_size(WIDEST), area.width() * 9 // 10)
+            width = self.width()
+            while self._natural(width, bar) > room - rest and width < widest:
+                width = min(widest, width + WIDEN_STEP)
+            if width > self.width():
+                self.setMinimumWidth(width)
+                self.resize(width, self.height())
+                layout.invalidate()
+                rest = self._height(layout)
+            # at the width it has beside a scroll bar: if it fits there, it fits
+            natural = self._natural(max(width, self.width()), bar)
             # a scroll bar only on a screen too short for it all: shown "as
             # needed" it flashed over the text, cutting its words and last
             # line, until a later layout pass took it away (polyglotic-hq
@@ -326,6 +343,15 @@ class ConsentDialog(TextDialog):
                 self.resize(self.width(), total)
         finally:
             self._fitting = False
+
+    def _natural(self, width: int, bar: int) -> int:
+        """The explanation's and choices' height with the screen `width`
+        wide, beside a scroll bar `bar` wide."""
+        margins = self.contentsMargins() + self.layout().contentsMargins()  # type: ignore[union-attr]
+        natural = self.body.heightForWidth(
+            width - margins.left() - margins.right() - bar
+        )
+        return natural if natural >= 0 else self.body.sizeHint().height()
 
     def _height(self, layout: QLayout) -> int:
         """What the screen's own layout needs at this width. Without a line

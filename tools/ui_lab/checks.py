@@ -509,13 +509,14 @@ class _TextRecorder(QPaintEngine):
         if self._clip_on and self._clip is not None:
             shown = shown.intersected(self._clip) if not shown.isEmpty() else self._clip
         px = font.pixelSize() if font.pixelSize() > 0 else font.pointSizeF() * 96 / 72
-        # a piece that starts where the last ended, on its baseline, goes on
-        # its run: one drawText, split by the fonts that drew it
+        # Fallback glyphs in one layout share the requested font. A span with
+        # its own font (such as a translated label) needs its own check.
         start = self._transform.map(QPointF(x, y))
         end = self._transform.map(QPointF(x + textItem.width(), y))
         run = self._run
         if (
             run is not None
+            and font == run[2]
             and abs(start.y() - run[3].y()) < 0.5
             and abs(start.x() - run[3].x()) < 0.5
         ):
@@ -807,7 +808,7 @@ def _text_findings(pieces: list[TextPiece], photo: QImage) -> list[Finding]:
             continue  # WCAG: an inactive control needs no contrast
         if _emoji(piece):
             continue  # drawn in its own colours, not the pen's
-        background = _behind(pixels, seen)
+        background = _behind(pixels, seen, piece.color)
         if background is None:
             continue
         text = _over(piece.color, background)
@@ -943,8 +944,14 @@ def _array(photo: QImage) -> np.ndarray:
     return rows.reshape(height, width, 4).copy()
 
 
-def _behind(pixels: np.ndarray, rect: QRectF) -> QColor | None:
-    """The colour most of `rect` shows: what is behind the text."""
+def _behind(
+    pixels: np.ndarray, rect: QRectF, pen: QColor | None = None
+) -> QColor | None:
+    """The colour most of `rect` shows: what is behind the text - but never
+    the text's own `pen` while another colour shows: a short run of bold,
+    dense script covers more of its box than what's behind it does (Hindi at
+    the app's Normal, 1.3 since decision 0244: "#e9ecf1 on #e9ecf1",
+    polyglotic-hq 524). Text on its own colour still shows only it."""
     height, width = pixels.shape[:2]
     left, top = max(0, int(rect.left())), max(0, int(rect.top()))
     right = min(width, int(np.ceil(rect.right())))
@@ -954,7 +961,12 @@ def _behind(pixels: np.ndarray, rect: QRectF) -> QColor | None:
     area = pixels[top:bottom, left:right, :3].reshape(-1, 3).astype(np.uint32)
     packed = (area[:, 0] << 16) | (area[:, 1] << 8) | area[:, 2]
     values, counts = np.unique(packed, return_counts=True)
-    most = int(values[int(np.argmax(counts))])
+    order = np.argsort(counts)[::-1]
+    most = int(values[order[0]])
+    if pen is not None and pen.alpha() == 255 and len(order) > 1:
+        own = (pen.red() << 16) | (pen.green() << 8) | pen.blue()
+        if most == own:
+            most = int(values[order[1]])
     return QColor((most >> 16) & 255, (most >> 8) & 255, most & 255)
 
 

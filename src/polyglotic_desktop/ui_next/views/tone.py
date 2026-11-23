@@ -48,10 +48,12 @@ from functools import lru_cache
 
 from polyglotic_desktop.ui_next.views.caption_window import TextEdge
 from polyglotic_desktop.ui_next.views.presets import (
+    AA_TEXT,
     LARGE_TEXT,
     VIDEOS,
     _mix,
     contrast,
+    readable_on,
 )
 
 CONTRAST_RANGE = (-100, 100)
@@ -171,6 +173,13 @@ def chroma(colour: str) -> float:
     return math.hypot(a, b)
 
 
+@lru_cache(maxsize=1024)
+def caption_text_colour(colour: str, background: str, vibrance: int) -> str:
+    """The row's ink after vibrance, retaining its contrast up to 4.5:1."""
+    was = contrast(colour, background)
+    return readable_on(vibrant(colour, vibrance), background, min(AA_TEXT, was))
+
+
 SHIFT = 0.05
 """How far a colour made vivid may move in lightness (OKLab's 0-1) towards
 where sRGB holds more of its chroma: Classic's yellow and the quiet view's
@@ -253,6 +262,24 @@ def _hex(rgb: tuple[float, float, float]) -> str:
 
 # -- thickness -----------------------------------------------------------------------
 
+GREY_READING = 0.8
+"""Where a grey reading sits between its panel and what was said: this
+share of the way to what was said, in lightness (polyglotic-hq 532) -
+0.6 until 584: on Everyday's panel over a white scene its pinyin was at
+2.9:1; at 0.8, 7.5:1 and still a step under the text's white."""
+
+
+def reading_grey(panel: str, said: str) -> str:
+    """Readings' muted grey (polyglotic-hq 532): a grey with no colour of
+    its own, `GREY_READING` of the way in lightness from the panel to what
+    was said's colour - light on a dark panel, dark on Paper's cream, so
+    the text leads on any. Made readable where it's drawn (the layout's
+    `link_ink`)."""
+    low, _, _ = _oklab(panel)
+    high, _, _ = _oklab(said)
+    return _hex(_srgb(low + GREY_READING * (high - low), 0.0, 0.0))
+
+
 THICKNESSES = (300, 400, 500, 600, 700)
 """Light, Regular, Medium, Semibold, Bold - CSS's and Qt's weights, the
 numbers a font a later build ships (polyglotic-hq 479) honours as they
@@ -260,6 +287,17 @@ are."""
 THICKNESS = 500
 """Medium: what captions have always asked for (`CaptionStyle.weight`).
 Windows' faces have no Medium: it draws their Regular (481's table)."""
+
+
+def offered(lightest: int) -> tuple[int, ...]:
+    """The thickness steps Look offers (polyglotic-hq 532): from the
+    lightest weight of their own the captions' faces have below the one
+    Medium draws (`lightest`; Medium if none has one), up. Every face the
+    app carries is cut at Medium (Ma Shan Zheng at Regular, its only
+    weight), so Light and Regular drew what Medium draws: the slider moved
+    and nothing changed. A PC's own face with a Light brings them back."""
+    low = max(w for w in THICKNESSES if w <= max(lightest, THICKNESSES[0]))
+    return tuple(w for w in THICKNESSES if w >= min(low, THICKNESS))
 
 
 def reading_weight(thickness: int) -> int:
@@ -274,18 +312,38 @@ def reading_weight(thickness: int) -> int:
 # -- visibility --------------------------------------------------------------------
 
 
+_DIAGONAL = math.sqrt(0.5)
+_ROUND = (
+    (-1.0, 0.0), (1.0, 0.0), (0.0, -1.0), (0.0, 1.0),
+    (-_DIAGONAL, -_DIAGONAL), (_DIAGONAL, -_DIAGONAL),
+    (-_DIAGONAL, _DIAGONAL), (_DIAGONAL, _DIAGONAL),
+)  # fmt: skip
+"""Eight ways out, each as far: an outline's copies."""
+
 EDGE_PASSES: dict[TextEdge, tuple[tuple[float, float, float], ...]] = {
     TextEdge.NONE: (),
     TextEdge.SHADOW: ((1.0, 1.0, 0.55), (2.0, 2.0, 0.3)),
-    TextEdge.OUTLINE: tuple(
-        (dx, dy, 0.85)
-        for dx in (-1.0, 0.0, 1.0)
-        for dy in (-1.0, 0.0, 1.0)
-        if (dx, dy) != (0.0, 0.0)
+    TextEdge.OUTLINE: (
+        (0.0, 0.0, 1.0),  # under the letters themselves: see `OUTLINE_SOLID`
+        *((dx, dy, 1.0) for dx, dy in _ROUND),
     ),
 }
 """Each edge as the text drawn again under it: x and y in pixels at 21 px
-text (grown with the text), and how much of the text's own ink."""
+text (grown with the text; each moved by whole pixels of the screen, so
+every copy lands on the pixels the text does), and how much of the text's
+own ink. The outline is round - its corners as far out as its sides, not
+1.4 times as far - and solid: copies at 85 % left a grey fringe wherever
+only one reached, and at Video's 63 px text, three pixels out, it read
+as a blur (polyglotic-hq 584; the user, 2026-11-21: "Big fonts are
+blurry during video mode, especially when greyed")."""
+
+OUTLINE_SOLID = 0.3
+"""An outline is drawn at full strength under text this faint or more -
+and under the letters themselves - so faint text (the words still to
+come, an older caption stepped back, at the softest contrast too) is a
+solid grey on solid black: its faintness from its colour, never the
+video seen through its letters (584). Fainter than this the text is
+fading away, and its outline fades with it."""
 
 
 def edge_colour(text: str) -> str:

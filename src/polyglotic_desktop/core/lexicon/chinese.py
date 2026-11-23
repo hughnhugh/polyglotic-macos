@@ -120,6 +120,8 @@ def entry_from_record(record: EntryRecord) -> DictionaryEntry:
         traditional=record.traditional,
         reading=mark_pinyin(record.reading),
         meanings=record.meanings,
+        sense_classes=record.sense_classes,
+        sense_prefixes=record.sense_prefixes,
         frequency_rank=record.frequency_rank,
         levels=record.levels,
         is_name=_is_name(record),
@@ -531,6 +533,10 @@ class ChineseDictionary:
         self.prepare()
         assert self._split is not None
         return self._split
+
+    @property
+    def has_sense_classes(self) -> bool:
+        return getattr(self._file, "has_sense_classes", True)
 
     def lookup(self, word: str) -> list[DictionaryEntry]:
         """Every entry for `word` (in either script), everyday reading first.

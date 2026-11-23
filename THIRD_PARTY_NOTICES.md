@@ -36,7 +36,8 @@ the licences of the libraries it bundles, including OpenBLAS), pydantic
 and pydantic-core (MIT), websockets (BSD-3-Clause), soundfile
 (BSD-3-Clause), cffi (MIT-0), PyNaCl (Apache-2.0; it bundles
 libsodium, ISC), annotated-types (MIT), typing-extensions
-(PSF-2.0), typing-inspection (MIT), genanki (MIT, Kerrick Staley and
+(PSF-2.0), typing-inspection (MIT), Segno (BSD-3-Clause, QR checkout),
+genanki (MIT, Kerrick Staley and
 contributors; it writes the Anki deck file) with chevron (MIT) and
 cached-property (BSD-3-Clause), and PyYAML (MIT). genanki also lists
 frozendict (LGPL-3.0) as a dependency, but never imports it, so it isn't
@@ -51,6 +52,11 @@ Ronald Oussoren and contributors), and sounddevice (MIT, Matthias Geier),
 which bundles the PortAudio library 19.7.0 (MIT-style licence, Ross Bencina
 and Phil Burk; its text in `licenses/PortAudio/LICENSE.txt`). None of these
 is in the Windows app.
+
+On Linux only, the device token is kept in the desktop's keyring through
+jeepney (MIT, Copyright (c) 2017 Thomas Kluyver), which talks D-Bus in
+pure Python. Sound is captured through the system's own libpulse (LGPL-2.1,
+loaded from the PC, never bundled). Neither is in the Windows or Mac app.
 
 ## Velopack
 
@@ -109,6 +115,8 @@ Font License, Version 1.1:
 - Noto Sans SC (as "Noto Sans SC Captions") - Copyright 2014-2021 Adobe
   (<http://www.adobe.com/>), with Reserved Font Name 'Source'
   (<https://github.com/notofonts/noto-cjk>)
+- Ma Shan Zheng (as "Ma Shan Zheng Captions") - Copyright 2018 The Ma
+  Shan Zheng Project Authors (<https://github.com/googlefonts/mashanzheng>)
 - Noto Sans Thai Looped - Copyright 2022 The Noto Project Authors
   (<https://github.com/notofonts/thai>)
 - Noto Naskh Arabic (as "Noto Naskh Arabic Captions") - Copyright 2022
@@ -133,8 +141,10 @@ variable fonts (<https://github.com/google/fonts>, commit
 Noto Sans SC cut to the 8,105 characters of the Table of General Standard
 Chinese Characters and GB2312's, with a weight 600 (SemiBold) copy of the
 letters readings use, and both, and Noto Naskh Arabic, given a shorter
-line box - with fontTools 4.60.1 (`tools/caption_fonts.py`). They remain
-under the OFL.
+line box - with fontTools 4.60.1 (`tools/caption_fonts.py`). Ma Shan Zheng
+(Google Fonts' `ofl/mashanzheng/MaShanZheng-Regular.ttf`, the same commit),
+under no Reserved Font Name either, is cut the same way and given Noto
+Sans SC's line box. They remain under the OFL.
 
 Other caption faces are downloaded when a learner captions a language
 whose default they are (Noto Sans TC, Noto Sans HK, Noto Sans JP,

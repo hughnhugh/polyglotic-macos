@@ -15,7 +15,9 @@ nothing.
 
 **Text size** follows Windows' (Settings > Accessibility > Text size; 135's
 proposal A) times the app's own (Settings > App > Text size: Smaller,
-Normal, Larger, Largest - polyglotic-hq 292, decision 0084): one factor,
+Normal, Larger, Largest - polyglotic-hq 292, decision 0084; its steps
+since decision 0244, Normal 1.3 times the text before there was a
+choice): one factor,
 `text_scale()`. `main` reads Windows' from the system font as Qt reads it
 (`text_scale_of`) and the app's from the settings (`use_app_text_size`).
 Every size the interface sets for its text, or for room that holds text,
@@ -25,6 +27,7 @@ Windows' own do. Captions keep their own size (a caption window's A- /
 A+): neither factor touches them.
 """
 
+import sys
 import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
@@ -33,7 +36,13 @@ from pathlib import Path
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QGuiApplication
 from PySide6.QtWidgets import QApplication, QMenu, QToolTip
 
-from polyglotic_desktop.ui_next import fonts
+from polyglotic_desktop.ui_next import caption_faces, fonts
+from polyglotic_desktop.ui_next.views.presets import readable_on
+
+
+def button_text(text: str) -> str:
+    """Show literal ampersands in a Qt button or menu action."""
+    return text.replace("&", "&&")
 
 
 def _chinese(traditional: bool) -> tuple[list[str], list[str]]:
@@ -58,18 +67,36 @@ Chinese ones (polyglotic-hq 294): a Japanese interface's kanji in a
 Japanese face, never YaHei's Chinese shapes; Hangul, Thai and Devanagari
 in Windows' own interface faces for them."""
 
+INTERFACE_SCRIPTS = {"ja": "ja", "ko": "ko", "th": "th", "hi": "deva"}
+"""An interface language's script, for another OS's own faces for it
+(`fonts.also`)."""
+
+
+def script_faces(language: str, system: str = sys.platform) -> list[str]:
+    """An interface language's own script's faces, before the Chinese ones:
+    Windows' (`SCRIPT_FACES`), then this OS's (`fonts.also`) - on Linux a
+    Japanese interface's kanji in Noto Sans CJK JP, never in the Chinese
+    face its list names next (Noto Sans CJK SC), whose shapes are China's
+    (polyglotic-hq 571); on a Mac in Hiragino Sans."""
+    script = INTERFACE_SCRIPTS.get(language, "")
+    return [*SCRIPT_FACES.get(language, []), *fonts.also(script, system)]
+
 
 def _ui_families(traditional: bool, language: str = "") -> list[str]:
-    """Windows' interface font, then the interface language's own script's
-    faces (`SCRIPT_FACES`), then its Chinese (`_chinese`), then another
-    OS's own (`fonts`)."""
+    """Windows' interface font and another OS's own Latin one (`fonts`),
+    then the interface language's own script's faces (`script_faces`), then
+    its Chinese (`_chinese`, and another OS's). Another OS's Latin face
+    comes before the script's, as Segoe UI does on Windows: on Linux a
+    Japanese or Korean interface's Latin letters were in Noto Sans CJK's,
+    and a Hindi one's in Noto Sans Devanagari's, beside Noto Sans
+    (polyglotic-hq 571's fonts check)."""
     chinese, others = _chinese(traditional)
     return [
         "Segoe UI Variable Text",
         "Segoe UI",
-        *SCRIPT_FACES.get(language, []),
-        *chinese,
         *fonts.also("latin"),
+        *script_faces(language),
+        *chinese,
         *others,
     ]
 
@@ -101,7 +128,9 @@ def use_interface_language(language: str, listed: bool = True) -> None:
     global _UI_FAMILY_CSS
     traditional = language == "zh_TW"
     use_symbols()
-    use_chinese_behind_every_font(traditional, SCRIPT_FACES.get(language, []), listed)
+    use_chinese_behind_every_font(traditional, script_faces(language), listed)
+    if listed:
+        caption_faces.log_missing_cjk_fonts()
     UI_FAMILIES[:] = _ui_families(traditional, language)
     _UI_FAMILY_CSS = ", ".join(f"'{f}'" for f in UI_FAMILIES)
 
@@ -111,7 +140,7 @@ CHINESE_FACES = frozenset(
     for faces in (
         *(_chinese(False)),
         *(_chinese(True)),
-        *SCRIPT_FACES.values(),
+        *(script_faces(language) for language in INTERFACE_SCRIPTS),
     )
     for face in faces
 )
@@ -141,7 +170,7 @@ def use_chinese_behind_every_font(
     Behind the symbols' face (`use_symbols`, which comes first) and before
     anything else behind a family; the faces' order follows the interface
     (changed, the old order goes). `own`: the interface language's own
-    script's faces (`SCRIPT_FACES`), before the Chinese ones - a Japanese
+    script's faces (`script_faces`), before the Chinese ones - a Japanese
     interface's menus draw their kanji in a Japanese face (polyglotic-hq
     294).
 
@@ -238,20 +267,28 @@ DEFAULT_POINTS = 9.0
 """Windows' interface font at 100 % text size: Segoe UI, 9 pt (Qt 6 takes
 the application's font from Windows' message font, which Text size makes
 larger)."""
+COCOA_DEFAULT_POINTS = 13.0
+"""Standard Qt application font on Cocoa, in points (macOS 15).
+Compare larger system fonts with the native default before applying the app's text size."""
 TEXT_SCALES = (1.0, 2.25)
 """Windows' Text size runs from 100 % to 225 %; a smaller system font
 doesn't shrink the interface (text never under 12 px: the UI lab)."""
-APP_TEXT_SIZES = {"smaller": 0.9, "normal": 1.0, "larger": 1.2, "largest": 1.45}
+APP_TEXT_SIZES = {"smaller": 1.0, "normal": 1.3, "larger": 1.45, "largest": 1.75}
 """Settings > App > Text size: each step's factor, on top of Windows'
-(decision 0084). Normal is the interface as it was before there was a
-choice; the others are steps a reader sees at once - the base 13 px
-text at 12, 13, 16 and 19 px - chosen in the UI lab (polyglotic-hq 292)."""
+(decision 0084), the base 13 px text at 13, 17, 19 and 23 px. Shifted up
+by decision 0244 (polyglotic-hq 524, the user, 2026-11-19: "normal should
+be between larger to largest"): Normal, the default, between 0.1.9's
+Larger (1.2) and Largest (1.45); Smaller is 0.1.9's Normal, the interface
+as it was before there was a choice; Larger is 0.1.9's Largest; Largest
+is new, and still fits the main window's floor (a 1366 x 768 laptop at
+150 %: the UI lab's `w4_pages_at_floor`, up to its `FLOOR_SCALE`, 1.8)."""
 SMALLEST_PX = 12
-"""No text is drawn smaller, at any text size (the UI lab's `small_text`):
-Smaller shrinks what is larger, down to it."""
+"""No text is drawn smaller, at any text size (the UI lab's `small_text`).
+No step is under 1.0 since decision 0244 (0.1.9's Smaller was 0.9), so
+this only holds if one ever is again."""
 
 _text_scale = 1.0
-_app_text_size = 1.0
+_app_text_size = APP_TEXT_SIZES["normal"]
 
 
 def text_scale() -> float:
@@ -284,23 +321,27 @@ def use_app_text_size(size: str) -> None:
     it doesn't know is Normal. Windows built from now on use it; `main`
     restyles the open ones."""
     global _app_text_size
-    _app_text_size = APP_TEXT_SIZES.get(size, 1.0)
+    _app_text_size = APP_TEXT_SIZES.get(size, APP_TEXT_SIZES["normal"])
 
 
 def text_scale_of(font: QFont) -> float:
-    """Windows' Text size, from the system font as Qt reads it (the
-    application's font, which the app never sets): 9 pt is 100 %."""
+    """Scale the system font against the platform's standard point size."""
     points = font.pointSizeF()
     if points <= 0:  # set in pixels
         points = font.pixelSize() * 0.75
-    scale = round(points / DEFAULT_POINTS, 2)
+    normal = (
+        COCOA_DEFAULT_POINTS
+        if QGuiApplication.platformName() == "cocoa"
+        else DEFAULT_POINTS
+    )
+    scale = round(points / normal, 2)
     return min(max(scale, TEXT_SCALES[0]), TEXT_SCALES[1])
 
 
 def px(size: float) -> int:
-    """`size` (in px at 100 % text size) at the text size now. Smaller
-    never takes it under `SMALLEST_PX`, nor shrinks what is already under
-    it (a gap, an icon's offset)."""
+    """`size` (in px at a factor of 1.0: Windows' 100 % and the app's
+    Smaller) at the text size now. Never under `SMALLEST_PX`, nor shrinks
+    what is already under it (a gap, an icon's offset)."""
     return max(round(size * text_scale()), min(round(size), SMALLEST_PX))
 
 
@@ -408,6 +449,11 @@ QCheckBox::indicator:checked:disabled {{ background: {TEXT_FAINT}; border-color:
 """
 
 
+CAPTION_BADGE_RADIUS = 8
+CAPTION_BADGE_INSET = (3, 8)
+"""Logical pixels, 0–12. Round the state badge and leave space around its words."""
+
+
 def stylesheet(t: Theme) -> str:
     """A window's stylesheet in theme `t`'s colours, its text at the text
     size now (`px`): today's, and the new parts'."""
@@ -422,6 +468,14 @@ QWidget {{ color: {TEXT}; font-size: {px(13)}px; font-family: {_UI_FAMILY_CSS}; 
 QMainWindow, QDialog, QTabWidget, #Page, #Content {{ background: {BG}; }}
 QToolTip {{ background: {SURFACE_2}; color: {TEXT}; border: 1px solid {BORDER}; padding: 4px 6px; }}
 #Card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px; }}
+#Card[captionIdle="true"] {{ border-color: {ACCENT}; }}
+#Card[recommendedOffer="true"] {{ border-color: {ACCENT}; }}
+#CaptionIdle {{
+    color: {readable_on(BG, WARNING)}; background: {WARNING};
+    border-radius: {CAPTION_BADGE_RADIUS}px; font-weight: 600;
+    padding: {CAPTION_BADGE_INSET[0]}px {CAPTION_BADGE_INSET[1]}px;
+}}
+#CaptionActive {{ color: {readable_on(t["SUCCESS"], SURFACE)}; font-weight: 600; }}
 #PageTitle {{ font-size: {px(24)}px; font-weight: 600; font-family: '{t.heading_family}', {_UI_FAMILY_CSS}; }}
 #PageSubtitle, #Dim, {_role("PageSubtitle")}, {_role("Dim")} {{ color: {TEXT_DIM}; }}
 #Faint, #machine_made, {_role("Faint")} {{ color: {TEXT_FAINT}; font-size: {px(12)}px; }}
@@ -489,11 +543,25 @@ QTabBar::tab {{ background: transparent; color: {TEXT_DIM}; padding: 8px 16px; }
 QTabBar::tab:selected {{ color: {TEXT}; border-bottom: 2px solid {ACCENT}; }}
 QTableWidget {{ background: {SURFACE}; border: 1px solid {BORDER}; gridline-color: {BORDER}; }}
 QHeaderView::section {{ background: {SURFACE_2}; color: {TEXT_DIM}; border: none; padding: 5px; }}
+QFileDialog QTreeView, QFileDialog QListView {{
+    background: {SURFACE}; alternate-background-color: {SURFACE_2};
+    color: {TEXT}; border: 1px solid {BORDER};
+}}
+QFileDialog QTreeView::item:hover, QFileDialog QListView::item:hover {{ background: {SURFACE_3}; }}
+QFileDialog QTreeView::item:selected, QFileDialog QListView::item:selected {{
+    background: {rgba(ACCENT, 0.22)}; color: {TEXT};
+}}
+QFileDialog QHeaderView {{ background: {SURFACE_2}; }}
+QFileDialog QScrollBar:horizontal {{ background: transparent; height: 10px; margin: 2px; }}
+QFileDialog QScrollBar::handle:horizontal {{ background: {SURFACE_3}; border-radius: 3px; min-width: 30px; }}
+QFileDialog QScrollBar::handle:horizontal:hover {{ background: {TEXT_FAINT}; }}
 QCheckBox {{ spacing: 8px; }}
 {_indicators(t)}
-/* the first run's code box: its edge at least 3:1 (425; BORDER is 1.3:1) */
+/* the first run's code box and language list: their edges at least 3:1 (425, 658) */
 #SignInDialog QLineEdit {{ border-color: {TEXT_FAINT}; }}
 #SignInDialog QLineEdit:focus {{ border-color: {FOCUS}; }}
+#LanguagePicker QListWidget {{ border-color: {TEXT_FAINT}; }}
+#LanguagePicker QListWidget:focus {{ border-color: {FOCUS}; }}
 #Sidebar {{ background: {SIDEBAR}; border-right: 1px solid {BORDER}; }}
 #NavButton {{
     background: transparent; border: none; border-radius: 8px; text-align: left;
@@ -526,6 +594,7 @@ QMenu {{ background: {SURFACE}; border: 1px solid {BORDER}; padding: 6px; border
 QMenu::item {{ padding: 7px 22px 7px 12px; border-radius: 6px; }}
 QMenu::item:selected {{ background: {SURFACE_2}; }}
 QMenu::separator {{ height: 1px; background: {BORDER}; margin: 5px 4px; }}
+QFrame[banner="true"] {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 9px; }}
 #Segmented, QFrame[segmented="true"] {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 9px; }}
 #Segmented QPushButton {{
     background: transparent; border: none; border-radius: 6px; padding: 6px 12px; color: {TEXT_DIM};
@@ -550,4 +619,5 @@ QPushButton[switch="true"]:hover {{ background: {SURFACE_2}; }}
 #AddRow {{ background: transparent; border-radius: 6px; }}
 #AddRow:hover {{ background: {SURFACE_2}; }}
 #AddRow:disabled QLabel {{ color: {TEXT_FAINT}; }}
+#AddRow QPushButton[kind="primary"]:disabled {{ background: {SURFACE_2}; color: {TEXT_FAINT}; }}
 """

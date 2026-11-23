@@ -12,6 +12,14 @@ pipe on Windows), a line each way:
 - the copy that runs: `shown` - and its main window comes forward, as the
   tray's Open brings it (restored if minimised, shown if in the tray).
 
+A start with `--lock`, `--pause` or `--hide` (polyglotic-hq 570) asks
+instead for what that hotkey does - `lock`, `pause` or `hide` - and is
+answered `done`, or `not yet` while the copy is still asking its first
+run's questions; it then ends, whatever the answer, without running
+(`tell`). A shortcut the learner made in their desktop's own settings runs
+`polyglotic --lock` where the desktop gives an app no hotkey of its own
+(GNOME's Wayland session). With no copy running it ends at once.
+
 The name comes from the user and the data folder, so a copy with a folder
 of its own - a test's, a copy from source beside the installed one, QA's -
 runs beside the others. The socket alone can't be the lock: on Windows two
@@ -35,7 +43,7 @@ from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication
 
 from polyglotic_desktop.ports.one_copy import LetToFront
-from polyglotic_desktop.ui.os_words import pc_or_mac
+from polyglotic_desktop.ui.os_words import pc_mac_or_linux
 
 log = logging.getLogger(__name__)
 
@@ -48,6 +56,12 @@ CONNECT_MS = 200
 ANSWER_MS = 5_000  # a start that connects and says nothing is let go
 GREETING = b"polyglotic"
 SHOW, SHOWN = b"show", b"shown"
+COMMANDS = ("lock", "pause", "hide")
+"""What a start can ask the copy that runs to do, as its hotkey does (570):
+each the hotkey's name (`core.listening.hotkeys.Hotkey`)."""
+DONE, NOT_YET = b"done", b"not yet"
+TELL_SEC = 2.0
+"""How long a start with a command waits for the copy that runs to answer."""
 LONGEST_LINE = 64
 
 
@@ -141,6 +155,40 @@ def ask_to_show(name: str, let_to_front: LetToFront, wait_sec: float) -> bool:
         socket.abort()
 
 
+class Told(Enum):
+    """What the copy that runs said to a command (`tell`)."""
+
+    DONE = "done"
+    NOT_YET = "not yet"
+    """Still asking its first run's questions: nothing done."""
+    NO_COPY = "no copy running"
+    """None listens, or none answered in time."""
+
+
+def tell(name: str, command: str, wait_sec: float = TELL_SEC) -> Told:
+    """Asks the copy listening under `name` to do `command` (one of
+    `COMMANDS`), as its hotkey does."""
+    if command not in COMMANDS:
+        raise ValueError(f"not a command: {command!r}")
+    end = time.monotonic() + wait_sec
+    socket = QLocalSocket()
+    socket.connectToServer(name)
+    try:
+        if not socket.waitForConnected(CONNECT_MS):
+            return Told.NO_COPY
+        greeting = _line(socket, end)
+        if greeting is None or not greeting.startswith(GREETING + b" "):
+            return Told.NO_COPY
+        socket.write(command.encode("ascii") + b"\n")
+        socket.flush()
+        said = _line(socket, end)
+        if said == DONE:
+            return Told.DONE
+        return Told.NOT_YET if said == NOT_YET else Told.NO_COPY
+    finally:
+        socket.abort()
+
+
 def _ms_left(end: float) -> int:
     return max(0, int((end - time.monotonic()) * 1000))
 
@@ -158,7 +206,7 @@ def _line(socket: QLocalSocket, end: float) -> bytes | None:
 
 def not_answering() -> str:
     """What a start says when the copy that runs doesn't answer."""
-    return pc_or_mac(
+    return pc_mac_or_linux(
         _tr(
             "Polyglotic is already open, but it isn't responding. Wait a moment,"
             " then open it again. If it still doesn't come up, end Polyglotic in"
@@ -168,6 +216,12 @@ def not_answering() -> str:
             "Polyglotic is already open, but it isn't responding. Wait a moment, then "
             "open it again. If it still doesn't come up, force quit Polyglotic (⌥⌘Esc),"
             " then open it again."
+        ),
+        # Linux: GNOME's and KDE's are both called System Monitor (571)
+        _tr(
+            "Polyglotic is already open, but it isn't responding. Wait a moment, then "
+            "open it again. If it still doesn't come up, end Polyglotic in System "
+            "Monitor, then open it again."
         ),
     )
 
@@ -183,6 +237,7 @@ class SecondStarts(QObject):
     def __init__(self, name: str, app: QCoreApplication) -> None:
         super().__init__(app)
         self._show: Callable[[], None] | None = None
+        self._do: Callable[[str], None] | None = None
         self._wanted = False
         self._server = QLocalServer(self)
         self._server.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
@@ -207,6 +262,11 @@ class SecondStarts(QObject):
             self._wanted = False
             show()
 
+    def do_with(self, do: Callable[[str], None]) -> None:
+        """`do` carries out a start's command (one of `COMMANDS`) from now
+        on; before, such a start is told `not yet`."""
+        self._do = do
+
     def close(self) -> None:
         """At quit: a start from now on waits for this copy to end, then
         runs, rather than being answered by a copy on its way out."""
@@ -224,13 +284,26 @@ class SecondStarts(QObject):
             if socket.bytesAvailable() > LONGEST_LINE:
                 socket.abort()
             return
-        if bytes(socket.readLine(LONGEST_LINE).data()).strip() != SHOW:
+        line = bytes(socket.readLine(LONGEST_LINE).data()).strip()
+        command = line.decode("ascii", "replace")
+        if command in COMMANDS:
+            self._command(socket, command)
+            return
+        if line != SHOW:
             socket.abort()
             return
         socket.write(SHOWN + b"\n")
         socket.disconnectFromServer()  # once what's written has gone
         log.info("a second start: the main window brought forward")
         self._bring_forward()
+
+    def _command(self, socket: QLocalSocket, command: str) -> None:
+        do = self._do
+        socket.write((DONE if do is not None else NOT_YET) + b"\n")
+        socket.disconnectFromServer()  # once what's written has gone
+        if do is not None:
+            log.info("a start asked: %s", command)
+            do(command)
 
     def _bring_forward(self) -> None:
         if self._show is not None:

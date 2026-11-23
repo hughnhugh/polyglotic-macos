@@ -129,6 +129,30 @@ def test_a_withdrawn_caption_goes_and_late_updates_dont_bring_it_back() -> None:
     assert history.captions == ()
 
 
+def test_a_dropped_caption_ends_with_what_it_shows() -> None:
+    """polyglotic-hq 557 (529's B3): a caption whose finished speech failed
+    on the server, was given up or never sent stayed live for good - its
+    text provisional, never in the transcript or Copy all. `ended` gives
+    the finished update that ends it, with its words and translations as
+    shown; nothing for a caption finished, gone or never shown."""
+    history = CaptionHistory()
+    history.apply(live("a", clause("Thanks for", "Merci pour")))
+    history.apply(live("a", clause("Thanks for watching", "Merci d'avoir regardé")))
+    ending = history.ended(CaptionId("a"))
+    assert ending is not None and ending.kind is CaptionKind.FINISHED
+    shown = history.caption(CaptionId("a"))
+    assert shown is not None
+    ended = history.apply(ending)
+    assert ended is not None and not ended.live
+    assert ended.clauses == shown.clauses and ended.key == shown.key
+    assert ended.language == Language("zh")
+    assert history.ended(CaptionId("a")) is None  # finished: nothing to end
+    assert history.ended(CaptionId("never")) is None
+    history.apply(live("b", clause("Bye")))
+    history.apply(withdrawn("b"))
+    assert history.ended(CaptionId("b")) is None
+
+
 def test_a_replaced_caption_ignores_its_late_updates() -> None:
     history = CaptionHistory()
     history.apply(finished("a", clause("一")))

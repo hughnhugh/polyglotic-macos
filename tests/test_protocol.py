@@ -56,8 +56,10 @@ CHECKED = {
     # from the app
     "hello",
     "hello.resume",
+    "hello.live_translation",
     "settings",
     "speech.live",
+    "speech.live.numbered",
     "speech.finished",
     "speech.finished.cut",
     "speech.finished.joined",
@@ -89,9 +91,17 @@ CHECKED = {
     "pong",
     "pace",
     "caption_update.live",
+    "caption_update.live.trace",
+    "live_translation",
+    "allowance_update",
+    "allowance_exhausted",
+    "cross_border_consent_required",
+    "registration_required",
     "caption_update.finished",
     "caption_update.finished.joined",
+    "caption_update.finished.continuation",
     "caption_update.finished.mixed",
+    "caption_update.finished.words",
     "caption_update.withdrawn",
     "recheck_result",
     "recheck_result.no_words",
@@ -207,6 +217,28 @@ def test_hello_resuming_a_lost_session() -> None:
         resume="9e8d7c6b-5a4f-4e3d-8c2b-1a0f9e8d7c6b",
     )
     assert protocol.dump(hello) == example("hello.resume")
+
+
+def test_hello_requests_separate_translations() -> None:
+    agreed = example("hello.live_translation")
+    hello = protocol.Hello.model_validate(agreed)
+    assert hello.live_translation is True and protocol.dump(hello) == agreed
+
+
+@pytest.mark.parametrize(
+    ("name", "model"),
+    [
+        ("live_translation", protocol.LiveTranslation),
+        ("allowance_update", protocol.AllowanceUpdate),
+        ("allowance_exhausted", protocol.AllowanceExhausted),
+        ("cross_border_consent_required", protocol.CrossBorderConsentRequired),
+        ("registration_required", protocol.RegistrationRequired),
+    ],
+)
+def test_messages_from_the_live_translation_contract_snapshot(
+    name: str, model: type[protocol.Message]
+) -> None:
+    assert isinstance(decoded(name), model)
 
 
 def test_settings() -> None:
@@ -600,7 +632,19 @@ def test_welcome() -> None:
     assert welcome.limits.ping_seconds == 25
     assert welcome.limits.speech_frame_bytes == 262_144
     assert welcome.live_interval_min is None
-    assert welcome.features == {}  # no flag is live (server #127, 2026-11-06)
+    # No flag is on (server #127, 2026-11-06). The server may list a flag that
+    # is off: `{"word_times": false}` since server #336 (531, decision 0100).
+    assert not any(welcome.features.values())
+
+
+def test_welcome_reads_a_flag_that_is_off() -> None:
+    # server #336 (polyglotic-hq 531, server decision 0100): the welcome says
+    # the word timer's flag, off; the next copy of the examples carries it
+    message = example("welcome")
+    message["features"] = {"word_times": False}
+    welcome = protocol.decode(json.dumps(message))
+    assert isinstance(welcome, protocol.Welcome)
+    assert welcome.features == {"word_times": False}
 
 
 def test_welcome_says_whether_the_session_was_resumed() -> None:
@@ -661,6 +705,28 @@ def test_refusals_say_what_to_do() -> None:
     assert isinstance(busy, protocol.ServerBusy) and busy.retry_after == 30
 
 
+def test_a_numbered_speech_frame() -> None:
+    """The frame's number in the caption timelines (perf.trace; the server's
+    decision 0104)."""
+    request = TranscriptionRequest(CAPTION, SpeechKind.LIVE, VIDEO, 12.48, 14.02, 0)
+    frame = listening.outgoing(request, b"OggS fake audio", TODAY, 2, seq=41)
+    assert isinstance(frame, bytes)
+    length = int.from_bytes(frame[:4], "big")
+    assert json.loads(frame[4 : 4 + length]) == example("speech.live.numbered")
+
+
+def test_a_caption_updates_trace() -> None:
+    message = decoded("caption_update.live.trace")
+    assert isinstance(message, protocol.CaptionUpdate)
+    assert message.trace is not None
+    assert message.trace.seq == 41 and message.trace.waited_ms == 12
+    assert message.trace.stages_ms["speech_model"] == 210
+    assert message.trace.server_ms == 298
+    assert [(u.seq, u.why) for u in message.trace.unanswered] == [
+        (40, "overtaken_waiting")
+    ]
+
+
 def test_a_live_caption_update() -> None:
     message = decoded("caption_update.live")
     assert isinstance(message, protocol.CaptionUpdate)
@@ -710,6 +776,29 @@ def test_a_mixed_caption_says_what_each_line_is_written_in() -> None:
     nulled = protocol.decode(json.dumps(data))
     assert isinstance(nulled, protocol.CaptionUpdate)
     assert listening.caption_update(nulled).clauses[0].written_in == {}
+
+
+def test_a_caption_says_when_each_word_was_said() -> None:
+    """Server decision 0099, this app's 0247 (polyglotic-hq 528): each word's
+    span in its clause and its times on this app's own clock; an older
+    server's clauses have none, and an update with them still shows as
+    before (nothing reads them yet)."""
+    message = decoded("caption_update.finished.words")
+    assert isinstance(message, protocol.CaptionUpdate)
+    assert message.clauses is not None
+    (clause,) = message.clauses
+    assert clause.words is not None
+    assert [clause.original[slice(*w.original)] for w in clause.words] == list(
+        "你好今天天气很好"
+    )
+    assert (clause.words[0].start, clause.words[-1].end) == (12.52, 14.84)
+    starts = [w.start for w in clause.words]
+    assert starts == sorted(starts)
+    plain = decoded("caption_update.finished")
+    assert isinstance(plain, protocol.CaptionUpdate) and plain.clauses is not None
+    assert all(c.words is None for c in plain.clauses)
+    timed, untimed = listening.caption_update(message), listening.caption_update(plain)
+    assert timed.clauses == untimed.clauses
 
 
 def test_a_withdrawn_caption() -> None:
@@ -993,3 +1082,11 @@ def test_a_planned_maintenance_window_in_welcome_and_as_its_own_message() -> Non
         120,
     )
     assert decoded("server_busy").reason is None  # type: ignore[attr-defined]
+
+
+def test_finished_continuation_names_another_audio_id() -> None:
+    wire = example("caption_update.finished.continuation")
+    update = listening.caption_update(protocol.validate(protocol.CaptionUpdate, wire))
+    assert update.continues == wire["continues"]
+    assert update.caption_id != update.continues
+    assert update.replaces == ()

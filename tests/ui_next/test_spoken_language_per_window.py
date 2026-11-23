@@ -67,8 +67,8 @@ def windows(qapp: QApplication) -> Iterator[CaptionWindows]:
 def opened(window: CaptionWindow) -> SettingsPopover:
     window.hovered = True
     window._show_band(True)
-    window.toggle_settings()
-    popover = window.popover
+    window.toggle_languages()
+    popover = window.languages
     assert popover is not None and popover.isVisible()
     return popover
 

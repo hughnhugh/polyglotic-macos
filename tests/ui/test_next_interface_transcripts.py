@@ -254,11 +254,13 @@ def test_its_commands_are_today_s(
     desktop, transcripts = switched
     transcripts.show(KEY)
     shown = transcripts.shown[KEY]
-    shown.timing_wanted.emit(CaptionMode.LIVE.value)
-    assert desktop.settings.value.caption_mode is CaptionMode.LIVE
-    transcripts.windows.set_timing(CaptionMode.LIVE)  # as main's settings_changed does
+    shown.timing_wanted.emit(CaptionMode.INSTANT.value)
+    assert desktop.settings.value.caption_mode is CaptionMode.INSTANT
+    transcripts.windows.set_timing(
+        CaptionMode.INSTANT
+    )  # as main's settings_changed does
     follow_transcripts(transcripts)
-    assert shown.buttons["timing"].text() == "Live updates ▾"
+    assert shown.buttons["timing"].text() == "Instant ▾"
     desktop.pause.setChecked(True)
     assert shown.notice.text() == "Paused"
     desktop.pause.setChecked(False)

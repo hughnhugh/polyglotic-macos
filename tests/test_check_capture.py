@@ -37,6 +37,8 @@ class FakeCapture:
     def error(self) -> str | None:
         return self._error
 
+    restarts = 0  # never fails (566)
+
 
 def test_each_source_heard_is_reported_without_its_audio(tmp_path: Path) -> None:
     report = tmp_path / "capture.json"

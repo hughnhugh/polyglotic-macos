@@ -288,7 +288,6 @@ def _with_settings(theme: style.Theme) -> MainWindow:
     window.add_page("home", "Home", _page("home"))
     settings = SettingsPage(
         [("margin", "Margin"), ("glaze", "Glaze")],
-        {"L": QAction("Lock overlays")},
         QAction("Tell us"),
         look=LookView(CaptionLook()),
         timing=TimingView(Timing()),

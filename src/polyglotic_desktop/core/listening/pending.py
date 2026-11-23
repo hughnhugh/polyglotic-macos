@@ -24,7 +24,10 @@ concept's rule (`SegmentExecutor` in `overlay_core`):
   start again, in order, with what's said once the server is back.
 
 Each item carries a payload the caller chooses (such as the encoded
-audio); core never looks inside it.
+audio); core never looks inside it. Finished speech dropped is counted
+(`dropped`) and its captions kept until taken (`take_dropped`): their live
+captions end with what they show, rather than staying provisional for good
+(polyglotic-hq 557, 529's B3).
 """
 
 from collections import deque
@@ -52,6 +55,8 @@ class PendingSpeech[P]:
         self.dropped = 0
         """Finished speech dropped for waiting too long (or held through a
         planned maintenance window), all told."""
+        self._dropped_ids: list[CaptionId] = []
+        """Their captions, since `take_dropped`."""
         self._holding = True
 
     def put(self, decision: Decision, payload: P) -> None:
@@ -94,7 +99,7 @@ class PendingSpeech[P]:
                 isinstance(decision, TranscriptionRequest)
                 and decision.speech_end < oldest
             ):
-                self.dropped += 1
+                self._count_dropped(decision)
                 continue
             kept.append((decision, payload))
         self._first = kept
@@ -114,6 +119,13 @@ class PendingSpeech[P]:
             and decision.kind is SpeechKind.FINISHED
         ):
             self.dropped += 1
+            self._dropped_ids.append(decision.caption_id)
+
+    def take_dropped(self) -> list[CaptionId]:
+        """The captions whose finished speech was dropped since last asked,
+        in order: their finished captions won't come."""
+        taken, self._dropped_ids = self._dropped_ids, []
+        return taken
 
     def clear(self) -> None:
         """Everything waiting dropped: nothing of it is to be sent."""

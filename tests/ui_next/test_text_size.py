@@ -17,11 +17,13 @@ from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.lookup_card import WIDTH, LookupCard
 from polyglotic_desktop.ui_next.main_window import (
     FLOOR,
+    FLOOR_SCALE,
     FRAME,
-    MINIMUM,
+    ROOMY,
     SIDEBAR,
     MainWindow,
     minimum_size,
+    roomy_size,
 )
 from polyglotic_desktop.ui_next.views.lookup import Card, Shows
 from polyglotic_desktop.ui_next.views.transcript import rail_inline
@@ -43,6 +45,14 @@ def points(size: float) -> QFont:
     font = QFont("Segoe UI")
     font.setPointSizeF(size)
     return font
+
+
+def test_standard_cocoa_font_is_normal_and_larger_fonts_still_scale(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(style.QGuiApplication, "platformName", lambda: "cocoa")
+    assert style.text_scale_of(points(13)) == 1.0
+    assert style.text_scale_of(points(19.5)) == 1.5
 
 
 def test_the_text_size_is_read_from_the_system_font() -> None:
@@ -72,14 +82,18 @@ def test_one_factor_scales_every_size_the_stylesheet_gives_text(
     assert style.text_scale() == 2.25  # kept to Windows' range
 
 
-def test_the_main_window_and_its_minimum_grow_with_the_text(
+def test_the_main_window_grows_with_the_text_and_its_minimum_past_the_floor_scale(
     at_100: QApplication,
 ) -> None:
+    """The size it opens at grows with the text; its minimum stays the
+    floor up to FLOOR_SCALE and widens with the text past it (polyglotic-hq
+    586) - never taller: the pages and the sidebar scroll down."""
     style.use_text_scale(2.0)
     window = MainWindow(QAction("Quit"))
-    assert minimum_size() == (2 * MINIMUM[0], 2 * MINIMUM[1])
+    assert roomy_size() == (2 * ROOMY[0], 2 * ROOMY[1])
+    assert minimum_size() == (round(FLOOR[0] * 2.0 / FLOOR_SCALE), FLOOR[1])
     assert (window.minimumWidth(), window.minimumHeight()) == minimum_size()
-    window.resize(*minimum_size())
+    window.resize(*roomy_size())
     window.show()
     at_app().processEvents()
     assert window.sidebar.width() == 2 * SIDEBAR  # 960 has room for all of it
@@ -91,14 +105,17 @@ def test_the_main_window_and_its_minimum_grow_with_the_text(
 
 def test_a_large_text_sizes_minimum_is_kept_to_the_screen(at_100: QApplication) -> None:
     """At 200 % on a 1920 x 1080 screen at 150 % scale (1280 x 672 for the
-    window), 1520 x 1040 wouldn't fit: the minimum is what the screen has."""
+    window), 1920 x 1360 wouldn't fit: it opens as large as the screen has
+    room for, and its minimum - 844 x 520 - is under that, so every edge
+    can make it smaller (polyglotic-hq 586: the minimum was the room)."""
     style.use_text_scale(2.0)
     window = MainWindow(QAction("Quit"))
     area = QRect(0, 0, 1280, 672)
     window.fit_to(area)
     room = (area.width() - FRAME, area.height() - FRAME)
-    assert (window.minimumWidth(), window.minimumHeight()) == room
+    assert (window.minimumWidth(), window.minimumHeight()) == minimum_size()
     assert (window.width(), window.height()) == room
+    assert window.minimumWidth() < room[0] and window.minimumHeight() < room[1]
     style.use_text_scale(1.0)
     small = MainWindow(QAction("Quit"))
     small.fit_to(QRect(0, 0, 700, 500))  # never under the floor

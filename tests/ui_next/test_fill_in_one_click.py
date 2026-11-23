@@ -10,7 +10,6 @@ from dataclasses import replace
 
 import pytest
 import shiboken6
-from PySide6.QtGui import QAccessible
 from PySide6.QtWidgets import QApplication, QWidget
 from tests.ui_next.test_caption_window import MIC, Store, areas, window_of
 from tests.ui_next.test_joined_window import THREE
@@ -91,16 +90,17 @@ def test_the_look_remembers_and_forgets() -> None:
 def test_the_button_shows_and_asks(qapp: QApplication) -> None:
     window = window_of(qapp)
     MADE.append(window)
-    button = window.buttons["fill"]
+    # its strip button went with the presets' dropdown (polyglotic-hq 556):
+    # the action stays, what a click on it asked
+    button = window.controls["fill"]
     assert window.glyphs["fill"] is Glyph.FILL
-    assert not window.controls["fill"].icon().isNull()
-    said = QAccessible.queryAccessibleInterface(button)
-    assert said.text(QAccessible.Text.Name) == "Fill the width"
+    assert not button.icon().isNull()
+    assert button.text() == "Fill the width"
     assert "every window" in button.toolTip()
     assert not button.isChecked()
     asked: list[bool] = []
     window.fill_wanted.connect(asked.append)
-    button.click()
+    button.trigger()
     assert asked == [True]
     # the Lab's three set elsewhere: the button says so
     window.set_look(replace(window.look, lab=FILLED))
@@ -124,22 +124,24 @@ def test_every_window_and_the_lab_agree(qapp: QApplication) -> None:
     windows.set_captioned(THREE[:2])
     first, second = windows.windows.values()
     try:
-        first.buttons["fill"].click()
+        first.controls["fill"].trigger()
         assert look.value.lab == FILLED
-        assert first.buttons["fill"].isChecked() and second.buttons["fill"].isChecked()
+        assert (
+            first.controls["fill"].isChecked() and second.controls["fill"].isChecked()
+        )
         panel.refresh()
         assert panel.flow.switch.isChecked() and panel.run_on.switch.isChecked()
         assert panel.fill.value() is Fill.PAIRED
         # the Lab's row turns run-on off: the buttons are off
         panel.run_on.switch.click()
         assert not look.value.lab.filled
-        assert not first.buttons["fill"].isChecked()
-        assert not second.buttons["fill"].isChecked()
+        assert not first.controls["fill"].isChecked()
+        assert not second.controls["fill"].isChecked()
         # on again from the other window, then off: back to that
         kept = look.value.lab
-        second.buttons["fill"].click()
+        second.controls["fill"].trigger()
         assert look.value.lab.filled
-        second.buttons["fill"].click()
+        second.controls["fill"].trigger()
         assert look.value.lab == kept
     finally:
         windows.close()

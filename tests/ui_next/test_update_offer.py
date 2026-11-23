@@ -4,6 +4,10 @@ two lines, Restart now and Later on Home; the tray's line; what Settings
 says each look found. Later asks again only at the next start; nothing
 restarts the app but the learner's Restart now."""
 
+import sys
+from pathlib import Path
+
+import pytest
 import shiboken6
 from PySide6.QtWidgets import QApplication, QPushButton
 from tests.releases.test_updates import FakeUpdater
@@ -30,6 +34,24 @@ NOTES = (
     "- A third line, not shown.\n"
 )
 READY = Update("0.2.0", notes=NOTES)
+LINUX = sys.platform.startswith("linux")
+
+
+def ready_line(version: str) -> str:
+    """Home's and Settings > Updates' update-ready line on this OS (640)."""
+    if LINUX:
+        return (
+            f"Version {version} is ready. Quit and start Polyglotic again to "
+            "finish updating."
+        )
+    return f"Version {version} is ready. Restart to install it."
+
+
+def tray_ready_line(version: str) -> str:
+    """The tray's update-ready line on this OS (640)."""
+    if LINUX:
+        return f"Quit to finish updating to {version}"
+    return f"Restart to install version {version}"
 
 
 def button(rig: "Rig", name: str) -> QPushButton:
@@ -42,7 +64,7 @@ class Rig:
     def __init__(self) -> None:
         self.home, _ = home(Picker())
         self.desktop = DesktopApp(MemorySettingsStore(), None, FakeAppList())
-        self.settings, _keys = settings_page()
+        self.settings = settings_page()
         self.restarts = 0
         self.anyway = 0
         self.shown = UpdateShown(
@@ -81,18 +103,14 @@ def test_a_downloaded_update_is_offered_on_home_in_the_tray_and_in_settings(
 
         rig.found(Found.READY, READY)
         assert not rig.home.update_card.isHidden()
-        assert rig.home.update_title.text() == (
-            "Version 0.2.0 is ready. Restart to install it."
-        )
+        assert rig.home.update_title.text() == ready_line("0.2.0")
         assert [line.text() for line in rig.home.whats_new] == [
             "• Hear a word: the speaker on a word's card says it aloud.",
             "• Text size: Settings > App > Text size.",
         ]
         assert rig.desktop.install_update.isVisible()
-        assert rig.desktop.install_update.text() == "Restart to install version 0.2.0"
-        assert rig.settings.update_found.text() == (
-            "Version 0.2.0 is ready. Restart to install it."
-        )
+        assert rig.desktop.install_update.text() == tray_ready_line("0.2.0")
+        assert rig.settings.update_found.text() == ready_line("0.2.0")
         assert not rig.settings.restart_now.isHidden()
     finally:
         rig.close()
@@ -124,7 +142,7 @@ def test_later_asks_again_only_at_the_next_start(qapp: QApplication) -> None:
         rig.found(Found.READY, READY)  # the next look
         rig.found(Found.READY, Update("0.3.0"))  # and a newer one
         assert rig.home.update_card.isHidden()
-        assert rig.desktop.install_update.text() == "Restart to install version 0.3.0"
+        assert rig.desktop.install_update.text() == tray_ready_line("0.3.0")
         assert rig.restarts == 0  # nothing restarts by itself
     finally:
         rig.close()
@@ -220,10 +238,8 @@ def test_on_a_metered_connection_home_offers_download_anyway_with_its_size(
         rig.found(Found.NOT_DOWNLOADED, None, HELD)  # it failed: again
         assert anyway.isEnabled() and not anyway.isHidden()
 
-        rig.found(Found.READY, HELD)  # downloaded: Restart now
-        assert rig.home.update_title.text() == (
-            "Version 0.2.0 is ready. Restart to install it."
-        )
+        rig.found(Found.READY, HELD)  # downloaded: Restart now (Quit now on Linux)
+        assert rig.home.update_title.text() == ready_line("0.2.0")
         assert anyway.isHidden()
         assert not button(rig, "home.update.restart").isHidden()
         assert rig.desktop.install_update.isVisible()
@@ -283,3 +299,132 @@ def test_the_update_card_is_framed_as_a_card_like_whats_new_beside_it(
         assert rig.home.update_card.objectName() == rig.home.whats_new_card.objectName()
     finally:
         rig.close()
+
+
+# -- Linux: not writable and quit-to-apply wording (polyglotic-hq 640) -----------------
+
+
+NOT_WRITABLE_TEXT = (
+    "Polyglotic can't update itself in this folder. Move it to your "
+    "Applications folder (~/Applications) and start it from there."
+)
+
+
+def test_not_writable_is_shown_on_home_and_in_settings_with_open_folder(
+    qapp: QApplication,
+) -> None:
+    """640: an AppImage in a folder the learner can't change shows the notice
+    on Home and in Settings > Updates, each with a button that opens the folder."""
+    opened = 0
+
+    def open_folder() -> None:
+        nonlocal opened
+        opened += 1
+
+    rig = Rig()
+    rig.shown = UpdateShown(
+        rig.home,
+        rig.desktop,
+        rig.settings,
+        rig._restart,
+        rig._anyway,
+        open_folder,
+    )
+    try:
+        rig.found(Found.NOT_WRITABLE, None)
+        assert not rig.home.not_writable_card.isHidden()
+        assert rig.home.not_writable_notice.text() == NOT_WRITABLE_TEXT
+        assert rig.home.update_card.isHidden()
+        assert rig.settings.update_found.text() == NOT_WRITABLE_TEXT
+        assert not rig.settings.open_app_folder.isHidden()
+        assert rig.settings.restart_now.isHidden()
+
+        button(rig, "home.update.open_folder").click()
+        rig.settings.open_app_folder.click()
+        assert opened == 2
+
+        rig.found(Found.UP_TO_DATE, None)
+        assert rig.home.not_writable_card.isHidden()
+        assert rig.settings.open_app_folder.isHidden()
+    finally:
+        rig.close()
+
+
+def test_on_linux_update_ready_says_quit_and_start_again(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """640: on Linux, a downloaded update applies when the app quits, so
+    Home, Settings and the tray say so instead of Windows' restart wording."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    rig = Rig()
+    try:
+        rig.found(Found.READY, READY)
+        assert not rig.home.update_card.isHidden()
+        assert rig.home.update_title.text() == (
+            "Version 0.2.0 is ready. Quit and start Polyglotic again to finish updating."
+        )
+        assert rig.home.update_then.text() == (
+            "Or later: it applies when you quit Polyglotic."
+        )
+        assert button(rig, "home.update.restart").text() == "Quit now"
+        assert rig.settings.update_found.text() == (
+            "Version 0.2.0 is ready. Quit and start Polyglotic again to finish updating."
+        )
+        assert rig.settings.restart_now.text() == "Quit now"
+        assert rig.desktop.install_update.isVisible()
+        assert rig.desktop.install_update.text() == "Quit to finish updating to 0.2.0"
+        assert "Restart" not in rig.home.update_title.text()
+        assert "Restart" not in rig.settings.update_found.text()
+        assert "Restart" not in rig.desktop.install_update.text()
+    finally:
+        rig.close()
+
+
+def test_open_update_folder_opens_the_appimages_folder(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """640: Open folder opens the folder holding the running AppImage."""
+    from PySide6.QtCore import QUrl
+    from PySide6.QtGui import QDesktopServices
+
+    from polyglotic_desktop.adapters.velopack_updates import AppImage
+    from polyglotic_desktop.main import open_update_folder
+
+    opened: list[QUrl] = []
+    monkeypatch.setattr(QDesktopServices, "openUrl", opened.append)
+    folder = tmp_path / "opt-polyglotic"
+    folder.mkdir()
+    here = AppImage(folder / "Polyglotic.AppImage", tmp_path / "m", tmp_path / "pk")
+    open_update_folder(here)
+    assert opened == [QUrl.fromLocalFile(str(folder))]
+
+
+def test_on_linux_trays_quit_applies_the_downloaded_update(
+    qapp: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """640: clicking Quit in the tray runs at_exit, which applies a
+    downloaded update on Linux (restart=False)."""
+    updater = FakeUpdater({UpdateCheck(): READY})
+    updates = BackgroundUpdates(Updates(updater, "linux-x64-alpha", apply_on_quit=True))
+    updates.check()
+    settle(updates)
+
+    desktop = DesktopApp(MemorySettingsStore(), None, FakeAppList())
+    applied: list[bool] = []
+
+    def _exit(_code: int = 0) -> None:
+        updates.at_exit()
+        applied.append(True)
+
+    monkeypatch.setattr(qapp, "exit", _exit)
+    try:
+        desktop.quit.trigger()
+        assert applied == [True]
+        assert updater.calls == [
+            "find None False",
+            "download 0.2.0",
+            "apply at exit 0.2.0",
+        ]
+    finally:
+        desktop.close()
+        shiboken6.delete(desktop)

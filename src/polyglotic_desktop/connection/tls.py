@@ -101,16 +101,47 @@ as something on the network in the way (polyglotic-hq 512). None off a
 Mac: Windows' stores are read as before (decision 0104)."""
 
 
+LINUX_BUNDLES = (
+    Path("/etc/ssl/certs/ca-certificates.crt"),  # Debian, Ubuntu, Mint, Arch
+    Path("/etc/pki/tls/certs/ca-bundle.crt"),  # Fedora, RHEL
+    Path("/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"),  # Fedora's own
+    Path("/etc/ssl/ca-bundle.pem"),  # openSUSE
+    Path("/etc/ssl/cert.pem"),  # Alpine, and others that link one here
+)
+"""Where each Linux keeps the roots it trusts, as one file (polyglotic-hq
+550). The packed app's OpenSSL looks only where the build's Python was
+configured to (`/etc/ssl` and its `certs` folder of hashed links): Fedora
+keeps its roots under /etc/pki, so a packed app found none there and no
+secure connection - sign-in above all - would have worked, as on the Mac
+(512)."""
+
+
+def linux_roots(
+    bundles: tuple[Path, ...] = LINUX_BUNDLES, system: str = sys.platform
+) -> Path | None:
+    """The first of `bundles` this PC has (None off Linux, or none there)."""
+    if not system.startswith("linux"):
+        return None
+    return next((bundle for bundle in bundles if bundle.is_file()), None)
+
+
 def trusted() -> ssl.SSLContext:
     """Python's default client context, the host name checked: Windows'
-    stores - and on a Mac, macOS's own roots (`MAC_ROOTS`). Tests put
-    their own roots here instead."""
+    stores - on a Mac, macOS's own roots (`MAC_ROOTS`), and on Linux the
+    distribution's (`linux_roots`). Tests put their own roots here
+    instead."""
     made = ssl.create_default_context()
     if MAC_ROOTS is not None:
         try:
             made.load_verify_locations(cafile=MAC_ROOTS)
         except (OSError, ssl.SSLError) as error:
             _say_once(("mac_roots", type(error).__name__), "macOS's roots", error)
+    bundle = linux_roots()
+    if bundle is not None:
+        try:
+            made.load_verify_locations(cafile=bundle)
+        except (OSError, ssl.SSLError) as error:
+            _say_once(("linux_roots", type(error).__name__), "Linux's roots", error)
     return made
 
 

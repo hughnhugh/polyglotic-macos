@@ -28,6 +28,7 @@ import logging
 import time
 from collections import deque
 from collections.abc import Sequence
+from dataclasses import replace
 
 from PySide6.QtCore import QObject, Qt, Signal, Slot
 
@@ -36,6 +37,7 @@ from polyglotic_desktop.core.listening.captions import (
     CaptionUpdate,
     Clause,
 )
+from polyglotic_desktop.core.listening.continuations import CaptionGroups
 from polyglotic_desktop.core.listening.delays import (
     CAPTION_LOG,
     delay,
@@ -46,6 +48,7 @@ from polyglotic_desktop.core.listening.history import CaptionHistory
 from polyglotic_desktop.core.listening.recheck import RecheckResult
 from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.core.shared import WordInLine
+from polyglotic_desktop.perf import trace
 from polyglotic_desktop.ui.learning import LearningTools
 
 caption_log = logging.getLogger(CAPTION_LOG)
@@ -59,6 +62,9 @@ for the session (polyglotic-hq 142, Low 2)."""
 
 
 class CaptionFeed(QObject):
+    refresh_requested = Signal(str)  # the later audio needs its own answer again
+    received = Signal(object)  # one server update, with its own speech ID
+    dropped = Signal(str)  # a finished response will not come
     changed = Signal()  # the history changed
     captioned = Signal(str)  # a source's caption finished or was withdrawn
     applied = Signal(object)
@@ -71,6 +77,7 @@ class CaptionFeed(QObject):
     """The dictionary's word-split data is read and the captions that
     arrived before it are counted: marks drawn again. On the Qt thread."""
     _received = Signal(object)  # a CaptionUpdate, from any thread
+    _dropped = Signal(str)  # a caption id whose finished caption won't come
 
     def __init__(
         self,
@@ -80,6 +87,7 @@ class CaptionFeed(QObject):
     ) -> None:
         super().__init__(parent)
         self.history = history
+        self.groups = CaptionGroups(history, self.refresh_requested.emit)
         self.tools = tools
         self._uncounted: deque[tuple[CaptionUpdate, bool]] = deque(
             maxlen=UNCOUNTED_MOST
@@ -87,6 +95,7 @@ class CaptionFeed(QObject):
         """Updates applied before the dictionary was ready, and whether each
         went into the history: counted for Learning when it is."""
         self._received.connect(self._apply, Qt.ConnectionType.QueuedConnection)
+        self._dropped.connect(self._end, Qt.ConnectionType.QueuedConnection)
         if tools is not None:
             tools.dictionary_ready.connect(
                 self._count_waiting, Qt.ConnectionType.QueuedConnection
@@ -100,10 +109,41 @@ class CaptionFeed(QObject):
         """A caption update, on the Qt thread: applied now."""
         self._apply(update)
 
+    def end(self, caption_id: CaptionId) -> None:
+        """A caption's finished caption won't come - it failed on the server,
+        was given up or was never sent - from any thread: on the Qt thread,
+        if it's shown live it ends with what it shows, as if finished so
+        (`CaptionHistory.ended`; polyglotic-hq 557, 529's B3), everywhere
+        updates go. It stayed provisional for good."""
+        self._dropped.emit(caption_id)
+
+    @Slot(str)
+    def _end(self, caption_id: str) -> None:
+        ending = self.history.ended(CaptionId(caption_id))
+        if ending is not None:
+            self._apply(ending)
+        self.dropped.emit(caption_id)
+
     def use_checked(self, caption_id: CaptionId, result: RecheckResult) -> None:
         """The best model's version of a finished line, which the learner
         said is right ("Looks wrong?"): in the history in the line's place,
         its words counted for Learning instead of the first version's."""
+        if not result.clauses:
+            return
+        first = self.groups.separate_for_check(caption_id)
+        if first is not None:
+            self._show(first)
+            checked = replace(
+                first,
+                caption_id=caption_id,
+                clauses=result.clauses,
+                language=result.language or first.language,
+                languages_heard=result.languages_heard or first.languages_heard,
+            )
+            if caption_id == first.caption_id:
+                self.applied.emit(checked)  # the cards also need the independent answer
+            else:
+                self._show(checked)
         caption = self.history.use_checked(
             caption_id, result.clauses, result.language, result.languages_heard
         )
@@ -125,8 +165,25 @@ class CaptionFeed(QObject):
 
     @Slot(object)
     def _apply(self, update: CaptionUpdate) -> None:
+        seq = None if update.times is None else update.times.seq
+        traced = trace.tracer()
+        traced.mark(seq, "handed")  # the interface thread has it (perf.trace)
+        self.received.emit(update)
+        self.show_answer(update)
+        self._log_shown(update)
+        if update.kind is not CaptionKind.LIVE:
+            self.captioned.emit(update.source_id)
+
+    def show_answer(self, update: CaptionUpdate) -> None:
+        """Show this answer on the Qt thread, including a standalone audio refresh."""
+        for shown in self.groups.project(update):
+            self._show(shown)
+
+    def _show(self, update: CaptionUpdate) -> None:
         version = self.history.version
         caption = self.history.apply(update)
+        if update.times is not None:
+            trace.tracer().mark(update.times.seq, "applied")
         if self.tools is not None:
             if self.tools.ready:
                 self._count(update, caption is not None, self.tools)
@@ -135,9 +192,6 @@ class CaptionFeed(QObject):
         if self.history.version != version:
             self.changed.emit()
         self.applied.emit(update)
-        self._log_shown(update)
-        if update.kind is not CaptionKind.LIVE:
-            self.captioned.emit(update.source_id)
 
     def _log_shown(self, update: CaptionUpdate) -> None:
         """The caption log's line for an update the windows now show (they

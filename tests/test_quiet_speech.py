@@ -78,7 +78,7 @@ def _finished(
     """The finished captions Steady's rules send for `audio`, fed as
     capture feeds it, with a second of silence after."""
     detector = SpeechDetector(model)
-    timing = CaptionTiming(None, rules=CaptionMode.STEADY.rules)
+    timing = CaptionTiming(None, rules=CaptionMode.WHOLE.rules)
     timing.add_source(APP)
     audio = np.concatenate([audio, np.zeros(SR, np.float32)])
     out = []

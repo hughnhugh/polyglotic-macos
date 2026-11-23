@@ -66,6 +66,7 @@ class App:
         self.exchange = DataExchange(self.outbox, self.outbox, self.heard, "cedict")
         self.listener = Listener()
         self.speech = Speech()
+        self.restarts = 0  # the captures' restarts not yet taken (566)
         self.connection = Connection(
             url,
             MemoryCredentialStore(SIGNED_IN),
@@ -75,7 +76,12 @@ class App:
             timings=Timings(answer_within=2, close_within=1, sync_within=1.5),
             sync_delay=0.1,
             retry_waits=(0.3,),
+            capture_restarts=self.take_restarts,
         )
+
+    def take_restarts(self) -> int:
+        taken, self.restarts = self.restarts, 0
+        return taken
 
 
 @pytest.fixture
@@ -216,6 +222,24 @@ def test_after_listening_moved_what_waits_goes_in_a_sync_session(
     app.connection.close()
 
 
+def test_learning_sync_stays_available_after_the_listening_allowance_ends(
+    server: FakeServer,
+) -> None:
+    app = App(server.url)
+    app.connection.start_listening(SETTINGS, app.speech.take)
+    try:
+        wait_until(app.listener.listening)
+        server.send_to_all({"type": "allowance_exhausted", "allowance_percent": 0})
+        wait_until(
+            lambda: app.listener.last().stopped is StopReason.ALLOWANCE_EXHAUSTED
+        )
+        app.exchange.learning(WordSaved(WORD, AT))
+        wait_until(lambda: not app.exchange.has_waiting())
+        assert [hello["purpose"] for hello in server.hellos] == ["listen", "sync"]
+    finally:
+        app.connection.close()
+
+
 def test_nothing_lost_offline_and_nothing_sent_twice(tmp_path: object) -> None:
     with socket.socket() as probe:  # a free port, nobody listening on it yet
         probe.bind(("127.0.0.1", 0))
@@ -315,6 +339,26 @@ def test_a_listening_session_leaves_a_summary_only_with_consent(
     app.connection.close()
 
 
+def test_the_summary_carries_the_preset_in_use(server: FakeServer) -> None:
+    """polyglotic-hq 556: the preset in use and what differs in it, as the
+    summary's optional properties - sent with it, so only with consent."""
+    app = App(server.url)
+    app.exchange.choose_consent(usage=True, crashes=False, exposures=False)
+    preset = {"preset": "video", "preset_word_links": "arrows"}
+    session = app.connection.start_listening(SETTINGS, app.speech.take, preset=preset)
+    wait_until(app.listener.listening)
+    app.speech.put(finished("c1"), b"OggS")
+    session.speech_ready()
+    wait_until(lambda: len(app.listener.captions) == 1)
+    app.connection.stop_listening()
+    wait_until(lambda: len(server.app_closes) == 2)  # a sync session after it
+    (event,) = [e for m in server.of_type("usage") for e in m["events"]]
+    assert event["name"] == "listening_session_ended" and event["v"] == 1
+    assert event["props"]["preset"] == "video"
+    assert event["props"]["preset_word_links"] == "arrows"
+    app.connection.close()
+
+
 def test_a_listening_session_with_nothing_captioned_leaves_a_summary_too(
     server: FakeServer,
 ) -> None:
@@ -322,6 +366,7 @@ def test_a_listening_session_with_nothing_captioned_leaves_a_summary_too(
     app.exchange.choose_consent(usage=True, crashes=False, exposures=False)
     app.connection.start_listening(SETTINGS, app.speech.take)
     wait_until(app.listener.listening)
+    app.restarts = 2  # a capture failed twice, and started again (566)
     app.connection.stop_listening()
 
     def summaries() -> list[dict[str, Any]]:
@@ -332,6 +377,8 @@ def test_a_listening_session_with_nothing_captioned_leaves_a_summary_too(
     (props,) = summaries()
     assert (props["captions"], props["source_category"]) == (0, "none")
     assert "delay_p50_ms" not in props and "delay_p95_ms" not in props
+    recovered = ("capture_restarts", "session_failures", "unreadable_dropped")
+    assert [props[name] for name in recovered] == [2, 0, 0]
     app.connection.close()
 
 

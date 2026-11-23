@@ -16,9 +16,13 @@ from polyglotic_desktop.core.learning.exposures import in_learned_language
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY
-from polyglotic_desktop.core.listening.captions import Language
+from polyglotic_desktop.core.listening.captions import (
+    CaptionKind,
+    CaptionUpdate,
+    Language,
+)
 from polyglotic_desktop.core.listening.history import CaptionHistory
-from polyglotic_desktop.core.listening.timing import WithdrawalReason
+from polyglotic_desktop.core.listening.timing import CaptionId, WithdrawalReason
 from polyglotic_desktop.ui.captions import UNCOUNTED_MOST, CaptionFeed
 from polyglotic_desktop.ui.recorded_captions import (
     MIC,
@@ -65,6 +69,36 @@ def test_updates_from_another_thread_are_applied_on_the_qt_thread(
     assert history.version == 0  # not yet: queued for the Qt thread
     QApplication.processEvents()
     assert [c.original for c in history.captions] == ["你好。"]
+
+
+def test_a_dropped_caption_ends_with_what_it_shows_everywhere_updates_go(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 557 (529's B3): a caption whose finished caption won't
+    come stayed live for good - provisional in the caption windows, never in
+    the transcript or Copy all. `end`, from any thread, ends it on the Qt
+    thread as a finished update with what it shows, to the history and to
+    every view keeping its own captions (`applied`) - and counts its words
+    as heard, like any finished caption. A caption that isn't live is left."""
+    tools = chinese_tools()
+    feed = CaptionFeed(CaptionHistory(your_sources=[MIC]), tools)
+    computer = tools.lookup("电脑")[0].entry_id
+    applied: list[object] = []
+    feed.applied.connect(applied.append)
+    feed.apply(live("a", clause("我的电脑", "my computer")))
+    thread = threading.Thread(target=lambda: feed.end(CaptionId("a")))
+    thread.start()
+    thread.join()
+    qapp.processEvents()
+    (caption,) = feed.history.captions
+    assert not caption.live and caption.original == "我的电脑"
+    ending = applied[-1]
+    assert isinstance(ending, CaptionUpdate) and ending.kind is CaptionKind.FINISHED
+    assert tools.vocabulary.exposures(computer).heard == 1
+    feed.end(CaptionId("a"))  # finished now: nothing more
+    feed.end(CaptionId("never shown"))
+    qapp.processEvents()
+    assert len(applied) == 2 and tools.vocabulary.exposures(computer).heard == 1
 
 
 def test_a_caption_before_the_dictionary_is_ready_shows_now_and_counts_later(

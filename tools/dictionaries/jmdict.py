@@ -14,6 +14,9 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from polyglotic_desktop.ports.word_classes import SenseClasses
+from tools.dictionaries.sense_classes import jm
+
 MAX_MEANINGS = 8  # senses per entry, as for Wiktionary's
 
 
@@ -30,6 +33,7 @@ class JmdictWord:
     common: bool
     usually_kana: bool
     meanings: tuple[str, ...]
+    sense_classes: tuple[SenseClasses, ...] = ()
 
     @property
     def headword(self) -> str:
@@ -89,6 +93,7 @@ def read(path: Path) -> tuple[dict[str, str], list[JmdictWord]]:
             continue
         senses = [s for s in word.get("sense", ()) if isinstance(s, dict)]
         meanings = []
+        classes = []
         for sense in senses:
             glosses = [
                 g["text"]
@@ -97,6 +102,7 @@ def read(path: Path) -> tuple[dict[str, str], list[JmdictWord]]:
             ]
             if glosses:
                 meanings.append("; ".join(glosses))
+                classes.append(jm(sense.get("partOfSpeech", ())))
         if not meanings:
             continue
         words.append(
@@ -108,6 +114,7 @@ def read(path: Path) -> tuple[dict[str, str], list[JmdictWord]]:
                 usually_kana=(bool(senses) and "uk" in senses[0].get("misc", ()))
                 or search_only(word.get("kanji")),
                 meanings=tuple(meanings[:MAX_MEANINGS]),
+                sense_classes=tuple(classes[:MAX_MEANINGS]),
             )
         )
     return header, words
