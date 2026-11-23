@@ -721,6 +721,14 @@ KNOWN = {
         " following the default: the record of changes keeps them); a fix is"
         " proposed"
     ),
+    "Settings > look / toggle Quiet": (
+        "polyglotic-hq 796: 0.1.10's recommended looks (Quiet, Paper, Broadcast)"
+        " set the colours, caption text, readings and Chinese fonts together in"
+        " one click, by design; switching one off leaves those values rather"
+        " than restoring the learner's earlier ones (the same on every"
+        " platform). The fix, restoring them or offering Undo, is 796, for"
+        " 0.1.11"
+    ),
 }
 """Controls known not to put back what they change, each with why and
 where it's being fixed: said as a note, not a fail, until the fix lands -
