@@ -151,6 +151,25 @@ def test_clauses_run_on_where_each_had_a_row(qapp: QApplication) -> None:
     assert sorted(r.index for r in poured.rows) == [r.index for r in rows.rows]
 
 
+def test_a_live_revision_keeps_an_established_line_break(qapp: QApplication) -> None:
+    """A shorter correction must not pull an already-shown word up a line."""
+    engine = CaptionLayout()
+    line = a_line(("alpha beta gamma delta", ""))
+    font = engine._font(line.rows[0], 1.0, False)
+    width = round(QFontMetricsF(font).horizontalAdvance("alpha beta ") + 2)
+
+    before = engine.laid(line, width, 1.0).rows[0].layout
+    assert before.lineCount() > 1
+    old_end = before.lineAt(0).textStart() + before.lineAt(0).textLength()
+
+    row = replace(line.rows[0], text="a beta gamma delta epsilon")
+    revised = replace(line, rows=(row,))
+    after = engine.laid(revised, width, 1.0).rows[0].layout
+
+    assert after.lineAt(0).textStart() + after.lineAt(0).textLength() == old_end - 4
+    assert row.text[: after.lineAt(0).textLength()].rstrip() == "a"
+
+
 def test_only_a_space_between_clauses_draws_no_ellipsis(qapp: QApplication) -> None:
     style = replace(STACKED, join=Join.SPACE)
     laid = CaptionLayout(style).laid(a_line(), 900, 1.0)

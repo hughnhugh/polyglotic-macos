@@ -94,6 +94,7 @@ PRESET_SETTINGS = (
     "caption_weight",
     "caption_contrast",
     "caption_vibrance",
+    "caption_lab",
     # timing
     "caption_mode_chosen",
     "caption_path",
@@ -165,6 +166,10 @@ BUILT_IN_BEFORE: Mapping[int, Mapping[str, Mapping[str, object]]] = {
     },
     4: {VIDEO: {"caption_mode_chosen": "live"}},  # Instant, until 638
     5: {VIDEO: {"caption_mode_chosen": "steady"}},  # Subtitle blocks, until 705
+    6: {},
+    # Version 7 marks when the two Instant timing defaults began following
+    # the app default; it has no per-preset values to follow.
+    7: {},
 }
 """What a built-in preset named before each version of `BUILT_IN`
 (`settings.BUILT_INS`): the chosen one, untouched, follows its new value

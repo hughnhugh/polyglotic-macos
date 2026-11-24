@@ -67,21 +67,24 @@ OWNED_BY_THE_OLDER_BUILD = (  # the new interface reads them, never writes them
     "overlay_width",
 )
 PLAYER = SourceId("app-10")
+RETIRED = ("translate_live",)
+"""Keys this build no longer writes: live translation is always on (810), and
+the build before reads the key's default, True, so it loses nothing."""
 
 
 def older_keys(values: dict[str, object]) -> dict[str, object]:
     """The keys the build before the switch-over knew. Its reader here is
     this build's, which knows settings added since (`everything_else`,
     polyglotic-hq 139); the older build keeps them as they are (G11)."""
-    return {k: values[k] for k in BEFORE_THE_SWITCH}
+    return {k: values[k] for k in BEFORE_THE_SWITCH if k not in RETIRED}
 
 
 def test_every_key_before_the_switch_is_still_a_setting() -> None:
     known = set(AppSettings().to_stored())
-    assert set(BEFORE_THE_SWITCH) <= known
+    assert set(BEFORE_THE_SWITCH) - set(RETIRED) <= known
     stored = AppSettings.from_stored(BEFORE_THE_SWITCH).to_stored()
     # all valid: none read as its default (keys added since are this build's)
-    assert older_keys(stored) == BEFORE_THE_SWITCH
+    assert older_keys(stored) == older_keys(BEFORE_THE_SWITCH)
 
 
 def test_the_build_before_the_switch_runs_after_this_one_and_loses_nothing(
@@ -121,7 +124,7 @@ def test_the_build_before_the_switch_runs_after_this_one_and_loses_nothing(
         "locked": False,
     }
     assert {k: saved[k] for k in changed} == changed
-    unchanged = set(BEFORE_THE_SWITCH) - set(changed)
+    unchanged = set(BEFORE_THE_SWITCH) - set(changed) - set(RETIRED)
     assert {k: saved[k] for k in unchanged} == {
         k: BEFORE_THE_SWITCH[k] for k in unchanged
     }

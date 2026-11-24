@@ -6987,16 +6987,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Translate live captions</source>
-        <translation type="unfinished">Terjemahkan subtitle langsung</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">Dengan Langsung (Waktu). Mati: subtitle langsung menampilkan yang diucapkan, dan terjemahan tiba saat jeda.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Names and slang</source>
         <translation type="unfinished">Nama dan bahasa gaul</translation>
     </message>
@@ -7174,11 +7164,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The first update waits for a second of speech.</source>
         <translation type="unfinished">Pembaruan pertama menunggu satu detik ucapan.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">Dengan Langsung: terjemahkan juga baris yang bergerak. Mati: subtitle langsung menampilkan yang diucapkan, dan terjemahan tiba saat jeda.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7409,6 +7394,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
         <translation type="unfinished">Kata kunci: hanya kata bermakna. Sebagian besar: juga kata ganti, 是, 这个, dan sejenisnya.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Warnai tautan berdasarkan kelas kata</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Use the class of the word that was said for both words in each link.</source>
+        <translation type="unfinished">Gunakan kelas kata yang diucapkan untuk kedua kata di setiap tautan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -10388,6 +10383,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
         <source>Class unavailable</source>
         <translation type="unfinished">Kelas kata tidak tersedia</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Warnai tautan berdasarkan kelas kata</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>

@@ -6987,16 +6987,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Translate live captions</source>
-        <translation type="unfinished">Canlı altyazıları çevir</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">Canlı ile (Zamanlama). Kapalı: canlı altyazılar söyleneni gösterir, çeviri duraklamada gelir.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Names and slang</source>
         <translation type="unfinished">İsimler ve argo</translation>
     </message>
@@ -7174,11 +7164,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The first update waits for a second of speech.</source>
         <translation type="unfinished">İlk güncelleme bir saniyelik konuşmayı bekler.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">Canlı ile: hareket eden satırı da çevir. Kapalı: canlı altyazılar söyleneni gösterir, çeviri duraklamada gelir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7409,6 +7394,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
         <translation type="unfinished">Anahtar kelimeler: yalnızca içerik kelimeleri. Çoğu kelime: zamirler, 是, 这个 ve benzerleri de.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Sözcük bağlantılarını sözcük türüne göre renklendir</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Use the class of the word that was said for both words in each link.</source>
+        <translation type="unfinished">Her bağlantıdaki iki sözcük için söylenen sözcüğün türünü kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -10388,6 +10383,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
         <source>Class unavailable</source>
         <translation type="unfinished">Sözcük türü bilinmiyor</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Sözcük bağlantılarını sözcük türüne göre renklendir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>

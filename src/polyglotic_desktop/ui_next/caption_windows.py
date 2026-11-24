@@ -280,6 +280,7 @@ class CaptionWindows(QObject):
     transcript_wanted = Signal(str)
     all_settings_wanted = Signal()
     links_wanted = Signal(bool, tuple)
+    class_colours_wanted = Signal(bool)
     """A window's word links button: on or off, for every window (249, F9),
     with that window's reading lines (446)."""
     quiet_wanted = Signal(bool, tuple)
@@ -643,6 +644,7 @@ class CaptionWindows(QObject):
         window.hide_wanted.connect(self.hide_wanted)
         window.all_settings_wanted.connect(self.all_settings_wanted)
         window.links_wanted.connect(self.links_wanted)
+        window.class_colours_wanted.connect(self.class_colours_wanted)
         window.quiet_wanted.connect(self.quiet_wanted)
         window.quiet_word_wanted.connect(self.quiet_word_wanted)
         window.fill_wanted.connect(self.fill_wanted)
@@ -1273,6 +1275,13 @@ class CaptionWindows(QObject):
         if mic and self.mic is not None:
             found[self.mic] = agreed_language(mic)
         return found
+
+    def window_reading(self) -> dict[SourceId, tuple[CaptionMode, ReadingPath]]:
+        """Each window's effective timing and translation path."""
+        return {
+            window.source: (window.timing, window.path)
+            for window in self.windows.values()
+        }
 
     def songs_sources(self) -> frozenset[SourceId]:
         """The sources heard in songs mode (decision 0287): with the Lyrics

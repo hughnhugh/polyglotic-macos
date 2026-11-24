@@ -52,7 +52,7 @@ from polyglotic_desktop.ui_next.views.lab import (
     older_translation,
 )
 from polyglotic_desktop.ui_next.views.panels import LookView
-from polyglotic_desktop.ui_next.views.presets import _mix, contrast
+from polyglotic_desktop.ui_next.views.presets import _mix, contrast, contrast_alpha
 
 MADE: list[QWidget] = []
 
@@ -93,12 +93,18 @@ def arrived(qapp: QApplication, lab: CaptionLab, clock: Clock) -> CaptionWindow:
     return window
 
 
+def older_alpha(window: CaptionWindow) -> float:
+    ink = window._ink()
+    assert ink.panel is not None
+    return contrast_alpha(ink.original.name(), ink.panel, window.look.lab.older)
+
+
 # -- the values ---------------------------------------------------------------------
 
 
 def test_an_untouched_lab_is_the_app_as_it_was() -> None:
     lab = CaptionLab()
-    assert (lab.new_for, lab.new_fade, lab.older) == (0.0, NewFade.INSTANT, 0.72)
+    assert (lab.new_for, lab.new_fade, lab.older) == (3.0, NewFade.GRADUAL, 0.85)
     assert older_translation(lab.older) == pytest.approx(OLDER_TRANSLATION_ALPHA)
     assert lab.to_stored() == {}
     assert CaptionLab.from_stored({}) == lab
@@ -121,14 +127,14 @@ def test_the_settings_keep_it_and_the_look_reads_it() -> None:
 
 
 def test_a_caption_is_new_for_its_time_then_steps_back_or_fades() -> None:
-    at_once = CaptionLab(new_for=3.0)
+    at_once = CaptionLab(new_for=3.0, new_fade=NewFade.INSTANT)
     assert newness(0.0, at_once) == newness(2.9, at_once) == 1.0
     assert newness(3.0, at_once) == 0.0
     gradual = replace(at_once, new_fade=NewFade.GRADUAL)
     assert newness(3.0 + FADE_BACK_SEC / 2, gradual) == pytest.approx(0.5)
     assert newness(3.0 + FADE_BACK_SEC, gradual) == 0.0
     assert newness(None, gradual) == 0.0  # one the window opened with
-    assert newness(1.0, CaptionLab()) == 0.0  # today's: only the newest
+    assert newness(1.0, CaptionLab(new_for=0.0)) == 0.0
 
 
 @pytest.mark.parametrize("scene", [SCENE.name(), "#f3f5f7"])  # the lab's; light video
@@ -152,17 +158,25 @@ def test_captions_arriving_together_all_stay_bright_for_their_time(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     clock = Clock()
-    window = arrived(qapp, CaptionLab(new_for=4.0), clock)
+    window = arrived(
+        qapp,
+        CaptionLab(new_for=4.0, new_fade=NewFade.INSTANT, older_steps=1),
+        clock,
+    )
     try:
         keys = [line.key for line in window.view.lines]
         drawn = _inks(window, monkeypatch)
         new = [k for k in keys[-3:] if k in drawn]
         assert len(new) >= 2  # the window shows two of them at least
         assert [drawn[k].alpha for k in new] == [1.0] * len(new)
-        assert all(drawn[k].alpha == OLDER_ALPHA for k in keys[:3] if k in drawn)
+        assert all(
+            drawn[k].alpha == older_alpha(window) for k in keys[:3] if k in drawn
+        )
         clock.now += 4.0  # their time is up: all but the newest step back
         drawn = _inks(window, monkeypatch)
-        assert [drawn[k].alpha for k in new] == [OLDER_ALPHA] * (len(new) - 1) + [1.0]
+        assert [drawn[k].alpha for k in new] == [older_alpha(window)] * (
+            len(new) - 1
+        ) + [1.0]
     finally:
         window.close()
 
@@ -171,13 +185,15 @@ def test_without_the_lab_only_the_newest_is_bright(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Today's step (DECISIONS.md #104): fails if New for applies at 0."""
-    window = arrived(qapp, CaptionLab(), Clock())
+    window = arrived(qapp, CaptionLab(new_for=0.0, older_steps=1), Clock())
     try:
         keys = [line.key for line in window.view.lines]
         drawn = _inks(window, monkeypatch)
         new = [k for k in keys[-3:] if k in drawn]
         assert len(new) >= 2
-        assert [drawn[k].alpha for k in new] == [OLDER_ALPHA] * (len(new) - 1) + [1.0]
+        assert [drawn[k].alpha for k in new] == [older_alpha(window)] * (
+            len(new) - 1
+        ) + [1.0]
     finally:
         window.close()
 
@@ -186,7 +202,7 @@ def test_a_gradual_step_back_fades_and_the_window_draws_each_frame(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     clock = Clock()
-    lab = CaptionLab(new_for=2.0, new_fade=NewFade.GRADUAL)
+    lab = CaptionLab(new_for=2.0, new_fade=NewFade.GRADUAL, older_steps=1)
     window = arrived(qapp, lab, clock)
     try:
         key = window.view.lines[-2].key
@@ -194,8 +210,9 @@ def test_a_gradual_step_back_fades_and_the_window_draws_each_frame(
         fading, _ = window._newness(clock.now)
         assert fading
         alpha = _inks(window, monkeypatch)[key].alpha
-        assert OLDER_ALPHA < alpha < 1.0
-        assert alpha == pytest.approx((OLDER_ALPHA + 1.0) / 2)
+        floor = older_alpha(window)
+        assert floor < alpha < 1.0
+        assert alpha == pytest.approx((floor + 1.0) / 2)
     finally:
         window.close()
 
@@ -219,13 +236,15 @@ def test_older_captions_step_back_as_far_as_the_lab_says(
 ) -> None:
     window = window_of(qapp, captions=4)
     try:
-        window.set_look(replace(window.look, lab=CaptionLab(older=0.5)))
+        window.set_look(replace(window.look, lab=CaptionLab(older=0.5, older_steps=1)))
         keys = [line.key for line in window.view.lines]
         drawn = _inks(window, monkeypatch)
         older = drawn[keys[-2]]
-        assert older.alpha == 0.5
+        assert older.alpha == older_alpha(window)
+        ink = window._ink()
+        assert ink.panel is not None
         assert older.alpha * older.translation_alpha == pytest.approx(
-            older_translation(0.5)
+            contrast_alpha(ink.translation.name(), ink.panel, older_translation(0.5))
         )
         window.set_look(replace(window.look, lab=CaptionLab(older=1.0)))
         drawn = _inks(window, monkeypatch)
@@ -241,19 +260,19 @@ def test_the_lab_changes_the_look_at_once_and_resets(qapp: QApplication) -> None
     changes: list[CaptionLook] = []
     view = LookView(CaptionLook(), changes.append)
     panel = lab_of(view)
-    assert panel.new_fade.isEnabled() is False  # nothing to dim with 0 s
-    panel.new_for.slider.setValue(6)  # 3 s
-    assert view.value.lab.new_for == 3.0 and changes[-1].lab.new_for == 3.0
+    assert panel.new_fade.isEnabled() is True
+    panel.new_for.slider.setValue(4)  # 2 s
+    assert view.value.lab.new_for == 2.0 and changes[-1].lab.new_for == 2.0
     assert panel.new_fade.isEnabled()
     panel.new_fade.choose(NewFade.GRADUAL)
     panel.older.slider.setValue(panel.older.slider.maximum())
-    assert view.value.lab == CaptionLab(3.0, NewFade.GRADUAL, 1.0)
+    assert view.value.lab == CaptionLab(2.0, NewFade.GRADUAL, 1.0)
     assert panel.older.shown.text() == "No dimming"
     assert panel.preview.surface.older is not None
     assert panel.preview.surface.older.alpha == 1.0  # the preview follows
     panel.reset.click()
     assert view.value.lab == CaptionLab()
-    assert panel.new_for.slider.value() == 0
+    assert panel.new_for.slider.value() == 6
     assert panel.preview.surface.older.alpha == OLDER_ALPHA
 
 
@@ -286,7 +305,10 @@ def test_the_window_steps_a_caption_back_on_its_own_when_its_time_is_up(
     caption new for 0.2 s is drawn stepped back once that's passed."""
     import time
 
-    look = CaptionLook(lab=CaptionLab(new_for=0.2), arrival=Arrival.STEP)
+    look = CaptionLook(
+        lab=CaptionLab(new_for=0.2, new_fade=NewFade.INSTANT, older_steps=1),
+        arrival=Arrival.STEP,
+    )
     window = window_of(qapp, captions=2, look=look)
     try:
         for update in finished_updates(2, start=2):
@@ -309,7 +331,7 @@ def test_the_window_steps_a_caption_back_on_its_own_when_its_time_is_up(
         assert drawn  # the window woke and drew it, unasked
         assert window._newness_drawn == ()  # nothing new any more
         monkeypatch.undo()
-        assert _inks(window, monkeypatch)[before_key].alpha == OLDER_ALPHA
+        assert _inks(window, monkeypatch)[before_key].alpha == older_alpha(window)
     finally:
         window.close()
 
@@ -462,11 +484,11 @@ def test_older_captions_read_their_default_where_the_slider_starts(
 ) -> None:
     view = LookView(CaptionLook())
     panel = lab_of(view)
-    assert panel.older.shown.text() == "72%"
+    assert panel.older.shown.text() == "85%"
     panel.older.slider.setValue(panel.older.slider.value() - 1)
-    assert view.value.lab.older == 0.65  # the scale's own notches either side
+    assert view.value.lab.older == 0.8
     panel.older.slider.setValue(panel.older.slider.value() + 2)
-    assert view.value.lab.older == 0.75
+    assert view.value.lab.older == 0.9
 
 
 def test_the_lab_card_moves_the_thickness_and_spacing(qapp: QApplication) -> None:

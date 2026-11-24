@@ -7025,16 +7025,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Translate live captions</source>
-        <translation type="unfinished">लाइव कैप्शन का अनुवाद</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">लाइव (टाइमिंग) के साथ। बंद: लाइव कैप्शन बोली गई बात दिखाते हैं, और अनुवाद ठहराव पर आता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Names and slang</source>
         <translation type="unfinished">नाम और स्लैंग</translation>
     </message>
@@ -7212,11 +7202,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The first update waits for a second of speech.</source>
         <translation type="unfinished">पहला अपडेट एक सेकंड की आवाज़ का इंतज़ार करता है।</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">लाइव के साथ: चलती पंक्ति का भी अनुवाद करें। बंद: लाइव कैप्शन बोली गई बात दिखाते हैं, और अनुवाद ठहराव पर आता है।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7447,6 +7432,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
         <translation type="unfinished">मुख्य शब्द: सिर्फ़ अर्थ वाले शब्द। ज़्यादातर शब्द: सर्वनाम, 是, 这个 और ऐसे शब्द भी।</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">शब्द-भेद के अनुसार शब्द लिंक रंगें</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Use the class of the word that was said for both words in each link.</source>
+        <translation type="unfinished">हर लिंक के दोनों शब्दों के लिए बोले गए शब्द का शब्द-भेद इस्तेमाल करें।</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -10440,6 +10435,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
         <source>Class unavailable</source>
         <translation type="unfinished">शब्द-भेद उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">शब्द-भेद के अनुसार शब्द लिंक रंगें</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>

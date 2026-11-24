@@ -729,6 +729,14 @@ KNOWN = {
         " platform). The fix, restoring them or offering Undo, is 796, for"
         " 0.1.11"
     ),
+    "Settings > look / toggle Paper": (
+        "polyglotic-hq 796: the same as Quiet - a recommended look sets several"
+        " look settings at once and switching it off doesn't restore them"
+    ),
+    "Settings > look / toggle Broadcast": (
+        "polyglotic-hq 796: the same as Quiet - a recommended look sets several"
+        " look settings at once and switching it off doesn't restore them"
+    ),
 }
 """Controls known not to put back what they change, each with why and
 where it's being fixed: said as a note, not a fail, until the fix lands -

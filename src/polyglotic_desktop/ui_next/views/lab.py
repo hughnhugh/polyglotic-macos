@@ -33,11 +33,12 @@ Each slider's ends were found by trying them (284's report says how):
   translation, and between captions.
 - **The loading sign** (`loading`): the bar, three dots, or an ellipsis
   after the text still being spoken.
-- **Older captions** (`older`): how much ink a caption that isn't new
-  keeps - what was said; its translation steps back less, in the same
-  proportion as today's (`older_translation`). 100 % is no step at all;
-  `OLDER_RANGE`'s floor keeps an older line at 3:1 on Classic's panel over
-  a light video.
+- **Older captions** (`older`): the percentage of the newest line's WCAG
+  contrast that a caption which isn't new keeps. It applies equally to
+  originals, translations and readings; `views.presets.contrast_alpha`
+  turns that target into the right paint alpha for each colour and panel.
+  Range 50--100 %, default 85 %: the lower half remains available to Lab
+  experiments, while shipped defaults use the light, readable fade.
 - **Older captions dim** (`older_steps`; polyglotic-hq 305, the user,
   2026-11-13: "Lab option for gradual text colour change"): all at once to
   Older captions' ink (1, today's), or step by step - each caption back a
@@ -120,7 +121,6 @@ from enum import StrEnum
 from polyglotic_desktop.core.releases import flags
 from polyglotic_desktop.ui_next.views.arrivals import (
     OLDER_ALPHA,
-    OLDER_TRANSLATION_ALPHA,
 )
 
 NEW_FOR_RANGE = (0.0, 8.0)
@@ -135,18 +135,16 @@ NEW_FOR_STEP = 0.5
 FADE_BACK_SEC = 1.5
 """A gradual step back takes this long, after the caption's new time: slow
 enough to see as a fade, quicker than the next caption at a typical pace."""
-OLDER_RANGE = (0.45, 1.0)
-"""An older caption's ink, what was said: 100 % is no step back (253's C);
-45 % is the least that keeps it at 3:1 - WCAG's floor for large text - on
-Classic's panel (72 %) over a light video (#f3f5f7). Below it, older
-captions stop being readable on a bright scene (284, computed per preset;
-today's 72 % keeps 4.5:1)."""
+OLDER_RANGE = (0.50, 1.0)
+"""Share of the newest line's WCAG contrast retained by older captions:
+50--100 %. The default is 85 % (`arrivals.OLDER_ALPHA`); 100 % removes the
+step. This is a contrast ratio share, not opacity."""
 OLDER_STEP = 0.05
 OLDER_STEPS_RANGE = (1, 6)
 """Captions back an older caption reaches Older captions' ink: 1 is at
 once (today's); 6, a step of a sixth each caption back. A default window
 shows 3 captions (284's measure), a tall one 5 or 6: past 6 the steps are
-too small to see at Older captions' default (72 %: under 5 % each)."""
+too small to see at Older captions' default (85 %: under 3 % each)."""
 ARRIVAL_GAP_RANGE = (0.0, 1.5)
 """Seconds at least between new captions in a window (`views.pacing`): 0
 lets them in as they come (today's). Tried on made-up streams (polyglotic-hq
@@ -163,11 +161,6 @@ LINE_GAP_RANGE = (0.0, 0.5)
 together (today's). The user's range, 2026-11-14 ("for example 0-500 ms a
 line")."""
 LINE_GAP_STEP = 0.05
-_TRANSLATION_SHARE = (1.0 - OLDER_TRANSLATION_ALPHA) / (1.0 - OLDER_ALPHA)
-"""How much of what was said's step back the translation takes: the yellow
-starts darker, so it steps back less (today's 0.72 / 0.82)."""
-
-
 LINK_PX_RANGE = (1.0, 6.0)
 """A word link's underline, pixels at 21 px text (scaled with it): the
 Lab's slider in place of Word links' Thin / Medium / Thick (1.4, 2.2,
@@ -298,8 +291,8 @@ class NewFade(StrEnum):
 class CaptionLab:
     """The lab's values; the defaults are the app without the lab."""
 
-    new_for: float = 0.0
-    new_fade: NewFade = NewFade.INSTANT
+    new_for: float = 3.0
+    new_fade: NewFade = NewFade.GRADUAL
     older: float = OLDER_ALPHA
     arrival_gap: float = 0.0
     line_gap: float = 0.0
@@ -309,9 +302,9 @@ class CaptionLab:
     row_gap: float = 2.0
     caption_gap: float = 10.0
     loading: Loading = Loading.BAR
-    older_steps: int = 1
-    """Older captions dim all at once (1) or step by step, over this many
-    captions (305)."""
+    older_steps: int = 5
+    """Older captions dim step by step over five captions by default; 1
+    dims all at once (305)."""
     own_right: bool = True
     own_tint: bool = False
     own_bar: bool = False
@@ -512,9 +505,13 @@ def _number(value: object, within: tuple[float, float]) -> float | None:
 
 
 def older_translation(older: float) -> float:
-    """An older caption's translation's ink, for what was said's `older`:
-    the same share of the step as today's (0.72 -> 0.82)."""
-    return round(1.0 - (1.0 - older) * _TRANSLATION_SHARE, 3)
+    """The contrast retained by an older translation.
+
+    Kept as the single call site for stored Lab looks: translations now retain
+    the same contrast share as originals instead of relying on a colour-specific
+    magic opacity.
+    """
+    return older
 
 
 def newness(age: float | None, lab: CaptionLab) -> float:

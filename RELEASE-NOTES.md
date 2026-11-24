@@ -1,5 +1,8 @@
 # Release notes
 
+- Fixed older caption lines becoming too dark; finished originals,
+  translations and readings now keep 90% of the newest line's contrast.
+
 What changed in each version of Polyglotic, in plain words for the people
 who use it. One source, used four times (polyglotic-hq RELEASING.md
 section 10): the GitHub Release's text above the SHA-256s (`release.yml`),
@@ -62,6 +65,22 @@ change is being confirmed.
 ### Better
 
 ### Fixed
+
+## 0.1.11 - 2026-11-24
+
+### Better
+
+- Live captions are always translated now: the Translate live captions switch is gone.
+- Captions are quicker in every mode: text appears within 2 seconds of speech and settles after 1.
+- Captions stay readable as they age: bright for 3 seconds, then a gentle fade, step by step, to 85 %.
+- Older captions are lighter by default; if you set them yourself, your choice stays.
+
+### Fixed
+
+- A new caption slides in with room for its translation, so lines no longer jump when it arrives.
+- Live captions keep words on the line where they first appeared while the sentence grows or is corrected.
+- Captions stay still when their translation arrives after the speaker finishes.
+- Both words in a word link now always share one colour. Word-class colours are optional and off by default (Settings - Word links).
 
 - Home's source choices fit at larger text sizes. Thai and French settings fit in narrower windows.
 

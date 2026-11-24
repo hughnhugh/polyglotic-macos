@@ -43,11 +43,11 @@ from difflib import SequenceMatcher
 
 from polyglotic_desktop.core.listening.captions import Clause
 
-SETTLE_AFTER_SEC = 3.0
-"""Words shown unchanged this long are settled (the user's "3 seconds"),
+SETTLE_AFTER_SEC = 1.0
+"""Words shown unchanged this long are settled (the user's "1 second"),
 unless the learner chose less (`SETTLE_RANGE`)."""
 
-SETTLE_RANGE = (0.0, SETTLE_AFTER_SEC)
+SETTLE_RANGE = (0.0, 3.0)
 """How long the learner may let shown words still change (the user,
 2026-11-14: "changing lines up to 3 seconds in live updates is a bit too
 long anyway, make this a configurable setting. After 0s - 3seconds";

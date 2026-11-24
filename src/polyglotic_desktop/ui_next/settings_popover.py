@@ -534,7 +534,10 @@ class SettingsPopover(QWidget):
         return self._bar_chip(self._window.toggle_presets)
 
     def _bar_word_classes_row(self) -> WordClassLegend:
-        legend = WordClassLegend(self, copyable=False)
+        legend = WordClassLegend(self, copyable=False, toggle=True)
+        legend.toggle.clicked.connect(
+            lambda on: self._window.class_colours_wanted.emit(bool(on))
+        )
         legend.expanded.connect(self._fit)
         return legend
 

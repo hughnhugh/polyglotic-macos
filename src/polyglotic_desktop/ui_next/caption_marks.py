@@ -82,6 +82,7 @@ from polyglotic_desktop.core.learning.levels import LinkChoice
 from polyglotic_desktop.core.learning.saved_words import SavedSpan
 from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.lexicon.english import inside_sentence, is_capitalised
+from polyglotic_desktop.core.listening.captions import WordClass
 from polyglotic_desktop.core.listening.display import LIVE_TRAIL, RowKind, WordLinks
 from polyglotic_desktop.core.shared import EntryId, WordInLine
 from polyglotic_desktop.ui_next.caption_layout import LINK_CONTRAST, LINK_MARK, Mark
@@ -200,6 +201,7 @@ class Panel:
     """The vibrance slider (`views.tone.vibrant`; 481): saved words'
     categories' colours, the quiet view's blue, Learning load's colours,
     the dots and dashes at it - not word links' (`LINK_COLORS`)."""
+    colour_links_by_word_class: bool = False
 
     def own(self, kind: RowKind) -> str:
         return self.original if kind is RowKind.ORIGINAL else self.translation
@@ -272,6 +274,18 @@ class _Kept:
     marks: list[list[Mark]]
     entries: frozenset[EntryId]
     text: str
+
+
+def _link_classes(line: Line) -> dict[tuple[int, int], WordClass | None]:
+    """A link's spoken class, falling back to its translated class (799)."""
+    ends: dict[tuple[int, int], list[WordClass | None]] = {}
+    for row in line.rows:
+        for linked in row.links:
+            pair = ends.setdefault((row.clause, linked.link), [None, None])
+            side = 0 if row.kind is RowKind.ORIGINAL else 1
+            if pair[side] is None:
+                pair[side] = linked.pos
+    return {key: spoken or translated for key, (spoken, translated) in ends.items()}
 
 
 class CaptionMarks:
@@ -372,17 +386,37 @@ class CaptionMarks:
             self._learning(line, learner, marks, entries)
         if self.word_links in (WordLinks.COLOURS, WordLinks.ARROWS):
             hidden = self._hidden_links(line, entries)
-            background, opacity = self.panel.background, self.panel.opacity
+            link_classes = (
+                _link_classes(line) if self.panel.colour_links_by_word_class else {}
+            )
+            class_colours = {
+                pos: class_colour(
+                    pos,
+                    self.panel.background,
+                    self.panel.opacity,
+                    *(
+                        caption_text_colour(
+                            self.panel.own(kind),
+                            self.panel.background,
+                            self.panel.vibrance,
+                        )
+                        for kind in (RowKind.ORIGINAL, RowKind.TRANSLATION)
+                    ),
+                )
+                for pos in set(link_classes.values())
+            }
             for index, row in enumerate(line.rows):
                 if not row.links:
                     continue
-                text_colour = caption_text_colour(
-                    self.panel.own(row.kind), background, self.panel.vibrance
-                )
                 for linked in row.links:
                     if (row.clause, linked.link) in hidden:
                         continue
-                    color = class_colour(linked.pos, background, opacity, text_colour)
+                    if self.panel.colour_links_by_word_class:
+                        # Pick the class once per link, clear of both rows' ink.
+                        pos = link_classes.get((row.clause, linked.link))
+                        color = class_colours[pos]
+                    else:
+                        color = link_colour(self.panel, linked.link)
                     marks[index].append(
                         (
                             linked.start,

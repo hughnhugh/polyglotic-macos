@@ -158,7 +158,6 @@ class SessionLanguages:
 
     spoken: str | None = None
     second_languages: Mapping[str, str] = field(default_factory=dict)
-    translate_live: bool = True
     spelling_hints: tuple[str, ...] = ()
     in_use: tuple[str, ...] = ()
     live_updates: bool = False
@@ -228,9 +227,6 @@ class LanguagesView(Shared[SessionLanguages]):
         else:
             seconds.pop(target, None)
         self.change(replace(self.value, second_languages=seconds))
-
-    def set_translate_live(self, on: bool) -> None:
-        self.change(replace(self.value, translate_live=on))
 
     def set_hints(self, text: str) -> None:
         self.change(replace(self.value, spelling_hints=hints_from(text)))
@@ -734,6 +730,10 @@ class LookView(Shared[CaptionLook]):
         """Linked words in what was said in their link's colour, or their
         line's (395, 431)."""
         self.change(replace(self.value, said_in_link_colours=on))
+
+    def set_colour_links_by_word_class(self, on: bool) -> None:
+        """Use a shared spoken-word class colour for each link (799)."""
+        self.change(replace(self.value, colour_links_by_word_class=on))
 
     def set_translation_in_link_colours(self, on: bool) -> None:
         """Linked words in the translation in their link's colour, or their

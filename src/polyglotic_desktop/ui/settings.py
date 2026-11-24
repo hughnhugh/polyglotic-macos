@@ -159,8 +159,9 @@ OLD_LIVE_DEFAULT = 1.5  # the interval before there were caption modes
 # the caption mode as versions before 176 kept it: Steady whether chosen or
 # not, so only Quick preview and Live updates show a choice
 OLD_CAPTION_TIMING = "caption_timing"
-BUILT_INS = 5
-"""Version 5 moves Video's retired Subtitle blocks setting to Instant."""
+BUILT_INS = 7
+CAPTION_LAB_VERSION = 2
+"""Version 2 expresses Older captions as retained WCAG contrast, not paint alpha."""
 FOLLOW_DEFAULT = (
     "dictation",
     "type_theirs",
@@ -170,6 +171,8 @@ FOLLOW_DEFAULT = (
     "whole_system",
     "quiet_words",
     "live_update_interval",
+    "max_wait_for_text",
+    "text_settles_after",
     "steady_words_ahead",
     "reading_lines",
     "interface_text_size",
@@ -301,12 +304,16 @@ class AppSettings:
     caption_vibrance: int = 0
     caption_weight: int = 500  # the captions' font weight: Medium, as always
     caption_edge: str = "none"  # around the letters: "none", "shadow", "outline"
+    colour_links_by_word_class: bool = False
+    """Use the spoken word's class for both ends of each link. Off for new and
+    existing settings until the two language taggers agree reliably (799)."""
     said_in_link_colours: bool = True  # what was said's linked words (431, 446)
     translation_in_link_colours: bool = True  # the translation's (431, 446)
     # Settings > Captions > Lab's experimental values (the new interface's
     # `views.lab.CaptionLab`, which reads each one leniently): only those
     # moved from their defaults; {} untouched (polyglotic-hq 284)
     caption_lab: dict[str, object] = field(default_factory=dict)
+    caption_lab_version: int = CAPTION_LAB_VERSION
     # the caption mode the learner chose - Steady, Whole captions, Instant
     # or Calm (a core.listening.timing.CaptionMode's value: "words",
     # "steady", "live", "calm"). None until they choose: the default
@@ -663,6 +670,9 @@ class AppSettings:
 
     def to_stored(self) -> dict[str, object]:
         values = asdict(self)
+        # Kept readable in `AppSettings` for old files, but live translation
+        # is no longer a choice and a false value must never be written.
+        values.pop("translate_live")
         values["video_layout"] = 2  # Instant now wraps. Older "live" meant Scrolling.
         values["targets"] = list(self.targets)
         values["spelling_hints"] = list(self.spelling_hints)
@@ -702,6 +712,9 @@ class AppSettings:
                     if f.name in _TUPLES and isinstance(value, list | tuple)
                     else value
                 )
+        # The retired switch remains a readable dataclass field for callers
+        # opening old files, but its stored value has no effect.
+        found.pop("translate_live", None)
         # Languages that were offered once and aren't now (DECISIONS.md #40):
         # off the choices, and the default if that leaves none
         if removed_targets(stored):
@@ -739,6 +752,18 @@ class AppSettings:
                 and not (f.name == "reading_lines" and not found[f.name])
             )
             found["changed"] = changed
+        # Before these timing values followed defaults, every file contained
+        # 3 seconds. A different valid value was a learner choice and stays;
+        # an untouched 3 follows today's quicker defaults.
+        for name in ("max_wait_for_text", "text_settles_after"):
+            if (
+                found.get("built_ins", 0) < 7
+                and name in found
+                and found[name] != 3.0
+                and name not in changed
+            ):
+                changed = (*changed, name)
+                found["changed"] = changed
         if (
             "type_theirs" not in found
             and type(as_filed.get("respeaking")) is bool
@@ -947,7 +972,90 @@ def _at_old_default(name: str, as_filed: Mapping[str, object]) -> bool:
         return as_filed.get(name) == ""
     if name == "opacity":
         return as_filed.get(name) == OLD_OPACITY
+    if name in ("max_wait_for_text", "text_settles_after"):
+        return as_filed.get(name) == 3.0
     return name == "live_update_interval" and as_filed.get(name) == OLD_LIVE_DEFAULT
+
+
+def _contrast_older(lab: object, look: Mapping[str, object]) -> object:
+    """An old Lab's paint-alpha Older captions choice in contrast terms.
+
+    A missing value was untouched and deliberately remains missing, so it
+    follows the new 90% default.  A present value was a learner choice; keep
+    the original row looking as close as the slider's supported range allows.
+    """
+    if not isinstance(lab, dict) or "older" not in lab:
+        return lab
+    old = lab.get("older")
+    colour = look.get("original_color", ORIGINAL_COLOR)
+    panel = look.get("background_color", BACKGROUND_COLOR)
+    if not (
+        isinstance(old, int | float)
+        and not isinstance(old, bool)
+        and 0.0 <= old <= 1.0
+        and isinstance(colour, str)
+        and isinstance(panel, str)
+    ):
+        return lab
+    try:
+        full = _wcag_contrast(colour, panel)
+        retained = (
+            _wcag_contrast(_mixed_colour(panel, colour, float(old)), panel) / full
+        )
+    except (ValueError, IndexError):
+        return lab
+    migrated = dict(lab)
+    migrated["older"] = round(min(1.0, max(0.5, retained)), 2)
+    return migrated
+
+
+def _mixed_colour(under: str, over: str, alpha: float) -> str:
+    """`over` painted at `alpha` on `under`, as a six-digit hex colour."""
+    below = tuple(int(under.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
+    above = tuple(int(over.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
+    channels = (
+        round(a * alpha + b * (1.0 - alpha)) for b, a in zip(below, above, strict=True)
+    )
+    return "#" + "".join(f"{channel:02x}" for channel in channels)
+
+
+def _wcag_contrast(first: str, second: str) -> float:
+    """WCAG relative contrast of two six-digit hex colours."""
+
+    def luminance(colour: str) -> float:
+        channels = []
+        for index in (0, 2, 4):
+            value = int(colour.lstrip("#")[index : index + 2], 16) / 255
+            channels.append(
+                value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+            )
+        red, green, blue = channels
+        return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+    high, low = sorted((luminance(first), luminance(second)), reverse=True)
+    return (high + 0.05) / (low + 0.05)
+
+
+def _migrate_caption_labs(found: dict[str, object]) -> None:
+    """Apply caption Lab version 2 to the flat look and preset-carried looks."""
+    version = found.get("caption_lab_version", 1)
+    if isinstance(version, int) and not isinstance(version, bool) and version >= 2:
+        return
+    found["caption_lab"] = _contrast_older(found.get("caption_lab", {}), found)
+    presets = found.get("preset_values")
+    if isinstance(presets, dict):
+        migrated: dict[object, object] = {}
+        for key, values in presets.items():
+            if isinstance(values, dict) and "caption_lab" in values:
+                own = dict(values)
+                own["caption_lab"] = _contrast_older(
+                    own["caption_lab"], {**found, **values}
+                )
+                migrated[key] = own
+            else:
+                migrated[key] = values
+        found["preset_values"] = migrated
+    found["caption_lab_version"] = CAPTION_LAB_VERSION
 
 
 OLD_LINK_WORDS = "link_words_coloured"
@@ -963,6 +1071,7 @@ def _migrated(stored: Mapping[str, object]) -> Mapping[str, object]:
     kept the mode followed (`_caption_mode_chosen_from`) - Quick preview,
     retired, read as Steady."""
     found = dict(stored)
+    _migrate_caption_labs(found)
     old = found.get("app_name")
     if "apps" not in found and isinstance(old, str):
         found["apps"] = [old]
@@ -1259,6 +1368,9 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
         or (isinstance(v, int) and not isinstance(v, bool) and v in PAUSE_CHOICES)
     ),
     "caption_lab": lambda v: isinstance(v, dict) and all(isinstance(k, str) for k in v),
+    "caption_lab_version": lambda v: (
+        isinstance(v, int) and not isinstance(v, bool) and v >= 1
+    ),
     "reading_lines": lambda v: (
         isinstance(v, list | tuple) and all(x in READING_LANGUAGES for x in v)
     ),

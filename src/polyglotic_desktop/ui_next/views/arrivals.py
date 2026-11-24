@@ -42,13 +42,14 @@ from enum import StrEnum
 
 from polyglotic_desktop.ui_next.views.cards import ease
 
-OLDER_ALPHA = 0.72
-OLDER_TRANSLATION_ALPHA = 0.82
-"""Older captions' ink alpha in B - what was said, and its translation,
-which is yellow and starts lower. Both keep 4.5:1 against the panel (0.72
-opacity) over a light video: white 5.3:1 at 0.72, the yellow 4.0:1 at 0.72
-but 4.6:1 at 0.82 (253's figures, 2026-11-08; checked in
-`tests/ui_next/test_newest_line_brighter.py`)."""
+OLDER_ALPHA = 0.85
+OLDER_TRANSLATION_ALPHA = 0.85
+"""Contrast retained by older captions, as a share of the newest line's
+WCAG contrast ratio (0..1). This is deliberately contrast, not paint alpha:
+`contrast_alpha` converts it for each look and text colour. The named setting
+is a percentage in the Lab, with a supported 50--100 % range and an 85 %
+default; original, translation and reading rows therefore keep the same light
+fade on light and dark panels."""
 SLIDE_SEC = 0.55
 """A slide at a typical pace (`pace` 1.0), start to rest (253's films)."""
 SLIDE_MIN_SEC, SLIDE_MAX_SEC = 0.22, 0.9
@@ -90,8 +91,8 @@ def older_alphas(
     following: bool,
     older: tuple[float, float] = (OLDER_ALPHA, OLDER_TRANSLATION_ALPHA),
 ) -> tuple[float, float]:
-    """How much fainter an older caption's original and translation are
-    drawn than the newest's: B's step, which both arrivals take - `older`
+    """How much of the newest caption's contrast older rows retain:
+    B's step, which both arrivals take - `older`
     (the Lab can change it, `views.lab`) - none with Windows' high
     contrast, or while the learner has scrolled back (not `following` the
     newest)."""

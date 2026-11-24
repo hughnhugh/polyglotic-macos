@@ -189,6 +189,14 @@ def test_word_class_legend_opens_on_hover_and_from_keyboard(qapp: QApplication) 
         assert chooser is not None
         legend = chooser.rows["bar_word_classes"]
         assert isinstance(legend, WordClassLegend)
+        assert not legend.toggle.isChecked()
+        assert not legend.button.isVisible()
+        wanted: list[bool] = []
+        window.class_colours_wanted.connect(wanted.append)
+        legend.toggle.click()
+        assert wanted == [True]
+        window.set_look(replace(window.look, colour_links_by_word_class=True))
+        chooser.refresh()
         for _ in range(len(chooser.rows)):
             focused = qapp.focusWidget()
             assert focused is not None
@@ -201,7 +209,7 @@ def test_word_class_legend_opens_on_hover_and_from_keyboard(qapp: QApplication) 
         assert "Adjective" in legend.labels.text()
         adverb = CLASS_COLOURS[WordClass.ADVERB]
         alternate = CLASS_ALTERNATES[WordClass.ADVERB][0]
-        assert f"color:{adverb}" in legend.labels.text()
+        assert f"color:{adverb}" not in legend.labels.text()
         assert f"color:{alternate}" in legend.labels.text()
         window.close_settings()
 
@@ -211,7 +219,7 @@ def test_word_class_legend_opens_on_hover_and_from_keyboard(qapp: QApplication) 
         assert "Noun" in window.tips.label.text()
         assert "Class unavailable" in window.tips.label.text()
         assert window.tips.label.isVisible()
-        assert f"color:{adverb}" in window.tips.label.text()
+        assert f"color:{adverb}" not in window.tips.label.text()
         assert f"color:{alternate}" in window.tips.label.text()
 
         paper = BY_KEY["paper"]
@@ -226,7 +234,7 @@ def test_word_class_legend_opens_on_hover_and_from_keyboard(qapp: QApplication) 
         )
         window.tips._show()
         assert (
-            f"color:{CLASS_ALTERNATES[WordClass.ADVERB][1]}" in window.tips.label.text()
+            f"color:{CLASS_ALTERNATES[WordClass.ADVERB][2]}" in window.tips.label.text()
         )
         assert f"color:{adverb}" not in window.tips.label.text()
     finally:
@@ -240,7 +248,9 @@ def test_class_marks_keep_the_palette_over_white_at_default_panel_opacity() -> N
 
 
 def test_settings_word_links_has_the_same_legend(qapp: QApplication) -> None:
-    panel = WordLinksPanel(LookView(CaptionLook()), learning=True)
+    panel = WordLinksPanel(
+        LookView(CaptionLook(colour_links_by_word_class=True)), learning=True
+    )
     try:
         panel.show()
         legend = panel.findChild(WordClassLegend)

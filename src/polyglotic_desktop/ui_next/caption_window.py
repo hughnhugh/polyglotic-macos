@@ -342,7 +342,11 @@ from polyglotic_desktop.ui_next.views.lookup import Learner, WordAt, with_counte
 from polyglotic_desktop.ui_next.views.pacing import Pacing
 from polyglotic_desktop.ui_next.views.placement import Edge, Preset, Rect, Size
 from polyglotic_desktop.ui_next.views.preset_menu import PresetMenu, Show
-from polyglotic_desktop.ui_next.views.presets import contrast, readable_on
+from polyglotic_desktop.ui_next.views.presets import (
+    contrast,
+    contrast_alpha,
+    readable_on,
+)
 from polyglotic_desktop.ui_next.views.respeaking import MIC_METER_WIDTH
 from polyglotic_desktop.ui_next.views.reveal import Reveal
 from polyglotic_desktop.ui_next.views.scroll import Anchor, Placed
@@ -854,6 +858,7 @@ def marks_panel(look: CaptionLook) -> Panel:
         marks_in=look.marks_in,
         opacity=look.opacity,
         vibrance=look.vibrance,
+        colour_links_by_word_class=look.colour_links_by_word_class,
     )
 
 
@@ -1254,6 +1259,7 @@ def say_resized(window: str, drag: _Drag, place: Rect, least: Size) -> None:
 class _TranslationSlot:
     rows: tuple[str, ...]
     until: float | None
+    live: bool = False
     spaces: dict[int, float] = field(default_factory=dict)
     bare: float = 0.0
     room: float = 0.0
@@ -1779,10 +1785,19 @@ class Canvas(CaptionSurface):
         if (self.owner.zones is not None or cards) and steps < SETTLED_STEPS:
             steps = SETTLED_STEPS
             lab = replace(lab, older_steps=steps)
+        assert self.ink.panel is not None
+        retained_translation = older_translation_ink(lab.older)
         older, older_translation = older_alphas(
             high_contrast(),
             view.scroll.following,
-            (lab.older, older_translation_ink(lab.older)),
+            (
+                contrast_alpha(self.ink.original.name(), self.ink.panel, lab.older),
+                contrast_alpha(
+                    self.ink.translation.name(),
+                    self.ink.panel,
+                    retained_translation,
+                ),
+            ),
         )
         newest = next(
             (line.key for line in reversed(self._lines()) if not line.provisional),
@@ -3176,6 +3191,7 @@ class CaptionWindow(QWidget):
     all_settings_wanted = Signal()
     """All caption settings...: Settings > Captions in the main window."""
     links_wanted = Signal(bool, tuple)
+    class_colours_wanted = Signal(bool)
     """The strip's word links button: on or off, for every window (F9) -
     the whole learning view, with the reading lines of this window's
     languages (`readings`; 446)."""
@@ -4533,28 +4549,45 @@ class CaptionWindow(QWidget):
         missing = [row for row in originals if row.row.clause not in translated]
         if missing:
             original = tuple(row.row.text for row in originals)
-            if slot is None or slot.until is None:
-                slot = slots[line.key] = _TranslationSlot(original, None)
+            waiting_live = line.live and (
+                self.deck is None or self.deck.has_live_caption(line.caption_id)
+            )
+            new_slot = slot is None
+            grow_slot = new_slot or (
+                slot is not None and slot.rows != original and self.arriving
+            )
+            if slot is None:
+                slot = slots[line.key] = _TranslationSlot(
+                    original, None, live=waiting_live
+                )
                 if len(slots) > 4 * CAPTION_WINDOW_LINES:
                     del slots[next(iter(slots))]
-            if slot.until is None or slot.rows != original:
-                slot.rows = original
-                slot.until = now + TRANSLATION_WAIT_SEC.value
-                self._schedule_translation_expiry(now)
-            # The estimate must not push the original out of a short window.
-            available = max(0.0, self.canvas._seen_height() - laid.height)
-            size = self.view.text_size
-            scale = (style.translation_size or size) * style.translation_factor / size
-            ratio = TRANSLATION_WIDTH_RATIO.value * scale
-            if laid.poured:
-                rows = self._unfilled_translation_rows(laid, missing, ratio)
-                slot.bare, slot.room = laid.height, min(room * rows, available)
-            else:
-                for row in missing:
-                    wide = row.layout.maximumWidth() * ratio
-                    space = min(available, room * max(1, math.ceil(wide / laid.width)))
-                    slot.spaces[row.row.clause] = space
-                    available -= space
+            if grow_slot or (slot.live and not waiting_live):
+                if grow_slot:
+                    slot.rows = original
+                slot.live = waiting_live
+                slot.until = None if waiting_live else now + TRANSLATION_WAIT_SEC.value
+                if slot.until is not None:
+                    self._schedule_translation_expiry(now)
+            if grow_slot:
+                # The estimate must not push the original out of a short window.
+                available = max(0.0, self.canvas._seen_height() - laid.height)
+                size = self.view.text_size
+                scale = (
+                    (style.translation_size or size) * style.translation_factor / size
+                )
+                ratio = TRANSLATION_WIDTH_RATIO.value * scale
+                if laid.poured:
+                    rows = self._unfilled_translation_rows(laid, missing, ratio)
+                    slot.bare, slot.room = laid.height, min(room * rows, available)
+                else:
+                    for row in missing:
+                        wide = self._measure(row.row.text, False) * ratio
+                        space = min(
+                            available, room * max(1, math.ceil(wide / laid.width))
+                        )
+                        slot.spaces[row.row.clause] = space
+                        available -= space
         if slot is not None:
             share = self._translation_space_left(slot.until, now)
             if not missing:
@@ -4591,10 +4624,17 @@ class CaptionWindow(QWidget):
     ) -> int:
         """A paired card can already have a translation when new words join it."""
         existing = [row for row in laid.rows if row.row.kind is RowKind.TRANSLATION]
-        if not existing and self.deck is not None:
-            return 1  # the deck already sizes a new card to fit the translation
         width = sum(row.layout.maximumWidth() for row in existing)
-        width += TO_SPARE * ratio * sum(row.layout.maximumWidth() for row in missing)
+        # `maximumWidth()` is only the widest already-wrapped display row. For
+        # the first slide that loses most of a long original, so the card enters
+        # one translation row tall and jumps when the translation arrives.
+        # Measure the original unwrapped: its estimated translated width gives
+        # the complete room before the card is first positioned.
+        width += (
+            TO_SPARE
+            * ratio
+            * sum(self._measure(row.row.text, False) for row in missing)
+        )
         occupied = {
             round(row.top + row.layout.lineAt(n).y())
             for row in existing
@@ -5116,8 +5156,19 @@ class CaptionWindow(QWidget):
                 due = soon if due is None else min(due, soon)
         drawn = tuple(state)
         if drawn != self._newness_drawn:
+            # only the lines whose newness changed: a fade is a frame each
+            # tick, and the whole window each tick cost every paint while
+            # captions arrived (polyglotic-hq 821)
+            before, after = dict(self._newness_drawn), dict(drawn)
             self._newness_drawn = drawn
-            self.canvas.update()
+            for key in sorted(set(before) | set(after)):
+                if before.get(key) == after.get(key):
+                    continue
+                area = self.canvas.line_area(key)
+                if area is None:  # not drawn where it was: all of it, to be sure
+                    self.canvas.update()
+                    break
+                self.canvas.update(area)
         return fading, due
 
     def _note_arrivals(self, *, revealed_line: bool = False) -> None:
@@ -6278,7 +6329,11 @@ class CaptionWindow(QWidget):
             if name == "links":
                 self.tips.watch(
                     button,
-                    lambda _: legend_html(self.look, self.controls["links"].toolTip()),
+                    lambda _: (
+                        legend_html(self.look, self.controls["links"].toolTip())
+                        if self.look.colour_links_by_word_class
+                        else self.controls["links"].toolTip()
+                    ),
                 )
             else:
                 self.tips.watch(button)
@@ -6359,7 +6414,11 @@ class CaptionWindow(QWidget):
         self.controls["quiet"].setChecked(self.look.quiet)
         links.setEnabled(self.look.show_original)
         links.setToolTip(
-            _tr("Word links on or off. Colours show word class.")
+            (
+                _tr("Word links on or off. Colours show word class.")
+                if self.look.colour_links_by_word_class
+                else _tr("Word links")
+            )
             if self.look.show_original
             else _tr(
                 "Word links need what was said: turn on “Show the original above "

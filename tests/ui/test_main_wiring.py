@@ -22,6 +22,7 @@ from polyglotic_desktop.core.listening.captions import (
     Clause,
     Language,
 )
+from polyglotic_desktop.core.listening.playout import ReadingPath
 from polyglotic_desktop.core.listening.recent_speech import HeldSpeech
 from polyglotic_desktop.core.listening.recheck import RecheckOutcome, RecheckResult
 from polyglotic_desktop.core.listening.settings import ListeningSettings
@@ -31,7 +32,7 @@ from polyglotic_desktop.core.listening.sources import (
     Source,
     SourceId,
 )
-from polyglotic_desktop.core.listening.timing import CaptionId
+from polyglotic_desktop.core.listening.timing import CaptionId, CaptionMode
 from polyglotic_desktop.main import (
     QtListener,
     SourcePlan,
@@ -144,40 +145,76 @@ def test_the_settings_become_the_servers_settings() -> None:
     assert listening_settings(AppSettings()).spoken_language is None
 
 
-@pytest.mark.parametrize(
-    ("mode", "switch_on", "switch_off"),
-    [
-        ("steady", True, True),
-        ("words", True, True),
-        ("calm", True, True),
-        ("live", True, False),
-    ],
-)
-def test_which_modes_lines_are_translated_live(
-    mode: str, switch_on: bool, switch_off: bool
-) -> None:
-    """Provisional lines are always translated (polyglotic-hq 268,
-    DECISIONS.md #101; Whole captions' are the longest wait for text's
-    only, 277), and so are Steady's and Calm's live updates, whose clauses
-    show their translation as they end (526); Instant's as the learner's
-    "Translate live captions" says."""
+@pytest.mark.parametrize("mode", ["words", "calm"])
+def test_which_modes_lines_are_translated_live(mode: str) -> None:
+    """Paced clauses translate regardless of the Instant-only switch."""
     on = AppSettings(caption_mode_chosen=mode, translate_live=True)
-    assert listening_settings(on).translate_live is switch_on
+    assert listening_settings(on).translate_live
     off = AppSettings(caption_mode_chosen=mode, translate_live=False)
-    assert listening_settings(off).translate_live is switch_off
+    assert listening_settings(off).translate_live
 
 
 @pytest.mark.parametrize("mode", ["live", "scrolling"])
-@pytest.mark.parametrize("translate_live", [True, False])
 def test_video_requests_the_same_live_translation_as_everyday_instant(
-    mode: str, translate_live: bool
+    mode: str,
 ) -> None:
     everyday = AppSettings(
-        caption_mode_chosen="live", targets=("zh",), translate_live=translate_live
+        caption_mode_chosen="live", targets=("zh",), translate_live=False
     )
     video = replace(everyday, preset="video", caption_mode_chosen=mode)
     assert listening_settings(video) == listening_settings(everyday)
-    assert listening_settings(video).translate_live is translate_live
+    assert listening_settings(video).translate_live
+
+
+@pytest.mark.parametrize(
+    ("stored", "preset", "mode", "path", "expected"),
+    [
+        ({}, "everyday", "live", "both", True),
+        ({"translate_live": False}, "everyday", "live", "follow", True),
+        ({"translate_live": False}, "video", "live", "both", True),
+        ({"translate_live": False}, "video", "scrolling", "both", True),
+        ({}, "learning", "words", "follow", True),
+        ({}, "learning", "words", "acquisition", False),
+        ({}, "learning", "words", "both", True),
+    ],
+)
+def test_open_windows_decide_whether_the_session_translates_live(
+    stored: dict[str, object],
+    preset: str,
+    mode: str,
+    path: str,
+    expected: bool,
+) -> None:
+    """Fresh and pre-0.1.10 settings follow what the open window displays."""
+    value = replace(
+        AppSettings.from_stored(stored),
+        preset=preset,
+        caption_mode_chosen=mode,
+        caption_path=path,
+    )
+    shown = {SourceId("app"): (Language("zh"),)}
+    assert listening_settings(value, shown).translate_live is expected
+    assert not listening_settings(value, {SourceId("app"): ()}).translate_live
+
+
+def test_each_open_windows_own_timing_path_and_lines_decide_live_translation() -> None:
+    """Global Steady + Acquisition cannot suppress an Instant window."""
+    value = AppSettings(caption_mode_chosen="words", caption_path="acquisition")
+    targets = {
+        SourceId("everyday"): (Language("zh"),),
+        SourceId("video"): (),
+    }
+    reading = {
+        SourceId("everyday"): (CaptionMode.INSTANT, ReadingPath.BOTH),
+        SourceId("video"): (CaptionMode.SCROLLING, ReadingPath.BOTH),
+    }
+    assert listening_settings(value, targets, window_reading=reading).translate_live
+
+    learning = {SourceId("learning"): (Language("zh"),)}
+    acquisition = {SourceId("learning"): (CaptionMode.STEADY, ReadingPath.ACQUISITION)}
+    assert not listening_settings(
+        value, learning, window_reading=acquisition
+    ).translate_live
 
 
 def test_the_sessions_states_as_home_shows_them() -> None:

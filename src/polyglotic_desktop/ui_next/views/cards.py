@@ -234,6 +234,17 @@ class Deck:
                 return found
         return set()
 
+    def has_live_caption(self, card_id: CaptionId) -> bool:
+        """Whether a caption still being spoken contributes to this card."""
+        for card in reversed(self.cards[-40:]):
+            if self.card_id(card) == card_id:
+                return any(
+                    (update := self._latest.get(caption)) is not None
+                    and update.kind is CaptionKind.LIVE
+                    for caption, _ in card.words
+                )
+        return False
+
     def expected(self, card_id: CaptionId) -> float | None:
         """How wide card `card_id`'s words will likely be: its words, and
         what the server has said of its last caption that the playout has

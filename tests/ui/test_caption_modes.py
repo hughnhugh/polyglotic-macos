@@ -207,48 +207,66 @@ def test_the_pipeline_follows_a_mode_chosen_while_listening() -> None:
     assert timing.max_wait == 4.0  # the longest wait for text, live (277)
 
 
-def test_the_longest_wait_for_text_is_3s_and_kept_within_2_to_6s() -> None:
-    """polyglotic-hq 277: 3s unless the learner chooses; a stored value
+def test_the_longest_wait_for_text_is_2s_and_kept_within_2_to_6s() -> None:
+    """Project 810: 2s unless the learner chooses; a stored value
     out of range (or not a number) takes the default."""
-    assert AppSettings.from_stored({}).max_wait_for_text == MAX_WAIT_FOR_TEXT_SEC == 3.0
+    assert AppSettings.from_stored({}).max_wait_for_text == MAX_WAIT_FOR_TEXT_SEC == 2.0
     for kept in (2.0, 2.5, 6.0):
-        stored = AppSettings(max_wait_for_text=kept).to_stored()
+        stored = AppSettings(
+            max_wait_for_text=kept, changed=("max_wait_for_text",)
+        ).to_stored()
         assert AppSettings.from_stored(stored).max_wait_for_text == kept
     for wrong in (1.0, 7.0, "3", None):
         stored = {"max_wait_for_text": wrong}
-        assert AppSettings.from_stored(stored).max_wait_for_text == 3.0
+        assert AppSettings.from_stored(stored).max_wait_for_text == 2.0
 
 
-def test_whole_captions_lines_are_translated_and_dim() -> None:
+def test_live_captions_are_translated_except_paced_acquisition() -> None:
     """Whole captions' only live updates - the longest wait's - are
-    provisional lines: translated, dim, replaced (277). The paced modes'
+    provisional lines: dim and replaced (277). The paced modes'
     live updates are the caption itself, and always translated: a clause
     shows its translation as it ends (526)."""
     from polyglotic_desktop.main import caption_look, listening_settings
 
     value = AppSettings(caption_mode_chosen="steady", translate_live=False)
     assert caption_look(value).preview
-    assert listening_settings(value).translate_live
+    assert not listening_settings(value).translate_live  # paced Acquisition
     for mode in ("words", "calm"):
         value = AppSettings(caption_mode_chosen=mode, translate_live=False)
         assert not caption_look(value).preview
         assert listening_settings(value).translate_live
     live = AppSettings(caption_mode_chosen="live", translate_live=False)
     assert not caption_look(live).preview
-    assert not listening_settings(live).translate_live
+    assert listening_settings(live).translate_live
 
 
-def test_how_long_text_may_still_change_is_3s_and_kept_within_0_to_3s() -> None:
-    """polyglotic-hq 309: 3s (decision 0088's) unless the learner chooses
+def test_how_long_text_may_still_change_is_1s_and_kept_within_0_to_3s() -> None:
+    """Project 810: 1s unless the learner chooses
     less, down to none; a stored value out of range (or not a number)
     takes the default."""
-    assert AppSettings.from_stored({}).text_settles_after == SETTLE_AFTER_SEC == 3.0
+    assert AppSettings.from_stored({}).text_settles_after == SETTLE_AFTER_SEC == 1.0
     for kept in (0.0, 1.0, 2.5):
-        stored = AppSettings(text_settles_after=kept).to_stored()
+        stored = AppSettings(
+            text_settles_after=kept, changed=("text_settles_after",)
+        ).to_stored()
         assert AppSettings.from_stored(stored).text_settles_after == kept
     for wrong in (-1.0, 3.5, "1", None):
         stored = {"text_settles_after": wrong}
-        assert AppSettings.from_stored(stored).text_settles_after == 3.0
+        assert AppSettings.from_stored(stored).text_settles_after == 1.0
+
+
+def test_untouched_timing_defaults_follow_today_and_choices_stay() -> None:
+    assert "max_wait_for_text" in FOLLOW_DEFAULT
+    assert "text_settles_after" in FOLLOW_DEFAULT
+    old = AppSettings(built_ins=6, max_wait_for_text=3.0, text_settles_after=3.0)
+    followed = AppSettings.from_stored(old.to_stored())
+    assert (followed.max_wait_for_text, followed.text_settles_after) == (2.0, 1.0)
+    chosen = old.to_stored() | {
+        "max_wait_for_text": 4.0,
+        "text_settles_after": 2.5,
+    }
+    kept = AppSettings.from_stored(chosen)
+    assert (kept.max_wait_for_text, kept.text_settles_after) == (4.0, 2.5)
 
 
 # -- Live updates every 1.0 s (polyglotic-hq 494, DECISIONS.md #211) ---------------

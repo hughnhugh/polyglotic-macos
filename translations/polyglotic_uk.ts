@@ -7063,16 +7063,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Translate live captions</source>
-        <translation type="unfinished">Перекладати живі субтитри</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">З режимом «Наживо» (Таймінг). Вимк.: живі субтитри показують сказане, а переклад приходить у паузі.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Names and slang</source>
         <translation type="unfinished">Імена й сленг</translation>
     </message>
@@ -7250,11 +7240,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The first update waits for a second of speech.</source>
         <translation type="unfinished">Перше оновлення чекає на одну секунду мовлення.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">У режимі «Наживо»: перекладати й рядок, що рухається. Вимк.: живі субтитри показують сказане, а переклад приходить у паузі.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7485,6 +7470,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
         <translation type="unfinished">Ключові: лише повнозначні слова. Майже всі: ще й займенники, 是, 这个 та подібні.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Фарбувати зв’язки за частиною мови</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Use the class of the word that was said for both words in each link.</source>
+        <translation type="unfinished">Використовувати частину мови сказаного слова для обох слів кожного зв’язку.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -10492,6 +10487,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
         <source>Class unavailable</source>
         <translation type="unfinished">Частина мови невідома</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Фарбувати зв’язки за частиною мови</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>

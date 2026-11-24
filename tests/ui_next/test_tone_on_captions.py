@@ -326,15 +326,15 @@ def _link_colours(windows: CaptionWindows) -> set[str]:
 def test_word_links_keep_their_colours_at_every_vibrance(
     windows: CaptionWindows, vibrance: int
 ) -> None:
-    look = CaptionLook(word_links=WordLinks.COLOURS)
+    look = CaptionLook(word_links=WordLinks.COLOURS, colour_links_by_word_class=True)
     windows.set_look(look)
     today = _link_colours(windows)
-    assert today == {
-        CLASS_COLOURS[WordClass.NOUN],
-        CLASS_COLOURS[WordClass.ADVERB],
-        CLASS_ALTERNATES[WordClass.ADVERB][0],
-        CLASS_COLOURS[WordClass.ADJECTIVE],
+    # which of a class's colours each link gets is 799's rule (one colour per
+    # link, clearing both lines), tested where it's made; here: class colours
+    palette = set(CLASS_COLOURS.values()) | {
+        c for alternates in CLASS_ALTERNATES.values() for c in alternates
     }
+    assert len(today) >= 3 and today <= palette
     windows.set_look(replace(look, vibrance=vibrance))
     assert _link_colours(windows) == today
 

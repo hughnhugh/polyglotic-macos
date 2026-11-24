@@ -12,6 +12,7 @@ import pytest
 from tests.ui.fakes import MemorySettingsStore
 
 from polyglotic_desktop.core.listening.timing import CaptionMode
+from polyglotic_desktop.main import listening_settings
 from polyglotic_desktop.ui import use_presets
 from polyglotic_desktop.ui.settings import BUILT_INS, AppSettings, Settings
 from polyglotic_desktop.ui.use_presets import (
@@ -31,6 +32,37 @@ def test_a_new_install_starts_on_everyday_with_nothing_changed() -> None:
     settings = _settings()
     assert settings.value.preset == EVERYDAY
     assert settings.value.preset_values == {} and settings.value.own_presets == ()
+    assert settings.value.translate_live
+
+
+@pytest.mark.parametrize(
+    ("preset", "mode"),
+    [(EVERYDAY, "live"), (VIDEO, "live"), (VIDEO, "scrolling")],
+)
+def test_pre_0_1_10_translate_live_off_is_reset_once(preset: str, mode: str) -> None:
+    """The old switch did not govern the old default timing. Once Instant
+    governs it, an old Off is reset for every live-updating use."""
+    old = AppSettings(
+        built_ins=5,
+        translate_live=False,
+        preset=preset,
+        caption_mode_chosen=mode,
+    ).to_stored()
+    migrated = _settings(old).value
+    assert migrated.translate_live
+    assert listening_settings(migrated).translate_live
+
+
+def test_stored_translate_live_is_ignored_and_never_written() -> None:
+    store = MemorySettingsStore(
+        AppSettings(built_ins=5, translate_live=False).to_stored()
+    )
+    settings = Settings(store)
+    assert settings.value.built_ins == BUILT_INS and settings.value.translate_live
+    settings.update(translate_live=False)
+    assert "translate_live" not in store.values
+    reopened = Settings(store).value
+    assert reopened.built_ins == BUILT_INS and reopened.translate_live
 
 
 def test_a_file_from_before_presets_with_nothing_chosen_is_everyday() -> None:

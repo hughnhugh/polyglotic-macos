@@ -1454,6 +1454,7 @@ def listening_settings(
     value: AppSettings,
     own: Mapping[SourceId, tuple[Language, ...]] | None = None,
     spoken: Mapping[SourceId, Language | None] | None = None,
+    window_reading: Mapping[SourceId, tuple[CaptionMode, ReadingPath]] | None = None,
 ) -> ListeningSettings:
     """What the server needs from the user's settings. `own`: each source's
     languages from the new interface's caption windows (the developer
@@ -1482,6 +1483,31 @@ def listening_settings(
         target = typed_target(value)
         source_targets[TYPE_THEIRS] = (target,) if target else ()
         source_spoken[TYPE_THEIRS] = None
+    # Translation is requested for live updates whenever an open window can
+    # draw it. Timing, path and language visibility are each window's; the
+    # Instant and Scrolling always translate. Paced modes do too unless their
+    # own Acquisition path deliberately delays the translation.
+    translation_shown = any(own.values()) if own is not None else value.show_translation
+    if window_reading is None:
+        window_reading = {
+            source: (value.caption_mode, ReadingPath(value.caption_path))
+            for source, languages in (own or {}).items()
+            if languages
+        }
+    live_translation = any(
+        bool((own or {}).get(source))
+        and (
+            mode in (CaptionMode.INSTANT, CaptionMode.SCROLLING)
+            or (mode.paced and path is not ReadingPath.ACQUISITION)
+        )
+        for source, (mode, path) in window_reading.items()
+    )
+    if own is None:
+        mode, path = value.caption_mode, ReadingPath(value.caption_path)
+        live_translation = translation_shown and (
+            mode in (CaptionMode.INSTANT, CaptionMode.SCROLLING)
+            or (mode.paced and path is not ReadingPath.ACQUISITION)
+        )
     return ListeningSettings(
         spoken_language=heard,
         targets=targets,
@@ -1497,21 +1523,10 @@ def listening_settings(
             ).items()
         },
         spelling_hints=value.spelling_hints,
-        # provisional lines are always translated (polyglotic-hq 268,
-        # DECISIONS.md #101: +65 ms for the learner in 243's phase 2; the
-        # server's give-way drops overtaken ones at the peak; Whole
-        # captions' are the longest wait for text's only, 277), and so are
-        # the paced modes' live updates, whose clauses show their
-        # translation as they end (526); Instant's as the learner's
-        # "Translate live captions" says
-        # Acquisition shows a translation only after its clause: the
-        # finished caption's is soon enough, and nothing is translated live
-        translate_live=(
-            value.translate_live
-            if value.video_timing
-            else (value.caption_mode.live_translated and not value.acquisition)
-            or (value.translate_live and value.caption_mode is CaptionMode.INSTANT)
-        ),
+        # Instant-type windows always translate. Paced windows translate
+        # their clauses live unless Acquisition deliberately holds
+        # the translation until after the original.
+        translate_live=live_translation,
     )
 
 
@@ -1681,6 +1696,7 @@ def caption_look(value: AppSettings, own: Iterable[str] = ()) -> CaptionLook:
         reading_system=ReadingSystem(value.reading_system),
         reading_colour=ReadingColour(value.reading_colour),
         reading_custom=value.reading_custom_color,
+        colour_links_by_word_class=value.colour_links_by_word_class,
         said_in_link_colours=value.said_in_link_colours,
         translation_in_link_colours=value.translation_in_link_colours,
         quiet=value.quiet_view,
@@ -2425,7 +2441,6 @@ def session_languages(
     return SessionLanguages(
         spoken=value.spoken_language,
         second_languages=value.second_languages_for(in_use),
-        translate_live=value.translate_live,
         spelling_hints=value.spelling_hints,
         in_use=tuple(in_use),
         live_updates=value.caption_mode in (CaptionMode.INSTANT, CaptionMode.SCROLLING),
@@ -2453,7 +2468,6 @@ def languages_settings(
             **preset,
             **{t: s or "" for t, s in shown.items() if t in preset},
         },
-        "translate_live": languages.translate_live,
         "spelling_hints": languages.spelling_hints,
         "mandarin_script": languages.mandarin_script,
         "lyrics": languages.lyrics,
@@ -2524,6 +2538,7 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "reading_system": look.reading_system.value,
         "reading_colour": look.reading_colour.value,
         "reading_custom_color": look.reading_custom,
+        "colour_links_by_word_class": look.colour_links_by_word_class,
         "said_in_link_colours": look.said_in_link_colours,
         "translation_in_link_colours": look.translation_in_link_colours,
         "quiet_view": look.quiet,
@@ -5176,6 +5191,7 @@ def new_interface(
     windows.links_wanted.connect(
         partial(panels.change_bar_look, panels.look.set_links_shown)
     )
+    windows.class_colours_wanted.connect(panels.look.set_colour_links_by_word_class)
     windows.quiet_wanted.connect(partial(panels.change_bar_look, panels.look.set_quiet))
     windows.quiet_word_wanted.connect(
         lambda which, on: panels.look.set_quiet_word(ChosenWords(which), on)
@@ -9035,7 +9051,10 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     def chosen() -> ListeningSettings:
         """The listening settings now - each window's languages its source's."""
         return listening_settings(
-            desktop.settings.value, windows.targets(), windows.spoken_languages()
+            desktop.settings.value,
+            windows.targets(),
+            windows.spoken_languages(),
+            windows.window_reading(),
         )
 
     # the window first; then the rest - speech detection, the connection

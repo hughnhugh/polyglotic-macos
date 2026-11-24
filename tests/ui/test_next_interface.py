@@ -214,7 +214,7 @@ def test_homes_spoken_language_is_every_windows(
     assert windows.spoken_languages() == {APP_1: Language("yue")}
     assert desktop.settings.value.spoken_language == "yue"
     windows.windows["Web Browser"].set_spoken_language("en")
-    panels.languages.set_translate_live(False)  # another row: the windows kept
+    panels.languages.set_hints("Caleb")  # another row: the windows kept
     assert windows.spoken_languages() == {APP_1: EN}
 
 
@@ -281,7 +281,6 @@ def test_the_panels_values_are_todays_settings() -> None:
         learning="zh",
         spoken_language="yue",
         second_languages={"en": "zh"},
-        translate_live=False,
         spelling_hints=("Caleb",),
         caption_mode_chosen="live",
         opacity=0.4,
@@ -293,7 +292,6 @@ def test_the_panels_values_are_todays_settings() -> None:
     assert settings_from(languages_settings(value, languages)) == AppSettings(
         spoken_language="yue",
         second_languages={"en": "zh"},
-        translate_live=False,
         spelling_hints=("Caleb",),
     )
     look = caption_look(value)

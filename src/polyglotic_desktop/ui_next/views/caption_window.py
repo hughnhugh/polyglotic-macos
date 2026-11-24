@@ -656,6 +656,8 @@ class CaptionLook:
     reading_custom: str = "#9ad0ff"
     """The colour picked for readings, with `reading_colour` CUSTOM (kept
     while another is chosen, so Custom brings it back)."""
+    colour_links_by_word_class: bool = False
+    """One class colour per link, chosen from its spoken end first (799)."""
     said_in_link_colours: bool = True
     """Linked words in what was said take their link's colour, as their
     underline has (395)."""

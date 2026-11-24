@@ -7063,16 +7063,6 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>Translate live captions</source>
-        <translation type="unfinished">Překládat živé titulky</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates (Timing). Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">S Živě (Časování). Vypnuto: živé titulky ukazují, co zaznělo, a překlad přijde v pauze.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Names and slang</source>
         <translation type="unfinished">Jména a slang</translation>
     </message>
@@ -7250,11 +7240,6 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The first update waits for a second of speech.</source>
         <translation type="unfinished">První aktualizace počká na jednu sekundu řeči.</translation>
-    </message>
-    <message>
-        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
-        <source>With Live updates: translate the moving line too. Off: live captions show what was said, and the translation arrives at the pause.</source>
-        <translation type="unfinished">S Živě: překládat i pohyblivý řádek. Vypnuto: živé titulky ukazují, co zaznělo, a překlad přijde v pauze.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7485,6 +7470,16 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Key words: content words only. Most words: pronouns, 是, 这个 and the like too.</source>
         <translation type="unfinished">Klíčová slova: jen plnovýznamová slova. Většina slov: i zájmena, 是, 这个 a podobně.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Barvit propojení podle slovního druhu</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
+        <source>Use the class of the word that was said for both words in each link.</source>
+        <translation type="unfinished">Použít slovní druh vysloveného slova pro obě slova každého propojení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -10492,6 +10487,11 @@
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
         <source>Class unavailable</source>
         <translation type="unfinished">Slovní druh není k dispozici</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>
+        <source>Colour word links by word class</source>
+        <translation type="unfinished">Barvit propojení podle slovního druhu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_classes.py"/>

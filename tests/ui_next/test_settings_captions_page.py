@@ -231,7 +231,7 @@ SETTINGS = {
     ),
     "readings": ("look.reading_zh", "look.reading_yue", "look.reading_size"),
     "timing": (
-        "timing.mode", "timing.live_interval", "timing.translate_live",
+        "timing.mode", "timing.live_interval",
         "timing.max_wait", "timing.settle_after", "look.arrival", "look.fade_after",
     ),
     "speech": ("languages.spoken", "languages.spelling_hints"),
@@ -287,23 +287,17 @@ def test_a_change_in_settings_is_the_views_and_every_panel_shows_it(
     assert other.word_links.link_detail.value() == look.value.link_detail
 
 
-def test_translate_live_captions_is_timings_and_only_with_live_updates(
+def test_translate_live_captions_switch_is_gone(
     qapp: QApplication,
 ) -> None:
     timing = TimingView(Timing(CaptionMode.WHOLE))
-    speech = LanguagesView(SessionLanguages(translate_live=True))
+    speech = LanguagesView(SessionLanguages())
     page = page_with(timing=timing, speech=speech)
     page.show()
     page.show_section("timing")
     qapp.processEvents()
-    row = page.timing.translate_row
-    switch = page.timing.translate_live
-    assert row is not None and switch is not None
-    assert not row.isVisible()
-    timing.set_mode(CaptionMode.INSTANT)
-    assert row.isVisible() and switch.isChecked()
-    switch.click()
-    assert speech.value.translate_live is False
+    assert page.findChild(QWidget, "timing.translate_live") is None
+    assert page.findChild(QWidget, "languages.translate_live") is None
     page.close()
 
 

@@ -15,15 +15,14 @@ width - and 248's copy (section 2.4).
   Original only - and Show my speech here) only in a transcript's rail,
   otherwise one line saying each window picks its own; Spoken language;
   When they already speak the window's language (its second language,
-  named by the window's: 465), a row per language in use; Translate live captions;
-  Names and slang. Settings > Captions shows it as **Speech**, without
-  what's learned (the Learning page's) or live translation (Timing's).
+  named by the window's: 465), a row per language in use; Names and slang.
+  Settings > Captions shows it as **Speech**, without what's learned (the
+  Learning page's).
 - **Timing:** Caption timing, with the chosen one's sentence, and under
   it only the chosen timing's own settings, in seconds, each with what it
   trades (polyglotic-hq 295): Steady, the longest wait for text; Quick
   preview, when its dim lines come (fixed) and the longest wait; Live
-  updates, how often, Translate live captions (in Settings) and the
-  longest wait - one longest wait for every timing (polyglotic-hq 277,
+  updates, how often and the longest wait - one longest wait for every timing (polyglotic-hq 277,
   DECISIONS.md #117), and the page says so.
 - **Look:** in Settings, a live preview (`caption_preview`); three
   recommended looks (`colour_controls.RecommendedTiles`, polyglotic-hq
@@ -318,21 +317,6 @@ class LanguagesPanel(Panel):
             )
         )
 
-        self.translate_live: SwitchButton | None = None
-        if not speech:
-            live = SwitchRow(
-                _tr("Translate live captions"),
-                _tr(
-                    "With Live updates (Timing). Off: live captions show what was "
-                    "said, and the translation arrives at the pause."
-                ),
-                "languages.translate_live",
-            )
-            self.translate_live = live.switch
-            self.translate_live.set_quietly(value.translate_live)
-            self.translate_live.toggled.connect(session.set_translate_live)
-            self.add(live)
-
         self.hints = QLineEdit(", ".join(value.spelling_hints))
         self.hints.setObjectName("languages.spelling_hints")
         self.hints.setAccessibleName(_tr("Names and slang"))
@@ -388,8 +372,6 @@ class LanguagesPanel(Panel):
         self.mandarin_script.set_value(value.traditional)
         # only where Mandarin can be heard: Detect, or Mandarin named
         self.mandarin_row.setHidden(value.spoken not in (None, "zh"))
-        if self.translate_live is not None:
-            self.translate_live.set_quietly(value.translate_live)
         if self.lyrics is not None:
             self.lyrics.set_quietly(value.lyrics)
         if not self.hints.hasFocus():
@@ -619,9 +601,8 @@ class _ModeSegmented(Segmented):
 class TimingPanel(Panel):
     """When captions appear, for every window: the caption timing, and
     under it only the chosen timing's own settings, in seconds, each with
-    one line saying what it trades (polyglotic-hq 295). With `languages`
-    (Settings > Captions): Translate live captions too, under Live updates
-    every. With `presets` (Settings > Timing): the active preset's
+    one line saying what it trades (polyglotic-hq 295). With `presets`
+    (Settings > Timing): the active preset's
     recommended timing carries a quiet Recommended tag (638)."""
 
     def __init__(
@@ -755,21 +736,6 @@ class TimingPanel(Panel):
             tip=_tr("The first update waits for a second of speech."),
         )
         self.add(self.live)
-        self.translate_live: SwitchButton | None = None
-        self.translate_row: SwitchRow | None = None
-        if languages is not None:
-            self.translate_row = SwitchRow(
-                _tr("Translate live captions"),
-                _tr(
-                    "With Live updates: translate the moving line too. Off: live "
-                    "captions show what was said, and the translation arrives at "
-                    "the pause."
-                ),
-                "timing.translate_live",
-            )
-            self.translate_live = self.translate_row.switch
-            self.translate_live.toggled.connect(languages.set_translate_live)
-            self.add(self.translate_row)
         self.wait = Combo()
         self.wait.setObjectName("timing.max_wait")
         self.wait.setAccessibleName(_tr("Longest wait for text"))
@@ -892,12 +858,6 @@ class TimingPanel(Panel):
                 ).format(seconds=_seconds(value.live_every))
             )
         self.live_note.setVisible(slower)
-        if self.languages is not None and self.translate_row is not None:
-            assert self.translate_live is not None
-            self.translate_live.set_quietly(self.languages.value.translate_live)
-            self.translate_row.setVisible(
-                not video and shown_mode is CaptionMode.INSTANT
-            )
         choices = interval_choices(value.live_interval)
         blocked = self.interval.blockSignals(True)
         if choices != self._intervals:
@@ -1256,6 +1216,12 @@ class WordLinksPanel(_LookGroup):
             ),
             self.link_detail,
         )
+        self.colour_links_by_word_class = self._switch(
+            "colour_links_by_word_class",
+            _tr("Colour word links by word class"),
+            _tr("Use the class of the word that was said for both words in each link."),
+            view.set_colour_links_by_word_class,
+        )
         self.said_in_link_colours = self._switch(
             "said_in_link_colours",
             _tr("Colour linked words in what was said"),
@@ -1300,10 +1266,14 @@ class WordLinksPanel(_LookGroup):
         self.link_line.setEnabled(underlined)  # On hover draws no underline
         self.link_gap.setEnabled(underlined)
         linked = value.word_links is not WordLinks.OFF  # no links: nothing to colour
+        self.colour_links_by_word_class.set_quietly(value.colour_links_by_word_class)
+        self.colour_links_by_word_class.setEnabled(linked)
         self.said_in_link_colours.set_quietly(value.said_in_link_colours)
         self.said_in_link_colours.setEnabled(linked)
         self.translation_in_link_colours.set_quietly(value.translation_in_link_colours)
         self.translation_in_link_colours.setEnabled(linked)
+        if self.class_legend is not None:
+            self.class_legend.setVisible(value.colour_links_by_word_class)
 
 
 def _set_quiet_word(view: LookView, which: ChosenWords, on: bool) -> None:

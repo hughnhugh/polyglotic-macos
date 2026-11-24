@@ -27,12 +27,15 @@ from polyglotic_desktop.ui_next.views.lab import (
     ink_between,
 )
 from polyglotic_desktop.ui_next.views.panels import LookView
+from polyglotic_desktop.ui_next.views.presets import contrast_alpha
 
 
-def test_all_at_once_is_todays_and_the_default() -> None:
+def test_five_steps_is_the_default() -> None:
     lab = CaptionLab()
-    assert lab.older_steps == 1 and lab.to_stored() == {}
-    assert [by_place(n, lab) for n in range(4)] == [1.0, 0.0, 0.0, 0.0]
+    assert lab.older_steps == 5 and lab.to_stored() == {}
+    assert [by_place(n, lab) for n in range(6)] == pytest.approx(
+        [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
+    )
 
 
 def test_step_by_step_reaches_the_older_ink_that_many_captions_back() -> None:
@@ -69,19 +72,26 @@ def test_the_window_draws_each_caption_back_a_step_dimmer(
     assert len(keys) >= 4
     alphas = [drawn[k].alpha for k in reversed(keys)]  # the newest first
     lab = window.look.lab
-    wanted = [ink_between(OLDER_ALPHA, by_place(n, lab)) for n in range(len(keys))]
+    ink = window._ink()
+    assert ink.panel is not None
+    floor = contrast_alpha(ink.original.name(), ink.panel, lab.older)
+    wanted = [ink_between(floor, by_place(n, lab)) for n in range(len(keys))]
     assert alphas == pytest.approx(wanted)
-    assert alphas[0] == 1.0 and alphas[3:] == [OLDER_ALPHA] * (len(alphas) - 3)
+    assert alphas[0] == 1.0 and alphas[3:] == [floor] * (len(alphas) - 3)
     # a new caption: each moves a place back, a step dimmer
     (new,) = finished_updates(1, start=50)
     window.view.apply(new)
     window.apply_changed(new_caption=True)
     after = _inks(window, monkeypatch)
     assert after[keys[-1]].alpha == pytest.approx(wanted[1])
-    window.set_look(replace(window.look, lab=CaptionLab()))  # all at once again
+    window.set_look(
+        replace(window.look, lab=CaptionLab(new_for=0.0, older_steps=1))
+    )  # all at once again
     today = _inks(window, monkeypatch)
     assert {today[k].alpha for k in today if k != window.view.lines[-1].key} == {
-        OLDER_ALPHA
+        contrast_alpha(
+            today[next(iter(today))].original.name(), ink.panel, CaptionLab().older
+        )
     }
 
 
@@ -125,13 +135,13 @@ def panel(qapp: QApplication) -> Iterator[LabPanel]:
 
 
 def test_the_lab_card_moves_it_and_says_it(panel: LabPanel) -> None:
-    assert panel.older_steps.shown.text() == "All at once"
+    assert panel.older_steps.shown.text() == "Over 5 captions"
     panel.older_steps.slider.setValue(2)  # 1, 2, 3: over 3 captions
     assert panel.view.value.lab.older_steps == 3
     assert panel.older_steps.shown.text() == "Over 3 captions"
     panel.reset.click()
-    assert panel.view.value.lab.older_steps == 1
-    assert panel.older_steps.shown.text() == "All at once"
+    assert panel.view.value.lab.older_steps == 5
+    assert panel.older_steps.shown.text() == "Over 5 captions"
 
 
 def test_a_new_caption_step_by_step_within_its_budget(qapp: QApplication) -> None:

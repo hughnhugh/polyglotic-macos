@@ -122,7 +122,7 @@ PREVIEW_AFTER_SEC = 1.5
 # than this without text asked for - a live update when nothing else is due
 # (polyglotic-hq 277; the user, 2026-11-11: "max 3s or something before
 # displaying current text"). The learner chooses it, within MAX_WAIT_RANGE.
-MAX_WAIT_FOR_TEXT_SEC = 3.0
+MAX_WAIT_FOR_TEXT_SEC = 2.0
 MAX_WAIT_RANGE = (2.0, 6.0)
 # A caption finished while the speech goes on (a breath cut's limit, a
 # long-speech split) is cut at the quietest moment of this many seconds
@@ -299,11 +299,8 @@ class CaptionMode(StrEnum):
 
     @property
     def live_translated(self) -> bool:
-        """Whether the mode's live updates are always translated: the
-        provisional lines (polyglotic-hq 268, 277), and the paced modes',
-        whose clauses show their translation as they end. Instant's are
-        as the learner's "Translate live captions" says."""
-        return self.provisional_lines or self.paced
+        """Whether the mode's live updates are translated (all modes)."""
+        return True
 
     def live_update_interval(self, chosen: float) -> float | None:
         """The live-update interval the mode follows, given the learner's

@@ -22,6 +22,7 @@ time. Holds caption text in its layouts: never log them.
 """
 
 import math
+import re
 from collections import OrderedDict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
@@ -118,6 +119,12 @@ and English is every window's first translation."""
 RUBIES_KEPT = 600
 """Rows whose reading lines are kept measured, per engine."""
 LINK_PX = {LinkLine.THIN: 1.4, LinkLine.MEDIUM: 2.2, LinkLine.THICK: 3.4}
+BREAKS_PER_LINE = 16
+"""Most row/width/size break histories retained for one caption line.
+
+Sixteen covers the four cached sizes for both sides of a two-clause live
+caption.  It is a memory bound, not a layout choice.
+"""
 LINK_GAP_PX = {LinkGap.CLOSE: 0.5, LinkGap.MEDIUM: 2.0, LinkGap.FAR: 4.0}
 """A word link's underline at 21 px text: its thickness, and its gap below
 the font's descent - below the descenders of g, y and 的's peers, never
@@ -524,6 +531,9 @@ class CaptionLayout:
         self.lines_kept = lines_kept
         self.laid_out = 0  # rows laid out since made: what tests count
         self._kept: OrderedDict[int, _Kept] = OrderedDict()
+        self._breaks: OrderedDict[
+            tuple[int, int, RowKind, int, float, bool], tuple[str, tuple[int, ...]]
+        ] = OrderedDict()
         self._fonts: dict[tuple[tuple[str, ...], int, bool, QFont.Weight], QFont] = {}
         self._flows: OrderedDict[tuple[float, bool, float], Flow] = OrderedDict()
         self.readings = readings
@@ -672,6 +682,42 @@ class CaptionLayout:
         self._fonts.clear()
         self._flows.clear()
         self._rubies.clear()
+        self._breaks.clear()
+
+    def _laid_row_text(
+        self,
+        line: Line,
+        row: CaptionRow,
+        width: int,
+        text_size: float,
+        right: bool,
+        font: QFont,
+        ruby: Ruby | None,
+        latin: QFont | None,
+        wrap: bool,
+    ) -> tuple[QTextLayout, float]:
+        """Lay out a changing row without reconsidering established breaks.
+
+        The last visual line remains open for appended words. Earlier breaks
+        are carried by word position across a recognition revision, provided
+        the revised text still fits. `_laid_text` drops a carried break when
+        it no longer fits, after which Qt breaks that suffix normally.
+        """
+        key = (line.key, row.clause, row.kind, width, text_size, wrap)
+        previous = self._breaks.get(key)
+        fixed = _carried_breaks(*previous, row.text) if previous and wrap else ()
+        layout, height = _laid_text(
+            row.text, font, width, right, ruby, latin, wrap=wrap, breaks=fixed
+        )
+        ends = tuple(
+            layout.lineAt(n).textStart() + layout.lineAt(n).textLength()
+            for n in range(max(0, layout.lineCount() - 1))
+        )
+        self._breaks[key] = (row.text, ends)
+        self._breaks.move_to_end(key)
+        while len(self._breaks) > self.lines_kept * BREAKS_PER_LINE:
+            self._breaks.popitem(last=False)
+        return layout, height
 
     @property
     def held(self) -> int:
@@ -986,8 +1032,16 @@ class CaptionLayout:
             font = self._font(row, text_size, italic, fit=fit)
             ruby = self._ruby(row, font)
             latin = self._latin(row, font)
-            layout, height = _laid_text(
-                row.text, font, width, right, ruby, latin, wrap=not single_rows
+            layout, height = self._laid_row_text(
+                line,
+                row,
+                width,
+                text_size,
+                right,
+                font,
+                ruby,
+                latin,
+                wrap=not single_rows,
             )
             full = font
             if row.kind is RowKind.TRANSLATION and (
@@ -2439,6 +2493,26 @@ def _above(
     return reading_lines.placed(layout, row.text, ruby), ruby.font, ruby.band
 
 
+def _carried_breaks(
+    old_text: str, old_ends: tuple[int, ...], new_text: str
+) -> tuple[int, ...]:
+    """Map established visual breaks to the same word positions in a revision."""
+    old_words = list(re.finditer(r"\S+\s*", old_text))
+    new_words = list(re.finditer(r"\S+\s*", new_text))
+    carried = []
+    for old_units in old_ends:
+        old_end = _codepoints(old_text, old_units)
+        word_count = sum(match.end() <= old_end for match in old_words)
+        if not 0 < word_count <= len(new_words):
+            break
+        # Do not freeze what has become the last line: it must remain open.
+        new_end = new_words[word_count - 1].end()
+        if new_end >= len(new_text):
+            break
+        carried.append(new_end)
+    return tuple(carried)
+
+
 def _laid_text(
     text: str,
     font: QFont,
@@ -2448,6 +2522,7 @@ def _laid_text(
     latin: QFont | None = None,
     *,
     wrap: bool = True,
+    breaks: Sequence[int] = (),
 ) -> tuple[QTextLayout, float]:
     """`text` laid out in `font`, wrapped at `width` - lined up on the
     right, with `right`; and its height. `ruby`: its reading line (364) -
@@ -2467,6 +2542,8 @@ def _laid_text(
     layout.setCacheEnabled(True)
     layout.beginLayout()
     height = 0.0
+    carried = iter(breaks)
+    next_break = next(carried, None)
     while True:
         text_line = layout.createLine()
         if not text_line.isValid():
@@ -2481,7 +2558,19 @@ def _laid_text(
             height += ruby.band if ruby else 0.0
             text_line.setPosition(QPointF(lead, height))
         elif ruby is None:
-            text_line.setLineWidth(max(10, width))
+            line_width = max(10, width)
+            if next_break is not None:
+                columns = _units(text, 0, next_break) - text_line.textStart()
+                text_line.setNumColumns(columns)
+                if text_line.naturalTextWidth() <= line_width:
+                    next_break = next(carried, None)
+                else:
+                    # A revision made this established line impossible. Break
+                    # it once at the end, then let the suffix flow normally.
+                    text_line.setLineWidth(line_width)
+                    next_break = None
+            else:
+                text_line.setLineWidth(line_width)
             text_line.setPosition(QPointF(0, height))
         else:
             # a line starts its first reading's room in: no reading is cut

@@ -330,10 +330,10 @@ def test_every_place_captions_are_kept_settles_after_the_time_chosen(
     setting - each caption window, each transcript and the app's own feed
     follow it (decision 0088: each keeps a caption history)."""
     desktop, windows, transcripts = switched
-    assert {w.view.settle_after for w in windows.windows.values()} == {3.0}
-    desktop.settings.update(text_settles_after=1.0)
+    assert {w.view.settle_after for w in windows.windows.values()} == {1.0}
+    desktop.settings.update(text_settles_after=2.0)
     follow_settings(windows, desktop, FakeSources())  # type: ignore[arg-type]
     follow_transcripts(transcripts)
-    assert {w.view.settle_after for w in windows.windows.values()} == {1.0}
-    assert {t.settle_after for t in transcripts.transcripts.values()} == {1.0}
-    assert transcripts.transcripts and desktop.feed.history.settle_after == 1.0
+    assert {w.view.settle_after for w in windows.windows.values()} == {2.0}
+    assert {t.settle_after for t in transcripts.transcripts.values()} == {2.0}
+    assert transcripts.transcripts and desktop.feed.history.settle_after == 2.0

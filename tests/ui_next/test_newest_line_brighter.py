@@ -24,6 +24,8 @@ from polyglotic_desktop.ui_next.views.arrivals import (
     older_alphas,
 )
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
+from polyglotic_desktop.ui_next.views.lab import CaptionLab
+from polyglotic_desktop.ui_next.views.presets import PRESETS, contrast_alpha
 
 
 def _inks(window: CaptionWindow, monkeypatch: pytest.MonkeyPatch) -> dict[int, Ink]:
@@ -41,10 +43,18 @@ def _inks(window: CaptionWindow, monkeypatch: pytest.MonkeyPatch) -> dict[int, I
     return drawn
 
 
+def _older_alpha(window: CaptionWindow) -> float:
+    ink = window._ink()
+    assert ink.panel is not None
+    return contrast_alpha(ink.original.name(), ink.panel, window.look.lab.older)
+
+
 def test_the_newest_caption_is_full_and_older_ones_step_back(
     qapp: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    window = window_of(qapp, captions=12)
+    window = window_of(
+        qapp, captions=12, look=CaptionLook(lab=CaptionLab(new_for=0, older_steps=1))
+    )
     try:
         assert window.look.arrival is Arrival.STEP_AND_SLIDE  # D: it steps too
         drawn = _inks(window, monkeypatch)
@@ -53,10 +63,7 @@ def test_the_newest_caption_is_full_and_older_ones_step_back(
         assert (drawn[newest].alpha, drawn[newest].translation_alpha) == (1.0, 1.0)
         for key, ink in drawn.items():
             if key != newest:
-                assert ink.alpha == OLDER_ALPHA
-                assert ink.alpha * ink.translation_alpha == pytest.approx(
-                    OLDER_TRANSLATION_ALPHA
-                )
+                assert ink.alpha == _older_alpha(window)
     finally:
         window.close()
 
@@ -67,7 +74,9 @@ def test_scrolled_back_every_caption_is_full_until_back_at_the_newest(
     """Scrolled back, the learner is reading deliberately: every line at
     full ink (249's detail, taken with DECISIONS.md #104; 267). Back at the
     newest, the step returns."""
-    window = window_of(qapp, captions=12)
+    window = window_of(
+        qapp, captions=12, look=CaptionLook(lab=CaptionLab(new_for=0, older_steps=1))
+    )
     try:
         window.canvas.scroll_by(300)
         assert not window.view.scroll.following
@@ -79,7 +88,9 @@ def test_scrolled_back_every_caption_is_full_until_back_at_the_newest(
         window.go_live()
         drawn = _inks(window, monkeypatch)
         newest = window.view.lines[-1].key
-        assert all(ink.alpha == OLDER_ALPHA for k, ink in drawn.items() if k != newest)
+        assert all(
+            ink.alpha == _older_alpha(window) for k, ink in drawn.items() if k != newest
+        )
     finally:
         window.close()
 
@@ -90,7 +101,11 @@ def test_a_new_caption_arrives_at_full_ink_without_a_fade(
 ) -> None:
     """Both arrivals: the new caption is at full ink from its first frame
     (F21: "not fades"); the one before it steps back at once."""
-    window = window_of(qapp, captions=3, look=CaptionLook(arrival=arrival))
+    window = window_of(
+        qapp,
+        captions=3,
+        look=CaptionLook(arrival=arrival, lab=CaptionLab(new_for=0, older_steps=1)),
+    )
     try:
         window.canvas.repaint()
         (new,) = finished_updates(1, start=3)
@@ -99,7 +114,7 @@ def test_a_new_caption_arrives_at_full_ink_without_a_fade(
         drawn = _inks(window, monkeypatch)
         newest = window.view.lines[-1].key
         assert (drawn[newest].alpha, drawn[newest].translation_alpha) == (1.0, 1.0)
-        assert drawn[newest - 1].alpha == OLDER_ALPHA
+        assert drawn[newest - 1].alpha == _older_alpha(window)
     finally:
         window.close()
 
@@ -145,3 +160,20 @@ def test_older_captions_keep_4_5_to_1_over_a_dark_or_light_video(scene: str) -> 
     ):
         seen = _over(QColor(colour), alpha, panel)
         assert contrast(seen, panel) >= 4.5, (colour, scene)
+
+
+def test_fifth_older_line_keeps_eighty_five_percent_and_aa_in_every_look() -> None:
+    """Every colour look, including Quiet, Paper and Broadcast, keeps the
+    configured share and WCAG AA for finished originals and translations.
+    Readings use these same row alphas and the layout's AA colour floor.
+    """
+    for preset in PRESETS:
+        for colour in (preset.original, preset.translation):
+            alpha = contrast_alpha(colour, preset.background, OLDER_ALPHA)
+            newest = contrast(QColor(colour), QColor(preset.background))
+            older = contrast(
+                _over(QColor(colour), alpha, QColor(preset.background)),
+                QColor(preset.background),
+            )
+            assert older >= 4.5, (preset.key, colour, older)
+            assert older / newest >= 0.845, (preset.key, colour, older / newest)

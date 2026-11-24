@@ -5,7 +5,7 @@ already kept, scrolling back, and the two zones still there with it off."""
 from collections.abc import Iterator
 from dataclasses import replace
 from itertools import pairwise
-from math import hypot
+from math import ceil, hypot
 
 import pytest
 from PySide6.QtCore import QPoint, QPointF, Qt
@@ -41,6 +41,9 @@ from polyglotic_desktop.ui_next.caption_window import (
 )
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.views.arrivals import Arrival
+from polyglotic_desktop.ui_next.views.card_window_defaults import (
+    TRANSLATION_WIDTH_RATIO,
+)
 from polyglotic_desktop.ui_next.views.cards import (
     FLAT_ENOUGH,
     GLIDE_FASTEST,
@@ -405,7 +408,9 @@ def test_a_labelled_card_keeps_room_for_its_label_too(
     canvas = window.canvas
     first, last = window.view.lines[0], window.view.lines[-1]
     assert first.label and not last.label
-    assert canvas._tall(first) > canvas._tall(last)  # the label's room, once
+    # A later untranslated card may reserve several estimated rows; the
+    # labelled card still includes its label rather than being clipped to one.
+    assert canvas._tall(first) > window._translation_room()
     before = canvas._tall(last)
     say(windows, caption(2))  # its translation comes
     assert canvas._tall(window.view.lines[-1]) == before
@@ -848,7 +853,9 @@ def test_no_room_is_kept_for_a_translation_that_will_not_come(
     say(windows, french)
     assert said(window)[-1] == "le renard brun saute."
     assert window.canvas._tall(window.view.lines[-1]) < waiting - 8.0
-    assert window._card_pitch() >= waiting  # the pitch is a pair's still
+    # The ordinary pitch remains a pair's rather than inheriting every extra
+    # row estimated for this unusually wide untranslated card.
+    assert window._card_pitch() >= window._translation_room()
 
 
 def test_room_is_kept_for_a_second_line_that_will_come(
@@ -2024,6 +2031,76 @@ def test_unfilled_translation_space_closes_gradually(
     clock.now += 1
     window._close_translation_gaps()
     assert canvas._tall(line) == pytest.approx(bare)
+
+
+@pytest.mark.parametrize("mode", [CaptionMode.INSTANT, CaptionMode.STEADY])
+def test_live_caption_keeps_room_until_its_finished_translation(
+    windows: CaptionWindows, mode: CaptionMode
+) -> None:
+    """A long live caption must not lose its slot before translation arrives."""
+    windows.set_timing(mode)
+    window = say(windows, caption(1))
+    clock = windows.word_clock
+    assert isinstance(clock, Clock)
+    live = replace(
+        caption(2, translated=False, live=True),
+        clauses=(Clause("Good evening."),),
+    )
+    window.receive(live)
+    line = window.view.lines[-1]
+    reserved = window.canvas._tall(line)
+    bare = window.canvas.laid_at(line, window.canvas._width()).height
+    assert reserved > bare
+
+    clock.now += TRANSLATION_WAIT_SEC.value + 1.0
+    window._close_translation_gaps()
+    assert window.canvas._tall(window.view.lines[-1]) == pytest.approx(reserved)
+
+    before = window.canvas.rest_rows()
+    finished = replace(
+        live,
+        kind=CaptionKind.FINISHED,
+        clauses=(Clause("Good evening.", {FR: "Bonsoir."}),),
+    )
+    window.receive(finished)
+    after = window.canvas.rest_rows()
+    assert any(row.kind is RowKind.TRANSLATION for row in window.view.lines[-1].rows)
+    assert {row: after[row] for row in before} == pytest.approx(before, abs=1)
+
+
+@pytest.mark.parametrize("mode", [CaptionMode.INSTANT, CaptionMode.STEADY])
+def test_new_caption_enters_with_every_estimated_translation_row(
+    windows: CaptionWindows, mode: CaptionMode
+) -> None:
+    """The first slide reserves the translation, not a later reflow."""
+    windows.set_timing(mode)
+    window = windows.windows["app"]
+    window.resize(360, 460)
+    original = "A deliberately long opening caption " * 2
+    window.receive(
+        replace(
+            caption(1, translated=False),
+            clauses=(Clause(original),),
+        )
+    )
+
+    line = window.view.lines[-1]
+    shown = " ".join(row.text for row in line.rows if row.kind is RowKind.ORIGINAL)
+    bare = window.canvas.laid_at(line, window.canvas._width()).height
+    room = window._translation_room()
+    estimated = max(
+        1,
+        ceil(
+            window._measure(shown, False)
+            * TRANSLATION_WIDTH_RATIO.value
+            / window.canvas._width()
+        ),
+    )
+    expected = min(estimated, int((window.canvas._seen_height() - bare) // room))
+    reserved = window.canvas._tall(line)
+
+    assert expected >= 2
+    assert reserved >= bare + expected * room - 1
 
 
 def test_original_only_arrival_has_no_translation_gap(windows: CaptionWindows) -> None:

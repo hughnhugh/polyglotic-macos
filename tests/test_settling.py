@@ -8,7 +8,6 @@ import random
 from polyglotic_desktop.core.listening.captions import Clause, Language, WordLink
 from polyglotic_desktop.core.listening.settling import (
     OPEN_CLAUSES,
-    SETTLE_AFTER_SEC,
     Stable,
     settle,
     settled_length,
@@ -28,19 +27,23 @@ def texts(clauses: tuple[Clause, ...]) -> list[tuple[str, str | None]]:
 
 # -- how long words have stood ---------------------------------------------------
 
+# These two test the marks' logic at a 3 s settle time (the default until
+# 810 made it 1 s); the default itself is tested where it's used.
+SETTLED = 3.0
+
 
 def test_words_have_stood_since_they_last_changed() -> None:
     stable = Stable().after("", "I went to the", at=10.0)
-    assert stable.stood(12.9) == 0
-    assert stable.stood(10.0 + SETTLE_AFTER_SEC) == len("I went to the")
+    assert stable.stood(12.9, SETTLED) == 0
+    assert stable.stood(10.0 + SETTLED, SETTLED) == len("I went to the")
     # the caption grows: what was there has stood as long, the rest is new
     grown = stable.after("I went to the", "I went to the store and", at=11.5)
-    assert grown.stood(13.0) == len("I went to the")
-    assert grown.stood(14.5) == len("I went to the store and")
+    assert grown.stood(13.0, SETTLED) == len("I went to the")
+    assert grown.stood(14.5, SETTLED) == len("I went to the store and")
     # an update rewrites from "the" on: only what's before it has stood
     rewritten = grown.after("I went to the store and", "I went to this door", at=13.0)
-    assert rewritten.stood(13.5) == len("I went to th")
-    assert rewritten.stood(16.0) == len("I went to this door")
+    assert rewritten.stood(13.5, SETTLED) == len("I went to th")
+    assert rewritten.stood(16.0, SETTLED) == len("I went to this door")
 
 
 def test_one_captions_marks_follow_anothers() -> None:
@@ -49,12 +52,12 @@ def test_one_captions_marks_follow_anothers() -> None:
     first = Stable().after("", "Hello there.", at=1.0)
     second = Stable().after("", "How are", at=2.0)
     joined = first.then(len("Hello there."), len("Hello there. "), second)
-    assert joined.stood(4.5) == len("Hello there.")
-    assert joined.stood(5.0) == len("Hello there. How are")
+    assert joined.stood(4.5, SETTLED) == len("Hello there.")
+    assert joined.stood(5.0, SETTLED) == len("Hello there. How are")
     # the first one changed lately: nothing after it has stood
     changed = first.after("Hello there.", "Hello then.", at=4.0)
     joined = changed.then(len("Hello then."), len("Hello then. "), second)
-    assert joined.stood(5.5) == len("Hello the")
+    assert joined.stood(5.5, SETTLED) == len("Hello the")
 
 
 def test_never_half_a_word_nor_a_live_captions_last_word() -> None:

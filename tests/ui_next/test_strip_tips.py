@@ -4,6 +4,7 @@ do"). The window is never active, so Qt never showed their tooltips: the
 strip has a hover label of its own (`strip_tips`)."""
 
 from collections.abc import Iterator
+from dataclasses import replace
 
 import pytest
 from PySide6.QtCore import QEvent, QPointF, QRect, Qt
@@ -82,7 +83,9 @@ def rest(window: CaptionWindow) -> None:
 def test_every_strip_button_says_what_it_does_on_hover(window: CaptionWindow) -> None:
     """The user's preview-1 feedback (2026-11-16): hovering an icon said
     nothing. Each button's own tooltip, the same words as before - each
-    one shown (Fill the width isn't on the strip: polyglotic-hq 555, 556)."""
+    one shown (Fill the width isn't on the strip: polyglotic-hq 555, 556).
+    Class colouring on, so the links button's tip carries its legend (799)."""
+    window.set_look(replace(window.look, colour_links_by_word_class=True))
     said = {}
     for name in STRIP:
         button = window.buttons[name]

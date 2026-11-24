@@ -104,6 +104,7 @@ def test_every_change_bumps_the_version() -> None:
 def test_a_joined_caption_takes_the_place_and_key_of_the_earliest() -> None:
     clock = Clock()
     history = CaptionHistory(clock=clock)
+    history.set_settle_after(3.0)
     history.apply(finished("a", clause("我去了超市。")))
     started = history.captions[0].started_at
     key = history.captions[0].key
@@ -288,6 +289,7 @@ def test_words_shown_for_three_seconds_are_never_rewritten() -> None:
     what comes after it is taken."""
     clock = Clock()
     history = CaptionHistory(clock=clock)
+    history.set_settle_after(3.0)
     history.apply(live("a", clause("We walked to this", "我们走到这")))
     clock.advance(1.5)
     # 1.5s on, nothing has stood long enough: the update rewrites it
@@ -349,7 +351,7 @@ def test_at_no_seconds_a_shown_word_never_changes() -> None:
 
 def test_the_time_to_settle_stays_between_none_and_three_seconds() -> None:
     history = CaptionHistory()
-    assert history.settle_after == 3.0  # as it was (decision 0088)
+    assert history.settle_after == 1.0  # Instant's quicker project 810 default
     history.set_settle_after(-1)
     assert history.settle_after == 0.0
     history.set_settle_after(10)

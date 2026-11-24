@@ -29,6 +29,7 @@ Holds no caption text.
 import math
 import re
 from dataclasses import dataclass, replace
+from functools import lru_cache
 
 from polyglotic_desktop.core.listening.display import ReadingColour, ReadingSize
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, TextEdge
@@ -224,6 +225,14 @@ def _channel(value: int) -> float:
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
 
+# Pure and called on every repaint with the same few colours (a look drag:
+# 9.5 ms a frame against 4.4 before 799 and 805 added link colours and
+# contrast shares, polyglotic-hq 821), so their answers are kept.
+COLOUR_CACHE = 4096
+"""Colour answers kept per function: a few windows' inks, panels and shares."""
+
+
+@lru_cache(maxsize=COLOUR_CACHE)
 def luminance(colour: str) -> float:
     """WCAG 2.2's relative luminance of "#rrggbb"."""
     digits = colour.lstrip("#")
@@ -235,6 +244,24 @@ def contrast(text: str, under: str) -> float:
     """WCAG 2.2's contrast ratio of two "#rrggbb" colours (1 to 21)."""
     high, low = sorted((luminance(text), luminance(under)), reverse=True)
     return (high + 0.05) / (low + 0.05)
+
+
+@lru_cache(maxsize=COLOUR_CACHE)
+def contrast_alpha(colour: str, panel: str, retained: float) -> float:
+    """Paint alpha that retains `retained` of full ink's WCAG contrast.
+
+    `retained` is a 0..1 ratio. Quantising upward to hundredths matches the
+    layout's other alpha searches and guarantees that rounding never dips
+    below the requested contrast.
+    """
+    retained = max(0.0, min(1.0, retained))
+    full = contrast(colour, panel)
+    target = min(full, max(AA_TEXT, full * retained))
+    for step in range(101):
+        alpha = step / 100
+        if contrast(_mix(panel, colour, alpha), panel) >= target:
+            return alpha
+    return 1.0
 
 
 def _lab(colour: str) -> tuple[float, float, float]:
@@ -312,6 +339,7 @@ def ciede2000_lab(
     )
 
 
+@lru_cache(maxsize=COLOUR_CACHE)
 def readable_at(colour: str, under: str, alpha: float, ratio: float = AA_TEXT) -> str:
     """`colour` drawn `alpha` opaque over `under` (a faint reading, an
     older caption's words) reaching `ratio` against it - or the nearest to

@@ -4,7 +4,14 @@ from functools import lru_cache
 from html import escape
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from polyglotic_desktop.core.listening.captions import WordClass
 from polyglotic_desktop.ui_next.copying import Text
@@ -86,13 +93,25 @@ def class_backing(colour: str, background: str, opacity: float) -> str | None:
 
 @lru_cache(maxsize=1024)
 def class_colour(
-    pos: WordClass | None, background: str, opacity: float, text: str
+    pos: WordClass | None,
+    background: str,
+    opacity: float,
+    text: str,
+    *other_texts: str,
 ) -> str:
-    """Pick this class's swatch apart from its row, preferring bare marks."""
+    """Pick this class's swatch apart from every linked row's ink.
+
+    A link has one colour, so its choice has to clear both of its lines before
+    either end is drawn (803). ``other_texts`` keeps the one-row use in lookup
+    cards and older callers explicit.
+    """
     primary = CLASS_COLOURS[pos]
     swatches = (primary, *CLASS_ALTERNATES[pos])
+    texts = (text, *other_texts)
     apart = [
-        colour for colour in swatches if ciede2000(colour, text) >= APART_FROM_TEXT
+        colour
+        for colour in swatches
+        if all(ciede2000(colour, ink) >= APART_FROM_TEXT for ink in texts)
     ]
     for colour in apart:
         if class_backing(colour, background, opacity) is None:
@@ -108,9 +127,12 @@ def class_colour(
     for step in range(1, 21):
         for end in ("#000000", "#ffffff"):
             colour = _mix(primary, end, step / 20)
-            if ciede2000(colour, text) >= APART_FROM_TEXT:
+            if all(ciede2000(colour, ink) >= APART_FROM_TEXT for ink in texts):
                 return colour
-    return max(("#000000", "#ffffff"), key=lambda ink: ciede2000(ink, text))
+    return max(
+        ("#000000", "#ffffff"),
+        key=lambda ink: min(ciede2000(ink, text) for text in texts),
+    )
 
 
 def legend_html(look: CaptionLook, intro: str = "") -> str:
@@ -127,12 +149,8 @@ def legend_html(look: CaptionLook, intro: str = "") -> str:
 
     rows = []
     for pos in CLASS_COLOURS:
-        colours = dict.fromkeys(
-            class_colour(pos, look.background, look.opacity, text)
-            for text in text_colours
-        )
-        dots = " ".join(swatch(colour) for colour in colours)
-        rows.append(f"{dots} {escape(class_name(pos))}")
+        colour = class_colour(pos, look.background, look.opacity, *text_colours)
+        rows.append(f"{swatch(colour)} {escape(class_name(pos))}")
     return "<br>".join([escape(intro), *rows] if intro else rows)
 
 
@@ -141,10 +159,20 @@ class WordClassLegend(QWidget):
 
     expanded = Signal()
 
-    def __init__(self, parent: QWidget | None = None, *, copyable: bool = True) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        *,
+        copyable: bool = True,
+        toggle: bool = False,
+    ) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        self.toggle = QCheckBox(_tr("Colour word links by word class"), self)
+        self.toggle.setObjectName("word_class_legend.toggle")
+        self.toggle.setVisible(toggle)
+        layout.addWidget(self.toggle)
         self.button = QPushButton(_tr("Word class legend"), self)
         self.button.setObjectName("word_class_legend.button")
         self.button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -162,6 +190,8 @@ class WordClassLegend(QWidget):
 
     def set_look(self, look: CaptionLook) -> None:
         self.labels.setText(legend_html(look))
+        self.toggle.setChecked(look.colour_links_by_word_class)
+        self.button.setVisible(look.colour_links_by_word_class)
 
     def _show(self, on: bool) -> None:
         self.labels.setVisible(on)

@@ -57,17 +57,15 @@ def test_second_language_rows_follow_the_languages_in_use(qapp: QApplication) ->
     view.follow(SessionLanguages(in_use=("en", "ja")))
     assert list(panel.second) == ["en", "ja"]
     kept = panel.second["en"]
-    view.follow(SessionLanguages(in_use=("en", "ja"), translate_live=False))
+    view.follow(SessionLanguages(in_use=("en", "ja"), spelling_hints=("Caleb",)))
     assert panel.second["en"] is kept  # not rebuilt for another change
-    assert panel.translate_live is not None
-    assert not panel.translate_live.isChecked()
 
 
 def test_second_language_boxes_are_reached_under_spoken_language(
     qapp: QApplication,
 ) -> None:
-    """The boxes are made after the panel; Tab still reaches them where
-    they are, before Translate live captions - not last (131)."""
+    """The boxes are made after the panel; Tab still reaches them directly
+    after the Mandarin choices now the live-translation switch is gone."""
     from tests.ui_next.made_up import tab_stops
 
     view = LanguagesView(SessionLanguages(in_use=("en", "ja")))
@@ -79,7 +77,7 @@ def test_second_language_boxes_are_reached_under_spoken_language(
     # then Show Mandarin in's two choices (375)
     assert stops[spoken + 1 : spoken + 3] == panel.mandarin_script.buttons
     assert stops[spoken + 3 : spoken + 5] == [panel.second["en"], panel.second["ja"]]
-    assert stops[spoken + 5] is panel.translate_live
+    assert panel.hints in stops[spoken + 5 :]
     panel.close()
 
 
@@ -157,7 +155,7 @@ def test_each_modes_sentence_promises_what_was_measured(qapp: QApplication) -> N
     panel = TimingPanel(view)
     steady = panel.sentence.text()
     assert "half a second after it ends" in steady
-    assert "A dim line comes first if the speaker talks on for 3 seconds" in steady
+    assert "A dim line comes first if the speaker talks on for 2 seconds" in steady
     view.set_max_wait(5.0)
     assert "talks on for 5 seconds" in panel.sentence.text()
     panel.mode.choose(CaptionMode.STEADY)
@@ -203,7 +201,7 @@ def test_each_timing_shows_only_its_own_settings(qapp: QApplication) -> None:
     """polyglotic-hq 295 (the user, 2026-11-11: "caption timing setting
     should give their respective options"): under the choice, the chosen
     timing's own settings - Whole captions the longest wait; Instant how
-    often, translating live and the longest wait; Steady its newest word
+    often and the longest wait; Steady its newest word
     and the words ahead; Calm the words ahead - and nothing else (526:
     Quick preview, retired, is not offered)."""
     speech = LanguagesView(SessionLanguages(in_use=("en",)))
@@ -213,11 +211,10 @@ def test_each_timing_shows_only_its_own_settings(qapp: QApplication) -> None:
         "newest": panel.newest_row,
         "ahead": panel.ahead_row,
         "live": panel.live,
-        "translate": panel.translate_row,
         "wait": panel.wait_row,
     }
     own = {
-        CaptionMode.INSTANT: {"live", "translate", "wait"},
+        CaptionMode.INSTANT: {"live", "wait"},
         CaptionMode.WHOLE: {"wait"},
         CaptionMode.STEADY: {"newest", "ahead", "wait"},
         CaptionMode.CALM: {"ahead", "wait"},
@@ -477,8 +474,8 @@ def test_live_updates_every_says_the_first_waits_for_a_second(
 def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     qapp: QApplication,
 ) -> None:
-    """polyglotic-hq 309 (the user: "make this a configurable setting.
-    After 0s - 3seconds"): one choice for every timing, 3s as it was -
+    """polyglotic-hq 309 and project 810: one choice for every timing, 1s
+    by default within the existing 0s - 3s range -
     Steady too, whose dim line and joined captions it settles. Its line
     says what a shorter time costs in words, with no figure: 309's were
     measured on read speech only, and no accuracy figure is said that
@@ -490,7 +487,7 @@ def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     for mode in OFFERED_MODES:
         panel.mode.choose(mode)
         assert panel.settle.isVisible()
-    assert panel.settle.currentData() == 3.0
+    assert panel.settle.currentData() == 1.0
     items = range(panel.settle.count())
     assert [panel.settle.itemData(i) for i in items] == [0.0, 1.0, 2.0, 3.0]
     assert panel.settle.itemText(0) == "0s"
@@ -499,8 +496,8 @@ def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     assert "more mistakes stay as first heard" in said
     assert not any(char.isdigit() for char in said), said
     handed.clear()
-    panel.settle.setCurrentIndex(1)
-    assert view.value.settle_after == 1.0 and handed == [view.value]
+    panel.settle.setCurrentIndex(2)
+    assert view.value.settle_after == 2.0 and handed == [view.value]
     view.follow(Timing(CaptionMode.INSTANT, 1.5, 3.0, 0.5))  # set by hand, elsewhere
     assert panel.settle.currentData() == 0.5 and len(handed) == 1
     panel.close()

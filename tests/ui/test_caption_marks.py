@@ -18,7 +18,12 @@ from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY
-from polyglotic_desktop.core.listening.captions import Language, WordClass
+from polyglotic_desktop.core.listening.captions import (
+    Clause,
+    Language,
+    WordClass,
+    WordLink,
+)
 from polyglotic_desktop.core.listening.display import (
     DisplayOptions,
     RowKind,
@@ -36,6 +41,7 @@ from polyglotic_desktop.ui_next.caption_marks import (
     LINK_COLORS,
     CaptionMarks,
     Panel,
+    link_colour,
     link_colours,
 )
 from polyglotic_desktop.ui_next.caption_window import marks_panel
@@ -161,6 +167,52 @@ def test_word_links_are_underlined_in_their_links_colour(qapp: QApplication) -> 
     assert len(linked) == sum(len(row.links) for row in line.rows) == 2
 
 
+def test_a_word_class_link_uses_one_colour_clear_of_both_sides_in_every_look(
+    qapp: QApplication,
+) -> None:
+    """Mismatched taggers still produce one safe colour in every shipped look."""
+    link = WordLink(
+        (0, 11),
+        (0, 2),
+        True,
+        0.9,
+        original_pos=WordClass.ADVERB,
+        translation_pos=WordClass.VERB,
+    )
+    linked = Clause("discoveries", {EN: "发现"}, {EN: (link,)})
+    view = CaptionLines(
+        (APP,), EN, keep=10, options=DisplayOptions(word_links=WordLinks.COLOURS)
+    )
+    view.apply(finished("class-pair", linked))
+    base = caption_look(AppSettings())
+    looks = [base, *(with_look(base, look.key) for look in LOOKS)]
+    looks.extend(
+        replace(
+            base,
+            original=preset.original,
+            translation=preset.translation,
+            background=preset.background,
+            opacity=preset.opacity,
+        )
+        for preset in PRESETS
+    )
+    for look in looks:
+        marks = CaptionMarks(None)
+        panel = replace(marks_panel(look), colour_links_by_word_class=True)
+        marks.set_look(WordLinks.COLOURS, WordIntroductions.A_FEW, panel)
+        colours = [
+            format_.underlineColor().name()
+            for row in range(len(view.lines[0].rows))
+            for _, _, format_ in marks(view.lines[0], row)
+        ]
+        assert len(colours) == 2 and len(set(colours)) == 1
+        for row, colour in zip(view.lines[0].rows, colours, strict=True):
+            text = caption_text_colour(
+                panel.own(row.kind), panel.background, panel.vibrance
+            )
+            assert ciede2000(colour, text) >= APART_FROM_TEXT, (look, row.kind)
+
+
 def test_hover_pairing_colours_skip_classics_gold_neighbours() -> None:
     classic = BY_KEY["classic"]
     panel = Panel(classic.background, classic.original, classic.translation)
@@ -250,23 +302,11 @@ def test_classified_and_unclassified_links_keep_every_endpoint(
             assert [
                 (start, end, fmt.property(LINK_MARK)) for start, end, fmt in drawn
             ] == expected
-        assert {fmt.underlineColor().name() for _, _, fmt in missing} == {
-            class_colour(None, panel.background, panel.opacity, panel.own(row.kind))
-        }
-        adverb = next(
-            link for link in second.rows[index].links if link.pos is WordClass.ADVERB
-        )
-        swatch = next(
-            fmt.underlineColor().name()
-            for _, _, fmt in present
-            if fmt.property(LINK_MARK) == adverb.link
-        )
-        expected_swatch = (
-            CLASS_COLOURS[WordClass.ADVERB]
-            if row.kind is RowKind.ORIGINAL
-            else CLASS_ALTERNATES[WordClass.ADVERB][0]
-        )
-        assert swatch == expected_swatch
+        expected_colours = [link_colour(panel, link.link) for link in row.links]
+        for drawn in (missing, present):
+            assert [
+                fmt.underlineColor().name() for _, _, fmt in drawn
+            ] == expected_colours
 
 
 def test_a_new_caption_with_highlights_within_its_budget(qapp: QApplication) -> None:

@@ -5,6 +5,7 @@ live testing, polyglotic-hq 272: 13 stalls painting the whole window from
 297 ms - a hover card following the mouse now looks up after FOLLOW_MS,
 not in the move itself: tests/ui_next/test_lookup_card.py)."""
 
+import time
 from collections.abc import Iterator
 from dataclasses import replace
 from functools import partial
@@ -52,9 +53,22 @@ def window(qapp: QApplication) -> Iterator[CaptionWindow]:
     shown.setGeometry(480, 100, 688, 900)
     shown.hovered = True
     qapp.processEvents()
+    _at_rest(shown, qapp)
     shown.canvas.repaint()
     yield shown
     found.close()
+
+
+def _at_rest(window: CaptionWindow, qapp: QApplication, limit: float = 5.0) -> None:
+    """Until the window's frames stop: the captions just added slide in, a
+    frame each tick, painting all of it (they move every line). A hover is
+    measured against a window at rest - on a slow machine the slide was
+    still running when the hover's paint was noted (polyglotic-hq 821)."""
+    end = time.monotonic() + limit
+    while window._tick_timer.isActive() and time.monotonic() < end:
+        qapp.processEvents()
+        time.sleep(0.005)
+    assert not window._tick_timer.isActive(), "the window never came to rest"
 
 
 def _painted(window: CaptionWindow, qapp: QApplication) -> list[QRect]:
