@@ -19,7 +19,7 @@ from polyglotic_desktop.core.learning.levels import LanguageChoices
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
 from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY
 from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.display import RowKind
+from polyglotic_desktop.core.listening.display import JapaneseReading, RowKind
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.main import caption_look, look_settings
 from polyglotic_desktop.ui.learning import LearningTools
@@ -33,7 +33,7 @@ from polyglotic_desktop.ui_next.views.panels import LookView
 
 EN = Language("en")
 ZH = Language("zh")
-RESPELLING = CaptionLook(reading_lines=("en",))
+RESPELLING = CaptionLook(reading_lines=("en",), japanese_reading=JapaneseReading.OFF)
 SAID = "They keep running, awkward"  # ranks 35, 250, 202 (run), 2,500
 SOUNDS = {"they": "DHAY", "keep": "KEEP", "running": "RUN-ing", "awkward": "AWK-werd"}
 MADE: list[QWidget] = []
@@ -142,8 +142,11 @@ def test_its_own_switch_and_its_own_choice_of_words(qapp: QApplication) -> None:
     panel = ReadingLinesPanel(view, notes=True)
     MADE.append(panel)
     assert not panel.respelling_over.isEnabled()
+    assert panel.reading_size.isEnabled() and panel.reading_over.isEnabled()
     panel.english.click()
     assert view.value.reading_lines == ("en",)
+    assert panel.respelling_over.isEnabled() and panel.reading_over.isEnabled()
+    panel.japanese.choose(JapaneseReading.OFF)
     # the scripts' "Readings over" isn't English's
     assert panel.respelling_over.isEnabled() and not panel.reading_over.isEnabled()
     assert panel.reading_size.isEnabled()

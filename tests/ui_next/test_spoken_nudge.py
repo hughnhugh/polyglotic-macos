@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from dataclasses import replace
 
 import pytest
-from PySide6.QtCore import QEvent, QObject
+from PySide6.QtCore import QEvent, QObject, QPointF, QRectF
 from PySide6.QtWidgets import QApplication
 from tests.ui_next.made_up import finished_updates
 
@@ -297,6 +297,32 @@ def test_the_question_never_covers_a_caption(windows: CaptionWindows) -> None:
     foot = nudge.geometry().bottom()
     assert window.canvas.placed, "nothing drawn"
     drawn_rows = 0
+
+    def assert_ink_clears(*overlays: QRectF) -> int:
+        glyphs = 0
+        visible = QRectF(
+            0,
+            window.canvas.clear_top,
+            window.canvas.width(),
+            window.canvas.height() - window.canvas.clear_top,
+        )
+        for _, laid, placed in window.canvas.placed:
+            for row in laid.rows:
+                origin = QPointF(placed.left(), placed.top() + row.top)
+                for run in row.layout.glyphRuns():
+                    raw = run.rawFont()
+                    for glyph, position in zip(
+                        run.glyphIndexes(), run.positions(), strict=True
+                    ):
+                        path = raw.pathForGlyph(glyph)
+                        path.translate(origin + position)
+                        bounds = path.boundingRect()
+                        if bounds.isEmpty() or not visible.contains(bounds):
+                            continue
+                        glyphs += 1
+                        assert not any(path.intersects(overlay) for overlay in overlays)
+        return glyphs
+
     for _, laid, rect in window.canvas.placed:
         for row in laid.rows:
             row_top = rect.top() + row.top
@@ -305,9 +331,20 @@ def test_the_question_never_covers_a_caption(windows: CaptionWindows) -> None:
                 drawn_rows += 1
                 assert row_top > foot, (row_top, foot)
     assert drawn_rows, "every row hidden"
+    assert assert_ink_clears(QRectF(nudge.geometry()), QRectF(window.pace.geometry()))
+    asked_rows = drawn_rows
     nudge.no.click()  # answered: the rows come back up
     window.canvas.grab()
     assert window.canvas.clear_top < foot
+    returned_rows = sum(
+        row.layout.lineCount()
+        for _, laid, rect in window.canvas.placed
+        for row in laid.rows
+        if rect.top() + row.top + row.layout.boundingRect().height()
+        > window.canvas.clear_top
+    )
+    assert returned_rows >= asked_rows
+    assert assert_ink_clears(QRectF(window.pace.geometry()))
 
 
 def test_unanswered_it_goes_by_itself_and_is_not_asked_again_this_run(

@@ -11,9 +11,10 @@ from unittest.mock import Mock
 import pytest
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QApplication, QDialog, QWidget
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QWidget
 from tests.ui.fakes import FakeAppList, MemorySettingsStore
 
+from polyglotic_desktop.adapters.json_settings import JsonSettingsStore
 from polyglotic_desktop.connection.reconnect import StopReason
 from polyglotic_desktop.connection.session import SessionState, Status
 from polyglotic_desktop.core.listening.captions import (
@@ -42,6 +43,7 @@ from polyglotic_desktop.main import (
     once_running,
     plan_sources,
     plus_is_back,
+    queue_call_notice,
     start_notice,
     wire_continuation_refresh,
 )
@@ -54,7 +56,7 @@ from polyglotic_desktop.ports.capture import (
 )
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.recorded_captions import clause, finished
-from polyglotic_desktop.ui.settings import AppSettings
+from polyglotic_desktop.ui.settings import AppSettings, Settings
 from polyglotic_desktop.ui_next.views.plan import PlanLine, PlanWords
 
 BROWSER = PlayingApp(20, "Web Browser", True, SourceCategory.BROWSER)
@@ -340,7 +342,7 @@ def test_minutes_and_notices_reach_home_on_the_qt_thread(qapp: QApplication) -> 
     assert minutes == [] and notices == []  # not yet
     QApplication.processEvents()
     assert minutes == [(42.5, None)]
-    assert len(notices) == 1 and "speech model is starting" in notices[0]
+    assert len(notices) == 1 and "Captioning is starting" in notices[0]
     desktop.close()
 
 
@@ -840,3 +842,81 @@ def test_invalidated_display_group_refreshes_only_its_later_audio(
     finally:
         desktop.close()
         desktop.deleteLater()
+
+
+def test_call_capture_starts_before_the_notice_and_remembers_each_app(
+    qapp: QApplication, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    call = PlayingApp(40, "Another Call App", True, SourceCategory.CALL)
+    path = tmp_path / "settings.json"
+    parent = QWidget()
+    opened: list[tuple[str, ...]] = []
+
+    def opened_after_recording(box: QMessageBox) -> None:
+        opened.append(settings.value.call_notices_shown)
+        original_open(box)
+
+    def blocking(_box: QMessageBox) -> None:
+        pytest.fail("The call notice blocked capture")
+
+    original_open = QMessageBox.open
+    monkeypatch.setattr(QMessageBox, "open", opened_after_recording)
+    monkeypatch.setattr(QMessageBox, "exec", blocking)
+
+    def follow(settings: Settings, app: PlayingApp) -> Sources:
+        pipeline = FakePipeline()
+        sources = Sources(
+            pipeline,  # type: ignore[arg-type]
+            ChangingAppList(app),
+            True,
+            lambda pid, name: FakeCapture(f"app {pid}"),
+            lambda: FakeCapture("system"),
+            lambda: FakeCapture("mic"),
+            everything_else_capture=lambda pid: FakeCapture(f"all but {pid}"),
+            on_call=lambda name: queue_call_notice(settings, parent, name),
+        )
+        sources.follow(replace(settings.value, whole_system=False, apps=(app.name,)))
+        assert [source.category for source in pipeline.sources] == [app.category]
+        return sources
+
+    store = JsonSettingsStore(path)
+    try:
+        settings = Settings(store)
+        settings.update(interface_language="en")
+        sources = follow(settings, CHAT)
+        assert not opened
+        qapp.processEvents()
+        assert opened == [(CHAT.name,)]
+        (notice,) = parent.findChildren(QMessageBox)
+        assert notice.isVisible()
+        assert notice.buttons()[0].text() == "Got it"
+
+        chosen = replace(settings.value, whole_system=False, apps=(CHAT.name,))
+        sources.follow(chosen)
+        sources.follow(replace(chosen, apps=()))
+        sources.follow(chosen)
+        qapp.processEvents()
+        assert opened == [(CHAT.name,)]
+        notice.buttons()[0].click()
+    finally:
+        store.close()
+        parent.deleteLater()
+        qapp.processEvents()
+
+    parent = QWidget()
+    store = JsonSettingsStore(path)
+    try:
+        settings = Settings(store)
+        assert settings.value.call_notices_shown == (CHAT.name,)
+        assert settings.value.interface_language == "en"
+        follow(settings, BROWSER)
+        follow(settings, CHAT)
+        qapp.processEvents()
+        assert opened == [(CHAT.name,)]
+        follow(settings, call)
+        qapp.processEvents()
+        assert opened == [(CHAT.name,), (CHAT.name, call.name)]
+    finally:
+        store.close()
+        parent.deleteLater()
+        qapp.processEvents()

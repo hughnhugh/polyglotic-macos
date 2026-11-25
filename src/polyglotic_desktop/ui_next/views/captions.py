@@ -50,6 +50,7 @@ from polyglotic_desktop.core.listening.display import (
 from polyglotic_desktop.core.listening.history import Caption, CaptionHistory
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
 from polyglotic_desktop.core.listening.timing import CaptionId
+from polyglotic_desktop.ports.word_breaks import WordBreaks
 from polyglotic_desktop.ports.word_classes import ClassEvidenceFor
 from polyglotic_desktop.ui_next.views.pour import matching_cuts
 from polyglotic_desktop.ui_next.views.scroll import Scroll
@@ -142,6 +143,8 @@ class Line:
     line by line (`CaptionLines.set_cuts`); empty otherwise."""
     link_context: Caption | None = None
     """The caption with the same endpoint classes used for marks and lookup."""
+    has_pace: bool = False
+    """This caption has a pace reading in its heading."""
 
 
 @dataclass(frozen=True)
@@ -171,6 +174,13 @@ class Labels:
     after `NAMED_AGAIN_SEC`, not over every caption (Steady's cards, each a
     line: decision 0260)."""
     respoken: str = ""
+    show_time: bool = False
+    """Caption panels use a local time and announce a source only on change."""
+    pace: Callable[[int], str] | None = None
+    show_info: bool = True
+    """When False, hides the entire header line above each caption."""
+    own_source: SourceId | None = None
+    """The window's own source: left out of caption headers (the title bar names it)."""
 
     def of(
         self,
@@ -180,27 +190,38 @@ class Labels:
     ) -> tuple[str, str]:
         """The label's text and colour for `caption`; `took`: its delay, if
         known; `before`: the caption above it, if any."""
+        if not self.show_info:
+            return "", ""
         parts = []
         color = ""
         source = self.sources.get(caption.source_id)
         if source is None and caption.by_you:
             source = self.you
         again = True
-        if self.language_once and self.source_once and before is not None:
-            gap = (caption.started_at - before.started_at).total_seconds()
-            again = before.source_id != caption.source_id or gap > NAMED_AGAIN_SEC
+        if before is not None:
+            if self.show_time:
+                again = before.source_id != caption.source_id
+            elif self.language_once and self.source_once:
+                gap = (caption.started_at - before.started_at).total_seconds()
+                again = before.source_id != caption.source_id or gap > NAMED_AGAIN_SEC
         marked = caption.respoken and bool(self.respoken)
+        own = (
+            self.own_source is not None
+            and caption.source_id == self.own_source
+            and not caption.by_you
+        )
         if source is not None and (self.show_source or caption.by_you or marked):
-            if again or marked:  # a re-spoken caption always says whose it is
+            if not own and (again or (marked and not self.show_time)):
                 parts.append(source.name)
-            color = source.color
+            if not own or marked:
+                color = source.color
         if marked:
             parts.append(self.respoken)
         heard = caption.languages_heard or (
             (caption.language,) if caption.language else ()
         )
         named = self.show_language and heard and self.spoken is not None
-        if named and self.language_once and before is not None:
+        if named and self.language_once and not self.show_time and before is not None:
             was = before.languages_heard or (
                 (before.language,) if before.language else ()
             )
@@ -208,8 +229,16 @@ class Labels:
             named = heard != was or gap > NAMED_AGAIN_SEC
         if named and self.spoken is not None:
             parts.append(self.spoken(heard))
+        pace = None if self.pace is None else caption.pace_wpm
+        show_time = self.show_time or pace is not None
+        if show_time:
+            parts.append(caption.started_at.astimezone().strftime("%H:%M"))
+        if self.pace is not None and pace is not None:
+            parts.append(self.pace(pace))
         if self.delay is not None and took is not None:
             parts.append(self.delay(took))
+        if show_time:
+            return " · ".join(parts), "" if self.show_time else color
         return "  ".join(parts), color
 
 
@@ -280,8 +309,10 @@ class CaptionLines:
         )
         self._text_size = _clamped(text_size, sizes)
         self._lines: tuple[Line, ...] = ()
-        self._built: dict[int, tuple[Caption, Line]] = {}
+        self._built: dict[int, tuple[Caption, Line, SourceId | None]] = {}
+        """Caption, projected line and the source immediately above it."""
         self._delays: dict[CaptionId, CaptionDelay] = {}
+        self.word_breaks: WordBreaks | None = None
         """How long each caption's latest update took to show - its own
         speech's only (`CaptionUpdate.times`); the newest `DELAYS_KEPT`."""
         self._history_version = self._history.version
@@ -448,38 +479,52 @@ class CaptionLines:
         reused while the caption is the same version (and, unless
         `everything`, the language and options are unchanged). False if no
         line changed (a live update, where only finished captions show)."""
-        built: dict[int, tuple[Caption, Line]] = {}
+        built: dict[int, tuple[Caption, Line, SourceId | None]] = {}
         lines = []
         above: Caption | None = None
+        labels = self._display.labels
         for caption in self._history.captions:
             if self._finished_only and caption.live:
                 continue
             found = None if everything else self._built.get(caption.key)
-            if found is not None and found[0] is caption and not reclassify:
-                line = found[1]
-            else:
-                line = self._line(caption)
-            if self._display.labels.language_once:
-                # its label follows from the caption above: found each time
-                was = self._built.get(caption.key)
+            above_source = above.source_id if above is not None else None
+            line = (
+                found[1]
+                if found is not None and found[0] is caption and not reclassify
+                else None
+            )
+            if (
+                line is not None
+                and found is not None
+                and labels.show_time
+                and labels.delay is None
+                and found[2] == above_source
+            ):
+                built[caption.key] = found
+                lines.append(line)
+                above = caption
+                continue
+            if line is None or labels.language_once or labels.show_time:
                 if (
-                    was is not None
-                    and self._display.labels.source_once
-                    and not everything
+                    found is not None
+                    and labels.language_once
+                    and labels.source_once
+                    and not labels.show_time
                 ):
-                    # a card's label never comes or goes: the line above it
-                    # leaving the list doesn't name it again (552)
-                    label = (was[1].label, was[1].label_color)
+                    # A card keeps its label when the line above leaves (552).
+                    label = (found[1].label, found[1].label_color)
                 else:
-                    label = self._display.labels.of(
+                    label = labels.of(
                         caption, self._delays.get(caption.caption_id), above
                     )
-                if (line.label, line.label_color) != label:
+                if line is None:
+                    line = self._line(caption, *label)
+                elif (line.label, line.label_color) != label:
                     line = replace(line, label=label[0], label_color=label[1])
             if reclassify and found is not None and line == found[1]:
                 line = found[1]
             above = caption
-            built[caption.key] = (caption, line)
+            built[caption.key] = (caption, line, above_source)
             lines.append(line)
         self._modelled = (self._display.target, self._display.second)
         self._history_version = self._history.version
@@ -491,7 +536,7 @@ class CaptionLines:
         self.revision += 1
         return True
 
-    def _line(self, caption: Caption) -> Line:
+    def _line(self, caption: Caption, label: str, color: str) -> Line:
         display = self._display
         contextual = (
             with_link_classes(
@@ -519,8 +564,13 @@ class CaptionLines:
             ):
                 model = old  # the same caption: a label or an option changed
             else:
-                model = caption_model(contextual, display.target, display.second, old)
-        label, color = display.labels.of(caption, self._delays.get(caption.caption_id))
+                model = caption_model(
+                    contextual,
+                    display.target,
+                    display.second,
+                    old,
+                    self.word_breaks,
+                )
         return Line(
             key=caption.key,
             source=caption.source_id,
@@ -539,6 +589,11 @@ class CaptionLines:
             model=model,
             cuts=_cuts(caption, rows, model) if display.cuts else (),
             link_context=contextual if contextual is not caption else None,
+            has_pace=(
+                display.labels.show_info
+                and display.labels.pace is not None
+                and caption.pace_wpm is not None
+            ),
         )
 
 

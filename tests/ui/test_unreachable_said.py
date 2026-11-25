@@ -75,17 +75,15 @@ def test_the_server_down_said_on_home_the_windows_and_the_tray(
     listener._show_status(waiting(Unreachable.DOWN))
     home = built.home.state
     # what it knows (368): can't reach it, not the learner's internet
-    assert home.title_label.text() == "Can't reach Polyglotic's server"
+    assert home.title_label.text() == "Can't connect to Polyglotic"
     assert home.detail.text() == (
-        "not your internet - the problem is ours. Captions come back by "
-        "themselves · trying again in 6 s"
+        "the problem is with Polyglotic. Captions resume "
+        "automatically · trying again in 6 s"
     )
     window = windows.windows["Web Browser"]
     window._tick()
-    assert window.notice.text() == (
-        "Can't reach Polyglotic's server - trying again in 6 s"
-    )
-    assert desktop.state_title == "Can't reach Polyglotic's server"  # the tray's
+    assert window.notice.text() == ("Can't connect to Polyglotic - trying again in 6 s")
+    assert desktop.state_title == "Can't connect to Polyglotic"  # the tray's
     assert home.notice.isHidden()  # the banner's order is untouched (208)
     # the site's status page, from outside the app (540, 563)
     assert home.status_page.isVisibleTo(built.home)
@@ -93,7 +91,7 @@ def test_the_server_down_said_on_home_the_windows_and_the_tray(
     assert home.status_page.property("url") == "https://polyglotic.io/status/"
     # each try keeps the reason, as "Reconnecting" was kept (133)
     listener._show_status(Status(SessionState.CONNECTING))
-    assert home.title_label.text() == "Can't reach Polyglotic's server"
+    assert home.title_label.text() == "Can't connect to Polyglotic"
     assert desktop.unreachable is Unreachable.DOWN
     # back: listening, and nothing more about it
     listener._show_status(Status(SessionState.LISTENING))
@@ -111,9 +109,9 @@ def test_no_internet_says_to_check_it_and_that_it_may_be_us(
     desktop, _, built = hub
     QtListener(desktop, None)._show_status(waiting(Unreachable.NO_ANSWER, 20.0))
     home = built.home.state
-    assert home.title_label.text() == "Can't reach Polyglotic's server"
+    assert home.title_label.text() == "Can't connect to Polyglotic"
     assert home.detail.text() == (
-        "check your internet; if it's working, we're probably down · "
+        "check your internet connection. If it works, Polyglotic may be down · "
         "trying again in 20 s"
     )
 
@@ -214,11 +212,13 @@ def test_a_clock_that_looks_wrong_is_on_homes_banner_while_captions_work(
 def test_a_restart_on_the_state_line_takes_the_banners_place(
     hub: tuple[DesktopApp, CaptionWindows, Hub],
 ) -> None:
-    """The banner said "The server is restarting" for two minutes while the
+    """The banner said "Polyglotic's server is restarting" for two minutes while the
     state line said "Reconnecting"; now the state line says it, once."""
     desktop, _, built = hub
     desktop.show_notice("server_restarting")
-    assert built.home.state.notice.text().startswith("The server is restarting")
+    assert built.home.state.notice.text().startswith(
+        "Polyglotic's server is restarting"
+    )
     QtListener(desktop, None)._show_status(waiting(Unreachable.RESTARTING))
     assert built.home.state.title_label.text() == "Polyglotic's server is restarting"
     assert built.home.state.notice.isHidden()
@@ -272,6 +272,36 @@ def test_every_reason_has_its_title_tone_and_countdown(
     assert notice_text(notice, None)
 
 
+def test_server_error_is_distinct_from_offline_and_no_response() -> None:
+    """A server error is a response, not evidence that the device is offline
+    or that the server could not be reached."""
+    cases = (
+        (
+            Unreachable.OFFLINE,
+            "Can't connect to Polyglotic",
+            "Offline - trying again in 8 s",
+        ),
+        (
+            Unreachable.NO_ANSWER,
+            "Can't connect to Polyglotic",
+            "Can't connect to Polyglotic - trying again in 8 s",
+        ),
+        (
+            Unreachable.SERVER_ERROR,
+            "Polyglotic's server reported an error",
+            "Polyglotic's server reported an error - trying again in 8 s",
+        ),
+    )
+    for why, home_title, window_text in cases:
+        state = HomeState(
+            ListeningState.WAITING, retry_at=108.0, chosen=True, unreachable=why
+        )
+        assert home_page._TITLES[state_line(state, 100.0).title]() == home_title
+        notice = window_notice(ConnectionState.WAITING, why)
+        assert notice is not None
+        assert notice_text(notice, 8) == window_text
+
+
 def test_too_many_sessions_says_what_to_do_not_reconnecting(
     hub: tuple[DesktopApp, CaptionWindows, Hub],
 ) -> None:
@@ -323,9 +353,9 @@ def test_helps_check_says_why_in_homes_words(
     page = HelpPage(desktop.caption_facts)
     page.refresh()
     assert page.marks[Step.CONNECTED].text() == "✗"
-    assert page.rows[Step.CONNECTED].text() == "Can't reach Polyglotic's server"
+    assert page.rows[Step.CONNECTED].text() == "Can't connect to Polyglotic"
     assert page.fixes[Step.CONNECTED].text() == (
-        "Check your internet; if it's working, we're probably down."
+        "Check your internet connection. If it works, Polyglotic may be down."
     )
     assert page.links[0].problem is Problem.SERVER_UNREACHABLE
     page.close()

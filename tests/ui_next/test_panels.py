@@ -92,7 +92,7 @@ def test_this_window_only_in_a_transcripts_rail(qapp: QApplication) -> None:
     sections = [
         s.text() for s in panel.findChildren(QLabel) if s.objectName() == "SectionLabel"
     ]
-    assert sections == ["THIS WINDOW - DISCORD", "EVERY WINDOW"]
+    assert sections == ["THIS WINDOW - DISCORD", "EVERY CAPTION WINDOW"]
     assert not [
         s
         for s in LanguagesPanel(session).findChildren(QLabel)
@@ -233,7 +233,7 @@ def test_each_timing_shows_only_its_own_settings(qapp: QApplication) -> None:
             Ahead.WAITING,
         )
         # each says what it trades; the one longest wait, for every timing
-        assert "show text sooner" in panel.live.detail.text()
+        assert "Shorter: text sooner" in panel.live.detail.text()
         assert "the same in every timing" in panel.wait_row.detail.text()
         # Live updates every offers 0.5 to 6 s and says nothing of 20 (before
         # 295: "from 0.5 to 20 seconds", with 6 s the most offered)
@@ -254,7 +254,7 @@ def test_live_updates_say_when_the_longest_wait_comes_first(
     panel.show()
     try:
         assert panel.live_note.isVisible()
-        assert panel.live_note.text().startswith("Text still updates every 3s")
+        assert panel.live_note.text().endswith("so text still comes every 3s.")
         view.set_max_wait(2.0)
         assert "every 2s" in panel.live_note.text()
         view.set_max_wait(6.0)
@@ -493,7 +493,7 @@ def test_how_long_text_may_still_change_is_chosen_beside_the_timing(
     assert panel.settle.itemText(0) == "0s"
     said = " ".join(found.text() for found in panel.settle_row.findChildren(QLabel))
     assert "fewer words change while you read" in said
-    assert "more mistakes stay as first heard" in said
+    assert "and more mistakes stay" in said
     assert not any(char.isdigit() for char in said), said
     handed.clear()
     panel.settle.setCurrentIndex(2)

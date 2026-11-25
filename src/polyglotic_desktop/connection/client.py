@@ -45,6 +45,11 @@ from polyglotic_desktop.connection.session import (
 )
 from polyglotic_desktop.core.listening.captions import CaptionKind, CaptionUpdate
 from polyglotic_desktop.core.listening.maintenance import Maintenance
+from polyglotic_desktop.core.listening.pace import (
+    PaceReading,
+    WordCount,
+    spaced_word_count,
+)
 from polyglotic_desktop.core.listening.recheck import RecheckRequest, RecheckResult
 from polyglotic_desktop.core.listening.settings import ListeningSettings
 from polyglotic_desktop.core.listening.sources import Capture
@@ -79,6 +84,7 @@ class Connection:
         milestones: Milestones | None = None,
         capture_restarts: Callable[[], int] | None = None,
         time_zone: str | None = None,
+        count_words: WordCount = spaced_word_count,
     ) -> None:
         """`listener` hears the listening session; sync sessions are this
         object's own business. `milestones`: the install's, told of the
@@ -96,6 +102,7 @@ class Connection:
         self._retry_waits = retry_waits
         self.milestones = milestones
         self._capture_restarts = capture_restarts
+        self._count_words = count_words
         self._time_zone = time_zone
         self._lock = threading.Lock()
         self._listening: ListeningSession | None = None
@@ -160,6 +167,7 @@ class Connection:
                 maintenance=self.maintenance,
                 capture_restarts=self._capture_restarts,
                 time_zone=self._time_zone,
+                count_words=self._count_words,
             )
             listener.session = session
             session.preset_usage = dict(preset or {})
@@ -198,12 +206,22 @@ class Connection:
             daemon=True,
         ).start()
 
+    def speaking_pace(self) -> None:
+        """Publish pace for the open listening session's shared UI timer."""
+        with self._lock:
+            session = self._listening
+        if session is not None:
+            session.speaking_pace()
+
     def _finish_listening(self, session: ListeningSession) -> None:
         try:
             session.stop()
             self._hand_on(session)
             summary = session.ended()
             if summary is not None:
+                session_ended = getattr(self._listener, "session_ended", None)
+                if session_ended is not None:
+                    session_ended(summary)
                 properties = listening.session_ended(summary, self._app.platform)
                 properties.update(session.preset_usage)  # optional (556)
                 self._exchange.usage(
@@ -481,8 +499,22 @@ class _ListeningListener:
             milestones.caption_shown()
         self._listener.caption_updated(update)
 
+    def respoken(self, caption_id: CaptionId) -> bool:
+        """Preserve the app-local learner identity through this proxy."""
+        is_respoken = getattr(self._listener, "respoken", None)
+        return bool(is_respoken is not None and is_respoken(caption_id))
+
     def pace_changed(self, live_interval_min: float | None) -> None:
         self._listener.pace_changed(live_interval_min)
+
+    def speaking_pace(
+        self,
+        pace: tuple[dict[str, PaceReading], dict[str, PaceReading]],
+    ) -> None:
+        """Carry the measured pace through the listening-session proxy."""
+        listener = getattr(self._listener, "speaking_pace", None)
+        if listener is not None:
+            listener(pace)
 
     def minutes_changed(self, used: float, left: float | None) -> None:
         self._listener.minutes_changed(used, left)

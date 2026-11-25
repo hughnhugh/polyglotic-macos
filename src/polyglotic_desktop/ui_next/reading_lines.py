@@ -31,7 +31,7 @@ Holds caption text's sound in what it lays out: never log it.
 """
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol, cast
 
 from PySide6.QtCore import QPointF
@@ -54,7 +54,11 @@ from polyglotic_desktop.core.lexicon.jyutping import JyutpingReader
 from polyglotic_desktop.core.lexicon.korean import KoreanReader
 from polyglotic_desktop.core.lexicon.readings import Reading, Readings
 from polyglotic_desktop.core.lexicon.stress import StressReader
-from polyglotic_desktop.core.listening.display import READING_LANGUAGES, ReadingSize
+from polyglotic_desktop.core.listening.display import (
+    READING_LANGUAGES,
+    JapaneseReading,
+    ReadingSize,
+)
 from polyglotic_desktop.core.shared import EntryFacts
 from polyglotic_desktop.ui_next import caption_faces, fonts
 from polyglotic_desktop.ui_next.views.lookup import Learner
@@ -72,8 +76,9 @@ PAD = 0.3
 WORD_GAP = 0.45
 """More room after a word's last reading, the same way."""
 LIFT = 0.05
-"""How far a reading sits above its text's line box, as a share of its
-text size: a CJK font's own room above its glyphs is nearly enough."""
+"""Gap from the text line box, as a share of the reading's pixel size."""
+BELOW_SCALE = 0.9
+"""The secondary reading's size relative to the primary reading (0 to 1)."""
 ALPHA = 0.92
 """A reading is drawn this much fainter than its text: the text leads."""
 KANA_REACH = 0.5
@@ -108,7 +113,10 @@ def language_of(language: str | None) -> str | None:
 
 
 def source_of(
-    learner: Learner, past: bool = False, respelling_past: bool = True
+    learner: Learner,
+    past: bool = False,
+    respelling_past: bool = True,
+    japanese: JapaneseReading = JapaneseReading.KANA,
 ) -> Readings:
     """Where a caption window's readings come from: pinyin from the
     Chinese dictionary on this PC (a learner's, `Learner.of`), Jyutping
@@ -133,23 +141,38 @@ def source_of(
             return None
         if not dictionary.ready:
             return None
-        found = dictionary.readings(text)
+        found: Sequence[Reading]
+        if isinstance(dictionary, FuriganaReader) and japanese is JapaneseReading.BOTH:
+            found = [
+                *dictionary.readings(text),
+                *(
+                    replace(reading, below=True)
+                    for reading in dictionary.romaji_readings(text)
+                ),
+            ]
+        elif (
+            isinstance(dictionary, FuriganaReader)
+            and japanese is JapaneseReading.ROMAJI
+        ):
+            found = dictionary.romaji_readings(text)
+        else:
+            found = dictionary.readings(text)
         only = respelling_past if language_of(language) == "en" else past
         return past_only(learner, text, language, found) if only and found else found
 
     return read
 
 
-def sources(learner: Learner) -> Callable[[bool, bool], Readings]:
+def sources(learner: Learner) -> Callable[[bool, bool, JapaneseReading], Readings]:
     """A window's sources of readings by how their words are chosen - the
     scripts' readings past what the learner knows or over every word, and
     English's respelling the same way (`source_of`) - each made once."""
-    made: dict[tuple[bool, bool], Readings] = {}
+    made: dict[tuple[bool, bool, JapaneseReading], Readings] = {}
 
-    def of(past: bool, respelling_past: bool) -> Readings:
-        key = (past, respelling_past)
+    def of(past: bool, respelling_past: bool, japanese: JapaneseReading) -> Readings:
+        key = (past, respelling_past, japanese)
         if key not in made:
-            made[key] = source_of(learner, past, respelling_past)
+            made[key] = source_of(learner, past, respelling_past, japanese)
         return made[key]
 
     return of
@@ -285,12 +308,18 @@ class Ruby:
     widths: tuple[float, ...]
     base: tuple[float, ...]
     drop: float
-    """How far above a line's top a reading's baseline is."""
+    """Baseline distance from the line's top (above) or bottom (below)."""
     spacing: tuple[tuple[int, int, float], ...]
     """The room as Qt is given it (`rooms`): Qt's index of a character,
     its length there, and the room after it."""
     text_font: QFont
     """The text's own font: a mark (`Reading.mark`) is drawn in it."""
+    below: "Ruby | None" = None
+    """A secondary reading measured for the same text, drawn underneath."""
+
+    @property
+    def below_band(self) -> float:
+        return self.below.band if self.below is not None else 0.0
 
     def room(self, start: int, end: int) -> float:
         return sum(self.before[start:end]) + sum(self.after[start:end])
@@ -342,19 +371,31 @@ def reading_font(
     if single.intersection(small.families()):
         small.setFamilies([f for f in small.families() if f not in single])
     families = small.families()
-    if not families or caption_faces.has_weight(families[0], int(weight.value)):
+    first = next(
+        (family for family in families if caption_faces.has_family(family)),
+        families[0] if families else "",
+    )
+    if not first or caption_faces.has_weight(first, int(weight.value)):
         small.setWeight(weight)
     return small
 
 
-def band_height(font: QFont) -> float:
-    """The height above the text for this reading font, even before words arrive."""
-    metrics = QFontMetricsF(font)
-    return metrics.ascent() + _drop(font, metrics)
+def below_font(font: QFont, share: float) -> QFont:
+    return reading_font(font, share * BELOW_SCALE, QFont.Weight.Normal)
 
 
-def _drop(font: QFont, metrics: QFontMetricsF) -> float:
-    return metrics.descent() * 0.6 + LIFT * font.pixelSize()
+def band_height(font: QFont, *, below: bool = False) -> float:
+    """Height reserved for a reading font, including its gap from the text."""
+    return _band(font, QFontMetricsF(font), below)[0]
+
+
+def _band(font: QFont, metrics: QFontMetricsF, below: bool) -> tuple[float, float]:
+    """Reserved height and distance from the base text to the reading baseline."""
+    gap = LIFT * font.pixelSize()
+    if below:
+        return metrics.height() + gap, metrics.ascent() + gap
+    drop = metrics.descent() * 0.6 + gap
+    return metrics.ascent() + drop, drop
 
 
 def ruby(
@@ -378,7 +419,34 @@ def ruby(
 
     A mark (`Reading.mark`) takes no room and is measured in `font`;
     `band` False: no band - a language whose readings are all marks."""
-    small = reading_font(font, share, weight)
+    below = [r for r in readings if r.below]
+    above = [r for r in readings if not r.below] if below else readings
+    primary = _measure_ruby(text, above, font, reading_font(font, share, weight), band)
+    if not below:
+        return primary
+    secondary = _measure_ruby(
+        text, below, font, below_font(font, share), True, below=True
+    )
+    before = tuple(map(max, primary.before, secondary.before))
+    after = tuple(map(max, primary.after, secondary.after))
+    return replace(
+        primary,
+        before=before,
+        after=after,
+        spacing=_spacing(text, before, after),
+        below=secondary,
+    )
+
+
+def _measure_ruby(
+    text: str,
+    readings: Sequence[Reading],
+    font: QFont,
+    small: QFont,
+    band: bool,
+    *,
+    below: bool = False,
+) -> Ruby:
     px = small.pixelSize()
     (kept, metrics), (base_kept, base_metrics) = _measure(small), _measure(font)
     count = len(text)
@@ -417,7 +485,25 @@ def ruby(
         if reading.ends_word:
             room += WORD_GAP * px
         after[last] = max(0.0, room - before[reading.end])
-    drop = _drop(small, metrics)
+    height, drop = _band(small, metrics, below)
+    return Ruby(
+        tuple(readings),
+        tuple(before),
+        tuple(after),
+        height if band else 0.0,
+        small,
+        tuple(widths),
+        tuple(base),
+        drop,
+        _spacing(text, before, after),
+        QFont(font),
+    )
+
+
+def _spacing(
+    text: str, before: Sequence[float], after: Sequence[float]
+) -> tuple[tuple[int, int, float], ...]:
+    count = len(text)
     spacing = []
     plain = text.isascii() or all(ord(char) <= 0xFFFF for char in text)
     for n in range(count):
@@ -430,18 +516,7 @@ def ruby(
                     room,
                 )
             )
-    return Ruby(
-        tuple(readings),
-        tuple(before),
-        tuple(after),
-        metrics.ascent() + drop if band else 0.0,
-        small,
-        tuple(widths),
-        tuple(base),
-        drop,
-        tuple(spacing),
-        QFont(font),
-    )
+    return tuple(spacing)
 
 
 def _is_kana(char: str) -> bool:
@@ -517,8 +592,7 @@ class Placed:
 
 
 def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]:
-    """Where each reading is drawn over `layout` (laid out): centred on
-    its characters, above their line."""
+    """Centre each reading on its characters on the measured side of the line."""
     found = []
     plain = text.isascii() or all(ord(char) <= 0xFFFF for char in text)
     line = None
@@ -534,7 +608,11 @@ def placed(layout: QTextLayout, text: str, readings: Ruby) -> tuple[Placed, ...]
                 line = None
                 continue
             last = line.textStart() + line.textLength()
-            y = line.y() - readings.drop
+            y = (
+                line.y() + line.height() + readings.drop
+                if reading.below
+                else line.y() - readings.drop
+            )
         at: object = line.cursorToX(unit)  # (x, index) in PySide6
         x = at[0] if isinstance(at, tuple) else cast(float, at)
         if reading.mark:  # at the text's baseline, as an accent on the letter

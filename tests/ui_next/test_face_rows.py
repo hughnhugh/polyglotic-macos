@@ -14,6 +14,7 @@ from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import CaptionRow, RowKind
 from polyglotic_desktop.main import caption_look, look_settings
 from polyglotic_desktop.ui.settings import AppSettings
+from polyglotic_desktop.ui_next import fonts
 from polyglotic_desktop.ui_next.caption_layout import CaptionLayout, CaptionStyle
 from polyglotic_desktop.ui_next.caption_window import caption_style
 from polyglotic_desktop.ui_next.face_rows import FaceBox, FacesPanel
@@ -95,10 +96,9 @@ def test_a_rows_face_draws_that_languages_captions(qapp: QApplication) -> None:
         CaptionLook(font="Georgia", faces=(("zh", "KaiTi"), ("th", "")))
     )
     engine = CaptionLayout(style)
-    assert engine._font(row("我们", "zh"), 1.0, False).families()[:3] == [
+    assert engine._font(row("我们", "zh"), 1.0, False).families()[:2] == [
         "KaiTi",
-        "Ma Shan Zheng Captions",
-        "Noto Sans SC Captions",
+        fonts.default_family("zh"),
     ]
     assert (
         engine._font(row("สวัสดี", "th"), 1.0, False).families()[0]
@@ -145,12 +145,19 @@ def test_a_rows_list_is_grouped_and_its_default_marked(
     ]
     assert headings[0] == "Sans"
     assert headings[-1] == pc_or_mac("Any font on this PC", "Any font on this Mac")
-    # the calligraphy under a heading of its own, the default (532)
+    # the calligraphy stays under its own heading as a choice; this OS's plain
+    # face is the default (952)
     at = headings.index("Calligraphy")
-    assert headings[at + 1] == pc_or_mac("This PC's own", "This Mac's own")
+    own_heading = pc_or_mac("This PC's own", "This Mac's own")
+    assert headings[at + 1] == own_heading
     calligraphy = box.findText("Calligraphy")
-    assert box.itemText(calligraphy + 1) == "Ma Shan Zheng (Default)"
-    assert box.currentText() == "Ma Shan Zheng (Default)"
+    assert box.itemText(calligraphy + 1) == "Ma Shan Zheng"
+    assert box.itemData(calligraphy + 1) == "Ma Shan Zheng Captions"
+    default_label = f"{fonts.default_family('zh')} (Default)"
+    own_at = box.findText(own_heading)
+    assert box.itemText(own_at + 1) == default_label
+    assert box.itemData(own_at + 1) == ""
+    assert box.currentText() == default_label
 
 
 def test_picking_a_face_sets_that_language_only(
@@ -221,11 +228,10 @@ def test_a_download_under_way_shows_under_its_row(qapp: QApplication) -> None:
     languages = LanguagesView(
         SessionLanguages(spoken="zh", in_use=("en",), mandarin_script="traditional")
     )
-    faces = FacesPanel(LookView(CaptionLook()), languages, downloads)
+    look = LookView(CaptionLook(faces=(("zh-hant", "LXGW WenKai TC Captions"),)))
+    faces = FacesPanel(look, languages, downloads)
     try:
-        row = faces.face_rows[
-            "zh-hant"
-        ]  # its default comes as a download (532: LXGW WenKai TC)
+        row = faces.face_rows["zh-hant"]  # chosen downloaded face (LXGW WenKai TC)
         assert not row.status.isHidden()
         assert row.words.text() == "Downloading LXGW WenKai TC: 1.0 of 3.1 MB"
         assert row.bar.share == pytest.approx(1_000_000 / 3_120_000)

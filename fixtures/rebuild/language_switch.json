@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "name": "language_switch",
+  "covers": [
+    "B-G1"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "lang1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "再见。",
+            "translations": {
+              "en": "Goodbye."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "lang2",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "en",
+        "languages_heard": [
+          "en"
+        ],
+        "clauses": [
+          {
+            "original": "See you.",
+            "translations": {
+              "zh": "回头见。"
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "lang1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "再见。",
+                "translation": "Goodbye.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "再",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "见。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "lang1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "再见。",
+                "translation": "Goodbye.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "再",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "见。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 2,
+            "caption_id": "lang2",
+            "source_id": "speaker-a",
+            "language": "en",
+            "final": true,
+            "clauses": [
+              {
+                "original": "See you.",
+                "translation": null,
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      3
+                    ],
+                    "after": 4,
+                    "text": "See",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      4,
+                      8
+                    ],
+                    "after": 8,
+                    "text": "you.",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

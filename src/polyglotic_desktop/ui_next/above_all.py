@@ -26,8 +26,9 @@ needs them (polyglotic-hq 546, 547, 550).
 """
 
 import sys
+from ctypes import wintypes
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QByteArray, Qt
 from PySide6.QtWidgets import QWidget
 
 ABOVE_ALL = (
@@ -35,9 +36,42 @@ ABOVE_ALL = (
     if sys.platform.startswith("linux")
     else Qt.WindowType.Widget  # no flag
 )
+CAPTION_TASKBAR = sys.platform == "win32"
+PASSIVE_TOOL_FLAGS = (
+    Qt.WindowType.Tool
+    | Qt.WindowType.FramelessWindowHint
+    | Qt.WindowType.WindowStaysOnTopHint
+    | Qt.WindowType.WindowDoesNotAcceptFocus
+    | ABOVE_ALL
+)
+CAPTION_WINDOW_FLAGS = (
+    Qt.WindowType.Window
+    | Qt.WindowType.FramelessWindowHint
+    | Qt.WindowType.WindowStaysOnTopHint
+    | Qt.WindowType.WindowMinimizeButtonHint
+    if CAPTION_TASKBAR
+    else PASSIVE_TOOL_FLAGS
+)
 THROUGH = Qt.WindowType.WindowTransparentForInput
 POPOVERS_TAKE_THE_KEYBOARD = sys.platform.startswith("linux")
 """Whether a settings popover takes the keyboard while it's open (Linux)."""
+
+
+class CaptionTopLevel(QWidget):
+    """A Windows caption window can be activated from the shell; a mouse
+    press on the overlay leaves the app underneath active."""
+
+    def __init__(self) -> None:
+        super().__init__(None, CAPTION_WINDOW_FLAGS)
+
+    def nativeEvent(
+        self, event_type: QByteArray | bytes | bytearray | memoryview, message: int
+    ) -> object:
+        if CAPTION_TASKBAR and event_type == b"windows_generic_MSG":
+            wm_mouseactivate, ma_noactivate = 0x0021, 3  # Win32 message and result
+            if wintypes.MSG.from_address(int(message)).message == wm_mouseactivate:
+                return True, ma_noactivate
+        return super().nativeEvent(event_type, message)
 
 
 def set_click_through(widget: QWidget, through: bool, show: bool = True) -> None:
@@ -47,8 +81,11 @@ def set_click_through(widget: QWidget, through: bool, show: bool = True) -> None
     if bool(widget.windowFlags() & THROUGH) == through:
         return
     showing = widget.isVisible()
+    minimized = widget.isMinimized()
     if showing:
         widget.hide()
     widget.setWindowFlag(THROUGH, through)
+    if minimized:
+        widget.setWindowState(widget.windowState() | Qt.WindowState.WindowMinimized)
     if showing and show:
         widget.show()

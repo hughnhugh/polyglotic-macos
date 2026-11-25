@@ -3,7 +3,7 @@
 original / translation texts ... search from how they learnt it").
 
 A card in each language's section of Words, after Saved words:
-- **the search** - "Search - words in either language": a sentence with
+- **the search** - "Search saved sentences": a sentence with
   most of the query's words (each Chinese character a word) in what was
   said or its translation, best first (`Vocabulary.find_sentences`);
 - **the filters** - a category (shared with saved words), and a saved
@@ -129,9 +129,8 @@ class SavedSentences(Card):
         super().__init__(
             _tr("Saved sentences"),
             _tr(
-                "What you selected in captions and saved, with its translation. "
-                "Search in either language: a sentence with most of your words "
-                "is found."
+                "Text you selected and saved from captions, with its translation. "
+                "Search either language."
             ),
         )
         self.setObjectName("words.sentences")
@@ -140,12 +139,12 @@ class SavedSentences(Card):
         filters = Flow()
         self.search = QLineEdit()
         self.search.setObjectName("words.sentence_search")
-        self.search.setPlaceholderText(_tr("Search - words in either language"))
-        self.search.setAccessibleName(_tr("Search your sentences"))
+        self.search.setPlaceholderText(_tr("Search saved sentences"))
+        self.search.setAccessibleName(_tr("Search saved sentences"))
         self.search.setClearButtonEnabled(True)
         clear = self.search.findChild(QToolButton)
         if clear is not None:
-            clear.setAccessibleName(_tr("Clear the search"))
+            clear.setAccessibleName(_tr("Clear search"))
             clear.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self._searching = QTimer(self, singleShot=True, interval=SEARCH_AFTER_MS)
         self._searching.timeout.connect(self.refresh)
@@ -153,12 +152,12 @@ class SavedSentences(Card):
         self.category = _Filter()
         self.category.setSizeAdjustPolicy(Combo.SizeAdjustPolicy.AdjustToContents)
         self.category.setObjectName("words.sentence_category")
-        self.category.setAccessibleName(_tr("Show sentences in this category"))
+        self.category.setAccessibleName(_tr("Filter by category"))
         self.category.currentIndexChanged.connect(lambda _: self.refresh())
         self.word = _Filter()
         self.word.setSizeAdjustPolicy(Combo.SizeAdjustPolicy.AdjustToContents)
         self.word.setObjectName("words.sentence_word")
-        self.word.setAccessibleName(_tr("Show sentences with this saved word"))
+        self.word.setAccessibleName(_tr("Filter by saved word"))
         self.word.currentIndexChanged.connect(lambda _: self.refresh())
         filters.add_widget(self.search, 1)
         filters.addWidget(self.category)
@@ -183,8 +182,8 @@ class SavedSentences(Card):
         self.add(line)
         self.empty = label(
             _tr(
-                "None yet - drag across more than a word in a caption window, "
-                "then pick a category to save it."
+                "No saved sentences yet. Select several words in the caption "
+                "window, then choose a category."
             ),
             "Dim",
             wrap=True,
@@ -205,7 +204,7 @@ class SavedSentences(Card):
             ),
             (
                 self.word,
-                _tr("Any saved word"),
+                _tr("All saved words"),
                 sorted((w.headword, w.entry_id) for w in vocabulary.saved_words),
             ),
         ):

@@ -1,0 +1,13 @@
+[[flaky]]
+test = "tests/ui_next/test_reading_lines_shown.py::test_a_resize_step_with_pinyin_is_within_a_frame[lined-up]"
+machine = "gpubox-windows"
+why = "843 makes them faster"
+owner = "Claude"
+expires = 2026-12-08
+
+[[flaky]]
+test = "tests/ui_next/test_reading_colour.py::test_a_live_update_with_both_sides_coloured_is_within_a_new_captions_budget"
+machine = "gpubox-windows"
+why = "843 makes them faster"
+owner = "Claude"
+expires = 2026-12-08

@@ -171,12 +171,12 @@ def test_the_mic_button_says_whether_own_speech_is_on_or_off(
     mic = window.mic_button
     enter(mic)
     rest(window)
-    assert labels_shown() == ["Caption what I say: off"]
+    assert labels_shown() == ["Show my speech here: off"]
     leave(mic)
     window.set_show_mic(True)
     enter(mic)
     rest(window)
-    assert labels_shown() == ["Caption what I say: on"]
+    assert labels_shown() == ["Show my speech here: on"]
     leave(mic)
     enter(window.tag, x=20)
     rest(window)

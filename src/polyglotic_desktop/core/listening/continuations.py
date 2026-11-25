@@ -104,6 +104,7 @@ class CaptionGroups:
                 earlier.language,
                 earlier.languages_heard,
                 respoken=earlier.respoken,
+                pace_wpm=earlier.pace_wpm,
                 display_member=child,
             )
         return replace(

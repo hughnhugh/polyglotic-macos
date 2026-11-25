@@ -12,7 +12,7 @@ import pytest
 import shiboken6
 from PySide6.QtCore import QEvent, QObject
 from PySide6.QtWidgets import QApplication
-from tests.ui_next.made_up import finished_updates
+from tests.ui_next.made_up import arriving, finished_updates
 from tests.ui_next.test_caption_window import window_of
 from tests.ui_next.test_newest_line_brighter import _inks
 
@@ -154,15 +154,16 @@ def test_a_new_caption_step_by_step_within_its_budget(qapp: QApplication) -> Non
     look = CaptionLook(lab=CaptionLab(older_steps=6), arrival=Arrival.STEP)
     window = window_of(qapp, captions=150, look=look)
     window.canvas.repaint()
-    arriving = iter(finished_updates(40, start=150))
+    per_pass = 10
+    updates = arriving(per_pass, start=150)  # every try the judge may take
 
     def arrive() -> None:
-        window.view.apply(next(arriving))
+        window.view.apply(next(updates))
         window.apply_changed(new_caption=True)
         window.canvas.repaint()
 
     try:
-        within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * 10))
+        within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * per_pass))
     finally:
         window.close()
         window.deleteLater()

@@ -79,15 +79,17 @@ jobs:
       - name: The interface's translations (.qm)
         run: uv run --no-sync python -m tools.i18n build
 
+      # Main is the mandatory measurement run: unlike a train or manual run,
+      # it fails if the host never becomes quiet enough to enforce a budget.
       - name: Drive the states; gate the new parts' budgets
-        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab --gate
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync python -m tools.ui_lab --out build/ui-lab --gate ${{ github.ref == 'refs/heads/main' && '--require-timings' || '' }}
 
       # Windows' Text size at 200 % (simulated: the system font Qt reads),
       # polyglotic-hq 138: the checks and budgets again - nothing clipped,
       # nothing scrolling sideways - without the goldens, which are at 100 %
       - name: The same at 200 % text size
         if: ${{ !cancelled() }}
-        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/text-200 --gate --text-size 200
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync python -m tools.ui_lab --out build/ui-lab/text-200 --gate --text-size 200
 
       # The interface in every other language it's offered in (polyglotic-hq
       # 156, 176, 294): every state's code checks - text clipped at the size
@@ -103,15 +105,15 @@ jobs:
       # the checks and budgets - nothing clipped - without the goldens
       - name: The same at the app's Largest text size
         if: ${{ !cancelled() }}
-        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest --gate --app-text-size largest
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest --gate --app-text-size largest
 
       - name: The same at Largest in Simplified Chinese
         if: ${{ !cancelled() }}
-        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_CN --gate --app-text-size largest --language zh_CN
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_CN --gate --app-text-size largest --language zh_CN
 
       - name: The same at Largest in Traditional Chinese
         if: ${{ !cancelled() }}
-        run: uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_TW --gate --app-text-size largest --language zh_TW
+        run: uv run --no-sync python -m tools.ci_lock alone -- uv run --no-sync python -m tools.ui_lab --out build/ui-lab/largest-zh_TW --gate --app-text-size largest --language zh_TW
 
       # The start with a big learner (polyglotic-hq 229): main() to the
       # window with a made-up learner of 30,000 words met, on the real

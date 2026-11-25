@@ -581,7 +581,11 @@ class PackDeliveries:
         if offer is None:
             newer_app = needs_newer_app(offers, language, wanted.meanings, self.reader)
             raise PackFailed(
-                Problem.NEEDS_NEWER_APP if newer_app else Problem.NOT_OFFERED
+                Problem.NEEDS_NEWER_APP
+                if newer_app
+                else Problem.SPLIT_UNAVAILABLE
+                if any(o.language == language for o in offers)
+                else Problem.NOT_OFFERED
             )
         installed = self.folder.installed().get((offer.language, offer.meanings))
         if wanted.update and (
@@ -598,6 +602,7 @@ class PackDeliveries:
             self._progress(
                 PackProgress(language, Step.DONE, offer.gz_size, offer.gz_size)
             )
+            self._required_dictionary(wanted, offer, progress)
             self._installed(offer, installed[1])
             self._riders(wanted, offer, progress)
             return
@@ -638,6 +643,7 @@ class PackDeliveries:
             progress.tries,
             self._clock() - started,
         )
+        self._required_dictionary(wanted, offer, progress)
         self._progress(
             PackProgress(
                 language, Step.DONE, offer.gz_size, offer.gz_size, update=wanted.update
@@ -645,6 +651,38 @@ class PackDeliveries:
         )
         self._installed(offer, path)
         self._riders(wanted, offer, progress)
+
+    def _required_dictionary(
+        self, wanted: Wanted, offer: PackOffer, progress: PackProgress
+    ) -> None:
+        """Fetch Japanese's pinned Sudachi data as a required pack part."""
+        if offer.split != "japanese":
+            return
+        from polyglotic_desktop.adapters.japanese_dictionary import RIDER
+
+        path = self.folder.folder / RIDER.file
+        if path.is_file():
+            if (
+                path.stat().st_size == RIDER.size
+                and _sha256(path, lambda _n: None) == RIDER.sha256
+            ):
+                return
+            path.unlink(missing_ok=True)
+        part = self.folder.part(RIDER)
+        self._parts[wanted.language] = part
+        have = part.stat().st_size if part.is_file() else 0
+        needed = RIDER.gz_size - have + RIDER.size + ROOM_TO_SPARE
+        if self._free(self.folder.folder) < needed:
+            self._last[wanted.language] = replace(
+                progress, needed=needed - ROOM_TO_SPARE
+            )
+            raise PackFailed(Problem.NO_ROOM)
+        if not wanted.metered_ok and not self._go_on and self._metered():
+            raise PackFailed(Problem.METERED)
+        state = replace(progress, total=RIDER.gz_size)
+        self._download(wanted, RIDER, part, have, state)
+        unpacked = self._checked(RIDER, part, state, wanted.language)
+        os.replace(unpacked, path)
 
     def _riders(
         self, wanted: Wanted, offer: PackOffer | BuiltIn, progress: PackProgress

@@ -132,6 +132,7 @@ from polyglotic_desktop.core.listening.captions import (
 )
 from polyglotic_desktop.core.listening.display import ListeningMark
 from polyglotic_desktop.core.listening.hidden import HiddenWindows, Sight
+from polyglotic_desktop.core.listening.pace import PaceReading
 from polyglotic_desktop.core.listening.playout import (
     Ahead,
     Playout,
@@ -162,6 +163,7 @@ from polyglotic_desktop.core.shared.open_beta import UsageMeter
 from polyglotic_desktop.perf import spans, trace
 from polyglotic_desktop.ports.settings import SettingsStore
 from polyglotic_desktop.ports.system import OnTop
+from polyglotic_desktop.ports.word_breaks import WordBreaks
 from polyglotic_desktop.ports.word_classes import ClassEvidenceFor
 from polyglotic_desktop.ui_next.caption_window import (
     ACCENT,
@@ -198,6 +200,7 @@ from polyglotic_desktop.ui_next.views.caption_window import (
     Notice,
     WindowChoices,
     slowed_now,
+    stepped,
 )
 from polyglotic_desktop.ui_next.views.captions import CAPTION_TEXT_SIZES
 from polyglotic_desktop.ui_next.views.lookup import Learner
@@ -279,6 +282,7 @@ class CaptionWindows(QObject):
     """An app's key: stop captioning it (its window's close)."""
     transcript_wanted = Signal(str)
     all_settings_wanted = Signal()
+    opacity_wanted = Signal(float)
     links_wanted = Signal(bool, tuple)
     class_colours_wanted = Signal(bool)
     """A window's word links button: on or off, for every window (249, F9),
@@ -335,6 +339,7 @@ class CaptionWindows(QObject):
     preset_wanted = Signal(str)
     lines_wanted = Signal(str)
     video_lines_wanted = Signal(int)
+    long_lines_wanted = Signal(str)
     readings_wanted = Signal(bool, tuple)
     customise_wanted = Signal()
     preset_step = Signal(str)
@@ -391,6 +396,10 @@ class CaptionWindows(QObject):
         if self.pointer_watch is not None:
             self.pointer_watch.start()
         self._acting = False
+        self._window_mic_pace: dict[CaptionWindow, PaceReading] = {}
+        self._shown_pace: (
+            tuple[dict[str, PaceReading], dict[str, PaceReading]] | None
+        ) = None
         self._read: dict[str, object] = store.load() if store else {}
         """The settings file as last read, for `save_now`."""
         read = stored_windows(self._read)
@@ -467,6 +476,7 @@ class CaptionWindows(QObject):
         """A run of Chinese as words, for the playout: `main` hands it the
         learner's dictionary's word split."""
         self.playout = Playout(split=lambda run: self.word_split(run))
+        self.word_breaks: WordBreaks | None = None
         """Steady's and Calm's words, shown at the pace they were said
         (`core.listening.playout`, decision 0245): every window's."""
         self.word_clock: Callable[[], float] = perf_counter
@@ -508,9 +518,6 @@ class CaptionWindows(QObject):
         steadily, for the window's question (317)."""
         self.preset_menu = PresetMenu()
         """The presets as `main` last said: every window's chip (556)."""
-        self._preset_key: str | None = None
-        self._preset_parent: str | None = None
-        """Active preset key and built-in parent for per-preset default sizes (655)."""
         self.subtitles: tuple[float, float] | None = None
         """Video's subtitles' text size and width share while they're on
         (`set_subtitles`, 556); None: each window where the learner put it."""
@@ -582,7 +589,7 @@ class CaptionWindows(QObject):
             source,
             choices,
             label,
-            self.look,
+            replace(self.look, opacity=choices.opacity),
             index,
             self.mic,
             self._areas,
@@ -591,6 +598,7 @@ class CaptionWindows(QObject):
             card=self.card,
         )
         window.view.class_evidence = self.class_evidence
+        window.view.word_breaks = self.word_breaks
         if self._panel_cursor is not None:
             window.resize_hint = PanelResizeCursor(window, self._panel_cursor)
         window.two_zones = self.two_zones
@@ -608,6 +616,8 @@ class CaptionWindows(QObject):
         window.set_paused(self.paused)
         window.set_minutes_used(self.minutes_used)
         window.set_failing(self.failing)
+        if self._shown_pace is not None:
+            self._set_window_pace(window, self._shown_pace)
         window.set_unstable(self.unstable)
         window.set_connection(*self.connection)
         window.set_unlock_keys(self.unlock_keys)
@@ -637,12 +647,22 @@ class CaptionWindows(QObject):
         window.language_changed.connect(self._spoken_fallbacks)
         window.language_changed.connect(self._keep_subtitle_height)
         window.language_changed.connect(self.languages_changed)
+        window.language_size_wanted.connect(
+            lambda language, size: self.set_language_size(window, language, size)
+        )
+        window.size_languages_changed.connect(
+            lambda: self._size_languages_changed(window)
+        )
+        window.set_language_sizes(choices.language_sizes)
         window.second_wanted.connect(self.second_language_wanted)
         window.mic_changed.connect(self._mic_changed)
         window.lock_wanted.connect(self.lock_wanted)
         window.unlock_wanted.connect(self.unlock_wanted)
         window.hide_wanted.connect(self.hide_wanted)
         window.all_settings_wanted.connect(self.all_settings_wanted)
+        window.opacity_wanted.connect(
+            lambda opacity: self._set_opacity(window, opacity)
+        )
         window.links_wanted.connect(self.links_wanted)
         window.class_colours_wanted.connect(self.class_colours_wanted)
         window.quiet_wanted.connect(self.quiet_wanted)
@@ -656,6 +676,7 @@ class CaptionWindows(QObject):
         window.preset_step.connect(self.preset_step)
         window.lines_wanted.connect(self.lines_wanted)
         window.video_lines_wanted.connect(self.video_lines_wanted)
+        window.long_lines_wanted.connect(self.long_lines_wanted)
         window.readings_wanted.connect(self.readings_wanted)
         window.customise_wanted.connect(self.customise_wanted)
         window.app_choices = lambda: self.app_choices(key)
@@ -681,6 +702,7 @@ class CaptionWindows(QObject):
 
     def _close(self, key: str) -> None:
         window = self.windows.pop(key)
+        self._window_mic_pace.pop(window, None)
         if window.source in self._visited:
             self._visited.remove(window.source)
         log.info("caption window %d closed: its app no longer captioned", window.index)
@@ -791,6 +813,7 @@ class CaptionWindows(QObject):
         joined.separate_wanted.connect(self.separate)
         joined.lock_wanted.connect(self.lock_wanted)
         joined.all_settings_wanted.connect(self.all_settings_wanted)
+        joined.opacity_wanted.connect(self._set_joined_opacity)
         joined.installEventFilter(self)  # a dialog blocking it (579)
         return joined
 
@@ -824,18 +847,29 @@ class CaptionWindows(QObject):
         if self.music_player(window.key):  # new windows don't start on its Detect
             last = replace(last, spoken_language=self.stored.last.spoken_language)
         self.stored.last = last
-        size_moved = before is None or (
-            before.text_size != choices.text_size
-            or before.translation_size != choices.translation_size
+        size_moved = before is None or before.language_sizes != choices.language_sizes
+        info_changed = (
+            before is None or before.show_caption_info != choices.show_caption_info
         )
-        if size_moved and self._preset_key is not None and self.subtitles is None:
-            self.stored.preset_sizes[self._preset_key] = (
-                choices.text_size,
-                choices.translation_size,
-            )
         self._save.start()
         if size_moved:
             self.sizes_changed.emit()
+        if info_changed:
+            self._keep_subtitle_height()
+
+    def _set_opacity(self, window: CaptionWindow, opacity: float) -> None:
+        """Change and save only this caption column's panel opacity."""
+        chosen = round(min(1.0, max(0.0, opacity)), 2)
+        if chosen == window.choices.opacity:
+            return
+        window.choices = replace(window.choices, opacity=chosen)
+        window.set_look(replace(self.look, opacity=chosen))
+        self._changed(window)
+
+    def _set_joined_opacity(self, opacity: float) -> None:
+        """A joined shell represents all of its columns, so its slider sets each."""
+        for window in self.windows.values():
+            self._set_opacity(window, opacity)
 
     # -- presets (polyglotic-hq 556) ------------------------------------------------------
 
@@ -911,49 +945,52 @@ class CaptionWindows(QObject):
         elif not self.original_only:
             kept.pop(window.key, None)
 
-    def set_preset_sizes(self, preset: str, parent: str | None = None) -> None:
-        """Apply per-preset default caption/translation sizes on preset switch
-        (655). Startup records the active preset without overwriting migrated
-        or saved window sizes."""
-        if self._preset_key is None:
-            self._preset_key, self._preset_parent = preset, parent
-            return
-        if preset == self._preset_key:
-            self._preset_parent = parent
-            return
-        previous = self._preset_key
-        if self.subtitles is None:
-            self.stored.preset_sizes[previous] = (
-                self.stored.last.text_size,
-                self.stored.last.translation_size,
-            )
-        self._preset_key, self._preset_parent = preset, parent
-        cap, trans = self.stored.preset_sizes.get(preset) or preset_sizes(
-            preset, parent
-        )
-        self._apply_size_pair(cap, trans)
-
-    def reset_preset_sizes(self, preset: str, parent: str | None = None) -> None:
-        """Forget saved sizes for `preset`; if active, restore its tuned defaults."""
-        self.stored.preset_sizes.pop(preset, None)
-        if preset == self._preset_key:
-            cap, trans = preset_sizes(preset, parent)
-            self._apply_size_pair(cap, trans)
+    def current_language_sizes(self) -> tuple[tuple[Language, float], ...]:
+        """The first window's current languages and their sizes for Look."""
+        ordered = self._ordered()
+        if ordered:
+            choices = ordered[0].choices
+            codes = ordered[0].size_languages()
         else:
-            self._save.start()
-
-    def _apply_size_pair(self, caption: float, translation: float) -> None:
-        for window in self.windows.values():
-            window.set_text_size(caption)
-            window.set_translation_size(translation)
-        if (
-            self.stored.last.text_size != caption
-            or self.stored.last.translation_size != translation
-        ):
-            self.stored.last = replace(
-                self.stored.last, text_size=caption, translation_size=translation
+            choices = self.stored.last
+            codes = tuple(
+                dict.fromkeys(code for code in (choices.spoken, choices.target) if code)
             )
-            self._save.start()
+        return tuple((code, choices.language_sizes.get(code, 1.0)) for code in codes)
+
+    def set_current_language_size(self, index: int, size: float) -> None:
+        pair = self.current_language_sizes()
+        if index < len(pair):
+            ordered = self._ordered()
+            if ordered:
+                self.set_language_size(ordered[0], pair[index][0], size)
+
+    def _size_languages_changed(self, window: CaptionWindow) -> None:
+        pending = self.stored.pending_spoken_sizes.get(window.key)
+        if pending is not None:
+            spoken = window.choices.spoken or window.heard_language()
+            if spoken is not None and spoken != window.choices.target:
+                del self.stored.pending_spoken_sizes[window.key]
+                if spoken not in window.choices.language_sizes:
+                    self.set_language_size(window, str(spoken), pending)
+                self._save.start()
+        self.sizes_changed.emit()
+
+    def set_language_size(
+        self, window: CaptionWindow, language: str, size: float
+    ) -> None:
+        code = Language(language)
+        low, high = CAPTION_TEXT_SIZES
+        chosen = round(min(high, max(low, size)), 2)
+        sizes = dict(window.choices.language_sizes)
+        if chosen == sizes.get(code, 1.0):
+            return
+        sizes[code] = chosen
+        window.choices = replace(window.choices, language_sizes=sizes)
+        window.set_language_sizes(sizes)
+        self._changed(window)
+        self._keep_subtitle_height(fit=True)
+        self._save.start()
         self.sizes_changed.emit()
 
     def current_size_readout(self) -> tuple[float, float]:
@@ -1136,6 +1173,9 @@ class CaptionWindows(QObject):
         return self.stored.recent_spoken
 
     def _mic_changed(self) -> None:
+        if self._shown_pace is not None:
+            for window in self.windows.values():
+                self._set_window_pace(window, self._shown_pace)
         self.languages_changed.emit()  # the mic's languages are the windows'
         self.mic_wanted.emit(self.show_mic_anywhere)
         self._sync_mic_levels()
@@ -1209,18 +1249,19 @@ class CaptionWindows(QObject):
         """Every window back at its default place - the joined window too,
         while joined - and, with the look's Reset to defaults, its caption and
         translation sizes (109's section 4, 655)."""
-        cap, trans = (
-            preset_sizes(self._preset_key, self._preset_parent)
-            if self._preset_key is not None
-            else (WindowChoices().text_size, WindowChoices().translation_size)
-        )
+        cap, trans = WindowChoices().text_size, WindowChoices().translation_size
         for window in self.windows.values():
             window.reset_position()
             if text_size:
                 window.set_text_size(cap)
                 window.set_translation_size(trans)
-        if text_size and self._preset_key is not None:
-            self.stored.preset_sizes.pop(self._preset_key, None)
+        if text_size:
+            self.stored.pending_spoken_sizes.clear()
+            for window in self.windows.values():
+                window.choices = replace(window.choices, language_sizes={})
+                window.set_language_sizes({})
+            self._save.start()
+            self.sizes_changed.emit()
         if self.joined_window is not None:
             self.joined_window.reset_position()
 
@@ -1619,17 +1660,32 @@ class CaptionWindows(QObject):
 
     def set_look(self, look: CaptionLook) -> None:
         recolour = look.background != self.look.background
+        apply_opacity = (
+            recolour
+            or look.original != self.look.original
+            or look.translation != self.look.translation
+            or look.opacity != self.look.opacity
+        )
         self.look = look
+        if self.card is not None:
+            self.card.model.japanese_reading = look.japanese_reading
         self.show_on_speech = look.show_on_speech
         if look.pause_hidden_after != self.sights.limit:
             self.sights.limit = look.pause_hidden_after
             self.tick()  # a shorter limit may be past already
         for window in self.windows.values():
-            window.set_look(look)
+            if apply_opacity and window.choices.opacity != look.opacity:
+                window.choices = replace(window.choices, opacity=look.opacity)
+                window.set_look(look)
+                self._changed(window)
+            else:
+                window.set_look(replace(look, opacity=window.choices.opacity))
         self._keep_subtitle_height()
         self.look_changed.emit()
-        if recolour and self.joined_window is not None:
-            self.joined_window.restyle()  # its controls on the new panel
+        if self.joined_window is not None:
+            self.joined_window.refresh_settings()
+            if recolour:
+                self.joined_window.restyle()  # its controls on the new panel
 
     def set_timing(self, mode: CaptionMode) -> None:
         if self.timing.paced and not mode.paced:
@@ -1674,11 +1730,6 @@ class CaptionWindows(QObject):
             window.set_text_size(size)
         if self.stored.last.text_size != size:
             self.stored.last = replace(self.stored.last, text_size=size)
-            if self._preset_key is not None and self.subtitles is None:
-                self.stored.preset_sizes[self._preset_key] = (
-                    size,
-                    self.stored.last.translation_size,
-                )
             self._save.start()
         self.sizes_changed.emit()
 
@@ -1691,11 +1742,6 @@ class CaptionWindows(QObject):
             window.set_translation_size(size)
         if self.stored.last.translation_size != size:
             self.stored.last = replace(self.stored.last, translation_size=size)
-            if self._preset_key is not None and self.subtitles is None:
-                self.stored.preset_sizes[self._preset_key] = (
-                    self.stored.last.text_size,
-                    size,
-                )
             self._save.start()
         self.sizes_changed.emit()
 
@@ -1742,6 +1788,46 @@ class CaptionWindows(QObject):
             if window.source == source and window.isVisible():
                 return window
         return None
+
+    def set_pace(
+        self,
+        pace: tuple[dict[str, PaceReading], dict[str, PaceReading]],
+    ) -> None:
+        """Show each source's measured pace only in its caption window."""
+        if self._shown_pace == pace:
+            return
+        self._shown_pace = pace
+        for window in self.windows.values():
+            self._set_window_pace(window, pace)
+
+    def _set_window_pace(
+        self,
+        window: CaptionWindow,
+        pace: tuple[dict[str, PaceReading], dict[str, PaceReading]],
+    ) -> None:
+        them, you = pace
+        empty = PaceReading(0, 0, 0.0, 0.0, 0, 0.0)
+        their_reading = them.get(str(window.source), empty)
+        # Ordinary microphone speech is visible wherever this window's My
+        # speech choice is on. Re-speaking is addressed to its source window.
+        own_reading = you.get(str(window.source), empty)
+        mic = you.get(str(self.mic)) if self.mic is not None else None
+        if mic is None:
+            self._window_mic_pace.pop(window, None)
+        elif window.choices.show_mic:
+            self._window_mic_pace[window] = mic
+            own_reading = own_reading.combined(mic)
+        elif previous := self._window_mic_pace.get(window):
+            # Keep the session average this window saw before its mic was hidden.
+            own_reading = own_reading.combined(
+                replace(previous, now=0, recent_words=0, recent_seconds=0, fade=0)
+            )
+        window.set_pace(
+            their_reading.now,
+            their_reading.mean,
+            own_reading.now,
+            own_reading.mean,
+        )
 
     def offer_respeaking(self, update: CaptionUpdate) -> None:
         """A recognition miss, before the history groups or discards the answer."""
@@ -1900,7 +1986,13 @@ class CaptionWindows(QObject):
         """Every window's text `steps` sizes bigger (or smaller), as its
         own A+ and A- do (the hotkeys': polyglotic-hq 567)."""
         for window in self.windows.values():
-            window.step_text(steps)
+            codes = window.size_languages()
+            if codes:
+                code = codes[0]
+                size = window.choices.language_sizes.get(code, 1.0)
+                self.set_language_size(
+                    window, str(code), stepped(size, steps, CAPTION_TEXT_SIZES)
+                )
 
     def set_locked(self, locked: bool) -> None:
         at_length = locked and not self.locked and self.tell_how_to_unlock

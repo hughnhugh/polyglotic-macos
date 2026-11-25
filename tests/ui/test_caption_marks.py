@@ -311,10 +311,10 @@ def test_classified_and_unclassified_links_keep_every_endpoint(
 
 def test_a_new_caption_with_highlights_within_its_budget(qapp: QApplication) -> None:
     """Marks are worked out for a line when it's first painted: a new
-    caption, highlights and all, still within NEW_CAPTION (8 ms), timed as
+    caption, highlights and all, still within NEW_CAPTION, timed as
     the other budget tests are (`tests/budget_judge.py`)."""
     from tests.budget_judge import sampled, within
-    from tests.ui_next.made_up import finished_updates
+    from tests.ui_next.made_up import arriving, finished_updates
 
     from polyglotic_desktop.core.listening.sources import SourceLabel
     from polyglotic_desktop.perf import budgets
@@ -336,15 +336,16 @@ def test_a_new_caption_with_highlights_within_its_budget(qapp: QApplication) -> 
     window.show()
     qapp.processEvents()
     window.canvas.repaint()
-    arriving = iter(finished_updates(40, start=150))  # 10, warmed up, twice
+    per_pass = 10
+    updates = arriving(per_pass, start=150)
 
     def arrive() -> None:
-        window.view.apply(next(arriving))
+        window.view.apply(next(updates))
         window.apply_changed(new_caption=True)
         window.canvas.repaint()
 
     try:
-        within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * 10))
+        within(budgets.NEW_CAPTION, lambda: sampled(qapp, [arrive] * per_pass))
     finally:
         window.close()
 

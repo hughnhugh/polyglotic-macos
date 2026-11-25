@@ -9,11 +9,11 @@ from PySide6.QtCore import QEvent, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
-    QButtonGroup,
     QDialog,
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QSizePolicy,
     QWidget,
 )
 
@@ -151,7 +151,7 @@ def label(text: str = "", name: str | None = None, wrap: bool = False) -> QLabel
 
 class Segmented(QWidget):
     """A row of choices, one at a time - for a handful that should all
-    stay in view rather than in a dropdown."""
+    stay in view rather than in a dropdown. Each choice is a Tab stop."""
 
     changed = Signal(object)
 
@@ -167,26 +167,39 @@ class Segmented(QWidget):
         self.setAttribute(
             Qt.WidgetAttribute.WA_StyledBackground
         )  # the window's stylesheet
-        self._group = QButtonGroup(self)
-        self._group.setExclusive(True)
+        self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.buttons: list[QPushButton] = []
         for i, (_, text) in enumerate(options):
             button = QPushButton(text)
             button.setCheckable(True)
+            button.setAutoDefault(False)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            self._group.addButton(button, i)
+            button.clicked.connect(lambda _=False, index=i: self._clicked(index))
+            self.buttons.append(button)
             row.addWidget(button)
         self.set_value(value)
-        self._group.idClicked.connect(lambda i: self.changed.emit(self._values[i]))
+
+    def _clicked(self, index: int) -> None:
+        self.set_value(self._values[index])  # a click on the chosen one keeps it
+        self.changed.emit(self._values[index])
+
+    def button_for(self, value: object) -> QPushButton | None:
+        if value in self._values:
+            return self.buttons[self._values.index(value)]
+        return None
 
     def set_value(self, value: object) -> None:
-        if value in self._values:
-            button = self._group.button(self._values.index(value))
-            if button is not None:
-                button.setChecked(True)
+        if value not in self._values:
+            return
+        chosen = self._values.index(value)
+        for index, button in enumerate(self.buttons):
+            button.setChecked(index == chosen)
 
     def value(self) -> object:
-        checked = self._group.checkedId()
-        return self._values[checked] if checked >= 0 else None
+        for index, button in enumerate(self.buttons):
+            if button.isChecked():
+                return self._values[index]
+        return None
 
     def choose(self, value: object) -> None:
         """Picks `value` as a click would."""

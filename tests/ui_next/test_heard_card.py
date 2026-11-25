@@ -187,17 +187,15 @@ def test_the_bands_by_frequency_and_by_hsk_level(qapp: QApplication) -> None:
         "Rarer",
     ]
     assert shown[0].accessibleName() == (
-        "Top 1,000: 1 known · 1 in your deck · 0 new · 998 not heard yet"
+        "Top 1,000: 1 known · 1 in deck · 0 new · 998 not heard"
     )
-    assert shown[-1].counts.text() == "0 known · 0 in your deck · 1 new"
+    assert shown[-1].counts.text() == "0 known · 0 in deck · 1 new"
     assert shown[-1].bar.isHidden()  # the rarer words: no length to fill
     assert not bands.view.isHidden()
     bands.view.choose(BY_LEVEL)
     shown = [r for r in bands.rows if not r.isHidden()]
     assert [r.name.text() for r in shown] == ["HSK 1", "HSK 2", "HSK 3"]
-    assert (
-        shown[2].counts.text() == "0 known · 0 in your deck · 1 new · 499 not heard yet"
-    )
+    assert shown[2].counts.text() == "0 known · 0 in deck · 1 new · 499 not heard"
     assert not shown[2].bar.isHidden()
     bands.set_words(met, (sizes[0], {}), ())  # an English learner: no levels
     assert bands.view.isHidden() and bands.view.value() == BY_FREQUENCY

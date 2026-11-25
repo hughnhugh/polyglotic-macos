@@ -113,10 +113,12 @@ def test_shift_click_and_i_know_these_on_the_load(card: LoadCard) -> None:
     order = card.words.order
     assert len(order) == 4 and card.picked_bar.isHidden()
     click(card, 0, Qt.KeyboardModifier.NoModifier)
+    assert card.picked_bar.isHidden()
+    assert card.picked_bar.count.text() == "1 word selected"
     click(card, 2, Qt.KeyboardModifier.ShiftModifier)
     assert card.words.picked() == order[:3]
     assert not card.picked_bar.isHidden()
-    assert "3 words picked" in card.picked_bar.count.text()
+    assert card.picked_bar.count.text() == "3 words selected"
     shown = [k for k, b in card.picked_bar.buttons.items() if not b.isHidden() and k]
     assert shown == ["known", "not_now"]  # and Clear
     asked: list[tuple[str, list[str]]] = []

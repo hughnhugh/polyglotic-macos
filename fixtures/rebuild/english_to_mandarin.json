@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "name": "english_to_mandarin",
+  "covers": [
+    "B-D1"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "zh",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "en1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "en",
+        "languages_heard": [
+          "en"
+        ],
+        "clauses": [
+          {
+            "original": "Hello, nice weather.",
+            "translations": {
+              "zh": "你好，天气很好。"
+            },
+            "links": {
+              "zh": [
+                {
+                  "original": [
+                    0,
+                    5
+                  ],
+                  "translation": [
+                    0,
+                    2
+                  ],
+                  "key": true,
+                  "confidence": 0.9,
+                  "original_pos": "pronoun",
+                  "translation_pos": "pronoun"
+                },
+                {
+                  "original": [
+                    17,
+                    22
+                  ],
+                  "translation": [
+                    3,
+                    5
+                  ],
+                  "key": true,
+                  "confidence": 0.9,
+                  "original_pos": "noun",
+                  "translation_pos": "noun"
+                }
+              ]
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "en1",
+            "source_id": "speaker-a",
+            "language": "en",
+            "final": true,
+            "clauses": [
+              {
+                "original": "Hello, nice weather.",
+                "translation": "你好，天气很好。",
+                "translation_language": "zh",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      6
+                    ],
+                    "after": 7,
+                    "text": "Hello,",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      7,
+                      11
+                    ],
+                    "after": 12,
+                    "text": "nice",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      12,
+                      20
+                    ],
+                    "after": 20,
+                    "text": "weather.",
+                    "reading": null
+                  }
+                ],
+                "links": [
+                  {
+                    "number": 0,
+                    "key": true,
+                    "confidence": 0.9,
+                    "original": [
+                      [
+                        0,
+                        5
+                      ]
+                    ],
+                    "translation": [
+                      [
+                        0,
+                        2
+                      ]
+                    ],
+                    "original_classes": [
+                      "pronoun"
+                    ],
+                    "translation_classes": [
+                      "pronoun"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -161,7 +161,7 @@ class SqliteDictionary:
     (polyglotic-hq 220: 8,578 wrong answers in 40,000 reads, as the read
     ahead and the interface thread read at the start)."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, *, traditional_glosses: bool = False) -> None:
         if not path.is_file():
             raise FileNotFoundError(path)
         self._uri = f"{path.resolve().as_uri()}?mode=ro&immutable=1"
@@ -184,6 +184,12 @@ class SqliteDictionary:
                 "SELECT 1 FROM sqlite_master WHERE name = 'form_readings'"
             ).fetchone()
         )  # a file written before 298 hasn't the table
+        self._traditional_glosses = traditional_glosses and bool(
+            self._db.execute(
+                "SELECT 1 FROM sqlite_master WHERE name = 'traditional_meanings' "
+                "AND type = 'table'"
+            ).fetchone()
+        )
         self._sense_classes = False
         self._sense_prefixes = False
         if self.info.get("sense_classes_version") == SENSE_CLASSES_VERSION:
@@ -260,6 +266,16 @@ class SqliteDictionary:
 
     def _records(self, rows: Iterable[tuple]) -> dict[int, EntryRecord]:
         found = {n: _record(tuple(rest)) for n, *rest in rows}
+        if self._traditional_glosses:
+            numbers = list(found)
+            for start in range(0, len(numbers), _QUERY_CHUNK):
+                chunk = numbers[start : start + _QUERY_CHUNK]
+                marks = ", ".join("?" * len(chunk))
+                for n, text in self._db.execute(
+                    f"SELECT n, meanings FROM traditional_meanings WHERE n IN ({marks})",
+                    chunk,
+                ):
+                    found[n] = replace(found[n], meanings=tuple(text.split("\n")))
         if not self._sense_classes:
             return found
         classes: dict[int, list[SenseClasses]] = {}
@@ -513,6 +529,7 @@ def write_dictionary(
     form_readings: Mapping[str, str] | None = None,
     *,
     with_sense_classes: bool = False,
+    traditional_glosses: Mapping[str, Sequence[str]] | None = None,
 ) -> None:
     """Writes a new dictionary file at `path` (replacing any). `forms` maps
     each written form to entry IDs in order; `meaning_words` maps English
@@ -551,6 +568,15 @@ def write_dictionary(
                 )
             ):
                 raise ValueError(f"{record.entry_id}: invalid legacy sense prefix")
+    if traditional_glosses:
+        base = {r.entry_id: r.meanings for r in records}
+        for entry_id, glosses in traditional_glosses.items():
+            if (
+                entry_id not in base
+                or [len(g) for g in glosses] != [len(g) for g in base[entry_id]]
+                or any("\n" in gloss for gloss in glosses)
+            ):
+                raise ValueError(f"{entry_id}: invalid Traditional glosses")
     path.unlink(missing_ok=True)
     db = sqlite3.connect(path)
     try:
@@ -615,6 +641,18 @@ def write_dictionary(
                     for r in records
                     for ordinal, prefix in enumerate(r.sense_prefixes)
                     if prefix
+                ),
+            )
+        if traditional_glosses:
+            db.execute(
+                "CREATE TABLE traditional_meanings ("
+                "n INTEGER PRIMARY KEY REFERENCES entries(n), meanings TEXT NOT NULL)"
+            )
+            db.executemany(
+                "INSERT INTO traditional_meanings VALUES (?, ?)",
+                (
+                    (number[entry_id], "\n".join(glosses))
+                    for entry_id, glosses in traditional_glosses.items()
                 ),
             )
         rank = {r.entry_id: r.frequency_rank for r in records}

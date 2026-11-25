@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "name": "late_translation",
+  "covers": [
+    "B-T1"
+  ],
+  "view": {
+    "mode": "everyday-instant",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "late1",
+        "source_id": "speaker-a",
+        "kind": "live",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "谢谢。"
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.7,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "late1",
+        "source_id": "speaker-a",
+        "kind": "live",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "谢谢。",
+            "translations": {
+              "en": "Thank you."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "late1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": false,
+            "clauses": [
+              {
+                "original": "谢谢。",
+                "translation": null,
+                "translation_language": "en",
+                "settled": false,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "谢",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "谢。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.7,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "late1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": false,
+            "clauses": [
+              {
+                "original": "谢谢。",
+                "translation": "Thank you.",
+                "translation_language": "en",
+                "settled": false,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "谢",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "谢。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

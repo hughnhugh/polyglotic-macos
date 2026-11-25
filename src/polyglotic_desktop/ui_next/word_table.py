@@ -76,7 +76,7 @@ LEAST_WORD = 72
 LEAST_CATEGORY = 72
 """Where a table is too narrow for its columns - a large text size at the
 main window's narrowest - the word column, then the category's, narrow to
-these (their words elided), then Add to deck's and Known's to their
+these (their words elided), then Add to Anki's and Known's to their
 longest word (the button's words on two lines), so the meaning keeps at
 least LEAST_MEANING and nothing goes past the table's edge (polyglotic-hq
 354)."""
@@ -114,7 +114,7 @@ class Column(StrEnum):
 
     WORD = "word"  # the headword (in its category's colour dot) over its reading
     MEANING = "meaning"  # the short meaning over the row's details
-    ADD = "add"  # Add to deck
+    ADD = "add"  # Add to Anki
     KNOWN = "known"  # Known
     STATUS = "status"  # the word's status: a menu of the others
     CATEGORY = "category"  # a saved word's category: a menu of the others
@@ -130,7 +130,7 @@ ACTIONS = (Column.ADD, Column.KNOWN, Column.STATUS, Column.CATEGORY, Column.REMO
 def status_name(status: WordStatus) -> str:
     return {
         WordStatus.NEW: _tr("New"),
-        WordStatus.LEARNING: _tr("In your deck"),
+        WordStatus.LEARNING: _tr("In deck"),
         WordStatus.KNOWN: _tr("Known"),
         WordStatus.IGNORED: _tr("Ignored"),
     }[status]
@@ -215,20 +215,20 @@ class WordModel(QAbstractTableModel):
         item = self.items[index.row()]
         column = self.column(index)
         if column is Column.WORD:
-            return _tr("Look it up")
+            return _tr("Open dictionary")
         if column is Column.MEANING:
             text = self.text(index)
             return text.meaning if text else ""
         if column is Column.STATUS:
             return (
-                _tr("Change its status")
+                _tr("Change status")
                 if item.own
-                else _tr("Estimated from your level - pick one to set it yourself")
+                else _tr("Estimated from your level. Choose a status to change it.")
             )
         if column is Column.CATEGORY:
-            return _tr("Move it to another category")
+            return _tr("Move to another category")
         if column is Column.REMOVE:
-            return _tr("Remove from your saved words")
+            return _tr("Remove from saved words")
         return ""
 
 
@@ -389,7 +389,7 @@ class WordDelegate(QStyledItemDelegate):
         button = QRect(
             rect.right() - width - 4, rect.center().y() - high // 2, width, high
         )
-        painter.setPen(QColor(theme["FOCUS"] if focused else theme["BORDER"]))
+        painter.setPen(QColor(theme["FOCUS"]) if focused else Qt.PenStyle.NoPen)
         painter.setBrush(QColor(theme["SURFACE_3" if hovered else "SURFACE_2"]))
         painter.drawRoundedRect(button, 7, 7)
         painter.setFont(font)
@@ -705,5 +705,7 @@ class SelectionBar(QWidget):
 
     def show_count(self, count: int) -> None:
         """`count` words picked: said, and the bar shown from two."""
-        self.count.setText(_trn("%Ln word(s) picked", count))
+        self.count.setText(
+            _tr("{count} selected").format(count=_trn("%Ln word(s)", count))
+        )
         self.setVisible(count > 1)

@@ -114,7 +114,7 @@ from collections.abc import (
     MutableMapping,
     Sequence,
 )
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from functools import cache, partial
@@ -137,8 +137,22 @@ from PySide6.QtCore import (
     Slot,
     qVersion,
 )
-from PySide6.QtGui import QAction, QDesktopServices, QGuiApplication, QKeySequence
-from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
+from PySide6.QtGui import (
+    QAction,
+    QDesktopServices,
+    QGuiApplication,
+    QKeyEvent,
+    QKeySequence,
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QLineEdit,
+    QMessageBox,
+    QPlainTextEdit,
+    QTextEdit,
+    QWidget,
+)
 
 from polyglotic_desktop import tunable_config
 from polyglotic_desktop.adapters.anki_package import GenankiDeckWriter
@@ -146,7 +160,14 @@ from polyglotic_desktop.adapters.app_log import LIMIT as LOG_LIMIT
 from polyglotic_desktop.adapters.app_log import read_log
 from polyglotic_desktop.adapters.background_learning import BackgroundLearningStore
 from polyglotic_desktop.adapters.background_outbox import BackgroundOutbox
+from polyglotic_desktop.adapters.caption_word_breaks import (
+    CaptionWordSplit,
+    PackWordBreaks,
+)
 from polyglotic_desktop.adapters.feedback_files import FeedbackFolder
+from polyglotic_desktop.adapters.japanese_dictionary import (
+    FILE_NAME as JAPANESE_DICTIONARY,
+)
 from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
 from polyglotic_desktop.adapters.json_settings import (
     JsonSettingsStore,
@@ -236,6 +257,7 @@ from polyglotic_desktop.core.lexicon.packs import (
     Reader,
     Rider,
     best_offer,
+    needs_meanings_rider,
     needs_newer_app,
     riders_wanted,
     update_for,
@@ -251,9 +273,11 @@ from polyglotic_desktop.core.listening.delays import CAPTION_LOG
 from polyglotic_desktop.core.listening.dictation_keys import DictationKey
 from polyglotic_desktop.core.listening.display import (
     READING_LANGUAGES,
+    JapaneseReading,
     LinkDetail,
     LinkGap,
     LinkLine,
+    LongLines,
     ReadingColour,
     ReadingSize,
     ReadingSystem,
@@ -264,6 +288,7 @@ from polyglotic_desktop.core.listening.hidden import Sight
 from polyglotic_desktop.core.listening.history import copied_text, newest_finished
 from polyglotic_desktop.core.listening.hotkeys import (
     DICTATE,
+    LIVE_SPACE,
     RESPEAK,
     Hotkey,
     Platform,
@@ -281,6 +306,7 @@ from polyglotic_desktop.core.listening.maintenance import (
 from polyglotic_desktop.core.listening.maintenance import (
     stored as maintenance_stored,
 )
+from polyglotic_desktop.core.listening.pace import PaceReading, WordCount
 from polyglotic_desktop.core.listening.playout import (
     Ahead,
     ReadingPath,
@@ -346,6 +372,13 @@ from polyglotic_desktop.core.releases.updates import (
     UpdateNow,
     Updates,
     whats_new,
+)
+from polyglotic_desktop.core.report_text import (
+    LOG_TEXT_LIMIT,
+    PROBLEM_TEXT_LIMIT,
+    REPLY_TO_LIMIT,
+    SUGGESTION_TEXT_LIMIT,
+    limited_clean_text,
 )
 from polyglotic_desktop.core.shared import (
     EntryFacts,
@@ -432,6 +465,7 @@ from polyglotic_desktop.ui.open_beta import (
     CrossBorderConsent,
     EmailSignIn,
     account_error,
+    request_sign_in_region,
     sign_in_region,
     system_time_zone,
 )
@@ -439,6 +473,7 @@ from polyglotic_desktop.ui.problem_report import (
     OneReportWindow,
     Part,
     ProblemReportDialog,
+    ReportMode,
     captions_detail,
     captions_look,
     mic_name,
@@ -484,6 +519,7 @@ from polyglotic_desktop.ui_next.home import WHATS_NEW_ON_HOME, HomePage, own_hot
 from polyglotic_desktop.ui_next.hotkeys_card import (
     hotkey_names as settings_hotkey_names,
 )
+from polyglotic_desktop.ui_next.joined_window import JoinedWindow
 from polyglotic_desktop.ui_next.known_map_card import MapWords, WordsReader
 from polyglotic_desktop.ui_next.languages import (
     caption_language_of,
@@ -512,10 +548,13 @@ from polyglotic_desktop.ui_next.pack_row import (
 from polyglotic_desktop.ui_next.plan import plan_text
 from polyglotic_desktop.ui_next.preset_popover import preset_name, undo_note
 from polyglotic_desktop.ui_next.presets_card import change_words
+from polyglotic_desktop.ui_next.reading_lines import reader as reading_line_reader
 from polyglotic_desktop.ui_next.save_folder import SaveFolder
 from polyglotic_desktop.ui_next.selection_reading import SelectionReading
 from polyglotic_desktop.ui_next.settings_page import SettingsPage
+from polyglotic_desktop.ui_next.settings_popover import long_lines_name
 from polyglotic_desktop.ui_next.timing_popover import fallback_note
+from polyglotic_desktop.ui_next.transcript_window import TranscriptWindow
 from polyglotic_desktop.ui_next.transcripts import Transcripts
 from polyglotic_desktop.ui_next.upgrade import (
     Billing,
@@ -562,6 +601,8 @@ from polyglotic_desktop.ui_next.views.load import load_view
 from polyglotic_desktop.ui_next.views.lookup import WordAt
 from polyglotic_desktop.ui_next.views.panels import (
     DownloadsView,
+    JapaneseReadings,
+    JapaneseReadingsView,
     LanguagesView,
     LookView,
     SessionLanguages,
@@ -596,6 +637,7 @@ if TYPE_CHECKING:  # imported where first used, after the window's first paint
     from polyglotic_desktop.connection.client import Connection
     from polyglotic_desktop.connection.exchange import DataExchange
     from polyglotic_desktop.connection.feedback import Outcome
+    from polyglotic_desktop.connection.milestones import Milestones
     from polyglotic_desktop.connection.open_beta import Accounts
     from polyglotic_desktop.connection.protocol import Os
     from polyglotic_desktop.connection.session import Status
@@ -610,6 +652,7 @@ if TYPE_CHECKING:  # imported where first used, after the window's first paint
 log = logging.getLogger(__name__)
 
 APP_CHECK_MS = 5000  # how often to look for a chosen app that isn't open
+PACE_REFRESH_MS = 250  # ms (> 0) between live readings for a visibly gradual fade
 HEARING_MS = 100  # how often the listening mark asks whose speech is under way
 EXPOSURE_DAYS_MS = 3_600_000  # how often to hand over finished days' exposures
 VOICES_AFTER_START_MS = 2000  # Windows' voices looked for after the start (286)
@@ -1656,9 +1699,30 @@ def readings_by_default(value: AppSettings, own: Iterable[str] = ()) -> tuple[st
 def reading_lines_of(value: AppSettings, own: Iterable[str] = ()) -> tuple[str, ...]:
     """The reading lines shown: the learner's choice once they made one
     (`AppSettings.changed`), else `readings_by_default`."""
-    if "reading_lines" in value.changed:
-        return value.reading_lines
-    return readings_by_default(value, own)
+    lines = (
+        value.reading_lines
+        if "reading_lines" in value.changed
+        else readings_by_default(value, own)
+    )
+    # `japanese_reading` is the one current setting.  `reading_lines` is
+    # only migration input for the retired Furigana switch and must not
+    # override the four-way choice in a caption.
+    japanese = set(lines)
+    if value.japanese_reading == JapaneseReading.OFF.value:
+        japanese.discard("ja")
+    else:
+        japanese.add("ja")
+    return tuple(sorted(japanese))
+
+
+def japanese_readings_status(tools: LearningTools | None) -> str:
+    """Settings' honest availability note for Japanese word readings."""
+    if tools is None:
+        return "missing"
+    japanese = tools.of("ja")
+    if japanese.dictionary_problem is not None:
+        return "failed"
+    return "ready" if reading_line_reader(tools, "ja") is not None else "missing"
 
 
 def caption_look(value: AppSettings, own: Iterable[str] = ()) -> CaptionLook:
@@ -1694,6 +1758,7 @@ def caption_look(value: AppSettings, own: Iterable[str] = ()) -> CaptionLook:
         reading_past=value.reading_past,
         respelling_past=value.respelling_past,
         reading_system=ReadingSystem(value.reading_system),
+        japanese_reading=JapaneseReading(value.japanese_reading),
         reading_colour=ReadingColour(value.reading_colour),
         reading_custom=value.reading_custom_color,
         colour_links_by_word_class=value.colour_links_by_word_class,
@@ -1969,6 +2034,55 @@ def tell_how_to_unlock(windows: CaptionWindows, desktop: DesktopApp) -> None:
     session gives the app no hotkey; `AppSettings.unlock_told`)."""
     windows.tell_how_to_unlock = not desktop.settings.value.unlock_told
     windows.unlock_told.connect(lambda: desktop.settings.update(unlock_told=True))
+
+
+def caption_connection(
+    server: str,
+    credentials: CredentialStore,
+    app: AppInfo,
+    exchange: DataExchange,
+    listener: QtListener,
+    windows: CaptionWindows,
+    *,
+    milestones: Milestones | None = None,
+    capture_restarts: Callable[[], int] | None = None,
+    tools: LearningTools | None = None,
+) -> Connection:
+    """Connect the listening session and its quiet ticks to the real caption windows."""
+    from polyglotic_desktop.adapters.spoken_words import count_spoken_words
+    from polyglotic_desktop.connection.client import Connection
+
+    count_words = pace_word_counter(tools) if tools is not None else count_spoken_words
+    connection = Connection(
+        server,
+        credentials,
+        app,
+        exchange,
+        listener,
+        milestones=milestones,
+        capture_restarts=capture_restarts,
+        time_zone=system_time_zone(),
+        count_words=count_words,
+    )
+    listener._speaking_pace.connect(
+        windows.set_pace, Qt.ConnectionType.QueuedConnection
+    )
+    pace_timer = QTimer(listener, interval=PACE_REFRESH_MS)
+    pace_timer.setObjectName("speaking_pace_timer")
+
+    def pace_timer_for(status: Status) -> None:
+        from polyglotic_desktop.connection.session import SessionState
+
+        if status.state is SessionState.LISTENING:
+            if not pace_timer.isActive():
+                pace_timer.start()
+        else:
+            pace_timer.stop()
+
+    listener._status.connect(pace_timer_for, Qt.ConnectionType.QueuedConnection)
+
+    pace_timer.timeout.connect(connection.speaking_pace)
+    return connection
 
 
 def wire_caption_windows(
@@ -2247,7 +2361,6 @@ def follow_presets(windows: CaptionWindows, value: AppSettings) -> None:
     windows.set_preset_my_speech(value.my_speech)
     windows.set_original_only(not value.show_translation and not value.video_timing)
     windows.set_preset_languages(value.preset_languages)
-    windows.set_preset_sizes(value.preset, use_presets.parent_of(value, value.preset))
     windows.set_subtitles(
         (value.subtitle_size, value.subtitle_width) if value.subtitles else None
     )
@@ -2293,6 +2406,7 @@ def preset_menu(
         restorable=use_presets.restorable(value, value.preset),
         undo=undo,
         video_lines_shown=value.video_lines_shown,
+        long_lines=LongLines(value.long_lines),
     )
 
 
@@ -2492,20 +2606,50 @@ def shortcut_text(action: QAction) -> str:
     return action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
 
 
+def non_japanese(lines: Iterable[str]) -> tuple[str, ...]:
+    return tuple(code for code in lines if code != "ja")
+
+
 def look_changes(
     value: AppSettings, look: CaptionLook, own: Iterable[str] = ()
 ) -> dict[str, object]:
-    """The settings saving `look` changes (`look_settings`). The reading
-    lines while they're still the default nobody chose are left out, so a
-    change of colour doesn't make them a choice; once they differ from it
-    they're a choice, recorded as one even where it matches what an
-    unchosen file holds (all off: ()) (polyglotic-hq 511)."""
+    """The settings saving `look` changes (`look_settings`). An implicit
+    reading list stays implicit across unrelated and Japanese-only edits;
+    an explicit list keeps both its exact value and marker, even when it
+    happens to equal today's defaults (polyglotic-hq 511, 898)."""
     changes = look_settings(look)
-    if "reading_lines" not in value.changed:
-        if tuple(look.reading_lines) == readings_by_default(value, own):
-            del changes["reading_lines"]
-        else:
-            changes["changed"] = (*value.changed, "reading_lines")
+    effective_before = reading_lines_of(value, own)
+
+    scripts_changed = non_japanese(look.reading_lines) != non_japanese(effective_before)
+    explicit_scripts = "reading_lines" in value.changed
+    restoring_quiet = (
+        value.quiet_view
+        and not look.quiet
+        and scripts_changed
+        and non_japanese(look.reading_lines)
+        == non_japanese(readings_by_default(value, own))
+    )
+    if restoring_quiet:
+        changes["reading_lines"] = ()
+    elif not scripts_changed:
+        # A Japanese-mode or unrelated look edit must not turn an explicit
+        # script list into today's implicit default (or make an implicit
+        # list explicit). Keep the filed value and its provenance exactly.
+        changes["reading_lines"] = value.reading_lines
+    # `changed` is supplied explicitly so Settings.update cannot infer the
+    # other fields in this compound edit.  Infer them here before applying
+    # the two reading choices' follow-default semantics; otherwise changing
+    # (for example) opacity while readings are at their defaults loses the
+    # opacity marker and the value reverts on the next start.
+    updated = replace(value, **changes)  # type: ignore[arg-type]
+    markers = list(with_changed(value, updated).changed)
+    for name in ("reading_lines", "japanese_reading"):
+        markers = [marked for marked in markers if marked != name]
+    if not restoring_quiet and (explicit_scripts or scripts_changed):
+        markers.append("reading_lines")
+    if look.japanese_reading is not JapaneseReading.KANA:
+        markers.append("japanese_reading")
+    changes["changed"] = tuple(markers)
     return changes
 
 
@@ -2536,6 +2680,7 @@ def look_settings(look: CaptionLook) -> dict[str, object]:
         "reading_past": look.reading_past,
         "respelling_past": look.respelling_past,
         "reading_system": look.reading_system.value,
+        "japanese_reading": look.japanese_reading.value,
         "reading_colour": look.reading_colour.value,
         "reading_custom_color": look.reading_custom,
         "colour_links_by_word_class": look.colour_links_by_word_class,
@@ -2576,6 +2721,36 @@ def chinese_word_split(tools: LearningTools) -> Split:
         return each_character(run)
 
     return split
+
+
+def caption_word_breaks(tools: LearningTools) -> PackWordBreaks:
+    """Word edges from the installed pack for each caption language."""
+
+    def splitter(code: str) -> CaptionWordSplit | None:
+        found = next((each for each in tools.every if each.language == code), None)
+        if found is None or not hasattr(found.dictionary, "split"):
+            return None
+        return CaptionWordSplit(found.dictionary.split)
+
+    return PackWordBreaks(splitter)
+
+
+def pace_word_counter(tools: LearningTools) -> WordCount:
+    """Dictionary word counts for speaking pace, with ICU/spaced fallback."""
+    from polyglotic_desktop.adapters.spoken_words import spoken_word_counter
+
+    def dictionary_for(code: str) -> ChineseDictionary | BasicDictionary | None:
+        basic = tools.basic.get(code)
+        if basic is not None:
+            return basic
+        learner = tools.of(code)
+        if learner.language == code and learner.dictionary_problem is None:
+            dictionary = learner.dictionary
+            if isinstance(dictionary, (ChineseDictionary, BasicDictionary)):
+                return dictionary
+        return None
+
+    return spoken_word_counter(dictionary_for)
 
 
 def timing_of(value: AppSettings) -> Timing:
@@ -2651,10 +2826,17 @@ class Panels:
             caption_look(value, self.in_use()),
             self._look_changed,
             caption_look(AppSettings(), self.in_use()),
+            caption_look(
+                replace(value, **value.recommended_look_before),  # type: ignore[arg-type]
+                self.in_use(),
+            )
+            if value.recommended_look_before
+            else None,
         )
         self.downloads = DownloadsView()
         """The downloaded caption faces, as Look's Fonts card shows them
         (`FontDelivery`'s; polyglotic-hq 482)."""
+        self.japanese_readings = JapaneseReadingsView()
         self.presets = PresetsView(preset_menu(value, self.look.value))
         """The presets, as Settings > Presets and the windows' dropdown
         show them (polyglotic-hq 556)."""
@@ -2685,6 +2867,13 @@ class Panels:
         windows.set_presets(self.presets.value)
         self.look_waiting = False
         """A look change waits to be saved."""
+        self._reading_lines_followed_default = "reading_lines" not in value.changed
+        """The current edit began with reading lines following the app default."""
+        self._reading_lines_preference = (
+            value.reading_lines,
+            "reading_lines" in value.changed,
+        )
+        """The stored reading-lines value and whether it was an explicit choice."""
         self._look_settles = QTimer(singleShot=True, interval=SETTLE_MS)
         self._look_settles.timeout.connect(self.save_look)
         style.use(window_theme())
@@ -2704,17 +2893,40 @@ class Panels:
         self._look_settles.stop()
         if self.look_waiting:
             self.look_waiting = False
-            changes = look_changes(self.settings.value, self.look.value, self.in_use())
-            self.settings.update(**changes)
+            reading_lines_followed_default = self._reading_lines_followed_default
+            value = self.settings.value
+            own = self.in_use()
+            changes = look_changes(value, self.look.value, own)
+            changes["recommended_look_before"] = (
+                look_settings(self.look.recommended_before)
+                if self.look.recommended_before is not None
+                else {}
+            )
+            resume_scripts = reading_lines_followed_default and non_japanese(
+                self.look.value.reading_lines
+            ) == non_japanese(readings_by_default(value, own))
+            if resume_scripts:
+                changes["reading_lines"] = ()
+            self.settings.update_following(
+                ("reading_lines",) if resume_scripts else (),
+                **changes,
+            )
+            # ``Settings.change`` emits synchronously, so ``follow`` sees the
+            # deliberately temporary choice after the first half of an
+            # off/on pair. Keep how this edit began until an outside settings
+            # refresh says otherwise; returning to the default can then put
+            # the implicit preference back instead of fixing today's list.
+            self._reading_lines_followed_default = reading_lines_followed_default
+            self._reading_lines_preference = (
+                self.settings.value.reading_lines,
+                "reading_lines" in self.settings.value.changed,
+            )
 
     # -- presets (polyglotic-hq 556) ----------------------------------------------------
 
     def _reset_preset(self, key: str) -> None:
         self._losing_step(
             Undo.RESTORED, key, lambda value: use_presets.reset(value, key)
-        )
-        self.windows.reset_preset_sizes(
-            key, use_presets.parent_of(self.settings.value, key)
         )
 
     def choose_preset(self, key: str) -> None:
@@ -2773,11 +2985,16 @@ class Panels:
         they were before the step - while it's offered (587)."""
         if self._undo is None:
             return
-        was = self._undo[0]
+        was, kind, _, _ = self._undo
         self._undo = None
         self._undo_ends.stop()
         self._preset_step(use_presets.restored(self.settings.value, was))
-        self.windows.show_notice(self.presets.value.name)
+        shown = (
+            long_lines_name(self.presets.value.long_lines)
+            if kind is Undo.LONG_LINES
+            else self.presets.value.name
+        )
+        self.windows.show_notice(shown)
 
     def _losing_step(
         self, kind: Undo, key: str, step: Callable[[AppSettings], AppSettings]
@@ -2836,6 +3053,18 @@ class Panels:
         self._settled()
         self.settings.update_from_bar(**lines_changes(Show(show)))
 
+    def set_long_lines(self, choice: str) -> None:
+        choice = LongLines(choice).value
+        if choice == self.settings.value.long_lines:
+            return
+        self._losing_step(
+            Undo.LONG_LINES,
+            self.settings.value.preset,
+            lambda value: use_presets.saved_into(
+                with_changed(value, replace(value, long_lines=choice)), ("long_lines",)
+            ),
+        )
+
     def change_bar_look(
         self,
         change: Callable[[bool, tuple[str, ...]], None],
@@ -2892,6 +3121,13 @@ class Panels:
 
     def follow(self) -> None:
         value = self.settings.value
+        reading_lines_preference = (
+            value.reading_lines,
+            "reading_lines" in value.changed,
+        )
+        if reading_lines_preference != self._reading_lines_preference:
+            self._reading_lines_followed_default = "reading_lines" not in value.changed
+            self._reading_lines_preference = reading_lines_preference
         style.use(window_theme())
         self.languages.follow(
             session_languages(value, self.in_use(), self.windows.recent_spoken())
@@ -3248,6 +3484,7 @@ class Hub:
             speech=panels.languages,
             sound=self.sound,
             downloads=panels.downloads,
+            japanese_readings=panels.japanese_readings,
             presets=panels.presets,
         )
         app = QApplication.instance()
@@ -3302,6 +3539,9 @@ class Hub:
             lambda: tools.learning_unsaved if tools is not None else False,
         )
         self.help.report_wanted.connect(desktop.check_report_wanted)
+        self.help.suggestion_wanted.connect(
+            lambda: desktop.feedback_wanted.emit("suggestion")
+        )
         self.window.add_page("help", tr("MainWindow", "Help"), self.help, "foot")
         start_parts.done("page_help")
         self.window.go_to("home")
@@ -4322,11 +4562,16 @@ def pack_meanings(interface: str) -> str:
 def meanings_wanted(interface: str) -> str | None:
     """The language a dictionary's meanings file is looked for in
     (decision 0234): the interface's, as the files name it - `pt` for
-    Brazilian Portuguese; None for English and Chinese, which the
-    dictionaries have as their own (`pack_meanings`,
-    `learner_dictionary_file`)."""
-    code = interface.lower().replace("_", "-").split("-")[0]
-    return None if code in ("en", "zh") else code
+    Brazilian Portuguese. Chinese keeps its rider locale so Japanese drafts
+    use Simplified (`zh`) or Taiwan Traditional (`zh_TW`). None for English,
+    whose dictionary has its own meanings (`learner_dictionary_file`)."""
+    normalized = interface.lower().replace("-", "_")
+    if normalized == "zh_tw":
+        return "zh_TW"
+    if normalized.startswith("zh"):
+        return "zh"
+    code = normalized.split("_")[0]
+    return None if code == "en" else code
 
 
 def pack_reader(version: str) -> Reader:
@@ -4347,10 +4592,7 @@ def pack_reader(version: str) -> Reader:
         *("spaced", "elided", "marks", "clitics", "turkish", "vietnamese"),
         *("joiners", "affixes", "thai", "han", "korean"),
     }
-    if all(
-        importlib.util.find_spec(m) is not None
-        for m in ("sudachipy", "sudachidict_small")
-    ):
+    if importlib.util.find_spec("sudachipy") is not None:
         splits.add("japanese")
     from polyglotic_desktop.adapters import audio_file, meanings_file
 
@@ -4364,16 +4606,24 @@ def pack_reader(version: str) -> Reader:
     )
 
 
-def open_pack(path: Path, language: str) -> tuple[BasicDictionary, SqliteDictionary]:
+def open_pack(
+    path: Path, language: str, *, traditional_glosses: bool = False
+) -> tuple[BasicDictionary, SqliteDictionary]:
     """A pack file as its language's basic dictionary, with its word split -
     and its file, for closing."""
-    file = SqliteDictionary(path)
+    file = SqliteDictionary(path, traditional_glosses=traditional_glosses)
     # imported here: a pack opens after the first paint (400)
     from polyglotic_desktop.core.lexicon.han import HanSplit
     from polyglotic_desktop.core.lexicon.thai import ThaiSplit
 
+    japanese_dictionary = path.parent / JAPANESE_DICTIONARY
     split: WordSplit = (
-        JapaneseSplit()
+        JapaneseSplit(japanese_dictionary)
+        if language == "ja" and japanese_dictionary.is_file()
+        # A pack may predate the separately delivered Sudachi dictionary.
+        # Keep it open for exact lookups, captions and translation while the
+        # rider is fetched instead of letting Sudachi fail on its first use.
+        else SpacedSplit(language, simplemma=False)
         if language == "ja"
         else VietnameseSplit(file)
         if language == "vi"
@@ -4582,6 +4832,7 @@ class PackDelivery(QObject):
         learning: Callable[[], Collection[str]] = tuple,
         explained: MeaningsShelf | None = None,
         explained_in: str | None = None,
+        traditional_japanese_glosses: bool = False,
     ) -> None:
         """`built_in`: each language whose dictionary is built into the
         app, and its name (`{"zh": "cedict"}`), in `built_in_folder`: its
@@ -4593,6 +4844,7 @@ class PackDelivery(QObject):
         super().__init__(parent)
         self.explained = explained if explained is not None else MeaningsShelf()
         self.explained_in = explained_in
+        self.traditional_japanese_glosses = traditional_japanese_glosses
         self.recordings = recordings
         """Where each open pack's recorded words go, for the speaker."""
         self.built_in = dict(built_in or {})
@@ -4868,7 +5120,10 @@ class PackDelivery(QObject):
             recorded.close()
         if held is not None and self.deliveries is not None:
             folder = self.deliveries.folder
-            freed = folder.remove([held[1], *folder.riders(held[0].dictionary)])
+            extra: list[Path] = []
+            if code == "ja":
+                extra.append(folder.folder / JAPANESE_DICTIONARY)
+            freed = folder.remove([held[1], *folder.riders(held[0].dictionary), *extra])
             log.info("dictionary pack %s: removed, %d bytes freed", code, freed)
         self.progress.pop(code, None)
         self.changed.emit()
@@ -4943,7 +5198,15 @@ class PackDelivery(QObject):
             self.changed.emit()
 
     def _open(self, pack: InstalledPack, path: Path) -> None:
-        dictionary, file = open_pack(path, pack.language)
+        dictionary, file = open_pack(
+            path,
+            pack.language,
+            traditional_glosses=(
+                self.traditional_japanese_glosses
+                and pack.language == "ja"
+                and pack.meanings == "zh"
+            ),
+        )
         old = self._files.get(pack.language)
         self.basic[pack.language] = dictionary
         self._files[pack.language] = file
@@ -5079,19 +5342,43 @@ class PackDelivery(QObject):
         """`dictionary`'s meanings file in the learner's language, if one is
         on this PC (decision 0234), put on the shelf its dictionary reads
         through - as a pack opens (at the start, for a built-in one), and
-        again when a meanings file arrives. A dictionary whose `own`
-        meanings are in that language already needs none."""
-        from polyglotic_desktop.adapters.meanings_file import meanings_beside
+        again when a meanings file arrives. JMdict may use Chinese drafts
+        for English fallbacks in its Chinese pack."""
+        from polyglotic_desktop.adapters.meanings_file import (
+            ConvertedMeanings,
+            meanings_beside,
+        )
 
         wanted = self.explained_in
         folders = (self.folder_path, *self.also)
         if self._built_in_folder is not None:
             folders += (self._built_in_folder,)  # one the installer brought
-        found = (
+        found: Any = (
             meanings_beside(folders, dictionary, wanted)
-            if wanted and wanted != own
+            if wanted and needs_meanings_rider(dictionary, own, wanted)
             else None
         )
+        # The two approved Japanese -> Chinese riders cover one another when
+        # a release has only one. Conversion uses the same bundled OpenCC
+        # table as captions (project 897); no other pair gains a fallback.
+        if found is None and dictionary == "jmdict" and wanted in {"zh", "zh_TW"}:
+            other = "zh" if wanted == "zh_TW" else "zh_TW"
+            source = meanings_beside(folders, dictionary, other)
+            if source is not None:
+                from polyglotic_desktop.adapters.traditional_table import read_table
+                from polyglotic_desktop.core.lexicon.traditional import (
+                    TraditionalChinese,
+                )
+
+                traditional = TraditionalChinese(read_table())
+                if wanted == "zh_TW":
+                    convert = traditional.convert
+                else:
+                    simplified_of = traditional.simplified_of()
+                    convert = lambda text: "".join(
+                        simplified_of.get(c, c) for c in text
+                    )
+                found = ConvertedMeanings(source, convert)
         old = self.explained.put(dictionary, found)
         if found is not None:
             log.info(
@@ -5155,6 +5442,7 @@ def new_interface(
     )
     if tools is not None:
         windows.word_split = chinese_word_split(tools)
+        windows.word_breaks = caption_word_breaks(tools)
         windows.class_evidence = tools.word_class_evidence
     found_apps = desktop.apps
     assert found_apps is not None  # the app is always given an app list
@@ -5203,6 +5491,7 @@ def new_interface(
     windows.preset_step.connect(panels.preset_step)  # save, discard, undo (587)
     desktop.next_preset.triggered.connect(panels.next_preset)  # its hotkey (567)
     windows.lines_wanted.connect(panels.set_lines)
+    windows.long_lines_wanted.connect(panels.set_long_lines)
     windows.video_lines_wanted.connect(
         lambda count: desktop.settings.update(video_lines_shown=count)
     )
@@ -5520,6 +5809,45 @@ def plan_shown(plan: protocol.PlanState) -> PlanShown:
     return PlanShown(plan.tier, plan.source, plan.status, until, code)
 
 
+class LocalLiveShortcut(QObject):
+    """Handle Space inside caption and transcript windows, leaving text entry alone."""
+
+    def __init__(self, app: QApplication, live: QAction) -> None:
+        super().__init__(app)
+        self.live = live
+        self.enabled = False
+        app.installEventFilter(self)
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        if (
+            not self.enabled
+            or event.type() not in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress)
+            or not isinstance(event, QKeyEvent)
+            or event.key() != Qt.Key.Key_Space
+            or event.modifiers() != Qt.KeyboardModifier.NoModifier
+            or not isinstance(watched, QWidget)
+            or not isinstance(
+                watched.window(), (CaptionWindow, JoinedWindow, TranscriptWindow)
+            )
+        ):
+            return False
+        focus = QApplication.focusWidget()
+        for widget in (watched, focus):
+            if (
+                widget is not None
+                and widget.window() is watched.window()
+                and (
+                    isinstance(widget, (QLineEdit, QPlainTextEdit, QTextEdit))
+                    or widget.testAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled)
+                )
+            ):
+                return False
+        if event.type() == QEvent.Type.KeyPress and not event.isAutoRepeat():
+            self.live.trigger()
+        event.accept()
+        return True
+
+
 class AppHotkeys:
     """The app's hotkeys, taken from the OS as the settings say
     (polyglotic-hq 567): each with a key that no other has before it
@@ -5545,6 +5873,7 @@ class AppHotkeys:
         self.available = True
         """Whether this desktop allows global hotkeys (False for `NoHotkeys`)."""
         self.box_listening = False
+        self.live_space = False
 
     def follow(
         self,
@@ -5557,17 +5886,25 @@ class AppHotkeys:
         together: dict[str, DictationKey | None] = {**hold}
         together.update((hotkey.value, key) for hotkey, key in keys.items())
         clashing = clashes(together)
+        live_space = (
+            not self.box_listening
+            and Hotkey.LIVE.value not in clashing
+            and keys.get(Hotkey.LIVE) == LIVE_SPACE
+        )
+        local_changed = live_space != self.live_space
+        self.live_space = live_space
         wanted = {
             str(key): hotkey.value
             for hotkey, key in keys.items()
-            if key is not None and hotkey.value not in clashing
+            if key is not None and key != LIVE_SPACE and hotkey.value not in clashing
         }
         if self.box_listening:
             wanted = {}
         if wanted == self.bound and (self._held is not None or not wanted):
-            return False
+            return local_changed
         self.stop()
         self.bound = wanted
+        self.live_space = live_space
         if wanted:
             self._held = self._hotkeys(
                 {key: partial(self._pressed, name) for key, name in wanted.items()}
@@ -5579,13 +5916,19 @@ class AppHotkeys:
     def not_working(self, names: Iterable[str]) -> list[str]:
         """Of `names`, the hotkeys that do nothing now: no key, a key
         another hotkey or program has, or let go (`not_working`)."""
-        return not_working(names, self.bound.values(), self.taken)
+        bound = (
+            [*self.bound.values(), Hotkey.LIVE.value]
+            if self.live_space
+            else self.bound.values()
+        )
+        return not_working(names, bound, self.taken)
 
     def stop(self) -> None:
         if self._held is not None:
             self._held.stop()
         self._held = None
         self.bound = {}
+        self.live_space = False
         self.taken = set()
 
 
@@ -5722,6 +6065,8 @@ class QtListener(QObject):
     refresh_answer = Signal(object)
     _stalled = Signal(bool)
     _pace = Signal(object)
+    _speaking_pace = Signal(object)
+    listening_ended = Signal(object)
     _plan = Signal(object)
     allowance_seen = Signal(object)
     plan_shown = Signal(object)
@@ -5824,6 +6169,17 @@ class QtListener(QObject):
         if self.pipeline is not None:
             self.pipeline.set_pace_hint(live_interval_min)
         self._pace.emit(live_interval_min)
+
+    def speaking_pace(
+        self,
+        pace: tuple[dict[str, PaceReading], dict[str, PaceReading]],
+    ) -> None:
+        """Queue measured speaking pace from the listening-session thread."""
+        self._speaking_pace.emit(pace)
+
+    def session_ended(self, summary: object) -> None:
+        """Queue the completed local summary for Home's last-session card."""
+        self.listening_ended.emit(summary)
 
     def minutes_changed(self, used: float, left: float | None) -> None:
         self._minutes.emit(used, left)
@@ -6326,6 +6682,9 @@ class QtExchange(QObject):
         is kept (`delete_closed_learning_data`)."""
         self.delete_here = False
         """Set when the user also asked to delete the data on this PC."""
+        self.after_pack_learners_open: Callable[[Callable[[], None]], None] = (
+            lambda call: call()
+        )
         self._arrived.connect(self._apply, Qt.ConnectionType.QueuedConnection)
         self._deleted.connect(self._delete, Qt.ConnectionType.QueuedConnection)
 
@@ -6355,14 +6714,15 @@ class QtExchange(QObject):
         log.info("learning data deleted on the server")
         if self.delete_here:
             self.delete_here = False
-            every = self.tools.every
-            for each in every:
-                each.vocabulary.delete_learning_data()
-            log.info("learning data deleted on this PC: %d language(s)", len(every))
-            if self.data is not None:
-                delete_closed_learning_data(
-                    self.data, [each.language for each in every]
-                )
+            self.after_pack_learners_open(self._delete_from_this_pc)
+
+    def _delete_from_this_pc(self) -> None:
+        every = self.tools.every
+        for each in every:
+            each.vocabulary.delete_learning_data()
+        log.info("learning data deleted on this PC: %d language(s)", len(every))
+        if self.data is not None:
+            delete_closed_learning_data(self.data, [each.language for each in every])
 
 
 class QtFeedback(QObject):
@@ -6370,14 +6730,31 @@ class QtFeedback(QObject):
     Home on the Qt thread. `just_sent`: the report the user sent this time."""
 
     _outcome = Signal(str, str)
+    _suggestion_sent = Signal()
 
-    def __init__(self, desktop: DesktopApp) -> None:
+    def __init__(
+        self,
+        desktop: DesktopApp,
+        suggestion_sent: Callable[[], object] | None = None,
+    ) -> None:
         super().__init__(desktop)
         self.desktop = desktop
         self.just_sent: str | None = None
+        self._counted_suggestions: set[str] = set()
         self._outcome.connect(self._show, Qt.ConnectionType.QueuedConnection)
+        if suggestion_sent is not None:
+            self._suggestion_sent.connect(
+                suggestion_sent, Qt.ConnectionType.QueuedConnection
+            )
 
     def outcome(self, report: Report, outcome: Outcome) -> None:
+        if (
+            report.kind == "suggestion"
+            and outcome.value == "sent"
+            and report.id not in self._counted_suggestions
+        ):
+            self._counted_suggestions.add(report.id)
+            self._suggestion_sent.emit()
         self._outcome.emit(report.id, outcome.value)
 
     def outcome_of(self, report_id: str, outcome: Outcome) -> None:
@@ -6549,7 +6926,7 @@ def log_with_timelines(
         return read_log(folder)
     timelines = report_text(records, LOG_LIMIT // 2)
     log_text = read_log(folder, limit=LOG_LIMIT - len(timelines))
-    return (log_text or "") + timelines
+    return limited_clean_text((log_text or "") + timelines, LOG_TEXT_LIMIT)
 
 
 def _json_size(value: object) -> int:
@@ -6567,6 +6944,14 @@ def problem_report_parts(
 ) -> list[Part]:
     """What "Report a problem" offers, each part with its size and what
     Look shows: exactly what goes. A part with nothing in it isn't offered."""
+    log_text = (
+        limited_clean_text(log_text, LOG_TEXT_LIMIT) if log_text is not None else None
+    )
+    check_result = (
+        limited_clean_text(check_result, LOG_TEXT_LIMIT)
+        if check_result is not None
+        else None
+    )
     labels = part_labels()
     parts = []
     if check_result:
@@ -6613,6 +6998,120 @@ def problem_report_parts(
             )
         )
     return parts
+
+
+def non_tester_problem_parts(
+    log_text: str | None,
+    check_result: str | None,
+) -> list[Part]:
+    """Parts offered to a non-alpha user if they switch to problem mode:
+    only Help's check (if given) and the app's log (if present), matching
+    what `/v1/feedback` already accepts (no settings, facts, captions or audio)."""
+    log_text = (
+        limited_clean_text(log_text, LOG_TEXT_LIMIT) if log_text is not None else None
+    )
+    check_result = (
+        limited_clean_text(check_result, LOG_TEXT_LIMIT)
+        if check_result is not None
+        else None
+    )
+    labels = part_labels()
+    parts: list[Part] = []
+    if check_result:
+        parts.append(
+            Part("check", labels["check"], len(check_result), lambda: check_result)
+        )
+    if log_text is not None:
+        parts.append(
+            Part("log", labels["log"], len(log_text.encode("utf-8")), lambda: log_text)
+        )
+    return parts
+
+
+def submit_report_dialog(
+    mode: ReportMode,
+    text: str,
+    ticked: frozenset[str],
+    app: AppInfo,
+    session_id: str | None,
+    *,
+    tester: bool,
+    waiting_reports: WaitingReports,
+    send_feedback: Callable[[], object],
+    send_problem: Callable[[ProblemReport], object],
+    log_text: str | None = None,
+    settings: dict[str, object] | None = None,
+    facts: dict[str, object] | None = None,
+    captions: list[dict[str, object]] | None = None,
+    speech: Sequence[SpeechPart] = (),
+    check_result: str | None = None,
+    suggestion_reply_to: str | None = None,
+    suggestion_log: str | None = None,
+) -> str:
+    """Routes the unified Report a problem / Make a suggestion dialog's send:
+    Suggestions go to the feedback queue with the optional reply and log.
+    Problem mode sends a full `ProblemReport` for alpha testers (`POST /v1/problem-reports`) or a
+    `kind="problem"` feedback report with at most the log for everyone else."""
+    from polyglotic_desktop.connection import protocol
+
+    if mode == "suggestion":
+        clean = limited_clean_text(text, SUGGESTION_TEXT_LIMIT)
+        report = new_report(
+            "suggestion",
+            clean,
+            limited_clean_text(suggestion_reply_to or "", REPLY_TO_LIMIT) or None,
+            limited_clean_text(suggestion_log or "", LOG_TEXT_LIMIT) or None,
+            app,
+            session_id,
+        )
+        waiting_reports.add(report)
+        log.info("a suggestion report kept to send")
+        send_feedback()
+        return report.id
+    if check_result and "check" in ticked:
+        text = f"{text}\n\n--- no-captions check ---\n{check_result}"
+    clean = limited_clean_text(text, PROBLEM_TEXT_LIMIT)
+    if not tester:
+        report = new_report(
+            "problem",
+            clean,
+            None,
+            log_text if "log" in ticked else None,
+            app,
+            session_id,
+        )
+        waiting_reports.add(report)
+        log.info("a problem report kept to send")
+        send_feedback()
+        return report.id
+    problem = ProblemReport(
+        id=str(uuid.uuid4()),
+        at=protocol.at(datetime.now(UTC)),
+        text=clean,
+        app_version=app.app_version,
+        os=app.os,
+        os_version=app.os_version,
+        session_id=session_id,
+        log=log_text if "log" in ticked else None,
+        settings=settings if "settings" in ticked else None,
+        facts=facts if "facts" in ticked else None,
+        captions=captions if "captions" in ticked else None,
+        speech=tuple(
+            ReportedSpeech(
+                str(clip.caption_id),
+                str(clip.source_id),
+                clip.category.value,
+                clip.start,
+                clip.end,
+                clip.audio,
+            )
+            for part in speech
+            if f"speech:{part.source_id}" in ticked
+            for clip in part.clips
+        ),
+    )
+    send_problem(problem)
+    return problem.id
 
 
 def ask_for_feedback(
@@ -6895,6 +7394,7 @@ class Sources:
         *,
         everything_else_capture: Callable[[int], AudioCapture],
         sample_capture: Callable[[], AudioCapture | None] | None = None,
+        on_call: Callable[[str], None] | None = None,
     ) -> None:
         self.pipeline = pipeline
         self.signed_in = signed_in
@@ -6908,6 +7408,7 @@ class Sources:
         self._mic_capture = mic_capture
         self._everything_else_capture = everything_else_capture
         self._sample_capture = sample_capture
+        self._on_call = on_call or (lambda _name: None)
         self.sample_on = False
         self.sample_kept = False  # ended, its window kept for lookups (208)
         self._sample: AudioCapture | None = None  # the one playing, if any
@@ -7092,6 +7593,8 @@ class Sources:
                 capture = self._app_capture(process_id, name)
                 self._buffers[source_id] = self.pipeline.add_source(source, capture)
                 self._categories[source_id] = category
+                if category is SourceCategory.CALL:
+                    self._on_call(name)
             elif source_id == SAMPLE:
                 assert self._sample_capture is not None
                 sample = self._sample_capture()
@@ -7139,6 +7642,33 @@ class Sources:
             " and everything else" if plan.everything_else else "",
             " and the mic" if plan.mic else "",
         )
+
+
+def queue_call_notice(settings: Settings, parent: QWidget, name: str) -> None:
+    """Record and open the notice once, after the capture settings have settled."""
+
+    def show() -> None:
+        shown = settings.value.call_notices_shown
+        if name in shown:
+            return
+        settings.update(call_notices_shown=(*shown, name))
+        box = QMessageBox(parent)
+        box.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setText(
+            QApplication.translate(
+                "CallNotice",
+                "In some places everyone on a call has to agree before it's captioned. Tell the people you're talking with.",
+            )
+        )
+        box.addButton(
+            QApplication.translate("CallNotice", "Got it"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        box.open()
+
+    # Updating settings emits changed, which can call Sources.follow again.
+    QTimer.singleShot(0, parent, show)
 
 
 def start_interface_language(
@@ -8897,10 +9427,10 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     first_account: Account | None = None
     beta_supported: bool | None = None
 
-    def region_for_sign_in() -> Callable[[], Region] | None:
+    def use_sign_in_region(
+        read: Callable[[], Region], result: Region | AccountError | None
+    ) -> Callable[[], Region] | None:
         nonlocal beta_supported
-        read = beta_accounts().region
-        result = sign_in_region(read, app, beta_confirmed=beta_supported is True)
         if result is None:
             beta_supported = False
             return None
@@ -8939,7 +9469,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     def first_sign_in() -> EmailSignIn | SignInDialog:
         again = credentials.install_id() is not None
-        region = region_for_sign_in()
+        read = beta_accounts().region
+        result = sign_in_region(read, app, beta_confirmed=beta_supported is True)
+        region = use_sign_in_region(read, result)
         if region is None:
             return SignInDialog(redeem_code, again=again)
         return EmailSignIn(
@@ -9094,7 +9626,6 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     # imported only now - pydantic, websockets, numpy and onnxruntime take
     # about 0.3 s - so the window is up first (108's fix f, project 136)
     from polyglotic_desktop.connection import listening
-    from polyglotic_desktop.connection.client import Connection
     from polyglotic_desktop.connection.exchange import DataExchange
     from polyglotic_desktop.connection.feedback import RETRY_EVERY_SEC, FeedbackSender
     from polyglotic_desktop.connection.milestones import Milestones
@@ -9191,6 +9722,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         daemon=True,
     ).start()
     listener = QtListener(desktop, pipeline, updates, hub.account)
+    listener.listening_ended.connect(
+        hub.home.show_last_session, Qt.ConnectionType.QueuedConnection
+    )
 
     def chinese() -> ChineseDictionary | None:
         """The Chinese dictionary open now, the learner's or one beside."""
@@ -9214,21 +9748,25 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     listener.busy_changed.connect(hub.set_busy)
     listener.update_found.connect(hub.set_update_found)
     listener.clock_doubted.connect(hub.home.state.set_clock_looks_wrong)
-    connection = Connection(
+    connection = caption_connection(
         args.server,
         credentials,
         app_info,
         exchange,
         listener,
+        windows,
         milestones=milestones,
-        capture_restarts=pipeline.take_restarts,  # each summary counts them (566)
-        time_zone=system_time_zone(),
+        capture_restarts=pipeline.take_restarts,
+        tools=tools,
     )
     wire_continuation_refresh(desktop.feed, listener, pipeline, connection, chosen)
     wire_maintenance(connection, listener, desktop, hub, windows)
     account = hub.account
     reports = FeedbackFolder(data / "feedback")
-    feedback = QtFeedback(desktop)
+    feedback = QtFeedback(
+        desktop,
+        lambda: exchange.usage("feature_suggested", {}, datetime.now(UTC)),
+    )
     sender = FeedbackSender(args.server, credentials, reports, feedback.outcome)
 
     problem_reports = ProblemReportFolder(data / "problem-reports")
@@ -9251,69 +9789,77 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     windows.report_wanted.connect(lambda: open_feedback("problem"))
     report_window = OneReportWindow()
 
-    def open_problem_report(
-        session_id: str | None, check_result: str | None = None
+    def open_report_dialog(
+        mode: ReportMode,
+        session_id: str | None,
+        check_result: str | None = None,
     ) -> None:
-        """An alpha tester's "Report a problem": the dialog over the window,
-        not modal; what's left ticked is kept and sent off this thread. One
-        at a time: asked again, the open one comes to the front (278)."""
-        from polyglotic_desktop.connection import protocol
-
-        if report_window.front():
+        """Unified "Report a problem" / "Make a suggestion" dialog, not modal.
+        One at a time: asked again, the open one comes to the front in `mode`
+        (278, 955). Suggestions can include a reply and the plain app log."""
+        if report_window.front(mode):
             return
-        captions = captions_as_shown(desktop.feed.history.captions, datetime.now(UTC))
-        speech = speech_by_source(pipeline.held_speech())
-        names = {str(sid): title for sid, (_, title) in sources.shown().items()}
-        for part in speech:
-            if desktop.feed.history.is_yours(part.source_id):
-                names[str(part.source_id)] = mic_name()
-        log_text = log_with_timelines(data / "logs", trace.tracer().recent())
-        values = desktop.settings.value.to_stored()
-        facts = report_facts(
-            app_info, release.channel, speech, per_app.line, system.sound_devices
-        )
-        dialog = ProblemReportDialog(
-            problem_report_parts(
+        tester = is_tester(desktop.settings.value)
+        captions: list[dict[str, object]] | None = None
+        speech: list[SpeechPart] = []
+        values: dict[str, object] | None = None
+        facts: dict[str, object] | None = None
+        if tester:
+            captions = captions_as_shown(
+                desktop.feed.history.captions, datetime.now(UTC)
+            )
+            speech = speech_by_source(pipeline.held_speech())
+            names = {str(sid): title for sid, (_, title) in sources.shown().items()}
+            for part in speech:
+                if desktop.feed.history.is_yours(part.source_id):
+                    names[str(part.source_id)] = mic_name()
+            log_text = log_with_timelines(data / "logs", trace.tracer().recent())
+            values = desktop.settings.value.to_stored()
+            facts = report_facts(
+                app_info, release.channel, speech, per_app.line, system.sound_devices
+            )
+            parts = problem_report_parts(
                 log_text, values, facts, captions, speech, names, check_result
-            ),
+            )
+        else:
+            log_text = read_log(data / "logs")
+            parts = non_tester_problem_parts(log_text, check_result)
+        dialog = ProblemReportDialog(
+            parts,
             feedback_versions(app_info),
             over,
+            mode=mode,
+            with_session=session_id is not None,
+            problem_requires_text=not tester,
+            read_suggestion_log=lambda: read_log(data / "logs") if tester else log_text,
         )
 
         def send() -> None:
             text, ticked = dialog.chosen()
-            if check_result and "check" in ticked:
-                text = f"{text}\n\n--- no-captions check ---\n{check_result}".strip()
-            report = ProblemReport(
-                id=str(uuid.uuid4()),
-                at=protocol.at(datetime.now(UTC)),
-                text=text[:5000],
-                app_version=app_info.app_version,
-                os=app_info.os,
-                os_version=app_info.os_version,
-                session_id=session_id,
-                log=log_text if "log" in ticked else None,
-                settings=values if "settings" in ticked else None,
-                facts=facts if "facts" in ticked else None,
-                captions=captions if "captions" in ticked else None,
-                speech=tuple(
-                    ReportedSpeech(
-                        str(clip.caption_id),
-                        str(clip.source_id),
-                        clip.category.value,
-                        clip.start,
-                        clip.end,
-                        clip.audio,
-                    )
-                    for part in speech
-                    if f"speech:{part.source_id}" in ticked
-                    for clip in part.clips
-                ),
+            chosen_mode = dialog.chosen_mode()
+            reply_to, suggestion_log = dialog.suggestion_details()
+            report_id = submit_report_dialog(
+                chosen_mode,
+                text,
+                ticked,
+                app_info,
+                session_id,
+                tester=tester,
+                waiting_reports=reports,
+                send_feedback=sender.send_waiting,
+                send_problem=problem_sender.keep_and_send,
+                log_text=log_text,
+                settings=values,
+                facts=facts,
+                captions=captions,
+                speech=speech,
+                check_result=check_result,
+                suggestion_reply_to=reply_to,
+                suggestion_log=suggestion_log,
             )
-            feedback.just_sent = report.id
+            feedback.just_sent = report_id
             if credentials.load() is None:
                 desktop.show_feedback("sign_in", True)
-            problem_sender.keep_and_send(report)
 
         dialog.sent.connect(send)
         report_window.opened(dialog)
@@ -9323,8 +9869,12 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     def open_feedback(
         kind: str, session_id: str | None = None, check_result: str | None = None
     ) -> None:
-        if kind == "problem" and is_tester(desktop.settings.value):
-            open_problem_report(session_id or listener.session_id, check_result)
+        if kind == "suggestion" or (
+            kind == "problem" and is_tester(desktop.settings.value)
+        ):
+            open_report_dialog(
+                cast(ReportMode, kind), session_id or listener.session_id, check_result
+            )
             return
         report = ask_for_feedback(
             cast(ReportKind, kind),
@@ -9474,6 +10024,8 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     signing_out = False
     account_work = AccountWork(over)
     checkout_work = AccountWork(over)
+    sign_in_work = AccountWork(over)
+    sign_in_dialog: EmailSignIn | SignInDialog | None = None
     upgrade: UpgradePage | None = None
 
     def show_sign_in_method() -> None:
@@ -9763,36 +10315,12 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             listen_here()
         dialog.deleteLater()
 
-    def sign_in_with_email(*, restoring: bool = False) -> None:
-        nonlocal beta_supported
-        if signing_out:
+    def sign_in_finished(code: int) -> None:
+        nonlocal beta_supported, sign_in_dialog
+        dialog, sign_in_dialog = sign_in_dialog, None
+        if dialog is None:
             return
-
-        def verify(challenge: str, code: str) -> Account:
-            return beta.verify(
-                challenge, code, lambda _: connection.disconnect_account()
-            )
-
-        region = region_for_sign_in()
-        show_sign_in_method()
-        if region is None and restoring:
-            hub.home.state.set_notice(account_error(AccountError("unavailable")))
-            return
-        again = credentials.install_id() is not None
-        dialog = (
-            SignInDialog(redeem_code, over, again=again)
-            if region is None
-            else EmailSignIn(
-                region,
-                start_email,
-                verify,
-                None if restoring else redeem_code,
-                over,
-                restoring=restoring,
-                again=again,
-            )
-        )
-        if dialog.exec():
+        if code == QDialog.DialogCode.Accepted.value:
             account.set_signed_in(True)
             value = dialog.account if isinstance(dialog, EmailSignIn) else None
             if value is not None:
@@ -9807,6 +10335,48 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
                 not_listening()
             refresh_beta()
         dialog.deleteLater()
+
+    def sign_in_with_email(*, restoring: bool = False) -> None:
+        if signing_out or sign_in_work.busy or sign_in_dialog is not None:
+            return
+        device = credentials.load()
+        read = beta.region
+
+        def verify(challenge: str, code: str) -> Account:
+            return beta.verify(
+                challenge, code, lambda _: connection.disconnect_account()
+            )
+
+        def probed(result: Region | AccountError | None) -> None:
+            nonlocal sign_in_dialog
+            if signing_out or credentials.load() != device:
+                return
+            region = use_sign_in_region(read, result)
+            show_sign_in_method()
+            if region is None and restoring:
+                hub.home.state.set_notice(account_error(AccountError("unavailable")))
+                return
+            again = credentials.install_id() is not None
+            sign_in_dialog = (
+                SignInDialog(redeem_code, over, again=again)
+                if region is None
+                else EmailSignIn(
+                    region,
+                    start_email,
+                    verify,
+                    None if restoring else redeem_code,
+                    over,
+                    restoring=restoring,
+                    again=again,
+                )
+            )
+            sign_in_dialog.finished.connect(sign_in_finished)
+            sign_in_dialog.setModal(True)
+            sign_in_dialog.show()
+
+        request_sign_in_region(
+            read, sign_in_work, probed, beta_confirmed=beta_supported is True
+        )
 
     def sign_in() -> None:
         sign_in_with_email()
@@ -10052,9 +10622,26 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         learning=lambda: desktop.settings.value.learning_languages.all,
         explained=explained,
         explained_in=explained_in,
+        traditional_japanese_glosses=interface_language.in_use(app) == "zh_TW",
     )
     hub.use_packs(packs)
     packs.notice.connect(desktop.home_notice)
+
+    def show_japanese_readings() -> None:
+        status = japanese_readings_status(desktop.tools)
+        interface.panels.japanese_readings.follow(
+            JapaneseReadings(
+                supported="japanese" in packs.reader.splits and status != "failed",
+                dictionary_here=status == "ready"
+                and (packs.folder_path / JAPANESE_DICTIONARY).is_file(),
+                progress=packs.progress.get("ja"),
+            )
+        )
+
+    packs.readied.connect(show_japanese_readings)
+    packs.changed.connect(show_japanese_readings)
+    packs.line_changed.connect(lambda _code: show_japanese_readings())
+    show_japanese_readings()
     if desktop.tools is not None:
         windows.class_evidence = partial(
             desktop.tools.word_class_evidence, ready_packs=packs.ready
@@ -10151,6 +10738,7 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             left_out, per_app.trial
         ),
         sample_capture=sample_capture,
+        on_call=lambda name: queue_call_notice(desktop.settings, hub.window, name),
     )
 
     def signed_in_or_out(state: ConnectionState, _retry_in: object) -> None:
@@ -10420,12 +11008,16 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     respeaking.sign_changed.connect(show_respeaking)
 
-    # Settings > Look's independent caption and translation sizes (655)
-    settings_page.caption_size_chosen.connect(windows.set_caption_sizes)
-    settings_page.translation_size_chosen.connect(windows.set_translation_sizes)
+    # Settings > Look and the cog use the same machine-local language sizes.
+    settings_page.caption_size_chosen.connect(
+        partial(windows.set_current_language_size, 0)
+    )
+    settings_page.translation_size_chosen.connect(
+        partial(windows.set_current_language_size, 1)
+    )
 
     def sync_caption_sizes() -> None:
-        settings_page.show_caption_sizes(*windows.current_size_readout())
+        settings_page.show_language_sizes(windows.current_language_sizes())
 
     windows.sizes_changed.connect(sync_caption_sizes)
     windows.languages_changed.connect(sync_caption_sizes)  # the first window may change
@@ -10505,7 +11097,11 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             dictation_key.taken,
         )
         settings_page.show_respeaking(
-            value.type_theirs, other_binding, respeak_key.taken, value.type_what
+            value.type_theirs,
+            other_binding,
+            respeak_key.taken,
+            value.type_what,
+            value.last_respeak_key,
         )
         key = respeak_key if own else dictation_key
         windows.set_respeaking(
@@ -10527,7 +11123,10 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         if not wanted or respeak_key.try_key(
             wanted, value.type_theirs or value.legacy_respeaking
         ):
-            desktop.settings.update(respeak_key=wanted)
+            desktop.settings.update(
+                respeak_key=wanted,
+                **({"last_respeak_key": wanted} if wanted else {}),
+            )
         else:
             settings_page.respeak_key_not_taken(wanted)
             follow_dictation()
@@ -10754,57 +11353,99 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         sharing.timeout.connect(partial(share_finished_days, each.vocabulary, exchange))
     sharing.start()
 
-    tried = set(tools.also)  # the full languages opened, or tried, this run
+    tried = set(tools.also)  # the languages opened, or tried, this run
+    pack_learners = ThreadPoolExecutor(1, thread_name_prefix="pack-learner")
+    opening_packs: dict[
+        str, Future[tuple[LearningTools, BackgroundLearningStore] | None]
+    ] = {}
+    interface_thread = app.thread()
+    after_opening: list[Callable[[], None]] = []
+
+    def after_pack_learners_open(call: Callable[[], None]) -> None:
+        # Local deletion must see the same stores as the learner's in-memory data.
+        if opening_packs:
+            after_opening.append(call)
+        else:
+            call()
+
+    def finish_pack_opening() -> None:
+        if not opening_packs:
+            ready = after_opening[:]
+            after_opening.clear()
+            for call in ready:
+                call()
+
+    exchanged.after_pack_learners_open = after_pack_learners_open
+
+    def follow_learner(other: LearningTools, store: BackgroundLearningStore) -> None:
+        beside.append(store)
+        other.vocabulary.subscribe(to_server)
+        other.vocabulary.subscribe(counted)
+        share_finished_days(other.vocabulary, exchange)
+        sharing.timeout.connect(
+            partial(share_finished_days, other.vocabulary, exchange)
+        )
+        # Build the Words section and Learning card in the next turn (436).
+        QTimer.singleShot(0, partial(show_opened, other))
+
+    def load_pack_learner(
+        code: str,
+    ) -> tuple[LearningTools, BackgroundLearningStore] | None:
+        try:
+            with short_turns():
+                other, store = pack_learner_tools(code, data, tools.basic)
+        except LearningStoreFormatError as e:  # type only: content-free
+            log.warning("%s's learning data left closed: %s", code, type(e).__name__)
+            return None
+        # LearningTools has no parent or widgets. Move it before connecting
+        # its signals to anything that reads or changes the interface.
+        if not other.moveToThread(interface_thread):
+            store.close()
+            raise RuntimeError(
+                "could not move the pack learner to the interface thread"
+            )
+        return other, store
+
+    def pack_learner_opened(code: str) -> None:
+        future = opening_packs.pop(code, None)
+        if future is None:
+            return
+        try:
+            loaded = future.result()
+            if loaded is not None:
+                other, store = loaded
+                tools.learn_beside(other)
+                log.info(
+                    "learning data open: %s", ", ".join(t.language for t in tools.every)
+                )
+                follow_learner(other, store)
+        finally:
+            finish_pack_opening()
+
+    def pack_learner_loaded(
+        code: str, future: Future[tuple[LearningTools, BackgroundLearningStore] | None]
+    ) -> None:
+        if not future.cancelled():
+            QTimer.singleShot(0, desktop, partial(pack_learner_opened, code))
 
     def open_added() -> None:
-        """Every full language learned beside the main one opens - those
-        learned already as the app's loop starts, after the window's first
-        paint; one learned during the run (Learning's "Learn it", a lookup's
-        "Learn it too") as it's added (306): its dictionary, its learning
-        data and its read-ahead; its changes and exposure days going out
-        like the others'; its Words section and Learning card; its lines
-        marked from the next paint (`show_opened`, in the loop's next
-        turn). A pack language opens once its pack's word split has read
-        its data (`PackDelivery.ready`, 436). One that can't open (a
-        learning data file from a newer app, which stops a start) stays
-        closed, said in the log, and its lines are looked up as before."""
+        """Open the other languages learned. A pack learner waits until the
+        word split has warmed before opening its learning store on a worker."""
         languages = desktop.settings.value.learning_languages
-        wanted = [
-            c
-            for c in (
-                *open_beside(languages, tools.language, own),
-                # a pack language learned, once its pack is open (0175) and
-                # its word split has read its data - never beside that read,
-                # which froze the interface (436): one whose pack comes
-                # later is opened then (`packs.readied`)
-                *packs_beside(languages, packs.ready),
-            )
-            if c not in tried
-        ]
-        if not wanted:  # the usual case: any other setting changed
-            return
-        tried.update(wanted)  # once each: one left closed isn't tried again
-        for other, store in tools_beside(
-            tools,
-            args.dictionaries,
-            data,
-            languages,
-            own,
-            packs.ready,
-            meanings,
-            explained,
-        ):
-            beside.append(store)
-            other.vocabulary.subscribe(to_server)
-            other.vocabulary.subscribe(counted)
-            share_finished_days(other.vocabulary, exchange)
-            sharing.timeout.connect(
-                partial(share_finished_days, other.vocabulary, exchange)
-            )
-            # shown in the loop's next turn: the opening and its showing are
-            # each about 50 ms, never one stretch of both (436)
-            QTimer.singleShot(0, partial(show_opened, other))
-        mandarin.follow()  # Chinese opened beside: told Traditional's forms (442)
+        full = set(open_beside(languages, tools.language, own)) - tried
+        if full:
+            tried.update(full)
+            for other, store in tools_beside(
+                tools, args.dictionaries, data, languages, own, (), meanings, explained
+            ):
+                follow_learner(other, store)
+            mandarin.follow()  # Chinese opened beside: told Traditional's forms (442)
+        for code in packs_beside(languages, packs.ready):
+            if code not in tried:
+                tried.add(code)
+                future = pack_learners.submit(load_pack_learner, code)
+                opening_packs[code] = future
+                future.add_done_callback(partial(pack_learner_loaded, code))
 
     def show_opened(other: LearningTools) -> None:
         """A language just opened (`open_added`), shown: its read-ahead
@@ -10830,6 +11471,7 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     settings_page.show_command(shortcut_command())
     hotkeys = AppHotkeys(system.hotkeys, desktop.hotkey_pressed.emit)
+    live_space = LocalLiveShortcut(app, desktop.go_live)
     hotkeys_shown: list[object] = [None]
 
     def follow_hotkeys() -> None:
@@ -10853,7 +11495,14 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             DictationKey.parse(other_binding) if others_on and other_binding else None
         )
         changed = hotkeys.follow(keys, {DICTATE: dictation, RESPEAK: respeak})
-        shown = (keys, hotkeys.bound, hotkeys.taken, hotkeys.available)
+        live_space.enabled = hotkeys.live_space
+        shown = (
+            keys,
+            hotkeys.bound,
+            hotkeys.taken,
+            hotkeys.available,
+            hotkeys.live_space,
+        )
         if not changed and shown == hotkeys_shown[0]:
             return
         hotkeys_shown[0] = shown
@@ -10874,7 +11523,10 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
                     ("H", Hotkey.HIDE),
                 )
                 if own_hotkey(desktop.hotkeys[hotkey.value], letter)
-            ]
+            ],
+            desktop.hotkeys[Hotkey.LIVE.value]
+            .shortcut()
+            .toString(QKeySequence.SequenceFormat.NativeText),
         )
 
     def key_box(listening: bool) -> None:
@@ -10937,8 +11589,17 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         updates.at_exit()
         watchdog.stop()
         outbox.close()  # after the connection's last: what waits is written
+        pack_learners.shutdown(cancel_futures=True)
+        # The event loop is ending. Close any store its callback hasn't adopted.
+        for pending in opening_packs.values():
+            if not pending.cancelled() and pending.exception() is None:
+                loaded = pending.result()
+                if loaded is not None:
+                    loaded[1].close()
+        opening_packs.clear()
+        finish_pack_opening()
         learning_store.close()  # last: after every write queued, the file closed now
-        for other in beside:  # each other open language's, the same way
+        for other in beside:
             other.close()
 
     app.aboutToQuit.connect(stop)

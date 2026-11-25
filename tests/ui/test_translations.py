@@ -254,7 +254,7 @@ def test_dictations_note_names_detect_as_its_list_does(language: str) -> None:
     note = next(
         text
         for source, text in said.items()
-        if source.startswith("Choose a language or use {detect} when dictation")
+        if source.startswith("Choose a language or use {detect} for when")
     )
     assert "{detect}" in note
 

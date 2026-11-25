@@ -665,3 +665,60 @@ def test_whats_behind_text_is_never_its_own_colour_while_another_shows() -> None
     assert alone is not None and alone.name() == QColor(*pen).name()
     sparse = checks._behind(_box(pen, dark, 0.3), whole, QColor(*pen))
     assert sparse is not None and sparse.name() == QColor(*dark).name()
+
+
+@pytest.mark.parametrize("label", ["Mandarin · 21:43", "普通话"])
+def test_outlined_text_on_transparent_scene_is_recognised_by_its_halo(
+    qapp: QApplication,
+    label: str,
+) -> None:
+    """Outlined small labels on a transparent panel have no solid box; the
+    contrast check reads their immediate outline halo, while un-outlined text
+    on the same low-contrast scene still fails."""
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QColor, QFont, QImage, QPainter, QTextLayout
+
+    from polyglotic_desktop.ui_next.caption_layout import draw_text_edge
+    from polyglotic_desktop.ui_next.views.caption_window import TextEdge
+
+    def render(outlined: bool) -> QImage:
+        image = QImage(160, 40, QImage.Format.Format_ARGB32)
+        image.fill(QColor("#4a5a6a"))
+        painter = QPainter(image)
+        font = QFont("Segoe UI")
+        font.setPixelSize(12)
+        layout = QTextLayout(label, font)
+        layout.beginLayout()
+        layout.createLine()
+        layout.endLayout()
+        pen = QColor("#aab2c0")
+        at = QPointF(12, 10)
+        if outlined:
+            draw_text_edge(painter, layout, at, pen, TextEdge.OUTLINE)
+        painter.setPen(pen)
+        layout.draw(painter, at)
+        painter.end()
+        return image
+
+    rect = QRectF(12, 10, 120, 18)
+    pen = QColor("#aab2c0")
+    scene = QColor("#4a5a6a")
+    outlined_halo = checks._outline_halo(checks._array(render(True)), rect, pen, scene)
+    plain_halo = checks._outline_halo(checks._array(render(False)), rect, pen, scene)
+    assert outlined_halo is not None and outlined_halo.name() == "#000000"
+    assert plain_halo is None
+
+
+def test_only_a_surrounding_edge_counts_as_a_halo_on_a_thick_stroke() -> None:
+    from PySide6.QtGui import QColor
+
+    pen, scene = (170, 178, 192), (74, 90, 106)
+    pixels = _box(pen, scene, 0.0)
+    pixels[2:8, 2:8, :3] = pen
+    rect = QRectF(0, 0, 10, 10)
+    # A shadow on two sides still leaves the stroke against the scene.
+    pixels[8, 2:9, :3] = pixels[2:8, 8, :3] = 0
+    assert checks._outline_halo(pixels, rect, QColor(*pen), QColor(*scene)) is None
+    pixels[1, 1:9, :3] = pixels[2:9, 1, :3] = 0
+    halo = checks._outline_halo(pixels, rect, QColor(*pen), QColor(*scene))
+    assert halo is not None and halo.name() == "#000000"

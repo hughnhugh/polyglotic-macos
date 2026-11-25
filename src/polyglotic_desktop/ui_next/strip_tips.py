@@ -46,19 +46,26 @@ TipText = Callable[[QPoint], str]
 
 
 def tip_place(
-    size: tuple[int, int], button: QRect, window: QRect, area: QRect
+    size: tuple[int, int],
+    button: QRect,
+    window: QRect,
+    area: QRect,
+    *,
+    near_button: bool = False,
 ) -> tuple[QRect, bool]:
     """Where a label of `size` (width, height) goes for `button` (on the
     screen) on `window` (its window's frame, on the screen) inside `area`
     (the screen's work area): centred over the button, just above the
-    window - or, with no room there, just under the button, over the
-    captions (the second value, True). Never off the screen."""
+    window (or directly above `button` when `near_button` is True) - or, with
+    no room there, just under the button, over the captions (the second value,
+    True). Never off the screen."""
     width, height = size
     x = button.center().x() - width // 2
     x = max(area.left(), min(x, area.right() + 1 - width))
-    above = window.top() - GAP - height
+    anchor_top = button.top() if near_button else window.top()
+    above = anchor_top - GAP - height
     if above >= area.top():
-        return QRect(x, above, width, height), False
+        return QRect(x, above, width, height), near_button
     below = min(button.bottom() + 1 + GAP, area.bottom() + 1 - height)
     return QRect(x, below, width, height), True
 
@@ -100,6 +107,7 @@ class StripTips(QObject):
         super().__init__(owner)
         self.label = HoverLabel(owner)
         self.texts: dict[QWidget, TipText] = {}
+        self._near: set[QWidget] = set()
         self.over: QWidget | None = None
         """The watched widget the mouse is on, or None."""
         self.at = QPoint()
@@ -109,11 +117,15 @@ class StripTips(QObject):
         self._gone = QTimer(self, singleShot=True)
         self._gone.timeout.connect(self.hide)
 
-    def watch(self, widget: QWidget, text: TipText | None = None) -> None:
+    def watch(
+        self, widget: QWidget, text: TipText | None = None, *, near: bool = False
+    ) -> None:
         """Say `widget`'s `text` on hover - by default its action's tooltip
         (a strip button's) or its own, read each time, so a changed tip
         (Stop captioning's app, word links turned off) is the one said."""
         self.texts[widget] = text or partial(_tooltip_at, widget)
+        if near:
+            self._near.add(widget)
         widget.installEventFilter(self)
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
@@ -156,7 +168,13 @@ class StripTips(QObject):
         window = widget.window().frameGeometry()
         screen = widget.screen() or QGuiApplication.primaryScreen()
         area = screen.availableGeometry() if screen is not None else window
-        place, over = tip_place((label.width(), label.height()), button, window, area)
+        place, over = tip_place(
+            (label.width(), label.height()),
+            button,
+            window,
+            area,
+            near_button=widget in self._near,
+        )
         label.over_captions = over
         label.setGeometry(place)
         label.show()

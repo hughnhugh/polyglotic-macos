@@ -31,6 +31,7 @@ from itertools import pairwise
 from typing import TYPE_CHECKING
 
 from polyglotic_desktop.core.lexicon.readings import Reading
+from polyglotic_desktop.core.lexicon.romaji import romaji
 from polyglotic_desktop.ports.word_split import SplitWord
 
 if TYPE_CHECKING:
@@ -172,6 +173,14 @@ class FuriganaReader:
                 found.extend(readings_of(text, words[at]))
             at += count
         return found
+
+    def romaji_readings(self, text: str) -> list[Reading]:
+        """One modified-Hepburn reading per Sudachi word."""
+        return [
+            Reading(word.start, word.end, romaji(word.kana, particle=word.particle))
+            for word in self.dictionary.split(text)
+            if word.kana
+        ]
 
     def joined(
         self, text: str, words: Sequence[SplitWord], at: int

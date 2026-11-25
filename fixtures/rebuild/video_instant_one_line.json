@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "name": "video_instant_one_line",
+  "covers": [
+    "B-V1"
+  ],
+  "view": {
+    "mode": "video-instant",
+    "target": "en",
+    "max_lines": 1
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vi1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "第一行。",
+            "translations": {
+              "en": "First line."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vi2",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "第二行。",
+            "translations": {
+              "en": "Second line."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "vi1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "第一行。",
+                "translation": "First line.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "第",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "一",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      4
+                    ],
+                    "after": 4,
+                    "text": "行。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "state": {
+        "lines": [
+          {
+            "key": 2,
+            "caption_id": "vi2",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "第二行。",
+                "translation": "Second line.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "第",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "二",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      4
+                    ],
+                    "after": 4,
+                    "text": "行。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

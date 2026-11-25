@@ -33,28 +33,28 @@ def key(text: str) -> DictationKey:
 
 
 def test_lock_pause_hide_and_back_to_live_have_keys_and_the_rest_none() -> None:
-    """Ctrl+Alt+L, P and H, as since the proof of concept; Back to live
-    Ctrl+Alt+J (the brief: a default that doesn't clash); the rest are a
-    learner's to give - copying takes the clipboard."""
+    """Ctrl+Alt+L, P and H, as since the proof of concept. Space returns to
+    live inside caption and transcript windows. The learner can bind the rest."""
     found = {h.value: str(k) if k else None for h, k in defaults().items()}
     assert found == {
         "lock": "ctrl+alt+l",
         "pause": "ctrl+alt+p",
         "hide": "ctrl+alt+h",
-        "live": "ctrl+alt+j",
+        "live": "space",
         "copy": None,
         "preset": None,
         "bigger": None,
         "smaller": None,
         "bar": None,
     }
-    for each in defaults().values():
-        assert each is None or refusal(each) is None
+    for hotkey, each in defaults().items():
+        assert each is None or refusal(each, hotkey=hotkey) is None
+    assert refusal(key("space"), hotkey=Hotkey.HIDE) is not None
 
 
 def test_on_a_mac_they_re_control_command() -> None:
     """⌃⌘ and the letter (polyglotic-hq 428), kept in Qt's names."""
-    assert str(defaults(Platform.MAC)[Hotkey.LIVE]) == "ctrl+win+j"
+    assert str(defaults(Platform.MAC)[Hotkey.LIVE]) == "space"
     assert str(keys({}, Platform.MAC)[Hotkey.LOCK]) == "ctrl+win+l"
 
 
@@ -67,10 +67,10 @@ def test_on_linux_they_re_ctrl_alt_shift() -> None:
         "lock": "ctrl+alt+shift+l",
         "pause": "ctrl+alt+shift+p",
         "hide": "ctrl+alt+shift+h",
-        "live": "ctrl+alt+shift+j",
+        "live": "space",
     }
-    for each in defaults(Platform.LINUX).values():
-        assert each is None or refusal(each) is None
+    for hotkey, each in defaults(Platform.LINUX).items():
+        assert each is None or refusal(each, hotkey=hotkey) is None
     assert str(keys({}, Platform.LINUX)[Hotkey.LOCK]) == "ctrl+alt+shift+l"
 
 

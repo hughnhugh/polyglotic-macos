@@ -15,6 +15,7 @@ Made-up text; offscreen."""
 import random
 import threading
 from collections.abc import Iterator
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -34,7 +35,7 @@ from polyglotic_desktop.core.learning.levels import LanguageChoices
 from polyglotic_desktop.core.learning.lookups import LookupContext
 from polyglotic_desktop.core.lexicon.scripts import word_script
 from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.display import RowKind
+from polyglotic_desktop.core.listening.display import LongLines, RowKind
 from polyglotic_desktop.ports.dictionary import EntryRecord
 from polyglotic_desktop.ui.learning import LearningTools
 from polyglotic_desktop.ui.recorded_captions import APP, MIC, clause, finished
@@ -339,6 +340,7 @@ def test_a_chinese_word_in_an_english_caption_is_clicked_in_a_caption_window(
 
 LAYOUTS = {
     "today's": CaptionLab(),
+    "display new lines": CaptionLab(),
     "new": CaptionLab(flow=True, fill=Fill.PAIRED),
     "new, run on": CaptionLab(flow=True, fill=Fill.PAIRED, run_on=True),
     "new, lined up": CaptionLab(flow=True, fill=Fill.PAIRED, aligned=True),
@@ -359,35 +361,52 @@ def test_every_word_of_a_mixed_caption_opens_its_own_languages_card_in_every_lay
     looked up as a click pins it - opens its own script's language's
     entry, in every layout: the New layout hit-tests and looks up through
     the same word split as today's."""
+    from tests.ui_next.test_card_stack import Clock
     from tests.ui_next.test_lookup_card import AREA
 
     windows = CaptionWindows(None, MIC, lambda: [AREA], learner=both)
     try:
         windows.set_captioned([("app", APP)])
         windows.set_look(CaptionLook(lab=LAYOUTS[layout]))
+        shown = windows.windows["app"]
+        clock = Clock()
+        shown.clock = clock
+        wrapped = layout in ("today's", "display new lines")
+        if layout == "display new lines":
+            shown.set_presets(
+                replace(shown.preset_menu, long_lines=LongLines.DISPLAY_NEW_LINES)
+            )
+        said_last = "they keep running left"
+        if wrapped:
+            said_last = " ".join([said_last] * 4 + ["北京"])
         en, zh = Language("en"), Language("zh")
         for key, said, meant, into, language in (
             ("c1", "I run to 北京", "我跑到北京", zh, en),
             ("c2", "这个English游戏", "This English game", en, zh),
             ("c3", "研究生", "graduate student", zh, en),  # Chinese, named English
-            ("c4", "they keep running left", "他们一直往左跑", zh, en),
+            ("c4", said_last, "他们一直往左跑", zh, en),
         ):
             windows.apply(
                 finished(key, clause(said, meant, into=into), language=language)
             )
-        shown = windows.windows["app"]
-        shown.setGeometry(480, 500, 1200, 460)
+        shown.setGeometry(480, 100, 650 if wrapped else 1200, 740)
         qapp.processEvents()
-        shown.canvas.repaint()
-        assert (shown.canvas.engine.style.flow is None) == (layout == "today's")
+        shown.grab()
+        clock.now += 3  # let newly wrapped rows reach their painted positions
+        shown.grab()
+        flow = shown.canvas.engine.style.flow
+        assert flow is not None
+        assert flow.share == (layout != "today's")
         card = windows.card
         assert card is not None
         opened: dict[str, bool] = {}
-        for _, laid, rect in shown.canvas.placed:
+        continuation = False
+        for caption, laid, rect in shown.canvas.placed:
             for row in laid.rows:
                 if row.row.kind is not RowKind.ORIGINAL:
                     continue
                 text = row.row.text
+                continuation |= row.start > 0
                 for at, char in enumerate(text):
                     if char == " ":
                         continue
@@ -400,12 +419,24 @@ def test_every_word_of_a_mixed_caption_opens_its_own_languages_card_in_every_lay
                     assert marked is not None, (layout, text, at)  # found to hover
                     found = shown.word_at(marked)
                     assert found is not None
+                    source = caption.rows[row.index].text
+                    assert marked.key == caption.key and marked.row == row.index
+                    assert marked.start <= row.start + at < marked.end, (
+                        source,
+                        row.start,
+                        at,
+                        point,
+                        marked,
+                    )
+                    assert found.word == source[marked.start : marked.end]
                     if found.word in opened:
                         continue
                     card.pin(found, shown)
                     assert card.model.card().shows is Shows.ENTRY, (layout, found.word)
                     opened[found.word] = card.model.is_chinese
                     card.close_card()
+        if wrapped:
+            assert continuation
         assert opened == {
             "I": False, "run": False, "to": False, "北京": True,
             "这个": True, "English": False, "游戏": True,

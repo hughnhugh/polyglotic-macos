@@ -1,0 +1,7 @@
+{
+  "width": 20,
+  "steps": [
+    {"original": "One small sentence.", "translation": "Une petite phrase.", "expected_pairs": [["One small sentence.", "Une petite phrase."]]},
+    {"original": "One small sentence. More words arrive here", "translation": "Une petite phrase. Puis les mots arrivent", "expected_pairs": [["One small sentence.", "Une petite phrase."], ["More words arrive...", "Puis les mots..."], ["here", "arrivent"]]}
+  ]
+}

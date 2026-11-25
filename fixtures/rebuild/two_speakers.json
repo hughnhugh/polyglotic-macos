@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "name": "two_speakers",
+  "covers": [
+    "B-S1"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "sp1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "你好。",
+            "translations": {
+              "en": "Hello."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.4,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "sp2",
+        "source_id": "speaker-b",
+        "kind": "finished",
+        "language": "en",
+        "languages_heard": [
+          "en"
+        ],
+        "clauses": [
+          {
+            "original": "Hi there.",
+            "translations": {
+              "zh": "你好。"
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "sp1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "你好。",
+                "translation": "Hello.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "你",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "好。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.4,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "sp1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "你好。",
+                "translation": "Hello.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "你",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "好。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 2,
+            "caption_id": "sp2",
+            "source_id": "speaker-b",
+            "language": "en",
+            "final": true,
+            "clauses": [
+              {
+                "original": "Hi there.",
+                "translation": null,
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 3,
+                    "text": "Hi",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      3,
+                      9
+                    ],
+                    "after": 9,
+                    "text": "there.",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

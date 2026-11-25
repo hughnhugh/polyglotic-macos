@@ -108,6 +108,16 @@ class BasicDictionary:
         return True
 
     @property
+    def word_split(self) -> WordSplit:
+        """The language's word split."""
+        return self._split
+
+    @property
+    def is_absent(self) -> bool:
+        """Whether this dictionary stands in for a pack that isn't installed."""
+        return isinstance(self._split, _NoSplit)
+
+    @property
     def has_sense_classes(self) -> bool:
         return getattr(self._file, "has_sense_classes", True)
 

@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "小船到了，",
+          "words": [
+            "小船到了，"
+          ],
+          "reading": [],
+          "translation": "The boat is here,",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 2,
+      "source": "you",
+      "live": false,
+      "clauses": [
+        {
+          "said": "我们走吧。",
+          "words": [
+            "我们走吧。"
+          ],
+          "reading": [],
+          "translation": "let's go.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

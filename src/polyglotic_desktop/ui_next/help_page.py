@@ -62,6 +62,7 @@ from polyglotic_desktop.core.shared.papers import (
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
 from polyglotic_desktop.ports.learning import SetAsideLearningData
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.caption_window import live_tip
 from polyglotic_desktop.ui_next.controls import (
     Card,
     Flow,
@@ -142,6 +143,8 @@ class HelpPage(Page):
 
     report_wanted = Signal(str)
     """"Report a problem": the check's result, as `check.summary` words it."""
+    suggestion_wanted = Signal()
+    """"Suggest a feature": open feedback without attaching the check."""
 
     def __init__(
         self,
@@ -170,10 +173,7 @@ class HelpPage(Page):
 
         check = Card(
             _tr("No captions?"),
-            _tr(
-                "This looks at what Polyglotic is doing now, in order, and stops "
-                "at the first thing that's wrong."
-            ),
+            _tr("Checks each step now and stops at the first problem."),
         )
         self._mark_columns: list[tuple[QGridLayout, QLabel]] = []
         self.marks: dict[Step, QLabel] = {}
@@ -215,6 +215,7 @@ class HelpPage(Page):
         check.add(buttons)
         self.content.addWidget(check)
 
+        self._live_key = ""
         self._hotkeys: frozenset[str] = HOTKEYS
         """Those that work here (`show_hotkeys`)."""
         self._command = "polyglotic"
@@ -258,23 +259,30 @@ class HelpPage(Page):
         self.content.addWidget(self.whats_new)
 
         still = Card(_tr("Still stuck?"))
-        stuck = QHBoxLayout()
+        # Stack the explanation above wrapping actions.  Keeping all three in
+        # one horizontal row made long translations widen Help past its
+        # supported minimum viewport.
+        stuck = QVBoxLayout()
         stuck.setSpacing(12)
         stuck.addWidget(
             label(
                 _tr(
-                    "Your report comes with this check's result: ticks and "
-                    "crosses only, nothing you've heard or read."
+                    "Your report includes these results, but nothing you heard or read."
                 ),
                 "Faint",
                 wrap=True,
             ),
-            1,
         )
+        actions = Flow()
         self.report = QPushButton(_tr("Report a problem"))
         self.report.setObjectName("help.report")
         self.report.clicked.connect(self._report)
-        stuck.addWidget(self.report)
+        actions.addWidget(self.report)
+        self.suggest = QPushButton(_tr("Suggest a feature"))
+        self.suggest.setObjectName("help.suggest")
+        self.suggest.clicked.connect(self.suggestion_wanted)
+        actions.addWidget(self.suggest)
+        stuck.addLayout(actions)
         still.add(stuck)
         self.content.addWidget(still)
         self.content.addStretch(1)
@@ -395,11 +403,12 @@ class HelpPage(Page):
             layout.activate()  # the scroll bar's range takes the open version
         self.verticalScrollBar().setValue(self.whats_new.mapTo(inner, QPoint(0, 0)).y())
 
-    def show_hotkeys(self, working: Collection[str]) -> None:
+    def show_hotkeys(self, working: Collection[str], live_key: str = "") -> None:
         """Only `working` hotkeys are named - the others another app has, or
         weren't registered (`DesktopApp.hotkeys_not_working`; polyglotic-hq
         398's preview build has none, and Help said "Ctrl+Alt+L": 400)."""
         self._hotkeys = frozenset(working)
+        self._live_key = live_key
         self._show_set_up()
 
     def show_command(self, command: str) -> None:
@@ -410,7 +419,9 @@ class HelpPage(Page):
 
     def _show_set_up(self) -> None:
         topics = set_up(self._hotkeys, self._command)
-        for topic, (_, text) in zip(self._set_up, topics, strict=True):
+        for topic, (title, text) in zip(self._set_up, topics, strict=True):
+            if self._live_key and title == _tr("Move, lock and resize caption windows"):
+                text += "\n\n" + live_tip(self._live_key)
             topic.text.setText(text)
         if self.isVisible():
             self.refresh()
@@ -542,7 +553,7 @@ def words(
         return problem(link.problem, name, hotkeys)
     if link.status is Status.OK:
         return {
-            Step.CONNECTED: _tr("Signed in, and connected to the server"),
+            Step.CONNECTED: _tr("Signed in and connected to the server"),
             Step.TICKED: _tr("{name} is added on Home").format(name=name),
             Step.SOUND: _trn(
                 "Sound from {name} in the last %Ln second(s)", SOUND_WINDOW
@@ -551,7 +562,7 @@ def words(
             Step.CAPTIONS: _tr("Captions shown"),
         }[link.step], ""
     titles = {
-        Step.CONNECTED: _tr("Signed in, and connected to the server"),
+        Step.CONNECTED: _tr("Signed in and connected to the server"),
         Step.TICKED: _tr("Something is added on Home"),
         Step.SOUND: _trn("Sound from it in the last %Ln second(s)", SOUND_WINDOW),
         Step.SPEECH: _tr("Speech heard"),
@@ -607,10 +618,7 @@ def problem(
         ),
         Problem.SERVER_BUSY: (
             _tr("The server is busy"),
-            _tr(
-                "It has as many listening as it can carry right now. Polyglotic "
-                "tries again by itself - nothing to do."
-            ),
+            _tr("The server is at capacity. Polyglotic will keep trying."),
         ),
         Problem.NOT_CONNECTED: (
             _tr("Not connected to the server"),
@@ -630,7 +638,7 @@ def problem(
             ),
         ),
         Problem.NOTHING_TICKED: (
-            _tr("Nothing is added to caption"),
+            _tr("Nothing to caption"),
             pc_or_mac(
                 _tr(
                     "On Home, add an app (up to {limit}), or choose Everything the PC "
@@ -644,7 +652,7 @@ def problem(
         ),
         Problem.APP_NOT_OPEN: (
             _tr("{name} isn't open").format(name=name),
-            _tr("Open it. It's captioned once it's open."),
+            _tr("Open it to start captions."),
         ),
         Problem.CAPTURE_STOPPED: (  # 557: it was "quiet" while its capture was dead
             _tr(
@@ -692,12 +700,12 @@ def problem(
             ).format(name=name),
             pc_or_mac(
                 _tr(
-                    "Is it playing sound? Is its output going to this PC's "
-                    "speakers or headset, and not muted?"
+                    "Play something, then check that it uses this PC's speakers or "
+                    "headset and isn't muted."
                 ),
                 _tr(
-                    "Is it playing sound? Is its output going to this Mac's speakers "
-                    "or headset, and not muted?"
+                    "Play something, then check that it uses this Mac's speakers or "
+                    "headset and isn't muted."
                 ),
             ),
         ),
@@ -731,12 +739,12 @@ def problem(
             ),
             pc_or_mac(
                 _tr(
-                    "Is it muted, or is another microphone chosen in the PC's "
-                    "sound settings?"
+                    "Check that it isn't muted and is selected in this PC's sound "
+                    "settings."
                 ),
                 _tr(
-                    "Is it muted, or is another microphone chosen in the Mac's sound "
-                    "settings?"
+                    "Check that it isn't muted and is selected in this Mac's sound "
+                    "settings."
                 ),
             ),
         ),
@@ -759,10 +767,10 @@ def problem(
             ),
         ),
         Problem.NO_SPEECH: (
-            _tr("Sound, but no speech heard"),
+            _tr("Sound heard, but no speech"),
             _tr(
-                "Music and effects aren't captioned. Is someone talking, "
-                "loudly enough to hear over anything else?"
+                "Music and sound effects aren't captioned. Play clear speech louder "
+                "than any background sound."
             ),
         ),
         Problem.PAUSED: (
@@ -828,7 +836,7 @@ def problem(
             ),
         ),
         Problem.NO_CAPTIONS: (
-            _tr("Speech was heard, but no caption has been drawn"),
+            _tr("Speech heard, but no captions shown"),
             _tr(
                 "If the app's transcript shows captions, its caption window may "
                 "be off-screen: Reset positions on Home puts every window back."
@@ -877,7 +885,7 @@ def set_up(
             ),
         ),
         (
-            _tr("Caption one app, and everything else apart"),
+            _tr("Caption one app separately"),
             pc_mac_or_linux(
                 _tr(
                     "With one app added on Home, turn on Also caption everything else "
@@ -924,31 +932,40 @@ def set_up(
         ),
         (_tr("Caption your own microphone"), microphone_help()),
         (
-            _tr("Move, lock and resize the caption windows"),
-            _tr(
-                "Drag a caption window to move it, or drag its edges to resize "
-                "it. Lock all (Ctrl+Alt+L) lets clicks pass through; Hide all is "
-                "Ctrl+Alt+H; Pause captions is Ctrl+Alt+P. Lost one? Reset "
-                "positions on Home puts every window back."
-            )
-            if {"L", "H", "P"} <= set(hotkeys)
-            else pc_mac_or_linux(
+            _tr("Move, lock and resize caption windows"),
+            (
                 _tr(
                     "Drag a caption window to move it, or drag its edges to resize "
-                    "it. Lock all, on Home or in the tray menu, lets clicks pass "
-                    "through. Lost one? Reset positions on Home puts every window "
-                    "back."
-                ),
-                _tr(
-                    "Drag a caption window to move it, or drag its edges to resize it. "
-                    "Lock all, on Home or in the menu bar's menu, lets clicks pass "
-                    "through. Lost one? Reset positions on Home puts every window back."
-                ),
-                _tr(
-                    "Drag a caption window to move it, or drag its edges to resize it. "
-                    "Lock all, on Home, lets clicks pass through. Lost one? Reset "
+                    "it. Lock all (Ctrl+Alt+L) lets clicks pass through; Hide all is "
+                    "Ctrl+Alt+H; Pause captions is Ctrl+Alt+P. Lost one? Reset "
                     "positions on Home puts every window back."
-                ),
+                )
+                if {"L", "H", "P"} <= set(hotkeys)
+                else pc_mac_or_linux(
+                    _tr(
+                        "Drag a caption window to move it, or drag its edges to resize "
+                        "it. Lock all, on Home or in the tray menu, lets clicks pass "
+                        "through. Lost one? Reset positions on Home puts every window "
+                        "back."
+                    ),
+                    _tr(
+                        "Drag a caption window to move it, or drag its edges to resize it. "
+                        "Lock all, on Home or in the menu bar's menu, lets clicks pass "
+                        "through. Lost one? Reset positions on Home puts every window back."
+                    ),
+                    _tr(
+                        "Drag a caption window to move it, or drag its edges to resize it. "
+                        "Lock all, on Home, lets clicks pass through. Lost one? Reset "
+                        "positions on Home puts every window back."
+                    ),
+                )
+            )
+            + "\n\n"
+            + hotkeys_here(  # Command's on a Mac (451)
+                _tr(
+                    "In a caption window, press Home or Ctrl+Home to jump to the "
+                    "first caption, and End or Ctrl+End to return to live."
+                )
             ),
         ),
         (
@@ -1002,7 +1019,7 @@ def desktop_shortcuts(command: str) -> tuple[str, str]:
     custom shortcut in the desktop's keyboard settings runs the app again
     with `--lock`, `--pause` or `--hide`, and the copy that runs does it."""
     return (
-        _tr("Shortcuts of your desktop's own"),
+        _tr("Desktop shortcuts"),
         _tr(
             "Where Polyglotic's hotkeys don't work (GNOME on Wayland), add a custom "
             "shortcut in your desktop's keyboard settings (GNOME: Settings > "
@@ -1051,7 +1068,7 @@ def dictation_topic(key: str, on: bool = True) -> tuple[str, str]:
                 "you want."
             ),
         )
-    return _tr("Dictate into any program (preview)"), text.format(key=key)
+    return _tr("Dictate into any app (preview)"), text.format(key=key)
 
 
 def respeak_topic(
@@ -1150,6 +1167,13 @@ def questions() -> list[tuple[str, str]]:
                     "below, says it all.",
                     HOLD_MINUTES,
                 ),
+            ),
+        ),
+        (
+            _tr("Captioning a call"),
+            _tr(
+                "In some places everyone on a call has to agree before it's captioned. "
+                "Tell the people you're talking with."
             ),
         ),
         (

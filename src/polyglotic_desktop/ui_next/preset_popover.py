@@ -47,6 +47,7 @@ from polyglotic_desktop.ui_next.settings_popover import (
     INK,
     LINE,
     SettingsPopover,
+    long_lines_name,
 )
 from polyglotic_desktop.ui_next.views.preset_menu import PresetMenu, Show, Undo
 
@@ -86,7 +87,7 @@ def preset_name(key: str) -> str:
 def preset_note(key: str) -> str:
     """The line under a preset's name: what it's for."""
     notes = {
-        "everyday": _tr("Every helper on: the app's own setup"),
+        "everyday": _tr("Every helper on: the app's defaults"),
         "conversation": _tr("Calls and chats: your speech too"),
         "video": _tr("Subtitles along the bottom, large"),
         "learning": _tr("Word links and fewer word introductions"),
@@ -129,6 +130,8 @@ def undo_note(menu: PresetMenu) -> str:
         )
     if kind is Undo.DISCARDED:
         return _tr("Changes to {name} discarded.").format(name=was)
+    if kind is Undo.LONG_LINES:
+        return long_lines_name(menu.long_lines)
     if kind is Undo.RESTORED:
         return _tr("{name} is back to its defaults.").format(name=was)
     return _tr("{name} deleted.").format(name=was)
@@ -251,7 +254,7 @@ class PresetPopover(SettingsPopover):
                     lambda _=False, chosen=count: window.video_lines_wanted.emit(chosen)
                 )
         self.column.addSpacing(6)
-        self.column.addWidget(self._heading(_tr("Add")))
+        self.column.addWidget(self._heading(_tr("Helpers")))
         links = self._tick(_tr("Word links"), menu.links, "links")
         links.setEnabled(
             menu.show is not Show.TRANSLATION

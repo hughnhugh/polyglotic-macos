@@ -3,6 +3,7 @@
 python -m tools.i18n update   # every .ts from the code, then every .qm
 python -m tools.i18n build    # every .qm from its .ts (tests and builds do it too)
 python -m tools.i18n check    # what the tests check: exit 1 on a problem
+python -m tools.i18n carry --from-diff BASE  # rewrites keep draft translations
 python -m tools.i18n sheet zh_CN review.csv   # a spreadsheet for a reviewer
 python -m tools.i18n sheet de review.csv --most-seen 60   # the 60 seen most
 python -m tools.i18n apply zh_CN review.csv   # its corrections back in
@@ -30,7 +31,7 @@ from pathlib import Path
 import PySide6
 
 from polyglotic_desktop.ui import interface_language
-from tools.i18n import draft, extract, keep, review, ts
+from tools.i18n import carry, draft, extract, keep, review, ts
 
 TS_DIR = extract.REPO / "translations"
 QM_DIR = extract.SOURCE / "ui" / "assets" / "translations"
@@ -184,6 +185,22 @@ def apply(language: str, sheet: Path) -> int:
 
 
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "carry":
+        dry_run = "--dry-run" in argv
+        args = [arg for arg in argv[1:] if arg != "--dry-run"]
+        try:
+            ambiguous: list[str]
+            if len(args) == 2 and args[0] == "--map":
+                changes, ambiguous = carry.read_map(Path(args[1])), []
+            elif len(args) == 2 and args[0] == "--from-diff":
+                changes, ambiguous = carry.from_diff(args[1])
+            else:
+                print(__doc__)
+                return 2
+        except (TypeError, ValueError, OSError, subprocess.CalledProcessError) as error:
+            print(f"carry: {error}")
+            return 2
+        return carry.run(TS_DIR, changes, ambiguous, dry_run)
     if argv == ["update"]:
         return update()
     if argv == ["build"]:

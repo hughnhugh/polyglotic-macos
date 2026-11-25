@@ -172,6 +172,17 @@ def test_w1_a_resize_step(w1: CaptionWindow, qapp: QApplication) -> None:
     within(budgets.FRAME, lambda: sampled(qapp, steps))
 
 
+def test_w1_the_pace_readout_paints_within_one_ms(
+    w1: CaptionWindow, qapp: QApplication
+) -> None:
+    started = time.perf_counter()
+    for _ in range(100):
+        w1.pace.repaint()
+        qapp.processEvents()
+    average_ms = (time.perf_counter() - started) * 1_000 / 100
+    assert average_ms < 1.0
+
+
 def test_w1_a_text_size_step(w1: CaptionWindow, qapp: QApplication) -> None:
     steps = [partial(w1.step_text, s) for s in (3, -2, 4, -5, 2, -2)]
     within(budgets.DISPLAY_CHANGE, lambda: sampled(qapp, steps))

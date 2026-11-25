@@ -190,7 +190,12 @@ def test_the_app_bundle_needs_captures_native_libraries() -> None:
         n for n in build.needed(build.WINDOWS) if "catap" in n or "sounddevice" in n
     ]
     spec = SPEC.read_text(encoding="utf-8")
-    assert 'NATIVE = collect_dynamic_libs("catap")' in spec
+    # Sudachi's extension is required on every packaged platform; catap's
+    # Core Audio library is additionally required only in the Mac recipe.
+    assert 'NATIVE += collect_dynamic_libs("sudachipy")' in spec
+    assert 'NATIVE += collect_dynamic_libs("catap")' in spec
+    assert spec.index('collect_dynamic_libs("sudachipy")') < spec.index("if MACOS:")
+    assert spec.index('collect_dynamic_libs("catap")') > spec.index("if MACOS:")
     assert "binaries=NATIVE," in spec
 
 

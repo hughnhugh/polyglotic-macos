@@ -25,13 +25,12 @@ def still_running_box(parent: QWidget | None) -> QMessageBox:
     box.setObjectName("no_tray.still_running")
     box.setIcon(QMessageBox.Icon.Information)
     box.setWindowTitle("Polyglotic")
-    box.setText(_tr("Polyglotic keeps running"))
+    box.setText(_tr("Keep Polyglotic running?"))
     box.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
     box.setInformativeText(
         _tr(
-            "Your caption windows stay up. To come back to this window, open"
-            " Polyglotic again from your apps. Quit is at the foot of its"
-            " sidebar."
+            "Caption windows stay open. To reopen this window, launch Polyglotic "
+            "again. You can quit from the sidebar."
         )
     )
     keep = box.addButton(_tr("Keep running"), QMessageBox.ButtonRole.AcceptRole)

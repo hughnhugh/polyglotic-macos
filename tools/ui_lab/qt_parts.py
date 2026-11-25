@@ -20,8 +20,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.main import problem_report_parts
 from polyglotic_desktop.ui.app import DesktopApp
+from polyglotic_desktop.ui.feedback import FeedbackDialog
 from polyglotic_desktop.ui.icons import TRAY_SIZES, tray_icon
+from polyglotic_desktop.ui.problem_report import Part, ProblemReportDialog
 from polyglotic_desktop.ui.sign_in import sign_out_question
 from polyglotic_desktop.ui_next import style
 from tools.ui_lab import caption_window
@@ -123,6 +126,63 @@ def dialog(lab: Lab) -> QWidget:
     return box
 
 
+SAMPLE_LOG = "2026-11-25 16:15:00 INFO connection: session opened\n"
+
+
+def _sample_report_parts() -> list[Part]:
+    return problem_report_parts(
+        SAMPLE_LOG,
+        {"caption_mode": "steady"},
+        {"app": {"version": "0.1.12"}},
+        [],
+        [],
+        {},
+        None,
+    )
+
+
+def problem_report(lab: Lab) -> QWidget:
+    """The unified modal in Report a problem mode with ticked attachments."""
+    form = ProblemReportDialog(
+        _sample_report_parts(),
+        "Polyglotic 0.1.12, windows-11 (10.0.26200)",
+        mode="problem",
+        with_session=True,
+    )
+    form.setStyleSheet(style.stylesheet(style.current()))
+    form.text.setPlainText("Captions paused after I switched speakers.")
+    form.show()
+    lab.pump()
+    lab.closing.append(form.close)
+    return form
+
+
+def suggestion(lab: Lab) -> QWidget:
+    """The unified modal in Make a suggestion mode with optional reply and log."""
+    form = ProblemReportDialog(
+        _sample_report_parts(),
+        "Polyglotic 0.1.12, windows-11 (10.0.26200)",
+        mode="suggestion",
+        with_session=False,
+        read_suggestion_log=lambda: SAMPLE_LOG,
+    )
+    form.setStyleSheet(style.stylesheet(style.current()))
+    form.text.setPlainText("Make saved words easier to practise.")
+    form.show()
+    lab.pump()
+    lab.closing.append(form.close)
+    return form
+
+
+def feedback_counter(lab: Lab) -> QWidget:
+    """A report at its limit, including the counter and cutting note."""
+    form = FeedbackDialog("problem", lambda: None, "Polyglotic 0.1.12", False)
+    form.text.setPlainText("x" * 2_001)
+    form.show()
+    lab.closing.append(form.close)
+    return form
+
+
 STATES = [
     State(f"ui_next.qt_{name}", run, gated=True)
     for name, run in (
@@ -131,5 +191,8 @@ STATES = [
         ("caption_tooltip", caption_tooltip),
         ("timing_tooltip", timing_tooltip),
         ("dialog", dialog),
+        ("problem_report", problem_report),
+        ("feedback_suggestion", suggestion),
+        ("feedback_counter", feedback_counter),
     )
 ]

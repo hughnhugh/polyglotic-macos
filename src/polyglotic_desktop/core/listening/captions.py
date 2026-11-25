@@ -81,6 +81,9 @@ class Clause:
     links: Mapping[Language, tuple[WordLink, ...]] = field(default_factory=dict)
     written_in: Mapping[Language, Language] = field(default_factory=dict)
     words: tuple[WordTime, ...] = ()
+    # A display card can contain only part of the received caption.
+    original_continues: bool = False
+    translations_continued: frozenset[Language] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,6 +135,8 @@ class CaptionUpdate:
     display_member: CaptionId | None = None
     """In the views, the later audio ID when revising or restoring its
     earlier line. Its place can be folded away and opened again."""
+    pace_wpm: int | None = None
+    """This finished caption's words per minute, measured by the app."""
 
 
 HAN_NOT_MANDARIN = frozenset({"ja", "yue"})

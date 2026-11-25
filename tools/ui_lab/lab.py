@@ -31,8 +31,10 @@ import time
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from datetime import datetime
 from functools import partial
 from pathlib import Path
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 WINDOWS_FONTS = Path("C:/Windows/Fonts")
@@ -60,7 +62,6 @@ from polyglotic_desktop.ui_next.caption_layout import LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.glyphs import Glyph
 from polyglotic_desktop.ui_next.home import PlayingWave
-from polyglotic_desktop.ui_next.views.arrivals import SLIDE_MAX_SEC
 from tools import busy_pc
 from tools.ui_lab import checks, design, goldens, reference
 from tools.ui_lab.checks import Finding
@@ -159,12 +160,16 @@ class Result:
     first run's timings. The gate judges the last."""
     tries: int = 1
     busy: list[float | None] = field(default_factory=list)
-    """The PC's load, read after each run from the second that was over."""
+    """The PC's load immediately before each timed try."""
+    timing_unmeasured: bool = False
+    """Every timed try began above the trustworthy load threshold."""
     reference_ms: float | None = None
     """A gated state's reference step (`reference.py`), timed just before
     its actions: what main's timings are scaled by (decision 0169)."""
 
     def over_budget(self) -> list[str]:
+        if self.timing_unmeasured:
+            return []
         return [name for name, timed in self.actions.items() if not timed.within()]
 
     def first_try_note(self, action: str) -> str:
@@ -204,6 +209,7 @@ class Result:
             "first_try": {name: t.summary() for name, t in self.first_try.items()},
             "tries": self.tries,
             "busy": self.busy,
+            "timing_unmeasured": self.timing_unmeasured,
             "reference_ms": (
                 None if self.reference_ms is None else round(self.reference_ms, 2)
             ),
@@ -286,7 +292,9 @@ class State:
 def arrived(app: QApplication) -> None:
     """New captions sliding in (step and slide, 267) come to rest before
     the photograph: the checks judge them as they end up, not part way."""
-    deadline = time.monotonic() + 1.5 * SLIDE_MAX_SEC
+    deadline = (
+        time.monotonic() + 2.0
+    )  # seconds allowed for the caption spring to settle
     while time.monotonic() < deadline and any(
         isinstance(w, CaptionWindow) and w.arriving for w in app.allWidgets()
     ):
@@ -428,7 +436,15 @@ def run(
         interface_language.install(app, language)
         style.use_interface_language(language)
     warm_fonts()
-    with _windows_never_ask():
+    # Synthetic captions show the same local time on every run and host.
+    sample_time = datetime(2026, 1, 15, 21, 43).astimezone()
+    with (
+        _windows_never_ask(),
+        patch(
+            "polyglotic_desktop.core.listening.history._utc_now",
+            return_value=sample_time,
+        ),
+    ):
         return _run_states(app, states, out, failed, golden_store, shown)
 
 
@@ -443,22 +459,42 @@ def _run_states(
     """`run`'s states, one by one (`run` says what each gets)."""
     results = []
     for state in states:
+        busy: list[float | None] = []
+        if state.gated:
+            busy.append(
+                busy_pc.wait_for_calm(
+                    busy_pc.UI_TIMING_MAX_BUSY, busy_pc.UI_TIMING_WAIT_SECONDS
+                )
+            )
+            print(
+                f"{state.name}: before try 1, {busy_pc.describe(busy[-1])}", flush=True
+            )
         lab, widget = _run_state(app, state, out)
         first, tries = lab.result.actions, 1
-        busy: list[float | None] = []
         while state.gated and lab.result.over_budget() and tries < busy_pc.MOST_TRIES:
-            # once more from the start, and again while the PC is saturated:
-            # a slow moment passes, a real slowdown is over every time
-            if tries >= 2:
-                busy.append(busy_pc.busy_share())
-                if not busy_pc.saturated(busy[-1]):
-                    break
+            if tries >= 2 and not busy_pc.saturated(
+                busy[-1], busy_pc.UI_TIMING_MAX_BUSY
+            ):
+                break
             _close(app, lab, widget)
+            busy.append(
+                busy_pc.wait_for_calm(
+                    busy_pc.UI_TIMING_MAX_BUSY, busy_pc.UI_TIMING_WAIT_SECONDS
+                )
+            )
+            print(
+                f"{state.name}: before try {tries + 1}, {busy_pc.describe(busy[-1])}",
+                flush=True,
+            )
             lab, widget = _run_state(app, state, out)
             tries += 1
+        if state.gated:
+            lab.result.busy = busy
+            lab.result.timing_unmeasured = bool(busy) and all(
+                busy_pc.saturated(load, busy_pc.UI_TIMING_MAX_BUSY) for load in busy
+            )
         if tries > 1:
             lab.result.first_try, lab.result.tries = first, tries
-            lab.result.busy = busy
         arrived(app)
         for wave in widget.findChildren(PlayingWave):
             wave.timer.stop()
@@ -531,6 +567,8 @@ def _line(result: Result) -> str:
     parts = []
     for name, timed in result.actions.items():
         mark = "" if timed.within() else " OVER"
+        if result.timing_unmeasured:
+            mark = " NOT MEASURED (BUSY)"
         if result.first_try_note(name):
             mark += (
                 f" (try {result.tries}; {result.first_try_note(name)}{_load(result)})"
@@ -583,6 +621,8 @@ def timings_markdown(results: list[Result]) -> str:
             verdict = ""
             if timed.budget is not None:
                 verdict = "ok" if timed.within() else "**over**"
+                if result.timing_unmeasured:
+                    verdict = "**not measured (busy)**"
                 if not result.gated:
                     verdict += " (recorded)"
                 if result.first_try_note(name):

@@ -1,4 +1,4 @@
-""" "Fade after quiet" is off for a learner who hasn't chosen (the user's
+""" "Fade after silence" is off for a learner who hasn't chosen (the user's
 rehearsal feedback F15, polyglotic-hq 249, 2026-11-08); a learner who
 chose a time keeps it."""
 

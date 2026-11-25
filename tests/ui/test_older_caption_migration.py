@@ -4,7 +4,11 @@ import pytest
 from tests.ui.fakes import MemorySettingsStore
 
 from polyglotic_desktop.main import caption_look
-from polyglotic_desktop.ui.settings import CAPTION_LAB_VERSION, Settings
+from polyglotic_desktop.ui.settings import (
+    CAPTION_LAB_VERSION,
+    Settings,
+    _contrast_older,
+)
 from polyglotic_desktop.ui_next.views.lab import (
     CaptionLab,
     NewFade,
@@ -21,7 +25,9 @@ def loaded(stored: dict[str, object]):
 def test_an_untouched_0_1_10_profile_gets_the_lighter_default() -> None:
     value = loaded({"caption_lab": {}, "changed": []})
     assert value.caption_lab_version == CAPTION_LAB_VERSION
-    assert caption_look(value).lab.older == 0.85
+    older = caption_look(value).lab.older
+    assert older == 0.85
+    assert f"{older:.0%} default" in (_contrast_older.__doc__ or "")
 
 
 @pytest.mark.parametrize(
@@ -73,7 +79,7 @@ def test_a_chosen_old_ink_value_keeps_the_original_row_looking_the_same() -> Non
     assert new_ratio == pytest.approx(old_ratio, rel=0.03)
 
 
-def test_a_preset_carried_choice_is_migrated_and_kept_with_that_preset() -> None:
+def test_a_preset_carried_choice_is_migrated_as_the_flat_choice() -> None:
     value = loaded(
         {
             "preset": "everyday",
@@ -81,7 +87,8 @@ def test_a_preset_carried_choice_is_migrated_and_kept_with_that_preset() -> None
             "caption_lab": {"older": 0.75},
         }
     )
-    assert value.preset_values["everyday"]["caption_lab"] == {"older": 0.56}
+    assert value.caption_lab == {"older": 0.56}
+    assert "everyday" not in value.preset_values
     assert caption_look(value).lab.older == 0.56
 
 

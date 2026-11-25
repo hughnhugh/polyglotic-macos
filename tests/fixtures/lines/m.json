@@ -1,0 +1,93 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 260
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "小船到了，",
+          "words": [
+            "小船到了，"
+          ],
+          "reading": [],
+          "translation": "The boat is here,",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 2,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "过桥",
+          "words": [
+            "过桥"
+          ],
+          "reading": [],
+          "translation": "Cross the bridge",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 3,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "小船到了，",
+          "words": [
+            "小船到了，"
+          ],
+          "reading": [],
+          "translation": "The boat is here,",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 4,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "我们走吧。",
+          "words": [
+            "我们走吧。"
+          ],
+          "reading": [],
+          "translation": "let's go.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 5,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "小船到了，我们走吧。",
+          "words": [
+            "小船到了，我们走吧。"
+          ],
+          "reading": [],
+          "translation": "The boat is here, let's go.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

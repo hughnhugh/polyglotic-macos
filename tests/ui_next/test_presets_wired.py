@@ -8,9 +8,12 @@ from collections.abc import Iterator
 from dataclasses import replace
 
 import pytest
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import MemorySettingsStore
 
+from polyglotic_desktop.core.listening.display import LongLines
 from polyglotic_desktop.main import (
     Panels,
     caption_look,
@@ -40,6 +43,8 @@ def wired(qapp: QApplication) -> Iterator[tuple[Settings, CaptionWindows, Panels
     windows.set_captioned([("Discord.exe", APP)])
     panels = Panels(settings, windows)
     settings.changed.connect(lambda: follow_presets(windows, settings.value))
+    windows.long_lines_wanted.connect(panels.set_long_lines)
+    windows.preset_step.connect(panels.preset_step)
     yield settings, windows, panels
     windows.close()
 
@@ -168,3 +173,75 @@ def test_original_only_from_the_bar_is_every_windows(
     assert settings.value.preset_values[settings.value.preset] == {
         "show_translation": False,
     }
+
+
+def test_long_lines_round_trips_through_the_gear_and_undo(
+    wired: tuple[Settings, CaptionWindows, Panels],
+) -> None:
+    settings, windows, panels = wired
+    window = windows.windows["Discord.exe"]
+    window.toggle_settings()
+    popover = window.popover
+    assert popover is not None
+    before = settings.value
+
+    assert [popover.long_lines_choices.item(i).text() for i in range(2)] == [
+        "Grouped",
+        "Display new lines",
+    ]
+    for old, new in (
+        ("carry", LongLines.GROUPED),
+        ("ellipsis", LongLines.DISPLAY_NEW_LINES),
+    ):
+        migrated = AppSettings.from_stored(
+            {
+                "long_lines": old,
+                "preset_values": {"video": {"long_lines": old}},
+            }
+        )
+        assert (
+            migrated.long_lines == migrated.preset_values["video"]["long_lines"] == new
+        )
+
+    def pick(row: int) -> None:
+        popover.long_lines.click()
+        choices = popover.long_lines_choices
+        assert choices.isVisible()
+        at = choices.visualItemRect(choices.item(row)).center()
+        QTest.mouseClick(choices.viewport(), Qt.MouseButton.LeftButton, pos=at)
+
+    assert (
+        before.long_lines == AppSettings.from_stored({}).long_lines == LongLines.GROUPED
+    )
+    assert not window.canvas.engine.style.paired_lines
+    pick(1)
+    changed = settings.value
+    assert changed.long_lines == LongLines.DISPLAY_NEW_LINES
+    assert (
+        changed.preset_values[changed.preset]["long_lines"]
+        == LongLines.DISPLAY_NEW_LINES
+    )
+    assert window.canvas.engine.style.paired_lines
+    reloaded = AppSettings.from_stored(changed.to_stored())
+    assert reloaded.long_lines == changed.long_lines
+    assert reloaded.preset_values == changed.preset_values
+    assert use_presets.usage(changed) == use_presets.usage(before)
+
+    # The settings sweep opens the same list, then puts back the selected row.
+    pick(0)
+    assert settings.value.long_lines == before.long_lines
+    assert settings.value.preset_values == before.preset_values
+    assert not window.canvas.engine.style.paired_lines
+    assert 'href="undo"' in window.notice.text()
+    window.notice.linkActivated.emit("undo")
+    assert settings.value.long_lines == changed.long_lines
+    assert window.canvas.engine.style.paired_lines
+
+    panels.choose_preset("video")
+    assert window.video_enabled and window.canvas.engine.style.paired_lines
+    pick(0)
+    assert not window.canvas.engine.style.paired_lines
+    assert settings.value.long_lines == LongLines.GROUPED
+    assert 'href="undo"' in window.notice.text()
+    window.notice.linkActivated.emit("undo")
+    assert window.video_enabled and window.canvas.engine.style.paired_lines

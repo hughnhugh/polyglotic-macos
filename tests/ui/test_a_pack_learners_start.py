@@ -55,6 +55,9 @@ def test_a_pack_learners_start_doesnt_freeze_the_interface(tmp_path: Path) -> No
     said = "; ".join(f"{s.pack_busy_ms} ms in {s.pack_busy_in or '-'}" for s in starts)
     longest = [s.pack_busy_ms for s in starts if s.pack_busy_ms is not None]
     assert len(longest) == STARTS, f"Spanish's learning data never opened: {said}"
+    assert all(s.pack_learner_loaded_on_worker for s in starts), (
+        "Spanish's learning data must open on a worker in every start"
+    )
     assert statistics.median(longest) <= PACK_LEARNER_BUDGET_MS, (
         f"the interface thread froze at a pack learner's start: {said}"
     )

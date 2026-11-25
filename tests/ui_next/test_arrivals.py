@@ -1,10 +1,4 @@
-"""How a new caption arrives: step and slide (D), with the step (B) as its
-form with no motion - polyglotic-hq DECISIONS.md #104 (the user,
-2026-11-09), from 253's prototypes; built in 267.
-
-The rules are plain Python (`views.arrivals`); the window's tests step its
-own clock (`CaptionWindow.clock`) and read where its last paint drew each
-line (`Canvas.placed`) or photograph it (`grab`), never the screen."""
+"""The one spring used by caption and card arrivals."""
 
 from collections.abc import Iterator
 from dataclasses import replace
@@ -12,6 +6,8 @@ from itertools import pairwise
 
 import pytest
 from PySide6.QtWidgets import QApplication
+from tests.budget_judge import sampled, within
+from tests.ui_next.line_replay import FIXTURES, load, measure
 from tests.ui_next.made_up import finished_updates
 from tests.ui_next.test_caption_window import _on_words, areas, window_of
 
@@ -24,98 +20,73 @@ from polyglotic_desktop.core.listening.captions import (
 from polyglotic_desktop.core.listening.display import RowKind
 from polyglotic_desktop.core.listening.timing import CaptionId
 from polyglotic_desktop.main import caption_look, look_settings
+from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui.settings import ARRIVALS, AppSettings
 from polyglotic_desktop.ui_next import caption_window as caption_window_module
 from polyglotic_desktop.ui_next.caption_surface import PAD
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.views.arrivals import (
-    ENTRY_GAP_PX,
-    SLIDE_MAX_SEC,
-    SLIDE_MIN_SEC,
-    SLIDE_SEC,
-    Arrival,
-    Motion,
-    effective,
-    pace_of,
-    slide_seconds,
-)
+from polyglotic_desktop.ui_next.views.arrivals import ENTRY_GAP_PX, Arrival, effective
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
-from polyglotic_desktop.ui_next.views.cards import GLIDE_FASTEST
+from polyglotic_desktop.ui_next.views.cards import GLIDE_FASTEST, Glide
 
-# -- the rules ---------------------------------------------------------------------------
+FRAME = 1 / 60
+GLIDE_SETTLE_SEC = 5.0
 
 
-def test_step_and_slide_is_the_default_and_the_step_its_form_without_motion() -> None:
+def test_step_and_slide_is_the_default_and_step_is_reduced_motion() -> None:
     assert CaptionLook().arrival is Arrival.STEP_AND_SLIDE
     assert effective(Arrival.STEP_AND_SLIDE, reduced_motion=False).slides
     assert effective(Arrival.STEP_AND_SLIDE, reduced_motion=True) is Arrival.STEP
-    assert not Arrival.STEP.slides
 
 
-def test_the_pace_comes_from_the_session_not_the_text() -> None:
-    """Captions coming quicker slide quicker; speech still under way as one
-    lands, quicker again (the next is on its way); the first one at the
-    typical pace."""
-    assert pace_of(None, speaking=False) == 1.0
-    assert pace_of(1.0, speaking=False) > pace_of(2.5, speaking=False) == 1.0
-    assert pace_of(5.0, speaking=False) < 1.0
-    assert pace_of(2.5, speaking=True) > pace_of(2.5, speaking=False)
-    assert 0.5 <= pace_of(0.01, speaking=True) <= 2.5  # within what can be read
-    assert 0.5 <= pace_of(600.0, speaking=False) <= 2.5
+def positions(glide: Glide, seconds: float = 2.0) -> list[float]:
+    return [glide.to(frame * FRAME) for frame in range(round(seconds / FRAME) + 1)]
 
 
-def test_a_slide_takes_0_22_to_0_9_seconds_by_the_pace() -> None:
-    assert slide_seconds(1.0) == SLIDE_SEC
-    assert slide_seconds(2.5) == pytest.approx(SLIDE_MIN_SEC) == 0.22
-    assert slide_seconds(0.5) == pytest.approx(SLIDE_MAX_SEC) == 0.9
-    assert slide_seconds(2.0) < slide_seconds(1.0) < slide_seconds(0.7)
+def test_every_growth_is_one_gentle_glide_with_a_300_px_per_second_cap() -> None:
+    glide = Glide()
+    glide.push(0.0, 180.0)
+    samples = positions(glide)
+    speeds = [abs(a - b) / FRAME for a, b in pairwise(samples)]
+    assert samples[0] == 180.0 and samples[-1] == 0.0
+    assert speeds[0] < max(speeds) / 3
+    assert max(speeds) <= GLIDE_FASTEST.value + 0.01
 
 
-def test_the_stack_eases_to_rest_and_a_new_line_closes_its_gap() -> None:
-    motion = Motion()
-    motion.start(10.0, risen_px=60.0, new={7}, seconds=0.5, most_px=300.0)
-    assert motion.offset(10.0) == 60.0 and motion.entry(7, 10.0) == 1.0
-    halfway = motion.offset(10.25)
-    assert halfway == pytest.approx(30.0)  # the stack eases into and out of motion
-    assert 0.0 < motion.entry(7, 10.25) < 0.5
-    assert motion.moving(10.49)
-    assert motion.offset(10.5) == 0.0 and motion.entry(7, 10.5) == 0.0
-    assert not motion.moving(10.5)
-    assert motion.slide is None and not motion.entries
+def test_a_growth_mid_glide_pushes_remaining_distance_without_a_step() -> None:
+    glide = Glide()
+    glide.push(0.0, 82.0)
+    before = glide.to(0.2)
+    speed = glide.speed
+    glide.push(0.2, 44.0)
+    assert glide.px == pytest.approx(before + 44.0)
+    assert glide.speed == pytest.approx(speed)
+    pushed = glide.px
+    assert glide.to(0.2 + FRAME) < pushed
 
 
-def test_a_tall_instant_arrival_moves_at_a_readable_speed_and_clears_the_foot() -> None:
-    # The 643 Everyday film: older text rose 140 px while the incoming
-    # translation crossed the foot of the panel, then settled 2 px inside.
-    motion = Motion()
-    motion.start(0.0, risen_px=140.0, new={5}, seconds=0.9, most_px=420)
-    offsets = [
-        motion.offset(t / 1000) + ENTRY_GAP_PX * motion.entry(5, t / 1000)
-        for t in range(1001)
-    ]
-    assert max((a - b) * 1000 for a, b in pairwise(offsets)) <= GLIDE_FASTEST.value
-    # From first visible ink at the window edge to a fully readable row.
-    assert sum(2 < px < 44 for px in offsets) < 300
+def test_a_negative_rest_height_change_glides_without_a_step() -> None:
+    glide = Glide()
+    glide.push(0.0, -60.0)
+    samples = positions(glide)
+    assert samples[0] == -60.0
+    assert all(a <= b <= 0.0 for a, b in pairwise(samples))
+    assert samples[-1] == 0.0
 
 
-def test_a_caption_mid_slide_carries_on_from_where_the_text_is() -> None:
-    motion = Motion()
-    motion.start(0.0, risen_px=60.0, new={1}, seconds=0.5, most_px=300.0)
-    left = motion.offset(0.2)
-    motion.start(0.2, risen_px=40.0, new={2}, seconds=0.5, most_px=300.0)
-    assert motion.offset(0.2) == pytest.approx(40.0 + left)
+def test_a_burst_of_captions_too_much_to_follow_is_at_rest_at_once(
+    qapp: QApplication,
+) -> None:
+    settled = []
 
+    def observe(window: CaptionWindow, now: float) -> None:
+        if window.bursts:
+            settled.append(not window.arriving)
 
-def test_a_burst_of_captions_too_much_to_follow_is_at_rest_at_once() -> None:
-    """Captions arriving faster than they're painted (a burst after a
-    stall) mustn't pile up a slide from far below the window."""
-    motion = Motion()
-    for n in range(20):
-        motion.start(0.0, risen_px=60.0, new={n}, seconds=0.5, most_px=300.0)
-        assert motion.offset(0.0) <= 300.0
-    assert motion.offset(0.0) < 300.0 and len(motion.entries) < 20
+    result = measure(load(FIXTURES / "m.json"), qapp, observe=observe)
+    assert result.bursts == 1 and settled and all(settled)
 
 
 # -- in the window -----------------------------------------------------------------------
@@ -197,9 +168,7 @@ def test_list_arrival_keeps_text_still_visible_above_its_resting_page(
         # As in the 116 s recording, a whole earlier caption still fits
         # above the page while the stack is one caption below its destination.
         offset = canvas._height(previous) + canvas._gap() - at_rest[0].top
-        window.motion.start(
-            clock.now, offset, set(), SLIDE_MAX_SEC, most_px=window.height()
-        )
+        window.glide.push(clock.now, offset, most=window.height())
         assert previous.key in tops(window)
     finally:
         window.close()
@@ -223,59 +192,11 @@ def test_nothing_jumps_the_text_rises_into_place_and_the_new_caption_follows(
     # A line still visible at the start may now have left through the top.
     assert all(k < min(visible) for k in kept - visible)
     assert moving[key] - moving[newest] < gap  # closing on the line above
-    clock.now += SLIDE_MAX_SEC
+    clock.now += GLIDE_SETTLE_SEC
     rest = tops(window)
     risen = {round(before[k] - rest[k], 3) for k in kept & rest.keys()}
     assert len(risen) == 1 and risen.pop() > 0  # all by the same, to rest
-    assert rest[key] - rest[newest] == pytest.approx(gap - ENTRY_GAP_PX, abs=0.01)
-
-
-def test_editing_an_earlier_original_does_not_restart_the_arrival_slide(
-    qapp: QApplication, clock: Clock, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(caption_window_module, "reduced_motion", lambda: False)
-    window = opened(qapp, clock, captions=0)
-    try:
-        window.resize(760, 420)
-        window.set_language("")
-        first, second, third = [
-            replace(update, clauses=(Clause("A short caption."),))
-            for update in finished_updates(3)
-        ]
-        assert window.receive(first)
-        assert window.receive(second)
-        clock.now += SLIDE_MAX_SEC
-        tops(window)
-        edited = window.view.lines[-1].key
-        assert window.receive(third)
-        slide = window.motion.slide
-        assert slide is not None
-        clock.now += slide.seconds / 2
-        before = tops(window)
-        newest = window.view.lines[-1].key
-        revision = replace(second, clauses=(Clause("Some more words. " * 11),))
-        assert window.receive(revision)
-        after = tops(window)
-        assert after[edited] < before[edited]
-        assert after[newest] == pytest.approx(before[newest])
-        assert window.motion.slide is slide
-        clock.now += SLIDE_MAX_SEC
-        assert not window.arriving
-        before = tops(window)
-        assert window.receive(second)  # the original shrinks in place again
-        after = tops(window)
-        assert after[edited] > before[edited]
-        assert after[newest] == pytest.approx(before[newest])
-        assert not window.arriving
-
-        foot = window.canvas.placed[-1][2].bottom()
-        assert window.receive(replace(revision, caption_id=third.caption_id))
-        expanded = tops(window)
-        assert expanded[newest] < after[newest]
-        assert window.canvas.placed[-1][2].bottom() == pytest.approx(foot)
-        assert not window.arriving
-    finally:
-        window.close()
+    assert rest[key] - rest[newest] == pytest.approx(gap - ENTRY_GAP_PX.value, abs=0.01)
 
 
 def test_scrolled_back_caption_window_stays_held_when_an_original_shrinks(
@@ -292,16 +213,27 @@ def test_scrolled_back_caption_window_stays_held_when_an_original_shrinks(
         long_second = replace(second, clauses=(Clause("Some more words. " * 80),))
         assert window.receive(first)
         assert window.receive(long_second)
-        clock.now += SLIDE_MAX_SEC
+        clock.now += GLIDE_SETTLE_SEC
         tops(window)
         window.canvas.scroll_by(1000)
         held = window.view.scroll.anchor
         assert held is not None and held.key == window.view.lines[0].key
         before = tops(window)
+        before_keys = [line.key for line, _, _ in window.canvas.placed]
+        before_rect = next(
+            rect for line, _, rect in window.canvas.placed if line.key == held.key
+        )
         assert window.receive(second)
         after = tops(window)
+        after_keys = [line.key for line, _, _ in window.canvas.placed]
+        after_rect = next(
+            rect for line, _, rect in window.canvas.placed if line.key == held.key
+        )
         assert window.view.scroll.anchor == held
+        assert before_keys == after_keys == [held.key, window.view.lines[1].key]
         assert after[held.key] == pytest.approx(before[held.key])
+        assert after_rect.top() == pytest.approx(before_rect.top())
+        assert after_rect.top() >= window.pace.geometry().bottom()
         window.canvas.scroll_by(-1000)
         assert window.view.scroll.following
     finally:
@@ -313,7 +245,7 @@ def test_the_frame_timer_runs_while_it_slides_and_stops_at_rest(
 ) -> None:
     arrive(window)
     assert window.arriving and window._tick_timer.isActive()
-    clock.now += SLIDE_MAX_SEC
+    clock.now += GLIDE_SETTLE_SEC
     window._tick()
     assert not window.arriving and not window._tick_timer.isActive()
 
@@ -332,28 +264,10 @@ def test_a_slide_ends_painted_at_rest_however_late_its_last_frame(
     canvas = window.canvas
     clip = canvas.height() - PAD
     assert canvas.placed[-1][2].bottom() > clip + 1  # still rising into view
-    clock.now += SLIDE_MAX_SEC  # the next tick comes late: the slide is over
+    clock.now += GLIDE_SETTLE_SEC  # the next tick comes late: the slide is over
     window._tick()
     qapp.processEvents()
     assert canvas.placed[-1][2].bottom() <= clip + 0.5  # the last row whole
-
-
-def test_captions_coming_faster_slide_faster(
-    window: CaptionWindow, clock: Clock
-) -> None:
-    arrive(window, 0)  # the first since it opened: the typical pace
-    assert window.motion.slide is not None
-    assert window.motion.slide.seconds == SLIDE_SEC
-    clock.now += 0.8
-    arrive(window, 1)
-    assert window.motion.slide.seconds == pytest.approx(SLIDE_MIN_SEC)
-    clock.now += 6.0
-    arrive(window, 2)
-    assert window.motion.slide.seconds == pytest.approx(SLIDE_MAX_SEC)
-    window.speaking = True  # the next one already being said
-    clock.now += 2.5
-    arrive(window, 3)
-    assert window.motion.slide.seconds < SLIDE_SEC
 
 
 def test_the_session_says_when_speech_is_under_way(qapp: QApplication) -> None:
@@ -402,7 +316,7 @@ def test_a_preview_line_fills_its_translation_space_without_another_slide(
         heard = replace(finished, kind=CaptionKind.LIVE, clauses=(Clause("Bonjour."),))
         window.view.apply(heard)
         window.apply_changed(new_caption=True)
-        clock.now += SLIDE_MAX_SEC
+        clock.now += GLIDE_SETTLE_SEC
         before = tops(window)
         key = window.view.lines[-1].key
         assert key in before and len(before) > 1
@@ -443,7 +357,7 @@ def test_at_rest_it_looks_exactly_like_the_step(
     for arrival in (Arrival.STEP_AND_SLIDE, Arrival.STEP):
         shown = opened(qapp, clock, look=CaptionLook(arrival=arrival))
         arrive(shown)
-        clock.now += SLIDE_MAX_SEC
+        clock.now += GLIDE_SETTLE_SEC
         images.append(shown.canvas.grab().toImage())
         shown.close()
     assert images[0] == images[1]
@@ -460,7 +374,7 @@ def test_a_joined_window_s_columns_slide_too(qapp: QApplication, clock: Clock) -
             qapp.processEvents()  # painted between them, as on a busy PC
             clock.now += 2.0
         windows.join()
-        clock.now += SLIDE_MAX_SEC  # what came before is at rest
+        clock.now += GLIDE_SETTLE_SEC  # what came before is at rest
         column = windows.windows["a"]
         assert column.host is not None and column.sliding
         column.canvas.repaint()
@@ -535,5 +449,187 @@ def test_back_at_the_newest_it_slides_from_what_was_last_seen(
     window.go_live()
     clock.now += 2.0
     key = arrive(window, 1)  # before the window paints again
-    assert window.motion.slide is None  # nothing seen to rise from
-    assert set(window.motion.entries) == {key}  # it still comes in from below
+    first = tops(window)
+    assert window.arriving
+    clock.now += GLIDE_SETTLE_SEC
+    rest = tops(window)
+    for old in first.keys() & rest.keys() - {key}:
+        assert first[old] == pytest.approx(rest[old])
+    assert first[key] - rest[key] == pytest.approx(
+        ENTRY_GAP_PX.value * window.view.text_size
+    )
+
+
+def test_editing_an_earlier_original_does_not_restart_the_arrival_slide(
+    qapp: QApplication,
+    clock: Clock,
+) -> None:
+    window = opened(qapp, clock, captions=0)
+    try:
+        window.resize(760, 650)
+        window.set_language("")
+        first, second, third = [
+            replace(update, clauses=(Clause("A short caption."),))
+            for update in finished_updates(3)
+        ]
+        for update in (first, second):
+            window.receive(update)
+            clock.now += GLIDE_SETTLE_SEC
+            tops(window)
+        window.receive(third)
+        clock.now += 0.2
+        before = tops(window)
+        speed = window.glide.speed
+        assert speed < 0
+        edited, newest = sorted(before)[-2:]
+        revision = replace(second, clauses=(Clause("Some more words. " * 11),))
+        window.receive(revision)
+        assert window.glide.speed == pytest.approx(speed)
+        after = tops(window)
+        assert after[edited] == pytest.approx(before[edited])
+        assert after[newest] == pytest.approx(before[newest])
+        clock.now += GLIDE_SETTLE_SEC
+        expanded = tops(window)
+        assert expanded[edited] < before[edited]
+        window.receive(second)
+        assert window.arriving and window.glide.px < 0
+        assert tops(window)[edited] == pytest.approx(expanded[edited])
+        clock.now += GLIDE_SETTLE_SEC
+        rest = tops(window)
+        assert rest[edited] > expanded[edited]
+        assert rest[newest] == pytest.approx(expanded[newest])
+    finally:
+        window.close()
+
+
+def test_the_first_caption_enters_below_the_foot_and_clears_it(
+    qapp: QApplication,
+) -> None:
+    stream = load(FIXTURES / "a.json")
+    stream["events"] = stream["events"][:1]
+    first_row = []
+    foot = 0.0
+
+    def observe(window: CaptionWindow, now: float) -> None:
+        nonlocal foot
+        _, laid, rect = window.canvas.placed[-1]
+        row = laid.rows[0]
+        first_row.append(rect.y() + row.top + row.layout.lineAt(0).y())
+        foot = PAD + window.canvas._seen_height()
+
+    result = measure(stream, qapp, observe=observe)
+    assert first_row[0] == pytest.approx(foot + ENTRY_GAP_PX.value)
+    assert first_row[-1] < foot and result.peak_speed <= GLIDE_FASTEST.value
+
+
+def test_new_clause_rows_close_the_entry_gap(qapp: QApplication) -> None:
+    gaps = []
+
+    def observe(window: CaptionWindow, now: float) -> None:
+        if now >= 0.5:
+            _, laid, _ = window.canvas.placed[-1]
+            original = [
+                row.top for row in laid.rows if row.row.kind is RowKind.ORIGINAL
+            ]
+            gaps.append(original[1] - original[0])
+
+    measure(load(FIXTURES / "b.json"), qapp, observe=observe)
+    assert gaps[0] - gaps[-1] == pytest.approx(ENTRY_GAP_PX.value, abs=0.1)
+    assert gaps[0] > gaps[len(gaps) // 2] > gaps[-1]
+
+
+def test_a_new_wrap_closes_the_same_entry_gap(qapp: QApplication) -> None:
+    gaps = []
+
+    def observe(window: CaptionWindow, now: float) -> None:
+        if now >= 0.5:
+            _, laid, _ = window.canvas.placed[-1]
+            first, second, *_ = (r for r in laid.rows if r.row.kind is RowKind.ORIGINAL)
+            assert first.layout.lineCount() == second.layout.lineCount() == 1
+            gaps.append(
+                second.top
+                + second.layout.lineAt(0).y()
+                - first.top
+                - first.layout.lineAt(0).y()
+            )
+
+    measure(load(FIXTURES / "e.json"), qapp, observe=observe)
+    assert gaps[0] - gaps[-1] == pytest.approx(ENTRY_GAP_PX.value, abs=0.1)
+    assert gaps[0] > gaps[len(gaps) // 2] > gaps[-1]
+
+
+def test_a_gliding_caption_frame_fits_its_budget(
+    qapp: QApplication, clock: Clock
+) -> None:
+    window = opened(qapp, clock)
+
+    def samples():
+        clock.now += GLIDE_SETTLE_SEC
+        tops(window)
+        arrive(window, len(window.view.lines))
+        tops(window)
+
+        def frame() -> None:
+            clock.now += FRAME
+            assert window.arriving
+            window._tick()
+
+        return sampled(qapp, [frame] * 24, warm=False)
+
+    try:
+        within(budgets.FRAME, samples)
+    finally:
+        window.close()
+
+
+def test_a_leaving_pair_fades_by_its_visible_share(
+    qapp: QApplication, clock: Clock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = opened(qapp, clock)
+    fractions = []
+    paint = window.canvas.engine.paint
+
+    def record(painter, line, laid, at, ink, marks, **kwargs):
+        for clause, alpha in (kwargs.get("pair_opacity") or {}).items():
+            rows = [r for r in laid.rows if r.row.clause == clause]
+            top = at.y() + min(r.top for r in rows)
+            bottom = at.y() + max(
+                r.top + r.layout.boundingRect().height() for r in rows
+            )
+            if top < PAD < bottom:
+                fractions.append((alpha, (bottom - PAD) / (bottom - top)))
+        return paint(painter, line, laid, at, ink, marks, **kwargs)
+
+    monkeypatch.setattr(window.canvas.engine, "paint", record)
+    try:
+        arrive(window)
+        for _ in range(90):
+            clock.now += FRAME
+            window.canvas.repaint()
+        assert len(fractions) >= 3
+        assert all(actual == pytest.approx(expected) for actual, expected in fractions)
+        assert max(a for a, _ in fractions) - min(a for a, _ in fractions) > 0.1
+    finally:
+        window.close()
+
+
+def test_the_spring_keeps_its_pace_at_each_speech_cadence(
+    qapp: QApplication, clock: Clock
+) -> None:
+    samples = []
+    for interval, speaking in ((0.8, False), (6.0, False), (2.5, True)):
+        window = opened(qapp, clock)
+        try:
+            arrive(window, 0)
+            clock.now += GLIDE_SETTLE_SEC
+            tops(window)
+            clock.now += interval
+            window.speaking = speaking
+            arrive(window, 1)
+            start = window.glide.px
+            clock.now += 0.2
+            samples.append(start - window.glide.to(clock.now))
+        finally:
+            window.close()
+    assert samples[0] > 0
+    assert samples == pytest.approx([samples[0]] * len(samples))

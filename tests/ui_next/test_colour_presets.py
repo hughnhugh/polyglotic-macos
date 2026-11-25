@@ -189,9 +189,10 @@ def test_a_caption_windows_labels_are_readable_in_paper(qapp: QApplication) -> N
     try:
         cyan = SourceLabel("Discord", "#4dd0e1")  # picked for a dark panel
         window.set_labels({window.source: cyan}, "You")
-        colours = [line.label_color for line in window.view.lines]
-        assert colours and all(colours)  # each with its app's colour
-        colours.append(window.canvas.ink.label.name())  # a label without one
+        lines = window.view.lines
+        assert lines and all(line.label for line in lines)
+        fallback = window.canvas.ink.label.name()
+        colours = [line.label_color or fallback for line in lines]
         assert all(contrast(c, paper.background) >= AA_TEXT for c in colours)
     finally:
         window.close()

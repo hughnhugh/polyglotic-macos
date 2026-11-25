@@ -11,10 +11,16 @@ from pathlib import Path
 import pytest
 from tests.ui.fakes import MemorySettingsStore
 
+from polyglotic_desktop.core.listening.display import JapaneseReading
 from polyglotic_desktop.core.listening.timing import CaptionMode
 from polyglotic_desktop.main import listening_settings
 from polyglotic_desktop.ui import use_presets
-from polyglotic_desktop.ui.settings import BUILT_INS, AppSettings, Settings
+from polyglotic_desktop.ui.settings import (
+    BUILT_INS,
+    CAPTION_LAB_VERSION,
+    AppSettings,
+    Settings,
+)
 from polyglotic_desktop.ui.use_presets import (
     CONVERSATION,
     CUSTOM,
@@ -294,7 +300,11 @@ def test_save_as_makes_a_new_preset_and_switches_to_it() -> None:
 def test_switching_drops_changes_not_saved_and_undo_gives_them_back() -> None:
     settings = _settings()
     settings.change(use_presets.chosen(settings.value, LEARNING))
-    settings.update(word_links="hover", reading_lines=("zh",))
+    settings.update(
+        word_links="hover",
+        reading_lines=("ja", "zh"),
+        japanese_reading=JapaneseReading.BOTH.value,
+    )
     edited = settings.value
     was = use_presets.before(edited)
     settings.change(use_presets.chosen(edited, CONVERSATION))
@@ -305,7 +315,8 @@ def test_switching_drops_changes_not_saved_and_undo_gives_them_back() -> None:
     settings.change(use_presets.restored(settings.value, was))  # Undo
     value = settings.value
     assert value.preset == LEARNING and value.word_links == "hover"
-    assert value.reading_lines == ("zh",) and "reading_lines" in value.changed
+    assert value.reading_lines == ("ja", "zh") and "reading_lines" in value.changed
+    assert value.japanese_reading == JapaneseReading.BOTH.value
     assert use_presets.edits(value) == use_presets.edits(edited)  # still not saved
     assert value.interface_language == "fr"  # Undo leaves the rest as it is
 
@@ -351,6 +362,43 @@ def test_app_wide_settings_are_never_changes_not_saved() -> None:
     )
     assert use_presets.edits(settings.value) == ()
     assert LEARNING not in settings.value.preset_values
+
+
+def test_a_hand_set_older_captions_value_survives_switching_presets() -> None:
+    settings = _settings()
+    hand_set = {**settings.value.caption_lab, "older": 0.72}
+    settings.update(caption_lab=hand_set)
+
+    settings.change(use_presets.chosen(settings.value, VIDEO))
+    settings.change(use_presets.chosen(settings.value, EVERYDAY))
+
+    assert settings.value.caption_lab["older"] == 0.72
+
+
+def test_0_1_11_preset_lab_values_do_not_override_the_flat_choice() -> None:
+    stored = {
+        "preset": EVERYDAY,
+        "built_ins": BUILT_INS,
+        "caption_lab_version": CAPTION_LAB_VERSION,
+        "caption_lab": {"older": 0.72},
+        "changed": ["caption_lab"],
+        "preset_values": {
+            EVERYDAY: {"caption_lab": {"older": 0.8}},
+            VIDEO: {"caption_lab": {"older": 0.85}, "subtitle_size": 0.08},
+        },
+    }
+    # This read still holds the old nested data, before Settings cleans it.
+    raw = AppSettings.from_stored(stored)
+    assert "caption_lab" in raw.preset_values[EVERYDAY]
+    assert "caption_lab" not in use_presets.base_of(raw, LEARNING)[0]
+    assert use_presets.chosen(raw, VIDEO).caption_lab == {"older": 0.72}
+
+    settings = _settings(stored)
+    assert settings.value.preset_values == {VIDEO: {"subtitle_size": 0.08}}
+    settings.change(use_presets.chosen(settings.value, VIDEO))
+    assert settings.value.subtitle_size == 0.08
+    settings.change(use_presets.chosen(settings.value, EVERYDAY))
+    assert settings.value.caption_lab == {"older": 0.72}
 
 
 def test_a_built_in_with_saved_changes_can_be_restored() -> None:

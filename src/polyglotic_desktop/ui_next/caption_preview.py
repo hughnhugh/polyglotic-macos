@@ -63,6 +63,8 @@ UNFINISHED_HEIGHT = 300
 PANEL_WIDTH = 0.82
 """The caption panel's share of the preview's width (at most `PANEL_MAX`)."""
 PANEL_MAX = 640
+PREVIEW_TEXT_SIZE = 1.1
+"""Preview captions are 110% so every script keeps at least 12 px of ink."""
 SAMPLE = SourceId("preview")
 ZH, EN = Language("zh"), Language("en")
 WHEN = datetime(2026, 11, 9, tzinfo=UTC)
@@ -201,7 +203,11 @@ class CaptionPreview(QWidget):
         self.view = view
         self.unfinished = unfinished
         self.lines = CaptionLines(
-            [SAMPLE], EN, keep=len(SAMPLE_CLAUSES) + 1, clock=lambda: WHEN
+            [SAMPLE],
+            EN,
+            keep=len(SAMPLE_CLAUSES) + 1,
+            text_size=PREVIEW_TEXT_SIZE,
+            clock=lambda: WHEN,
         )
         self.languages = languages
         self.traditional = False

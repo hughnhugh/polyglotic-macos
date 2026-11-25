@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 360,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "过桥",
+          "words": [
+            "过桥"
+          ],
+          "reading": [],
+          "translation": "Cross the bridge",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "沿着村边的小河慢慢走，到了那座旧石桥以后再向右转。",
+          "words": [
+            "沿着村边的小河慢慢走，到了那座旧石桥以后再向右转。"
+          ],
+          "reading": [],
+          "translation": "Cross the bridge",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

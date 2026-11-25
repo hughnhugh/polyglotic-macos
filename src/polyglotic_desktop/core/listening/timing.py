@@ -414,6 +414,8 @@ class TranscriptionRequest:
     replaces: tuple[CaptionId, ...] = ()
     cut_before: bool = False
     cut_after: bool = False
+    voiced_seconds: float | None = None
+    """Speech-detector frames in this finished caption, excluding pauses."""
     held: bool = False
     """A live update that waited its turn under the speech ceiling before
     it was asked for (`CaptionTiming._live_budget`): nothing the server
@@ -486,6 +488,7 @@ class _Run:
     caption_id: CaptionId
     start: float
     end: float
+    voiced_seconds: float
     cut_before: bool = False
 
 
@@ -802,10 +805,14 @@ class CaptionTiming:
             ]
         if segment.caption_id is None and segment.speech_frames < _MIN_SPEECH_FRAMES:
             return []
+        previous = self._run
         start, caption_id, replaces, cut_before = self._plan_finished(
             source.id, segment, speech_end
         )
-        self._run = _Run(source.id, caption_id, start, speech_end, cut_before)
+        voiced = segment.speech_frames * FRAME_SEC
+        if previous is not None and caption_id == previous.caption_id:
+            voiced += previous.voiced_seconds
+        self._run = _Run(source.id, caption_id, start, speech_end, voiced, cut_before)
         state.sent_until = speech_end
         return [
             TranscriptionRequest(
@@ -816,6 +823,7 @@ class CaptionTiming:
                 speech_end,
                 replaces=replaces,
                 cut_before=cut_before,
+                voiced_seconds=voiced,
             )
         ]
 
@@ -876,6 +884,7 @@ class CaptionTiming:
                     end,
                     cut_before=segment.cut_before,
                     cut_after=resume,
+                    voiced_seconds=segment.speech_frames * FRAME_SEC,
                 )
             )
             state.sent_until = end

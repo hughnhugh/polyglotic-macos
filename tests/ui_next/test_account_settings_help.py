@@ -37,7 +37,7 @@ from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.shared.papers import PRIVACY_NOTICE, TESTER_AGREEMENT
 from polyglotic_desktop.main import show_keys_in_help
 from polyglotic_desktop.ui.settings import AppSettings
-from polyglotic_desktop.ui_next import help_page, os_words
+from polyglotic_desktop.ui_next import account_page, help_page, os_words
 from polyglotic_desktop.ui_next.account_page import AccountPage
 from polyglotic_desktop.ui_next.dictation_key import key_words
 from polyglotic_desktop.ui_next.help_page import HelpPage, Topic
@@ -121,7 +121,7 @@ def test_home_and_account_say_the_same_when_signed_out(
     assert card.detail.text() == needed
     page = AccountPage()
     page.use_email_sign_in(email)
-    assert page.state.text() == f"Not signed in - {needed}."
+    assert page.state.text() == f"Not signed in — {needed}."
     assert page.restore_purchase.isVisible() is email
     page.deleteLater()
     card.deleteLater()
@@ -181,6 +181,30 @@ def test_accounts_items_that_open_a_dialog_end_in_one_ellipsis(
     texts = [button.text() for button in page.findChildren(QPushButton)]
     assert "Delete learning data…" in texts
     assert not [text for text in texts if text.endswith("...")]
+
+
+@pytest.mark.parametrize(("mac", "device"), [(False, "PC"), (True, "Mac")])
+def test_account_says_deleting_the_local_learning_data_is_optional(
+    qapp: QApplication,
+    monkeypatch: pytest.MonkeyPatch,
+    mac: bool,
+    device: str,
+) -> None:
+    """The deletion dialog always deletes the server copy; its unticked box
+    separately offers to delete the copy on this PC or Mac."""
+    monkeypatch.setattr(
+        account_page, "pc_or_mac", lambda pc, on_mac: on_mac if mac else pc
+    )
+    page = AccountPage()
+    learning = next(
+        label.text()
+        for label in page.findChildren(QLabel)
+        if "We keep the words you look up" in label.text()
+    )
+    assert (
+        "delete this data for every language from our server, and choose whether "
+        f"to also delete it from this {device}."
+    ) in learning
 
 
 def opened_by(
@@ -326,7 +350,7 @@ def test_settings_speak_of_the_caption_windows(qapp: QApplication) -> None:
     for key in SECTIONS:  # each made: a caption section is when first shown (544)
         page.show_section(key)
     words = " ".join(texts(page))
-    assert "caption windows stay as they are" in words
+    assert "the transcripts, not the caption windows" in words
     assert "Lock all caption windows" in words  # not today's "Lock overlays"
     assert "Pause captions" in words
     assert "overlay" not in words.lower()
@@ -392,7 +416,7 @@ def test_help_speaks_of_caption_windows_home_and_words(qapp: QApplication) -> No
     assert "Over a game" in titles
     assert "Look up a word, and keep it" in titles
     assert "Put your words into Anki" in titles
-    assert "Caption one app, and everything else apart" in titles  # 139
+    assert "Caption one app separately" in titles  # 139
 
 
 def test_help_points_to_where_each_setting_is_now(qapp: QApplication) -> None:
@@ -510,7 +534,7 @@ def test_help_says_how_to_dictate_with_the_key_chosen(
     words, whatever this machine is (a Mac names it "Right ⌘": 429; 443)."""
     page = HelpPage(lambda: facts_with(True))
     try:
-        assert page.dictation.name == "Dictate into any program (preview)"
+        assert page.dictation.name == "Dictate into any app (preview)"
         assert "Hold Right Ctrl and speak" in page.dictation.text.text()
         page.show_dictation_key("Ctrl + Alt + D")
         assert "Hold Ctrl + Alt + D and speak" in page.dictation.text.text()
@@ -924,8 +948,9 @@ def test_help_names_only_the_hotkeys_that_work(qapp: QApplication) -> None:
     assert keys("Ctrl+Alt+L")[:-1] not in said(), said()
     assert f"Use Hide all on Home{or_menu}." in said()
 
-    page.show_hotkeys(["L", "H"])  # Pause captions' is another app's
+    page.show_hotkeys(["L", "H"], live_key="Space")  # Pause captions' is another app's
     assert keys("Ctrl+Alt+P") not in said()
+    assert "Back to the newest captions (Space)" in said()
     assert keys("Lock all (Ctrl+Alt+L) so clicks go") in said()  # Over a game
     assert keys("Press Ctrl+Alt+H") in said()
     every = {t for p in Problem for t in help_page.problem(p, "Video Player", ())}
@@ -1021,14 +1046,17 @@ def test_settings_dictation_says_a_macs_keys_and_menu_bar(
     monkeypatch.setattr(os_words, "on_a_mac", lambda: False)  # Windows' first
     windows = settings_page()
     said = " ".join(texts(windows))
-    assert "Right Ctrl, F9, Ctrl + Alt + D… A key on its own" in said
+    assert (
+        "Right Ctrl, F9, Ctrl + Alt + D… While dictation is on, the key you choose"
+        in said
+    )
     assert "The tray's menu switches it too." in said
     monkeypatch.setattr(os_words, "on_a_mac", lambda: True)
     page = settings_page()
     said = " ".join(texts(page))
     assert (
-        "Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘, is Polyglotic's"
-        " while dictation is on; Right ⌘ alone still works in other apps."
+        "Right ⌘, F9, ⌃⌘E… While dictation is on, the key you choose is Polyglotic's,"
+        " alone or with ⌃, ⌥ or ⌘; Right ⌘ alone still works in other apps."
     ) in said
     assert "The menu bar's menu switches it too." in said
     assert not re.search(r"Right Ctrl|\bWin\b|\btray\b|Ctrl \+", said)

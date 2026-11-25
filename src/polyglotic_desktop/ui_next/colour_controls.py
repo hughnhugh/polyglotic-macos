@@ -148,6 +148,26 @@ SAMPLE = ("nǐ hǎo", "你好", "Hello")
 """A recommended look's caption: a reading, Chinese, its translation."""
 
 
+CHOSEN_RING_PX = 2
+"""Logical pixels around the selected colour sample."""
+
+
+def _paint_sample(
+    painter: QPainter, button: QPushButton, sample: QRectF, panel: QColor
+) -> None:
+    painter.setBrush(panel)
+    painter.setPen(
+        QPen(QColor(style.current()["ACCENT"]), CHOSEN_RING_PX)
+        if button.isChecked()
+        else QPen(Qt.PenStyle.NoPen)
+    )
+    painter.drawRoundedRect(sample, 6, 6)
+    if button.hasFocus():
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(QPen(QColor(style.current()["FOCUS"]), 1, Qt.PenStyle.DotLine))
+        painter.drawRoundedRect(QRectF(button.rect()).adjusted(2, 2, -2, -2), 8, 8)
+
+
 class RecommendedTile(QPushButton):
     """One recommended look (532): a caption in it - pinyin in its grey,
     Chinese in its face and weight, the translation - on its panel, and
@@ -178,24 +198,11 @@ class RecommendedTile(QPushButton):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         box = QRectF(self.rect()).adjusted(1, 1, -1, -1)
         chosen = self.isChecked()
-        painter.setPen(QColor(theme["ACCENT"] if chosen else theme["BORDER"]))
-        painter.setBrush(
-            QColor(theme["SURFACE_3" if self.underMouse() else "SURFACE_2"])
-        )
-        painter.drawRoundedRect(box, 8, 8)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        if chosen:  # a second ring: chosen isn't said by colour alone
-            painter.drawRoundedRect(box.adjusted(1, 1, -1, -1), 7, 7)
-        if self.hasFocus():  # the keyboard's place
-            painter.setPen(QPen(QColor(theme["ACCENT"]), 1, Qt.PenStyle.DotLine))
-            painter.drawRoundedRect(box.adjusted(3, 3, -3, -3), 6, 6)
         pad = style.px(6)
         sample = QRectF(box.left() + pad, box.top() + pad, box.width() - 2 * pad, 0)
         sample.setHeight(box.height() * 0.68)
         preset = self.look.preset
-        painter.setPen(QColor(128, 128, 128, 90))
-        painter.setBrush(QColor(preset.background))
-        painter.drawRoundedRect(sample, 6, 6)
+        _paint_sample(painter, self, sample, QColor(preset.background))
         families = list(fonts.caption_families("zh", dict(self.look.faces).get("zh")))
         size = sample.height() / 3.6
         grey = reading_grey(preset.background, preset.original)
@@ -340,26 +347,11 @@ class PresetTile(QPushButton):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         box = QRectF(self.rect()).adjusted(1, 1, -1, -1)
         chosen = self.isChecked()
-        edge = QColor(theme["ACCENT"] if chosen else theme["BORDER"])
-        painter.setPen(edge)
-        painter.setBrush(
-            QColor(theme["SURFACE_3" if self.underMouse() else "SURFACE_2"])
-        )
-        painter.drawRoundedRect(box, 8, 8)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        if chosen:  # a second ring: chosen isn't said by colour alone
-            painter.drawRoundedRect(box.adjusted(1, 1, -1, -1), 7, 7)
-        if self.hasFocus():  # the keyboard's place
-            ring = QColor(theme["ACCENT"])
-            painter.setPen(QPen(ring, 1, Qt.PenStyle.DotLine))
-            painter.drawRoundedRect(box.adjusted(3, 3, -3, -3), 6, 6)
         pad = style.px(6)
         sample = QRectF(box.left() + pad, box.top() + pad, box.width() - 2 * pad, 0)
         sample.setHeight(box.height() * 0.5)
         original, translation, panel = (QColor(c) for c in self.colours)
-        painter.setPen(QColor(128, 128, 128, 90))
-        painter.setBrush(panel)
-        painter.drawRoundedRect(sample, 6, 6)
+        _paint_sample(painter, self, sample, panel)
         painter.setPen(Qt.PenStyle.NoPen)
         bar = max(2.0, sample.height() / 7)
         for row, (colour, share) in enumerate(((original, 0.62), (translation, 0.74))):
@@ -592,8 +584,8 @@ class CaptionTextSliders(QWidget):
             CONTRAST_RANGE,
             _tr(
                 "How strongly captions stand out from their panel. Soft is as "
-                "faint as Quick preview's line, and never too faint to read; "
-                "crisp draws every line at full strength."
+                "faint as a line still being spoken, never too faint to read; "
+                "Crisp draws every line at full strength."
             ),
         )
         self.vibrance = self._slider(
@@ -617,7 +609,7 @@ class CaptionTextSliders(QWidget):
             (_tr("Light"), _tr("Bold")),
             (0, len(THICKNESSES) - 1),
             _tr(
-                "How thick captions' letters are, and their pinyin a step "
+                "How thick captions' letters are, and their readings a step "
                 "thicker. A font without a weight draws the nearest it has."
             ),
         )
@@ -644,7 +636,7 @@ class CaptionTextSliders(QWidget):
             )
         )
         self.edge.changed.connect(lambda v: self.edge_chosen.emit(str(v)))
-        grid.addWidget(label(_tr("Visibility")), 6, 0, 1, 3)
+        grid.addWidget(label(_tr("Around the letters")), 6, 0, 1, 3)
         grid.addWidget(self.edge, 7, 0, 1, 3, Qt.AlignmentFlag.AlignLeft)
         grid.setColumnStretch(1, 1)
         self.contrast.valueChanged.connect(self.contrast_moved)

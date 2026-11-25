@@ -13,7 +13,7 @@ from tests.ui.fakes import chinese_tools
 from tests.ui_next.test_caption_window import areas
 
 from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.display import RowKind
+from polyglotic_desktop.core.listening.display import JapaneseReading, RowKind
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.main import caption_look, look_settings
 from polyglotic_desktop.ui.recorded_captions import APP, MIC, clause, finished
@@ -83,7 +83,9 @@ def test_hindi_over_a_translation_into_hindi(qapp: QApplication) -> None:
 
 
 def test_off_by_default_each_its_own_switch(qapp: QApplication) -> None:
+    # Korean and Hindi start off; Japanese Kana is an independent default.
     assert not CaptionLook().reading_lines
+    assert CaptionLook().japanese_reading is JapaneseReading.KANA
     view = LookView(CaptionLook())
     panel = ReadingLinesPanel(view, notes=True)
     MADE.append(panel)
@@ -91,4 +93,8 @@ def test_off_by_default_each_its_own_switch(qapp: QApplication) -> None:
     panel.hindi.click()
     assert view.value.reading_lines == ("hi", "ko")
     stored = AppSettings.from_stored(look_settings(view.value)).to_stored()
-    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("hi", "ko")
+    assert caption_look(AppSettings.from_stored(stored)).reading_lines == (
+        "hi",
+        "ja",
+        "ko",
+    )

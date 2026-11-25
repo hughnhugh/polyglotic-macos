@@ -41,6 +41,7 @@ from polyglotic_desktop.core.listening.dictation_keys import (
 from polyglotic_desktop.core.listening.dictation_keys import refusal as key_refusal
 from polyglotic_desktop.core.listening.hotkeys import (
     DICTATE,
+    LIVE_SPACE,
     ORDER,
     RESPEAK,
     Hotkey,
@@ -89,7 +90,7 @@ def hotkey_names() -> dict[str, str]:
         Hotkey.PRESET.value: _tr("Next preset"),
         Hotkey.BIGGER.value: _tr("Caption text bigger"),
         Hotkey.SMALLER.value: _tr("Caption text smaller"),
-        Hotkey.BAR.value: _tr("Open caption bar controls"),
+        Hotkey.BAR.value: _tr("Open a caption window's controls"),
         DICTATE: _tr("Dictate"),
         RESPEAK: _tr("Type what they said"),
     }
@@ -268,8 +269,9 @@ class HotkeysCard(Card):
         for name, line in self.lines.items():
             key = found[name]
             line.box.show_key(str(key) if key else "")
-            line.box.setEnabled(not unavailable)
-            line.clear.setEnabled(not unavailable and key is not None)
+            can_edit = not unavailable or name == Hotkey.LIVE
+            line.box.setEnabled(can_edit)
+            line.clear.setEnabled(can_edit and key is not None)
             if unavailable:
                 note = ""
             elif name in self._said:
@@ -282,9 +284,14 @@ class HotkeysCard(Card):
                 note = _tr("Another program has this key: choose another.")
             else:
                 note = ""
+            if not note and name == Hotkey.LIVE and key == LIVE_SPACE:
+                note = _tr("Space works in caption and transcript windows.")
             line.show_note(note)
         self.reset.setEnabled(
-            not unavailable and any(found[h.value] != defaults[h] for h in ORDER)
+            any(
+                found[h.value] != defaults[h]
+                for h in (ORDER if not unavailable else (Hotkey.LIVE,))
+            )
         )
 
     def _pressed(self, name: str, pressed: str) -> None:
@@ -303,7 +310,7 @@ class HotkeysCard(Card):
                 ),
             )
             return
-        refused = hotkey_refusal(key)
+        refused = hotkey_refusal(key, hotkey=Hotkey(name))
         if refused is not None:
             self._say(name, refusal_words(refused))
             return
@@ -364,10 +371,11 @@ class DictationForOthersCard(Card):
         super().__init__(_tr("Type what they said"))
         self.setObjectName("settings.dictation_for_others")
         self.respeak = SwitchRow(
-            _tr("Enable the hold key"),
+            _tr("Hold a key to type it"),
             _tr(
-                "Use the words or translation from the caption window you’re watching."
-                " Without captions, listen to the speakers selected in Settings > Speech."
+                "Types what was said, or its translation, from the caption window "
+                "you're watching. With no captions, it listens to the speakers "
+                "chosen in Settings > Speech."
             ),
             control_name,
         )
@@ -383,13 +391,14 @@ class DictationForOthersCard(Card):
                 (TypeWhat.TRANSLATION, _tr("Its translation")),
             ]
         )
+        self.type_what.setObjectName(f"{control_name}_what")
         self.type_what.setAccessibleName(_tr("Type"))
         self.type_what.changed.connect(
             lambda value: self.respeak_changes.emit({"type_what": value})
         )
         self.add(self.type_what)
         self.respeak_way = Segmented(
-            [("shared", _tr("One key for both")), ("own", _tr("Its own key"))]
+            [("shared", _tr("Share dictation's key")), ("own", _tr("Its own key"))]
         )
         self.respeak_way.setObjectName(f"{control_name}_way")
         self.respeak_way.changed.connect(self._way)
@@ -409,6 +418,8 @@ class DictationForOthersCard(Card):
         self._dictation_key = ""
         self._respeaking = True
         self._own = DEFAULT_RESPEAK_KEY
+        self._last_own: str | None = None
+        """The learner's last own key, kept while one key for both is in use."""
         self.hotkeys: dict[str, DictationKey | None] = {}
         """The hotkeys' keys now, by name: an own key can't be one."""
         self.show_dictation(True, str(DEFAULT_KEY))
@@ -425,25 +436,40 @@ class DictationForOthersCard(Card):
         self._show_respeak()
 
     def show_respeaking(
-        self, on: bool, key: str, taken: bool = False, what: str = TypeWhat.ORIGINAL
+        self,
+        on: bool,
+        key: str,
+        taken: bool = False,
+        what: str = TypeWhat.ORIGINAL,
+        last_own: str | None = None,
     ) -> None:
         """Speaker typing settings now; `taken`: another program has its own
         key."""
         if (on, key) != (self._respeaking, self._own):
             self._say("")
         self._respeaking, self._own = on, key
+        if last_own:
+            self._last_own = last_own
+        if key:
+            self._last_own = key
         self.type_what.set_value(what)
         self._show_respeak()
         if on and key and taken:
-            self.not_taken(key)
+            self.show_key_conflict(key)
 
-    def not_taken(self, wanted: str) -> None:
-        """Another program has the key pressed (or kept): say so."""
+    def show_key_conflict(self, wanted: str) -> None:
+        """Report an unavailable binding without taking keyboard focus."""
         self._say(
             _tr("Another program has {key}: choose another.").format(
                 key=key_words(wanted)
             )
         )
+
+    def not_taken(self, wanted: str) -> None:
+        """The learner tried this key: invite them to press another."""
+        self.show_key_conflict(wanted)
+        self.respeak_box.setVisible(True)
+        self.respeak_box.setChecked(True)
 
     def _show_respeak(self) -> None:
         self.respeak.switch.set_quietly(self._respeaking)
@@ -457,7 +483,7 @@ class DictationForOthersCard(Card):
         dictation = key_words(self._dictation_key)
         if own:
             how = _tr("Hold {key} while they speak.").format(
-                key=key_words(self._own) if self._own else _tr("its key")
+                key=key_words(self._own) if self._own else _tr("the key you choose")
             )
         elif self._dictation_on:
             how = _tr(
@@ -468,7 +494,7 @@ class DictationForOthersCard(Card):
         self.respeak_how.setText(how)
         self.respeak_how.setHidden(not self._respeaking)
         if self.uses_dictation_key and self._shared_taken:
-            self.not_taken(self._dictation_key)
+            self.show_key_conflict(self._dictation_key)
 
     def _way(self, value: object) -> None:
         if value == "shared":
@@ -477,9 +503,14 @@ class DictationForOthersCard(Card):
             if self._own:
                 self.respeak_changes.emit({"respeak_key": ""})
             self._show_respeak()
-        elif not self._own:  # its own, once a key is pressed: listening now
-            self.respeak_box.setVisible(True)
-            self.respeak_box.setChecked(True)
+        elif not self._own:
+            # Sharing is a reversible choice, not deletion of the learner's
+            # accepted own key. `main` still checks that it can take it now.
+            if self._last_own is not None:
+                self.respeak_key_wanted.emit(self._last_own)
+            else:  # no own key has been accepted yet: listen for the first one
+                self.respeak_box.setVisible(True)
+                self.respeak_box.setChecked(True)
 
     def _box_listening(self, on: bool) -> None:
         self.listening.emit(on)
@@ -529,9 +560,12 @@ def window_keys() -> list[tuple[str, str]]:
     listed: what each does, and its key as this OS writes it."""
     find = shortcut_words(QKeySequence.StandardKey.Find)
     copy = shortcut_words(QKeySequence.StandardKey.Copy)
+    home = f"{shortcut_words('Home')} / {shortcut_words('Ctrl+Home')}"
+    end = f"{shortcut_words('End')} / {shortcut_words('Ctrl+End')}"
     return [
         (_tr("Search a transcript"), find),
-        (_tr("Back to live in a transcript"), shortcut_words("End")),
+        (_tr("Jump to the first caption"), home),
+        (_tr("Back to live in a caption or transcript window"), end),
         (_tr("Copy what's selected"), copy),
         (_tr("Close the search or the lookup"), shortcut_words("Esc")),
     ]
@@ -544,7 +578,9 @@ class WindowKeysCard(Card):
     def __init__(self, control_name: str = "hotkeys.respeak") -> None:
         super().__init__(
             _tr("In a window"),
-            _tr("While a transcript or the lookup has the keyboard."),
+            _tr(
+                "While a caption window, a transcript or a word's card is the active window."
+            ),
         )
         self.setObjectName("settings.window_keys")
         grid = QGridLayout()

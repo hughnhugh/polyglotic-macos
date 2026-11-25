@@ -59,38 +59,19 @@ from polyglotic_desktop.ports.capture import SourceCategory
 Props = dict[str, protocol.UsageValue]
 Sent = tuple[str, Props]
 
-WAITING_FOR_THE_SERVER = {
-    "listening_session_ended.capture_restarts isn't in the tracking plan": (
-        "server #350"
-    ),
-    "listening_session_ended.session_failures isn't in the tracking plan": (
-        "server #350"
-    ),
-    "listening_session_ended.unreadable_dropped isn't in the tracking plan": (
-        "server #350"
-    ),
-    "listening_session_ended.preset_saves isn't in the tracking plan": ("server #356"),
-    "listening_session_ended.preset_saves_as isn't in the tracking plan": (
-        "server #356"
-    ),
-    "listening_session_ended.preset_discards isn't in the tracking plan": (
-        "server #356"
-    ),
-    "listening_session_ended.preset_changes_saved isn't in the tracking plan": (
-        "server #356"
-    ),
-    "listening_session_ended.preset_changes_saved_as isn't in the tracking plan": (
-        "server #356"
-    ),
-    "listening_session_ended.preset_changes_discarded isn't in the tracking plan": (
-        "server #356"
-    ),
-    "listening_session_ended.lyrics_seconds isn't in the tracking plan": (
-        "server #357"
-    ),
-    "listening_session_ended.lyrics_switches isn't in the tracking plan": (
-        "server #357"
-    ),
+WAITING_FOR_THE_SERVER: dict[str, str] = {
+    "listening_session_ended.pace_them_mean isn't in the tracking plan": "server follow-up 828",
+    "listening_session_ended.pace_them_peak isn't in the tracking plan": "server follow-up 828",
+    **{
+        f"listening_session_ended.pace_them_seconds_{band} isn't in the tracking plan": "server follow-up 828"
+        for band in ("1_60", "61_120", "121_180", "181_240", "241_plus")
+    },
+    "listening_session_ended.pace_you_mean isn't in the tracking plan": "server follow-up 828",
+    "listening_session_ended.pace_you_peak isn't in the tracking plan": "server follow-up 828",
+    **{
+        f"listening_session_ended.pace_you_seconds_{band} isn't in the tracking plan": "server follow-up 828"
+        for band in ("1_60", "61_120", "121_180", "181_240", "241_plus")
+    },
 }
 """What the app sends that the copy of the plan doesn't take yet, and the
 server pull request that adds it: each is dropped by a server without it."""
@@ -296,12 +277,21 @@ def milestones() -> Iterator[tuple[str, int, Props]]:
             yield from _usage_sent(outbox)
 
 
+def feature_suggestions() -> Iterator[Sent]:
+    """The successful-send callback's event, as the consent-aware exchange keeps it."""
+    outbox, exchange = _exchange()
+    exchange.usage("feature_suggested", {}, AT)
+    for name, _version, props in _usage_sent(outbox):
+        yield name, props
+
+
 def built() -> list[Sent]:
     return [
         *session_summaries(),
         *timelines(),
         *sources_selected(),
         *lines_flagged(),
+        *feature_suggestions(),
     ]
 
 
@@ -314,6 +304,14 @@ def exchange_version() -> int:
 
 
 # -- the tests ------------------------------------------------------------------------
+
+
+def test_a_feature_suggestion_count_keeps_the_usage_consent_gate() -> None:
+    """The count never enters the outbox before the learner allows usage statistics."""
+    outbox = SqliteOutbox(":memory:")
+    exchange = DataExchange(outbox, outbox, Heard(), "cedict")
+    exchange.usage("feature_suggested", {}, AT)
+    assert _usage_sent(outbox) == []
 
 
 def test_the_copy_of_the_plan_is_the_one_its_manifest_names() -> None:

@@ -29,7 +29,7 @@ class Clock:
 
 
 def paced(qapp: QApplication, gap: float) -> tuple[CaptionWindow, Clock]:
-    look = CaptionLook(arrival=Arrival.STEP, lab=CaptionLab(arrival_gap=gap))
+    look = CaptionLook(lab=CaptionLab(arrival_gap=gap))
     window = window_of(qapp, captions=2, look=look)
     clock = Clock()
     window.clock = clock
@@ -55,7 +55,9 @@ def test_captions_arriving_together_come_in_the_gap_apart_in_order(
         window._let_paced()
         assert ids(window)[-1] == "app-00002"  # not yet: 0.3 s of 0.5
         clock.now += 0.2
+        remaining = window.glide.to(clock.now)
         window._let_paced()
+        assert window.arriving and window.glide.px > remaining
         assert ids(window)[-1] == "app-00003"
         clock.now += 0.5
         window._let_paced()

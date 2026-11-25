@@ -95,11 +95,12 @@ def test_a_paced_mode_shows_two_zones_and_the_others_one_list(
     assert window.zone_room() == 0.0
 
 
-def test_steadys_layout_names_the_language_once(windows: CaptionWindows) -> None:
+def test_paced_captions_keep_their_labels(windows: CaptionWindows) -> None:
     window = say(windows, caption(1), caption(2), caption(3))
-    assert [bool(line.label) for line in window.view.lines] == [True, False, False]
-    windows.set_timing(CaptionMode.WHOLE)  # the other modes: over each, as before
-    assert [bool(line.label) for line in window.view.lines] == [True, True, True]
+    labels = [line.label for line in window.view.lines]
+    assert len(labels) == 3 and all(labels)
+    windows.set_timing(CaptionMode.WHOLE)
+    assert [line.label for line in window.view.lines] == labels
 
 
 def test_the_learner_can_turn_two_zones_off(windows: CaptionWindows) -> None:
@@ -234,24 +235,37 @@ def test_karaoke_draws_the_waiting_words_faint(windows: CaptionWindows) -> None:
 
 
 def test_a_line_in_the_live_zone_only_grows(windows: CaptionWindows) -> None:
-    """Lines only grow (DECISIONS #230 item 3): as a caption's words come,
-    the rows already there stay where they are."""
+    """DECISIONS #230: word arrivals keep the rows in place. At a new
+    line the existing rows roll up together and the new line takes the foot."""
     words = (SAID + " " + SAID + " " + SAID).split()
-    window = windows.windows["app"]
-    tops: dict[int, float] = {}
+    starts: list[int] = []
+    tops: list[float] = []
+    foot: float | None = None
     for n in range(4, len(words) + 1, 3):
         update = CaptionUpdate(
             CaptionId("grows"), APP, CaptionKind.LIVE, (Clause(" ".join(words[:n])),),
             EN, (EN,), times=SpeechTimes(0.0, 9.0, 9.0, 9.1), established=10_000,
         )  # fmt: skip
-        say(windows, update)
-        ((_, laid, _),) = window.zone.placed
-        now = {row.index: row.top for row in laid.rows}
-        for index, top in tops.items():
-            assert now[index] == top
-        assert len(now) >= len(tops)
-        tops = now
-    assert len(laid.breaks) > 1  # it ran over a line
+        window = say(windows, update)
+        ((_, laid, rect),) = window.placed()  # window coordinates
+        new_starts = []
+        new_tops = []
+        for row in laid.rows:
+            for i in range(row.layout.lineCount()):
+                line = row.layout.lineAt(i)
+                new_starts.append(row.start + line.textStart())  # ASCII fixture
+                new_tops.append(row.top + line.y())
+
+        # The source breaks and the height of each row within the caption
+        # stay fixed. Every appended row takes the previous reading position.
+        assert new_starts[: len(starts)] == starts
+        assert new_tops[: len(tops)] == pytest.approx(tops, abs=0.02)
+        newest_top = rect.top() + new_tops[-1]
+        if foot is None:
+            foot = newest_top
+        assert newest_top == pytest.approx(foot, abs=0.02)
+        starts, tops = new_starts, new_tops
+    assert len(tops) > 1  # exercised the roll
 
 
 ZH = Language("zh")

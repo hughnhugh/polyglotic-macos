@@ -77,10 +77,11 @@ Plain Python, no Qt: `Fonts` hands in the measuring. Holds no caption text
 beyond the models it was given.
 """
 
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
 from collections import OrderedDict, deque
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, replace
+from difflib import SequenceMatcher
 from enum import StrEnum
 from typing import Protocol
 
@@ -117,6 +118,14 @@ IN_STEP = 0.1
 what was said than the line under it holds of its translation."""
 FIT = 0.5
 """Pixels a line may run over the width: the measuring's rounding."""
+SENTENCE_NEW_LINE_AFTER = 0.5
+"""Share of a line a completed sentence fills before the next starts anew."""
+CONTINUATION = "..."
+"""Display punctuation on the closed side of an overflow break."""
+ELLIPSIS_ROOM = 1.0
+"""Ellipsis widths reserved on every growing line (0..1)."""
+CONDENSE_MIN = 0.85
+"""Smallest scale (0..1) considered before an overflowing unit is refit."""
 
 
 class Cut(StrEnum):
@@ -125,6 +134,8 @@ class Cut(StrEnum):
     CAPTION = "caption"
     """The whole caption: what was said in the upper lines, its
     translation in the lines below."""
+    PAIRED = "paired"
+    """An original row followed by the translation of those words."""
     CLAUSE = "clause"
     """A clause, over its translation."""
 
@@ -207,6 +218,8 @@ class Above:
     before: Sequence[float]
     after: Sequence[float]
     band: float
+    below_band: float = 0.0
+    """Height reserved under the text for a secondary reading."""
 
     def room(self, start: int, end: int) -> float:
         """The room added to characters `[start, end)`."""
@@ -252,6 +265,7 @@ class FlowLine:
     ascent: float
     height: float
     pair: int
+    continues: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -291,6 +305,8 @@ class Flowed:
     height: float
     width: float
     open: Open | None = None
+    frozen: tuple[tuple[int, int], ...] = ()
+    """For each closed pair, its original and translation unit end indices."""
 
     @property
     def breaks(self) -> tuple[float, ...]:
@@ -315,6 +331,7 @@ class _Side:
     __slots__ = (
         "ascent",
         "below",
+        "continuation_width",
         "cum",
         "dots",
         "language",
@@ -358,9 +375,11 @@ class _Side:
         self.starts = [a for a, _, _ in units]
         self.space = width(" ")
         self.dots = width(ELLIPSIS)
+        self.continuation_width = width(CONTINUATION)
         self.ascent, self.below = font.ascent, font.below
         if above is not None:
             self.ascent += above.band
+            self.below += above.below_band
 
     def width(self, first: int, end: int) -> float:
         """Units `[first, end)` on one line, the last one's spaces left off."""
@@ -458,6 +477,7 @@ class _Segment:
     bottom: _Piece | None
     ends: bool
     model: ClauseModel
+    freezes: bool = False
 
 
 class _Row:
@@ -468,6 +488,7 @@ class _Row:
         "below",
         "carried",
         "closing",
+        "continues",
         "ended",
         "items",
         "joins",
@@ -488,6 +509,7 @@ class _Row:
         self.closing: int | None = None  # its closing ellipsis, in `joins`
         self.runs: list[Run] = []
         self.joins: list[float] = []
+        self.continues = False
         self.text_end = 0.0
         self.ended = False  # the last piece on it ended its clause
         self.last: _Piece | None = None
@@ -636,10 +658,17 @@ class _Row:
             return before + dots
         return None
 
-    def close(self, join: Join, width: float, more: bool) -> None:
+    def close(
+        self, join: Join, width: float, more: bool, overflow: bool = False
+    ) -> None:
         """The line ends here; `more`: text follows it. An ellipsis at its
-        end where the join asks for one, if there is room - never room
-        made for it."""
+        end is mandatory at an overflow break and optional at a clause join."""
+        if self.last is not None and (
+            overflow or self.last.chars[1] < len(self.last.measured.text)
+        ):
+            self.continues = True
+            self.text_end += self.last.measured.continuation_width
+            return
         room = self.closes(join, width, more)
         if room is None:
             return
@@ -688,6 +717,7 @@ class Flow:
         fonts: Fonts,
         gaps: Gaps | None = None,
         above: Readable | None = None,
+        graphemes: Callable[[str], Iterable[str]] = iter,
     ) -> None:
         """`above`: the reading line over a side's text, if it has one
         (polyglotic-hq 364): its units are measured with the room it
@@ -695,10 +725,13 @@ class Flow:
         self.fonts = fonts
         self.gaps = gaps or Gaps()
         self.above = above
+        self.graphemes = graphemes
         self.measured = 0  # clause sides measured since made: what tests count
         self._sides: OrderedDict[tuple[int, RowKind], tuple[ClauseModel, _Side]] = (
             OrderedDict()
         )
+        self._frozen_units: tuple[tuple[str, ...], tuple[str, ...]] | None = None
+        self._last_frozen: tuple[tuple[int, int], ...] = ()
 
     def forget(self) -> None:
         """The fonts changed: everything is measured again."""
@@ -733,15 +766,27 @@ class Flow:
         top: float = 0.0,
         trail: bool = True,
         entry: Open | None = None,
+        frozen: tuple[tuple[int, int], ...] | None = (),
     ) -> Flowed:
         """`captions` - one, or those that run together - in lines `width`
-        wide, from `top` down. `right`: lined up on the right (the
-        learner's own speech). `trail`: a caption still being spoken ends
+        wide, from `top` down. `frozen` records each already-closed pair's
+        unit ends across revisions. Pass None when only geometry is needed.
+        `right`: lined up on the right (the learner's own speech). `trail`: a caption still being spoken ends
         with an ellipsis. `entry`: the line pair the caption before left
         open (its `Flowed.open`): the first lines here are that pair's,
         this text after what they hold - `top` is that pair's top."""
         # Translation below, lined up (372): Line by line's pairs, each
         # caption's lines of what was said then gathered over its translation's
+        unit_text = self._unit_text(captions) if frozen is not None else None
+        if frozen and frozen == self._last_frozen and self._frozen_units is not None:
+            assert unit_text is not None
+            frozen = tuple(
+                (
+                    self._remap_boundary(self._frozen_units[0], unit_text[0], a),
+                    self._remap_boundary(self._frozen_units[1], unit_text[1], b),
+                )
+                for a, b in frozen
+            )
         lined_below = options.cut is Cut.CAPTION and options.aligned
         if lined_below:
             options = replace(
@@ -769,8 +814,10 @@ class Flow:
         # takes it only where none of what was said comes with it (366).
         barred = upper.empty and not lower.empty
 
-        def close(more: bool, full: bool = False, last: bool = False) -> None:
-            """The pair ends here. `full`: because what came next didn't
+        def close(
+            more: bool, following: _Segment | None = None, last: bool = False
+        ) -> None:
+            """The pair ends here. `following`: the segment that didn't
             fit it; `last`: the composition's last (run-on leaves it open
             for the caption after)."""
             nonlocal upper, lower, pair, left_open, barred
@@ -782,10 +829,15 @@ class Flow:
             for row in (upper, lower):
                 if row.empty:
                     continue
-                row.close(options.join, width, more)
+                overflow = (
+                    following is not None
+                    and (following.top if row is upper else following.bottom)
+                    is not None
+                )
+                row.close(options.join, width, more, overflow)
                 rows.append((row, pair, first))
                 first = False
-            if places and full and options.placing is Placing.EVENLY:
+            if places and following is not None and options.placing is Placing.EVENLY:
                 self._even(upper, lower, width)
             if not first:
                 pair += 1
@@ -799,15 +851,34 @@ class Flow:
             )
             number += 1
 
-        def block(segment: _Segment, more: bool) -> None:
+        def block(segment: _Segment, more: bool, available: float) -> None:
             """A segment in lines of its own: what was said wrapped over
             the lines it needs, then its translation."""
             nonlocal pair
+            if options.cut is Cut.PAIRED:
+                # A word wider than the window needs the grapheme fallback.
+                # Keep the resulting rows in pairs even on this path.
+                sides = [
+                    self._wrapped([(piece, segment.ends)], available, options, more)
+                    if piece is not None
+                    else []
+                    for piece in (segment.top, segment.bottom)
+                ]
+                for i in range(max(map(len, sides))):
+                    first = True
+                    for side in sides:
+                        if i < len(side):
+                            rows.append((side[i], pair, first))
+                            first = False
+                    pair += 1
+                return
             first = True
             for piece in (segment.top, segment.bottom):
                 if piece is None:
                     continue
-                for row in self._wrapped([(piece, segment.ends)], width, options, more):
+                for row in self._wrapped(
+                    [(piece, segment.ends)], available, options, more
+                ):
                     rows.append((row, pair, first))
                     first = False
             pair += 1
@@ -822,17 +893,57 @@ class Flow:
             if index:
                 barred = upper.empty and not lower.empty
             first_row, first_pair = len(rows), pair
-            pending = deque(self._segments(index, caption, options))
+            pending = deque(
+                self._frozen_segments(
+                    captions, self._segments(index, caption, options), frozen or ()
+                )
+            )
             while pending:
                 segment = pending.popleft()
                 more = bool(pending) or not last_caption
+                ellipsis = max(
+                    (
+                        max(
+                            piece.measured.continuation_width,
+                            piece.measured.dots
+                            + (
+                                0.0
+                                if _tight(piece.measured.text)
+                                else piece.measured.space
+                            ),
+                        )
+                        for piece in (segment.top, segment.bottom)
+                        if piece is not None
+                    ),
+                    default=0.0,
+                )
+                room = width - ellipsis * ELLIPSIS_ROOM
                 if barred and segment.top is not None:
                     close(True)
                     pending.appendleft(segment)
                     continue
                 starts = self._starts(segment, upper, lower, options)
-                if self._fits(segment, starts, width):
+                if self._fits(segment, starts, room):
                     place(segment, starts)
+                    if segment.freezes:
+                        close(more)
+                        continue
+                    sentence_end = any(
+                        piece is not None
+                        and piece.measured.text.rstrip().endswith(
+                            (".", "!", "?", "。", "！", "？")
+                        )
+                        for piece in (segment.top, segment.bottom)
+                    )
+                    if (
+                        not runs_on
+                        and segment.ends
+                        and segment.model.settled
+                        and sentence_end
+                        and max(upper.end, lower.end) >= width * SENTENCE_NEW_LINE_AFTER
+                    ):
+                        close(True)
+                        continue
                     # a clause a row: its parts, lined up, share its pair (372)
                     if not options.share and segment.ends:
                         close(more)
@@ -842,19 +953,19 @@ class Flow:
                 too_wide = options.aligned and upper.empty and lower.empty
                 if options.split or too_wide:
                     cut = self._split(
-                        segment, starts, upper.empty and lower.empty, width
+                        segment, starts, upper.empty and lower.empty, room, options.cut
                     )
                     if cut is not None:
                         first, rest = cut
                         place(first, starts)
-                        close(True, full=True)
+                        close(True, following=rest)
                         pending.appendleft(rest)
                         continue
                 if not (upper.empty and lower.empty):
-                    close(True, full=True)
+                    close(True, following=segment)
                     pending.appendleft(segment)
                     continue
-                block(segment, more)
+                block(segment, more, width)
             if not (options.share and options.run_on):
                 close(not last_caption)
             if lined_below:
@@ -864,13 +975,28 @@ class Flow:
         still_open = left_open if runs_on and not live else None
         if trail and captions and captions[-1].live and rows:
             row = rows[-1][0]  # still being spoken: it trails off
-            if row.last is not None:
+            # A retained boundary can already have closed this row with the
+            # real ellipsis.  Do not reserve and draw a second one merely
+            # because the caption as a whole is still live.
+            if row.last is not None and not row.joins and not row.continues:
                 before = (
                     0.0 if _tight(row.last.measured.text) else row.last.measured.space
                 )
                 row.joins.append(row.text_end + before)
                 row.text_end += before + row.last.measured.dots
+        if options.cut is Cut.PAIRED:
+            later = set()
+            for row, _, _ in reversed(rows):
+                if row.side in later and not row.continues and row.last is not None:
+                    row.continues = True
+                    row.text_end += row.last.measured.continuation_width
+                later.add(row.side)
         placed = self._placed(rows, width, right, options, top)
+        if frozen is not None:
+            boundaries = self._boundaries(captions, placed, live)
+            self._frozen_units = unit_text
+            self._last_frozen = boundaries
+            placed = replace(placed, frozen=boundaries)
         if still_open is None:
             return placed
         said, meant = still_open[0].open(), still_open[1].open()
@@ -878,6 +1004,67 @@ class Flow:
         if said is not None and meant is not None:
             tall += self.gaps.row
         return replace(placed, open=Open(said, meant, tall))
+
+    @staticmethod
+    def _unit_text(
+        captions: Sequence[CaptionModel],
+    ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        """The revision's units in reading order, for correction remapping."""
+        sides: list[list[str]] = [[], []]
+        for caption in captions:
+            for clause in caption.clauses:
+                for number, side in enumerate((RowKind.ORIGINAL, RowKind.TRANSLATION)):
+                    text = clause.text(side)
+                    sides[number].extend(
+                        text[a:after] for a, _, after in clause.units(side)
+                    )
+        return tuple(sides[0]), tuple(sides[1])
+
+    @staticmethod
+    def _remap_boundary(old: tuple[str, ...], new: tuple[str, ...], at: int) -> int:
+        """Keep a closed break beside the same units after a live correction."""
+        at = min(at, len(old))
+        blocks = SequenceMatcher(None, old, new, autojunk=False).get_matching_blocks()
+        before = 0
+        for block in blocks:
+            if block.a <= at <= block.a + block.size:
+                return min(len(new), block.b + at - block.a)
+            if block.a > at:
+                break
+            before = block.b + block.size
+        return min(len(new), before)
+
+    def _boundaries(
+        self,
+        captions: Sequence[CaptionModel],
+        flowed: Flowed,
+        live: bool,
+    ) -> tuple[tuple[int, int], ...]:
+        """Unit ends of closed pairs; the growing last pair is not frozen."""
+        offsets: dict[tuple[int, int, RowKind], int] = {}
+        totals = {RowKind.ORIGINAL: 0, RowKind.TRANSLATION: 0}
+        for n, caption in enumerate(captions):
+            for c, clause in enumerate(caption.clauses):
+                for side in (RowKind.ORIGINAL, RowKind.TRANSLATION):
+                    offsets[n, c, side] = totals[side]
+                    totals[side] += len(clause.units(side))
+        pairs = sorted({line.pair for line in flowed.lines})
+        if live and pairs:
+            pairs.pop()
+        found: list[tuple[int, int]] = []
+        ends = {RowKind.ORIGINAL: 0, RowKind.TRANSLATION: 0}
+        for pair in pairs:
+            for line in (line for line in flowed.lines if line.pair == pair):
+                for run in line.runs:
+                    clause = captions[run.caption].clauses[run.words.clause]
+                    measured = self._side(
+                        clause, line.side, captions[run.caption].language
+                    )
+                    end = offsets[run.caption, run.words.clause, line.side]
+                    end += measured.unit_at(run.words.end)
+                    ends[line.side] = max(ends[line.side], end)
+            found.append((ends[RowKind.ORIGINAL], ends[RowKind.TRANSLATION]))
+        return tuple(found)
 
     def _segments(
         self, index: int, caption: CaptionModel, options: FlowOptions
@@ -908,6 +1095,81 @@ class Flow:
                 if top is not None or bottom is not None:
                     found.append(_Segment(top, bottom, k == len(parts) - 1, clause))
         return found
+
+    @staticmethod
+    def _frozen_segments(
+        captions: Sequence[CaptionModel],
+        segments: Sequence[_Segment],
+        frozen: tuple[tuple[int, int], ...],
+    ) -> list[_Segment]:
+        """Cut segments at retained unit boundaries before ordinary fitting.
+
+        Boundaries count units across all caption runs.  A boundary can end one
+        side earlier than the other; the following segment then carries on with
+        only that side until its counterpart catches up.
+        """
+        if not frozen:
+            return list(segments)
+        offsets: dict[tuple[int, int, RowKind], int] = {}
+        totals = {RowKind.ORIGINAL: 0, RowKind.TRANSLATION: 0}
+        for n, caption in enumerate(captions):
+            for c, clause in enumerate(caption.clauses):
+                for side in (RowKind.ORIGINAL, RowKind.TRANSLATION):
+                    offsets[n, c, side] = totals[side]
+                    totals[side] += len(clause.units(side))
+
+        def position(piece: _Piece | None) -> tuple[int, int] | None:
+            if piece is None:
+                return None
+            base = offsets[piece.caption, piece.clause, piece.side]
+            return base + piece.first, base + piece.end
+
+        def cut(piece: _Piece | None, at: int) -> tuple[_Piece | None, _Piece | None]:
+            if piece is None:
+                return None, None
+            base = offsets[piece.caption, piece.clause, piece.side]
+            local = min(max(at - base, piece.first), piece.end)
+            before = replace(piece, end=local) if local > piece.first else None
+            after = replace(piece, first=local) if local < piece.end else None
+            return before, after
+
+        made: list[_Segment] = []
+        boundary = 0
+        for original in segments:
+            current: _Segment | None = original
+            while current is not None and boundary < len(frozen):
+                top_at, bottom_at = frozen[boundary]
+                top_span, bottom_span = position(current.top), position(current.bottom)
+                reaches = all(
+                    span is None or wanted <= span[1]
+                    for span, wanted in ((top_span, top_at), (bottom_span, bottom_at))
+                )
+                follows = all(
+                    span is None or wanted > span[0]
+                    for span, wanted in ((top_span, top_at), (bottom_span, bottom_at))
+                )
+                if not (reaches and follows):
+                    break
+                top, top_rest = cut(current.top, top_at)
+                bottom, bottom_rest = cut(current.bottom, bottom_at)
+                made.append(
+                    _Segment(
+                        top,
+                        bottom,
+                        current.ends and not (top_rest or bottom_rest),
+                        current.model,
+                        True,
+                    )
+                )
+                boundary += 1
+                current = (
+                    _Segment(top_rest, bottom_rest, current.ends, current.model)
+                    if top_rest is not None or bottom_rest is not None
+                    else None
+                )
+            if current is not None:
+                made.append(current)
+        return made
 
     def _starts(
         self, segment: _Segment, upper: _Row, lower: _Row, options: FlowOptions
@@ -1039,6 +1301,8 @@ class Flow:
             most = fuller.text_end - row.text_end
         else:
             closing = row.closes(options.join, width, more) or 0.0
+            if row.last is not None and more:
+                closing = max(closing, row.last.measured.continuation_width)
             most = width - closing - row.text_end
         facing = fuller.items or []
         row.put(nearest([self._wants(item, facing) for item in row.items or []], most))
@@ -1101,6 +1365,7 @@ class Flow:
         starts: _Starts,
         empty: bool,
         width: float,
+        policy: Cut,
     ) -> tuple[_Segment, _Segment] | None:
         """`segment` cut in two so its first part fills what's left of the
         line pair: on both sides, where the fewest word links cross - a
@@ -1125,6 +1390,9 @@ class Flow:
         most_meant = meant.fitting(bottom.first, bottom.end, width - bottom_at)
         if most <= top.first or most_meant <= bottom.first:
             return None
+        if policy is Cut.PAIRED:
+            p, q = self._paired_break(segment, top, bottom, most, most_meant)
+            return self._halves(segment, p, q)
         whole_said, whole_meant = top.width, bottom.width
         # no more of what was said than of its translation: the wider
         # language fills the line, the other keeps in step with it
@@ -1161,6 +1429,68 @@ class Flow:
         if fullest is None or fullest == (top.end, bottom.end):
             return None
         return self._halves(segment, *fullest)
+
+    @staticmethod
+    def _paired_break(
+        segment: _Segment, top: _Piece, bottom: _Piece, most: int, most_meant: int
+    ) -> tuple[int, int]:
+        """Choose two fitting word boundaries. Prefer a cut that keeps every
+        linked word with its counterpart, including links hidden in the UI.
+        Between links, split by the character share on the limiting side."""
+
+        def boundary(piece: _Piece, i: int) -> int:
+            return piece.measured.units[i - 1][2]
+
+        def nearest(piece: _Piece, low: int, high: int, wanted: float) -> int:
+            i = bisect_left(piece.measured.starts, wanted, low, high)
+            return min(
+                (max(low, i - 1), i), key=lambda n: abs(boundary(piece, n) - wanted)
+            )
+
+        # Keep a word on each side for the next pair whenever possible.
+        p_max = min(most, max(top.first + 1, top.end - 1))
+        q_max = min(most_meant, max(bottom.first + 1, bottom.end - 1))
+        a, b = top.chars
+        c, d = bottom.chars
+        share = min(
+            (boundary(top, p_max) - a) / (b - a),
+            (boundary(bottom, q_max) - c) / (d - c),
+        )
+        p = nearest(top, top.first + 1, p_max, a + share * (b - a))
+
+        def target(i: int) -> float:
+            return c + (d - c) * (boundary(top, i) - a) / (b - a)
+
+        for x, y in reversed(segment.model.cuts):
+            if a < x <= boundary(top, p_max) and c < y <= boundary(bottom, q_max):
+                return bisect_left(top.measured.starts, x), bisect_left(
+                    bottom.measured.starts, y
+                )
+        if segment.model.pairs:
+            spans = [
+                (start, end, *link.translation)
+                for link in segment.model.pairs
+                for start, end in link.original
+            ]
+            for i in range(p_max, top.first, -1):
+                at = boundary(top, i)
+                if any(start < at < end for start, end, _, _ in spans):
+                    continue
+                lo = max((v for _, end, _, v in spans if end <= at), default=c)
+                hi = min((u for start, _, u, _ in spans if start >= at), default=d)
+                # Unit ends include the final boundary even for a one-word side.
+                units = bottom.measured.units
+                low = 1 + bisect_left(
+                    units, lo, bottom.first, q_max, key=lambda unit: unit[2]
+                )
+                high = bisect_right(
+                    units, hi, bottom.first, q_max, key=lambda unit: unit[2]
+                )
+                if low <= high:
+                    # If a range of unlinked words fits, keep the two sides in proportion.
+                    return i, nearest(bottom, low, high, target(i))
+        # Crossed links can make a contiguous, order-preserving cut impossible.
+        return p, nearest(bottom, bottom.first + 1, q_max, target(p))
 
     @staticmethod
     def _meant_cut(
@@ -1237,6 +1567,33 @@ class Flow:
                 rows.append((row, pair, first))
                 first = False
 
+    def _wrap_units(self, piece: _Piece, room: float) -> Iterator[_Piece]:
+        """Split an oversized word only at a complete grapheme."""
+        side = piece.measured
+        first = piece.first
+        for unit in range(first, piece.end):
+            if side.word[unit] <= room + FIT:
+                continue
+            if unit > first:
+                yield replace(piece, first=first, end=unit)
+            first = unit + 1
+            start, stop, after = side.units[unit]
+            units = []
+            for glyph in self.graphemes(side.text[start:stop]):
+                end = start + len(glyph)
+                units.append((start, end, after if end == stop else end))
+                start = end
+            above = (
+                self.above(piece.side, side.language, side.text) if self.above else None
+            )
+            split = _Side(
+                side.text, tuple(units), piece.side, side.language, self.fonts, above
+            )
+            if units:
+                yield replace(piece, measured=split, first=0, end=len(units))
+        if first < piece.end:
+            yield piece if first == piece.first else replace(piece, first=first)
+
     def _wrapped(
         self,
         pieces: Sequence[tuple[_Piece, bool]],
@@ -1252,17 +1609,32 @@ class Flow:
         row = _Row(pieces[0][0].side)
         for piece, ends in pieces:
             measured = piece.measured
-            for unit in range(piece.first, piece.end):
-                one = _Piece(
-                    piece.caption, piece.clause, piece.side, measured, unit, unit + 1
-                )
-                lead, mark = row.lead(one, options.join)
-                if not row.empty and row.text_end + lead + one.width > width + FIT:
-                    row.close(options.join, width, True)
+            room = width - measured.continuation_width
+            for group in self._wrap_units(piece, room):
+                # The run already has cumulative unit widths. Add the whole
+                # span that fits instead of building and joining a run per word.
+                while True:
+                    lead, mark = row.lead(group, options.join)
+                    available = room - row.text_end - lead
+                    stop = group.end
+                    if group.width > available + FIT:
+                        stop = group.measured.fitting(group.first, group.end, available)
+                        if row.empty:  # even one oversized grapheme gets a line
+                            stop = max(stop, group.first + 1)
+                    if stop > group.first:
+                        part = group if stop == group.end else replace(group, end=stop)
+                        row.add(
+                            part,
+                            row.text_end + lead,
+                            ends and part.chars[1] == piece.chars[1],
+                            mark,
+                        )
+                        if stop == group.end:
+                            break
+                        group = replace(group, first=stop)
+                    row.close(options.join, width, True, overflow=True)
                     found.append(row)
                     row = _Row(piece.side)
-                    lead, mark = 0.0, None
-                row.add(one, row.text_end + lead, ends and unit == piece.end - 1, mark)
         row.close(options.join, width, more)
         found.append(row)
         return found
@@ -1310,6 +1682,7 @@ class Flow:
                     row.ascent,
                     height,
                     pair,
+                    row.continues,
                 )
             )
             y += height

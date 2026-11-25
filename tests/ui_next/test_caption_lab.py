@@ -1,6 +1,6 @@
 """Settings > Captions > Lab (polyglotic-hq 284): experimental caption
 settings the user and testers tune by feel - each applies at once to the
-caption windows and the preview, is saved, and "Reset the lab" puts them
+caption windows and the preview, is saved, and "Reset the Lab" puts them
 all back. First: how long a caption stays new, how it dims, and how far
 older captions step back (the user's live testing, 270's FEEDBACK.md line
 19: "Lines stay recent for x seconds (configurable), right now multiple

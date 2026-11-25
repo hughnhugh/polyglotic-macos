@@ -15,5 +15,6 @@ from polyglotic_desktop.platform.windows.keys import held
 def test_esc_and_the_mouse_buttons_are_read_by_name() -> None:
     assert isinstance(held("escape"), bool)
     assert isinstance(held("mouse"), bool)
+    assert isinstance(held("copy"), bool)
     with pytest.raises(KeyError):
         held("space")

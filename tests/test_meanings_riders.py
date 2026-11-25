@@ -27,6 +27,7 @@ from tests.test_pack_riders import (
 from tools.package import publish_packs
 
 from polyglotic_desktop.adapters.meanings_file import (
+    ConvertedMeanings,
     MeaningsShelf,
     SqliteMeanings,
     meanings_beside,
@@ -40,6 +41,7 @@ from polyglotic_desktop.core.lexicon.packs import (
     read_fonts,
     riders_wanted,
 )
+from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
 
 bucket = test_pack_riders.bucket  # the packs published, with their recordings
 VERSION = "2026.11.18"
@@ -58,6 +60,7 @@ def meanings_file(
     dictionary: str = "ecdict",
     version: str = "",
     machine: frozenset[str] = frozenset(),
+    source_language: str = "en",
 ) -> Path:
     """`dictionary`'s meanings in `language`, as `tools.dictionaries.english_pairs`
     names its file (a published one has its `version` in its name)."""
@@ -67,7 +70,7 @@ def meanings_file(
         folder / name,
         {
             "dictionary": dictionary,
-            "language": "en",
+            "language": source_language,
             "meanings_language": language,
             **({"version": version} if version else {}),
         },
@@ -79,7 +82,9 @@ def meanings_file(
 # -- the file -----------------------------------------------------------------
 
 
-def test_a_meanings_file_reads_back_and_hides_a_machines_rows(tmp_path: Path) -> None:
+def test_a_meanings_file_reads_back_and_hides_an_unapproved_machines_rows(
+    tmp_path: Path,
+) -> None:
     """People's meanings are shown; a row a machine made isn't, until the
     card can say so (DECISIONS #110) - the dictionary's own are."""
     path = meanings_file(
@@ -96,6 +101,50 @@ def test_a_meanings_file_reads_back_and_hides_a_machines_rows(tmp_path: Path) ->
     assert file.meanings("ecdict:bank") is None  # closed: the dictionary's own
     with pytest.raises(ValueError, match="line break"):
         write_meanings(tmp_path / "x.meanings", {}, [("ecdict:a", ("a\nb",), False)])
+
+
+def test_only_approved_japanese_chinese_machine_meanings_are_exposed(
+    tmp_path: Path,
+) -> None:
+    simplified = SqliteMeanings(
+        meanings_file(
+            tmp_path / "simplified",
+            "zh",
+            {"jmdict:1": ("吃",)},
+            dictionary="jmdict",
+            machine=frozenset({"jmdict:1"}),
+            source_language="ja",
+        )
+    )
+    unapproved = SqliteMeanings(
+        meanings_file(
+            tmp_path / "unapproved",
+            "zh",
+            {"wiktfr:1": ("吃",)},
+            dictionary="wiktfr",
+            machine=frozenset({"wiktfr:1"}),
+        )
+    )
+    assert simplified.meanings("jmdict:1") == ("\x1emachine-made\x1f吃",)
+    assert unapproved.meanings("wiktfr:1") is None
+
+
+def test_a_missing_chinese_rider_can_be_read_in_the_other_script(
+    tmp_path: Path,
+) -> None:
+    source = SqliteMeanings(
+        meanings_file(
+            tmp_path,
+            "zh",
+            {"jmdict:1": ("学习",)},
+            dictionary="jmdict",
+            machine=frozenset({"jmdict:1"}),
+            source_language="ja",
+        )
+    )
+    fallback = ConvertedMeanings(source, TraditionalChinese({"学习": "學習"}).convert)
+    assert fallback.meanings("jmdict:1") == ("\x1emachine-made\x1f學習",)
+    fallback.close()
 
 
 def test_the_newest_file_in_the_learners_language_is_the_one_opened(

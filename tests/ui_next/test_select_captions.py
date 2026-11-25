@@ -307,14 +307,22 @@ def test_ctrl_c_copies_it_while_this_app_has_the_keyboard(
     somewhere.deleteLater()
 
 
-def test_with_a_phrase_pinned_ctrl_c_is_the_cards(windows: CaptionWindows) -> None:
-    """333's Ctrl+C copies the pinned card: the phrase's right-click copies
-    the phrase."""
-    shown_ = window(windows)
+def test_with_a_phrase_pinned_ctrl_c_copies_selected_phrase_unless_card_selected(
+    windows: CaptionWindows,
+) -> None:
+    """950: Ctrl+C copies the selected caption phrase even when a lookup card
+    is pinned for it, yielding to the lookup card only when text is selected
+    inside the lookup card itself."""
+    shown_, shared = window(windows), card(windows)
     _, start = find(shown_, "画")
     _, end = find(shown_, "很漂亮")  # under 4: no sentence (522)
     drag(shown_, start, QPointF(end.x() + 4, end.y()))
-    assert shown_.held.copy_is_cards(), after_the_drag(windows, shown_)
+    assert shared.pinned, after_the_drag(windows, shown_)
+    assert not shown_.held.copy_is_cards(), after_the_drag(windows, shown_)
+    somewhere = QWidget()
+    ctrl_c(somewhere)
+    assert copied() == shown_.held.text()
+    somewhere.deleteLater()
 
 
 def test_the_place_under_the_mouse_is_between_characters_and_off_text_the_nearest(

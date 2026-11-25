@@ -82,6 +82,7 @@ PRESET_SETTINGS = (
     "word_links",
     "quiet_view",
     "reading_lines",
+    "japanese_reading",
     "reading_past",
     "marks_off",
     "common_words_only",
@@ -94,10 +95,10 @@ PRESET_SETTINGS = (
     "caption_weight",
     "caption_contrast",
     "caption_vibrance",
-    "caption_lab",
     # timing
     "caption_mode_chosen",
     "caption_path",
+    "long_lines",
     "translation_after",
     "steady_newest_word",
     "steady_words_ahead",
@@ -216,7 +217,11 @@ def base_of(value: AppSettings, key: str) -> tuple[dict[str, object], frozenset[
     built-in's, Everyday's values with its own named over them; Custom's
     and the learner's own, Everyday's."""
     values = _defaults()
-    defaults = preset_defaults(EVERYDAY)
+    defaults = {
+        name: setting
+        for name, setting in preset_defaults(EVERYDAY).items()
+        if name in values
+    }
     values.update(defaults)
     if key == EVERYDAY:
         return values, frozenset(defaults)
@@ -228,6 +233,9 @@ def base_of(value: AppSettings, key: str) -> tuple[dict[str, object], frozenset[
     }
     named.update(BUILT_IN.get(key, {}))
     named.update(preset_defaults(key))
+    named = {
+        name: setting for name, setting in named.items() if name in PRESET_SETTINGS
+    }
     values.update(named)
     return values, frozenset(named)
 
@@ -236,7 +244,11 @@ def values_of(value: AppSettings, key: str) -> tuple[dict[str, object], frozense
     """Preset `key`'s values - what it would have, with its own changes
     over them - and which are named (not the app's defaults)."""
     values, named = base_of(value, key)
-    own = value.preset_values.get(key, {})
+    own = {
+        name: setting
+        for name, setting in value.preset_values.get(key, {}).items()
+        if name in PRESET_SETTINGS
+    }
     values.update(own)
     return values, named | frozenset(own)
 
@@ -642,7 +654,8 @@ def usage(value: AppSettings) -> dict[str, str | int | float | bool]:
         "preset": value.preset if value.preset in (*ORDER, CUSTOM) else "own"
     }
     for name, now in own_changes(value).items():
-        if name not in BAR_SOURCE_SETTINGS:
+        # Keep Long lines local until the tracking plan has a property for it.
+        if name not in BAR_SOURCE_SETTINGS and name != "long_lines":
             found[f"preset_{name}"] = _usage_value(name, now)
     return found
 

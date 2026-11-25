@@ -1,0 +1,33 @@
+{
+  "width": 10,
+  "steps": [
+    {
+      "original": "small extraordinary tail",
+      "translation": "petit extraordinaire fin",
+      "expected_pairs": [
+        [
+          "small",
+          "petit"
+        ],
+        [
+          "extraordinary tail",
+          "extraordinaire fin…"
+        ]
+      ]
+    },
+    {
+      "original": "small extraordinary tail grows",
+      "translation": "petit extraordinaire fin pousse",
+      "expected_pairs": [
+        [
+          "small",
+          "petit"
+        ],
+        [
+          "extraordinary tail grows",
+          "extraordinaire fin pousse…"
+        ]
+      ]
+    }
+  ]
+}

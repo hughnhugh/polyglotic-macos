@@ -1,0 +1,59 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "出门。过桥",
+          "words": [
+            "出门。过桥"
+          ],
+          "reading": [],
+          "translation": "Go outside. Cross the bridge",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "出门。",
+          "words": [
+            "出门。"
+          ],
+          "reading": [],
+          "translation": "Go outside.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "过桥",
+          "words": [
+            "过桥"
+          ],
+          "reading": [],
+          "translation": "Cross the bridge",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

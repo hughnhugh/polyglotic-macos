@@ -39,6 +39,15 @@ for the start (decision 0103). The start spreads over seven threads, about
 budget from about 44 % busy, and 353 ms at 26 % (polyglotic-hq 312,
 2026-11-14). From this share its tries count as taken on a busy PC."""
 
+UI_TIMING_MAX_BUSY = CALM
+"""The highest load at which UI-lab budgets are measured. Thirty percent
+leaves headroom for Qt's interface thread on the shared 8-core PC; measured
+starts were within budget at 26% and slowed materially above about 30%."""
+
+UI_TIMING_WAIT_SECONDS = 60.0
+"""Maximum quiet wait before each UI-lab try. A minute is bounded within the
+job timeout while allowing an ordinary competing test burst to finish."""
+
 CALM_WAIT_SECONDS = 60.0
 """How long a try of the start waits for the PC to calm before it's taken
 anyway: a busy spell of other agents' tests lasts minutes, so a retry

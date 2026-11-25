@@ -71,6 +71,8 @@ from polyglotic_desktop.ui_next.views.learning import (
 )
 from polyglotic_desktop.ui_next.views.learning import cards as learning_cards
 from polyglotic_desktop.ui_next.views.panels import (
+    JapaneseReadings,
+    JapaneseReadingsView,
     LanguagesView,
     LookView,
     SessionLanguages,
@@ -569,6 +571,7 @@ def settings(
     presets: PresetsView | None = None,
     timing: TimingView | None = None,
     pick_language: str | None = None,
+    japanese_readings: JapaneseReadings | None = None,
 ) -> Callable[[Lab], QWidget]:
     """Settings on `section` (one of `SECTIONS`: 304's six, and 470's Word
     links and Readings) - at `size` if given (the window's minimum) - the views made
@@ -588,6 +591,7 @@ def settings(
             timing=timing or TimingView(Timing(default_caption_mode())),
             speech=LanguagesView(SessionLanguages(in_use=("en",))),
             presets=presets,
+            japanese_readings=JapaneseReadingsView(japanese_readings),
         )
         page.keep = (tell_us,)  # type: ignore[attr-defined]
         if section == "dictation":
@@ -937,6 +941,33 @@ STATES = [
                 packs={"ru": PackLine(size=13_131_253)},
             ),
         ),
+        (
+            "learning_japanese_dictionary_missing",
+            learning(
+                LearningLanguages("zh", ("ja",)),
+                WordIntroductions.A_FEW,
+                packs={"ja": PackLine(size=42_439_181)},
+            ),
+        ),
+        (
+            "learning_japanese_runtime_unavailable",
+            learning(
+                LearningLanguages("zh", ("ja",)),
+                WordIntroductions.A_FEW,
+                packs={
+                    "ja": PackLine(
+                        size=42_439_181,
+                        progress=PackProgress(
+                            "ja",
+                            PackStep.WAITING,
+                            0,
+                            42_439_181,
+                            problem=Problem.SPLIT_UNAVAILABLE,
+                        ),
+                    )
+                },
+            ),
+        ),
         (  # none in the list held (Vietnamese): no dictionary yet (330)
             "learning_pack_none_yet",
             learning(
@@ -1059,6 +1090,28 @@ STATES = [
         ("settings", settings("look")),
         ("settings_links", settings("links")),
         ("settings_readings", settings("readings")),
+        (
+            "settings_readings_japanese_dictionary_missing",
+            settings("readings", japanese_readings=JapaneseReadings()),
+        ),
+        (
+            "settings_readings_japanese_runtime_unavailable",
+            settings("readings", japanese_readings=JapaneseReadings(supported=False)),
+        ),
+        (
+            "settings_readings_japanese_missing",
+            settings("readings", japanese_readings=JapaneseReadings()),
+        ),
+        (
+            "settings_readings_japanese_failed",
+            settings("readings", japanese_readings=JapaneseReadings(supported=False)),
+        ),
+        (
+            "settings_readings_japanese_ready",
+            settings(
+                "readings", japanese_readings=JapaneseReadings(dictionary_here=True)
+            ),
+        ),
         ("settings_timing", settings("timing")),
         ("settings_speech", settings("speech")),
         ("settings_dictation", settings("dictation")),

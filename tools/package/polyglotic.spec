@@ -118,10 +118,14 @@ DROP = [
 # (_sounddevice_data/portaudio-binaries/libportaudio.dylib). build.py's
 # MACOS layout checks both are in the bundle.
 NATIVE = []
-if MACOS:
-    from PyInstaller.utils.hooks import collect_dynamic_libs
+from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
 
-    NATIVE = collect_dynamic_libs("catap")
+# SudachiPy is imported only when a Japanese pack opens; collect its native
+# extension explicitly on Windows, macOS and Linux (HQ 896).
+NATIVE += collect_dynamic_libs("sudachipy")
+HIDDEN_IMPORTS = collect_submodules("sudachipy")
+if MACOS:
+    NATIVE += collect_dynamic_libs("catap")
 
 
 # Linux: the system's own, never Ubuntu 22.04's copies (547: Fedora's fonts
@@ -139,6 +143,7 @@ a = Analysis(  # noqa: F821
     [str(ROOT / "tools" / "package" / "entry.py")],
     pathex=[str(SRC)],
     binaries=NATIVE,
+    hiddenimports=HIDDEN_IMPORTS,
     datas=[
         (str(APP / "platform" / "data" / "silero_vad_16k_op15.onnx"),
          "polyglotic_desktop/platform/data"),

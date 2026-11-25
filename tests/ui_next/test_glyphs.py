@@ -46,7 +46,8 @@ def test_each_glyph_is_drawn_inside_its_square(
         for x in range(image.width())
         if image.pixelColor(x, y).alpha() > 0
     ]
-    assert len(inked) > size  # something there
+    # A single stroke covers less area than the other icons.
+    assert len(inked) > (size * 0.7 if glyph is Glyph.MINIMISE else size)
     assert all(1 <= x <= size + 2 and 1 <= y <= size + 2 for x, y in inked)
 
 

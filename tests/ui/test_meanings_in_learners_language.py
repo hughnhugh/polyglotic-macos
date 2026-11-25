@@ -33,7 +33,11 @@ def test_the_meanings_wanted_are_the_interfaces_language() -> None:
     wanted = [main.meanings_wanted(i) for i in ("es", "pt_BR", "fil", "ja", "ko")]
     assert wanted == ["es", "pt", "fil", "ja", "ko"]
     # the dictionaries' own: nothing to fetch
-    assert [main.meanings_wanted(i) for i in ("en", "zh_CN", "zh_TW")] == [None] * 3
+    assert [main.meanings_wanted(i) for i in ("en", "zh_CN", "zh_TW")] == [
+        None,
+        "zh",
+        "zh_TW",
+    ]
 
 
 def delivery(
@@ -144,3 +148,36 @@ def test_a_meanings_file_downloaded_reaches_english_lookups_at_once(
             packs.close()
     finally:
         store.close()
+
+
+@pytest.mark.parametrize(("locale", "meaning"), [("zh", "车站"), ("zh_TW", "車站")])
+def test_a_chinese_japanese_pack_opens_its_locale_draft(
+    qapp: QApplication, tmp_path: Path, locale: str, meaning: str
+) -> None:
+    meanings_file(
+        tmp_path,
+        locale,
+        {"jmdict:1": (meaning,)},
+        dictionary="jmdict",
+        version=VERSION,
+        machine=frozenset({"jmdict:1"}),
+        source_language="ja",
+    )
+    shelf = MeaningsShelf()
+    packs = main.PackDelivery(
+        tmp_path,
+        {},
+        "zh",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",
+        (PUBLIC,),
+        explained=shelf,
+        explained_in=locale,
+    )
+    try:
+        packs.explain("jmdict", "zh")
+        assert shelf.view("jmdict").meanings("jmdict:1") == (
+            "\x1emachine-made\x1f" + meaning,
+        )
+    finally:
+        packs.close()

@@ -83,16 +83,28 @@ def test_the_brush_and_hand_faces_are_brushed_and_the_plain_ones_not() -> None:
 
 def test_readings_over_a_brushed_face_are_in_the_plain_face_behind_it() -> None:
     """Pinyin and zhuyin "stay in a plain face, easy to read" (the release
-    notes) - over Paper's Polyglotic Kai and Traditional's LXGW WenKai TC
-    too, not only Ma Shan Zheng (532)."""
+    notes) - over Ma Shan Zheng, Paper's Polyglotic Kai and Traditional's
+    LXGW WenKai TC; over the default plain face they follow that plain face."""
     for chosen, sans in (
-        (None, "Noto Sans SC Captions"),
+        ("Ma Shan Zheng Captions", "Noto Sans SC Captions"),
         ("Polyglotic Kai", "Noto Sans SC Captions"),
     ):
         families = fonts.caption_families("zh", chosen, system="win32")
         assert fonts.reading_families(families)[0] == sans
-    families = fonts.caption_families("zh-hant", system="win32")
+    families = fonts.caption_families(
+        "zh-hant", "LXGW WenKai TC Captions", system="win32"
+    )
     assert fonts.reading_families(families)[0] == "Noto Sans TC Captions"
+    assert (
+        fonts.reading_families(fonts.caption_families("zh", None, system="win32"))[0]
+        == "Microsoft YaHei UI"
+    )
+    assert (
+        fonts.reading_families(fonts.caption_families("zh-hant", None, system="win32"))[
+            0
+        ]
+        == "Microsoft JhengHei UI"
+    )
 
 
 # -- drawn (Qt) ------------------------------------------------------------------
@@ -129,7 +141,13 @@ def _drawn(layout: QTextLayout, start: int, end: int) -> set[str]:
 def test_focus_in_a_ma_shan_zheng_line_is_in_the_latin_captions_face(
     fill: Fill,
 ) -> None:
-    engine = CaptionLayout(replace(CaptionStyle(), fill=fill))
+    engine = CaptionLayout(
+        replace(
+            CaptionStyle(),
+            fill=fill,
+            faces=(("zh", "Ma Shan Zheng Captions"),),
+        )
+    )
     laid = engine.laid(_line(MIXED), 2000, 1.0)
     layout = laid.rows[0].layout
     assert _drawn(layout, *FOCUS) == {"IBM Plex Sans"}
@@ -139,7 +157,9 @@ def test_focus_in_a_ma_shan_zheng_line_is_in_the_latin_captions_face(
 
 @pytest.mark.usefixtures("faces")
 def test_the_latin_run_is_the_size_latin_text_is_drawn_beside_it() -> None:
-    engine = CaptionLayout()
+    engine = CaptionLayout(
+        replace(CaptionStyle(), faces=(("zh", "Ma Shan Zheng Captions"),))
+    )
     chinese = engine._font(_line(MIXED).rows[0], 1.0, False)
     english = engine._font(
         CaptionRow("focus", RowKind.TRANSLATION, Language("en"), 0, True), 1.0, False
@@ -153,7 +173,10 @@ def test_the_latin_run_is_the_size_latin_text_is_drawn_beside_it() -> None:
 
 @pytest.mark.usefixtures("faces")
 def test_the_learners_english_face_is_the_latin_runs_face() -> None:
-    style = replace(CaptionStyle(), faces=(("en", "PT Sans"),))
+    style = replace(
+        CaptionStyle(),
+        faces=(("en", "PT Sans"), ("zh", "Ma Shan Zheng Captions")),
+    )
     engine = CaptionLayout(style)
     row = _line(MIXED).rows[0]
     latin = engine._latin(row, engine._font(row, 1.0, False))
@@ -163,7 +186,11 @@ def test_the_learners_english_face_is_the_latin_runs_face() -> None:
 @pytest.mark.usefixtures("faces")
 @pytest.mark.parametrize(
     ("language", "chosen"),
-    [("zh", "Polyglotic Kai"), ("zh-hant", None), ("zh", "Ma Shan Zheng Captions")],
+    [
+        ("zh", "Polyglotic Kai"),
+        ("zh-hant", "LXGW WenKai TC Captions"),
+        ("zh", "Ma Shan Zheng Captions"),
+    ],
 )
 def test_every_brushed_face_gives_its_latin_to_the_latin_face(
     language: str, chosen: str | None
@@ -181,12 +208,19 @@ def test_every_brushed_face_gives_its_latin_to_the_latin_face(
 @pytest.mark.usefixtures("faces")
 @pytest.mark.parametrize(
     ("language", "chosen"),
-    [("zh", "Noto Sans SC Captions"), ("zh", "Noto Serif SC Captions"), ("en", None)],
+    [
+        ("zh", None),
+        ("zh-hant", None),
+        ("zh", "Noto Sans SC Captions"),
+        ("zh", "Noto Serif SC Captions"),
+        ("en", None),
+    ],
 )
 def test_a_plain_face_keeps_its_own_latin_letters(
     language: str, chosen: str | None
 ) -> None:
-    """Broadcast's Noto Sans SC draws "focus" in its own sans, as before."""
+    """Default plain Chinese faces and Broadcast's Noto Sans SC draw "focus"
+    with their own metrics rather than switching to the Latin override."""
     faces_ = ((language, chosen),) if chosen else ()
     engine = CaptionLayout(replace(CaptionStyle(), faces=faces_))
     row = _line(MIXED, language).rows[0]
@@ -197,7 +231,13 @@ def test_a_plain_face_keeps_its_own_latin_letters(
 def test_the_pour_and_the_composer_measure_the_line_as_it_is_drawn() -> None:
     """A row is poured by its measured width: measured in Ma Shan Zheng's
     narrow cursive, "focus" would overrun its line."""
-    engine = CaptionLayout(replace(CaptionStyle(), fill=Fill.STACKED))
+    engine = CaptionLayout(
+        replace(
+            CaptionStyle(),
+            fill=Fill.STACKED,
+            faces=(("zh", "Ma Shan Zheng Captions"),),
+        )
+    )
     row = _line(MIXED).rows[0]
     font = engine._font(row, 1.0, False)
     latin = engine._latin(row, font)

@@ -1105,6 +1105,10 @@ class Vocabulary:
         return next((c for c in self._categories if c.id == category_id), None)
 
     @property
+    def has_saved_words(self) -> bool:
+        return bool(self._saved)
+
+    @property
     def saved_words(self) -> list[SavedWord]:
         """Newest first."""
         return sorted(self._saved.values(), key=lambda w: w.saved_at, reverse=True)

@@ -47,7 +47,9 @@ from polyglotic_desktop.adapters.sqlite_dictionary import (
     add_info,
     write_dictionary,
 )
+from polyglotic_desktop.adapters.traditional_table import read_table
 from polyglotic_desktop.core.lexicon import arabic, english
+from polyglotic_desktop.core.lexicon.traditional import TraditionalChinese
 from polyglotic_desktop.core.lexicon.vietnamese import key as word_key
 from polyglotic_desktop.ports.dictionary import EntryRecord
 from polyglotic_desktop.ports.word_classes import SenseClasses
@@ -2768,6 +2770,16 @@ def write_pack(
             pack.language,
             meanings,
         )
+        traditional = {}
+        if pack.language == "ja" and meanings == "zh":
+            converter = TraditionalChinese(read_table())
+            for record, english in zip(final, built.records, strict=True):
+                if record.meanings != english.meanings:
+                    converted = tuple(
+                        converter.convert(gloss) for gloss in record.meanings
+                    )
+                    if converted != record.meanings:
+                        traditional[record.entry_id] = converted
         write_dictionary(
             path,
             {
@@ -2779,6 +2791,7 @@ def write_pack(
             lemmas=built.lemmas,
             form_readings=built.form_readings,
             with_sense_classes=True,
+            traditional_glosses=traditional,
         )
         paths[meanings] = path
         counts[meanings] = sense_classes.coverage(final, verified)
@@ -2807,6 +2820,21 @@ def credits(pack: Pack) -> str:
         ),
         "",
     ]
+    if pack.language == "ja" and "zh" in pack.meanings:
+        lines += [
+            "The optional Chinese meanings riders contain machine-drafted glosses",
+            "from [Tomoshi (Y1Z)]",
+            "(https://github.com/tomoshi-app/tomoshi-dict-data/releases/tag/v2026-11-16),",
+            f"licensed [CC BY-SA 4.0]({CC_BY_SA}). They translate",
+            "[JMdict](https://www.edrdg.org/jmdict/j_jmdict.html), the property of",
+            "the Electronic Dictionary Research and Development Group (EDRDG),",
+            f"also licensed [CC BY-SA 4.0]({CC_BY_SA}).",
+            "",
+            "The Chinese edition includes Traditional display forms derived with Polyglotic's",
+            "[OpenCC](https://github.com/BYVoid/OpenCC) table (Apache-2.0), with Taiwan forms",
+            "from [CC-CEDICT](https://cc-cedict.org/wiki/) (CC BY-SA 4.0).",
+            "",
+        ]
     for source in pack.sources:
         lines += [
             f"## {source.title}",

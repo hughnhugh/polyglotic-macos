@@ -267,7 +267,8 @@ def test_homes_note_says_why_apps_are_off(
     # apps one by one (Windows 11, or a Windows 10 where it works): on hover
     assert note.isHidden() and again.isHidden()
     assert (
-        built.pick_apps.accessibleDescription() == "Only caption the apps you choose."
+        built.pick_apps.accessibleDescription()
+        == "Only the apps you choose, each in its own window."
     )
     assert built.pick_apps.isEnabled()
     # Windows 10 before version 2004

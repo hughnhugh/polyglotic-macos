@@ -232,6 +232,8 @@ class TimedStart:
     None if it never opened, or the start wasn't one."""
     pack_busy_in: str = ""
     """Where the watchdog said that stretch was (`file.py:function`)."""
+    pack_learner_loaded_on_worker: bool | None = None
+    """Whether the measured pack learner was opened away from the GUI thread."""
 
 
 def timed_start(
@@ -281,6 +283,7 @@ def timed_start(
         None if answers is None else float(answers),
         None if pack_busy is None else float(pack_busy),
         str(found.get("pack_busy_in", "")),
+        found.get("pack_learner_loaded_on_worker"),
     )
 
 
@@ -470,6 +473,18 @@ def _child(
     if until_pack is not None:
         packs_start = m.PackDelivery.start
         language_opened = m.Hub.language_opened
+        pack_learner_tools = m.pack_learner_tools
+        gui_thread = threading.get_ident()
+
+        def pack_learner_loaded(
+            code: str, data: Path, basic: dict[str, m.BasicDictionary]
+        ) -> tuple[m.LearningTools, m.BackgroundLearningStore]:
+            learner = pack_learner_tools(code, data, basic)
+            if code == until_pack:
+                found["pack_learner_loaded_on_worker"] = (
+                    threading.get_ident() != gui_thread
+                )
+            return learner
 
         def packs_starting(packs: m.PackDelivery) -> None:
             packs_opened.append(datetime.now())  # local, as the log's times
@@ -482,6 +497,7 @@ def _child(
 
         m.PackDelivery.start = packs_starting  # type: ignore[assignment]
         m.Hub.language_opened = opened  # type: ignore[assignment]
+        m.pack_learner_tools = pack_learner_loaded
 
     class Timed(QApplication):
         def processEvents(self) -> None:  # type: ignore[override]

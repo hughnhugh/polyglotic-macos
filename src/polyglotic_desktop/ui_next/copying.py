@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from typing import Any, cast
 
 from PySide6 import QtGui
-from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, QRectF, QSize, Qt
+from PySide6.QtCore import QEvent, QPoint, QPointF, QRectF, QSize, Qt
 from PySide6.QtGui import (
     QContextMenuEvent,
     QEnterEvent,
@@ -51,14 +51,15 @@ from PySide6.QtWidgets import (
     QMenu,
     QPlainTextEdit,
     QTextEdit,
-    QToolTip,
     QWidget,
 )
 
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.toast import show_toast
+from polyglotic_desktop.ui_next.views.card_window_defaults import TOAST_DURATION_SEC
 
-COPIED_MS = 1500
-"""How long "Copied" shows by the mouse after a quiet copy."""
+COPIED_MS = round(TOAST_DURATION_SEC.default * 1000)
+"""How long "Copied" stays on a strip button after a click (ms)."""
 
 
 def _tr(text: str) -> str:
@@ -346,25 +347,35 @@ def copy_label(found: QLabel) -> None:
         QGuiApplication.clipboard().setText(text)
 
 
-def copy_quietly(text: str, at: QPoint, over: QWidget) -> None:
-    """`text` to the clipboard - nowhere else - and "Copied" by the mouse
-    (`at`, on the screen) for a moment: what a right-click on a selection
-    does on a window that never takes the keyboard. No menu: a menu would
-    take the mouse until it closed, and over a game that's the game's."""
+def copy_quietly(text: str, at: QPoint | None, over: QWidget) -> None:
+    """`text` to the clipboard - nowhere else - and "Copied to clipboard" in
+    a themed toast near `at` (or the bottom of `over`'s window when None):
+    what a right-click on a selection or Ctrl+C does on a window that never
+    takes the keyboard. No menu: a menu would take the mouse until it closed,
+    and over a game that's the game's."""
     QGuiApplication.clipboard().setText(text)
     say_copied(at, over)
 
 
 def copied() -> str:
-    """ "Copied", in the interface language: what a copy says."""
+    """ "Copied", in the interface language: compact button confirmation."""
     return _tr("Copied")
 
 
-def say_copied(at: QPoint, over: QWidget) -> None:
-    """ "Copied" by the mouse (`at`, on the screen) for a moment - after a
-    copy from a menu, which has closed (the transcript's, polyglotic-hq
-    360), or a quiet one."""
-    QToolTip.showText(at, copied(), over, QRect(), COPIED_MS)
+def copied_to_clipboard() -> str:
+    """ "Copied to clipboard", in the interface language: toast confirmation."""
+    return _tr("Copied to clipboard")
+
+
+def saved_feedback() -> str:
+    """ "Saved", in the interface language: toast confirmation after saving a caption."""
+    return _tr("Saved")
+
+
+def say_copied(at: QPoint | None, over: QWidget) -> None:
+    """Show the themed "Copied to clipboard" toast near `at` (or the bottom
+    of `over`'s window when `at` is None)."""
+    show_toast(copied_to_clipboard(), over, at)
 
 
 TYPING = (QLineEdit, QTextEdit, QPlainTextEdit, QAbstractSpinBox)

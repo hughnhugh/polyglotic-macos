@@ -3,7 +3,7 @@ say enough, explains itself on hover, in plain words (the user's rehearsal
 feedback F22, polyglotic-hq 249, 2026-11-08: "there should be tooltips for
 each of timings")."""
 
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 from tests.ui_next.test_caption_window import window_of
 from tests.ui_next.test_transcript_window import DISCORD, made_up
 
@@ -12,7 +12,7 @@ from polyglotic_desktop.core.listening.timing import (
     CaptionMode,
     default_caption_mode,
 )
-from polyglotic_desktop.ui_next import help_page
+from polyglotic_desktop.ui_next import help_page, style
 from polyglotic_desktop.ui_next.caption_window import timing_name, timing_tip
 from polyglotic_desktop.ui_next.panels import TimingPanel
 from polyglotic_desktop.ui_next.transcript_window import TranscriptWindow
@@ -76,13 +76,93 @@ def test_timing_choices_stay_visible_when_narrow(
 ) -> None:
     panel = TimingPanel(TimingView(Timing(CaptionMode.CALM)))
     try:
+        assert panel.zones_row.switch.text() == "Live lines below, earlier above"
         panel.resize(490, panel.sizeHint().height())
         panel.show()
         qapp.processEvents()
-        assert all(panel.mode.rect().contains(b.geometry()) for b in panel.mode.buttons)
+        assert panel.width() == 490
+        for button in panel.mode.buttons:
+            assert panel.mode.rect().contains(button.geometry()), (
+                f"{button.text()!r} at {button.geometry().getRect()} is outside "
+                f"the timing control at {panel.mode.rect().getRect()}"
+            )
     finally:
         panel.close()
         panel.deleteLater()
+
+
+def test_timing_choices_stay_inside_control_when_window_style_arrives_late(
+    qapp: QApplication,
+) -> None:
+    """The real Settings page can dress an already measured panel."""
+    panel = TimingPanel(TimingView(Timing(CaptionMode.CALM)))
+    try:
+        panel.resize(490, panel.sizeHint().height())
+        panel.show()
+        qapp.processEvents()
+
+        panel.setStyleSheet(style.stylesheet(style.current()))
+        qapp.processEvents()
+
+        assert panel.width() == 490
+        assert [button.text() for button in panel.mode.buttons] == [
+            "Instant",
+            "Whole captions",
+            "Steady",
+            "Calm",
+        ]
+        for button in panel.mode.buttons:
+            assert panel.mode.rect().contains(button.geometry()), (
+                f"{button.text()!r} at {button.geometry().getRect()} is outside "
+                f"the timing control at {panel.mode.rect().getRect()}"
+            )
+    finally:
+        panel.close()
+        panel.deleteLater()
+
+
+def test_timing_choices_fit_when_window_style_is_inherited_before_construction(
+    qapp: QApplication,
+) -> None:
+    """Linux can polish taller buttons without a later parent StyleChange."""
+    window = QWidget()
+    window.setStyleSheet(style.stylesheet(style.current()))
+    panel = TimingPanel(TimingView(Timing(CaptionMode.CALM)), parent=window)
+    try:
+        panel.resize(490, panel.sizeHint().height())
+        panel.show()
+        qapp.processEvents()
+
+        flow = panel.mode.layout()
+        assert flow is not None
+        margins = flow.contentsMargins()
+        button_sizes = []
+        for index, button in enumerate(panel.mode.buttons):
+            item = flow.itemAt(index)
+            assert item is not None
+            button_sizes.append(
+                (
+                    button.geometry().getRect(),
+                    button.sizeHint().toTuple(),
+                    item.sizeHint().toTuple(),
+                )
+            )
+        measurements = (
+            f"group={panel.mode.rect().getRect()}, "
+            f"heightForWidth={flow.heightForWidth(panel.mode.width())}, "
+            f"sizeHint={panel.mode.sizeHint().toTuple()}, "
+            f"minimumSize={panel.mode.minimumSize().toTuple()}, "
+            f"margins={(margins.left(), margins.top(), margins.right(), margins.bottom())}, "
+            f"buttons={button_sizes}"
+        )
+        for button in panel.mode.buttons:
+            assert panel.mode.rect().contains(button.geometry()), measurements
+    finally:
+        panel.close()
+        panel.deleteLater()
+        qapp.processEvents()
+        window.close()
+        window.deleteLater()
 
 
 def test_a_transcript_s_timing_menu_says_what_each_does(qapp: QApplication) -> None:

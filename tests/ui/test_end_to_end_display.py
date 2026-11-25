@@ -6,21 +6,39 @@ Synthetic "speech" only."""
 
 import time
 from collections.abc import Callable
+from functools import partial
+from types import SimpleNamespace
+from typing import Any
 
+import pytest
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
+from tests import fake_server
 from tests.fake_server import FakeServer
 from tests.fakes import MemoryCredentialStore
+from tests.test_connection import Heard
 from tests.test_end_to_end import speech
+from tests.test_session import SIGNED_IN, Speech
 from tests.test_speech_pipeline import LoudnessDetector
 from tests.ui.fakes import FakeAppList, MemorySettingsStore
 
+from polyglotic_desktop.adapters.sqlite_outbox import SqliteOutbox
+from polyglotic_desktop.connection import protocol
+from polyglotic_desktop.connection import session as session_module
 from polyglotic_desktop.connection.app import AppInfo
+from polyglotic_desktop.connection.exchange import DataExchange
 from polyglotic_desktop.connection.reconnect import Reconnects
 from polyglotic_desktop.connection.session import ListeningSession, Timings
 from polyglotic_desktop.core.listening.sources import MIC, Source, SourceId
-from polyglotic_desktop.core.listening.timing import CaptionTiming
+from polyglotic_desktop.core.listening.timing import (
+    CaptionId,
+    CaptionTiming,
+    SpeechKind,
+    TranscriptionRequest,
+)
 from polyglotic_desktop.main import (
     QtListener,
+    caption_connection,
     listening_settings,
     wire_caption_windows,
     wire_transcripts,
@@ -96,3 +114,126 @@ def test_replayed_speech_reaches_the_caption_window_and_transcript(
     transcripts.close()
     windows.close()
     desktop.close()
+
+
+@pytest.mark.parametrize(
+    ("language", "original", "wpm"),
+    [("en", "Five birds fly over water.", 100), ("ja", "小鳥が青い空を飛ぶ。", 120)],
+)
+def test_untimed_finished_speech_reaches_the_pace_label(
+    qapp: QApplication,
+    monkeypatch: pytest.MonkeyPatch,
+    language: str,
+    original: str,
+    wpm: int,
+) -> None:
+    caption_for = fake_server.caption_for
+
+    def answer(header: protocol.SpeechHeader) -> dict[str, Any]:
+        reply = caption_for(header)
+        reply.update(language=language, languages_heard=[language])
+        reply["clauses"][0]["original"] = original
+        return reply
+
+    monkeypatch.setattr(fake_server, "caption_for", answer)
+    now = time.perf_counter()
+    monkeypatch.setattr(
+        session_module,
+        "time",
+        SimpleNamespace(perf_counter=lambda: now, monotonic=time.monotonic),
+    )
+    server = FakeServer()
+    outbox = SqliteOutbox(":memory:")
+    store = MemorySettingsStore({"apps": ["Video Player"], "targets": ["zh"]})
+    desktop = DesktopApp(store, None, FakeAppList())
+    windows = CaptionWindows(store, MIC, lambda: [Rect(0, 0, 1920, 1040)])
+    wire_caption_windows(windows, desktop, lambda: None)
+    windows.set_captioned([("Video Player", APP)])
+    shown = windows.windows["Video Player"]
+    listener = QtListener(desktop, None)
+    connection = caption_connection(
+        server.url,
+        MemoryCredentialStore(SIGNED_IN),
+        AppInfo("0.1.0", "windows-11"),
+        DataExchange(outbox, outbox, Heard(), "cedict"),
+        listener,
+        windows,
+    )
+    timer = listener.findChild(QTimer, "speaking_pace_timer")
+    assert timer is not None
+    speech = Speech()
+
+    def displayed(expected: CaptionId) -> bool:
+        return any(
+            c.caption_id == expected for c in shown.view.captions_of(shown.view.lines)
+        )
+
+    try:
+        session = connection.start_listening(
+            listening_settings(desktop.settings.value, windows.targets()), speech.take
+        )
+        process_until(timer.isActive)
+        observed = []
+        for number in range(10):
+            now += 3
+            caption_id = CaptionId(f"birds-{number}")
+            speech.put(
+                TranscriptionRequest(
+                    caption_id,
+                    SpeechKind.FINISHED,
+                    Source(APP, SourceCategory.VIDEO),
+                    now - 3,
+                    now,
+                    voiced_seconds=2.0,
+                ),
+                b"opus",
+            )
+            session.speech_ready()
+            process_until(partial(displayed, caption_id))
+            qapp.processEvents()
+            assert shown.pace.isVisible()
+            observed.append(shown.pace.text())
+        assert observed == [f"{wpm} wpm · avg {wpm}"] * 10
+        assert (
+            shown.pace.them_row.accessibleName()
+            == f"Them: {wpm} words a minute, average {wpm}"
+        )
+        line = shown.view.lines[-1]
+        assert line.has_pace and line.label.endswith(f" · {wpm} wpm")
+        assert len(line.label.split(" · ")[-2]) == 5  # HH:MM
+        shown.set_show_pace(False)
+        assert not shown.view.lines[-1].has_pace
+        assert "wpm" not in shown.view.lines[-1].label
+        shown.set_show_pace(True)
+        assert shown.view.lines[-1].label == line.label
+        assert session._summary.pace(now)[2:] == (0, 0)
+        now += 2.0
+        assert session._summary.pace(now)[:2] == (wpm, wpm)
+        assert shown.pace.text() == f"{wpm} wpm · avg {wpm}"
+        now += 5.5
+        process_until(lambda: shown.pace.text() == f"{round(wpm / 2)} wpm · avg {wpm}")
+        now += 2.5
+        process_until(lambda: shown.pace.text() == f"0 wpm · avg {wpm}")
+
+        now += 0.5
+        short = CaptionId("short")
+        speech.put(
+            TranscriptionRequest(
+                short,
+                SpeechKind.FINISHED,
+                Source(APP, SourceCategory.VIDEO),
+                now - 0.5,
+                now,
+                voiced_seconds=0.5,
+            ),
+            b"opus",
+        )
+        session.speech_ready()
+        process_until(partial(displayed, short))
+        assert "wpm" not in shown.view.lines[-1].label
+    finally:
+        connection.close()
+        server.stop()
+        windows.close()
+        desktop.close()
+        outbox.close()

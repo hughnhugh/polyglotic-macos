@@ -1,6 +1,6 @@
 """Settings you can scan (polyglotic-hq 470; 449's design 4A, the user's
 "try to make each setting category very obvious as you scroll the page"):
-each card's title a size up, with its mark in a soft square at its left;
+each card's title a size up, with its mark at its left;
 and, pinned under the page's title and sections while the page scrolls,
 the name of the card the learner is in.
 
@@ -11,14 +11,14 @@ it always sits beside its words, never alone (Nielsen Norman Group's
 """
 
 from PySide6.QtCore import QEvent, QRectF, QSize, Qt
-from PySide6.QtGui import QColor, QPainter, QPaintEvent, QPen
+from PySide6.QtGui import QColor, QPainter, QPaintEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QSizePolicy, QWidget
 
 from polyglotic_desktop.ui_next import glyphs, style
 from polyglotic_desktop.ui_next.controls import Card, label
 
 TILE = 30
-"""A card's mark's soft square, at 100 % text size (449's wireframes)."""
+"""Space reserved for a card's mark at 100 % text size."""
 MARK = 18
 """...and the mark in it."""
 PINNED_MARK = 16
@@ -26,8 +26,7 @@ PINNED_MARK = 16
 
 
 class GlyphTile(QWidget):
-    """`glyph` in the theme's text colour - in a soft square (`tile`), as a
-    card's title has it, or bare, as the pinned name has it."""
+    """Draw the glyph in the theme's text colour, with space around card marks."""
 
     def __init__(
         self,
@@ -61,15 +60,8 @@ class GlyphTile(QWidget):
         theme = style.current()
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        if self.tile:
-            painter.setPen(QPen(QColor(theme["BORDER"]), 1))
-            painter.setBrush(QColor(theme["SURFACE_2"]))
-            # with the tile, up to the stylesheet's largest corner (12 px): the
-            # app's Largest (1.75 since decision 0244) made it 14, off its scale
-            radius = min(style.px(8), 12)
-            painter.drawRoundedRect(
-                QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), radius, radius
-            )
+        # U1 keeps the landmark glyph and its alignment but removes its
+        # decorative square: the mark no longer adds another nested container.
         side = style.px(MARK if self.tile else PINNED_MARK)
         box = QRectF(0, 0, side, side)
         box.moveCenter(QRectF(self.rect()).center())
@@ -78,7 +70,7 @@ class GlyphTile(QWidget):
 
 
 def mark_card(card: Card, glyph: glyphs.Glyph) -> GlyphTile:
-    """`card`'s title beside `glyph` in a soft square, a size up from a
+    """`card`'s title beside `glyph`, a size up from a
     row's title (16 px: `#CardTitle[heading="true"]`), wrapping where the
     room runs out - a long title at the Largest text size (449's finding
     8). The card's `title` stays the same label."""

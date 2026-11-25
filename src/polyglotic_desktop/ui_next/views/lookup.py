@@ -82,7 +82,12 @@ from polyglotic_desktop.core.lexicon.meanings import (
     meaning_of,
     short_meaning,
 )
-from polyglotic_desktop.core.listening.display import CaptionRow, counterpart
+from polyglotic_desktop.core.lexicon.romaji import romaji
+from polyglotic_desktop.core.listening.display import (
+    CaptionRow,
+    JapaneseReading,
+    counterpart,
+)
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.shared import EntryFacts, EntryId, WordInLine, WordStatus
 from polyglotic_desktop.ports.dictionary import DictionaryProblem
@@ -419,6 +424,14 @@ def copy_text(card: Card) -> str:
     return "\n".join(lines)
 
 
+def _machine_last(entries: Sequence[DictionaryEntry]) -> list[DictionaryEntry]:
+    """Stable card order: checked readings, then explicitly labelled drafts."""
+    return sorted(
+        entries,
+        key=lambda entry: any(" · Machine-made" in m for m in entry.meanings),
+    )
+
+
 @dataclass(frozen=True)
 class WordAt:
     """A word (or a phrase dragged across) in a caption window, to look up:
@@ -484,6 +497,7 @@ class Lookup:
         """`offer`: the languages being learned, for "Learn it too?" (none:
         never asked)."""
         self.learner = learner
+        self.japanese_reading = JapaneseReading.KANA
         self.offer = offer
         self.pinned = False
         self._shown: _Shown | None = None
@@ -803,7 +817,11 @@ class Lookup:
         first = entries[0]
         saved = vocabulary.saved_word(first.entry_id)
         limit = READINGS if pinned else 1
-        readings = tuple(self._reading(e, word, pinned) for e in entries[:limit])
+        # A checked reading remains ahead of one carrying the explicit draft
+        # label. Within an explained reading the Chinese draft itself remains
+        # ahead of its English fallback (DECISIONS #197).
+        shown_entries = _machine_last(entries)
+        readings = tuple(self._reading(e, word, pinned) for e in shown_entries[:limit])
         title, parts = (None, ()) if not pinned else self._parts(word, found=True)
         load = vocabulary.load
         in_load = load.word(first.entry_id) if pinned and load.rules else None
@@ -884,7 +902,7 @@ class Lookup:
         """A word from a dictionary pack: its readings and senses, marked
         basic; no status, deck or categories (`_learned` adds them)."""
         assert self._shown is not None
-        entries = self.learner.lookup(word, self._shown.language)
+        entries = _machine_last(self.learner.lookup(word, self._shown.language))
         language = self._shown.language
         if not entries:
             return self._basic_not_found(word, back_to, language)
@@ -897,6 +915,14 @@ class Lookup:
             # the reading as the pack has it: kana, IPA with its slashes, or
             # the word with its stress marked
             reading = entry.reading
+            if language and language.split("-")[0] == "ja" and reading:
+                latin = romaji(reading)
+                if self.japanese_reading is JapaneseReading.ROMAJI:
+                    reading = latin
+                elif self.japanese_reading is JapaneseReading.BOTH:
+                    reading = f"{reading} · {latin}"
+                elif self.japanese_reading is JapaneseReading.OFF:
+                    reading = ""
             if entry.headword != word:
                 # the form's own, where the pack marks it ("руку": "ру́ку")
                 own = self.learner.form_reading(word, language)

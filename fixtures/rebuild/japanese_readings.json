@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "name": "japanese_readings",
+  "covers": [
+    "B-D1",
+    "B-D4"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "ja1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "ja",
+        "languages_heard": [
+          "ja"
+        ],
+        "clauses": [
+          {
+            "original": "明日は学校へ行きます。",
+            "translations": {
+              "en": "I will go to school tomorrow."
+            },
+            "links": {
+              "en": [
+                {
+                  "original": [
+                    0,
+                    2
+                  ],
+                  "translation": [
+                    20,
+                    28
+                  ],
+                  "key": true,
+                  "confidence": 0.9
+                },
+                {
+                  "original": [
+                    3,
+                    5
+                  ],
+                  "translation": [
+                    13,
+                    19
+                  ],
+                  "key": true,
+                  "confidence": 0.9
+                }
+              ]
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "ja1",
+            "source_id": "speaker-a",
+            "language": "ja",
+            "final": true,
+            "clauses": [
+              {
+                "original": "明日は学校へ行きます。",
+                "translation": "I will go to school tomorrow.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "明",
+                    "reading": "あ"
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "日",
+                    "reading": "した"
+                  },
+                  {
+                    "span": [
+                      2,
+                      3
+                    ],
+                    "after": 3,
+                    "text": "は",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      3,
+                      4
+                    ],
+                    "after": 4,
+                    "text": "学",
+                    "reading": "がく"
+                  },
+                  {
+                    "span": [
+                      4,
+                      5
+                    ],
+                    "after": 5,
+                    "text": "校",
+                    "reading": "こう"
+                  },
+                  {
+                    "span": [
+                      5,
+                      6
+                    ],
+                    "after": 6,
+                    "text": "へ",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      6,
+                      7
+                    ],
+                    "after": 7,
+                    "text": "行",
+                    "reading": "い"
+                  },
+                  {
+                    "span": [
+                      7,
+                      8
+                    ],
+                    "after": 8,
+                    "text": "き",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      8,
+                      9
+                    ],
+                    "after": 9,
+                    "text": "ま",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      9,
+                      11
+                    ],
+                    "after": 11,
+                    "text": "す。",
+                    "reading": null
+                  }
+                ],
+                "links": [
+                  {
+                    "number": 0,
+                    "key": true,
+                    "confidence": 0.9,
+                    "original": [
+                      [
+                        0,
+                        2
+                      ]
+                    ],
+                    "translation": [
+                      [
+                        20,
+                        28
+                      ]
+                    ],
+                    "original_classes": [
+                      null
+                    ],
+                    "translation_classes": [
+                      null
+                    ]
+                  },
+                  {
+                    "number": 1,
+                    "key": true,
+                    "confidence": 0.9,
+                    "original": [
+                      [
+                        3,
+                        5
+                      ]
+                    ],
+                    "translation": [
+                      [
+                        13,
+                        19
+                      ]
+                    ],
+                    "original_classes": [
+                      null
+                    ],
+                    "translation_classes": [
+                      null
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

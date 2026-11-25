@@ -68,9 +68,11 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.core.learning.curriculum import SIZES as CURRICULUM_SIZES
 from polyglotic_desktop.core.learning.curriculum import ChosenWords
+from polyglotic_desktop.core.lexicon.pack_download import Step
 from polyglotic_desktop.core.lexicon.readings import RESPELLED_WORD_LIMIT
 from polyglotic_desktop.core.listening.display import (
     READING_LANGUAGES,
+    JapaneseReading,
     LinkDetail,
     LinkGap,
     LinkLine,
@@ -124,6 +126,7 @@ from polyglotic_desktop.ui_next.views.panels import (
     COLOUR_CHOICES,
     FADE_CHOICES,
     TRANSLATION_AFTER_CHOICES,
+    JapaneseReadingsView,
     LanguagesView,
     LookView,
     Shared,
@@ -223,8 +226,8 @@ class LanguagesPanel(Panel):
             self.add(
                 label(
                     _tr(
-                        "Each window picks its own language - or Original only - "
-                        "and whether your speech shows there."
+                        "Each caption window picks its own language, or Original "
+                        "only, and whether your speech shows in it."
                     ),
                     "Dim",
                     wrap=True,
@@ -233,7 +236,7 @@ class LanguagesPanel(Panel):
         else:
             self._this_window(window)
             # after the window's own two rows, the rest is every window's
-            self.add(label(_tr("Every window").upper(), "SectionLabel"))
+            self.add(label(_tr("Every caption window").upper(), "SectionLabel"))
 
         # every language the speech model hears, findable by name, the
         # recent ones first (`spoken_list`; polyglotic-hq 317)
@@ -261,10 +264,9 @@ class LanguagesPanel(Panel):
             lyrics = SwitchRow(
                 _tr("Lyrics in music players"),
                 _tr(
-                    "Captions the singing in Spotify and other music players heard "
-                    "on Detect: their sound is sent even while no speech is heard, "
-                    "a few seconds at a time. Off: only what's heard as speech is "
-                    "sent."
+                    "Captions singing in Spotify and other music players whose "
+                    "spoken language is Detect. Their sound is sent even without "
+                    "speech, a few seconds at a time. Off: only speech is sent."
                 ),
                 "languages.lyrics",
             )
@@ -289,9 +291,9 @@ class LanguagesPanel(Panel):
         self.mandarin_row = Row(
             _tr("Show Mandarin in"),
             _tr(
-                "The characters Mandarin's captions are written in, Detect "
-                "included. Lookups, the transcript, copy and Anki use the "
-                "same; translations into Chinese keep the language you picked."
+                "The characters Mandarin captions are written in, with Detect too. "
+                "Lookups, transcripts, copies and Anki use the same. Translations "
+                "into Chinese keep the script you translate into."
             ),
             self.mandarin_script,
         )
@@ -307,11 +309,10 @@ class LanguagesPanel(Panel):
             Row(
                 # named by the window's language, as each caption window
                 # names it (polyglotic-hq 465, 449: one name)
-                _tr("When they already speak the window's language"),
+                _tr("Lines already in a window's language"),
                 _tr(
-                    "Lines already in a window's language get no translation there. "
-                    "Pick a second language and they get one into it, in yellow like "
-                    "every translation."
+                    "They aren't translated there unless you pick a second "
+                    "language for them."
                 ),
                 self.second_box,
             )
@@ -358,7 +359,7 @@ class LanguagesPanel(Panel):
         self.add(Row(_tr("Translate into"), not_offered_note(), box))
         mic = SwitchRow(
             _tr("Show my speech here"),
-            _tr("Your microphone is sent for your captions only while this is on."),
+            _tr("Your mic is sent for your captions only while this is on."),
             "languages.show_mic",
         )
         self.show_mic = mic.switch
@@ -411,7 +412,10 @@ class LanguagesPanel(Panel):
         if not in_use:
             self.second_rows.addWidget(
                 label(
-                    _tr("Add an app first: each window's language gets a row here."),
+                    _tr(
+                        "Add an app on Home first: each caption window's language "
+                        "gets a row here."
+                    ),
                     "Faint",
                     wrap=True,
                 )
@@ -422,8 +426,8 @@ class LanguagesPanel(Panel):
             box.setAccessibleName(
                 in_sentence(
                     _tr(
-                        "Caption windows translating into {language} - when someone already "
-                        "speaks {language}, also translate into"
+                        "For windows translating into {language}, translate "
+                        "{language} lines into"
                     ),
                     language=language_name(target),
                 )
@@ -447,8 +451,8 @@ class LanguagesPanel(Panel):
                     # windows translating into its language (465)
                     in_sentence(
                         _tr(
-                            "Caption windows translating into {language} - when someone "
-                            "already speaks {language}, also translate into:"
+                            "For windows translating into {language}, translate "
+                            "{language} lines into:"
                         ),
                         language=language_name(target),
                     ),
@@ -641,20 +645,20 @@ class TimingPanel(Panel):
         self.cards_row = SwitchRow(
             _tr("Card stack"),
             _tr(
-                "Each line that is said keeps its place, with its translation "
-                "under it, and the lines roll up together as new ones come. "
-                "Off: live lines below, transcript above."
+                "Each line keeps its place, with its translation under it, and the "
+                "lines roll up together as new ones come. Off: live lines below, "
+                "earlier lines above."
             ),
             "timing.cards",
         )
         self.cards_row.switch.toggled.connect(view.set_cards)
         self.add(self.cards_row)
         self.zones_row = SwitchRow(
-            _tr("Live lines below, transcript above"),
+            _tr("Live lines below, earlier above"),
             _tr(
                 "The lines being spoken stay at the foot of the caption window; "
-                "each caption moves up into the transcript, with its translation, "
-                "once it has been read. Off: one list of captions."
+                "each caption moves up, with its translation, once it has been "
+                "read. Off: one list of captions."
             ),
             "timing.two_zones",
         )
@@ -731,7 +735,7 @@ class TimingPanel(Panel):
         live_column.addWidget(self.live_note)
         self.live = Row(
             _tr("Live updates every"),
-            _tr("Shorter intervals show text sooner, with more revisions."),
+            _tr("Shorter: text sooner, and more of it changes."),
             live,
             tip=_tr("The first update waits for a second of speech."),
         )
@@ -767,10 +771,9 @@ class TimingPanel(Panel):
         self.settle_row = Row(
             _tr("Text can still change for"),
             _tr(
-                "How long words on screen may still be corrected as more is "
-                "heard. Shorter: fewer words change while you read, and more "
-                "mistakes stay as first heard - most of all when Live updates "
-                "come faster than every second."
+                "How long words on screen can still be corrected as more is heard. "
+                "Shorter: fewer words change while you read, and more mistakes "
+                "stay - most of all with live updates faster than every second."
             ),
             _left(self.settle),
         )
@@ -853,8 +856,8 @@ class TimingPanel(Panel):
         if slower:
             self.live_note.setText(
                 _tr(
-                    "Text still updates every {seconds}: the longest wait for "
-                    "text, below, is shorter."
+                    "Longest wait for text, below, is shorter, so text still comes "
+                    "every {seconds}."
                 ).format(seconds=_seconds(value.live_every))
             )
         self.live_note.setVisible(slower)
@@ -974,10 +977,10 @@ class LookPanel(_LookGroup):
         self.presets.setObjectName("look.presets")
         self.presets.chosen.connect(view.set_preset)
         self._row(
-            _tr("Preset"),
+            _tr("Colours"),
             _tr(
-                "A matched set of colours for the text and the panel. Pick one, "
-                "then change any colour."
+                "Matched colours for the text and the panel. Pick a set, then "
+                "change any colour."
             ),
             self.presets,
         )
@@ -994,10 +997,9 @@ class LookPanel(_LookGroup):
         self._row(
             _tr("Caption text"),
             _tr(
-                "How strongly captions stand out, how vivid their colours are "
-                "and how thick their letters are, in every caption window - "
-                "contrast and colour in transcripts too. In the middle: as "
-                "they were."
+                "Contrast, vibrance and thickness, in every caption window; "
+                "contrast and vibrance in transcripts too. The middle of each is "
+                "the default."
             ),
             self.text,
         )
@@ -1006,7 +1008,7 @@ class LookPanel(_LookGroup):
             (
                 "original",
                 _tr("What was said"),
-                _tr("The colour of the words as they were spoken."),
+                _tr("The colour of what was said."),
             ),
             (
                 "translation",
@@ -1019,7 +1021,10 @@ class LookPanel(_LookGroup):
             (
                 "background",
                 _tr("The panel"),
-                _tr("The box behind the text. How solid it is is the slider below."),
+                _tr(
+                    "The colour of the box behind the text. The slider below sets "
+                    "how solid it is."
+                ),
             ),
         ):
             choice = ExactColour(
@@ -1156,10 +1161,10 @@ class WordLinksPanel(_LookGroup):
         self._row(
             _tr("Style"),
             _tr(
-                "Which words of what was said and its translation mean the same. On "
+                "Words in what was said and its translation that mean the same. On "
                 "hover: point at a word. Underline: colours show word class. "
                 "Arrows: curves join them. A caption window's preset menu turns "
-                "them off and on, under Add."
+                "them on and off, under Helpers."
             ),
             self.word_links,
         )
@@ -1209,7 +1214,7 @@ class WordLinksPanel(_LookGroup):
         self.link_detail.setObjectName("look.link_detail")
         self.link_detail.changed.connect(lambda v: view.set_link_detail(LinkDetail(v)))
         self._row(
-            _tr("Detail"),
+            _tr("Words linked"),
             _tr(
                 "Key words: content words only. Most words: pronouns, 是, 这个 and "
                 "the like too."
@@ -1225,22 +1230,20 @@ class WordLinksPanel(_LookGroup):
         self.said_in_link_colours = self._switch(
             "said_in_link_colours",
             _tr("Colour linked words in what was said"),
-            _tr("Each word a link joins takes its colour, as its underline has."),
+            _tr("Linked words take their link's colour, like their underline."),
             view.set_said_in_link_colours,
         )
         self.translation_in_link_colours = self._switch(
             "translation_in_link_colours",
             _tr("Colour linked words in the translation"),
-            _tr(
-                "Each linked word takes its own word class colour, as its underline does."
-            ),
+            _tr("Linked words take their word class's colour, like their underline."),
             view.set_translation_in_link_colours,
         )
         self.class_legend = WordClassLegend(self) if learning else None
         if self.class_legend is not None:
             self.add(self.class_legend)
             to_learning = label(
-                _tr("Which words are pointed out as new is on {learning}.").format(
+                _tr("Which words are marked as new is set on {learning}.").format(
                     learning=f"<a href='learning'>{_tr('Learning')}</a>"
                 ),
                 "Faint",
@@ -1286,7 +1289,10 @@ class QuietViewPanel(_LookGroup):
     union of what's ticked, with our curriculum's size."""
 
     def __init__(
-        self, view: LookView, notes: bool = False, parent: QWidget | None = None
+        self,
+        view: LookView,
+        notes: bool = False,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(_tr("Quiet view"), view, notes, parent=parent)
         value = view.value
@@ -1294,9 +1300,10 @@ class QuietViewPanel(_LookGroup):
             "quiet",
             _tr("Quiet view"),
             _tr(
-                "Captions in quiet grey and gold, a little bigger, with pinyin over "
+                "Captions in soft grey and gold, a little bigger, with pinyin over "
                 "every word and only your chosen words in blue - no underlines or "
-                "arrows. Point at a word to see its partner. Turns word links off."
+                "arrows. Point at a word to see the word it's linked to. Turns "
+                "word links off."
             ),
             lambda on: view.set_quiet(on, READING_LANGUAGES),
         )
@@ -1307,8 +1314,8 @@ class QuietViewPanel(_LookGroup):
                 _tr("Our curriculum"),
                 _tr(
                     "A few words just past what you know: the ones the talk is "
-                    "about, then the ones you hear most. A word the talk brought "
-                    "moves on once you know it; the others after three days met."
+                    "about, then the ones you hear most. A word from the talk "
+                    "leaves once you know it; the others after three days."
                 ),
             ),
             (
@@ -1322,7 +1329,10 @@ class QuietViewPanel(_LookGroup):
             (
                 ChosenWords.LOAD,
                 _tr("Learning load"),
-                _tr("Every word of your learning load, as in the Lab."),
+                _tr(
+                    "The words you're learning now, coloured as in the Lab's "
+                    "Learning load."
+                ),
             ),
             (
                 ChosenWords.SAVED,
@@ -1391,7 +1401,11 @@ class ReadingLinesPanel(_LookGroup):
     first."""
 
     def __init__(
-        self, view: LookView, notes: bool = False, parent: QWidget | None = None
+        self,
+        view: LookView,
+        notes: bool = False,
+        parent: QWidget | None = None,
+        japanese_readings: JapaneseReadingsView | None = None,
     ) -> None:
         #: Settings > Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English
         super().__init__(_tr("Readings"), view, notes, parent=parent)
@@ -1401,11 +1415,18 @@ class ReadingLinesPanel(_LookGroup):
             _tr("Pinyin above Chinese"),
             _tr(
                 "A small syllable over each Chinese character, in what was said "
-                "and in translations into Chinese. It isn't part of the text: "
-                "copying and looking up words work as before."
+                "and in translations into Chinese. Copying and lookups leave it "
+                "out."
             ),
             lambda on: view.set_reading_line("zh", on),
         )
+        chinese_row = self.chinese.parentWidget()
+        assert isinstance(chinese_row, SwitchRow)
+        # SwitchRow's side insets otherwise take this note just beyond the
+        # readable measure with Segoe UI (about 82 characters on one line).
+        # Leave room for its natural word breaks while keeping it below the
+        # lab's 80-character limit on every native font.
+        chinese_row.detail.setMaximumWidth(round(chinese_row.detail.measure() * 1.2))
         self.reading_system = Segmented(
             [
                 (ReadingSystem.PINYIN, _tr("Pinyin")),
@@ -1418,7 +1439,7 @@ class ReadingLinesPanel(_LookGroup):
             lambda v: view.set_reading_system(ReadingSystem(v))
         )
         self._row(
-            _tr("Readings above Chinese"),
+            _tr("Chinese readings in"),
             _tr(
                 "Zhuyin (bopomofo, ㄅㄆㄇㄈ) is how readers in Taiwan learn the sounds: "
                 "the same readings as pinyin, in its symbols and tone marks."
@@ -1435,16 +1456,33 @@ class ReadingLinesPanel(_LookGroup):
             ),
             lambda on: view.set_reading_line("yue", on),
         )
-        self.japanese = self._switch(
-            "reading_ja",
-            _tr("Furigana above Japanese"),
-            _tr(
-                "Small kana over each word's kanji, in what was said and in "
-                "translations into Japanese, from the Japanese dictionary - once "
-                "you learn Japanese and its dictionary is here."
-            ),
-            lambda on: view.set_reading_line("ja", on),
+        self.japanese = Segmented(
+            [
+                (JapaneseReading.KANA, _tr("Kana")),
+                (JapaneseReading.ROMAJI, _tr("Romaji")),
+                (JapaneseReading.BOTH, _tr("Both")),
+                (JapaneseReading.OFF, _tr("Off")),
+            ],
+            value.japanese_reading,
         )
+        self.japanese.setObjectName("look.japanese_reading")
+        self.japanese.changed.connect(
+            lambda v: view.set_japanese_reading(JapaneseReading(v))
+        )
+        self._row(
+            _tr("Japanese readings"),
+            _tr(
+                "Kana stays above each word's kanji. Romaji uses modified Hepburn; "
+                "Both keeps kana above and adds romaji below."
+            ),
+            self.japanese,
+        )
+        self.japanese_note = label("", "Faint", wrap=True)
+        self.japanese_note.setObjectName("look.reading_ja_availability")
+        self.add(self.japanese_note)
+        self._japanese_readings = japanese_readings or JapaneseReadingsView()
+        self._japanese_readings.subscribe(self._refresh_japanese)
+        self._refresh_japanese()
         self.russian = self._switch(
             "reading_ru",
             _tr("Stress marks over Russian"),
@@ -1456,6 +1494,7 @@ class ReadingLinesPanel(_LookGroup):
             ),
             lambda on: view.set_reading_line("ru", on),
         )
+
         self.korean = self._switch(
             "reading_ko",
             _tr("Romanization above Korean"),
@@ -1485,8 +1524,9 @@ class ReadingLinesPanel(_LookGroup):
         self._row(
             _tr("Readings over"),
             _tr(
-                "Past what you know: only over the words past your known line "
-                "on Learning, the ones word links point out. Less to read as you learn."
+                "Past what you know: only over the words past your known line on "
+                "Learning, the ones word introductions mark. Less to read as you "
+                "learn."
             ),
             self.reading_over,
         )
@@ -1531,10 +1571,7 @@ class ReadingLinesPanel(_LookGroup):
         )
         self._row(
             _tr("Reading size"),
-            _tr(
-                "Beside the characters' own size. Medium reads better in a small "
-                "window."
-            ),
+            _tr("Relative to the characters. Medium reads better in a small window."),
             self.reading_size,
         )
         self.reading_colour = Segmented(
@@ -1553,9 +1590,9 @@ class ReadingLinesPanel(_LookGroup):
         self._row(
             _tr("Reading colour"),
             _tr(
-                "Grey keeps readings behind their text. With Grey or its word "
-                "link's colour, a reading takes the colour of its word's link "
-                "where one joins it. Word links can colour the linked words too."
+                "Grey keeps readings behind their text. With Grey or Its word "
+                "link's colour, a linked word's reading takes its link's colour. "
+                "Word links can colour the linked words too."
             ),
             self.reading_colour,
         )
@@ -1574,12 +1611,30 @@ class ReadingLinesPanel(_LookGroup):
         self.bind(view)
         self.refresh()
 
+    def _refresh_japanese(self) -> None:
+        state = self._japanese_readings.value
+        progress = state.progress
+        if not state.supported:
+            words = _tr("Japanese readings aren't in this version yet.")
+        elif progress is not None and progress.step not in (Step.DONE, Step.CANCELLED):
+            words = _tr("The Japanese dictionary is downloading: {percent}%.").format(
+                percent=round(progress.share * 100)
+            )
+        elif state.dictionary_here:
+            words = ""
+        else:
+            words = _tr("Shows once the Japanese dictionary is here.")
+        self.japanese_note.setText(words)
+        self.japanese_note.setVisible(bool(words))
+
     def refresh(self) -> None:
         value = self.view.value
         chinese = "zh" in value.reading_lines
         self.chinese.set_quietly(chinese)
         self.cantonese.set_quietly("yue" in value.reading_lines)
-        self.japanese.set_quietly("ja" in value.reading_lines)
+        # The four-way choice is authoritative.  `reading_lines` is only
+        # migration input for old settings files, not a second UI state.
+        self.japanese.set_value(value.japanese_reading)
         self.russian.set_quietly("ru" in value.reading_lines)
         self.korean.set_quietly("ko" in value.reading_lines)
         self.hindi.set_quietly("hi" in value.reading_lines)
@@ -1587,12 +1642,19 @@ class ReadingLinesPanel(_LookGroup):
         self.english.set_quietly(english)
         self.respelling_over.set_value(value.respelling_past)
         self.respelling_over.setEnabled(english)
-        on = bool(value.reading_lines)  # the rest are both's
+        japanese = value.japanese_reading is not JapaneseReading.OFF
+        # ``ja`` can remain in a migrated file as historical input, but the
+        # four-way choice above is the only source of truth for whether a
+        # Japanese reading is visible now.
+        other_readings = set(value.reading_lines) - {"ja"}
+        on = bool(other_readings) or japanese  # the rest are shared
         self.reading_size.set_value(value.reading_size)
         self.reading_size.setEnabled(on)
         self.reading_over.set_value(value.reading_past)
         # the scripts' readings: English's respelling has its own choice
-        self.reading_over.setEnabled(any(code != "en" for code in value.reading_lines))
+        self.reading_over.setEnabled(
+            japanese or any(code != "en" for code in other_readings)
+        )
         self.reading_system.set_value(value.reading_system)
         self.reading_system.setEnabled(chinese)
         self.reading_colour.set_value(value.reading_colour)
@@ -1648,10 +1710,10 @@ class BehaviourPanel(_LookGroup):
         self.fade.setObjectName("look.fade_after")
         self.fade.changed.connect(view.set_fade_after)
         self._row(
-            _tr("Fade after quiet"),
+            _tr("Fade after silence"),
             _tr(
-                "Captions disappear after this long with nobody talking. Never: "
-                "they stay until the next line."
+                "Captions disappear after this long without speech. Never: they "
+                "stay until the next one."
             ),
             self.fade,
         )
@@ -1664,10 +1726,10 @@ class BehaviourPanel(_LookGroup):
             self.pause_hidden.setObjectName("look.pause_hidden_after")
             self.pause_hidden.changed.connect(view.set_pause_hidden_after)
             self._row(
-                _tr("Stop listening when hidden"),
+                _tr("Pause hidden windows after"),
                 _tr(
-                    "A hidden caption window stops listening after this long, so "
-                    "nothing more of its app is sent. Showing it starts it again."
+                    "Nothing more of a hidden caption window's app is sent after "
+                    "this long. Showing the window carries on."
                 ),
                 self.pause_hidden,
             )
@@ -1709,8 +1771,8 @@ class ResetCard(Card):
         self.reset.setObjectName("look.reset")
         self.reset.setToolTip(
             _tr(
-                "Colours, panel, font, word links and fading, as Polyglotic first "
-                "had them. The windows' places are Home's Reset positions."
+                "Colours, panel, font, word links and fading. To move the windows "
+                "back, use Reset positions on Home."
             )
         )
         self.reset.clicked.connect(view.reset)

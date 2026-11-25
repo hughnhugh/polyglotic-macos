@@ -12,7 +12,7 @@ import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
 from PySide6.QtGui import QGuiApplication, QKeyEvent
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QLabel, QMenu, QToolTip, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QMenu, QWidget
 from tests.ui_next.test_lookup_view import learner
 from tests.ui_next.test_say_it import has, pin
 
@@ -20,6 +20,7 @@ from polyglotic_desktop.ui_next import lookup_card
 from polyglotic_desktop.ui_next.caption_layout import cursor_x
 from polyglotic_desktop.ui_next.copying import Painted
 from polyglotic_desktop.ui_next.lookup_card import LookupCard
+from polyglotic_desktop.ui_next.toast import hide_toast, toast_text
 
 UNTOUCHED = "what was on the clipboard before"
 WHOLE = "电脑 電腦\ndiàn nǎo: computer"
@@ -49,7 +50,7 @@ def card(qapp: QApplication, keys: Keys) -> Iterator[LookupCard]:
     made.close_card()
     made.close()
     made.deleteLater()
-    QToolTip.hideText()
+    hide_toast()
     qapp.processEvents()
 
 
@@ -113,7 +114,7 @@ def test_a_drag_across_the_word_selects_it_and_a_right_click_copies_it(
     menus = set(menus_now())
     right_click(card, inside(card, "电脑", 1))
     assert QGuiApplication.clipboard().text() == "电脑"
-    assert QToolTip.text() == "Copied"
+    assert toast_text() == "Copied to clipboard"
     # no menu, and the keyboard stays where it was (a game keeps it)
     assert not card.findChildren(QMenu)
     assert set(menus_now()) == menus

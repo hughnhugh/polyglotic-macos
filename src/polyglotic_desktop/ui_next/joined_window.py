@@ -45,6 +45,7 @@ from PySide6.QtGui import (
     QAction,
     QCursor,
     QEnterEvent,
+    QKeyEvent,
     QMouseEvent,
     QResizeEvent,
 )
@@ -59,14 +60,17 @@ from PySide6.QtWidgets import (
 
 from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ui_next import style
-from polyglotic_desktop.ui_next.above_all import set_click_through
+from polyglotic_desktop.ui_next.above_all import (
+    CAPTION_TASKBAR,
+    CaptionTopLevel,
+    set_click_through,
+)
 from polyglotic_desktop.ui_next.caption_window import (
     BAND_IN_MS,
     BAND_OUT_MS,
     GLYPH_PX,
     MIN_PANEL,
     STILL_OVER_MS,
-    WINDOW_FLAGS,
     BarInk,
     CaptionWindow,
     _Drag,
@@ -96,9 +100,9 @@ from polyglotic_desktop.ui_next.views import placement
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, JoinedChoices
 from polyglotic_desktop.ui_next.views.placement import Edge, Preset, Rect, Size
 
-CONTROLS = ("lock", "settings")
+CONTROLS = ("lock", "settings", "minimise") if CAPTION_TASKBAR else ("lock", "settings")
 """The window's controls at the right of the band, left to right."""
-GLYPHS = {"lock": Glyph.LOCK, "settings": Glyph.MORE}
+GLYPHS = {"lock": Glyph.LOCK, "settings": Glyph.MORE, "minimise": Glyph.MINIMISE}
 """The controls' icons; the window's settings are "More" (the wireframe's
 "..."), so they aren't taken for the last column's own settings beside them."""
 GAP = 10
@@ -111,7 +115,7 @@ def _tr(text: str) -> str:
     return QApplication.translate("JoinedWindow", text)
 
 
-class JoinedWindow(QWidget):
+class JoinedWindow(CaptionTopLevel):
     """The caption windows as one: a column each (`columns`), in order."""
 
     changed = Signal()
@@ -119,6 +123,7 @@ class JoinedWindow(QWidget):
     separate_wanted = Signal()
     lock_wanted = Signal()
     all_settings_wanted = Signal()
+    opacity_wanted = Signal(float)
 
     def __init__(
         self,
@@ -129,7 +134,7 @@ class JoinedWindow(QWidget):
         """`choices`: its place (set by `place_at`
         once it has its columns); `keys`: Esc and the mouse buttons, for
         closing its settings popover (as W1's)."""
-        super().__init__(None, WINDOW_FLAGS)
+        super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         # on a Mac a tool window hides while the app isn't active - and the
@@ -267,6 +272,7 @@ class JoinedWindow(QWidget):
             self.toggle_settings,
             _tr("This window: Separate windows, all caption settings"),
         )
+        self._action("minimise", _tr("Minimise"), self.showMinimized)
         self._action(
             "all_settings",
             _tr("All caption settings…"),
@@ -318,8 +324,14 @@ class JoinedWindow(QWidget):
 
     def _ink(self) -> BarInk:
         """Its controls' colours: on its columns' panel (one look for all)."""
-        look = self.columns[0].look if self.columns else CaptionLook()
-        return bar_ink(look.background)
+        return bar_ink(self.look.background)
+
+    @property
+    def look(self) -> CaptionLook:
+        return self.columns[0].look if self.columns else CaptionLook()
+
+    def refresh_settings(self) -> None:
+        self._sync_controls()
 
     def restyle(self) -> None:
         """Its controls at the text size now and in its columns' panel's
@@ -337,8 +349,8 @@ class JoinedWindow(QWidget):
         were: `caption_window.fit_glyph`)."""
         side = style.px(GLYPH_PX)
         ink = self._ink()
-        for name, glyph in GLYPHS.items():
-            self.controls[name].setIcon(icon(glyph, ink.text, side))
+        for name in self.buttons:
+            self.controls[name].setIcon(icon(GLYPHS[name], ink.text, side))
             fit_glyph(self.buttons[name], side)
 
     def _place_bar(self) -> None:
@@ -354,12 +366,13 @@ class JoinedWindow(QWidget):
 
     def place_notice(self) -> None:
         """The notice line, once, over the window's top band."""
-        if not self.notice.isVisible():
-            return
-        self.notice.adjustSize()
-        top = band_height() + 4 if self.band_shown else 6
-        self.notice.move((self.width() - self.notice.width()) // 2, top)
-        self.notice.raise_()
+        if self.notice.isVisible():
+            self.notice.adjustSize()
+            top = band_height() + 4 if self.band_shown else 6
+            self.notice.move((self.width() - self.notice.width()) // 2, top)
+            self.notice.raise_()
+        for column in self.columns:
+            column.sync_notice_foot()
 
     # -- its settings popover -------------------------------------------------------------
 
@@ -694,7 +707,11 @@ class JoinedWindow(QWidget):
 
     def changeEvent(self, event: QEvent) -> None:
         super().changeEvent(event)
-        if event.type() is QEvent.Type.WindowStateChange and self.isMinimized():
+        if (
+            not CAPTION_TASKBAR
+            and event.type() is QEvent.Type.WindowStateChange
+            and self.isMinimized()
+        ):
             # as a caption window: no taskbar button to come back from (272)
             log.info("joined caption window minimised by Windows: restored")
             QTimer.singleShot(0, self, restore_minimised(self))
@@ -716,3 +733,19 @@ class JoinedWindow(QWidget):
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         self.release()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if not self.locked and self.columns:
+            local = self.mapFromGlobal(self.pointer())
+            target = next(
+                (col for col in self.columns if col.geometry().contains(local)),
+                None,
+            )
+            targets = (target,) if target is not None else tuple(self.columns)
+            handled = False
+            for column in targets:
+                if column._navigation_key(event):
+                    handled = True
+            if handled:
+                return
+        super().keyPressEvent(event)

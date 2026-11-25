@@ -713,34 +713,10 @@ def moved_by_use(key: str) -> bool:
     return key in BOOKKEEPING or any(part in lowered for part in MOVES)
 
 
-KNOWN = {
-    "Settings > links / toggle Quiet view": (
-        "polyglotic-hq 523's finding: Settings > Links' Quiet view on, then off,"
-        " left word links off - put back since 555 - and the reading lines the"
-        " default gives written down as chosen (the same lines, but no longer"
-        " following the default: the record of changes keeps them); a fix is"
-        " proposed"
-    ),
-    "Settings > look / toggle Quiet": (
-        "polyglotic-hq 796: 0.1.10's recommended looks (Quiet, Paper, Broadcast)"
-        " set the colours, caption text, readings and Chinese fonts together in"
-        " one click, by design; switching one off leaves those values rather"
-        " than restoring the learner's earlier ones (the same on every"
-        " platform). The fix, restoring them or offering Undo, is 796, for"
-        " 0.1.11"
-    ),
-    "Settings > look / toggle Paper": (
-        "polyglotic-hq 796: the same as Quiet - a recommended look sets several"
-        " look settings at once and switching it off doesn't restore them"
-    ),
-    "Settings > look / toggle Broadcast": (
-        "polyglotic-hq 796: the same as Quiet - a recommended look sets several"
-        " look settings at once and switching it off doesn't restore them"
-    ),
-}
+KNOWN: dict[str, str] = {}
 """Controls known not to put back what they change, each with why and
-where it's being fixed: said as a note, not a fail, until the fix lands -
-then taken out, so the check holds it fixed."""
+why that difference is intended while the control is on. There are no
+exceptions now: every reversible control must restore the stored settings."""
 
 
 def not_put_back(changes: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:

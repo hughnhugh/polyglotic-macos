@@ -50,7 +50,9 @@ from polyglotic_desktop.ui_next.caption_layout import (
     LaidLine,
 )
 from polyglotic_desktop.ui_next.caption_marks import CaptionMarks, link_colour
+from polyglotic_desktop.ui_next.caption_surface import PAD
 from polyglotic_desktop.ui_next.caption_window import (
+    PACE_INK_CLEARANCE_PX,
     RUN_ON_MOST,
     CaptionWindow,
     caption_style,
@@ -179,11 +181,15 @@ def test_wrapped_translation_keeps_its_words_whole(qapp: QApplication) -> None:
         )
     ).lines
     laid = engine_of(PAIRED).laid_card(line, 260, 1.0)
-    row = next(r for r in laid.rows if r.row.text == clause.translations[EN])
-    assert row.layout.lineCount() > 1
-    for n in range(1, row.layout.lineCount()):
-        at = row.layout.lineAt(n).textStart()
-        assert not (row.row.text[at - 1].isalpha() and row.row.text[at].isalpha())
+    text = clause.translations[EN]
+    rows = [
+        r for r in laid.rows if r.row.kind is RowKind.TRANSLATION and r.row.clause == 1
+    ]
+    assert "".join(row.row.text for row in rows) == text
+    assert len(rows) > 1 and all(row.layout.lineCount() == 1 for row in rows)
+    for row in rows[1:]:
+        at = row.start
+        assert not (text[at - 1].isalpha() and text[at].isalpha())
 
 
 def painted(engine: CaptionLayout, line: Line, width: int) -> tuple[QImage, LaidLine]:
@@ -244,7 +250,11 @@ def test_the_engine_lays_every_character_in_lines_inside_the_width(
                 held = sum(
                     layout.lineAt(n).textLength() for n in range(layout.lineCount())
                 )
-                assert held == len(row.row.text)
+                display = (
+                    row.row.text.rstrip() + "..." if row.continues else row.row.text
+                )
+                assert layout.text() == display
+                assert held == len(display)
                 # a live caption's trail is added after its words are
                 # placed, so it may hang past the width - by itself at most
                 # (by 189 + 69.5 - 240 = 18.5 px in Linux's fonts, 357)
@@ -296,9 +306,9 @@ def flow_window(
 def test_the_labs_new_layout_puts_a_caption_window_on_the_one_layout(
     qapp: QApplication,
 ) -> None:
-    assert caption_style(CaptionLook()).flow is None  # off: as it was
+    assert caption_style(CaptionLook()).flow is not None  # every mode: no Qt wrap
     untouched = CaptionLab(fill=Fill.PAIRED, run_on=True, aligned=True)
-    assert caption_style(CaptionLook(lab=untouched)).flow is None
+    assert caption_style(CaptionLook(lab=untouched)).flow is not None
     window = flow_window(qapp, LABS["line by line"])
     assert window.canvas.engine.style.flow == PAIRED
     assert all(line.model is not None for line in window.view.lines)
@@ -448,6 +458,7 @@ def test_only_captions_of_one_source_under_one_label_run_on() -> None:
     assert not runs_on(first, replace(second, key=2 * RUN_ON_MOST))
     assert not runs_on(spoken, second)  # its end still moves
     assert not runs_on(first, replace(second, label="Discord  Mandarin"))
+    assert not runs_on(first, replace(second, has_pace=True))
     assert not runs_on(first, replace(second, by_you=True))
     assert not runs_on(first, replace(second, provisional=True))
     assert not runs_on(replace(first, provisional=True), second)
@@ -461,25 +472,30 @@ def drawn(window: CaptionWindow) -> dict[tuple[int, int, int], tuple[float, floa
         for row in laid.rows:
             for n in range(row.layout.lineCount()):
                 box = row.layout.lineAt(n).naturalTextRect()
-                found[(line.key, row.index, n)] = (
+                found[(line.key, row.index, row.visual_line + n)] = (
                     round(box.left(), 1),
                     round(rect.top() + row.top + box.top(), 1),
                 )
     return found
 
 
-def fullness(window: CaptionWindow) -> tuple[int, float]:
-    """The window's lines of text, and how full they are on average: each
-    line's last ink over the width there is for text."""
+def fullness(window: CaptionWindow) -> float:
+    """Mean fraction of the available text width filled by visible lines."""
     ends: dict[float, float] = {}
+    foot = PAD + window.canvas._seen_height()
     for _, laid, rect in window.canvas.placed:
         for row in laid.rows:
             for n in range(row.layout.lineCount()):
                 box = row.layout.lineAt(n).naturalTextRect()
-                y = round(rect.top() + row.top + box.top(), 0)
+                top = rect.top() + row.top + box.top()
+                if (
+                    top < window.canvas.clear_top - 0.5
+                    or top + box.height() > foot + 0.5
+                ):
+                    continue
+                y = round(top)
                 ends[y] = max(ends.get(y, 0.0), box.right())
-    width = window.canvas.width() - 28
-    return len(ends), sum(ends.values()) / (len(ends) * width)
+    return sum(ends.values()) / (len(ends) * window.canvas._width())
 
 
 def test_captions_run_on_in_a_window_and_fill_its_lines(qapp: QApplication) -> None:
@@ -491,10 +507,11 @@ def test_captions_run_on_in_a_window_and_fill_its_lines(qapp: QApplication) -> N
     together = flow_window(qapp, LABS["run on"], captions=12)
     for window in (apart, together):
         window.resize(1400, 420)
+        window.set_pace(142, 135, 118, 110)
         window.canvas.repaint()
-    _, full_apart = fullness(apart)
-    _, full_together = fullness(together)
-    assert full_together > 0.6 > full_apart
+    # Compare the same words and screen face. The shorter language and the
+    # final pair of each run leave different amounts of space on each platform.
+    assert fullness(together) > fullness(apart)
     assert len(together.canvas.placed) > len(apart.canvas.placed)  # more in view
     # a caption that carries on is drawn over the end of the one before
     placed = together.canvas.placed
@@ -505,6 +522,36 @@ def test_captions_run_on_in_a_window_and_fill_its_lines(qapp: QApplication) -> N
     assert any(over)
     # and has no label of its own: the run's first says whose they are
     assert not any(laid.label for _, laid, _ in placed if laid.lead)
+    # The fixed label reserves only the part of its rows it actually uses:
+    # run-on text may pack beside it, but shaped row geometry stays clear.
+    pace = QRectF(together.pace.geometry()).adjusted(
+        -PACE_INK_CLEARANCE_PX,
+        -PACE_INK_CLEARANCE_PX,
+        PACE_INK_CLEARANCE_PX,
+        PACE_INK_CLEARANCE_PX,
+    )
+    beside = 0
+    # A taller face changes which pair lands next to the label. Cover one
+    # layout's height, including positions where the whole pair is clipped.
+    first_height = together.height()
+    layout_height = round(max(laid.height for _, laid, _ in placed))
+    for height in range(first_height, first_height + layout_height, 16):
+        together.resize(together.width(), height)
+        together.canvas.repaint()
+        for _, laid, rect in together.canvas.placed:
+            for row in laid.rows:
+                for n in range(row.layout.lineCount()):
+                    ink = (
+                        row.layout.lineAt(n)
+                        .naturalTextRect()
+                        .translated(rect.left(), rect.top() + row.top)
+                    )
+                    if max(ink.top(), together.canvas.clear_top, pace.top()) < min(
+                        ink.bottom(), pace.bottom()
+                    ):
+                        beside += 1
+                        assert ink.right() <= pace.left(), (ink, pace)
+    assert beside, "the packing rule is exercised by a row beside pace"
 
 
 def test_text_already_shown_stays_where_it_is_when_a_caption_runs_on(
@@ -526,6 +573,34 @@ def test_text_already_shown_stays_where_it_is_when_a_caption_runs_on(
         if at in after
     }
     assert len(moved) == 1 and next(iter(moved))[0] == 0.0  # all rose together
+
+
+def test_run_on_lines_glide_with_the_caption_they_share(qapp: QApplication) -> None:
+    window = flow_window(qapp, LABS["run on"], captions=8)
+    window.set_look(replace(window.look, arrival=Arrival.STEP_AND_SLIDE))
+    window.resize(1100, 600)
+    now = 10.0
+    window.clock = lambda: now
+    window.canvas.repaint()
+    leads = {line.key for line, laid, _ in window.canvas.placed if laid.lead}
+    before = drawn(window)
+    # A long caption forces the shared lines above it to rise.
+    arrival = replace(
+        finished_updates(1, start=20)[0],
+        clauses=(
+            Clause("Another lantern is coming. " * 5, {EN: "A line of lights. " * 6}),
+        ),
+    )
+    window.receive(arrival)
+    window.canvas.repaint()
+    first = drawn(window)
+    held = [k for k in before.keys() & first.keys() if k[0] in leads]
+    assert held and window.arriving
+    assert all(first[k][1] == pytest.approx(before[k][1]) for k in held)
+    now += 0.15
+    window.canvas.repaint()
+    moving = drawn(window)
+    assert any(moving[k][1] < first[k][1] for k in held if k in moving)
 
 
 def test_a_word_is_found_under_the_mouse_where_two_captions_share_a_line(
@@ -633,7 +708,7 @@ def test_a_line_cut_off_at_the_top_takes_its_link_bars_with_it(
                         cut += 1
                         assert at + line.height() + under <= top + 0.01, height
     assert cut
-    assert flow_window(qapp, CaptionLab()).canvas._under() == 0.0
+    assert flow_window(qapp, CaptionLab()).canvas._under() > 0.0
 
 
 def test_a_line_cut_off_at_the_top_takes_its_new_words_dots_with_it(

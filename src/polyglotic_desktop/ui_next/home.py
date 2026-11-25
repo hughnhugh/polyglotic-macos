@@ -92,6 +92,7 @@ from PySide6.QtWidgets import (
 from polyglotic_desktop.core.listening.hidden import Sight
 from polyglotic_desktop.core.listening.hotkeys import OWN_MODIFIERS
 from polyglotic_desktop.core.listening.maintenance import Maintenance
+from polyglotic_desktop.core.listening.summary import ListeningSessionEnded
 from polyglotic_desktop.core.listening.unreachable import Unreachable
 from polyglotic_desktop.core.shared.papers import STATUS_PAGE
 from polyglotic_desktop.perf import spans
@@ -320,12 +321,14 @@ class Page(QScrollArea):
         column = QWidget()
         column.setMaximumWidth(style.px(width))  # grows with the text size
         self._column, self._width = column, width
-        column.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        # Translated controls wrap inside the viewport instead of making the
+        # page's scroll area wider than the window at its supported floor.
+        column.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         row.addWidget(column, 1000)
         row.addStretch(1)
         self.content = QVBoxLayout(column)
         self.content.setContentsMargins(0, 0, 0, 0)
-        self.content.setSpacing(16)
+        self.content.setSpacing(32)
         self.content.addWidget(label(title, "PageTitle"))
         self.setWidget(inner)
         # the wheel scrolls the page, never a list or slider it passes over
@@ -360,6 +363,17 @@ class Page(QScrollArea):
 
 def _button(text: str, kind: str | None = None, tip: str = "") -> QPushButton:
     button = QPushButton(text)
+    button.setCursor(Qt.CursorShape.PointingHandCursor)
+    if kind:
+        button.setProperty("kind", kind)
+    if tip:
+        button.setToolTip(tip)
+    return button
+
+
+def _wrap_button(text: str, kind: str | None = None, tip: str = "") -> WrapButton:
+    """A standard Home button whose translated label may take two lines."""
+    button = WrapButton(text)
     button.setCursor(Qt.CursorShape.PointingHandCursor)
     if kind:
         button.setProperty("kind", kind)
@@ -693,7 +707,7 @@ _TITLES: dict[Title, Callable[[], str]] = {
     Title.LISTENING: lambda: _tr("Listening"),
     Title.RECONNECTING: lambda: _tr("Reconnecting"),
     # full, not the learner's connection (208): "trying again in 24 s" after it
-    Title.SERVER_BUSY: lambda: _tr("Polyglotic is busy — try again in a few minutes"),
+    Title.SERVER_BUSY: lambda: _tr("Polyglotic is busy - trying again soon"),
     Title.NOT_SIGNED_IN: lambda: _tr("Not signed in"),
     Title.UPDATE_NEEDED: lambda: _tr("Update needed"),
     Title.MOVED: lambda: _tr("Listening moved"),
@@ -704,9 +718,9 @@ _TITLES: dict[Title, Callable[[], str]] = {
     ),
     Title.STOPPED: lambda: _tr("Stopped"),
     # waiting to try again: why the server can't be reached (251)
-    Title.CANT_REACH: lambda: _tr("Can't reach Polyglotic's server"),
+    Title.CANT_REACH: lambda: _tr("Can't connect to Polyglotic"),
     Title.SERVER_RESTARTING: lambda: _tr("Polyglotic's server is restarting"),
-    Title.SERVER_PROBLEM: lambda: _tr("Polyglotic's server has a problem"),
+    Title.SERVER_PROBLEM: lambda: _tr("Polyglotic's server reported an error"),
     Title.BLOCKED: lambda: _tr("This network is blocking Polyglotic"),
     Title.NOT_SECURE: lambda: _tr("Can't connect securely"),
     Title.CLOCK: lambda: pc_or_mac(
@@ -886,23 +900,21 @@ _UPDATE_DETAILS: dict[Detail, Callable[[], str]] = {
 _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
     Detail.CHECK_INTERNET: lambda: pc_or_mac(
         _tr(
-            "this PC seems to be offline. Check its internet connection; if it's "
-            "working, the problem is ours"
+            "this PC appears to be offline. Check its internet connection. If it "
+            "works, Polyglotic may be down"
         ),
         _tr(
-            "this Mac seems to be offline. Check its internet connection; if it's "
-            "working, the problem is ours"
+            "this Mac appears to be offline. Check its internet connection. If it "
+            "works, Polyglotic may be down"
         ),
     ),
     Detail.INTERNET_OR_US: lambda: _tr(
-        "check your internet; if it's working, we're probably down"
+        "check your internet connection. If it works, Polyglotic may be down"
     ),
     Detail.OURS: lambda: _tr(
-        "not your internet - the problem is ours. Captions come back by themselves"
+        "the problem is with Polyglotic. Captions resume automatically"
     ),
-    Detail.BACK_IN_A_MOMENT: lambda: _tr(
-        "captions come back by themselves in a moment"
-    ),
+    Detail.BACK_IN_A_MOMENT: lambda: _tr("captions resume automatically shortly"),
     Detail.NETWORK_BLOCKS: lambda: _tr(
         "a firewall or proxy on this network won't let it reach its server. "
         "Try another network, or ask whoever runs this one"
@@ -962,7 +974,7 @@ _UNREACHABLE_DETAILS: dict[Detail, Callable[[], str]] = {
 def _status(status: AppStatus) -> str:
     return {
         AppStatus.PLAYING: _tr("playing"),
-        AppStatus.QUIET: _tr("quiet"),
+        AppStatus.QUIET: _tr("not playing"),
         AppStatus.NOT_OPEN: _tr("not open - captioned when it opens"),
         # its name says "Everything the PC plays" since 484 (it was "This PC")
         AppStatus.EVERYTHING: _tr("every app's sound"),
@@ -1047,10 +1059,17 @@ class AppRowWidget(QFrame):
 
         words = QVBoxLayout()
         words.setSpacing(0)
-        self.name = _button("", "name", _tr("Rename"))
+        self.name = WrapButton()
+        self.name.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.name.setProperty("kind", "name")
+        self.name.setToolTip(_tr("Rename"))
         self.name.setObjectName(f"picker.name.{index}")
         self.name.clicked.connect(self._rename)
-        self.name.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        name_size = QSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
+        )
+        name_size.setHeightForWidth(True)
+        self.name.setSizePolicy(name_size)
         self.name.setMinimumWidth(style.px(NAME_LEAST))
         self.edit = QLineEdit()
         self.edit.setObjectName(f"picker.rename.{index}")
@@ -1075,7 +1094,7 @@ class AppRowWidget(QFrame):
 
         self.chip = QToolButton()
         self.chip.setObjectName(f"picker.language.{index}")
-        self.chip.setToolTip(_tr("This window's language"))
+        self.chip.setToolTip(_tr("Translate into"))
         self.chip.setProperty("chip", True)
         self.chip.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.chip.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -1107,15 +1126,15 @@ class AppRowWidget(QFrame):
         self.mic.clicked.connect(lambda on: view.set_show_mic(self.key, on))
         line.addWidget(self.mic)
 
-        self.captions = _button(_tr("Captions"), "small")
+        self.captions = _wrap_button(_tr("Captions"), "ghost")
         self.captions.setObjectName(f"picker.captions.{index}")
         self.captions.clicked.connect(lambda: view.show_window(self.key))
         line.addWidget(self.captions)
-        self.transcript = _button(_tr("Transcript"), "small")
+        self.transcript = _wrap_button(_tr("Transcript"), "ghost")
         self.transcript.setObjectName(f"picker.transcript.{index}")
         self.transcript.clicked.connect(lambda: view.open_transcript(self.key))
         line.addWidget(self.transcript)
-        self.stop = _button(_tr("Stop"), "small")
+        self.stop = _wrap_button(_tr("Stop"), "ghost")
         self.stop.setObjectName(f"picker.stop.{index}")
         once = stopping or OneClick()
         once.watch(self.stop)
@@ -1156,7 +1175,7 @@ class AppRowWidget(QFrame):
         self.name.setAccessibleName(_tr("Rename {app}").format(app=row.label))
         self.edit.setAccessibleName(_tr("New name for {app}").format(app=row.label))
         self.chip.setAccessibleName(
-            _tr("{app}'s window's language").format(app=row.label)
+            _tr("{app}'s window: translate into").format(app=row.label)
         )
         self.mic.setAccessibleName(
             _tr("Show my speech in {app}'s window").format(app=row.label)
@@ -1242,7 +1261,7 @@ class AddRow(QFrame):
         self.title = label(app.title, copyable=False)
         self.title.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         line.addWidget(self.title, 1)
-        playing = _tr("playing") if app.playing else _tr("quiet")
+        playing = _tr("playing") if app.playing else _tr("not playing")
         self.status = label(playing, "Faint", copyable=False)
         if app.playing:
             line.addWidget(PlayingWave(self))
@@ -1289,7 +1308,7 @@ class PickerCard(Card):
         self.stop_once = OneClick()
         """The rows' x (a double-click stops one app)."""
         head = QHBoxLayout()
-        head.addWidget(label(_tr("Caption"), "CardTitle"))
+        head.addWidget(label(_tr("What to caption"), "CardTitle"))
         self.nothing = label(_tr("Not captioning yet"), "CaptionIdle")
         head.addWidget(self.nothing)
         self.active = label("", "CaptionActive", wrap=True)
@@ -1327,10 +1346,8 @@ class PickerCard(Card):
         self.rows: dict[str, AppRowWidget] = {}
         """The rows showing now, by their app's key."""
         self.everything_else = SwitchRow(
-            pc_or_mac(
-                _tr("Also caption everything else the PC plays (in its own window)"),
-                _tr("Also caption everything else the Mac plays (in its own window)"),
-            ),
+            # what "everything else" is, and where, is the line under it
+            _tr("Also caption everything else"),
             _tr("With one app only"),  # `refresh` says what applies
             "picker.everything_else",
         )
@@ -1345,11 +1362,14 @@ class PickerCard(Card):
         adding.setSpacing(4)
         add_head = QHBoxLayout()
         # the list's order on hover, not beside it (151's P2, 176)
-        self.add_title = label(_tr("Add an app"), "RowTitle")
-        self.add_title.setToolTip(_tr("apps with sound open, playing first"))
+        self.add_title = label(_tr("Add an app"), "RowTitle", wrap=True)
+        self.add_title.setSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
+        )
+        self.add_title.setToolTip(_tr("apps that can play sound, those playing first"))
         add_head.addWidget(self.add_title)
         add_head.addStretch(1)
-        refresh = _button(_tr("Refresh"), "ghost")
+        refresh = _wrap_button(_tr("Refresh"), "ghost")
         refresh.setObjectName("picker.refresh")
         refresh.clicked.connect(view.refresh)
         add_head.addWidget(refresh)
@@ -1388,7 +1408,7 @@ class PickerCard(Card):
         )
         sample.addWidget(self.sample_note, 1)
         # played to its end: the next step (208, 203's option B)
-        self.sample_next = label(_tr("Pick an app to caption yours"), wrap=True)
+        self.sample_next = label(_tr("Now pick one of your apps to caption"), wrap=True)
         self.sample_next.setObjectName("picker.sample_next")
         self.sample_next.setContentsMargins(0, 6, 0, 0)  # apart from the apps
         adding.addWidget(self.sample_next)
@@ -1403,9 +1423,11 @@ class PickerCard(Card):
             pc_or_mac(_tr("Everything the PC plays"), _tr("Everything the Mac plays")),
             self,
         )
+        self.pick_apps.setObjectName("home.pick_apps")
+        self.all_audio.setObjectName("home.all_audio")
         for button, detail in (
-            (self.pick_apps, _tr("Only caption the apps you choose.")),
-            (self.all_audio, _tr("Caption sound from all apps together.")),
+            (self.pick_apps, _tr("Only the apps you choose, each in its own window.")),
+            (self.all_audio, _tr("All apps' sound together, in one window.")),
         ):
             column = QVBoxLayout()
             column.addWidget(button)
@@ -1419,7 +1441,7 @@ class PickerCard(Card):
         self.everything_note = label("", "Faint", wrap=True)
         everything.addWidget(self.everything_note, 1)
         # capturing apps one by one failed here: tried again (decision 0076)
-        self.apps_again = _button(_tr("Try apps again"), "small")
+        self.apps_again = _button(_tr("Try apps one by one again"), "small")
         self.apps_again.setObjectName("picker.apps_again")
         self.apps_again.clicked.connect(view.try_apps_again)
         everything.addWidget(self.apps_again)
@@ -1427,7 +1449,7 @@ class PickerCard(Card):
 
         you = QHBoxLayout()
         you.setSpacing(6)
-        self.you_label = label(_tr("Your speech is labelled"), "Dim", wrap=True)
+        self.you_label = label(_tr("Your speech is shown as"), "Dim", wrap=True)
         you.addWidget(self.you_label)
         self.you = AppRowWidget("you", view, self.colours)  # its colour and name
         parts: tuple[QWidget, ...] = (
@@ -1495,15 +1517,15 @@ class PickerCard(Card):
         if shown:
             self.speech.setText(
                 _tr(
-                    "My speech: shown in {windows} - sent for your captions only "
-                    "while it's shown"
+                    "My speech: shown in {windows}. Your mic is sent for your "
+                    "captions only while it's shown"
                 ).format(windows=name_list(shown))
             )
         elif value.captioned:
             self.speech.setText(
                 _tr(
                     "My speech: not shown in any window - turn it on with a row's "
-                    "microphone, or a window's settings"
+                    "mic, or in a window's settings"
                 )
             )
 
@@ -1649,7 +1671,10 @@ class PickerCard(Card):
 
     def _addable(self, value: Picker) -> None:
         self.full.setText(
-            _tr("One app beside everything else - turn that off to add another")
+            _tr(
+                "One app plus everything else - turn off Also caption everything "
+                "else to add another"
+            )
             if value.everything_else
             else _tr("{used} of {limit} - stop one to add another").format(
                 used=QLocale().toString(len(value.apps)),
@@ -1742,25 +1767,30 @@ class HomePage(Page):
         self.state.review_consent.clicked.connect(self.review_consent_wanted)
         self.content.addWidget(self.state)
 
+        self.last_session = Card(_tr("Last session"))
+        self.last_session.setObjectName("home.last_session")
+        self.last_session_pace = label("", "Dim", wrap=True)
+        self.last_session.add(self.last_session_pace)
+        self.last_session.hide()
+        self.content.addWidget(self.last_session)
+
         # the level, which the first run doesn't ask (polyglotic-hq 293):
         # one quiet line under the state until it's set or put off
         self.level_line = QWidget()
         self.level_line.setObjectName("home.level")
-        level = QHBoxLayout(self.level_line)
+        level = Flow(self.level_line, spacing=8)
         level.setContentsMargins(4, 0, 0, 0)
-        level.setSpacing(8)
         level.addWidget(
             label(
                 _tr("Set your level so we know which words to explain"),
                 "Dim",
                 wrap=True,
             ),
-            1,
         )
-        set_level = _button(_tr("Set your level"))
+        set_level = _wrap_button(_tr("Set your level"))
         set_level.setObjectName("home.level.set")
         set_level.clicked.connect(self.level_wanted)
-        not_now = _button(_tr("Not now"), "ghost")
+        not_now = _wrap_button(_tr("Not now"), "ghost")
         not_now.setObjectName("home.level.not_now")
         not_now.clicked.connect(self.level_line.hide)
         not_now.clicked.connect(self.level_dismissed)
@@ -1830,7 +1860,7 @@ class HomePage(Page):
         row.setSpacing(8)
         self.whats_new_title = label("", "RowTitle", wrap=True)
         row.addWidget(self.whats_new_title, 1)
-        everything = _button(_tr("All the changes"))
+        everything = _button(_tr("View all changes"))
         everything.setObjectName("home.whats_new.all")
         everything.clicked.connect(self.whats_new_wanted)
         closing = _button(_tr("Close"), "ghost")
@@ -2065,6 +2095,21 @@ class HomePage(Page):
         send.clicked.connect(self.crash_report_wanted)
         no.clicked.connect(card.hide)
         self.content.insertWidget(2, card)  # under the state
+
+    def show_last_session(self, summary: ListeningSessionEnded) -> None:
+        """Show both speakers' average and peak from the completed session."""
+        rows = [
+            _tr("Them {average} avg · {peak} peak").format(
+                average=summary.pace_them_mean, peak=summary.pace_them_peak
+            )
+        ]
+        rows.append(
+            _tr("You {average} avg · {peak} peak").format(
+                average=summary.pace_you_mean, peak=summary.pace_you_peak
+            )
+        )
+        self.last_session_pace.setText("\n".join(rows))
+        self.last_session.show()
 
     def offer_start_with_windows(self) -> None:
         """After a good session, once: a quiet card under the state asking

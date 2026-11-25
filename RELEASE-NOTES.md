@@ -66,6 +66,51 @@ change is being confirmed.
 
 ### Fixed
 
+## 0.1.12 - 2026-11-25
+
+### New
+
+- Japanese readings can now be shown as kana, romaji, both, or turned off.
+- Set the caption panel anywhere from fully transparent to solid in its cog.
+- Press Space in a caption or transcript window to go back to live. Change the key in Settings > Hotkeys.
+- Press Home in a caption window to jump to its first caption, and End to go back to live.
+  A scroll bar appears while you scroll, so you can drag through the conversation.
+- Hover a caption to save or copy it with one click. Ctrl+C copies the words you select.
+- Choose Long lines in the caption window's cog: grouped, or each line above its translation.
+- Show caption info in the cog shows or hides each caption's language, time and pace.
+- Report a problem and Make a suggestion now share one window, opened from the flag or from Help.
+
+### Better
+
+- Chinese captions now default to your system's plain font, with calligraphy still available in Look.
+- See speaking pace below the caption bar and beside each caption's time.
+  It counts words over the time spoken and fades during longer pauses. Turn it off in the cog.
+- Japanese readings below a line have their own room and no longer touch the next line.
+- Caption lines fill the window more steadily and continue overflowing text on a new line.
+- Japanese dictionary cards can now show approved Chinese meanings before their English fallback.
+  These machine-made meanings are clearly labelled.
+- Settings say what each one does in fewer words, and name each thing the same way everywhere.
+- The Chinese interface, Simplified and Traditional, now says plainly what each control does.
+- Reports and suggestions now show length limits and remove hidden control characters before sending.
+- Home, Settings and the other main window pages have fewer borders around their controls.
+- Learn another language is now at the top of Learning.
+- Caption text sizes stay with each language, even when the conversation switches languages.
+- Caption blocks show the language and local time in grey.
+  They name a source only when it isn't the window's own.
+- On Windows, minimise captions and reopen them from the taskbar or Alt+Tab.
+- A caption window keeps its own text size and transparency when you switch presets.
+
+### Fixed
+
+- Caption colour choices now set the panel too, while transparency stays readable.
+- Switching Type what they said back to Its own key restores your saved key, even after a restart.
+- Switch a recommended look off to put your earlier caption appearance back.
+- Japanese dictionary lookups and furigana now work after its dictionary downloads.
+- Captions no longer jump when one finishes, splits or grows a line: the window glides instead.
+- The app no longer closes when another program already uses the dictation shortcut.
+- Showing each line above its translation no longer makes the caption window flicker or go blank.
+- Long sessions use less memory.
+
 ## 0.1.11 - 2026-11-24
 
 ### Better

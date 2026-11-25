@@ -88,6 +88,7 @@ def test_ten_sections_at_the_top_look_shown_first(qapp: QApplication) -> None:
     page = page_with()
     page.show()
     qapp.processEvents()
+    assert page.property("flatSettings") is True
     assert SECTIONS == (
         "presets", "look", "links", "readings", "timing", "speech", "dictation",
         "hotkeys", "app", "lab",
@@ -329,7 +330,9 @@ def test_every_caption_setting_has_its_line_and_its_tooltip(qapp: QApplication) 
     assert look.background.toolTip().startswith("0 % is no box at all")
     assert look.colours["translation"].toolTip().startswith("The colour of the trans")
     assert page.behaviour.fade.toolTip().startswith("Captions disappear after")
-    assert page.word_links.word_links.toolTip().startswith("Which words of what was")
+    assert page.word_links.word_links.toolTip().startswith(
+        "Words in what was said and its"
+    )
 
 
 def test_the_hub_opens_at_960_by_680_at_least(qapp: QApplication) -> None:
@@ -620,13 +623,13 @@ def test_the_dropdown_holds_every_section_at_the_largest_text_size(
             "預設集",
             "字幕外觀",
             "詞語對應",
-            "讀音",
-            "時機",
+            "標音",
+            "出字方式",
             "語音",
-            "聽寫",
+            "語音輸入",
             "快速鍵",
-            "應用程式",
-            "實驗室",
+            "一般",
+            "實驗功能",
         )
         for index, name in enumerate(names):  # zh_TW's, as its .ts file has them
             picker.setItemText(index, name)
@@ -687,8 +690,8 @@ def test_transcript_settings_show_both_limits(
         "Last 1 hour",
     ]
     assert page.transcript_ask.detail.text() == (
-        "With Last 1 hour or Whole session: Quit asks about a transcript "
-        "of more than 1 line that isn't saved."
+        "With Last 1 hour or Whole session, Quit asks first if a transcript "
+        "of more than 1 line isn't saved."
     )
 
 

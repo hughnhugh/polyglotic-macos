@@ -11,7 +11,7 @@ from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from itertools import groupby, pairwise
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QTextBoundaryFinder
+from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import (
     QColor,
     QFont,
@@ -37,12 +37,16 @@ from polyglotic_desktop.ui_next.caption_layout import (
     LaidRow,
     Marks,
     caption_language,
+    graphemes,
     panned_row,
     visible_row,
 )
 from polyglotic_desktop.ui_next.views import card_window_defaults as timing
 from polyglotic_desktop.ui_next.views import dwell
+from polyglotic_desktop.ui_next.views.arrivals import ENTRY_GAP_PX
 from polyglotic_desktop.ui_next.views.captions import Line
+from polyglotic_desktop.ui_next.views.cards import Glide
+from polyglotic_desktop.ui_next.views.flow import CONTINUATION
 
 INSTANT_WORD_INTERVAL = tunable(
     "video_motion.instant_word_interval",
@@ -134,6 +138,7 @@ class Copy:
     final_translation: bool
     writing: bool = False
     original_writing: bool = False
+    translation_writing: bool = False
 
 
 @dataclass
@@ -202,6 +207,7 @@ class WordArrival:
             final_translation=copy.final_translation and not self.translation.pending,
             writing=self.original.pending or self.translation.pending,
             original_writing=self.original.pending,
+            translation_writing=self.translation.pending,
         )
 
 
@@ -216,6 +222,8 @@ class PaintRow:
     height: float
     alpha: float
     phase: str
+    continues: bool = False
+    entry_offset: float = 0.0
 
     @property
     def key(self) -> tuple[int, bool, int]:
@@ -257,9 +265,11 @@ class Slot:
     lift: Tween | None = None
     incoming: bool = False
     settled_at: float | None = None
+    entry: Glide | None = None
 
     def position(self, now: float) -> float:
-        return self.lift.value(now) if self.lift else self.row.y
+        y = self.lift.value(now) if self.lift else self.row.y
+        return y + (self.entry.to(now) if self.entry else 0.0)
 
 
 class VideoFlow:
@@ -282,10 +292,12 @@ class VideoFlow:
         reading_breaks: Callable[[Copy, bool], set[int]] | None = None,
         lines_shown: int | None = None,
         pan_width: Callable[[Copy, bool, int, int], float] | None = None,
+        paired_ranges: Callable[[Line], list[tuple[bool, int, int]]] | None = None,
     ) -> None:
         self.measure = measure
         self.span_width = span_width
         self.pan_width = pan_width
+        self.paired_ranges = paired_ranges
         self.reading_breaks = reading_breaks
         self.width, self.top, self.foot = width, top, foot
         self.oh, self.th = row_heights or (
@@ -315,9 +327,13 @@ class VideoFlow:
         translation: bool,
         span_width: Callable[[int, int], float] | None = None,
         joined: set[int] | None = None,
+        *,
+        growing: bool = False,
     ) -> list[str]:
         lines: list[str] = []
         current = spaces = ""
+        room = self.width - self.measure(CONTINUATION, translation)
+        final_width = room if growing else self.width
         start = 0
         for first, end in _wrap_units(text, joined):
             token = text[first:end]
@@ -330,7 +346,8 @@ class VideoFlow:
                 if span_width
                 else self.measure(candidate, translation)
             )
-            if current and candidate_width > self.width:
+            limit = final_width if end == len(text) else room
+            if current and candidate_width > limit:
                 # Retain every source offset, including separators at breaks.
                 lines.append(current + spaces)
                 start = first
@@ -340,28 +357,19 @@ class VideoFlow:
                 if span_width
                 else self.measure(token, translation)
             )
-            if token_width > self.width:
+            if token_width > limit:
                 # An unbroken URL or word may be wider than the window.
                 # Break it at grapheme boundaries, including surrogate pairs.
-                boundary = QTextBoundaryFinder(
-                    QTextBoundaryFinder.BoundaryType.Grapheme, token
-                )
                 current += spaces
-                encoded = token.encode("utf-16-le")
-                previous = 0
                 stop = first
-                while (next_boundary := boundary.toNextBoundary()) >= 0:
-                    glyph = encoded[2 * previous : 2 * next_boundary].decode(
-                        "utf-16-le"
-                    )
-                    previous = next_boundary
+                for glyph in graphemes(token):
                     stop += len(glyph)
                     width = (
                         span_width(start, stop)
                         if span_width
                         else self.measure(current + glyph, translation)
                     )
-                    if current and width > self.width:
+                    if current and width > (final_width if stop == len(text) else room):
                         lines.append(current)
                         start = stop - len(glyph)
                         current = ""
@@ -400,7 +408,54 @@ class VideoFlow:
         *,
         revisable: bool = False,
     ) -> list[PaintRow]:
+        texts = (copy.original, copy.translation)
+        heights = (self.oh, self.th)
+        if (
+            self.paired_ranges is not None
+            and copy.line.model is not None
+            and not scrolling
+        ):
+            spans = self.paired_ranges(copy.line)
+        else:
+            spans = self._wrap_ranges(copy, scrolling, sides, starts)
         rows = []
+        for tr, first, end in spans:
+            text = texts[tr]
+            first = max(first, starts[tr])
+            if not sides[tr] or not heights[tr] or first >= min(end, len(text)):
+                continue
+            continues = end < len(text)
+            finished = (continues and not revisable) or (
+                copy.final_translation
+                if tr
+                else not (
+                    copy.line.live or copy.line.provisional or copy.original_writing
+                )
+            )
+            rows.append(
+                PaintRow(
+                    copy,
+                    tr,
+                    text[first:end],
+                    first,
+                    0,
+                    0,
+                    heights[tr],
+                    1,
+                    "settled" if finished else "live",
+                    continues=continues,
+                )
+            )
+        return rows
+
+    def _wrap_ranges(
+        self,
+        copy: Copy,
+        scrolling: bool,
+        sides: tuple[bool, bool],
+        starts: tuple[int, int],
+    ) -> list[tuple[bool, int, int]]:
+        ranges = []
         for tr, text, height in (
             (False, copy.original, self.oh),
             (True, copy.translation, self.th),
@@ -409,10 +464,11 @@ class VideoFlow:
             text = text[start:]
             if not (sides[int(tr)] and text and height):
                 continue
+            growing = copy.translation_writing if tr else copy.original_writing
             if scrolling:
                 pieces = [text]
             elif self.span_width is None:
-                pieces = self.wrap(text, tr)
+                pieces = self.wrap(text, tr, growing=growing)
             else:
 
                 def span_width(
@@ -429,30 +485,12 @@ class VideoFlow:
                     {i - start for i in self.reading_breaks(copy, tr)}
                     if self.reading_breaks
                     else None,
+                    growing=growing,
                 )
-            for index, piece in enumerate(pieces):
-                finished = (not revisable and index < len(pieces) - 1) or (
-                    copy.final_translation
-                    if tr
-                    else not (
-                        copy.line.live or copy.line.provisional or copy.original_writing
-                    )
-                )
-                rows.append(
-                    PaintRow(
-                        copy,
-                        tr,
-                        piece,
-                        start,
-                        0,
-                        0,
-                        height,
-                        1,
-                        "settled" if finished else "live",
-                    )
-                )
+            for piece in pieces:
+                ranges.append((tr, start, start + len(piece)))
                 start += len(piece)
-        return rows
+        return ranges
 
     def spacing(self, upper: PaintRow, lower: PaintRow) -> float:
         if upper.copy.line.key != lower.copy.line.key:
@@ -461,6 +499,21 @@ class VideoFlow:
 
     def _fit_caption(self, rows: list[PaintRow]) -> list[PaintRow]:
         """For a caption taller than the window, retain the tail of each side."""
+        if self.paired_ranges is not None and not self.one_row:
+            room = self.foot - self.top - self.label_height
+            counts = [0, 0]
+            kept: list[PaintRow] = []
+            for row in reversed(rows):
+                cost = row.height + (self.spacing(row, kept[-1]) if kept else 0.0)
+                if cost > room + EPS or counts[row.translation] == self.lines_shown:
+                    # Leave a partial oldest pair together on the preceding page.
+                    if kept and kept[-1].translation and not row.translation:
+                        kept.pop()
+                    break
+                kept.append(row)
+                counts[row.translation] += 1
+                room -= cost
+            return kept[::-1]
         original = [row for row in rows if not row.translation]
         translation = [row for row in rows if row.translation]
         if self.lines_shown is not None:
@@ -604,6 +657,8 @@ class VideoFlow:
                     continue
                 slot.incoming = False
                 slot.since = self.now
+                if slot.entry is not None:
+                    slot.entry.push(self.now, min(ENTRY_GAP_PX.value, row.height))
             track = self.tracks[row.copy.line.key]
             if self.scrolling and track.scrolling:
                 pan = track.pans[int(row.translation)]
@@ -651,6 +706,7 @@ class VideoFlow:
                     slot.row, y=min(slot.position(now), self.foot - slot.row.height)
                 )
                 slot.lift = None
+                slot.entry = None
             self.lift_ends = now
             for track in self.tracks.values():
                 track.pending = False
@@ -763,8 +819,17 @@ class VideoFlow:
                 and not caption_track.scrolling
                 and self._limit_wrap(shaped, updates[caption_key])
             ):
+                # Keep the breaks of the received packet when only its first
+                # rows have earned a cell. Its last visible row still carries on.
                 copy = updates[caption_key].copy(received, defer_translation=defer)
-                shaped = self._shape_track(copy, caption_track, sides, True)
+                limited = []
+                for row in shaped:
+                    end = len(copy.translation if row.translation else copy.original)
+                    if row.start < end:
+                        limited.append(
+                            replace(row, copy=copy, text=row.text[: end - row.start])
+                        )
+                shaped = limited
             if (
                 self.th > 0
                 and not self.one_row
@@ -915,7 +980,16 @@ class VideoFlow:
                 now if old is None or not old.row.text else old.since,
                 None if changed or old is None else old.ready,
                 settled_at=None if changed or old is None else old.settled_at,
+                entry=old.entry if old is not None else None,
             )
+            if (
+                old is None
+                and row.start
+                and self.animate
+                and not repack
+                and not self.tracks[row.copy.line.key].scrolling
+            ):
+                slot.entry = Glide()
             if (
                 old is not None
                 and self.animate
@@ -924,7 +998,7 @@ class VideoFlow:
             ):
                 slot.lift = Tween(old.row.y, row.y, now, handover)
                 self.lift_ends = max(self.lift_ends, now + handover)
-            slot.incoming = old is None
+            slot.incoming = old is None or old.incoming
             slots[row.key] = slot
         self.slots = slots
         for caption_key, track in self.tracks.items():
@@ -948,6 +1022,7 @@ class VideoFlow:
             or self.now + EPS < self.lift_ends
             or any(
                 s.row.copy.writing
+                or (s.entry is not None and s.entry.moving(self.now))
                 or (s.row.phase == "settled" and s.ready is None)
                 or any(
                     abs(pan.x - pan.target) > EPS
@@ -965,7 +1040,14 @@ class VideoFlow:
             if not slot.row.text or (slot.incoming and self.now + EPS < self.lift_ends):
                 continue
             phase = "settled" if slot.ready is not None else "live"
-            rows.append(replace(slot.row, y=slot.position(self.now), phase=phase))
+            rows.append(
+                replace(
+                    slot.row,
+                    y=slot.position(self.now),
+                    phase=phase,
+                    entry_offset=slot.entry.px if slot.entry else 0.0,
+                )
+            )
         return rows
 
 
@@ -992,6 +1074,25 @@ def subtitle_gap(engine: CaptionLayout, size: float) -> float:
     return TRANSLATION_GAP + (ARROW_ROW_GAP * size if engine.style.arrows else 0)
 
 
+def subtitle_pixels(
+    engine: CaptionLayout,
+    size: float,
+    languages: tuple[Language | None, Language | None],
+) -> tuple[int, int]:
+    style = engine.style
+    if style.language_sizes is not None:
+        sizes = dict(style.language_sizes)
+        spoken, target = languages
+        original = sizes.get(spoken, 1.0) if spoken is not None else 1.0
+        translated = sizes.get(target, 1.0) if target is not None else 1.0
+        return round(style.text_px * size * original), round(
+            style.text_px * size * translated
+        )
+    return round(style.text_px * size), round(
+        style.text_px * (style.translation_size or size) * style.translation_factor
+    )
+
+
 def subtitle_height(
     engine: CaptionLayout,
     size: float,
@@ -1001,8 +1102,7 @@ def subtitle_height(
     labelled: bool,
 ) -> float:
     p = engine.style
-    orig = round(p.text_px * size)
-    tr = round(p.text_px * (p.translation_size or size) * p.translation_factor)
+    orig, tr = subtitle_pixels(engine, size, languages)
     nominal = orig * ORIGINAL_LINE_EM, tr * TRANSLATION_LINE_EM
     rooms = subtitle_rooms(engine, size, languages)
     original = subtitle_cell(rooms[0], nominal[0])
@@ -1091,7 +1191,7 @@ class Video:
                 engine.laid(copy.line, room, size, single_rows=True), tr, start, end
             )
         )
-        if not any(source.above for source, *_ in runs):
+        if not any(source.above or source.below for source, *_ in runs):
             return measure(text[start:end], tr)
         width = 0.0
         for source, offset, first, last in runs:
@@ -1110,7 +1210,8 @@ class Video:
         return {
             offset + i
             for source, offset, *_ in self._runs(laid, tr, 0, len(text))
-            for mark in source.above
+            for marks in (source.above, source.below)
+            for mark in marks
             for i in range(mark.start + 1, mark.end)
         }
 
@@ -1194,8 +1295,6 @@ class Video:
         lines_shown: int | None = None,
     ) -> list[PlacedSubtitle]:
         p = engine.style
-        orig = round(p.text_px * size)
-        tr = round(p.text_px * (p.translation_size or size) * p.translation_factor)
         room = width - 2 * VIDEO_MARGIN
         if room <= 0:
             return []
@@ -1225,12 +1324,13 @@ class Video:
         actual = {
             r.row.kind: Language(language)
             for r in laid.rows
-            if (language := caption_language(r.row)) is not None
+            if (language := r.row.language or caption_language(r.row)) is not None
         }
         languages = (
             actual.get(RowKind.ORIGINAL, languages[0]),
             actual.get(RowKind.TRANSLATION, languages[1]),
         )
+        orig, tr = subtitle_pixels(engine, size, languages)
         rooms = subtitle_rooms(engine, size, languages)
         annotated = bool(p.reading_lines or p.link_room)
         row_heights = orig * ORIGINAL_LINE_EM, tr * TRANSLATION_LINE_EM
@@ -1256,8 +1356,10 @@ class Video:
             for i, (side, px) in enumerate(
                 ((RowKind.ORIGINAL, orig), (RowKind.TRANSLATION, tr))
             ):
-                font = faces_by_row.get(side, QFont())
-                font.setPixelSize(px)
+                font = faces_by_row.get(side)
+                if font is None:
+                    font = QFont()
+                    font.setPixelSize(px)
                 height_needed = QFontMetrics(font).height() + 2.0
                 measured.append(
                     subtitle_cell(rooms[i], height_needed)
@@ -1338,6 +1440,9 @@ class Video:
                 if p.reading_lines
                 else None,
                 lines_shown=lines_shown,
+                paired_ranges=(lambda line: engine.paired_ranges(line, room, size))
+                if p.paired_lines
+                else None,
                 pan_width=lambda copy, tr, a, b: self._span_width(
                     engine, room, size, copy, tr, a, b, painted=True
                 ),
@@ -1348,6 +1453,17 @@ class Video:
                     flow.tracks = previous.tracks
                     flow.slots = previous.slots
                     flow.now = previous.now
+                    if (previous.paired_ranges is None) != (flow.paired_ranges is None):
+                        # Reflow even a finished caption when its row order changes.
+                        # Keep the spoken words and the first still-visible offsets.
+                        flow.slots = {}
+                        for caption_track in flow.tracks.values():
+                            caption_track.scrolling = scrolling
+                            caption_track.pans = Pan(), Pan()
+                            caption_track.starts = (
+                                caption_track.first[0],
+                                caption_track.first[1],
+                            )
                 self.flow = flow
                 self.viewport = view
         else:
@@ -1534,17 +1650,40 @@ class Video:
                 ):
                     lead = flow.advance_width(r.copy, r.translation, r.start, first)
                     x = lead - r.x
-                    if source.above:
+                    continues = engine.style.paired_lines and (
+                        (r.continues and first < stop <= last)
+                        or (
+                            source.row.continues
+                            and last - offset == len(source.row.text)
+                        )
+                    )
+                    if source.above or source.below:
                         fragment = self._reading_part(
                             engine, source, first - offset, last - offset
                         )
                         x += fragment.layout.lineAt(0).x()
                         part = visible_row(
-                            fragment, 0, len(fragment.row.text), QPointF(lead - r.x, 0)
+                            fragment,
+                            0,
+                            len(fragment.row.text),
+                            QPointF(lead - r.x, 0),
+                            continues=continues,
+                            later_readings=(
+                                source.row.continues
+                                or any(m.start >= last - offset for m in source.above),
+                                source.row.continues
+                                or any(m.start >= last - offset for m in source.below),
+                            ),
                         )
                     else:
                         at = QPointF(x - source.layout.lineAt(0).x(), 0)
-                        part = visible_row(source, first - offset, last - offset, at)
+                        part = visible_row(
+                            source,
+                            first - offset,
+                            last - offset,
+                            at,
+                            continues=continues,
+                        )
                     natural = (
                         part.layout.lineAt(0)
                         .naturalTextRect()
@@ -1633,7 +1772,7 @@ class Video:
         remainder = x - part.layout.lineAt(0).x()
         origin = QPointF(VIDEO_MARGIN + remainder, y)
         opacity = replace(ink, alpha=ink.alpha * row.alpha)
-        cell = QRectF(0, row.y, width, row.height)
+        cell = QRectF(0, row.y - row.entry_offset, width, row.height)
         if not (self.fade_width or self.right_fade_width):
             painter.save()
             try:

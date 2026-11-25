@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "name": "word_link_class_unavailable",
+  "covers": [
+    "B-D3"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "pos2",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "猫睡觉。",
+            "translations": {
+              "en": "The cat sleeps."
+            },
+            "links": {
+              "en": [
+                {
+                  "original": [
+                    0,
+                    1
+                  ],
+                  "translation": [
+                    4,
+                    7
+                  ],
+                  "key": true,
+                  "confidence": 0.9
+                }
+              ]
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "pos2",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "猫睡觉。",
+                "translation": "The cat sleeps.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "猫",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "睡",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      4
+                    ],
+                    "after": 4,
+                    "text": "觉。",
+                    "reading": null
+                  }
+                ],
+                "links": [
+                  {
+                    "number": 0,
+                    "key": true,
+                    "confidence": 0.9,
+                    "original": [
+                      [
+                        0,
+                        1
+                      ]
+                    ],
+                    "translation": [
+                      [
+                        4,
+                        7
+                      ]
+                    ],
+                    "original_classes": [
+                      null
+                    ],
+                    "translation_classes": [
+                      null
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

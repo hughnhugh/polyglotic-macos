@@ -1,0 +1,29 @@
+{
+  "width": 20,
+  "steps": [
+    {
+      "original": "It was good. And",
+      "translation": "C'était bien. Et",
+      "expected_pairs": [
+        [
+          "It was good. And",
+          "C'était bien. Et…"
+        ]
+      ]
+    },
+    {
+      "original": "It was good and then",
+      "translation": "C'était bien et puis",
+      "expected_pairs": [
+        [
+          "It was good and",
+          "C'était bien et"
+        ],
+        [
+          "then",
+          "puis…"
+        ]
+      ]
+    }
+  ]
+}

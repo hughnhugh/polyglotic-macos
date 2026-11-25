@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "关门。",
+          "words": [
+            "关门。"
+          ],
+          "reading": [],
+          "translation": "",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 3.2,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "关门。",
+          "words": [
+            "关门。"
+          ],
+          "reading": [],
+          "translation": "Close the door.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

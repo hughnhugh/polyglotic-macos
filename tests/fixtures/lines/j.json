@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 360,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "看",
+          "words": [
+            "看"
+          ],
+          "reading": [],
+          "translation": "See",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "看",
+          "words": [
+            "看"
+          ],
+          "reading": [],
+          "translation": "https://example.org/averylongunbrokenfictionalcaptionpathacrosstheriverandunderthebridge",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

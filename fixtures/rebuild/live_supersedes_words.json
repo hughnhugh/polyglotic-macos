@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "name": "live_supersedes_words",
+  "covers": [
+    "B-L1"
+  ],
+  "view": {
+    "mode": "everyday-instant",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "live1",
+        "source_id": "speaker-a",
+        "kind": "live",
+        "language": "en",
+        "languages_heard": [
+          "en"
+        ],
+        "clauses": [
+          {
+            "original": "I like",
+            "translations": {
+              "zh": "我喜欢"
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.8,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "live1",
+        "source_id": "speaker-a",
+        "kind": "live",
+        "language": "en",
+        "languages_heard": [
+          "en"
+        ],
+        "clauses": [
+          {
+            "original": "I love it",
+            "translations": {
+              "zh": "我很喜欢"
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "live1",
+            "source_id": "speaker-a",
+            "language": "en",
+            "final": false,
+            "clauses": [
+              {
+                "original": "I like",
+                "translation": null,
+                "translation_language": "en",
+                "settled": false,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 2,
+                    "text": "I",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      6
+                    ],
+                    "after": 6,
+                    "text": "like",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.8,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "live1",
+            "source_id": "speaker-a",
+            "language": "en",
+            "final": false,
+            "clauses": [
+              {
+                "original": "I love it",
+                "translation": null,
+                "translation_language": "en",
+                "settled": false,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 2,
+                    "text": "I",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      6
+                    ],
+                    "after": 7,
+                    "text": "love",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      7,
+                      9
+                    ],
+                    "after": 9,
+                    "text": "it",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

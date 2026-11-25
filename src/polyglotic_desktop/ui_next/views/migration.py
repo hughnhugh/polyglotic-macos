@@ -79,7 +79,10 @@ def moved_over(stored: Mapping[str, object]) -> StoredWindows:
     for index, key in enumerate(todays_sources(stored)):
         by_key[key] = today if index == 0 else at_default_slot(today)
     # today's apps had windows: the first window's set-up isn't for them (465)
-    return StoredWindows(by_key, today, first_use=True, set_up=bool(by_key))
+    windows = StoredWindows(by_key, today, first_use=True, set_up=bool(by_key))
+    if text_size(stored.get("text_scale")) is not None:
+        windows.migrate_language_sizes()
+    return windows
 
 
 def todays_values(stored: Mapping[str, object]) -> WindowChoices:
@@ -95,6 +98,13 @@ def todays_values(stored: Mapping[str, object]) -> WindowChoices:
     size = text_size(stored.get("text_scale"))
     if size is not None:
         base = replace(base, text_size=size, translation_size=size)
+    opacity = stored.get("opacity")
+    if (
+        isinstance(opacity, int | float)
+        and not isinstance(opacity, bool)
+        and 0 <= opacity <= 1
+    ):
+        base = replace(base, opacity=round(float(opacity), 2))
     if isinstance(stored.get("caption_mic"), bool):
         base = replace(base, show_mic=bool(stored["caption_mic"]))
     if stored.get("spoken_language") in SPOKEN_LANGUAGES:  # None: Detect

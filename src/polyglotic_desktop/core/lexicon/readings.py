@@ -30,6 +30,9 @@ class Reading:
     """A mark on its character rather than a reading above it - Russian's
     stress, an accent over the vowel (polyglotic-hq 511): drawn in the
     text's own size, where an accent on that letter would be."""
+    below: bool = False
+    """Draw this secondary reading below its word. Japanese ``Both`` uses
+    this for romaji while its conventional kana stays above the kanji."""
 
 
 Readings = Callable[[str, str | None], Sequence[Reading] | None]

@@ -1,12 +1,18 @@
 """The word splits behind the `WordSplit` port (polyglotic-hq project 164):
 Sudachi for Japanese, letters and simplemma for Spanish."""
 
+import shutil
+from pathlib import Path
+
 import pytest
+import sudachidict_small
 
 from polyglotic_desktop.adapters import spaced_split
 from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
 from polyglotic_desktop.adapters.spaced_split import SpacedSplit
 from polyglotic_desktop.ports.word_split import SplitWord, WordSplit
+
+SYSTEM_DIC = Path(sudachidict_small.__file__).parent / "resources" / "system.dic"
 
 
 def texts(split: WordSplit, line: str) -> list[str]:
@@ -15,7 +21,7 @@ def texts(split: WordSplit, line: str) -> list[str]:
 
 def test_japanese_is_split_into_words_with_their_dictionary_forms() -> None:
     line = "私は昨日、寿司を食べました。"
-    split = JapaneseSplit()
+    split = JapaneseSplit(SYSTEM_DIC)
     assert texts(split, line) == [
         "私",
         "は",
@@ -37,17 +43,27 @@ def test_japanese_is_split_into_words_with_their_dictionary_forms() -> None:
     assert words["食べ"].content and words["昨日"].content
 
 
+def test_downloaded_japanese_dictionary_finds_taberu_from_tabeta(
+    tmp_path: Path,
+) -> None:
+    """The split opens the pack machinery's path, not the wheel resource."""
+    downloaded = tmp_path / "sudachidict-small-20261015.system.dic"
+    shutil.copyfile(SYSTEM_DIC, downloaded)
+    (word,) = JapaneseSplit(downloaded).words("食べた")[:1]
+    assert word.lemmas == ("食べる",)
+
+
 def test_japanese_normalised_forms_come_first_they_tell_namesakes_apart() -> None:
     line = "猫がいた。することがある。"
-    words = {line[w.start : w.end]: w for w in JapaneseSplit().words(line)}
+    words = {line[w.start : w.end]: w for w in JapaneseSplit(SYSTEM_DIC).words(line)}
     assert words["い"].lemmas == ("居る", "いる")  # "to be", not 要る "to need"
     assert words["する"].lemmas == ("為る",)
     assert words["ある"].lemmas == ("有る",)
 
 
 def test_japanese_spaces_and_punctuation_are_not_words() -> None:
-    assert texts(JapaneseSplit(), "「はい」、 そう。") == ["はい", "そう"]
-    assert JapaneseSplit().words("") == []
+    assert texts(JapaneseSplit(SYSTEM_DIC), "「はい」、 そう。") == ["はい", "そう"]
+    assert JapaneseSplit(SYSTEM_DIC).words("") == []
 
 
 def test_spanish_words_with_simplemmas_lemma() -> None:

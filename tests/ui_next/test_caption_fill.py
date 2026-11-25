@@ -156,7 +156,8 @@ def test_a_live_revision_keeps_an_established_line_break(qapp: QApplication) -> 
     engine = CaptionLayout()
     line = a_line(("alpha beta gamma delta", ""))
     font = engine._font(line.rows[0], 1.0, False)
-    width = round(QFontMetricsF(font).horizontalAdvance("alpha beta ") + 2)
+    # Wide enough for "alpha " and "a beta", but too narrow for "alpha beta".
+    width = round(QFontMetricsF(font).horizontalAdvance("a beta") + 4)
 
     before = engine.laid(line, width, 1.0).rows[0].layout
     assert before.lineCount() > 1
@@ -168,6 +169,9 @@ def test_a_live_revision_keeps_an_established_line_break(qapp: QApplication) -> 
 
     assert after.lineAt(0).textStart() + after.lineAt(0).textLength() == old_end - 4
     assert row.text[: after.lineAt(0).textLength()].rstrip() == "a"
+
+    engine.laid(replace(line, rows=(replace(row, text="a"),)), width, 1.0)
+    assert not engine._breaks
 
 
 def test_only_a_space_between_clauses_draws_no_ellipsis(qapp: QApplication) -> None:

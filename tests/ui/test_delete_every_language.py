@@ -10,6 +10,7 @@ dictionaries; offscreen."""
 
 import sqlite3
 import threading
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
@@ -137,6 +138,35 @@ def test_every_open_language_and_its_copies_set_aside_are_deleted(
         assert ZH_SENTENCE.encode() not in held and EN_SENTENCE.encode() not in held
         assert b"ecdict:run" not in held
     finally:
+        opened.close()
+
+
+def test_local_deletion_includes_a_learner_still_opening(
+    qapp: QApplication, tmp_path: Path
+) -> None:
+    opened = Opened(tmp_path)
+    exchanged = main.QtExchange(opened.tools, data=opened.data)
+    pending: list[Callable[[], None]] = []
+    exchanged.after_pack_learners_open = pending.append
+    try:
+        zh = opened.tools
+        learned(zh, "电脑", ZH_SENTENCE)
+        exchanged.delete_here = True
+        exchanged.learning_deleted()
+        settle()
+        assert zh.vocabulary.saved_words
+        assert len(pending) == 1
+
+        opened.open_beside("en")
+        en = zh.of("en")
+        assert en is not zh
+        learned(en, "run", EN_SENTENCE)
+        pending.pop()()
+        for store in opened.stores:
+            store.flush()
+        assert zh.vocabulary.saved_words == en.vocabulary.saved_words == []
+    finally:
+        exchanged.deleteLater()
         opened.close()
 
 

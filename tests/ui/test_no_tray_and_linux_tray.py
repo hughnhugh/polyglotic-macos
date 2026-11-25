@@ -118,7 +118,7 @@ def test_the_box_keeps_running_by_default_and_offers_quit(qapp: QApplication) ->
         }
         assert box.defaultButton() is box.escapeButton()
         assert box.buttonRole(box.defaultButton()) is QMessageBox.ButtonRole.AcceptRole
-        assert "from your apps" in box.informativeText()
+        assert "launch Polyglotic again" in box.informativeText()
     finally:
         box.deleteLater()
 

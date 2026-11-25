@@ -126,6 +126,13 @@ def progress_text(code: str, progress: PackProgress) -> str:
         )
     if problem is Problem.NEEDS_NEWER_APP:
         return _tr("Its dictionary needs a newer Polyglotic. Update the app to get it.")
+    if problem is Problem.SPLIT_UNAVAILABLE:
+        return in_sentence(
+            _tr(
+                "{language} lookups aren't in this version yet. Captions and translation work."
+            ),
+            language=name,
+        )
     if problem is Problem.NOT_OFFERED:
         return _tr("Its dictionary isn't ready to download yet.")
     if progress.step is Step.WAITING:
@@ -160,7 +167,7 @@ def shown(code: str, line: PackLine) -> tuple[str, tuple[str, ...], float | None
     progress = line.progress
     if progress is not None and progress.step not in (Step.DONE, Step.CANCELLED):
         said = progress_text(code, progress)
-        if progress.problem is Problem.NEEDS_NEWER_APP:
+        if progress.problem in (Problem.NEEDS_NEWER_APP, Problem.SPLIT_UNAVAILABLE):
             return said, (), None
         if progress.problem is Problem.NOT_OFFERED:
             return said, ("retry",), None

@@ -87,7 +87,6 @@ rounded:
   control: "8px"
   segmented: "9px"
   chip: "10px"
-  card: "12px"
 spacing:
   inset: "3px"
   gap: "8px"
@@ -111,9 +110,8 @@ components:
     rounded: "{rounded.control}"
     padding: "5px 9px"
   card:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "transparent"
     textColor: "{colors.text}"
-    rounded: "{rounded.card}"
   field:
     backgroundColor: "{colors.surface-2}"
     textColor: "{colors.text}"
@@ -152,8 +150,8 @@ consistency and the real scene (over a game) outrank expression.
 ## Colors
 
 Tokens by role (`Palette`): `BG` the window, `SIDEBAR` the rail, `SURFACE`
-cards, `SURFACE_2` controls, `SURFACE_3` hover and selection, `BORDER`
-hairlines; `TEXT`, `TEXT_DIM` (secondary), `TEXT_FAINT` (notes, counts);
+the light content column, `SURFACE_2` controls, `SURFACE_3` hover and
+selection, `BORDER` input outlines; `TEXT`, `TEXT_DIM` (secondary), `TEXT_FAINT` (notes, counts);
 `ACCENT` the primary action (paper in dark, ink in light: buttons are the
 text colour); `SUCCESS`, `WARNING`, `DANGER` states, always with words;
 `FOCUS` and `MARKER` the pink. Glaze and Signal swap the palette.
@@ -188,8 +186,8 @@ Spacing: insets up to 6 px for optical fit, 8 px between related items,
 
 ## Elevation & Depth
 
-Flat. Cards are `SURFACE` with a 1 px `BORDER`; no shadows in the main
-window. The lookup card and the caption windows' popovers float over other
+Cards share the page's background and are separated by 32 px at a text
+size factor of 1.0. The main window has no shadows. The lookup card and the caption windows' popovers float over other
 apps with Windows' own shadow.
 
 ## Shapes
@@ -197,18 +195,18 @@ apps with Windows' own shadow.
 Radii from the stylesheet: 2 (slider grooves), 3 (scroll handles), 6
 (small buttons, list items, segmented buttons), 8 (buttons, fields,
 menus, banners), 9 (the segmented frame), 10 (chips, the transcript's
-text panel), 12 (cards). Circles and pills by shape (a switch, a slider's
+text panel). Circles and pills by shape (a switch, a slider's
 handle).
 
 ## Components
 
 ### Buttons
-Default: `SURFACE_2`, 1 px border, 8 px radius, 6 x 12 padding. Primary
+Default: `SURFACE_2` fill, 8 px radius, 6 x 12 padding. Primary
 (`kind="primary"`): the accent filled, semibold; at most one per view.
 Ghost: no frame, dim text. Small and name kinds for rows.
 
 ### Cards
-`#Card`: `SURFACE`, 1 px border, 12 px radius. Never a card inside a card.
+`#Card` uses the page background and spacing to group controls. Never nest cards.
 
 ### Fields
 `SURFACE_2`, 1 px border turning `FOCUS` on focus, 8 px radius; a visible

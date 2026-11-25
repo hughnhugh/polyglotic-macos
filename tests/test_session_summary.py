@@ -7,15 +7,24 @@ failed, or never answered; reconnects; and the tracking plan's
 `listening_session_ended` properties, exactly the server's example's.
 """
 
+from dataclasses import replace
+from pathlib import Path
+
 import pytest
+import sudachidict_small
+from tests.lexicon.sample import chinese_sample
 from tests.test_protocol import example
 
+from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
+from polyglotic_desktop.adapters.spoken_words import spoken_word_counter
 from polyglotic_desktop.connection import listening, protocol
+from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.core.listening.captions import (
     CaptionKind,
     CaptionUpdate,
     Clause,
     Language,
+    WordTime,
 )
 from polyglotic_desktop.core.listening.sources import Source, SourceId
 from polyglotic_desktop.core.listening.summary import (
@@ -36,6 +45,9 @@ from polyglotic_desktop.ports.capture import SourceCategory
 VIDEO = Source(SourceId("app"), SourceCategory.VIDEO)
 MIC = Source(SourceId("mic"), SourceCategory.MIC)
 EN = Language("en")
+JA = Language("ja")
+ZH = Language("zh")
+SUDACHI_DIC = Path(sudachidict_small.__file__).parent / "resources" / "system.dic"
 
 
 def finished(
@@ -44,6 +56,7 @@ def finished(
     end: float,
     source: Source = VIDEO,
     replaces: tuple[str, ...] = (),
+    voiced_seconds: float | None = None,
 ) -> TranscriptionRequest:
     return TranscriptionRequest(
         CaptionId(caption),
@@ -52,6 +65,7 @@ def finished(
         start,
         end,
         replaces=tuple(CaptionId(r) for r in replaces),
+        voiced_seconds=voiced_seconds,
     )
 
 
@@ -61,8 +75,17 @@ def update(
     text: str = "",
     translation: str = "",
     replaces: tuple[str, ...] = (),
+    token_spans: tuple[tuple[int, int], ...] | None = None,
 ) -> CaptionUpdate:
-    clauses = (Clause(text, {EN: translation}),) if text else ()
+    if token_spans is None:
+        token_spans = tuple(
+            (match.start(), match.end())
+            for match in __import__("re").finditer(r"\S+", text)
+        )
+    tokens = tuple(
+        WordTime(span, float(n), float(n + 1)) for n, span in enumerate(token_spans)
+    )
+    clauses = (Clause(text, {EN: translation}, words=tokens),) if text else ()
     return CaptionUpdate(
         CaptionId(caption),
         SourceId("app"),
@@ -101,6 +124,177 @@ def test_delay_minutes_captions_and_the_main_source() -> None:
     assert (ended.delay_p50_ms, ended.delay_p95_ms) == (1100, 2000)
     assert (ended.dropped, ended.reconnects, ended.live_interval_seconds) == (0, 0, 1.5)
     assert ended.caption_mode == "live"
+
+
+def test_speaking_pace_separates_them_and_you_and_excludes_gaps_between_captions() -> (
+    None
+):
+    summary = SessionSummary(live_interval=1.5, target=EN)
+    summary.speech_sent(finished("them", 0.0, 2.0, voiced_seconds=1.5), at=2.0)
+    summary.caption_updated(
+        update("them", CaptionKind.FINISHED, "one two three four"), at=3.0
+    )
+    summary.speech_sent(
+        finished("you", 100.0, 101.0, MIC, voiced_seconds=0.8), at=200.0
+    )
+    summary.caption_updated(
+        update("you", CaptionKind.FINISHED, "one two three"), at=201.0
+    )
+    ended = summary.ended(at=500.0)
+    assert (ended.pace_them_mean, ended.pace_them_peak) == (120, 120)
+    assert (ended.pace_you_mean, ended.pace_you_peak) == (180, 180)
+    assert ended.pace_them_seconds_61_120 == 2
+    assert ended.pace_you_seconds_121_180 == 1
+
+
+def test_english_caption_counts_twenty_words_over_eight_second_span_as_150_wpm() -> (
+    None
+):
+    text = (
+        "The quick brown fox jumps over the lazy dog while twenty birds "
+        "fly quietly across the bright blue morning sky."
+    )
+    # Deliberately give mismatched server timings and shorter voiced time.
+    bogus_spans = tuple((i, i + 1) for i in range(30))
+    summary = SessionSummary(live_interval=1.5, target=EN)
+    summary.speech_sent(finished("en20", 10.0, 18.0, voiced_seconds=6.5), at=18.0)
+    caption = replace(
+        update("en20", CaptionKind.FINISHED, text, token_spans=bogus_spans),
+        language=EN,
+    )
+    assert summary.caption_updated(caption, at=18.2) == 150
+    assert summary.pace(18.2)[:2] == (150, 150)
+
+
+def test_japanese_caption_counts_sudachi_words_not_per_character_timings() -> None:
+    text = "私は昨日、寿司を食べました。"
+    # Server word timings split per character (12 non-punctuation characters).
+    char_spans = tuple((i, i + 1) for i, ch in enumerate(text) if ch not in "、。")
+    assert len(char_spans) == 12
+    japanese = JapaneseSplit(SUDACHI_DIC)
+    counter = spoken_word_counter(lambda code: japanese if code == "ja" else None)
+    summary = SessionSummary(live_interval=1.5, target=EN, count_words=counter)
+    # 8 Sudachi mode C words (私/は/昨日/寿司/を/食べ/まし/た) over 4.0 s -> 120 wpm.
+    summary.speech_sent(finished("ja", 0.0, 4.0, voiced_seconds=3.2), at=4.0)
+    caption = replace(
+        update("ja", CaptionKind.FINISHED, text, token_spans=char_spans),
+        language=JA,
+    )
+    assert summary.caption_updated(caption, at=4.1) == 120
+    assert summary.pace(4.1)[:2] == (120, 120)
+
+
+def test_chinese_caption_counts_dictionary_words_not_per_character_timings() -> None:
+    text = "这个人打游戏，画蛇添足！"
+    # Server word timings split per Han character (10 characters).
+    char_spans = tuple((i, i + 1) for i, ch in enumerate(text) if ch not in "，！")
+    assert len(char_spans) == 10
+    chinese = ChineseDictionary(chinese_sample())
+    counter = spoken_word_counter(lambda code: chinese if code == "zh" else None)
+    summary = SessionSummary(live_interval=1.5, target=EN, count_words=counter)
+    # 4 dictionary words (这个/人/打游戏/画蛇添足) over 2.0 s -> 120 wpm.
+    summary.speech_sent(finished("zh", 0.0, 2.0, voiced_seconds=1.6), at=2.0)
+    caption = replace(
+        update("zh", CaptionKind.FINISHED, text, token_spans=char_spans),
+        language=ZH,
+    )
+    assert summary.caption_updated(caption, at=2.1) == 120
+    assert summary.pace(2.1)[:2] == (120, 120)
+
+
+def test_pace_counts_every_clause_with_word_counter_even_when_timings_exist() -> None:
+    seen: list[tuple[str, str | None]] = []
+
+    def count_words(text: str, language: str | None) -> int:
+        seen.append((text, language))
+        return len(text.split())
+
+    summary = SessionSummary(live_interval=None, count_words=count_words)
+    summary.speech_sent(finished("both", 0.0, 1.0, voiced_seconds=0.8), at=1.0)
+    timed = update(
+        "both", CaptionKind.FINISHED, "wait", token_spans=((0, 1), (1, 2), (2, 4))
+    )
+    mixed = replace(
+        timed,
+        language=EN,
+        clauses=(*timed.clauses, Clause("hold on", {Language("es"): "espera"})),
+    )
+    assert summary.caption_updated(mixed, at=1.1) == 180
+    assert seen == [("wait", EN), ("hold on", EN)]
+    assert summary.pace(1.1)[:2] == (180, 180)
+
+
+def test_pace_falls_back_to_voiced_seconds_only_when_speech_span_is_missing() -> None:
+    summary = SessionSummary(live_interval=1.5)
+    summary.speech_sent(finished("missing-span", 5.0, 5.0, voiced_seconds=2.0), at=5.0)
+    assert (
+        summary.caption_updated(
+            update("missing-span", CaptionKind.FINISHED, "one two three four"), 5.1
+        )
+        == 120
+    )
+    assert summary.pace(5.1)[:2] == (120, 120)
+
+
+def test_caption_pace_needs_one_second_of_spoken_span() -> None:
+    summary = SessionSummary(live_interval=1.5)
+    summary.speech_sent(finished("short", 0.0, 0.9, voiced_seconds=0.9), at=0.9)
+    assert (
+        summary.caption_updated(update("short", CaptionKind.LIVE, "one"), 1.0) is None
+    )
+    assert (
+        summary.caption_updated(update("short", CaptionKind.FINISHED, "one"), 1.1)
+        is None
+    )
+    summary.speech_sent(finished("long", 5.0, 6.0, voiced_seconds=0.7), at=6.0)
+    assert (
+        summary.caption_updated(update("long", CaptionKind.FINISHED, "one two"), 6.3)
+        == 120
+    )
+
+
+def test_joined_caption_refreshes_live_pace_using_its_additional_speech() -> None:
+    summary = SessionSummary(live_interval=1.5)
+    summary.speech_sent(finished("joined", 0.0, 2.0, voiced_seconds=1.0), at=2.0)
+    assert (
+        summary.caption_updated(update("joined", CaptionKind.FINISHED, "one"), 2.1)
+        == 30
+    )
+    summary.speech_sent(finished("joined", 0.0, 5.0, voiced_seconds=2.0), at=5.0)
+    joined = update("joined", CaptionKind.FINISHED, "one two three")
+    assert summary.caption_updated(joined, 5.3) == 36
+    assert summary.pace(10.0)[:2] == (36, 30)
+    assert summary.pace(12.5)[:2] == (18, 30)
+    assert summary.pace(15.0)[:2] == (0, 30)
+
+
+def test_continuation_caption_pace_uses_the_spoken_span_of_both_pieces() -> None:
+    summary = SessionSummary(live_interval=1.5)
+    summary.speech_sent(finished("first", 0.0, 2.0, voiced_seconds=1.0), at=2.0)
+    summary.caption_updated(update("first", CaptionKind.FINISHED, "one"), 2.1)
+    summary.speech_sent(finished("second", 2.0, 4.0, voiced_seconds=1.0), at=4.0)
+    combined = replace(
+        update("second", CaptionKind.FINISHED, "one two three"),
+        continues=CaptionId("first"),
+    )
+    assert summary.caption_updated(combined, 4.1) == 45
+    assert summary.pace(4.1)[:2] == (45, 60)
+
+
+def test_a_content_free_pace_line_is_logged_each_minute(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    summary = SessionSummary(live_interval=1.5, target=EN, started=0.0)
+    summary.speech_sent(finished("first", 0.0, 1.0, voiced_seconds=1.0), at=1.0)
+    summary.caption_updated(update("first", CaptionKind.FINISHED, "one"), at=1.1)
+    summary.speech_sent(finished("next", 60.0, 61.0, voiced_seconds=1.0), at=61.0)
+    with caplog.at_level("INFO"):
+        summary.caption_updated(
+            update("next", CaptionKind.FINISHED, "two three"), at=61.1
+        )
+    assert "pace: them" in caplog.text
+    assert "drawn original" in caplog.text
+    assert "one" not in caplog.text and "two" not in caplog.text
 
 
 def test_the_caption_mode_is_steady_when_live_updates_are_off() -> None:
@@ -203,6 +397,7 @@ def test_a_session_with_nothing_captioned_is_summarised_too() -> None:
         "saves": 0,
         **NOTHING_DONE,
         **NOTHING_RECOVERED,
+        **NO_PACE,
     }  # no delays: optional in the tracking plan since S2b; no capture: not told
 
 
@@ -237,6 +432,21 @@ NOTHING_RECOVERED = {
 }
 """What the app recovered from by itself (566): always in the summary, 0 if nothing."""
 
+NO_PACE = {
+    "pace_them_mean": 0,
+    "pace_them_peak": 0,
+    "pace_you_mean": 0,
+    "pace_you_peak": 0,
+    **{
+        f"pace_them_seconds_{band}": 0
+        for band in ("1_60", "61_120", "121_180", "181_240", "241_plus")
+    },
+    **{
+        f"pace_you_seconds_{band}": 0
+        for band in ("1_60", "61_120", "121_180", "181_240", "241_plus")
+    },
+}
+
 
 def test_the_event_has_exactly_the_tracking_plans_properties() -> None:
     summary = ListeningSessionEnded(
@@ -261,7 +471,7 @@ def test_the_event_has_exactly_the_tracking_plans_properties() -> None:
     counts = {"lookups": 6, "saves": 2}
     assert (
         listening.session_ended(summary)
-        == expected["props"] | counts | NOTHING_DONE | NOTHING_RECOVERED
+        == expected["props"] | counts | NOTHING_DONE | NOTHING_RECOVERED | NO_PACE
     )
     off = ListeningSessionEnded(**{**summary.__dict__, "live_interval_seconds": None})
     assert "live_interval_seconds" not in listening.session_ended(off)  # optional

@@ -5,7 +5,7 @@ a discount or an end date out itself.
 
 - **The cards:** what this account may buy, in its own currency. Lite has a
   card only when the server's prices include it.
-- **"Have a code?"** (v16): a typed code is checked by the server; a valid
+- **"Use a code"** (v16): a typed code is checked by the server; a valid
   one shows its offer (a first-payment discount, or the community passes)
   and the prices under it, and checkout carries the code. No code is ever
   written in the app.
@@ -220,7 +220,7 @@ def _scheduled_switch_line(plan: str, period: str, at: datetime) -> str:
 
 
 def _next_charge(price: Money, at: datetime) -> str:
-    return _tr("Next charge: {amount} on {date}").format(
+    return _tr("Next payment: {amount} on {date}").format(
         amount=money(price), date=_date(at)
     )
 
@@ -418,7 +418,7 @@ class UpgradePage(Page):
         )
         self.content.addLayout(right_row(self.terms, self.auto_renewal))
 
-        self.have_code = QPushButton(_tr("Have a code?"))
+        self.have_code = QPushButton(_tr("Use a code"))
         self.have_code.setObjectName("upgrade.have_code")
         self.have_code.setProperty("kind", "ghost")
         self.have_code.clicked.connect(self._ask_code)
@@ -465,7 +465,7 @@ class UpgradePage(Page):
         pay.add(right_row(self.pay_phone, self.pay_here, self.review, self.confirm))
         self.qr = label("")
         self.qr.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.qr.setAccessibleName(_tr("Checkout QR code"))
+        self.qr.setAccessibleName(_tr("QR code for payment"))
         self.qr.hide()
         pay.add(self.qr)
         self.message = label("", wrap=True)
@@ -719,7 +719,7 @@ class UpgradePage(Page):
         self.renewal.setText(words)
         self.renewal.setTextFormat(Qt.TextFormat.PlainText)
 
-    # -- "Have a code?" ---------------------------------------------------------------
+    # -- "Use a code" ---------------------------------------------------------------
 
     def _show_code_offer(self) -> None:
         offer = None if self._code is None else self._code_offer
@@ -1042,10 +1042,10 @@ class UpgradePage(Page):
             if QDesktopServices.openUrl(result):
                 self._say(_tr("Your plan updates when payment is confirmed."))
             else:
-                self._say(_tr("Use the QR code to open checkout."))
+                self._say(_tr("Scan the QR code to pay on your phone."))
         else:
             self.qr.setPixmap(
                 _qr(result.toString(QUrl.ComponentFormattingOption.FullyEncoded))
             )
             self.qr.show()
-            self._say(_tr("Scan with your phone to open checkout."))
+            self._say(_tr("Scan the QR code to pay on your phone."))

@@ -132,6 +132,9 @@ class Dispatcher:
         """speech-dispatcher ends: the connection closes."""
         if self._ending is not None:
             self._ending.cancel()
+        # Wake the server thread blocked in recv so the client sees EOF on Linux.
+        with contextlib.suppress(OSError):
+            self._end.shutdown(socket.SHUT_RDWR)
         self._end.close()
 
     def close(self) -> None:

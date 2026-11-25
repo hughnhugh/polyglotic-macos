@@ -97,14 +97,12 @@ def test_the_top_bars_words_and_icons_read_over_a_light_or_dark_video(
     preset: object, video: str
 ) -> None:
     """The bar as it's seen (polyglotic-hq 284): its band over the panel at
-    the preset's opacity (at least 55 % while hovered) over the video -
-    not only over the panel drawn solid."""
-    from polyglotic_desktop.ui_next.caption_window import BAND_ALPHA
+    zero opacity over the video, where the controls have the least protection."""
+    from polyglotic_desktop.ui_next.caption_window import band_alpha
     from polyglotic_desktop.ui_next.views.presets import _mix
 
     background = preset.background  # type: ignore[attr-defined]
-    opacity = max(preset.opacity, 0.55)  # type: ignore[attr-defined]
-    band = _mix(_mix(video, background, opacity), background, BAND_ALPHA)
+    band = _mix(video, background, band_alpha(background, 0.0))
     ink = bar_ink(background)
     assert contrast(ink.text, band) >= BAR_CONTRAST
     assert contrast(ink.accent, band) >= ICON_CONTRAST

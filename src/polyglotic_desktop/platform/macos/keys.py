@@ -52,14 +52,26 @@ MASK = sum(1 << kind for kind in (*MOUSE_DOWNS, KEY_DOWN))
 """The monitor's `NSEventMask`: the presses, never key-ups or moves."""
 KEY_CODES = {"escape": 0x35, "backspace": 0x33}
 """`kVK_Escape`, `kVK_Delete` (a Mac's Backspace), Carbon's Events.h."""
-NAMES = ("escape", "backspace", "mouse")
+C_KEY = 0x08
+"""`kVK_ANSI_C`, Carbon's Events.h."""
+COMMAND_FLAG = 1 << 20
+"""`NSEventModifierFlagCommand`."""
+ALT_OR_CTRL_FLAGS = (1 << 18) | (1 << 19)
+"""`NSEventModifierFlagControl | NSEventModifierFlagOption`."""
+NAMES = ("escape", "backspace", "mouse", "copy")
 
 
-def pressed_name(kind: int, key_code: int) -> str | None:
+def pressed_name(kind: int, key_code: int, modifiers: int = 0) -> str | None:
     """Which of `NAMES` an event is, if any."""
     if kind in MOUSE_DOWNS:
         return "mouse"
     if kind == KEY_DOWN:
+        if (
+            key_code == C_KEY
+            and (modifiers & COMMAND_FLAG)
+            and not (modifiers & ALT_OR_CTRL_FLAGS)
+        ):
+            return "copy"
         for name, code in KEY_CODES.items():
             if code == key_code:
                 return name
@@ -69,9 +81,9 @@ def pressed_name(kind: int, key_code: int) -> str | None:
 class Mac(Protocol):
     """What `MacKeys` asks of macOS (`_AppKit`; a fake in tests)."""
 
-    def add(self, heard: Callable[[int, int], None]) -> object | None:
+    def add(self, heard: Callable[..., None]) -> object | None:
         """Adds the global monitor for `MASK`, calling `heard(type, key
-        code)` for each press; the monitor, or None if macOS gave none."""
+        code[, modifiers])` for each press; the monitor, or None if macOS gave none."""
 
     def remove(self, monitor: object) -> None: ...
 
@@ -130,11 +142,11 @@ class MacKeys:
                 return None
         return self._mac
 
-    def _heard(self, kind: int, key_code: int) -> None:
+    def _heard(self, kind: int, key_code: int, modifiers: int = 0) -> None:
         if self._clock() - self._asked > IDLE_SEC:
             self.stop()
             return
-        name = pressed_name(kind, key_code)
+        name = pressed_name(kind, key_code, modifiers)
         if name is not None:
             self._pressed.add(name)
 
@@ -171,9 +183,9 @@ class _AppKit:
         self._ns_event = objc.cls("NSEvent")
         self._quartz = _quartz()
         self._block: objc.Block | None = None
-        self._heard: Callable[[int, int], None] = lambda _kind, _code: None
+        self._heard: Callable[..., None] = lambda *_args: None
 
-    def add(self, heard: Callable[[int, int], None]) -> object | None:
+    def add(self, heard: Callable[..., None]) -> object | None:
         self._heard = heard
         if self._block is None:  # one block for the run: macOS may call it late
             self._block = objc.Block(self._event)
@@ -218,6 +230,11 @@ class _AppKit:
                 if kind == KEY_DOWN
                 else 0
             )
-            self._heard(kind, code)
+            modifiers = (
+                int(objc.send(event, "modifierFlags", restype=ctypes.c_uint64))
+                if kind == KEY_DOWN
+                else 0
+            )
+            self._heard(kind, code, modifiers)
         except Exception:  # never out into macOS's call
             log.exception("the monitor for Esc and clicks elsewhere failed")

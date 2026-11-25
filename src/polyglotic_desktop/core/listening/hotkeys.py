@@ -2,16 +2,15 @@
 
 polyglotic-hq 567 and the desktop's decision 0273 (the user, 2026-11-20:
 "Hotkey to jump to line ... customiseable ... global hotkeys customisation
-section"). Each hotkey is pressed anywhere - over a game, a call, a video -
-and does one thing (`Hotkey`). Its key is kept as `DictationKey` keeps
+section"). Global hotkeys work over other apps. The default Space binding acts
+inside Polyglotic caption and transcript windows. Its key is kept as `DictationKey` keeps
 dictation's ("ctrl+alt+l", "f9"): the modifiers in a fixed order, then the
 key. The learner sets each in Settings > Hotkeys; one they cleared is kept
 as "" and does nothing; one they never set has its default (`defaults`).
 
 - **On by default:** Lock, Pause and Hide (Ctrl+Alt+L, P, H since the
-  proof of concept) and Back to live (Ctrl+Alt+J: jump; not End, which
-  Remote Desktop takes with Ctrl+Alt, nor the arrows, which some graphics
-  drivers turn the screen with). Their modifiers are the platform's
+  proof of concept) and Back to live (Space in a caption or transcript
+  window). The global hotkeys' modifiers are the platform's
   (`Platform`, `OWN_MODIFIERS`): on a Mac Control+Command (polyglotic-hq
   428), kept as "ctrl+win" - Qt's names there; on Linux Ctrl+Alt+Shift
   (polyglotic-hq 570, decision 0293: Ctrl+Alt+L locks the screen on
@@ -74,9 +73,11 @@ _LETTERS = {
     Hotkey.LOCK: "l",
     Hotkey.PAUSE: "p",
     Hotkey.HIDE: "h",
-    Hotkey.LIVE: "j",
 }
 """The hotkeys on by default, and their letter."""
+
+
+LIVE_SPACE = DictationKey(frozenset(), "space")
 
 
 class Platform(StrEnum):
@@ -104,10 +105,12 @@ def defaults(
 ) -> dict[Hotkey, DictationKey | None]:
     """Each hotkey's key until the learner sets one: None for none."""
     held = OWN_MODIFIERS[platform]
-    return {
-        hotkey: DictationKey(held, _LETTERS[hotkey]) if hotkey in _LETTERS else None
-        for hotkey in ORDER
-    }
+    found: dict[Hotkey, DictationKey | None] = dict.fromkeys(ORDER)
+    found.update(
+        (hotkey, DictationKey(held, letter)) for hotkey, letter in _LETTERS.items()
+    )
+    found[Hotkey.LIVE] = LIVE_SPACE
+    return found
 
 
 def keys(
@@ -141,9 +144,16 @@ def holder(
     )
 
 
-def refusal(key: DictationKey, others: Iterable[DictationKey] = ()) -> Refusal | None:
+def refusal(
+    key: DictationKey,
+    others: Iterable[DictationKey] = (),
+    *,
+    hotkey: Hotkey | None = None,
+) -> Refusal | None:
     """Why `key` can't be a hotkey's, if it can't; `others`: the app's
     other keys, hotkeys' and hold keys' both (a match is `APP_HOTKEY`)."""
+    if hotkey is Hotkey.LIVE and key == LIVE_SPACE:
+        return Refusal.APP_HOTKEY if key in others else None
     if key.held_alone:
         return Refusal.HELD_ALONE
     return key_refusal(key, others)

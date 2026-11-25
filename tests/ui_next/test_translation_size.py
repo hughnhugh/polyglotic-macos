@@ -57,6 +57,7 @@ from polyglotic_desktop.ui_next.views.caption_window import (
 )
 from polyglotic_desktop.ui_next.views.captions import CAPTION_TEXT_SIZES, TEXT_SIZES
 from polyglotic_desktop.ui_next.views.migration import stored_windows
+from polyglotic_desktop.ui_next.views.preset_menu import PresetMenu
 from polyglotic_desktop.ui_next.views.transcript import TranscriptChoices
 
 
@@ -416,7 +417,7 @@ def test_script_scales_are_tunables_and_match_bundled_fonts_within_tolerance(
         assert abs(m.xHeight() / latin_x - 1.0) <= 0.10, lang
         assert abs(m.capHeight() / latin_cap - 1.0) <= 0.10, lang
 
-    # Bundled CJK (Ma Shan Zheng) sentence ink height matches Latin within 10 %
+    # Default CJK sentence ink height matches Latin within 10 %
     zh_m = QFontMetricsF(font_at("zh"))
     zh_line = zh_m.tightBoundingRect("我们今天去公园散步天气很好").height()
     assert abs(zh_line / latin_line - 1.0) <= 0.10
@@ -504,11 +505,10 @@ def test_readings_scale_with_their_own_base_characters(qapp: QApplication) -> No
         win2.deleteLater()
 
 
-def test_per_preset_defaults_are_tunables_and_apply_on_switch(
+def test_preset_switches_never_change_a_windows_sizes(
     qapp: QApplication,
 ) -> None:
-    """655: Video, Everyday and Conversation default equal; Learning defaults
-    the original a little larger. All are registered tunables with reasons."""
+    """812: tuned defaults remain declared, but presets no longer apply them."""
     registered = declarations()
     for preset in ("everyday", "conversation", "video", "learning"):
         for field in ("caption_size", "translation_size"):
@@ -526,18 +526,9 @@ def test_per_preset_defaults_are_tunables_and_apply_on_switch(
         win = windows.windows["a"]
         win.set_text_size(1.5)
         win.set_translation_size(1.5)
-        # Startup records active preset without overwriting migrated/saved sizes
-        windows.set_preset_sizes("everyday")
-        assert (win.choices.text_size, win.choices.translation_size) == (1.5, 1.5)
-        # Switching to Learning applies Learning's tuned default pair
-        windows.set_preset_sizes("learning")
-        assert (win.choices.text_size, win.choices.translation_size) == (
-            learn_cap,
-            learn_trans,
-        )
-        # Switching back to Everyday restores Everyday's remembered pair
-        windows.set_preset_sizes("everyday")
-        assert (win.choices.text_size, win.choices.translation_size) == (1.5, 1.5)
+        for preset in ("everyday", "video", "learning", "everyday"):
+            windows.set_presets(PresetMenu((), preset))
+            assert (win.choices.text_size, win.choices.translation_size) == (1.5, 1.5)
         # Video subtitles set equal sizes and restore both sizes on exit
         windows.set_subtitles((0.045, 0.8))
         assert win.choices.text_size == win.choices.translation_size
@@ -641,14 +632,14 @@ def test_live_updates_and_the_finished_caption_at_rest_whole(
         window.deleteLater()
 
 
-def test_joined_columns_each_keep_their_own_independent_sizes(
+def test_two_columns_keep_separate_language_sizes(
     qapp: QApplication,
 ) -> None:
     windows = CaptionWindows(None, MIC, areas)
     try:
         windows.set_captioned([("a", APP), ("b", MIC)])
-        windows.windows["a"].set_translation_size(2.0)
-        windows.windows["b"].set_translation_size(0.6)
+        first, second = windows.windows.values()
+        windows.set_language_size(first, "en", 2.0)
         for update in finished_updates(6, APP):
             windows.apply(update)
         windows.join()
@@ -658,8 +649,8 @@ def test_joined_columns_each_keep_their_own_independent_sizes(
         qapp.processEvents()
         column = windows.windows["a"]
         assert column.host is not None
-        assert column.canvas.engine.style.translation_size == 2.0
-        assert windows.windows["b"].canvas.engine.style.translation_size == 0.6
+        assert dict(first.canvas.engine.style.language_sizes or ()) == {"en": 2.0}
+        assert dict(second.canvas.engine.style.language_sizes or ()) == {}
         column.always_shown = True
         column.canvas.repaint()
         assert column.canvas.placed  # captions in view
@@ -746,3 +737,65 @@ def test_video_uses_the_configured_pixels_for_mandarin_and_english(
     finally:
         window.close()
         window.deleteLater()
+
+
+def test_language_sizes_follow_a_detected_conversation_and_persist(
+    qapp: QApplication,
+) -> None:
+    from tests.ui.fakes import MemorySettingsStore
+
+    en, zh = Language("en"), Language("zh")
+    store = MemorySettingsStore()
+    windows = CaptionWindows(store, MIC, areas)
+    windows.set_second_languages({en: zh})
+    windows.set_captioned([("Browser", APP)])
+    window = next(iter(windows.windows.values()))
+    window.set_language("en")
+    try:
+        windows.apply(finished("first", clause("\u4f60\u597d", "Hello"), language=zh))
+        assert windows.current_language_sizes() == ((zh, 1.0), (en, 1.0))
+        windows.set_current_language_size(0, 1.5)
+        windows.set_current_language_size(1, 0.8)
+        before = {
+            row.row.language: row.layout.font().pixelSize()
+            for row in window.canvas.engine.laid(window.view.lines[-1], 800, 1.0).rows
+        }
+
+        windows.apply(
+            finished("second", clause("Hello", "\u4f60\u597d", into=zh), language=en)
+        )
+        assert windows.current_language_sizes() == ((en, 0.8), (zh, 1.5))
+        after = {
+            row.row.language: row.layout.font().pixelSize()
+            for row in window.canvas.engine.laid(window.view.lines[-1], 800, 1.0).rows
+        }
+        assert before.keys() == {en, zh}
+        assert after == before
+        windows.save_now()
+        assert stored_windows(store.load()).by_key["Browser"].language_sizes == {
+            en: 0.8,
+            zh: 1.5,
+        }
+    finally:
+        windows.close()
+
+
+def test_migration_keeps_named_sizes_and_defers_detect_until_a_language_is_heard() -> (
+    None
+):
+    en, zh, ja = Language("en"), Language("zh"), Language("ja")
+    known = WindowChoices(
+        spoken_language=zh, translate_into=en, text_size=1.7, translation_size=0.8
+    )
+    detected = WindowChoices(translate_into=ja, text_size=1.4, translation_size=1.2)
+    stored = StoredWindows.from_stored(
+        {
+            "last": known.to_stored(),
+            "windows": {"call": known.to_stored(), "tv": detected.to_stored()},
+        },
+        WindowChoices(),
+    )
+    assert stored.by_key["call"].language_sizes == {zh: 1.7, en: 0.8}
+    assert stored.by_key["tv"].language_sizes == {ja: 1.2}
+    assert stored.pending_spoken_sizes == {"tv": 1.4}
+    assert StoredWindows.from_stored(stored.to_stored(), WindowChoices()) == stored

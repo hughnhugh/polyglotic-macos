@@ -130,6 +130,7 @@ class Caption:
     established: int = 0
     corrected: tuple[Span, ...] = ()
     respoken: bool = False
+    pace_wpm: int | None = None
 
     @property
     def original(self) -> str:
@@ -194,7 +195,7 @@ class CaptionHistory:
     def __init__(
         self,
         your_sources: Collection[SourceId] = (),
-        clock: Callable[[], datetime] = _utc_now,
+        clock: Callable[[], datetime] | None = None,
         max_captions: int = MAX_HISTORY,
         keep_earlier: int = 0,
         keep_for: float | None = None,
@@ -206,7 +207,7 @@ class CaptionHistory:
         finished captions that drop off the front are kept in `earlier`
         (the oldest of those go first)."""
         self._yours = frozenset(your_sources)
-        self._clock = clock
+        self._clock = clock if clock is not None else _utc_now
         self._max = max_captions
         self._keep_for = keep_for
         self.earlier: deque[Caption] = deque(maxlen=keep_earlier)
@@ -223,7 +224,7 @@ class CaptionHistory:
         self._stable: dict[CaptionId, Stable] = {}
         self._heard: dict[CaptionId, float | None] = {}
         self._settle_after = SETTLE_AFTER_SEC
-        self.started_at = clock()
+        self.started_at = self._clock()
         self.version = 0
 
     @property
@@ -350,6 +351,7 @@ class CaptionHistory:
             established=established,
             corrected=fixed,
             respoken=update.respoken or (current is not None and current.respoken),
+            pace_wpm=update.pace_wpm,
         )
         placed = self._place(caption, (update.caption_id, *replaced))
         for caption_id in replaced:

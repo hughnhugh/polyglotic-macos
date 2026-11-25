@@ -391,7 +391,7 @@ def _riders(raw: object, dictionary: str) -> tuple[Rider, ...]:
             and SHA256_HEX.fullmatch(rider.gz_sha256)
             and (
                 rider.kind != "meanings"
-                or bool(CODE.fullmatch(rider.meanings))
+                or (CODE.fullmatch(rider.meanings) or rider.meanings == "zh_TW")
                 and rider.file.startswith(f"{dictionary}-{rider.meanings}-")
             )
         ):
@@ -449,7 +449,18 @@ def needs_newer_app(
     """`language` has packs, but only ones this app can't read: a newer
     Polyglotic reads them (say so; never offer them)."""
     found = _for(offers, language, meanings)
-    return bool(found) and not any(reader.reads(o) for o in found)
+    compatible = [
+        o for o in found if o.format in reader.formats and o.split in reader.splits
+    ]
+    return bool(compatible) and not any(
+        reader.new_enough(o.min_app) for o in compatible
+    )
+
+
+def needs_meanings_rider(dictionary: str, own: str | None, requested: str) -> bool:
+    """Whether the dictionary may use a rider in the learner's language."""
+    # JMdict's Chinese pack still has English fallbacks for these drafts.
+    return requested != own or (dictionary == "jmdict" and requested == "zh")
 
 
 def riders_wanted(
@@ -460,9 +471,9 @@ def riders_wanted(
     """The riders of `offer` (a pack's, a built-in dictionary's or a caption
     face's) this app takes: those of a kind and format it reads, and whose
     `min_app` it is - of the meanings, only those in `explained_in` (the
-    learner's language; None: none), unless the pack's own meanings are in
-    it already."""
+    learner's language; None: none), when the dictionary can use a rider in that language."""
     own = offer.meanings if isinstance(offer, PackOffer) else None
+    dictionary = offer.dictionary if isinstance(offer, PackOffer) else ""
     return [
         rider
         for rider in offer.riders
@@ -470,7 +481,10 @@ def riders_wanted(
         and reader.new_enough(rider.min_app)
         and (
             rider.kind != "meanings"
-            or (rider.meanings == explained_in and rider.meanings != own)
+            or (
+                rider.meanings == explained_in
+                and needs_meanings_rider(dictionary, own, rider.meanings)
+            )
         )
     ]
 

@@ -10,10 +10,10 @@ another edition of Wiktionary). The dictionary's own file doesn't change,
 so its format stays what older apps read; an app from before these files
 never looks at them.
 
-A row may say a machine made it (`machine`: kept for the machine-made
-meanings polyglotic-hq DECISIONS #171 Q2 waits on). This app shows none of
-those: until the card can label them (#110), such a row is as if absent,
-and the dictionary's own meanings are shown.
+A row may say a machine made it. Only the language pairs approved in
+`APPROVED_MACHINE_MEANINGS` are exposed, with an internal marker which core
+turns into the learner-facing label required by DECISIONS #110. All other
+machine-made rows remain absent.
 
 Plain, unlocked SQLite, as the sources' share-alike licences require.
 Tables:
@@ -34,12 +34,20 @@ from __future__ import annotations
 
 import sqlite3
 import threading
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 
 FORMAT = "1"
 KIND = "meanings"
 SUFFIX = ".meanings"
+MACHINE_MARKER = "\x1emachine-made\x1f"
+APPROVED_MACHINE_MEANINGS = frozenset(
+    {
+        ("ja", "zh"),
+        ("ja", "zh_TW"),
+    }
+)
+"""Machine-made riders the user approved on 2026-11-24 (DECISIONS #171 Q2)."""
 
 SCHEMA = """
 CREATE TABLE info (key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID;
@@ -109,14 +117,47 @@ class SqliteMeanings:
         gone): the dictionary's own are shown."""
         try:
             row = self._db.execute(
-                "SELECT senses FROM meanings WHERE id = ? AND machine = 0",
+                "SELECT senses, machine FROM meanings WHERE id = ?",
                 (entry_id,),
             ).fetchone()
         except sqlite3.Error:
             return None
         if row is None or not row[0]:
             return None
-        return tuple(row[0].split("\n"))
+        machine = bool(row[1])
+        pair = (self.info.get("language"), self.info.get("meanings_language"))
+        if machine and pair not in APPROVED_MACHINE_MEANINGS:
+            return None
+        marker = MACHINE_MARKER if machine else ""
+        return tuple(marker + sense for sense in row[0].split("\n"))
+
+
+class ConvertedMeanings:
+    """A rider converted to the learner's Chinese script on read.
+
+    This is used only when the requested Japanese rider is absent and its
+    approved other-script rider is present.  The marker is metadata and is
+    deliberately kept outside conversion.
+    """
+
+    def __init__(self, source: SqliteMeanings, convert: Callable[[str], str]) -> None:
+        self.source = source
+        self.info = source.info
+        self._convert = convert
+
+    def meanings(self, entry_id: str) -> tuple[str, ...] | None:
+        found = self.source.meanings(entry_id)
+        if found is None:
+            return None
+        return tuple(
+            MACHINE_MARKER + self._convert(value.removeprefix(MACHINE_MARKER))
+            if value.startswith(MACHINE_MARKER)
+            else self._convert(value)
+            for value in found
+        )
+
+    def close(self) -> None:
+        self.source.close()
 
 
 def meanings_beside(

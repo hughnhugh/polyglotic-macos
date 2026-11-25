@@ -5,9 +5,10 @@ from collections.abc import Callable, Iterator
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
+from threading import Event, get_ident
 
 import pytest
-from PySide6.QtCore import QDate, QEvent, QLocale, QUrl
+from PySide6.QtCore import QDate, QEvent, QLocale, QTimer, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
@@ -25,7 +26,13 @@ from polyglotic_desktop.core.shared.open_beta import (
     Subscription,
 )
 from polyglotic_desktop.ports.open_beta import AccountError, Region
-from polyglotic_desktop.ui.open_beta import EmailSignIn, account_error, sign_in_region
+from polyglotic_desktop.ui.open_beta import (
+    AccountWork,
+    EmailSignIn,
+    account_error,
+    request_sign_in_region,
+    sign_in_region,
+)
 from polyglotic_desktop.ui_next.controls import Card
 from polyglotic_desktop.ui_next.upgrade import (
     Billing,
@@ -129,6 +136,38 @@ def _pumping(test: bool) -> bool:
     return test
 
 
+def test_sign_in_region_request_leaves_the_gui_event_loop_available(
+    qapp: QApplication,
+) -> None:
+    release = Event()
+    gui_thread = get_ident()
+    work = AccountWork(qapp)
+    turns: list[int] = []
+    results: list[tuple[Region | AccountError | None, int]] = []
+
+    def read() -> Region:
+        release.wait(2)
+        return Region("AU")
+
+    def receive(result: Region | AccountError | None) -> None:
+        results.append((result, get_ident()))
+
+    QTimer.singleShot(0, lambda: turns.append(get_ident()))
+    try:
+        request_sign_in_region(read, work, receive)
+        assert work.busy and not turns
+        wait_until(lambda: _pumping(bool(turns)))
+        assert turns == [gui_thread]
+        assert work.busy and not results
+    finally:
+        release.set()
+
+    wait_until(lambda: _pumping(bool(results)))
+    assert results == [(Region("AU"), gui_thread)]
+    assert not work.busy
+    work.deleteLater()
+
+
 @pytest.mark.parametrize(
     ("status", "beta_confirmed", "invite_only"),
     [(404, False, True), (404, True, False), (502, False, False), (None, False, False)],
@@ -196,7 +235,7 @@ def test_email_sign_in_presents_invite_codes_as_the_alternative(
     dialog = EmailSignIn(lambda: Region("AU"), start, verify, lambda _: None)
     dialog.show()
     wait_until(lambda: _pumping(not dialog._work.busy))
-    assert dialog.invite.text() == "Have an invite code? Sign in with it instead"
+    assert dialog.invite.text() == "Use an invite code instead"
 
 
 def test_desktop_and_phone_share_the_selected_checkout(
@@ -225,9 +264,11 @@ def test_desktop_and_phone_share_the_selected_checkout(
     assert "US$119.00" in page.renewal.text()
     # a free account buys: nothing to review
     assert not page.review.isVisible() and not page.confirm.isVisible()
+    assert page.pay_phone.text() == "Show payment QR code"
     page.pay_phone.click()
     wait_until(lambda: _pumping(page.qr.isVisible()))
     assert page.qr.pixmap() is not None and not page.qr.pixmap().isNull()
+    assert page.message.text() == "Scan the QR code to pay on your phone."
     page.pay_here.click()
     assert requests == [(PLUS[1], None)]
     assert opened == [url]
@@ -385,7 +426,7 @@ def test_a_plan_change_shows_todays_and_the_next_charge_before_confirming(
     assert asked == [CHANGES[3]] and not confirmed
     assert page.preview.text().split("\n") == [
         "Today: US$92.47",
-        f"Next charge: US$119.00 on {short_date(RENEWAL)}",
+        f"Next payment: US$119.00 on {short_date(RENEWAL)}",
     ]
     assert page.confirm.isVisible() and not page.review.isVisible()
     # the review's card has the room its lines need: no empty message line
@@ -446,7 +487,7 @@ def test_a_confirmation_timeout_waits_for_the_account_poll(qapp: QApplication) -
 @pytest.mark.parametrize(
     ("code", "retry_after", "expected"),
     [
-        ("malformed_code", None, "That code isn't valid - check it and try again."),
+        ("malformed_code", None, "That code isn't valid. Check it and try again."),
         ("too_many_attempts", 79200, "Too many attempts. Try again in 22 hours."),
         (
             "too_many_attempts",
@@ -503,7 +544,7 @@ def test_a_downgrade_says_from_when_and_charges_nothing_today(
     date = short_date(NEXT_MONTH)
     assert page.preview.text().split("\n") == [
         "Today: US$0.00",
-        f"Next charge: US$8.99 on {date}",
+        f"Next payment: US$8.99 on {date}",
         f"Switches to Lite, monthly, on {date}.",
     ]
     page.confirm.click()
@@ -686,7 +727,7 @@ def test_scheduled_switch_shows_both_cadences_without_another_checkout(
         page.show()
         assert page.current_plan.text() == (
             f"Plus, yearly. Switches to Plus, monthly, on {short_date(RENEWAL)}."
-            f" Next charge: US$13.99 on {short_date(RENEWAL)}"
+            f" Next payment: US$13.99 on {short_date(RENEWAL)}"
         )
         assert not page.pay.isVisible()
     finally:

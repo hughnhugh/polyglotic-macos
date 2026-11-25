@@ -122,7 +122,7 @@ def font_sheet(evidence: Evidence, parent: QWidget) -> kit.Step:
             panel,
             panel.frameGeometry(),
             "every configured script represented and zero missing glyphs in its sample",
-            covered == set(fonts.DEFAULTS)
+            covered == set(fonts.CHOICES)
             and all(
                 m["glyphs"] > 0 and m["missing"] == 0 for m in measurements.values()
             ),

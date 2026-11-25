@@ -5,11 +5,12 @@ from dataclasses import asdict, replace
 
 import pytest
 from PySide6.QtCore import QPoint, QRect, Qt
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction, QColor, QImage, QKeySequence
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QWidgetAction
 
 from polyglotic_desktop.core.listening.hidden import Sight
+from polyglotic_desktop.core.listening.summary import ListeningSessionEnded
 from polyglotic_desktop.core.releases.updates import UpdateNow
 from polyglotic_desktop.ui import theme
 from polyglotic_desktop.ui_next import style
@@ -77,6 +78,61 @@ def home(picker: Picker) -> tuple[HomePage, Commands]:
     )
     page._actions = actions  # type: ignore[attr-defined]  # kept alive
     return page, commands
+
+
+def test_home_shows_the_last_sessions_mean_and_peak(qapp: QApplication) -> None:
+    page, _ = home(Picker())
+    summary = ListeningSessionEnded(
+        1.0,
+        2,
+        None,
+        "steady",
+        None,
+        None,
+        0.0,
+        0.0,
+        0,
+        0,
+        None,
+        pace_them_mean=135,
+        pace_them_peak=188,
+        pace_you_mean=110,
+        pace_you_peak=142,
+    )
+
+    page.show_last_session(summary)
+
+    assert page.last_session.isVisibleTo(page)
+    assert page.last_session_pace.text() == (
+        "Them 135 avg · 188 peak\nYou 110 avg · 142 peak"
+    )
+
+
+def test_home_keeps_both_speakers_in_a_saved_session_with_no_own_speech(
+    qapp: QApplication,
+) -> None:
+    page, _ = home(Picker())
+    summary = ListeningSessionEnded(
+        1.0,
+        2,
+        None,
+        "steady",
+        None,
+        None,
+        0.0,
+        0.0,
+        0,
+        0,
+        None,
+        pace_them_mean=135,
+        pace_them_peak=188,
+    )
+
+    page.show_last_session(summary)
+
+    assert page.last_session_pace.text() == (
+        "Them 135 avg · 188 peak\nYou 0 avg · 0 peak"
+    )
 
 
 def test_a_row_per_captioned_app_and_the_add_list(qapp: QApplication) -> None:
@@ -248,7 +304,7 @@ def test_an_addable_app_says_playing_or_quiet_in_the_same_place(
     )
     assert (rows["Steam"].title.text(), rows["Steam"].status.text()) == (
         "Steam",
-        "quiet",
+        "not playing",
     )
 
 
@@ -287,7 +343,8 @@ def test_my_speechs_label_is_on_home(qapp: QApplication) -> None:
     assert card.speech.isVisible() and card.you_label.isVisible()
     # the row above says the label; the summary doesn't say it again
     assert card.speech.text() == (
-        "My speech: shown in Discord - sent for your captions only while it's shown"
+        "My speech: shown in Discord. Your mic is sent for your captions only "
+        "while it's shown"
     )
     assert not card.you.chip.isVisible() and not card.you.stop.isVisible()
     # with an app captioned but the mic off: the row's microphone is there
@@ -468,7 +525,7 @@ def test_a_full_server_says_so_on_homes_state_line(qapp: QApplication) -> None:
     now = [100.0]
     card = StateCard(QAction("Pause captions"), clock=lambda: now[0])
     card.show_state(HomeState(ListeningState.SERVER_BUSY, retry_at=124.0, chosen=True))
-    assert card.title_label.text() == "Polyglotic is busy — try again in a few minutes"
+    assert card.title_label.text() == "Polyglotic is busy - trying again soon"
     assert card.detail.text() == ""
     assert not card._tick.isActive()
     assert (
@@ -540,6 +597,116 @@ def test_the_shell(qapp: QApplication) -> None:
     window.keep_in_tray = True
     window.close()
     assert not window.isVisible()
+
+
+def test_every_sidebar_item_has_its_own_decorative_glyph(qapp: QApplication) -> None:
+    """838: labels stay the buttons' names; marks cover both nav groups and Quit."""
+    from polyglotic_desktop.ui_next.glyphs import Glyph
+    from polyglotic_desktop.ui_next.main_window import SidebarButton
+
+    window = MainWindow(QAction("Quit"))
+    for key, title, place in (
+        ("home", "Home", "top"),
+        ("words", "Words", "top"),
+        ("learning", "Learning", "top"),
+        ("account", "Account", "top"),
+        ("settings", "Settings", "foot"),
+        ("help", "Help", "foot"),
+    ):
+        window.add_page(key, title, label(title), place)
+
+    buttons = list(window.nav_buttons.values())
+    assert all(isinstance(button, SidebarButton) for button in buttons)
+    assert [
+        button.glyph for button in buttons if isinstance(button, SidebarButton)
+    ] == [
+        Glyph.HOME,
+        Glyph.WORDS,
+        Glyph.LEARNING,
+        Glyph.ACCOUNT,
+        Glyph.SETTINGS,
+        Glyph.HELP,
+    ]
+    assert [button.text() for button in window.nav_buttons.values()] == [
+        "Home",
+        "Words",
+        "Learning",
+        "Account",
+        "Settings",
+        "Help",
+    ]
+    assert window.quit_button.defaultAction().text() == "Quit"
+
+
+def _has_colour(image: QImage, colour: QColor, left: int, right: int) -> bool:
+    """Whether antialiased ink reaches the requested theme colour."""
+    return any(
+        max(
+            abs(image.pixelColor(x, y).red() - colour.red()),
+            abs(image.pixelColor(x, y).green() - colour.green()),
+            abs(image.pixelColor(x, y).blue() - colour.blue()),
+        )
+        <= 12
+        for x in range(left, min(right, image.width()))
+        for y in range(image.height())
+    )
+
+
+def test_sidebar_grab_has_label_coloured_glyphs_in_both_themes(
+    qapp: QApplication,
+) -> None:
+    """838: raster marks are visible and follow normal/selected label colour."""
+    from polyglotic_desktop.ui_next.main_window import SidebarQuitButton
+
+    themes = (
+        style.Theme({"BG": "#101418", "TEXT": "#f1f4f6"}, dark=True),
+        style.Theme({"BG": "#fafafa", "TEXT": "#17191b"}, dark=False),
+    )
+    try:
+        for theme in themes:
+            style.use(theme)
+            window = MainWindow(QAction("Quit"))
+            window.add_page("home", "Home", label("Home"))
+            window.set_theme(theme)
+            window.show()
+            qapp.processEvents()
+            button = window.nav_buttons["home"]
+
+            for checked, token in ((False, "TEXT_DIM"), (True, "TEXT")):
+                button.setChecked(checked)
+                button.repaint()
+                qapp.processEvents()
+                image = button.grab().toImage()
+                colour = QColor(theme[token])
+                assert _has_colour(image, colour, 10, 30), (theme.dark, checked)
+                assert _has_colour(image, colour, 34, image.width()), (
+                    theme.dark,
+                    checked,
+                )
+
+            quit_button = window.quit_button
+            assert isinstance(quit_button, SidebarQuitButton)
+            quit_image = quit_button.grab().toImage()
+            assert _has_colour(quit_image, QColor(theme["TEXT_FAINT"]), 10, 30)
+            window.close()
+    finally:
+        style.use(style.Theme())
+
+
+def test_sidebar_glyph_pixmap_is_reused(qapp: QApplication) -> None:
+    """838: repaints draw a cached DPR-specific pixmap, not the paths again."""
+    from polyglotic_desktop.ui_next import main_window
+    from polyglotic_desktop.ui_next.glyphs import Glyph
+
+    main_window._SIDEBAR_PIXMAPS.clear()
+    colour = QColor("#123456")
+    first = main_window._sidebar_pixmap(Glyph.HOME, 15, colour, 2.0)
+    second = main_window._sidebar_pixmap(Glyph.HOME, 15, colour, 2.0)
+    other_dpr = main_window._sidebar_pixmap(Glyph.HOME, 15, colour, 1.0)
+    assert first.cacheKey() == second.cacheKey()
+    assert first.cacheKey() != other_dpr.cacheKey()
+    assert first.devicePixelRatio() == 2.0
+    assert first.width() == 30
 
 
 def test_the_machine_made_line_is_the_sidebars_quietest(qapp: QApplication) -> None:
@@ -740,7 +907,7 @@ def test_home_says_one_thing_about_captions_failing(qapp: QApplication) -> None:
     assert card.dot.token == "SUCCESS"
     card.set_notice("The speech model is starting - the first captions may be slow.")
     card.set_failing(True)
-    assert card.notice.text() == "Captions failing on the server - still trying"
+    assert card.notice.text() == "Some captions failed - still trying"
     assert card.dot.token == "WARNING"
     assert card.title_label.text() == "Listening"  # connected: the banner says why
     card.set_failing(False)  # a caption came back

@@ -110,10 +110,13 @@ class FaceBox(Combo):
         font on it once `_listed`."""
         blocked = self.blockSignals(True)
         self.clear()
-        default = fonts.DEFAULTS.get(self.script)
+        default = fonts.default_family(self.script)
         listed = fonts.listed_own(self.script)
         own = [family for family in listed if QFontDatabase.hasFamily(family)]
-        own = own or list(listed[:1])  # named, even if missing here
+        if default and default not in fonts.FACES:
+            own = [default, *(family for family in own if family != default)]
+        else:
+            own = own or list(listed[:1])  # named, even if missing here
         for kind, heading in _groups():
             faces = [
                 fonts.FACES[family]
@@ -126,12 +129,16 @@ class FaceBox(Combo):
                     self._face(face, face.family == default)
         self._heading(pc_or_mac(_tr("This PC's own"), _tr("This Mac's own")))
         for family in own:
-            self.addItem(family, family)
+            is_default = family == default
+            text = self._label(family, is_default)
+            self.addItem(text, "" if is_default else family)
         self._heading(
             pc_or_mac(_tr("Any font on this PC"), _tr("Any font on this Mac"))
         )
         if self._listed:
             shown = {self.itemData(n) for n in range(self.count())}
+            if default:
+                shown.add(default)
             for family in QFontDatabase.families():
                 if not family.startswith("@") and family not in shown:  # "@": sideways
                     self.addItem(family, family)
@@ -150,10 +157,13 @@ class FaceBox(Combo):
     def _face(self, face: fonts.Face, default: bool) -> None:
         self.addItem(self._text(face, default), "" if default else face.family)
 
+    def _label(self, name: str, default: bool) -> str:
+        return _tr("{face} (Default)").format(face=name) if default else name
+
     def _text(self, face: fonts.Face, default: bool) -> str:
         """Its name, "(Default)" if it is, and its size if it comes as a
         download not here yet."""
-        name = _tr("{face} (Default)").format(face=face.name) if default else face.name
+        name = self._label(face.name, default)
         size = self.downloads.sizes.get(face.pack)
         if face.pack and face.pack not in self.downloads.here and size:
             return f"{name} · {size_text(size)}"
@@ -162,7 +172,7 @@ class FaceBox(Combo):
     def show_downloads(self, downloads: FaceDownloads) -> None:
         """The downloaded faces' sizes as `downloads` has them now."""
         self.downloads = downloads
-        default = fonts.DEFAULTS.get(self.script)
+        default = fonts.default_family(self.script)
         for n in range(self.count()):
             data = self.itemData(n)
             family = default if data == "" else data
@@ -174,6 +184,8 @@ class FaceBox(Combo):
         """`family` shown as chosen (None: the default) - added under Any
         font if it isn't listed (not listed yet, or not on this PC)."""
         index = self.findData(family or "")
+        if index < 0 and family and family == fonts.default_family(self.script):
+            index = self.findData("")
         if index < 0 and family:
             self.addItem(family, family)
             index = self.count() - 1
@@ -185,7 +197,7 @@ class FaceBox(Combo):
     def face(self) -> fonts.Face | None:
         """The face chosen now, if it's one of the language's own."""
         data = self.currentData()
-        family = fonts.DEFAULTS.get(self.script) if data == "" else data
+        family = fonts.default_family(self.script) if data == "" else data
         return fonts.FACES.get(family) if isinstance(family, str) else None
 
     def showPopup(self) -> None:
@@ -280,7 +292,7 @@ class FacesPanel(Panel):
     ) -> None:
         super().__init__(
             _tr("Fonts"),
-            _tr("Each language's captions in a face of its own.") if notes else "",
+            _tr("A font for each language's captions.") if notes else "",
             parent,
         )
         self.view = view

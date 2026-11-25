@@ -5,6 +5,8 @@ removing closes and deletes it, and packs outlive an update of the app."""
 
 from __future__ import annotations
 
+import gzip
+import hashlib
 import logging
 import shutil
 import sqlite3
@@ -12,10 +14,13 @@ import threading
 import time
 from collections.abc import Callable, Iterator
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from PySide6.QtCore import QPointF
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
+from tests import packs_storage
 from tests.packs_server import StandIn
 from tests.packs_storage import PRIVATE, PUBLIC, publish, tiny_pack
 from tools.package import publish_packs
@@ -23,8 +28,167 @@ from tools.package import publish_packs
 from polyglotic_desktop import main
 from polyglotic_desktop.core.lexicon.basic import BasicDictionary
 from polyglotic_desktop.core.lexicon.pack_download import Problem
-from polyglotic_desktop.core.lexicon.packs import FROM_SOURCE
+from polyglotic_desktop.core.lexicon.packs import FROM_SOURCE, InstalledPack
+from polyglotic_desktop.core.listening.captions import Language
+from polyglotic_desktop.core.shared import EntryFacts, EntryId
+from polyglotic_desktop.ui import recorded_captions as recorded
+from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
 from polyglotic_desktop.ui_next.pack_row import megabytes
+
+
+def test_japanese_fake_storage_download_reaches_caption_lookup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, qapp: QApplication
+) -> None:
+    """The real reader opens both delivered pieces and an inflected caption word."""
+    import sudachidict_small
+
+    system_dic = Path(sudachidict_small.__file__).parent / "resources" / "system.dic"
+    dictionary = system_dic.read_bytes()
+    compressed = gzip.compress(dictionary, mtime=0)
+    built = tmp_path / "built-ja"
+    monkeypatch.setattr(
+        packs_storage,
+        "WORDS",
+        (("jmdict:1", "食べる", "たべる", "to eat"),),
+    )
+    tiny_pack(built, language="ja", dictionary="jmdict")
+    tiny_pack(built, language="ja", dictionary="jmdict", meanings="zh")
+    bucket = tmp_path / "bucket-ja"
+    assert publish(monkeypatch, bucket, built, language="ja") == 0
+
+    from polyglotic_desktop.adapters import japanese_dictionary
+    from polyglotic_desktop.core.lexicon.packs import Rider
+
+    object_name = "packs/v1/test-japanese.system.dic.gz"
+    target = bucket / object_name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(compressed)
+    rider = Rider(
+        kind="japanese-dictionary",
+        format="test",
+        min_app="0.1.5",
+        file="test-japanese.system.dic",
+        size=len(dictionary),
+        sha256=hashlib.sha256(dictionary).hexdigest(),
+        gz_size=len(compressed),
+        gz_sha256=hashlib.sha256(compressed).hexdigest(),
+    )
+    monkeypatch.setattr(japanese_dictionary, "OBJECT_NAME", object_name)
+    monkeypatch.setattr(japanese_dictionary, "RIDER", rider)
+    monkeypatch.setattr(main, "JAPANESE_DICTIONARY", rider.file)
+
+    with StandIn(bucket) as storage:
+        basic: dict[str, BasicDictionary] = {}
+        packs = delivery(storage, tmp_path / "packs", basic)
+        packs.asked("ja", "download")
+        until_delivery(packs, storage, "ja", lambda: "ja" in basic)
+        # Exercise the same pointer dispatch as a real caption hover. If
+        # CaptionWindow._hover stops handing words to LookupCard.hover, this
+        # assertion fails rather than merely proving the splitter in isolation.
+        from tests.learning.fakes import Clock, MemoryLearningStore
+
+        from polyglotic_desktop.core.learning.vocabulary import Vocabulary
+
+        japanese = basic["ja"]
+
+        def facts(entry_id: EntryId, scheme: str) -> EntryFacts | None:
+            entry = japanese.entry(entry_id)
+            return entry.facts(scheme) if entry else None
+
+        learner = LearningTools(
+            Vocabulary(MemoryLearningStore(), facts, "jmdict", Clock()),
+            japanese,
+            basic=basic,
+            pack="ja",
+        )
+        captions = CaptionWindows(None, learner=learner)
+        captions.set_captioned([("lab", recorded.APP)])
+        captions.apply(
+            recorded.finished(
+                "ja-hover",
+                recorded.clause("昨日すしを食べた。", "I ate sushi yesterday."),
+                language=Language("ja"),
+            )
+        )
+        shown = captions.windows["lab"]
+        shown.resize(960, 360)
+        shown.show()
+        qapp.processEvents()
+        shown.canvas.repaint()
+        qapp.processEvents()
+        hover_at = None
+        hovered_words: set[str] = set()
+        for _line, _laid, rect in shown.canvas.placed:
+            for x in range(round(rect.left()), round(rect.right()) + 1, 2):
+                at = QPointF(x, rect.center().y())
+                marked = shown._marked_at(at)
+                if marked is not None:
+                    request = shown.word_at(marked)
+                    assert request is not None
+                    hovered_words.add(request.word)
+                    if request.word == "食べ":
+                        hover_at = at
+                        break
+            if hover_at is not None:
+                break
+        assert hover_at is not None, hovered_words
+        shown._hover(hover_at)
+        assert captions.card is not None
+        captions.card._show_pending()
+        card = captions.card.model.card()
+        assert card.word == "食べ"
+        assert captions.card.request is not None
+        assert "食べた" in captions.card.request.context.sentence
+        assert card.base == "食べる  たべる"
+        captions.close()
+        requested = [path for path, _range, code in storage.requests if code == 200]
+        assert requested.index("packs/files/jmdict-en-2026.11.14.sqlite.gz") < (
+            requested.index(object_name)
+        )
+        assert (tmp_path / "packs" / rider.file).is_file()
+        packs.close()
+
+
+def until_delivery(
+    delivery: main.PackDelivery,
+    storage: StandIn,
+    language: str,
+    done: Callable[[], bool],
+    *,
+    stalled_seconds: float = 30.0,
+) -> None:
+    """Wait while a delivery advances, failing with its last useful account.
+
+    The production Japanese dictionary takes materially longer to verify and
+    unpack on a hosted Windows runner than on Linux.  A fixed whole-operation
+    timeout confuses that expected CPU work with a stuck or failed delivery;
+    instead, every reported state change earns another stall interval.
+    """
+    last: object = None
+    changed_at = time.monotonic()
+    while not done():
+        progress = delivery.progress.get(language)
+        state = (
+            None
+            if progress is None
+            else (
+                progress.step,
+                progress.done,
+                progress.total,
+                progress.problem,
+                progress.tries,
+                progress.retry_in,
+                progress.status,
+            )
+        )
+        if state != last:
+            last = state
+            changed_at = time.monotonic()
+        account = f"delivery={state!r}; requests={storage.requests!r}"
+        assert progress is None or not progress.stopped, account
+        assert time.monotonic() - changed_at < stalled_seconds, account
+        QTest.qWait(20)
 
 
 def until(done: Callable[[], bool], seconds: float = 20.0) -> None:
@@ -89,6 +253,37 @@ def test_a_download_asked_on_learning_reaches_the_lookups_at_once(
     ]
     assert [p.code for p in packs.installed_lines()] == ["ru"]
     packs.close()
+
+
+def test_removing_japanese_pack_removes_its_downloaded_dictionary(
+    tmp_path: Path,
+) -> None:
+    from polyglotic_desktop.adapters.pack_downloads import PackFolder
+
+    folder = tmp_path / "packs"
+    folder.mkdir()
+    pack_path = folder / "jmdict-en-2026.11.14.sqlite"
+    pack_path.write_bytes(b"pack")
+    dictionary = folder / main.JAPANESE_DICTIONARY
+    dictionary.write_bytes(b"downloaded dictionary")
+    basic: dict[str, BasicDictionary] = {"ja": object()}  # type: ignore[dict-item]
+    packs = main.PackDelivery(
+        folder,
+        basic,
+        "en",
+        main.pack_reader(FROM_SOURCE),
+        "http://127.0.0.1:9/",
+        (PUBLIC,),
+    )
+    packs.here["ja"] = (
+        InstalledPack("ja", "en", "jmdict", "2026.11.14", pack_path.name, 4),
+        pack_path,
+    )
+    packs.deliveries = SimpleNamespace(folder=PackFolder(folder))  # type: ignore[assignment]
+    packs.remove("ja")
+    assert "ja" not in basic
+    assert not pack_path.exists()
+    assert not dictionary.exists()
 
 
 def test_no_notice_while_the_learner_is_on_learning(

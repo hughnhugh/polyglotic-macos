@@ -46,7 +46,7 @@ def test_its_window_can_take_the_keyboard(
     assert not flags & Qt.WindowType.WindowDoesNotAcceptFocus
     assert not flags & Qt.WindowType.X11BypassWindowManagerHint  # managed: focusable
     assert not popover.testAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
-    assert caption.windowFlags() & Qt.WindowType.WindowDoesNotAcceptFocus  # not it
+    assert caption.testAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
 
 
 def test_losing_the_keyboard_closes_it(

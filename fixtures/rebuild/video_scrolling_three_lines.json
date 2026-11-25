@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "name": "video_scrolling_three_lines",
+  "covers": [
+    "B-V2"
+  ],
+  "view": {
+    "mode": "video-scrolling",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vs1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "一。",
+            "translations": {
+              "en": "One."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vs2",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "二。",
+            "translations": {
+              "en": "Two."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 1.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vs3",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "三。",
+            "translations": {
+              "en": "Three."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 1.5,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "vs4",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "四。",
+            "translations": {
+              "en": "Four."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "vs1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "一。",
+                "translation": "One.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "一。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 0.5,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "vs1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "一。",
+                "translation": "One.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "一。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 2,
+            "caption_id": "vs2",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "二。",
+                "translation": "Two.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "二。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 1.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "vs1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "一。",
+                "translation": "One.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "一。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 2,
+            "caption_id": "vs2",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "二。",
+                "translation": "Two.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "二。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 3,
+            "caption_id": "vs3",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "三。",
+                "translation": "Three.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "三。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 1.5,
+      "state": {
+        "lines": [
+          {
+            "key": 2,
+            "caption_id": "vs2",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "二。",
+                "translation": "Two.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "二。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 3,
+            "caption_id": "vs3",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "三。",
+                "translation": "Three.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "三。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          },
+          {
+            "key": 4,
+            "caption_id": "vs4",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "四。",
+                "translation": "Four.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "四。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -98,9 +98,10 @@ def _windows(
     found.set_labels(LABELS, "You")
     found.set_look(look)
     found.set_captioned([("lab", APP)])
+    shown = found.windows["lab"]
+    shown.opacity_wanted.emit(look.opacity)
     for update in finished(150):
         found.apply(update)
-    shown = found.windows["lab"]
     shown.always_shown = True
     shown.setGeometry(480, 600, 960, height)
     lab.pump()

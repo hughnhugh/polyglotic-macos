@@ -1,4 +1,4 @@
 # Written by tools/tracking_plan.py; don't edit the copy by hand.
 # From hughnhugh/polyglotic-server docs/tracking-plan.yaml at
-# commit 647cc02c50d45dabe53c3b78aff04c92151651cb
-52d29cdfc4c0562d87f3cdb280c154edbcd484694ae4f42854b296957adf4497  tracking-plan.yaml
+# commit b2a2eda63dd1d7cf3f2f4896ca998c0e9295f69a
+71a7923398ebc2fb2dbdd6ad9cfd697030bf6ffdd0253bb1abe1325c33e81483  tracking-plan.yaml

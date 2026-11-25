@@ -79,7 +79,7 @@ def test_hidden_15_minutes_its_listening_pauses_and_showing_starts_it(
         == ("paused after 15 minutes hidden - show it to carry on")
     )
     assert desktop.hidden_line == (
-        "Captions paused after 15 minutes hidden - show the windows to carry on"
+        "Hidden windows paused after 15 minutes - show them to resume"
     )
     # a paused window keeps its captions and choices
     assert windows.windows["Game"].choices.show_mic
@@ -189,7 +189,7 @@ def test_captioning_while_hidden_is_said_on_home_and_in_the_tray(
     desktop.feed.apply(finished_updates(1, source=APP_1)[0])
     assert windows.sight("Browser") == (Sight.CAPTIONING, None)
     assert _rows(built)["Browser"] == "captioning while hidden"
-    assert desktop.hidden_line == "Captioning Browser while hidden"
+    assert desktop.hidden_line == "Hidden windows captioning Browser"
     assert desktop.hide_windows.isChecked()  # not brought back: not asked for
     clock.now += 31
     windows.tick()
@@ -261,10 +261,9 @@ def test_the_trays_tip_fits_windows_without_cutting_a_word(
 ) -> None:
     """Windows keeps a tray icon's tip in 127 characters and Qt cuts the
     rest there, mid-word: one window captioning while hidden ("VLC media
-    player", as Home names it) and another paused made 136, and the stand-in
-    taskbar was handed "... show the windows to c" (polyglotic-hq 336). The
-    "captioning" line goes first - Home's row says it too - and what to do
-    stays whole."""
+    player", as Home names it) and another paused once exceeded the limit.
+    The "captioning" line goes first - Home's row says it too - and the full
+    instruction to resume stays whole (polyglotic-hq 336)."""
     desktop = hub[0]
     desktop.show_state_title("Listening")
     desktop.show_hidden(["VLC media player"], 15)
@@ -272,11 +271,12 @@ def test_the_trays_tip_fits_windows_without_cutting_a_word(
     assert len(tip) <= 127  # NOTIFYICONDATA's szTip, with its end
     assert tip == (
         "Polyglotic - Listening\n"
-        "Captions paused after 15 minutes hidden - show the windows to carry on"
+        "Hidden windows captioning VLC media player\n"
+        "Hidden windows paused after 15 minutes - show them to resume"
     )
     desktop.show_hidden(["VLC media player"], None)  # captioning only: it fits
     assert desktop._tooltip() == (
-        "Polyglotic - Listening\nCaptioning VLC media player while hidden"
+        "Polyglotic - Listening\nHidden windows captioning VLC media player"
     )
 
 

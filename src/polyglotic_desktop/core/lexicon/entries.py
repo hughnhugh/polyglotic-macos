@@ -17,6 +17,9 @@ from polyglotic_desktop.core.shared import EntryFacts, EntryId, Level
 from polyglotic_desktop.ports.dictionary import MeaningsFile
 from polyglotic_desktop.ports.word_classes import SenseClasses
 
+MACHINE_MARKER = "\x1emachine-made\x1f"
+MACHINE_LABEL = "Machine-made"
+
 _VARIANT = re.compile(r"^(old |archaic |unofficial |Japanese |erroneous )?variant of ")
 
 
@@ -260,6 +263,24 @@ def explained(entry: DictionaryEntry, meanings: MeaningsFile | None) -> Dictiona
     found = meanings.meanings(entry.entry_id) if meanings is not None else None
     if not found or found == entry.meanings:
         return entry
+    machine = tuple(m for m in found if m.startswith(MACHINE_MARKER))
+    if machine:
+        # A Chinese-interface learner sees the approved Chinese draft before
+        # the source's English fallback (DECISIONS #197). The visible label is
+        # deliberately part of the meaning, so Saved Words and Anki retain it.
+        drafts = tuple(
+            f"{gloss} · {MACHINE_LABEL}"
+            for meaning in machine
+            if (gloss := meaning.removeprefix(MACHINE_MARKER)) not in entry.meanings
+        )
+        if not drafts:
+            return entry
+        return replace(
+            entry,
+            meanings=(*drafts, *entry.meanings),
+            sense_classes=(),
+            sense_prefixes=(),
+        )
     # Riders currently carry no source-sense links. Their own glosses may be
     # reordered, combined or replaced, so the base ordinals do not apply.
     return replace(entry, meanings=found, sense_classes=(), sense_prefixes=())

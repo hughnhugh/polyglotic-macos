@@ -234,9 +234,8 @@ def test_hotkeys_lock_pause_and_hide_from_any_thread(qapp: QApplication) -> None
     keys = "Meta+Ctrl+" if sys.platform == "darwin" else "Ctrl+Alt+"  # ⌃⌘ (428)
     if sys.platform.startswith("linux"):
         keys = "Ctrl+Alt+Shift+"  # Ctrl+Alt+L locks some desktops' screens (570)
-    # Back to live's too (polyglotic-hq 567); the rest have none until chosen
-    on = {"lock": "L", "pause": "P", "hide": "H", "live": "J"}
-    assert shown == {k: keys + on[k] if k in on else "" for k in app.hotkeys}
+    on = {"lock": keys + "L", "pause": keys + "P", "hide": keys + "H", "live": "Space"}
+    assert shown == {k: on.get(k, "") for k in app.hotkeys}
     for key in ("lock", "pause", "hide"):
         worker = threading.Thread(target=app.hotkey_pressed.emit, args=(key,))
         worker.start()
@@ -319,7 +318,7 @@ def test_listening_moved_says_so_on_the_caption_windows_once(
     app.set_connection(ConnectionState.LISTENING)
     app.set_connection(ConnectionState.MOVED)
     app.set_connection(ConnectionState.MOVED)  # the same state again: no new line
-    assert lines == ["Listening moved to another device"]
+    assert lines == ["Listening continues on another device"]
     app.close()
 
 
@@ -336,7 +335,7 @@ def test_the_servers_minutes_and_notices_are_announced(qapp: QApplication) -> No
     app.show_notice("not_a_known_code")  # a newer server's: not shown
     assert home == [] and windows == []
     app.show_notice("translator_warming_up")
-    assert len(home) == 1 and "translator is starting" in home[0]
+    assert len(home) == 1 and "Translation is starting" in home[0]
     assert windows == home
     app.show_feedback("sent", just_sent=True)  # a report's outcome: Home only
     assert home[-1] == "Thanks - we have your report." and len(windows) == 1
@@ -353,14 +352,14 @@ def test_a_warm_up_notice_leaves_home_once_captions_show_it_is_over(
     home: list[str] = []
     app.home_notice.connect(home.append)
     app.show_notice("models_warming_up")
-    assert "speech model is starting" in home[-1]
+    assert "Captioning is starting" in home[-1]
     app.feed.apply(live("c1"))  # no words yet: still starting
     assert home[-1] != ""
     app.feed.apply(live("c1", clause("你好")))  # a caption: the model is up
     assert home[-1] == ""
     app.show_notice("translator_warming_up")
     app.feed.apply(finished("c1", clause("你好")))  # captions, no translation yet
-    assert "translator is starting" in home[-1]
+    assert "Translation is starting" in home[-1]
     app.feed.apply(finished("c2", clause("谢谢", "Thanks")))
     assert home[-1] == ""
     app.show_notice("models_warming_up")
@@ -373,7 +372,7 @@ def test_a_warm_up_notice_leaves_home_once_captions_show_it_is_over(
 def test_the_servers_restart_notice_leaves_home_once_listening_again(
     qapp: QApplication,
 ) -> None:
-    """ "The server is restarting - captions carry on in a moment" stayed
+    """ "Polyglotic's server is restarting - captions carry on in a moment" stayed
     on Home's banner for two minutes after the session listened again and
     captions were back - through a later outage too (polyglotic-hq 203)."""
     app = make_app()
@@ -381,16 +380,16 @@ def test_the_servers_restart_notice_leaves_home_once_listening_again(
     app.home_notice.connect(home.append)
     app.set_connection(ConnectionState.LISTENING)
     app.show_notice("server_restarting")
-    assert home[-1].startswith("The server is restarting")
+    assert home[-1].startswith("Polyglotic's server is restarting")
     app.set_connection(ConnectionState.WAITING, 1.0)  # it's restarting
     app.set_connection(ConnectionState.CONNECTING)
-    assert home[-1].startswith("The server is restarting")
+    assert home[-1].startswith("Polyglotic's server is restarting")
     app.set_connection(ConnectionState.LISTENING)  # back
     assert home[-1] == ""
     app.show_notice("translator_warming_up")  # other notices stay a while
     app.set_connection(ConnectionState.WAITING, 1.0)
     app.set_connection(ConnectionState.LISTENING)
-    assert "translator is starting" in home[-1]
+    assert "Translation is starting" in home[-1]
     app.close()
 
 
@@ -407,9 +406,9 @@ def test_the_tray_follows_the_state(qapp: QApplication) -> None:
 STILL_CAPTIONING = (
     "Polyglotic is still captioning",
     pc_mac_or_linux(
-        "It's in the tray. Quit from there.",
-        "It's in the menu bar. Quit from there.",
-        "Its icon is in the panel. Quit from there.",  # 571
+        "Use the tray icon to quit.",
+        "Use the menu bar icon to quit.",
+        "Use the panel icon to quit.",  # 571
     ),
 )
 
@@ -439,9 +438,9 @@ def test_closing_the_main_window_the_first_time_the_tray_says_it_still_runs(
 def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     app = make_app(MemorySettingsStore({"apps": ["Video Player"]}))
     quit_there = pc_mac_or_linux(
-        "It's in the tray. Quit from there.",
-        "It's in the menu bar. Quit from there.",
-        "Its icon is in the panel. Quit from there.",
+        "Use the tray icon to quit.",
+        "Use the menu bar icon to quit.",
+        "Use the panel icon to quit.",
     )
     # not connected (or nothing picked): nothing is captioned
     assert app.tray_note() == ("Polyglotic is still running", quit_there)
@@ -449,11 +448,11 @@ def test_the_tray_note_says_what_fits_the_state(qapp: QApplication) -> None:
     assert app.tray_note() == STILL_CAPTIONING
     app.pause.setChecked(True)
     assert app.tray_note() == (
-        "Polyglotic is still running, with captions paused",
+        "Captions are paused",
         pc_mac_or_linux(
-            "It's in the tray. Resume or quit from there.",
-            "It's in the menu bar. Resume or quit from there.",
-            "Its icon is in the panel. Resume or quit from there.",
+            "Use the tray icon to resume or quit.",
+            "Use the menu bar icon to resume or quit.",
+            "Use the panel icon to resume or quit.",
         ),
     )
     app.close()

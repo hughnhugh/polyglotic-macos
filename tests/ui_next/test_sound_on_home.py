@@ -321,7 +321,7 @@ def test_what_you_hear_and_what_you_say_are_told_apart(qapp: QApplication) -> No
     assert "Apps you add" in words
     assert card.speakers.accessibleName() == "Speakers"
     assert card.mics.accessibleName() == "Microphone"
-    assert card.my_speech.switch.text() == "Caption what I say"
+    assert card.my_speech.switch.text() == "Show my speech in every window"
     assert (
         "sent for your captions only while this is on" in card.my_speech.detail.text()
     )

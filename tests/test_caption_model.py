@@ -88,6 +88,17 @@ def test_units_are_words_and_wide_characters() -> None:
     assert len(units("我买了很多。")) == 5  # the full stop stays with 多
 
 
+def test_wide_script_uses_word_edges_from_the_language_pack() -> None:
+    from polyglotic_desktop.ports.word_split import SplitWord
+
+    text = "我很好，你呢"
+    found = units(
+        text,
+        (SplitWord(0, 1), SplitWord(1, 3), SplitWord(3, 4), SplitWord(4, 6)),
+    )
+    assert [text[start:end] for start, end, _ in found] == ["我", "很好，", "你呢"]
+
+
 def test_a_second_language_line_kept_under_the_target_is_in_the_second() -> None:
     """The one layout reads the translation's language for its font and
     pinyin: a caption already in the target, its line in the second

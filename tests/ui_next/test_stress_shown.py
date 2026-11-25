@@ -138,7 +138,8 @@ def test_its_own_switch_shares_the_scripts_choices(qapp: QApplication) -> None:
 
 def test_the_switch_is_saved() -> None:
     stored = AppSettings.from_stored(look_settings(STRESS)).to_stored()
-    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("ru",)
+    # The explicit Russian choice is stored alongside default Japanese Kana.
+    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("ja", "ru")
 
 
 def test_a_mark_sits_on_its_letter_and_keeps_no_band(learner: LearningTools) -> None:

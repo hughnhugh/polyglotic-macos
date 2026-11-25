@@ -30,6 +30,7 @@ from polyglotic_desktop.ui_next.caption_window import caption_style
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.captions import CaptionLines, Labels, Line
+from polyglotic_desktop.ui_next.views.flow import FlowOptions
 from polyglotic_desktop.ui_next.views.lab import CaptionLab, OwnLabel
 from polyglotic_desktop.ui_next.views.panels import LookView
 
@@ -87,19 +88,19 @@ def test_your_speech_is_on_the_right_by_default_and_the_rest_as_before(
     lab = CaptionLab()
     assert (lab.own_right, lab.own_tint, lab.own_bar) == (True, False, False)
     assert lab.own_label is OwnLabel.AS_NOW and lab.to_stored() == {}
-    assert caption_style(CaptionLook()) == replace(CaptionStyle(), own_right=True)
+    grouped = CaptionStyle(flow=FlowOptions())
+    assert caption_style(CaptionLook()) == replace(grouped, own_right=True)
     off = replace(lab, own_right=False)
     assert off.to_stored() == {"own_right": False}
     assert CaptionLab.from_stored(off.to_stored()) == off  # a choice is kept
     theirs, yours = lines
     on_the_right, _ = painted(yours, caption_style(CaptionLook(lab=lab)))
-    assert on_the_right == painted(yours, CaptionStyle(own_right=True))[0]
+    assert on_the_right == painted(yours, replace(grouped, own_right=True))[0]
     as_before, _ = painted(yours, caption_style(CaptionLook(lab=off)))
-    assert as_before == painted(yours, CaptionStyle())[0]  # A: as before
+    assert as_before == painted(yours, grouped)[0]  # A: as before
     # an app's captions: as they were either way
     assert (
-        painted(theirs, caption_style(CaptionLook()))[0]
-        == painted(theirs, CaptionStyle())[0]
+        painted(theirs, caption_style(CaptionLook()))[0] == painted(theirs, grouped)[0]
     )
 
 

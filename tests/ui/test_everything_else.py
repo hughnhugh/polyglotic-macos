@@ -244,7 +244,7 @@ def test_homes_switch_on_shows_its_row_and_the_limit(
     assert not built.rows[KEY].stop.isHidden()  # x turns it off
     assert built.count.text() == "1 app + everything else"
     assert not built.full.isHidden()
-    assert built.full.text().startswith("One app beside everything else")
+    assert built.full.text().startswith("One app plus everything else")
 
 
 # -- the caption windows, labels, transcript, joined window, my speech ----------------

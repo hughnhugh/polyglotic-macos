@@ -1,0 +1,45 @@
+{
+  "width": 10,
+  "steps": [
+    {
+      "original": "one two three four",
+      "translation": "un deux trois quatre",
+      "expected_pairs": [
+        [
+          "one two",
+          "un deux"
+        ],
+        [
+          "three",
+          "trois"
+        ],
+        [
+          "four",
+          "quatre…"
+        ]
+      ]
+    },
+    {
+      "original": "one too three four five",
+      "translation": "un deux trois quatre cinq",
+      "expected_pairs": [
+        [
+          "one too",
+          "un deux"
+        ],
+        [
+          "three",
+          "trois"
+        ],
+        [
+          "four",
+          "quatre"
+        ],
+        [
+          "five",
+          "cinq…"
+        ]
+      ]
+    }
+  ]
+}

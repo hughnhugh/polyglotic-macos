@@ -383,7 +383,7 @@ class DesktopApp(QObject):
             "windows.lock", self.tr("Lock all caption windows"), checkable=True
         )
         self.lock_windows.setToolTip(
-            self.tr("Clicks pass through them to what's underneath")
+            self.tr("Clicks pass through to the windows underneath")
         )
         self.lock_windows.setChecked(value.locked)
         self.hide_windows = self._action(
@@ -422,25 +422,20 @@ class DesktopApp(QObject):
             lambda: self.feedback_wanted.emit("problem")
         )
         self.suggest.triggered.connect(lambda: self.feedback_wanted.emit("suggestion"))
-        self.work_with_us = self._action("feedback.work_with_us", self.tr("Tell us"))
+        self.work_with_us = self._action(
+            "feedback.work_with_us", self.tr("Help build Polyglotic…")
+        )
         self.work_with_us.triggered.connect(
             lambda: self.feedback_wanted.emit("work_with_us")
         )
         self.quit.setToolTip(
             pc_mac_or_linux(
+                self.tr("Quit Polyglotic - closing the window keeps it in the tray"),
                 self.tr(
-                    "Stop captioning and close Polyglotic - closing the window keeps it"
-                    " in the tray"
-                ),
-                self.tr(
-                    "Stop captioning and close Polyglotic - closing the window keeps it"
-                    " in the menu bar"
+                    "Quit Polyglotic - closing the window keeps it in the menu bar"
                 ),
                 # Linux: true with a tray or without one (GNOME's own: 571)
-                self.tr(
-                    "Stop captioning and close Polyglotic - closing the window keeps it"
-                    " running"
-                ),
+                self.tr("Quit Polyglotic - closing the window keeps it running"),
             )
         )
         self.pause.toggled.connect(
@@ -470,7 +465,7 @@ class DesktopApp(QObject):
         )
         self.caption_controls = self._action(
             "captions.bar",
-            QApplication.translate("Hotkeys", "Open caption bar controls"),
+            QApplication.translate("Hotkeys", "Open a caption window's controls"),
         )
         self.hotkeys = {
             Hotkey.LOCK.value: self.lock_windows,
@@ -850,12 +845,11 @@ class DesktopApp(QObject):
         lines = []
         if captioning:
             names = QLocale().createSeparatedList(captioning)
-            lines.append(self.tr("Captioning {apps} while hidden").format(apps=names))
+            lines.append(self.tr("Hidden windows captioning {apps}").format(apps=names))
         if paused_after is not None:
             lines.append(
                 self.tr(
-                    "Captions paused after %n minute(s) hidden - show the"
-                    " windows to carry on",
+                    "Hidden windows paused after %n minutes - show them to resume",
                     "",
                     paused_after,
                 )
@@ -866,7 +860,7 @@ class DesktopApp(QObject):
 
     def _tooltip(self) -> str:
         title = f"Polyglotic - {self.state_title}" if self.state_title else "Polyglotic"
-        idle = self.tr("Not captioning yet") if self._needs_source else ""
+        idle = self.tr("Nothing selected to caption") if self._needs_source else ""
         # the usage line sits in the middle: the first to go when it's too long
         return fitted_tip([title, idle, self.usage_line, *self.hidden_line.split("\n")])
 
@@ -928,19 +922,19 @@ class DesktopApp(QObject):
         if state is TrayState.LISTENING:
             title = self.tr("Polyglotic is still captioning")
         elif state is TrayState.PAUSED:
-            title = self.tr("Polyglotic is still running, with captions paused")
+            title = self.tr("Captions are paused")
             return title, pc_mac_or_linux(
-                self.tr("It's in the tray. Resume or quit from there."),
-                self.tr("It's in the menu bar. Resume or quit from there."),
+                self.tr("Use the tray icon to resume or quit."),
+                self.tr("Use the menu bar icon to resume or quit."),
                 # Linux: the tray is the panel's - GNOME's top bar, KDE's, Xfce's
-                self.tr("Its icon is in the panel. Resume or quit from there."),
+                self.tr("Use the panel icon to resume or quit."),
             )
         else:
             title = self.tr("Polyglotic is still running")
         return title, pc_mac_or_linux(
-            self.tr("It's in the tray. Quit from there."),
-            self.tr("It's in the menu bar. Quit from there."),
-            self.tr("Its icon is in the panel. Quit from there."),
+            self.tr("Use the tray icon to quit."),
+            self.tr("Use the menu bar icon to quit."),
+            self.tr("Use the panel icon to quit."),
         )
 
     def show_window(self) -> None:
@@ -1004,18 +998,18 @@ class DesktopApp(QObject):
     def _notice_text(self, code: str) -> str | None:
         return {
             MODELS_WARMING_UP: self.tr(
-                "The speech model is starting - the first captions may be slow."
+                "Captioning is starting - the first captions may be slow."
             ),
             TRANSLATOR_WARMING_UP: self.tr(
-                "The translator is starting - captions first, translations a little later."
+                "Translation is starting - captions appear first."
             ),
             SERVER_RESTARTING: self.tr(
-                "The server is restarting - captions carry on in a moment."
+                "Polyglotic's server is restarting - captions resume shortly."
             ),
             # the app's own notice, not the server's: several apps talking
             # at once in Live updates (decision 0097)
             LIVE_UPDATES_HELD_BACK: self.tr(
-                "Lots of speech at once - live updates slowed; captions continue"
+                "Lots of speech at once - captions update less often"
             ),
         }.get(code)
 
@@ -1049,7 +1043,7 @@ class DesktopApp(QObject):
         self.connection, self.retry_in = state, retry_in
         self.unreachable = unreachable
         if moved_now:  # one line on the caption windows, once (Home keeps the banner)
-            self.caption_notice.emit(self.tr("Listening moved to another device"))
+            self.caption_notice.emit(self.tr("Listening continues on another device"))
         self.connection_changed.emit(state, retry_in)
         self._show_tray_state()
 

@@ -184,7 +184,6 @@ def _subtitles(lab: Lab, area: Rect, mode: CaptionMode) -> QWidget:
     windows.set_look(
         replace(
             CaptionLook(),
-            opacity=value.opacity,
             show_language=value.show_language,
             show_source=value.show_source,
             edge=TextEdge(value.caption_edge),
@@ -194,6 +193,7 @@ def _subtitles(lab: Lab, area: Rect, mode: CaptionMode) -> QWidget:
     windows.set_presets(menu_of(value))
     windows.set_captioned([("Video Player.exe", APP)])
     shown = windows.windows["Video Player.exe"]
+    shown.opacity_wanted.emit(0.0)  # the window's cog is set to a clear panel
     windows.set_timing(mode)
     lab.time(
         "subtitles_on",

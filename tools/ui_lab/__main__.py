@@ -33,7 +33,7 @@ from PySide6.QtWidgets import QWidget
 
 from polyglotic_desktop.ui import interface_language
 from polyglotic_desktop.ui_next import languages, style
-from tools import qt_lock, start_record, timing_record
+from tools import busy_pc, qt_lock, start_record, timing_record
 from tools.i18n import __main__ as i18n
 from tools.ui_lab import (
     bar_timing,
@@ -56,6 +56,7 @@ from tools.ui_lab import (
     qt_parts,
     reference,
     seen,
+    sidebar,
     text_sizes,
     transcript,
     typing_holds,
@@ -75,7 +76,7 @@ def new_states() -> list[lab.State]:
     new += open_beta.STATES
     new += use_presets.STATES + bar_timing.STATES + learner_captions.STATES
     new += typing_holds.STATES
-    return new + text_sizes.STATES
+    return new + sidebar.STATES + text_sizes.STATES
 
 
 def visual_states() -> list[lab.State]:
@@ -94,6 +95,11 @@ def main(argv: list[str] | None = None) -> int:
         "--gate",
         action="store_true",
         help="fail if a new part is over budget or fails a code check",
+    )
+    parser.add_argument(
+        "--require-timings",
+        action="store_true",
+        help="with --gate: fail if busy PC load leaves any budget unmeasured",
     )
     parser.add_argument(
         "--text-size",
@@ -141,6 +147,8 @@ def main(argv: list[str] | None = None) -> int:
         help="design: make every finding now the baseline (design_baseline.json)",
     )
     args = parser.parse_args(argv)
+    if args.require_timings and not args.gate:
+        parser.error("--require-timings needs --gate")
     if args.accept and command != "design":
         parser.error("--accept is for design")
     if args.only and command != "approve":
@@ -188,6 +196,12 @@ def main(argv: list[str] | None = None) -> int:
     if summary:  # in CI: the table on the run's page
         with open(summary, "a", encoding="utf-8") as page:
             page.write(lab.markdown(results))
+    unmeasured = [result.state for result in results if result.timing_unmeasured]
+    for state in unmeasured:
+        line = f"{state}: timing not measured (busy); every try was at or above {busy_pc.UI_TIMING_MAX_BUSY:.0%} PC load"
+        print(line, file=sys.stderr)
+        if os.environ.get("GITHUB_ACTIONS"):
+            print(f"::warning title=UI timing not measured (busy)::{line}")
     over = [
         f"{result.state}: {action}"
         for result in results
@@ -228,32 +242,49 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
     gated_over = [] if args.checks_only else over
-    said = gate_failed(gated_over, failed, differ, new_design) if args.gate else None
+    required_unmeasured = unmeasured if args.require_timings else []
+    said = (
+        gate_failed(gated_over, failed, differ, new_design, required_unmeasured)
+        if args.gate
+        else None
+    )
     if said:  # last, so a golden's long note doesn't hide the rest (357)
         print(said, file=sys.stderr)
     return 1 if said else 0
 
 
 def gate_failed(
-    over: list[str], failed: list[str], differ: list[str], new_design: list[str]
+    over: list[str],
+    failed: list[str],
+    differ: list[str],
+    new_design: list[str],
+    required_unmeasured: list[str] | None = None,
 ) -> str | None:
     """The gate's one line when it fails, every reason counted - or None
     when it passes. A golden that differed hid the design findings that
     failed beside it (polyglotic-hq 357)."""
-    if not (over or failed or differ or new_design):
+    required_unmeasured = required_unmeasured or []
+    if not (over or failed or differ or new_design or required_unmeasured):
         return None
 
     def counted(items: list[str], one: str, many: str) -> str:
         return f"{len(items)} {one if len(items) == 1 else many}"
 
-    return "gate failed: " + ", ".join(
-        [
-            counted(over, "over budget", "over budget"),
-            counted(failed, "check failed", "checks failed"),
-            counted(differ, "golden differs", "goldens differ"),
-            counted(new_design, "new design finding", "new design findings"),
-        ]
-    )
+    reasons = [
+        counted(over, "over budget", "over budget"),
+        counted(failed, "check failed", "checks failed"),
+        counted(differ, "golden differs", "goldens differ"),
+        counted(new_design, "new design finding", "new design findings"),
+    ]
+    if required_unmeasured:
+        reasons.append(
+            counted(
+                required_unmeasured,
+                "required timing not measured",
+                "required timings not measured",
+            )
+        )
+    return "gate failed: " + ", ".join(reasons)
 
 
 def design_gate(results: list[lab.Result]) -> list[str]:
@@ -352,7 +383,7 @@ def gated_timings(results: list[lab.Result]) -> dict[str, timing_record.Timing]:
             statistics.median(timed.samples), max(timed.samples)
         )
         for result in results
-        if result.gated
+        if result.gated and not result.timing_unmeasured
         for action, timed in result.actions.items()
         if timed.budget is not None and timed.samples
     }

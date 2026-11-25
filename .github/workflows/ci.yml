@@ -81,6 +81,10 @@ jobs:
       - name: Lint (ruff)
         run: uv run --no-sync ruff check --output-format=github
 
+      - name: Warn when a large Python source file grows (847)
+        continue-on-error: true  # The ratchet schedules refactoring; it never gates a change.
+        run: uv run --no-sync python -m tools.size_ratchet
+
       - name: Warn when a file gains unregistered literals (597)
         env:
           LITERALS_BASE: ${{ github.event.pull_request.base.sha }}

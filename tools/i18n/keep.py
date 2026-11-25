@@ -71,6 +71,8 @@ def broken(source: str, forms: tuple[str, ...], language: str | None = None) -> 
             return f"keep {', '.join(wanted) or 'no {names}'} exactly: {form!r}"
         if counted and not COUNT.search(form):
             return f"keep the count (%n or %Ln): {form!r}"
+        if not counted and COUNT.search(form):
+            return f"unexpected count (%n or %Ln): {form!r}"
         if TAG.findall(form) != tags:
             return f"keep the tags {' '.join(tags) or '(none)'} in order: {form!r}"
         if "\t" in form or "\n" in form:

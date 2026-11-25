@@ -41,6 +41,7 @@ from polyglotic_desktop.core.listening.captions import (
     Language,
     WordClass,
     WordLink,
+    WordTime,
 )
 from polyglotic_desktop.core.listening.recheck import (
     LineFlagged,
@@ -337,6 +338,9 @@ def _clause(clause: protocol.Clause) -> Clause:
         written_in={
             Language(k): Language(v) for k, v in (clause.written_in or {}).items()
         },
+        words=tuple(
+            WordTime(word.original, word.start, word.end) for word in clause.words or ()
+        ),
     )
 
 

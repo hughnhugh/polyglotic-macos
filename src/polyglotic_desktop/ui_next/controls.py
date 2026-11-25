@@ -14,7 +14,17 @@ import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 
-from PySide6.QtCore import QPoint, QRect, QRectF, QSize, Qt, QTimer, QUrl, Signal
+from PySide6.QtCore import (
+    QEvent,
+    QPoint,
+    QRect,
+    QRectF,
+    QSize,
+    Qt,
+    QTimer,
+    QUrl,
+    Signal,
+)
 from PySide6.QtGui import (
     QColor,
     QDesktopServices,
@@ -27,6 +37,7 @@ from PySide6.QtGui import (
     QPalette,
     QPixmap,
     QResizeEvent,
+    QShowEvent,
     QTextLayout,
     QTextOption,
 )
@@ -707,8 +718,52 @@ class Segmented(QFrame):
             row.addWidget(button)
         self.set_value(value)
 
+    def showEvent(self, event: QShowEvent) -> None:
+        """Measure polished buttons before the first visible layout settles."""
+        super().showEvent(event)
+        self._remeasure_buttons()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        """Keep a wrapped row tall enough after each width reflow."""
+        super().resizeEvent(event)
+        self._remeasure_buttons()
+
     def _make_button(self, text: str) -> QPushButton:
         return QPushButton(text)
+
+    def changeEvent(self, event: QEvent) -> None:
+        """Remeasure the fixed-height frame after its buttons are restyled."""
+        super().changeEvent(event)
+        if event.type() is QEvent.Type.StyleChange:
+            # A parent's style reaches this frame before it reaches the buttons.
+            # Measure on the next event-loop turn, once their new hints are known.
+            QTimer.singleShot(0, self._remeasure_after_style)
+
+    def _remeasure_after_style(self) -> None:
+        self._remeasure_buttons()
+
+    def _remeasure_buttons(self) -> None:
+        if (row := self.layout()) is None:
+            return
+        # A platform style can change a button's hint when it is polished,
+        # without sending this already-measured parent a StyleChange.  Ask the
+        # real buttons after polish, rather than trusting Flow's construction-
+        # time cache.  Include the frame around the layout's contents.
+        for button in self.buttons:
+            button.ensurePolished()
+        row.invalidate()
+        width = max(0, self.contentsRect().width())
+        required = (
+            max(
+                row.minimumSize().height(),
+                row.sizeHint().height(),
+                row.heightForWidth(width),
+            )
+            + 2 * self.frameWidth()
+        )
+        if self.minimumHeight() != required:
+            self.setMinimumHeight(required)
+            self.updateGeometry()
 
     def _clicked(self, index: int) -> None:
         self.set_value(self._values[index])  # a click on the chosen one keeps it

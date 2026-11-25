@@ -535,7 +535,7 @@ def test_on_and_its_link_colour_until_chosen_and_wrong_values_are_the_default() 
 def test_the_pinyin_group_offers_the_three_and_custom_shows_its_colour(
     qapp: QApplication,
 ) -> None:
-    view = LookView(CaptionLook(reading_lines=("zh",)))
+    view = LookView(PINYIN)
     panel = ReadingLinesPanel(view, notes=True)
     MADE.append(panel)
     assert panel.custom_row.isHidden()

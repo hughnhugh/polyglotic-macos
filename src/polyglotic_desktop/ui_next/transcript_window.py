@@ -114,7 +114,6 @@ from PySide6.QtWidgets import (
     QScrollBar,
     QSizePolicy,
     QToolButton,
-    QToolTip,
     QVBoxLayout,
     QWidget,
 )
@@ -156,6 +155,7 @@ from polyglotic_desktop.ui_next.caption_window import (
 )
 from polyglotic_desktop.ui_next.copying import (
     COPIED_MS,
+    TYPING,
     copied,
     say_copied,
     selection_menu,
@@ -183,6 +183,7 @@ from polyglotic_desktop.ui_next.sentence_card import (
     say_it_text,
     side_text,
 )
+from polyglotic_desktop.ui_next.toast import show_toast
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     CaptionLook,
@@ -413,6 +414,8 @@ class TranscriptList(QWidget):
         """The word being read aloud, by line key: lit behind it."""
         self.hovered: Marked | None = None
         """The word under the mouse: drawn softly behind, looked up."""
+        self.hovered_line: int | None = None
+        """The caption block under the mouse (for Ctrl+C with no selection)."""
         self.anchor: Spot | None = None
         """Where the selection starts (343): a press, or Shift-click's other
         end."""
@@ -605,6 +608,7 @@ class TranscriptList(QWidget):
             reading_past=look.reading_past,
             respelling_past=look.respelling_past,
             reading_system=look.reading_system,
+            japanese_reading=look.japanese_reading,
         )
         if style != self.engine.style:
             self._lay_out_again(style)
@@ -627,7 +631,9 @@ class TranscriptList(QWidget):
 
     def _lay_out_again(self, style: CaptionStyle) -> None:
         readings = (
-            self._readings(style.reading_past, style.respelling_past)
+            self._readings(
+                style.reading_past, style.respelling_past, style.japanese_reading
+            )
             if self._readings
             else None
         )
@@ -863,8 +869,8 @@ class TranscriptList(QWidget):
             and reading.reading[0] is self
         ):
             reading.stop()  # Esc stops it reading (495)
-        elif event.matches(QKeySequence.StandardKey.Copy) and self.hasSelectedText():
-            self.copy_selection()
+        elif event.matches(QKeySequence.StandardKey.Copy) and self.copy_by_key():
+            event.accept()
         elif event.matches(QKeySequence.StandardKey.SelectAll):
             self.select_all()
         elif key == Qt.Key.Key_PageUp:
@@ -898,6 +904,8 @@ class TranscriptList(QWidget):
             if self._dragging:
                 self._drag_to(pos)
             return
+        line = self.line_at(pos.y())
+        self.hovered_line = line.key if line is not None else None
         word = self._marked_at(pos)
         self.setCursor(
             Qt.CursorShape.PointingHandCursor
@@ -907,6 +915,7 @@ class TranscriptList(QWidget):
         self._hover(word)
 
     def leaveEvent(self, event: QEvent) -> None:
+        self.hovered_line = None
         self._hover(None)
 
     def hideEvent(self, event: QHideEvent) -> None:
@@ -1012,6 +1021,18 @@ class TranscriptList(QWidget):
         if text:
             QGuiApplication.clipboard().setText(text)
 
+    def copy_by_key(self) -> bool:
+        """Ctrl+C (Cmd+C on macOS): copy selected text, or the hovered caption
+        when nothing is selected (polyglotic-hq 950)."""
+        if self.hasSelectedText():
+            self.copy_selection()
+            say_copied(None, self)
+            return True
+        if self.hovered_line is not None:
+            self.copy_wanted.emit(self.hovered_line, "both")
+            return True
+        return False
+
     def _copy_chosen(self) -> None:
         """The selection menu's Copy: copied, and "Copied" by the mouse
         (Ctrl+C says nothing, as anywhere)."""
@@ -1053,7 +1074,7 @@ class TranscriptList(QWidget):
                     found.translation_language,
                 )
                 said = saved_to_text(chosen.name)
-                QToolTip.showText(QCursor.pos(), said, self, QRect(), COPIED_MS)
+                show_toast(said, self, QCursor.pos())
 
             into.addAction(category.name, save)
 
@@ -1916,6 +1937,14 @@ class TranscriptWindow(QWidget):
             and self.search.text()
         ):  # Esc in the search clears it: every line again (polyglotic-hq 133)
             self.search.clear()
+            return
+        if (
+            event.matches(QKeySequence.StandardKey.Copy)
+            and not event.isAutoRepeat()
+            and not isinstance(QApplication.focusWidget(), TYPING)
+            and self.list.copy_by_key()
+        ):
+            event.accept()
             return
         super().keyPressEvent(event)
 

@@ -135,6 +135,10 @@ class PackList:
     def file_address(self, offer: PackOffer | Rider) -> str:
         """Where `offer`'s download is - its file, gzipped (a plain name: the
         list's reader refused any other), on the list's own host."""
+        if isinstance(offer, Rider) and offer.kind == "japanese-dictionary":
+            from polyglotic_desktop.adapters.japanese_dictionary import OBJECT_NAME
+
+            return self.base + OBJECT_NAME
         return self.base + FILES + offer.download
 
     def fetch(self) -> tuple[PackOffer, ...]:

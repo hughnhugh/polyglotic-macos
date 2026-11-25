@@ -232,4 +232,6 @@ def test_the_trays_tooltip_drops_the_usage_line_before_cutting_what_to_do(
     assert _units(tip) <= TIP_MAX
     assert tip.startswith("Polyglotic - Listening")
     assert "this month" not in tip  # the middle line went first
-    assert tip.split("\n")[-1].startswith("Captions paused after 15 minutes")
+    assert tip.split("\n")[-1] == (
+        "Hidden windows paused after 15 minutes - show them to resume"
+    )

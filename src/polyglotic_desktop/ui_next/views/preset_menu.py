@@ -11,6 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from polyglotic_desktop.core.listening.display import LongLines
 from polyglotic_desktop.core.listening.preset_reading import VIDEO_LINES
 from polyglotic_desktop.ui_next.views.panels import Shared
 
@@ -45,6 +46,7 @@ class Undo(StrEnum):
     """Another preset picked: the one before's changes not saved went."""
     DISCARDED = "discarded"
     RESTORED = "restored"
+    LONG_LINES = "long_lines"
     """A built-in's saved changes taken out: its defaults back."""
     DELETED = "deleted"
 
@@ -73,6 +75,7 @@ class PresetMenu:
     restorable: bool = False
     undo: tuple[Undo, str] | None = None
     video_lines_shown: int = field(default_factory=lambda: VIDEO_LINES.value)
+    long_lines: LongLines = LongLines.GROUPED
 
     @property
     def name(self) -> str:

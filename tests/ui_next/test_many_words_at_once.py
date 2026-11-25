@@ -92,7 +92,7 @@ def test_shift_click_picks_the_rows_between_without_doing_their_action(
     assert len(looked_up) == 1  # Shift picks, never looks up
     assert table.picked_entries() == shown(table)[1:5]
     assert not words.words_bar.isHidden()
-    assert "4 words picked" in words.words_bar.count.text()
+    assert words.words_bar.count.text() == "4 words selected"
     click(table, 2, Qt.KeyboardModifier.ControlModifier)  # Ctrl takes one away
     assert table.picked_entries() == [shown(table)[i] for i in (1, 3, 4)]
     assert table.picked(1) and not table.picked(2)

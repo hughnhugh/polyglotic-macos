@@ -8,13 +8,13 @@ from datetime import datetime
 from functools import partial
 
 import pytest
-from PySide6.QtCore import QPoint
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QApplication, QToolTip
+from PySide6.QtWidgets import QApplication
 from tests.ui_next.made_up import EN, finished_updates
 
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
+from polyglotic_desktop.ui_next.toast import hide_toast, toast_text
 from polyglotic_desktop.ui_next.transcript_window import TranscriptWindow
 from polyglotic_desktop.ui_next.views.transcript import Transcript, TranscriptChoices
 
@@ -90,18 +90,18 @@ def test_original_only_has_no_translation_to_copy(
 
 
 def said_after(do: Callable[[], object]) -> str:
-    """What shows by the mouse after `do` (a tooltip): "-" if nothing new."""
-    QToolTip.showText(QPoint(0, 0), "-")
+    """What shows in the themed toast after `do`: "" if none."""
+    hide_toast()
     do()
-    return QToolTip.text()
+    return toast_text()
 
 
 def test_each_copy_says_copied(window: TranscriptWindow, qapp: QApplication) -> None:
-    """The transcript's copies were silent (polyglotic-hq 333, 360): a
-    menu's Copy says "Copied" by the mouse; Copy all on the strip says
-    "✓ Copied" on itself for a moment, as the lookup card's Copy does."""
+    """The transcript's menu copies show the themed "Copied to clipboard"
+    toast (polyglotic-hq 950); Copy all on the strip says "✓ Copied" on
+    itself for a moment, as the lookup card's Copy does."""
     for text in ("Copy", "Copy what was said", "Copy the translation"):
-        assert said_after(partial(choose, window, text)) == "Copied", text
+        assert said_after(partial(choose, window, text)) == "Copied to clipboard", text
     button = window.buttons["copy"]
     width = button.width()
     button.click()
@@ -114,7 +114,7 @@ def test_each_copy_says_copied(window: TranscriptWindow, qapp: QApplication) -> 
     more = window.buttons["more"].menu()
     assert more is not None
     copy_all = next(a for a in more.actions() if a.text() == "Copy all")
-    assert said_after(copy_all.trigger) == "Copied"
+    assert said_after(copy_all.trigger) == "Copied to clipboard"
 
 
 def test_a_selection_copied_from_its_menu_says_so_and_ctrl_c_doesnt(
@@ -126,7 +126,8 @@ def test_a_selection_copied_from_its_menu_says_so_and_ctrl_c_doesnt(
     assert menu is not None
     try:
         copy = next(a for a in menu.actions() if a.text() == "Copy")
-        assert said_after(copy.trigger) == "Copied"
+        assert said_after(copy.trigger) == "Copied to clipboard"
     finally:
         menu.deleteLater()
-    assert said_after(listed.copy_selection) == "-"  # Ctrl+C's
+    assert said_after(listed.copy_selection) == ""  # bare copy_selection()
+    assert said_after(listed.copy_by_key) == "Copied to clipboard"  # Ctrl+C's

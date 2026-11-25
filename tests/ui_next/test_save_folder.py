@@ -345,7 +345,10 @@ def test_an_export_that_cant_be_written_isnt_remembered(
     page = WordsPage(tools, None, shared)
     page.first._export_csv()
     export_written(page)
-    assert f"Couldn't write {gone}" in page.first.export_result.text()
+    assert page.first.export_result.text() == (
+        f"Could not save {gone}. Close it if it is open, or choose a folder "
+        "you can write to, then try again."
+    )
     assert shared.folder() == places["documents"]
 
 

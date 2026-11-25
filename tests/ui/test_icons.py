@@ -156,12 +156,12 @@ def test_the_tray_follows_listening_idle_and_paused(qapp: QApplication) -> None:
     assert _shows(app, TrayState.LISTENING, False)
     app.settings.update(whole_system=False)  # as Home: "Pick what to caption"
     assert _shows(app, TrayState.IDLE, False)
-    assert app.tray is not None and "Not captioning yet" in app.tray.toolTip()
+    assert app.tray is not None and "Nothing selected to caption" in app.tray.toolTip()
     assert app.tray.icon().pixmap(16).toImage().pixelColor(13, 13) == QColor(
         theme.WARNING
     )
     app.settings.update(whole_system=True)
-    assert "Not captioning yet" not in app.tray.toolTip()
+    assert "Nothing selected to caption" not in app.tray.toolTip()
     app.set_connection(ConnectionState.WAITING)
     assert _shows(app, TrayState.IDLE, False)
     app.close()

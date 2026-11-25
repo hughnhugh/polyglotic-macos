@@ -82,6 +82,13 @@ class RowKind(StrEnum):
     TRANSLATION = "translation"  # yellow: always a translation
 
 
+class LongLines(StrEnum):
+    """Order of original and translated rows in a long caption."""
+
+    GROUPED = "grouped"
+    DISPLAY_NEW_LINES = "display_new_lines"
+
+
 class WordLinks(StrEnum):
     """How word links are shown (a setting)."""
 
@@ -153,6 +160,15 @@ class ReadingSystem(StrEnum):
     """Bopomofo (注音), from the same pinyin (`core.lexicon.zhuyin`)."""
 
 
+class JapaneseReading(StrEnum):
+    """How Japanese pronunciation help is shown."""
+
+    KANA = "kana"
+    ROMAJI = "romaji"
+    BOTH = "both"
+    OFF = "off"
+
+
 READING_LANGUAGES = ("zh", "yue", "ja", "en", "ru", "ko", "hi")
 """The languages a reading line can be put over (decision 0155): Chinese,
 read in pinyin (or zhuyin), Cantonese, read in Jyutping (decision 0160;
@@ -213,6 +229,7 @@ class CaptionRow:
     target: Language | None = None
     established: int | None = None
     corrected: tuple[Span, ...] = ()
+    continues: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -381,6 +398,7 @@ def caption_rows(
                     original_links,
                     established=final,
                     corrected=corrected[n],
+                    continues=clause.original_continues,
                 )
             )
             starts = False
@@ -394,6 +412,7 @@ def caption_rows(
                     starts,
                     translation_links,
                     shown.target,
+                    continues=shown.target in clause.translations_continued,
                     established=None
                     if final is None
                     else len(shown.text)

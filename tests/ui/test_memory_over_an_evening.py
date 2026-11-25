@@ -42,6 +42,7 @@ from polyglotic_desktop.main import (
 from polyglotic_desktop.perf.budgets import MEMORY_HOUR
 from polyglotic_desktop.ui.app import DesktopApp
 from polyglotic_desktop.ui.recorded_captions import APP, recorded_captions
+from polyglotic_desktop.ui_next import caption_layout
 from polyglotic_desktop.ui_next.caption_window import Marked
 
 PER_MINUTE = 16
@@ -195,3 +196,25 @@ def test_an_hour_of_captions_once_full_keeps_little(evening: Evening) -> None:
         f"{grown:.1f} MB more after an hour of captions (budget {MEMORY_HOUR.mb} MB;"
         f" transcripts listing {lines})"
     )
+
+
+def test_chinese_evening_does_not_run_japanese_romanisation(
+    evening: Evening, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Japanese's converter stays out of the common Chinese caption path.
+
+    The Windows memory workload learns Chinese. Calling the converter there
+    would make temporary strings for every reading even though they can never
+    be displayed, magnifying allocator high-water variation over an evening.
+    """
+    calls = 0
+
+    def counted(kana: str) -> str:
+        nonlocal calls
+        calls += 1
+        return kana
+
+    monkeypatch.setattr(caption_layout, "romaji", counted)
+    evening.minutes(1)
+
+    assert calls == 0

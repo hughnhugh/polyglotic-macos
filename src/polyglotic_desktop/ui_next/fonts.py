@@ -10,9 +10,10 @@ Windows `also` adds nothing: the lists, and so the interface, are as they
 were.
 
 A caption's language picks its face (`caption_families`): the learner's
-choice for it, else its default (`DEFAULTS`, 479's picks; Chinese's a
-calligraphy face since polyglotic-hq 532, the script's sans behind it,
-`BEHIND`) - carried by the app where it's small (`BUNDLED`, in
+choice for it, else its default (`DEFAULTS`, 479's picks; Simplified and
+Traditional Chinese default to this OS's plain CJK UI face, with the
+calligraphy and kai faces kept as choices and the script's sans behind
+them, `BEHIND`) - carried by the app where it's small (`BUNDLED`, in
 ui/assets/fonts) - then the OS's
 own faces for its script, named, so Thai and Arabic are never left to
 Qt's fallback (Tahoma, 479), then the Latin ones for the Latin letters a
@@ -289,8 +290,6 @@ SCRIPTS = {
 is written in Latin letters (or Greek, which the Latin face has too)."""
 
 DEFAULTS = {
-    "zh": "Ma Shan Zheng Captions",
-    "zh-hant": "LXGW WenKai TC Captions",
     "yue": "Noto Sans HK Captions",
     "ja": "Noto Sans JP Captions",
     "ko": "Pretendard",
@@ -301,20 +300,18 @@ DEFAULTS = {
     "cyrl": "PT Sans",
     "latin": "IBM Plex Sans",
 }
-"""Each script's default face (479's picks, DECISIONS #207) - Chinese's
-a calligraphy face (polyglotic-hq 532, the user's preview 1: "make a stand
-out one the default and customisable"): Ma Shan Zheng for Simplified,
-carried by the app; LXGW WenKai TC for Traditional, which no brush face
-under an open licence covers (Ma Shan Zheng has 55 % of the commonest
-3,500's Traditional forms). Traditional Chinese's, Cantonese's, Japanese's
-and Korean's are downloaded (`PACKED`): the face behind (`BEHIND`) or the
-OS's own draws until they're here."""
+"""Each script's bundled or downloaded default face (479's picks, DECISIONS
+#207). Simplified (`zh`) and Traditional (`zh-hant`) Chinese default to this
+OS's plain CJK UI face (`default_family`, polyglotic-hq 952) so captions stay
+easy to read and OCR-friendly; calligraphy and kai faces stay choices in
+`CHOICES`. Cantonese's, Japanese's and Korean's are downloaded (`PACKED`):
+the OS's own draws until they're here."""
 
 BEHIND = {"zh": "Noto Sans SC Captions", "zh-hant": "Noto Sans TC Captions"}
-"""The script's sans after a calligraphy default (532): draws the
-characters it hasn't (Ma Shan Zheng's rarer 1,342 of the 8,105), the
-readings over it (`Face.brushed`), and the captions while a downloaded
-default isn't here yet, if the sans is."""
+"""The script's sans behind a brushed Chinese face (532): draws the
+characters Ma Shan Zheng hasn't (the rarer 1,342 of the 8,105) and the
+readings over any brushed face (`Face.brushed`), and serves as a bundled
+fallback when a minimal OS lacks system CJK fonts."""
 
 WINDOWS = {
     "latin": ("Segoe UI Variable Display", "Segoe UI"),
@@ -331,24 +328,27 @@ WINDOWS = {
 captions were drawn in before 482 - Thai's and Arabic's now named, as
 Windows 11 has them (479: Qt's fallback was Tahoma)."""
 
+ALL_SCRIPTS = tuple(dict.fromkeys((*SCRIPTS.values(), "latin")))
+"""Every caption script the app configures faces for."""
+
 CHOICES: dict[str, tuple[str, ...]] = {
-    script: tuple(
+    script_: tuple(
         dict.fromkeys(
             [
-                default,
+                *((DEFAULTS[script_],) if script_ in DEFAULTS else ()),
                 *(
                     face.family
                     for face in (*BUNDLED, *PACKED)
-                    if script in face.scripts
+                    if script_ in face.scripts
                 ),
             ]
         )
     )
-    for script, default in DEFAULTS.items()
+    for script_ in ALL_SCRIPTS
 }
 """The faces Look's row for a script's language offers (482), by family:
-its default first, then the others the app carries, then the downloaded
-ones."""
+its app default first when it has one, then the others the app carries, then
+the downloaded ones."""
 
 SCRIPT_SCALE_BOUNDS = (
     0.7,
@@ -386,7 +386,7 @@ SCRIPT_SCALES = {
         1.05,
         "scale",
         SCRIPT_SCALE_BOUNDS,
-        source="655 measured: Ma Shan Zheng (sentence ink 94.0, med char 85.0 at 100 px) and Noto Sans SC (95.0/94.0); at 1.05 sentence ink 98.7 matches Latin 97.0 within 2 %",
+        source="655/766: Noto Sans SC sentence ink 95 px at 100 px, IBM Plex Sans 97 px",
         applies=Applies.LIVE,
     ),
     "zh-hant": tunable(
@@ -450,6 +450,15 @@ SCRIPT_SCALES = {
 the bundled fonts' glyph heights so 100 % reads at the same visual size across
 scripts (482, 655)."""
 
+CALLIGRAPHY_SCALE = tunable(
+    "fonts.script_scale.chinese_calligraphy",
+    1.13,
+    "scale",
+    SCRIPT_SCALE_BOUNDS,
+    source="766 Windows grabs: Ma Shan Zheng median 90.5 px vs Noto Sans SC 97 px at scale 1.05",
+    applies=Applies.LIVE,
+)
+
 SIZES = {
     script_: item.default
     for script_, item in SCRIPT_SCALES.items()
@@ -474,6 +483,22 @@ def own(script_: str, system: str = sys.platform) -> tuple[str, ...]:
     return (*WINDOWS.get(script_, ()), *also(script_, system))
 
 
+def platform_own(script_: str, system: str = sys.platform) -> tuple[str, ...]:
+    """This OS's own faces for `script_`: its own (`also`) on macOS/Linux,
+    else Windows' (`WINDOWS`)."""
+    return also(script_, system) or WINDOWS.get(script_, ())
+
+
+def default_family(script_: str, system: str = sys.platform) -> str | None:
+    """The default caption face for `script_` on `system`: the app's own
+    (`DEFAULTS`), or this OS's primary UI face where the script defaults to
+    the platform face (Simplified and Traditional Chinese, polyglotic-hq 952)."""
+    if script_ in DEFAULTS:
+        return DEFAULTS[script_]
+    faces = platform_own(script_, system)
+    return faces[0] if faces else None
+
+
 def listed_own(script_: str, system: str = sys.platform) -> tuple[str, ...]:
     """The OS's own faces Look's row lists for `script_`: its own, or the
     Latin ones for a script Windows draws in them (Vietnamese, Cyrillic)."""
@@ -484,11 +509,33 @@ def caption_families(
     language: str | None, chosen: str | None = None, system: str = sys.platform
 ) -> tuple[str, ...]:
     """The families a caption in `language` is drawn in, first to last:
-    `chosen` (the learner's face for it), its script's default and the
-    face behind it (`BEHIND`), the OS's own for its script, then the Latin
-    ones for the Latin letters in it."""
+    `chosen` (the learner's face for it), its script's default (or this OS's
+    plain UI face for Chinese), the sans behind a brushed face (`BEHIND`),
+    the OS's own for its script, then the Latin ones for the Latin letters
+    in it."""
     script_ = script(language)
-    found = [chosen, DEFAULTS.get(script_), BEHIND.get(script_), *own(script_, system)]
+    behind = BEHIND.get(script_)
+    if script_ in DEFAULTS:
+        found: list[str | None] = [
+            chosen,
+            DEFAULTS[script_],
+            behind,
+            *own(script_, system),
+        ]
+    elif brushed(chosen):
+        found = [
+            chosen,
+            behind,
+            *platform_own(script_, system),
+            *own(script_, system),
+        ]
+    else:
+        found = [
+            chosen,
+            *platform_own(script_, system),
+            *own(script_, system),
+            behind,
+        ]
     if script_ != "latin":
         found += [DEFAULTS["latin"], *own("latin", system)]
     return tuple(dict.fromkeys(family for family in found if family))
@@ -558,8 +605,10 @@ def _spaced(text: str, end: int) -> int:
     return end
 
 
-def size(language: str | None) -> float:
-    """Visual-height scale for `language`'s script relative to Latin (`SCRIPT_SCALES`)."""
+def size(language: str | None, family: str | None = None) -> float:
+    """Optical scale for the script, with a separate default for brush faces."""
+    if brushed(family):
+        return CALLIGRAPHY_SCALE.value
     item = SCRIPT_SCALES.get(script(language))
     return item.value if item is not None else 1.0
 

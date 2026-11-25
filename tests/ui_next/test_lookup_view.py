@@ -189,6 +189,22 @@ def test_up_to_three_readings_and_the_rest_counted() -> None:
     assert len(lookup.card().readings) == 1
 
 
+def test_card_puts_a_person_written_reading_before_a_machine_draft() -> None:
+    rows = [
+        EntryRecord("ja:draft", "学ぶ", "", "まなぶ", ("learn · Machine-made",)),
+        EntryRecord("ja:person", "学ぶ", "", "まなぶ", ("to study",)),
+    ]
+    file = FakeDictionaryFile(rows, {"学ぶ": [row.entry_id for row in rows]})
+    tools = learner()
+    tools.basic["ja"] = BasicDictionary(file, FakeSplit(), "ja")
+    lookup = Lookup(tools)
+    lookup.show("学ぶ", LookupContext("学ぶ"), pinned=True, language="ja")
+    assert [reading.senses for reading in lookup.card().readings] == [
+        ("to study",),
+        ("learn · Machine-made",),
+    ]
+
+
 def test_a_part_then_back_to_the_word() -> None:
     lookup = Lookup(learner())
     lookup.show("电脑", CONTEXT, pinned=True, at=COMPUTER)

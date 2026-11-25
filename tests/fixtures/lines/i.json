@@ -1,0 +1,28 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "Across the river.",
+          "words": [
+            "Across",
+            "the",
+            "river."
+          ],
+          "reading": [],
+          "translation": "",
+          "links": []
+        }
+      ],
+      "language": "en"
+    }
+  ]
+}

@@ -121,7 +121,7 @@ def test_lines_already_in_the_windows_language_only_where_they_can_be(
     second = popover.rows["second"]
     assert second.isVisible()  # Detect, into English
     # named by the window's language (465)
-    assert popover.second_title.text() == "When they already speak English"
+    assert popover.second_title.text() == "Lines already in English"
     assert popover.second.text().startswith("Leave as they are")
     window.set_spoken_language("zh")  # Mandarin into English: never already in it
     assert not second.isVisible()

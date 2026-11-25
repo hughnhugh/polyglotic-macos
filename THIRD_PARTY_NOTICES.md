@@ -39,7 +39,8 @@ libsodium, ISC), annotated-types (MIT), typing-extensions
 (PSF-2.0), typing-inspection (MIT), Segno (BSD-3-Clause, QR checkout),
 genanki (MIT, Kerrick Staley and
 contributors; it writes the Anki deck file) with chevron (MIT) and
-cached-property (BSD-3-Clause), and PyYAML (MIT). genanki also lists
+cached-property (BSD-3-Clause), PyYAML (MIT), and SudachiPy (Apache-2.0,
+Works Applications; Japanese word splitting). genanki also lists
 frozendict (LGPL-3.0) as a dependency, but never imports it, so it isn't
 in the installed app. Only packages the app's code actually
 loads are in the installed app, and only their licences are copied; the

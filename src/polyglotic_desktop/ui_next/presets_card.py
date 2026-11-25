@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.listening.display import LongLines
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import label
 from polyglotic_desktop.ui_next.panels import Panel
@@ -43,6 +44,10 @@ from polyglotic_desktop.ui_next.preset_popover import (
     restore_defaults,
     save_as_new,
     undo_note,
+)
+from polyglotic_desktop.ui_next.settings_popover import (
+    long_lines_name,
+    long_lines_title,
 )
 from polyglotic_desktop.ui_next.views.preset_menu import PresetsView
 
@@ -199,17 +204,19 @@ def _words_for(name: str, value: object) -> str:
     if name == "word_links":
         return {
             "off": _tr("Off"),
-            "hover": _tr("On hover only"),
-            "colours": _tr("Colours"),
-            "arrows": _tr("With arrows"),
+            "hover": _tr("On hover"),
+            "colours": _tr("Underline"),
+            "arrows": _tr("Arrows"),
         }.get(str(value), str(value))
     if name == "reading_lines":
         return _tr("None") if not value else ", ".join(str(v) for v in value)  # type: ignore[attr-defined]
+    if name == "long_lines":
+        return long_lines_name(LongLines(str(value)))
     if name == "caption_path":
         return {
-            "follow": _tr("Follow (the translation leads)"),
-            "acquisition": _tr("Acquisition (each line first)"),
-            "both": _tr("Both together"),
+            "follow": _tr("Follow"),
+            "acquisition": _tr("Acquisition"),
+            "both": _tr("Both"),
         }.get(str(value), str(value))
     if name == "caption_mode_chosen":
         return {
@@ -221,14 +228,14 @@ def _words_for(name: str, value: object) -> str:
     if name == "caption_edge":
         return {
             "none": _tr("None"),
-            "shadow": _tr("A shadow"),
-            "outline": _tr("An outline"),
+            "shadow": _tr("Soft shadow"),
+            "outline": _tr("Outline"),
         }.get(str(value), str(value))
     if name == "steady_words_ahead":
         return {
-            "none": _tr("None"),
-            "waiting": _tr("The words waiting"),
-            "all": _tr("All, the newest too"),
+            "none": _tr("Off"),  # as Timing names it
+            "waiting": _tr("Faint ahead"),
+            "all": _tr("With the newest word"),
         }.get(str(value), str(value))
     if name == "marks_off":  # its title says what it is; the value is on or off
         return _on(not value)
@@ -254,16 +261,16 @@ def setting_title(name: str) -> str:
     titles = {
         "show_original": _tr("What was said"),
         "show_translation": _tr("The translation"),
-        "show_language": _tr("The language over each caption"),
-        "show_source": _tr("The source over each caption"),
-        "fade_after": _tr("Fade after quiet"),
+        "show_language": _tr("Show the language"),
+        "show_source": _tr("Show the source"),
+        "fade_after": _tr("Fade after silence"),
         "word_links": _tr("Word links"),
         "quiet_view": _tr("Quiet view"),
         "reading_lines": _tr("Readings"),
         "reading_past": _tr("Readings only past what you know"),
         "marks_off": _tr("Word introductions"),
         "common_words_only": _tr("How many word introductions"),
-        "opacity": _tr("Panel"),
+        "opacity": _tr("Panel: how solid"),
         "original_color": _tr("What was said's colour"),
         "translation_color": _tr("The translation's colour"),
         "background_color": _tr("The panel's colour"),
@@ -271,12 +278,13 @@ def setting_title(name: str) -> str:
         "caption_weight": _tr("Thickness"),
         "caption_contrast": _tr("Contrast"),
         "caption_vibrance": _tr("Vibrance"),
-        "caption_mode_chosen": _tr("Caption mode"),
-        "caption_path": _tr("Path"),
+        "caption_mode_chosen": _tr("Caption timing"),
+        "caption_path": _tr("What you read first"),
+        "long_lines": long_lines_title(),
         "translation_after": _tr("Translation after"),
-        "steady_newest_word": _tr("The newest word shown"),
+        "steady_newest_word": _tr("Show the newest word too"),
         "steady_words_ahead": _tr("Words ahead"),
-        "steady_two_zones": _tr("Two zones"),
+        "steady_two_zones": _tr("Live lines below, earlier above"),
         "steady_cards": _tr("Card stack"),
         "subtitles": _tr("Subtitles along the bottom"),
         "subtitle_size": _tr("Subtitles' text size"),
@@ -304,9 +312,9 @@ class PresetsPanel(Panel):
         super().__init__(
             _tr("Presets"),
             _tr(
-                "Pick how captions work for what you're doing - here or from a "
-                "caption window's bar. Bar changes save automatically. "
-                "Use Save here to keep your Settings edits."
+                "Pick one for what you're doing, here or on a caption window's "
+                "bar. Changes on the bar are saved to the preset; changes here "
+                "need Save."
             ),
         )
         self.setObjectName("settings.presets")
@@ -422,7 +430,7 @@ class PresetPanel(Panel):
         self.reset.setToolTip(
             _tr("Back to the app's defaults")
             if everyday
-            else _tr("What you saved in it goes; its own settings stay")
+            else _tr("Your changes to it go; its built-in settings stay")
         )
 
     def _renamed(self) -> None:

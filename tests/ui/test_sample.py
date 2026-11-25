@@ -371,7 +371,7 @@ def test_home_follows_it_while_it_plays_and_says_whats_next_after(
     hub.follow()
     assert card.sample_button.text() == "Try it on a sample"
     assert not card.sample_next.isHidden()
-    assert card.sample_next.text() == "Pick an app to caption yours"
+    assert card.sample_next.text() == "Now pick one of your apps to caption"
     card.sample_button.click()
     assert wanted == [True]  # from its start again
     built.close()

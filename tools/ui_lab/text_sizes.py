@@ -29,6 +29,10 @@ from tools.ui_lab.lab import Lab, State
 SURFACES = {
     "w3_pinned": False,
     "w3_english_card": False,
+    "w3_japanese_machine_simplified": False,
+    "w3_japanese_machine_traditional": False,
+    "w3_japanese_machine_english_fallback": False,
+    "w3_japanese_person_then_machine": False,
     "w4_settings_app": True,
     "w4_words_full": True,
     "w4_help": True,

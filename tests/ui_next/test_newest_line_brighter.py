@@ -33,9 +33,9 @@ def _inks(window: CaptionWindow, monkeypatch: pytest.MonkeyPatch) -> dict[int, I
     drawn: dict[int, Ink] = {}
     paint = CaptionLayout.paint
 
-    def recorded(self, painter, line, laid, at, ink, marks=None):
+    def recorded(self, painter, line, laid, at, ink, marks=None, **kwargs):
         drawn[line.key] = ink
-        return paint(self, painter, line, laid, at, ink, marks)
+        return paint(self, painter, line, laid, at, ink, marks, **kwargs)
 
     monkeypatch.setattr(CaptionLayout, "paint", recorded)
     window.canvas.repaint()

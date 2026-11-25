@@ -1,0 +1,47 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420,
+    "arrows": true
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "红船来了。",
+          "words": [
+            "红船来了。"
+          ],
+          "reading": [],
+          "translation": "A red boat arrived.",
+          "links": [
+            {
+              "original": [
+                0,
+                1
+              ],
+              "translation": [
+                2,
+                5
+              ]
+            },
+            {
+              "original": [
+                1,
+                2
+              ],
+              "translation": [
+                6,
+                10
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

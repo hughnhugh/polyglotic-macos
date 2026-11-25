@@ -34,6 +34,8 @@ from the stylesheet:
 - **all_caps:** a run of text longer than three words in capitals.
 - **wide_tracking:** letter spacing over 0.08 em on text longer than a label.
 - **nested_cards:** a card inside a card.
+- **stray_stroke:** a long border-coloured edge in the main UI, outside an
+  input, selected tile or focus ring.
 - **gray_on_color:** grey text on a saturated background.
 - **cramped:** text closer than 4 px to the side of the control that frames it.
 
@@ -61,6 +63,7 @@ from pathlib import Path
 import numpy as np
 from PySide6.QtCore import QObject, QPoint, QPointF, QRect, QRectF, Qt
 from PySide6.QtGui import (
+    QColor,
     QFont,
     QFontMetricsF,
     QImage,
@@ -78,14 +81,17 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QMessageBox,
+    QPlainTextEdit,
     QScrollBar,
     QStackedLayout,
+    QTextEdit,
     QWidget,
 )
 
 from polyglotic_desktop.ui_next import fonts, style
 from polyglotic_desktop.ui_next.caption_layout import CJK_FAMILIES, LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_surface import CaptionSurface
+from polyglotic_desktop.ui_next.dictation_key import KeyBox
 from polyglotic_desktop.ui_next.transcript_window import TranscriptList
 from tools.ui_lab import checks
 from tools.ui_lab.checks import Finding, TextPiece
@@ -104,6 +110,7 @@ RULES = (
     "all_caps",
     "wide_tracking",
     "nested_cards",
+    "stray_stroke",
     "gray_on_color",
     "cramped",
 )
@@ -282,10 +289,91 @@ def inspect(
         here += _lines(drawn.pieces)
         here += _caps_and_tracking(drawn)
         here += _nested(window)
+        here += _stray_strokes(window, pixels)
         here += _gray_on_color(drawn.pieces, pixels)
         here += _cramped(window, drawn.pieces)
         found += [_in_picture(finding, window, widget) for finding in here]
     return list(dict.fromkeys(found))
+
+
+def _stray_strokes(window: QWidget, pixels: np.ndarray) -> list[Finding]:
+    """Find long horizontal and vertical edges in the main UI's border colour."""
+    if not isinstance(window, QMainWindow) and window.objectName() not in {
+        "Content",
+        "Page",
+    }:
+        return []
+    border = QColor(style.current()["BORDER"])
+    channels = (border.red(), border.green(), border.blue())
+    matching = np.all(np.abs(pixels[:, :, :3].astype(np.int16) - channels) <= 3, axis=2)
+    scale = pixels.shape[1] / max(1, window.width())
+    inset = max(1, round(2 * scale))
+    for control in window.findChildren(QWidget):
+        if control.isVisibleTo(window) and (
+            isinstance(
+                control, (QLineEdit, QComboBox, QPlainTextEdit, QTextEdit, KeyBox)
+            )
+            or control.hasFocus()
+            or (
+                isinstance(control, QAbstractButton)
+                and control.property("tile")
+                and control.isChecked()
+            )
+        ):
+            top_left = control.mapTo(window, QPoint())
+            _ignore_edges(
+                matching,
+                top_left.x(),
+                top_left.y(),
+                control.width(),
+                control.height(),
+                scale,
+                inset,
+            )
+
+    length = round(style.px(48) * scale)
+    found = []
+    for vertical, oriented in ((False, matching), (True, matching.T)):
+        transitions = np.diff(oriented, axis=1, prepend=False, append=False)
+        lines, ends = np.nonzero(transitions)
+        for left, right in zip(
+            range(0, len(ends), 2), range(1, len(ends), 2), strict=True
+        ):
+            run = int(ends[right] - ends[left])
+            if run < length:
+                continue
+            x, y = int(ends[left]), int(lines[left])
+            box = (y, x, 1, run) if vertical else (x, y, run, 1)
+            box = tuple(round(value / scale) for value in box)
+            px, py, width, height = box
+            found.append(
+                Finding(
+                    "stray_stroke",
+                    checks.where(window),
+                    f"{'Vertical' if vertical else 'Horizontal'} border at ({px}, {py}), {max(width, height)} px",
+                    box=(px, py, max(1, width), max(1, height)),
+                )
+            )
+    return found
+
+
+def _ignore_edges(
+    mask: np.ndarray, x: int, y: int, width: int, height: int, scale: float, inset: int
+) -> None:
+    """Remove pixels within the given distance of an allowed outline."""
+    left, top, right, bottom = (
+        round(value * scale) for value in (x, y, x + width - 1, y + height - 1)
+    )
+    for edge in (top, bottom):
+        mask[
+            max(0, edge - inset) : max(0, edge + inset + 1),
+            max(0, left - inset) : max(0, right + inset + 1),
+        ] = False
+    for edge in (left, right):
+        mask[
+            max(0, top - inset) : max(0, bottom + inset + 1),
+            max(0, edge - inset) : max(0, edge + inset + 1),
+        ] = False
 
 
 def boxed(rects: Iterable[QRectF | QRect]) -> checks.Box | None:
@@ -511,6 +599,14 @@ def _overlaps(window: QWidget, pieces: list[TextPiece]) -> list[Finding]:
         for b, seen_b in shown[i + 1 :]:
             if a.widget is b.widget:
                 continue
+            # A pinned heading deliberately covers title/description text that
+            # scrolls underneath it. Ignore only that actual stacking case:
+            # children in the same card, and controls raised above the card,
+            # remain genuine overlap findings.
+            if _named_container_occludes(a.widget, b.widget, "PinnedCard") or (
+                _named_container_occludes(b.widget, a.widget, "PinnedCard")
+            ):
+                continue
             both = seen_a.intersected(seen_b)
             smaller = min(
                 seen_a.width() * seen_a.height(), seen_b.width() * seen_b.height()
@@ -526,6 +622,30 @@ def _overlaps(window: QWidget, pieces: list[TextPiece]) -> list[Finding]:
                     )
                 )
     return found
+
+
+def _named_container_occludes(under: QWidget, over: QWidget, name: str) -> bool:
+    """Whether ``over`` is in a named container stacked above ``under``."""
+    container = over
+    while container.objectName() != name:
+        parent = container.parentWidget()
+        if not isinstance(parent, QWidget):
+            return False
+        container = parent
+    if container.isAncestorOf(under):
+        return False
+
+    under_branch = under
+    while under_branch.parentWidget() is not container.parentWidget():
+        parent = under_branch.parentWidget()
+        if not isinstance(parent, QWidget):
+            return False
+        under_branch = parent
+    parent = container.parentWidget()
+    if not isinstance(parent, QWidget):
+        return False
+    siblings = [child for child in parent.children() if isinstance(child, QWidget)]
+    return siblings.index(container) > siblings.index(under_branch)
 
 
 # -- controls and layout ---------------------------------------------------------------

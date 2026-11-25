@@ -52,6 +52,8 @@ class Message:
     file: str = ""  # relative to the repo, with forward slashes
     line: int = 0
     note: str = ""  # for the translator: a `#:` comment just above the call
+    end_line: int = 0  # last line of the call, inclusive
+    column: int = 0  # byte offset of the call on its first line
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -251,6 +253,8 @@ class _Reader(ast.NodeVisitor):
                 self.file,
                 node.lineno,
                 self._note(node),
+                node.end_lineno or node.lineno,
+                node.col_offset,
             )
         )
 
@@ -268,10 +272,13 @@ class _Reader(ast.NodeVisitor):
 
 
 def read_file(path: Path) -> Found:
-    text = path.read_text(encoding="utf-8")
-    tree = ast.parse(text, filename=str(path))
     name = path.relative_to(REPO) if path.is_relative_to(REPO) else path
-    reader = _Reader(name.as_posix(), text.splitlines(), tree)
+    return read_text(path.read_text(encoding="utf-8"), name.as_posix())
+
+
+def read_text(text: str, file: str) -> Found:
+    tree = ast.parse(text, filename=file)
+    reader = _Reader(file, text.splitlines(), tree)
     reader.visit(tree)
     return reader.found
 

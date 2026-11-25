@@ -84,7 +84,7 @@ def test_each_hotkey_is_listed_with_its_key_and_a_way_to_clear_it(
     card: HotkeysCard,
 ) -> None:
     assert list(card.lines) == [h.value for h in Hotkey]
-    assert card.lines["live"].box.text() == SHOWN + "J"
+    assert card.lines["live"].box.text() == "Space"
     assert card.lines["lock"].box.text() == SHOWN + "L"
     assert card.lines["copy"].box.text() == "No key"
     assert not card.lines["copy"].clear.isEnabled()
@@ -175,10 +175,11 @@ def test_unavailable_hotkeys_never_say_another_program_and_explain_cli(
     assert card.subtitle is not None
     assert "doesn't allow global hotkeys" in card.subtitle.text()
     assert "polyglotic --lock" in card.subtitle.text()
-    for line in card.lines.values():
-        assert line.note.text() == ""
-        assert not line.box.isEnabled()
-        assert not line.clear.isEnabled()
+    for name, line in card.lines.items():
+        local = name == "live"
+        assert bool(line.note.text()) == local
+        assert line.box.isEnabled() == local
+        assert line.clear.isEnabled() == local
     assert not card.reset.isEnabled()
 
     # Custom AppImage command is reflected when set
@@ -194,7 +195,7 @@ def test_unavailable_hotkeys_never_say_another_program_and_explain_cli(
         page.show_hotkeys({}, held.taken, unavailable=True)
         assert page.hotkeys_card.subtitle is not None
         assert "polyglotic --lock" in page.hotkeys_card.subtitle.text()
-        assert all(line.note.text() == "" for line in page.hotkeys_card.lines.values())
+        assert page.hotkeys_card.lines["live"].box.isEnabled()
     finally:
         shiboken6.delete(page)
 
@@ -207,6 +208,31 @@ def settings_page() -> SettingsPage:
         timing=TimingView(Timing()),
         speech=LanguagesView(SessionLanguages()),
     )
+
+
+def test_an_unavailable_key_only_starts_capture_after_a_learner_choice(
+    qapp: QApplication,
+) -> None:
+    page = settings_page()
+    try:
+        page.show_section("hotkeys")
+        page.show()
+        listening: list[bool] = []
+        page.dictation_key_listening.connect(listening.append)
+
+        page.show_respeaking(True, "")
+        page.show_dictation(True, "f9", None, False, taken=True)
+        assert all("F9" in card.respeak_note.text() for card in page.respeak_cards)
+        page.show_respeaking(True, "f8", taken=True)
+        assert all("F8" in card.respeak_note.text() for card in page.respeak_cards)
+        assert listening == []
+
+        page.respeak_key_not_taken("f7")
+        assert listening == [True]
+        assert page.hotkeys_for_others.respeak_box.listening
+        assert not page.dictation_for_others.respeak_box.listening
+    finally:
+        shiboken6.delete(page)
 
 
 def test_settings_has_a_hotkeys_section_after_dictation(qapp: QApplication) -> None:
@@ -293,18 +319,19 @@ def test_the_app_takes_its_hotkeys_again_when_one_changes() -> None:
         "ctrl+alt+l",
         "ctrl+alt+p",
         "ctrl+alt+h",
-        "ctrl+alt+j",
     }
     assert held.taken == {"pause"}
     assert held.not_working(["lock", "pause", "copy"]) == ["pause", "copy"]
-    first.bindings["ctrl+alt+j"]()
-    assert pressed == ["live"]
+    assert held.live_space
+    assert held.not_working(["live"]) == []
     assert not held.follow(hotkey_keys({}), dictation)  # nothing changed
     assert held.follow(hotkey_keys({"live": "f9", "copy": "ctrl+alt+c"}), dictation)
     assert first.stopped
     second = FakeHotkeys.made[-1]
     assert {"f9", "ctrl+alt+c"} <= set(second.bindings)
-    assert "ctrl+alt+j" not in second.bindings
+    assert not held.live_space
+    second.bindings["f9"]()
+    assert pressed == ["live"]
     # dictation's key made a hotkey's (a file edited by hand): dictation keeps it
     insert = {DICTATE: DictationKey.parse("insert")}
     held.follow(hotkey_keys({"copy": "insert"}), insert)
@@ -344,7 +371,7 @@ def test_back_to_live_from_anywhere_and_its_tip_names_the_key(
     window; the pill's tip names it as it is now."""
     desktop, windows = wired
     (window,) = windows.windows.values()
-    assert window.pill.toolTip() == live_tip(TIP + "J")
+    assert window.pill.toolTip() == live_tip("Space")
     desktop.set_hotkeys(hotkey_keys({"live": "f9"}))
     assert window.pill.toolTip() == "Back to the newest captions (F9)"
     desktop.set_hotkeys(hotkey_keys({"live": ""}))
@@ -361,11 +388,11 @@ def test_text_size_and_copying_from_anywhere(
 ) -> None:
     desktop, windows = wired
     (window,) = windows.windows.values()
-    size = window.view.text_size
+    size = window.size_readout(0, 1.0)
     desktop.text_bigger.trigger()
-    assert window.view.text_size > size
+    assert window.size_readout(0, 1.0) > size
     desktop.text_smaller.trigger()
-    assert window.view.text_size == size
+    assert window.size_readout(0, 1.0) == size
     clipboard = QGuiApplication.clipboard()
     clipboard.setText("before")
     desktop.copy_caption.trigger()  # nothing captioned yet: left alone
@@ -384,4 +411,38 @@ def test_a_window_opened_later_has_back_to_live_s_key_too(qapp: QApplication) ->
         window.set_live_keys("Ctrl+Alt+J")
         assert window.pill.toolTip() == "Back to the newest captions (Ctrl+Alt+J)"
     finally:
+        window.close()
+
+
+def test_space_goes_live_but_a_focused_edit_keeps_it(qapp: QApplication) -> None:
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QLineEdit
+    from tests.ui_next.test_caption_window import window_of
+
+    from polyglotic_desktop.main import LocalLiveShortcut
+
+    window = window_of(qapp, captions=25)
+    action = QAction(window)
+    calls: list[bool] = []
+    action.triggered.connect(lambda: calls.append(True))
+    action.triggered.connect(window.go_live)
+    shortcut = LocalLiveShortcut(qapp, action)
+    shortcut.enabled = True
+    try:
+        window.canvas.scroll_by(400)
+        assert not window.view.scroll.following
+        QTest.keyClick(window, Qt.Key.Key_Space)
+        assert calls == [True]
+
+        window.canvas.scroll_by(400)
+        line = QLineEdit(window)
+        line.show()
+        line.setFocus()
+        QTest.keyClick(line, Qt.Key.Key_Space)
+        assert line.text() == " "
+        assert calls == [True]
+        assert not window.view.scroll.following
+    finally:
+        qapp.removeEventFilter(shortcut)
+        shortcut.deleteLater()
         window.close()

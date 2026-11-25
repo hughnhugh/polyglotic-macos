@@ -74,6 +74,7 @@ app's monotonic clock (the speech times'), passed in by the caller: no
 clock is read here. One thread at a time (the session's).
 """
 
+import logging
 import math
 import re
 from collections import Counter
@@ -85,6 +86,13 @@ from polyglotic_desktop.core.listening.captions import (
     CaptionUpdate,
     Language,
 )
+from polyglotic_desktop.core.listening.pace import (
+    PaceMeter,
+    PaceReading,
+    WordCount,
+    caption_pace,
+    spaced_word_count,
+)
 from polyglotic_desktop.core.listening.sources import Capture, CaptureMode
 from polyglotic_desktop.core.listening.timing import (
     CaptionId,
@@ -93,6 +101,8 @@ from polyglotic_desktop.core.listening.timing import (
     TranscriptionRequest,
 )
 from polyglotic_desktop.ports.capture import SourceCategory
+
+log = logging.getLogger(__name__)
 
 DROPPED_AFTER_SEC = 10.0
 """Finished speech with no finished caption back after this is dropped
@@ -162,6 +172,20 @@ class ListeningSessionEnded:
     `lyrics_switches` too, for a session that neither had it on nor
     switched it."""
     lyrics_switches: int | None = None
+    pace_them_mean: int = 0
+    pace_them_peak: int = 0
+    pace_you_mean: int = 0
+    pace_you_peak: int = 0
+    pace_them_seconds_1_60: int = 0
+    pace_them_seconds_61_120: int = 0
+    pace_them_seconds_121_180: int = 0
+    pace_them_seconds_181_240: int = 0
+    pace_them_seconds_241_plus: int = 0
+    pace_you_seconds_1_60: int = 0
+    pace_you_seconds_61_120: int = 0
+    pace_you_seconds_121_180: int = 0
+    pace_you_seconds_181_240: int = 0
+    pace_you_seconds_241_plus: int = 0
 
 
 class SessionAction(StrEnum):
@@ -201,6 +225,8 @@ class _Sent:
     category: SourceCategory
     sent_at: float
     known_app: str | None = None
+    voiced_seconds: float | None = None
+    source_id: str = ""
 
 
 @dataclass
@@ -209,7 +235,10 @@ class _Finished:
     category: SourceCategory
     words: int
     translated_words: int
-    known_app: str | None = None
+    known_app: str | None
+    pace_seconds: float
+    pace_words: int
+    pace_wpm: int | None
 
 
 @dataclass
@@ -239,6 +268,8 @@ class SessionSummary:
         mode: CaptionMode | None = None,
         capture: Capture | None = None,
         started: float | None = None,
+        *,
+        count_words: WordCount = spaced_word_count,
     ) -> None:
         """`live_interval`: the live-update interval followed (None: none).
         `target`: the first target language, whose translation's rewrites
@@ -246,6 +277,7 @@ class SessionSummary:
         or Steady when there are none. `capture`: what is captured as the
         session starts, at `started` (None: not known yet - `captured`
         tells it)."""
+        self._count_words = count_words
         self._live_interval = live_interval
         if mode is None:
             mode = CaptionMode.WHOLE if live_interval is None else CaptionMode.INSTANT
@@ -276,6 +308,14 @@ class SessionSummary:
         """How long songs mode was on before; None: never on."""
         self._switches = 0
         self._apps_max = capture.apps if capture is not None else 0
+        self._pace_them = PaceMeter()
+        self._pace_you = PaceMeter()
+        self._pace_them_by_source: dict[str, PaceMeter] = {}
+        self._pace_you_by_source: dict[str, PaceMeter] = {}
+        self._paced: dict[CaptionId, int] = {}
+        self._pace_logged_at = started
+        self._drawn_original = 0
+        self._drawn_translation = 0
 
     def captured(self, capture: Capture, at: float) -> None:
         """What is captured changed at `at` (or is first known). A change
@@ -394,17 +434,19 @@ class SessionSummary:
             source.category,
             at,
             source.known_app,
+            request.voiced_seconds,
+            str(source.id),
         )
         for replaced in request.replaces:
             self._sent.pop(replaced, None)
 
-    def caption_updated(self, update: CaptionUpdate, at: float) -> None:
-        """A caption update arrived at `at`."""
+    def caption_updated(self, update: CaptionUpdate, at: float) -> int | None:
+        """Record an update that arrived at `at` and return its caption pace."""
         if update.kind is CaptionKind.LIVE:
             live = self._live.setdefault(update.caption_id, _Live())
             live.originals.append(self._original(update))
             live.translations.append(self._translation(update))
-            return
+            return None
         sent = self._sent.pop(update.caption_id, None)
         taken_in = [update.caption_id, *update.replaces]
         for caption_id in update.replaces:
@@ -415,26 +457,98 @@ class SessionSummary:
             for caption_id in taken_in:
                 if caption_id in self._live:
                     del self._live[caption_id]
-            return
+            return None
+        previous = self._finished.get(update.caption_id)
         original, translation = self._original(update), self._translation(update)
         for caption_id in taken_in:
             shown = self._live.pop(caption_id, None)
             if shown is not None:
                 self._rewritten += _not_kept(shown.originals, original)
                 self._erased += _not_kept(shown.translations, translation)
-        if sent is None:  # sent before this summary began, or unknown
-            return
+        if sent is None:
+            return previous.pace_wpm if previous is not None else None
+        self._drawn_original += original.total()
+        self._drawn_translation += translation.total()
+        replaced = sum(self._paced.pop(caption_id, 0) for caption_id in update.replaces)
+        # Count dictionary words in the finished original, never server tokens.
+        word_count = sum(
+            self._count_words(clause.original, update.language)
+            for clause in update.clauses
+        )
+        span = max(0.0, sent.speech_end - sent.speech_start)
+        spoken_seconds = (
+            span
+            if span > 0.0
+            else max(0.0, sent.voiced_seconds)
+            if sent.voiced_seconds is not None
+            else 0.0
+        )
+        continuation = (
+            self._finished.get(update.continues) if update.continues else None
+        )
+        learner = sent.category is SourceCategory.MIC or update.respoken
+        pace = self._pace_you if learner else self._pace_them
+        by_source = self._pace_you_by_source if learner else self._pace_them_by_source
+        source_pace = by_source.get(sent.source_id)
+        if source_pace is None:
+            source_pace = by_source[sent.source_id] = PaceMeter()
+        if update.caption_id not in self._paced:
+            count = max(0, word_count - replaced)
+            # A continuation repeats the anchor's words over the new request's audio.
+            extra_words = (
+                max(0, count - continuation.pace_words) if continuation else None
+            )
+            pace.add(count, spoken_seconds, sent.speech_end, new_words=extra_words)
+            source_pace.add(
+                count, spoken_seconds, sent.speech_end, new_words=extra_words
+            )
+            self._paced[update.caption_id] = word_count
+        elif previous is not None and spoken_seconds > previous.pace_seconds:
+            # A join can finish the same caption again with more speech.
+            count = max(0, word_count - previous.pace_words)
+            extra = spoken_seconds - previous.pace_seconds
+            pace.extend(count, extra, sent.speech_end)
+            source_pace.extend(count, extra, sent.speech_end)
+            self._paced[update.caption_id] = word_count
+        caption_seconds = spoken_seconds
+        if update.continues is not None:
+            # These clauses include the earlier audio, but the request does not.
+            caption_seconds = (
+                spoken_seconds + continuation.pace_seconds if continuation else 0.0
+            )
+        wpm = caption_pace(word_count, caption_seconds)
+        if self._pace_logged_at is None:
+            self._pace_logged_at = at
+        elif at - self._pace_logged_at >= 60.0:
+            them_now, them_mean, you_now, you_mean = self.pace(at)
+            log.info(
+                "pace: them %d now %d avg, you %d now %d avg, "
+                "drawn original %d, drawn translation %d, peaks %d/%d",
+                them_now,
+                them_mean,
+                you_now,
+                you_mean,
+                self._drawn_original,
+                self._drawn_translation,
+                self._pace_them.peak,
+                self._pace_you.peak,
+            )
+            self._pace_logged_at = at
         delay = at - sent.speech_end
         self._delays.append(delay)
         if at - sent.sent_at > DROPPED_AFTER_SEC:
             self._dropped += 1
         self._finished[update.caption_id] = _Finished(
-            max(0.0, sent.speech_end - sent.speech_start),
+            span,
             sent.category,
             original.total(),
             translation.total(),
             sent.known_app,
+            spoken_seconds,
+            word_count,
+            wpm,
         )
+        return wpm
 
     def failed(self, caption_id: CaptionId) -> None:
         """The server answered a caption's speech with an error."""
@@ -464,11 +578,55 @@ class SessionSummary:
         category or delays if nothing was captioned. `capture_restarts` and
         `unreadable_dropped`: counted by the captures and the outbox over
         the session."""
+        them = self._pace_them.seconds
+        you = self._pace_you.seconds
         return replace(
             self._ended(at),
             capture_restarts=capture_restarts,
             session_failures=self._session_failures,
             unreadable_dropped=unreadable_dropped,
+            pace_them_mean=self._pace_them.mean,
+            pace_them_peak=self._pace_them.peak,
+            pace_you_mean=self._pace_you.mean,
+            pace_you_peak=self._pace_you.peak,
+            pace_them_seconds_1_60=them["1_60"],
+            pace_them_seconds_61_120=them["61_120"],
+            pace_them_seconds_121_180=them["121_180"],
+            pace_them_seconds_181_240=them["181_240"],
+            pace_them_seconds_241_plus=them["241_plus"],
+            pace_you_seconds_1_60=you["1_60"],
+            pace_you_seconds_61_120=you["61_120"],
+            pace_you_seconds_121_180=you["121_180"],
+            pace_you_seconds_181_240=you["181_240"],
+            pace_you_seconds_241_plus=you["241_plus"],
+        )
+
+    def pace(self, at: float) -> tuple[int, int, int, int]:
+        """Them/you current and average pace for the listening interface."""
+        return (
+            self._pace_them.now(at),
+            self._pace_them.mean,
+            self._pace_you.now(at),
+            self._pace_you.mean,
+        )
+
+    def pace_by_source(
+        self, at: float
+    ) -> tuple[dict[str, PaceReading], dict[str, PaceReading]]:
+        """Current/average pace for each source, split into them and you.
+
+        Session-wide meters remain the source of telemetry; these meters are
+        only the independently routed caption-window readouts.
+        """
+        return (
+            {
+                source_id: meter.reading(at)
+                for source_id, meter in self._pace_them_by_source.items()
+            },
+            {
+                source_id: meter.reading(at)
+                for source_id, meter in self._pace_you_by_source.items()
+            },
         )
 
     def _ended(self, at: float) -> ListeningSessionEnded:

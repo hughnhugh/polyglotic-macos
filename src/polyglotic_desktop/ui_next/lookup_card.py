@@ -903,11 +903,19 @@ class LookupCard(QWidget):
         self.setAccessibleName(card.word)
         description = self._say_tip(card)
         senses = [sense for reading in card.readings for sense in reading.definitions]
+        machine_explanation = (
+            _tr("Translated by a machine, not yet checked by a person")
+            if any(" · Machine-made" in sense.gloss for sense in senses)
+            else ""
+        )
+        self.setToolTip(machine_explanation)
         if any(sense.classes for sense in senses):
             description = "\n".join(
                 line for line in (*map(_sense_text, senses), description) if line
             )
-        self.setAccessibleDescription(description)
+        self.setAccessibleDescription(
+            "\n".join(line for line in (description, machine_explanation) if line)
+        )
         rect, self.above = place(
             word.rect, word.row, Size(painted.width, painted.height()), word.area
         )
@@ -1261,6 +1269,7 @@ class LookupCard(QWidget):
     ) -> None:
         text = ""
         labels = []
+        machine_labels: list[tuple[int, int, QTextCharFormat]] = []
         for index, sense in enumerate(senses, 1):
             if numbered:
                 text += ("   " if index > 1 else "") + f"{index}. "
@@ -1273,7 +1282,14 @@ class LookupCard(QWidget):
                 label.format.setFont(_ui(13))
                 labels.append(label)
             text += classes + after
-        painted.text(text or "-", font, TEXT, fonts=labels)
+            marker = " · Machine-made"
+            if sense.gloss.endswith(marker):
+                start = len(text) - len(marker) + 1
+                quiet = QTextCharFormat()
+                quiet.setForeground(QColor(FAINT))
+                quiet.setFont(_ui(12))
+                machine_labels.append((start, len(text), quiet))
+        painted.text(text or "-", font, TEXT, formats=machine_labels, fonts=labels)
 
     def _not_found(self, painted: _Painted, card: Card) -> None:
         painted.space(3)
@@ -1281,11 +1297,9 @@ class LookupCard(QWidget):
             painted.text(_tr("Not in the dictionary"), _ui(13), DIM)
             return
         text = (
-            _tr("Not in the dictionary as a whole - {meaning}").format(
-                meaning=card.meaning
-            )
+            _tr("Full phrase not found - {meaning}").format(meaning=card.meaning)
             if card.meaning
-            else _tr("Not in the dictionary as a whole")
+            else _tr("Full phrase not found")
         )
         painted.text(text, _ui(13), DIM)
 
@@ -1393,9 +1407,9 @@ class LookupCard(QWidget):
 
     def _parts(self, painted: _Painted, card: Card) -> None:
         title = {
-            PartsTitle.INSIDE: _tr("Inside this word"),
+            PartsTitle.INSIDE: _tr("Parts of this word"),
             PartsTitle.WORDS_AND_CHARACTERS: _tr("Words and characters"),
-            PartsTitle.CHINESE_FOR: _tr("Chinese for it"),
+            PartsTitle.CHINESE_FOR: _tr("Chinese equivalent"),
         }[card.parts_title or PartsTitle.INSIDE]
         painted.space(8)
         painted.row([_Piece(title.upper(), _ui(12, bold=True), FAINT)])
@@ -1733,8 +1747,8 @@ class LookupCard(QWidget):
         focus = QApplication.focusWidget()
         if isinstance(focus, _TYPING):
             return False
-        if not selected and _has_selection(focus):
-            return False  # words selected where the keyboard is: theirs (343)
+        if not selected and (_has_selection(focus) or _has_selection(self.origin)):
+            return False  # words selected where the keyboard is or in captions: theirs
         return watched is (focus or QApplication.activeWindow())
 
     def _copy(self) -> None:

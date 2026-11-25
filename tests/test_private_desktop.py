@@ -380,7 +380,13 @@ def test_the_tray_icon_shows_pause_and_a_click_brings_the_window_back(
                 said = json.loads((out / "main.json").read_text(encoding="utf-8"))
                 return bool(said["shows"])
 
-            (out / "hide").touch()
+            # Keep the old state open through the next write, as a polling
+            # reader can on Windows. The driver must still publish the hide.
+            with (out / "main.json").open("rb"):
+                (out / "hide").touch()
+                _until(
+                    lambda: (out / "main.json.part").exists(), 30, "pending hide", log
+                )
             _until(lambda: not main_shown(), 30, "main window hidden", log)
             taskbar.click(taskbar.icons()[0], "select")  # a left click on the icon
             _until(main_shown, 30, "main window back", log)

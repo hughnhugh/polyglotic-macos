@@ -5,10 +5,12 @@ never displays (polyglotic-hq 205; `tools/private_desktop.py`).
     python -m tests.app_on_a_desktop OUT [main's options...]   (from the repo root)
 
 `main()` itself, with real windows, on the data folder given: signed out,
-so nothing is captured. Two of the OS's adapters are swapped, because
+so nothing is captured. The following OS adapters are swapped because
 they'd reach the user's session from any desktop:
 - **hotkeys:** Windows keeps one hotkey table for the whole session, so the
   app's Ctrl+Alt+L, P and H would be taken from the user while it runs;
+- **held keys:** model Windows refusing the dictation or speaker key, as on
+  the CI runners, without registering a key in the user's session;
 - **the app list:** the PC's apps with sound are the user's.
 
 A first run is answered as a learner would (the yes - no language
@@ -80,6 +82,14 @@ class NoHotkeys:
 
     def start(self) -> list[str]:
         return []
+
+    def stop(self) -> None:
+        pass
+
+
+class UnavailableHoldKey:
+    def start(self) -> bool:
+        return False
 
     def stop(self) -> None:
         pass
@@ -158,8 +168,15 @@ class Driven(QApplication):
         main = self.main_window()
         said = (main is not None, main is not None and main.isMinimized())
         if said != self.main_shows:
+            try:
+                _write(OUT / "main.json", {"shows": said[0], "minimised": said[1]})
+            except PermissionError as error:
+                # Windows can deny replacement while the test reads the previous
+                # state. Leave it unpublished and try again on the next timer tick.
+                if getattr(error, "winerror", None) not in (5, 32):  # Windows' only
+                    raise
+                return
             self.main_shows = said
-            _write(OUT / "main.json", {"shows": said[0], "minimised": said[1]})
 
     def from_the_tray(self, name: str) -> None:
         """Once the taskbar's right click has opened the tray's menu: its
@@ -269,7 +286,12 @@ def _write(path: Path, facts: object) -> None:
 
 def os_adapters(system: str = sys.platform) -> app.OsAdapters:
     real = REAL_ADAPTERS(system)
-    return dataclasses.replace(real, hotkeys=NoHotkeys, app_list=NoApps)
+    return dataclasses.replace(
+        real,
+        hotkeys=NoHotkeys,
+        hold_key=lambda *_: UnavailableHoldKey(),
+        app_list=NoApps,
+    )
 
 
 REAL_ADAPTERS = app.os_adapters

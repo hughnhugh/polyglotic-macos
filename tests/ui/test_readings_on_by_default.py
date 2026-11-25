@@ -57,7 +57,9 @@ def test_a_choice_is_kept() -> None:
     settings.update(**look_changes(settings.value, replace(look, reading_lines=())))
     assert "reading_lines" in settings.value.changed
     again = AppSettings.from_stored(store.values)
-    assert caption_look(again).reading_lines == ()
+    # Japanese now has its own authoritative control; "all other readings
+    # off" does not silently turn that control off.
+    assert caption_look(again).reading_lines == ("ja",)
 
 
 def test_another_look_change_leaves_the_default_unchosen() -> None:
@@ -72,6 +74,24 @@ def test_another_look_change_leaves_the_default_unchosen() -> None:
     assert "reading_lines" not in settings.value.changed
 
 
+def test_quiet_view_puts_following_the_default_back() -> None:
+    settings = Settings(
+        MemorySettingsStore({"interface_language": "en", "changed": []})
+    )
+    before = caption_look(settings.value)
+    quiet = replace(before, quiet=True, reading_lines=(*before.reading_lines, "en"))
+    settings.update(**look_changes(settings.value, quiet))
+    assert "reading_lines" in settings.value.changed
+
+    settings.update_following(
+        ("reading_lines",), **look_changes(settings.value, before)
+    )
+
+    assert settings.value.reading_lines == ()
+    assert "reading_lines" not in settings.value.changed
+    assert caption_look(settings.value).reading_lines == before.reading_lines
+
+
 # -- files from before the record (0.1.7) ---------------------------------------------
 
 
@@ -80,6 +100,7 @@ def test_an_old_file_with_no_reading_lines_follows_the_default() -> None:
     every untouched file holds - pinyin was never on by default - so it
     follows the new default, the user's own install among them."""
     old = {**AppSettings().to_stored(), "interface_language": "en"}
+    del old["japanese_reading"]  # genuinely predates the replacement control
     del old["changed"]
     value = AppSettings.from_stored(old)
     assert "reading_lines" not in value.changed
@@ -90,6 +111,7 @@ def test_an_old_file_with_no_reading_lines_follows_the_default() -> None:
 def test_an_old_files_reading_lines_are_kept() -> None:
     """A list with a language in it was turned on: a choice."""
     old = {**AppSettings().to_stored(), "interface_language": "en"}
+    del old["japanese_reading"]  # genuinely predates the replacement control
     del old["changed"]
     old["reading_lines"] = ["zh"]
     value = AppSettings.from_stored(old)
@@ -97,10 +119,10 @@ def test_an_old_files_reading_lines_are_kept() -> None:
 
 
 def test_a_new_file_keeps_all_off_as_a_choice() -> None:
-    """With the record, `[]` named in it is the learner's: none."""
+    """The old list can turn every other reading off, not Japanese's control."""
     stored = {
         **AppSettings().to_stored(),
         "interface_language": "en",
         "changed": ["reading_lines"],
     }
-    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ()
+    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("ja",)

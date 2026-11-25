@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 420,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "过桥",
+          "words": [
+            "过桥"
+          ],
+          "reading": [],
+          "translation": "Cross",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.5,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "过桥",
+          "words": [
+            "过桥"
+          ],
+          "reading": [],
+          "translation": "We followed the winding path along the river to the little stone bridge outside the village.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

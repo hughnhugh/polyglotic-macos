@@ -32,15 +32,15 @@ APP_LOCK_KEYS = "⌃⌘L" if sys.platform == "darwin" else "Ctrl+Alt+L"
 """The app's own lock hotkey as the OS writes it: on a Mac Control+Command
 (`DesktopApp`, polyglotic-hq 428)."""
 APP_HOTKEYS = (
-    "Meta+Ctrl+L, Meta+Ctrl+P, Meta+Ctrl+H, Meta+Ctrl+J"
+    "Meta+Ctrl+L, Meta+Ctrl+P, Meta+Ctrl+H, Space"
     if sys.platform == "darwin"
-    else "Ctrl+Alt+L, Ctrl+Alt+P, Ctrl+Alt+H, Ctrl+Alt+J"
+    else "Ctrl+Alt+L, Ctrl+Alt+P, Ctrl+Alt+H, Space"
 )
 """The app's hotkeys as the log names them (Qt's portable text): those
 with a key - Back to live's too (polyglotic-hq 567)."""
 if sys.platform.startswith("linux"):  # Ctrl+Alt+Shift there (570)
     APP_LOCK_KEYS = "Ctrl+Alt+Shift+L"
-    APP_HOTKEYS = ", ".join(f"Ctrl+Alt+Shift+{key}" for key in "LPHJ")
+    APP_HOTKEYS = ", ".join(f"Ctrl+Alt+Shift+{key}" for key in "LPH") + ", Space"
 LOCKED_SAID = pc_mac_or_linux(
     "Locked - unlock on Home or from the tray",
     "Locked - unlock on Home or from the menu bar",

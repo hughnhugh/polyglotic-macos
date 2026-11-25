@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 1000,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "绿灯亮了。",
+          "words": [
+            "绿灯亮了。"
+          ],
+          "reading": [],
+          "translation": "A green lamp.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 0.6,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "绿灯亮了。",
+          "words": [
+            "绿灯亮了。"
+          ],
+          "reading": [],
+          "translation": "The light turned green.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

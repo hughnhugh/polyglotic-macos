@@ -63,6 +63,9 @@ metrics:
   reconnects:
     source: ENGINEERING.md
     definition: Reconnections per listening hour; sessions ended by an error.
+  app_recoveries:
+    source: polyglotic-hq 566, 573
+    definition: Per week, what the app recovered from by itself - capture restarts, session failures inside the app, unreadable rows dropped on the PC - summed, with how many sessions had any, by platform.
   listening_minutes:
     source: ENGINEERING.md
     definition: Minutes of speech captioned, per session and per week.
@@ -72,6 +75,12 @@ metrics:
   lookups_and_saves_per_hour:
     source: ENGINEERING.md
     definition: Lookups and saved words per listening hour - counts only, no words.
+  session_review_interactions:
+    source: polyglotic-hq project 775
+    definition: How learners use the session review - opens, list-tab clicks, word steps, sentence jumps and discards; counts only, never words or text.
+  feature_suggestions:
+    source: polyglotic-hq projects 912 and 1180
+    definition: Suggestions submitted through the suggestion box; a count only, kept distinct from the feedback service record and never carrying its text or reply address.
   caption_mode_chosen:
     source: ENGINEERING.md
     definition: Share of sessions in each caption mode - steady (the default), preview (Quick preview) or live (polyglotic-hq DECISIONS.md #4).
@@ -96,6 +105,9 @@ metrics:
   settings_chosen:
     source: proposed by project 013
     definition: Which sources, capture modes, translation and overlay settings people use, per week.
+  preset_defaults:
+    source: polyglotic-hq project 556 (the user, 2026-11-20 - "find out the average correct default layout")
+    definition: For each preset (everyday, conversation, video, learning, custom, own), the settings learners change in it and the values they choose, weighted by speech minutes - the candidates for that preset's defaults.
   capacity_planning:
     source: proposed by project 017 (the orchestrator's scaling hooks, 2026-11-04)
     definition: Listening hours per user, sessions by start hour (UTC), the share of call speech, live-update intervals and where users are (country) - to size the GPU fleet and know when to add GPUs.
@@ -246,6 +258,18 @@ events:
       installed; a server drops them if an app sends them.
       `platform` (optional, project 051): the app's platform, as for
       session_closed.
+      What the app recovered from by itself (optional; polyglotic-hq 566,
+      from 557; desktop decision 0266), so a tester's "it hangs" can be
+      told apart from a capture or the session failing:
+      `capture_restarts`, the times a capture stopped on a failure and
+      started again, or tried to (an error nobody foresaw, a failed open,
+      a stream lost mid-way); `session_failures`, the times the listening
+      session failed inside the app and tried again (not the server
+      closing it - `reconnects` counts those); `unreadable_dropped`, the
+      learning, exposure and usage rows waiting on the PC that this
+      version couldn't read and dropped since the last summary (some
+      before the session opened). Counts only: what failed, and how,
+      stays in the app's log. Feeds `app_recoveries`.
       `known_app` (optional; project 054, 2026-11-05): of the session's
       sources that are well-known apps, the one most of its speech came
       from - Discord, Zoom, Chrome... from the desktop's known-apps list,
@@ -282,7 +306,40 @@ events:
       window showed the original only), `joined_window` (the joined window
       was on), `my_speech_seconds` ("Show my speech here" on). Numbers and
       booleans only - never an app's name or a window's text.
-    feeds: [caption_delay_as_seen, rewrite_rate, dropped_captions, reconnects, listening_minutes, caption_mode_chosen, activation, weekly_learner, capacity_planning, lookups_and_saves_per_hour, apps_captioned, per_app_vs_whole_system]
+      The preset in use as the session started (optional; polyglotic-hq
+      project 556, 2026-11-20 - presets for use cases, desktop decision
+      0264): `preset` - everyday (a new install's), conversation, video,
+      learning, custom (a setup from before presets), or own for one the
+      learner made (never its name, which stays on the PC); and
+      `preset_<setting>` for each setting in it that differs from that
+      preset's own defaults, only those: its value where it is a fixed
+      list, a number or a switch. Colours are only `true` (changed),
+      never the colour; `preset_reading_lines` is how many reading lines
+      are on, not which; `preset_fade_after` 0 is never;
+      `preset_my_speech` each is "as each window has it";
+      `preset_caption_mode_chosen` default is "the app's default". A
+      learner who changed nothing sends `preset` alone - the default is
+      right for them. Feeds `preset_defaults`.
+      Steps on the preset in use during the session (optional; polyglotic-hq
+      project 587, 2026-11-21 - a preset changes only when it's saved,
+      desktop decision 0283): `preset_saves`, `preset_saves_as` and
+      `preset_discards` count Save, Save as new preset and Discard changes;
+      `preset_changes_saved`, `preset_changes_saved_as` and
+      `preset_changes_discarded` how many changed settings those steps
+      carried in all. Counts only - never which settings, their values or
+      a name; sent only by a session that had a step. Feeds
+      `preset_defaults`.
+      Songs mode (optional; polyglotic-hq project 595, 2026-11-21 -
+      DECISIONS.md #248, desktop decision 0287: a "Lyrics" switch, off by
+      default, has a known music player heard on Detect sent even where
+      speech detection hears only music, so singing is captioned):
+      `lyrics_seconds`, how long during the session a music player was
+      heard that way; `lyrics_switches`, how often the learner turned the
+      switch on or off. A number and a count only - never the app, the
+      song or anything heard; sent only by a session that had songs mode
+      on or switched it. Feeds `settings_chosen` and `capacity_planning`
+      (558: about half a speech listener's load per hour of music).
+    feeds: [caption_delay_as_seen, rewrite_rate, dropped_captions, reconnects, app_recoveries, listening_minutes, caption_mode_chosen, activation, weekly_learner, capacity_planning, lookups_and_saves_per_hour, apps_captioned, per_app_vs_whole_system, settings_chosen, preset_defaults]
     properties:
       speech_minutes: {type: number}
       captions: {type: integer}
@@ -294,6 +351,9 @@ events:
       erasure_ratio: {type: number}
       dropped: {type: integer}
       reconnects: {type: integer}
+      capture_restarts: {type: integer, required: false}
+      session_failures: {type: integer, required: false}
+      unreadable_dropped: {type: integer, required: false}
       live_interval_seconds: {type: number, required: false}
       lookups: {type: integer, required: false}
       saves: {type: integer, required: false}
@@ -313,6 +373,45 @@ events:
       lines_flagged: {type: integer, required: false}
       original_only: {type: boolean, required: false}
       joined_window: {type: boolean, required: false}
+      preset: {type: enum, values: [everyday, conversation, video, learning, custom, own], required: false}
+      preset_show_original: {type: boolean, required: false}
+      preset_show_translation: {type: boolean, required: false}
+      preset_show_language: {type: boolean, required: false}
+      preset_show_source: {type: boolean, required: false}
+      preset_fade_after: {type: number, required: false}
+      preset_word_links: {type: enum, values: ["off", hover, colours, arrows], required: false}
+      preset_quiet_view: {type: boolean, required: false}
+      preset_reading_lines: {type: integer, required: false}
+      preset_reading_past: {type: boolean, required: false}
+      preset_marks_off: {type: boolean, required: false}
+      preset_common_words_only: {type: boolean, required: false}
+      preset_opacity: {type: number, required: false}
+      preset_original_color: {type: boolean, required: false}
+      preset_translation_color: {type: boolean, required: false}
+      preset_background_color: {type: boolean, required: false}
+      preset_caption_edge: {type: enum, values: [none, shadow, outline], required: false}
+      preset_caption_weight: {type: integer, required: false}
+      preset_caption_contrast: {type: integer, required: false}
+      preset_caption_vibrance: {type: integer, required: false}
+      preset_caption_mode_chosen: {type: enum, values: [default, words, steady, live, calm], required: false}
+      preset_caption_path: {type: enum, values: [follow, acquisition, both], required: false}
+      preset_translation_after: {type: number, required: false}
+      preset_steady_newest_word: {type: boolean, required: false}
+      preset_steady_words_ahead: {type: enum, values: [none, waiting, all], required: false}
+      preset_steady_two_zones: {type: boolean, required: false}
+      preset_steady_cards: {type: boolean, required: false}
+      preset_subtitles: {type: boolean, required: false}
+      preset_subtitle_size: {type: number, required: false}
+      preset_subtitle_width: {type: number, required: false}
+      preset_my_speech: {type: enum, values: ["on", "off", each], required: false}
+      preset_saves: {type: integer, required: false}
+      preset_saves_as: {type: integer, required: false}
+      preset_discards: {type: integer, required: false}
+      preset_changes_saved: {type: integer, required: false}
+      preset_changes_saved_as: {type: integer, required: false}
+      preset_changes_discarded: {type: integer, required: false}
+      lyrics_seconds: {type: number, required: false}
+      lyrics_switches: {type: integer, required: false}
       known_app: {type: enum, required: false, values: [aimp, apex-legends, apple-music, arc, brave, chromium, counter-strike-2, deezer, discord, dota-2, elden-ring, final-fantasy-xiv, firefox, foobar2000, fortnite, genshin-impact, google-chrome, grand-theft-auto-v, honkai-star-rail, internet-explorer, itunes, kakaotalk, kodi, kugou, league-of-legends, librewolf, line, media-player, microsoft-edge, microsoft-teams, minecraft, movies-tv, mpc-be, mpc-hc, mpv, mumble, musicbee, netease-cloud-music, opera, overwatch-2, plex, potplayer, pubg-battlegrounds, qq, qq-music, roblox, rocket-league, signal, skype, slack, spotify, steam, teamspeak, teamspeak-3, telegram, tidal, valorant, viber, vivaldi, vlc, waterfox, webex, wechat, whatsapp, windows-media-player, world-of-warcraft, zen-browser, zoom]}
 
   caption_timeline_summarised:
@@ -414,6 +513,24 @@ events:
     properties:
       seconds_since_install: {type: number}
 
+  session_review_used:
+    v: 1
+    status: draft
+    context: learning
+    kind: usage
+    sent_by: app
+    description: >-
+      The learner used the session review. Counts only: times opened, list-tab
+      clicks, word steps, sentence jumps and discards. Never words, sentences
+      or any other text.
+    feeds: [session_review_interactions]
+    properties:
+      opened: {type: integer}
+      list_tab_clicks: {type: integer}
+      word_steps: {type: integer}
+      sentence_jumps: {type: integer}
+      discards: {type: integer}
+
   source_selected:
     v: 1
     status: draft
@@ -459,6 +576,19 @@ events:
     feeds: [caption_rating]
     properties:
       thumbs: {type: enum, values: [up, down]}
+
+  feature_suggested:
+    v: 1
+    status: draft
+    context: accounts
+    kind: usage
+    sent_by: app
+    description: >-
+      A suggestion was submitted through the suggestion box. This is a
+      count-only usage event, separate from the feedback service record;
+      it never carries the suggestion text or a reply address.
+    feeds: [feature_suggestions]
+    properties: {}
 
   line_flagged:
     v: 1

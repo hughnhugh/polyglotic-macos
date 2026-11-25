@@ -291,7 +291,7 @@ ZH = [
         ("casa", "noun", "es", [{"glosses": ["房子 [接 de]"]}]),
         ("decir", "verb", "es", [{"glosses": ["说"]}]),
         ("hacer", "unknown", "es", [{"glosses": ["做"]}]),  # no part of speech
-        ("食べる", "verb", "ja", [{"glosses": ["吃"]}]),
+        ("食べる", "verb", "ja", [{"glosses": ["吃饭"]}]),
         ("たべる", "soft-redirect", "ja", [{}]),
         ("する", "verb", "ja", [{"glosses": ["做"]}]),  # whose する?
     ]
@@ -730,7 +730,13 @@ def test_the_japanese_pack_has_readings_levels_and_kana_forms(built: Path) -> No
     # it common
     assert [r.meanings for r in file.records("米軍")] == [("US armed forces",)]
     zh = SqliteDictionary(built / "jmdict-zh.sqlite")
-    assert zh.records("食べる")[0].meanings == ("吃",)
+    assert zh.records("食べる")[0].meanings == ("吃饭",)
+    tw = SqliteDictionary(built / "jmdict-zh.sqlite", traditional_glosses=True)
+    try:
+        assert tw.records("食べる")[0].meanings == ("吃飯",)
+        assert tw.records("する")[1].meanings == ("to shave",)
+    finally:
+        tw.close()
     # the Chinese edition's する is 為る's - the only common entry usually
     # written so - not 掏る's (rare) or 剃る's, whose kana it is too
     assert [r.meanings for r in zh.records("する")] == [("做",), ("to shave",)]
@@ -1033,6 +1039,14 @@ def test_the_french_pack_finds_a_word_written_onto_an_elided_one(built: Path) ->
 def test_credits_name_each_pack_source_and_its_licence(built: Path) -> None:
     text = (built / "jmdict.CREDITS.md").read_text(encoding="utf-8")
     assert "CC BY-SA 4.0" in text and "EDRDG" in text and "Jonathan Waller" in text
+    assert "Chinese meanings riders contain machine-drafted glosses" in text
+    assert "Tomoshi (Y1Z)" in text
+    assert (
+        "https://github.com/tomoshi-app/tomoshi-dict-data/releases/tag/v2026-11-16"
+        in text
+    )
+    assert "They translate\n[JMdict]" in text
+    assert text.count("creativecommons.org/licenses/by-sa/4.0/") >= 2
     spanish = (built / "wiktes.CREDITS.md").read_text(encoding="utf-8")
     assert "Wiktionary" in spanish and "wordfreq" in spanish
 

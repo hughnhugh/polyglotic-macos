@@ -42,6 +42,14 @@ TRANSLATION_WAIT_SEC = tunable(
 )
 """A translation never waits longer than this to land, moving or not."""
 
+PAINT_ERROR_LOG_INTERVAL_SEC = tunable(
+    "caption_window.paint_error_log_interval",
+    60.0,
+    "seconds",
+    (60.0, 60.0),
+    source="958: report a persistent paint error at most once a minute",
+)
+
 TRANSLATION_WIDTH_RATIO = tunable(
     "caption_window.translation_width_ratio",
     2.0,
@@ -70,6 +78,34 @@ CARD_BAR_PX = tunable(
     applies=Applies.NEW_WINDOWS,
 )
 """The cards' scroll bar's width: in the window's padding, beside the text."""
+
+SCROLL_BAR_IDLE_SEC = tunable(
+    "caption_window.scroll_bar_idle",
+    1.5,
+    "seconds",
+    (0.5, 5.0),
+    source="951 fade caption scroll bar after idle",
+)
+"""How long the caption scroll bar stays visible after scrolling or leaving
+the right edge before fading out."""
+
+SCROLL_BAR_FADE_SEC = tunable(
+    "caption_window.scroll_bar_fade",
+    0.25,
+    "seconds",
+    (0.05, 1.0),
+    source="951 caption scroll bar fade-out duration",
+)
+"""How long the caption scroll bar takes to fade out once idle."""
+
+SCROLL_BAR_EDGE_PX = tunable(
+    "caption_window.scroll_bar_edge",
+    20,
+    "pixels",
+    (8.0, 48.0),
+    source="951 right-edge hover zone that reveals the scroll bar",
+)
+"""Width of the right-edge hover strip that reveals the caption scroll bar."""
 
 VIEW_GRACE_SEC = tunable(
     "caption_window.view_grace",
@@ -195,3 +231,30 @@ TRANSLATION_RATIO = tunable(
     source="686 Video motion; 707 release gate",
 )
 """Translation reading rate as a fraction of the original rate."""
+
+CAPTION_HOVER_ALPHA = tunable(
+    "caption_window.hover_tint",
+    0.11,
+    "fraction",
+    (0.04, 0.25),
+    source="950 caption block hover highlight",
+)
+"""Maximum opacity of the soft tint behind a hovered caption block, scaled by panel opacity."""
+
+TOAST_DURATION_SEC = tunable(
+    "toast.duration",
+    1.5,
+    "seconds",
+    (0.5, 5.0),
+    source="950 hover copy and save toast",
+)
+"""Total time a copy or save toast stays visible before disappearing."""
+
+TOAST_FADE_SEC = tunable(
+    "toast.fade",
+    0.25,
+    "seconds",
+    (0.05, 1.0),
+    source="950 hover copy and save toast",
+)
+"""Fade-out duration at the end of a copy or save toast."""

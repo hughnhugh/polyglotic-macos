@@ -8,7 +8,9 @@ from polyglotic_desktop.core.lexicon.entries import (
     HSK_2025,
     SCHEMES,
     DictionaryEntry,
+    explained,
 )
+from polyglotic_desktop.core.lexicon.meanings import short_meaning
 from polyglotic_desktop.core.shared import EntryId, Level
 
 
@@ -17,6 +19,16 @@ def entry(rank: int | None = None, **levels: int) -> DictionaryEntry:
     return DictionaryEntry(
         EntryId("cedict:test"), "爱好", "愛好", "ài hào", ("hobby",), rank, pairs
     )
+
+
+def test_machine_meaning_is_labelled_before_english_in_saved_text() -> None:
+    class Draft:
+        def meanings(self, entry_id: str) -> tuple[str, ...]:
+            return ("\x1emachine-made\x1f愛好", "\x1emachine-made\x1fhobby")
+
+    shown = explained(entry(), Draft())
+    assert shown.meanings == ("愛好 · Machine-made", "hobby")
+    assert short_meaning([shown]) == "愛好 · Machine-made; hobby"
 
 
 def test_hsk_levels_are_stored_per_scheme_and_never_mixed() -> None:

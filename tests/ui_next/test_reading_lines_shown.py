@@ -29,6 +29,8 @@ from polyglotic_desktop.core.learning.vocabulary import Changed
 from polyglotic_desktop.core.listening.captions import Clause, Language
 from polyglotic_desktop.core.listening.display import (
     DisplayOptions,
+    JapaneseReading,
+    LongLines,
     ReadingSize,
     ReadingSystem,
     RowKind,
@@ -61,6 +63,7 @@ from polyglotic_desktop.ui_next.caption_window import (
     CaptionWindow,
     Marked,
     caption_style,
+    one_layout,
     reading_hint,
 )
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
@@ -73,7 +76,7 @@ from polyglotic_desktop.ui_next.views.lab import CaptionLab, Fill
 from polyglotic_desktop.ui_next.views.panels import LookView
 from polyglotic_desktop.ui_next.views.transcript import Transcript, TranscriptChoices
 
-PINYIN = CaptionLook(reading_lines=("zh",))
+PINYIN = CaptionLook(reading_lines=("zh",), japanese_reading=JapaneseReading.OFF)
 MADE: list[QWidget] = []
 
 
@@ -96,19 +99,35 @@ def deleted() -> Iterator[None]:
         (None, Fill.CLAUSES),
         (ROWS, Fill.CLAUSES),
         (PAIRED, Fill.CLAUSES),
+        (one_layout(PINYIN, LongLines.DISPLAY_NEW_LINES), Fill.CLAUSES),
         (None, Fill.STACKED),
         (None, Fill.PAIRED),
     ],
-    ids=["today", "rows", "paired", "poured stacked", "poured paired"],
+    ids=[
+        "today",
+        "rows",
+        "paired",
+        "display new lines",
+        "poured stacked",
+        "poured paired",
+    ],
+)
+@pytest.mark.parametrize(
+    "face", [None, "Ma Shan Zheng Captions"], ids=["plain", "brush"]
 )
 def test_readings_are_centred_over_their_characters_and_never_touch(
-    qapp: QApplication, flow: FlowOptions | None, fill: Fill
+    qapp: QApplication, flow: FlowOptions | None, fill: Fill, face: str | None
 ) -> None:
     view = CaptionLines((APP,), EN, keep=20)
     view.set_models(flow is not None)
     view.apply(finished("a", GAME, CONTROLS))
     (line,) = view.lines
-    style = CaptionStyle(flow=flow, fill=fill, reading_lines=frozenset({"zh"}))
+    style = CaptionStyle(
+        flow=flow,
+        fill=fill,
+        reading_lines=frozenset({"zh"}),
+        faces=(("zh", face),) if face is not None else (),
+    )
     read = CaptionLayout(style, readings=made_up).laid(line, 420, 1.0)
     placed = 0
     for row in read.rows:
@@ -118,14 +137,23 @@ def test_readings_are_centred_over_their_characters_and_never_touch(
         assert row.above_font is not None
         metrics = QFontMetricsF(row.above_font)
         base = QFontMetricsF(row.layout.font())
-        wanted = list(made_up(row.row.text, "zh"))
-        assert len(row.above) == len(wanted)
+        # The synthetic syllables depend on their indices in the source row.
+        source_end = row.start + len(row.row.text)
+        wanted = [
+            reading
+            for reading in made_up(line.rows[row.index].text, "zh")
+            if row.start <= reading.start < source_end
+        ]
+        marks = [mark for mark in row.above if mark.start < len(row.row.text)]
+        assert len(marks) == len(wanted)
         by_line: dict[float, list[tuple[float, float]]] = {}
-        for reading, at in zip(wanted, row.above, strict=True):
-            text_line = row.layout.lineForTextPosition(reading.start)
+        for reading, at in zip(wanted, marks, strict=True):
+            start, end = reading.start - row.start, reading.end - row.start
+            assert (at.start, at.end, at.text) == (start, end, reading.text)
+            text_line = row.layout.lineForTextPosition(start)
             wide = metrics.horizontalAdvance(reading.text)
-            under = base.horizontalAdvance(row.row.text[reading.start])
-            centre = cursor_x(text_line, reading.start) + under / 2
+            under = base.horizontalAdvance(row.row.text[start:end])
+            centre = cursor_x(text_line, start) + under / 2
             assert at.x + wide / 2 == pytest.approx(centre, abs=0.6)
             assert at.y < text_line.y()  # above its line's box
             assert at.x >= -0.6  # never cut by the window's edge
@@ -133,8 +161,8 @@ def test_readings_are_centred_over_their_characters_and_never_touch(
             placed += 1
         for spans in by_line.values():
             spans.sort()
-            for (_, end), (start, _) in itertools.pairwise(spans):
-                assert start >= end + 1.0, "two readings touch"
+            for (_, left_end), (right_start, _) in itertools.pairwise(spans):
+                assert right_start >= left_end + 1.0, "two readings touch"
     assert placed > 10
 
 
@@ -391,9 +419,10 @@ def test_a_live_update_with_pinyin_is_within_a_new_captions_budget(
 
 
 def test_pinyin_is_off_until_switched_on_and_saved() -> None:
-    assert CaptionLook().reading_lines == ()
-    assert not caption_style(CaptionLook()).reading_lines
-    view = LookView(CaptionLook())
+    chinese_only = CaptionLook(japanese_reading=JapaneseReading.OFF)
+    assert chinese_only.reading_lines == ()
+    assert not caption_style(chinese_only).reading_lines
+    view = LookView(chinese_only)
     panel = ReadingLinesPanel(view, notes=True)
     try:
         assert not panel.chinese.isChecked() and not panel.reading_size.isEnabled()

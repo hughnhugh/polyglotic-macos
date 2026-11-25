@@ -3,8 +3,8 @@ where they stand in each (polyglotic-hq project 163, from 155's mock 2).
 
 A row per band - "Top 1,000", "1,001-2,000", ... "Rarer", or "HSK 1" to
 "HSK 7-9" - with its counts in words and a bar as long as the band, filled
-by status: known (neutral), in your deck (deep yellow, dashes), new (blue,
-dots), not heard yet (an outline). The patterns as well as the colours,
+by status: known (neutral), in deck (deep yellow, dashes), new (blue,
+dots), not heard (a subdued track). The patterns as well as the colours,
 so no status is told by colour alone; the two colours are 155's, checked
 for colour-blind separation on the dark card. Bars, not a 10,000-cell
 grid: a grid says less per pixel and can't be read by a screen reader.
@@ -15,7 +15,7 @@ from the dictionary.
 from collections.abc import Mapping, Sequence
 
 from PySide6.QtCore import QLocale, QRectF, QSize, Qt
-from PySide6.QtGui import QBrush, QColor, QPainter, QPaintEvent, QPen
+from PySide6.QtGui import QBrush, QColor, QPainter, QPaintEvent
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -77,11 +77,11 @@ def frequency_names() -> list[str]:
 def counts_line(band: Band) -> str:
     """A band's counts in words."""
     if band.size is None:
-        return _tr("{known} known · {deck} in your deck · {new} new").format(
+        return _tr("{known} known · {deck} in deck · {new} new").format(
             known=_number(band.known), deck=_number(band.deck), new=_number(band.new)
         )
     return _tr(
-        "{known} known · {deck} in your deck · {new} new · {unheard} not heard yet"
+        "{known} known · {deck} in deck · {new} new · {unheard} not heard"
     ).format(
         known=_number(band.known),
         deck=_number(band.deck),
@@ -113,9 +113,9 @@ class BandBar(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         theme = style.current()
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
-        painter.setPen(QPen(QColor(theme["BORDER"]), 1))
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawRoundedRect(rect, 3, 3)  # not heard yet: the outline
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(theme["SURFACE_2"]))
+        painter.drawRoundedRect(rect, 3, 3)  # the part not heard yet
         if whole <= 0:
             painter.end()
             return
@@ -125,7 +125,6 @@ class BandBar(QWidget):
             (band.deck, QColor(DECK), Qt.BrushStyle.HorPattern),
             (band.new, QColor(NEW), Qt.BrushStyle.Dense6Pattern),
         )
-        painter.setPen(Qt.PenStyle.NoPen)
         for count, colour, pattern in parts:
             width = rect.width() * min(count, whole) / whole
             if width <= 0:
@@ -176,9 +175,9 @@ class Legend(QWidget):
         row = Flow(self, spacing=16)  # onto more lines where it's narrow (354)
         for band, text in (
             (Band(known=1), _tr("known")),
-            (Band(deck=1), _tr("in your deck")),
-            (Band(new=1), _tr("new (heard, not known)")),
-            (Band(size=1), _tr("not heard yet")),
+            (Band(deck=1), _tr("in deck")),
+            (Band(new=1), _tr("new")),
+            (Band(size=1), _tr("not heard")),
         ):
             key = QHBoxLayout()
             key.setSpacing(6)
@@ -204,11 +203,11 @@ class WordBands(QWidget):
         self.title = label("", "SectionLabel", wrap=True)
         head.add_widget(self.title, 1)
         self.view = Segmented(
-            [(BY_FREQUENCY, _tr("By frequency")), (BY_LEVEL, _tr("By HSK level"))],
+            [(BY_FREQUENCY, _tr("Frequency")), (BY_LEVEL, _tr("HSK level"))],
             BY_FREQUENCY,
         )
         self.view.setObjectName("words.bands_view")
-        self.view.setAccessibleName(_tr("Show the bands"))
+        self.view.setAccessibleName(_tr("Group words by frequency or HSK level"))
         self.view.changed.connect(lambda _: self._show())
         head.addWidget(self.view)
         column.addLayout(head)
@@ -241,14 +240,14 @@ class WordBands(QWidget):
             found = by_level(self._met, levels)
             names = band_names(list(found), self._levels)
             bands = list(found.values())
-            self.title.setText(_tr("Words met, by HSK level").upper())
+            self.title.setText(_tr("Words by HSK level").upper())
         else:
             if len(frequency) != len(FREQUENCY_BANDS):
                 frequency = [0] * len(FREQUENCY_BANDS)
             ranked, rarer = by_frequency(self._met, frequency)
             names = [*frequency_names(), _tr("Rarer")]
             bands = [*ranked, rarer]
-            self.title.setText(_tr("Words met, by frequency").upper())
+            self.title.setText(_tr("Words by frequency").upper())
         while len(self.rows) < len(bands):
             row = BandRow()
             self.rows.append(row)

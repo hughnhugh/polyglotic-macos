@@ -182,7 +182,7 @@ def test_account_says_whether_invite_code_or_email_signed_in() -> None:
     page.set_signed_in(True)
     invited = Account("invited-account", "alpha", False, "alpha", None)
     page.show_beta_account(invited)
-    assert page.state.text() == "Signed in with an invite code"
+    assert page.state.text() == "Signed in with invite code"
     assert page.add_email_button.isVisibleTo(page)
 
     registered = Account(

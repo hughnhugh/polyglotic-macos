@@ -13,6 +13,8 @@ import pytest
 from polyglotic_desktop.main import os_adapters
 from polyglotic_desktop.platform.macos import keys
 from polyglotic_desktop.platform.macos.keys import (
+    C_KEY,
+    COMMAND_FLAG,
     IDLE_SEC,
     KEY_CODES,
     KEY_DOWN,
@@ -28,13 +30,13 @@ A_KEY = 0x00  # kVK_ANSI_A
 
 class StandInAppKit:
     def __init__(self, gives: bool = True) -> None:
-        self.heard: Callable[[int, int], None] | None = None
+        self.heard: Callable[..., None] | None = None
         self.added = 0
         self.removed: list[object] = []
         self.held = False
         self.gives = gives
 
-    def add(self, heard: Callable[[int, int], None]) -> object | None:
+    def add(self, heard: Callable[..., None]) -> object | None:
         if not self.gives:
             raise OSError("no monitor")
         self.heard = heard
@@ -47,9 +49,9 @@ class StandInAppKit:
     def button_held(self) -> bool:
         return self.held
 
-    def press(self, kind: int, code: int = 0) -> None:
+    def press(self, kind: int, code: int = 0, modifiers: int = 0) -> None:
         assert self.heard is not None
-        self.heard(kind, code)
+        self.heard(kind, code, modifiers)
 
 
 class Clock:
@@ -133,6 +135,17 @@ def test_a_mac_that_gives_no_monitor_reads_nothing_and_stops_asking() -> None:
     held = MacKeys(mac, Clock())
     assert held("escape") is False
     assert held("mouse") is False
+
+
+def test_cmd_c_is_read_as_copy() -> None:
+    held, mac, _ = rig()
+    assert held("copy") is False
+    mac.press(KEY_DOWN, C_KEY, 0)
+    assert held("copy") is False
+    mac.press(KEY_DOWN, C_KEY, COMMAND_FLAG)
+    assert held("copy") is True
+    assert held("copy") is False
+    assert pressed_name(KEY_DOWN, C_KEY, COMMAND_FLAG) == "copy"
 
 
 def test_an_unknown_name_is_a_mistake() -> None:

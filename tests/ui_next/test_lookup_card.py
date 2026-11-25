@@ -20,7 +20,7 @@ from tests.ui_next.made_up import at_one_moment, finished_updates
 from tests.ui_next.test_lookup_view import learner
 
 from polyglotic_desktop.core.lexicon.english import EnglishDictionary
-from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY
+from polyglotic_desktop.core.lexicon.entries import ENGLISH_FREQUENCY, DictionarySense
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.core.listening.sources import SourceId, SourceLabel
 from polyglotic_desktop.core.shared import WordStatus
@@ -53,7 +53,9 @@ from polyglotic_desktop.ui_next.lookup_card import (
     SURFACE,
     WIDTH,
     LookupCard,
+    _font,
     _meanings,
+    _Painted,
     dictionary_out,
 )
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook, Notice
@@ -61,6 +63,24 @@ from polyglotic_desktop.ui_next.views.lookup import LookupContext
 from polyglotic_desktop.ui_next.views.placement import Rect
 
 AREA = Rect(0, 0, 1920, 1040)
+
+
+def test_machine_label_is_quieter_and_smaller_than_its_meaning(
+    qapp: QApplication,
+) -> None:
+    painted = _Painted(320)
+    LookupCard._definitions(
+        painted,
+        (DictionarySense("学习 · Machine-made", None),),
+        _font(13),
+        numbered=True,
+    )
+
+    label = painted.blocks[0].formats[0]
+    assert label.format.font().pixelSize() == style.px(12)
+    assert label.format.foreground().color() == QColor(FAINT)
+    assert label.start == len("1. 学习 ")
+    assert label.length == len("· Machine-made")
 
 
 class Keys:
@@ -546,7 +566,7 @@ def test_its_own_words_are_in_the_interfaces_fonts_and_meanings_chinese_first(
     drawn |= {b.layout.text(): b.layout.font().families() for b in painted.blocks}
     for own in ("new", "Add to deck", "Known", "Save to ▴", "+ New category"):
         assert drawn[own] == style.UI_FAMILIES, own
-    assert drawn["INSIDE THIS WORD"] == style.UI_FAMILIES
+    assert drawn["PARTS OF THIS WORD"] == style.UI_FAMILIES
     (measure,) = (t for t in drawn if t.startswith("Measure word"))
     assert drawn[measure] == style.UI_FAMILIES
     (meaning,) = (t for t in drawn if t.startswith("1. "))

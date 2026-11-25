@@ -1,4 +1,4 @@
-"""A caption window Windows minimises comes back, and every time a window
+"""Caption windows support native minimise on Windows. When a window
 is hidden, shown, minimised or faded out with fading off the log says so
 and why - content-free (the user's live testing, polyglotic-hq 272: "the
 caption window will minimize when the fade off feature is off. Perhaps
@@ -11,6 +11,7 @@ private desktop, `ShowWindow(SW_MINIMIZE)` minimised one and it stayed so
 (272's report)."""
 
 import logging
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -41,8 +42,12 @@ def test_a_window_windows_minimised_is_back_at_once(
     with caplog.at_level(logging.INFO):
         window.setWindowState(Qt.WindowState.WindowMinimized)
         qapp.processEvents()
+    if sys.platform == "win32":
+        assert window.isMinimized()
+        window.showNormal()
+    else:
+        assert "caption window 0 minimised by Windows: restored" in caplog.messages
     assert not window.isMinimized() and window.isVisible()
-    assert "caption window 0 minimised by Windows: restored" in caplog.messages
 
 
 @pytest.fixture
@@ -62,6 +67,9 @@ def test_a_joined_window_windows_minimised_is_back_at_once(
     window = joined(windows)
     window.setWindowState(Qt.WindowState.WindowMinimized)
     qapp.processEvents()
+    if sys.platform == "win32":
+        assert window.isMinimized()
+        window.showNormal()
     assert not window.isMinimized() and window.isVisible()
 
 

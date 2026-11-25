@@ -274,6 +274,7 @@ class _Kept:
     marks: list[list[Mark]]
     entries: frozenset[EntryId]
     text: str
+    unindexed_live: Line | None = None
 
 
 def _link_classes(line: Line) -> dict[tuple[int, int], WordClass | None]:
@@ -353,11 +354,16 @@ class CaptionMarks:
         """One entry changed (`texts`: its forms - a saved word is found in
         a line by them too): the marks of the lines holding it are worked
         out again when next painted. The keys of those lines."""
-        found = {
-            key
-            for key, kept in self._kept.items()
-            if entry_id in kept.entries or any(t and t in kept.text for t in texts)
-        }
+        found = set()
+        for key, kept in self._kept.items():
+            if kept.unindexed_live is not None:
+                # A first save can match an inflected form ("ran" for "run").
+                # Index this live caption on the edit instead of on every update.
+                kept = self._kept[key] = self._marks(
+                    kept.unindexed_live, index_live=True
+                )
+            if entry_id in kept.entries or any(t and t in kept.text for t in texts):
+                found.add(key)
         for key in found:
             del self._kept[key]
         return found
@@ -373,7 +379,7 @@ class CaptionMarks:
         rows = found.marks
         return rows[row] if row < len(rows) else ()
 
-    def _marks(self, line: Line) -> _Kept:
+    def _marks(self, line: Line, *, index_live: bool = False) -> _Kept:
         marks: list[list[Mark]] = [[] for _ in line.rows]
         text = "\n".join(row.text for row in line.rows)
         learner = self.learner
@@ -382,8 +388,20 @@ class CaptionMarks:
             if learner is not None and learner.ready:
                 self._quiet(line, learner, marks, entries)
             return _Kept(line.rows, marks, frozenset(entries), text)
-        if learner is not None and learner.ready:  # else: no Learning marks yet
-            self._learning(line, learner, marks, entries)
+        unindexed_live = None
+        if learner is not None and learner.ready:
+            if (
+                (line.live or line.provisional)
+                and not index_live
+                and not any(
+                    learner.of(row.language).vocabulary.has_saved_words
+                    for row in line.rows
+                )
+            ):
+                # Only saved words get learning marks on changing text.
+                unindexed_live = line
+            else:
+                self._learning(line, learner, marks, entries)
         if self.word_links in (WordLinks.COLOURS, WordLinks.ARROWS):
             hidden = self._hidden_links(line, entries)
             link_classes = (
@@ -424,7 +442,7 @@ class CaptionMarks:
                             self._format("link", color, linked.link),
                         )
                     )
-        return _Kept(line.rows, marks, frozenset(entries), text)
+        return _Kept(line.rows, marks, frozenset(entries), text, unindexed_live)
 
     def _hidden_links(self, line: Line, entries: set[EntryId]) -> set[tuple[int, int]]:
         """The line's links that don't show (`views.links.hidden_links`), by

@@ -18,7 +18,11 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress, Problem, Step
 from polyglotic_desktop.core.listening.display import WordLinks
 from polyglotic_desktop.core.listening.sources import SourceId
-from polyglotic_desktop.core.listening.timing import OFFERED_MODES, CaptionMode
+from polyglotic_desktop.core.listening.timing import (
+    LIVE_UPDATE_INTERVAL_SEC,
+    OFFERED_MODES,
+    CaptionMode,
+)
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui import theme as todays_theme
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
@@ -33,7 +37,12 @@ from polyglotic_desktop.ui_next.panels import (
     TimingPanel,
     WordLinksPanel,
 )
-from polyglotic_desktop.ui_next.transcript_window import SettingsRail
+from polyglotic_desktop.ui_next.transcript_window import (
+    SettingsRail,
+)
+from polyglotic_desktop.ui_next.transcript_window import (
+    stylesheet as transcript_stylesheet,
+)
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
 from polyglotic_desktop.ui_next.views.panels import (
     DownloadsView,
@@ -134,11 +143,10 @@ def languages_this_window(lab: Lab) -> QWidget:
 
 
 def timing(mode: CaptionMode, value: Timing | None = None) -> Callable[[Lab], QWidget]:
-    """The Timing panel on `mode`: under the choice, only that timing's own
-    settings, in seconds (295) - at `value` if given."""
+    """Show a Timing panel using the app default unless a state supplies its own."""
 
     def run(lab: Lab) -> QWidget:
-        view = TimingView(value or Timing(mode, 1.5))
+        view = TimingView(value or Timing(mode, LIVE_UPDATE_INTERVAL_SEC))
         panel = TimingPanel(view)
         shown = page(lab, style.px(HALF), panel)
         modes = list(OFFERED_MODES)
@@ -162,7 +170,7 @@ def look_rail(lab: Lab) -> QWidget:
     style.use(theme)
     view = LookView(CaptionLook())
     rail = SettingsRail()
-    rail.setStyleSheet(style.stylesheet(theme))
+    rail.setStyleSheet(transcript_stylesheet(theme))
     for group in (
         LookPanel(view),
         WordLinksPanel(view),
@@ -219,7 +227,14 @@ def fonts_downloading(lab: Lab) -> QWidget:
     Traditional characters, its default LXGW WenKai TC downloading (532); Japanese on
     Klee One, chosen, paused on a metered connection; Cantonese on its
     default, here; the others' sizes in their lists."""
-    look = LookView(CaptionLook(faces=(("ja", "Klee One Captions"),)))
+    look = LookView(
+        CaptionLook(
+            faces=(
+                ("ja", "Klee One Captions"),
+                ("zh-hant", "LXGW WenKai TC Captions"),
+            )
+        )
+    )
     languages = LanguagesView(
         SessionLanguages(
             spoken="zh", in_use=("ja", "yue"), mandarin_script="traditional"
@@ -306,7 +321,10 @@ def change_everywhere(lab: Lab) -> QWidget:
     )
     assert rail_links.word_links.value() == view.value.word_links
     assert rail.original.isChecked() == view.value.show_original
-    assert all(w.look == view.value for w in windows.windows.values())
+    assert rail.background.value() == home.background.value()
+    # 766: a look sets every open window's opacity.
+    for window in windows.windows.values():
+        assert window.look == view.value
     view.change(replace(view.value, show_original=True, faces=()))
     lab.pump()
     return shown

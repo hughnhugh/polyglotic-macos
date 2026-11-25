@@ -798,7 +798,9 @@ def test_a_caption_says_when_each_word_was_said() -> None:
     assert isinstance(plain, protocol.CaptionUpdate) and plain.clauses is not None
     assert all(c.words is None for c in plain.clauses)
     timed, untimed = listening.caption_update(message), listening.caption_update(plain)
-    assert timed.clauses == untimed.clauses
+    assert timed.clauses[0].words
+    assert timed.clauses[0].words[0].original == clause.words[0].original
+    assert untimed.clauses[0].words == ()
 
 
 def test_a_withdrawn_caption() -> None:

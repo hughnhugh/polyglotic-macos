@@ -104,7 +104,7 @@ class CaptionSetUp(SettingsPopover):
         spoken.insertWidget(
             1,
             self._note(
-                _tr("Detect works out the language each time someone speaks."),
+                _tr("Detect finds the language each time someone speaks."),
                 self.rows["spoken"],
             ),
         )
@@ -120,13 +120,13 @@ class CaptionSetUp(SettingsPopover):
         second.insertWidget(
             1,
             self._note(
-                _tr("Translate those lines into a second language too, or leave them."),
+                _tr("Choose a translation language, or show only the original."),
                 self.rows["second"],
             ),
         )
 
     def _set_up_head_row(self) -> QWidget:
-        heading = QLabel(_tr("Set up your captions"), self)
+        heading = QLabel(_tr("Set up captions"), self)
         heading.setStyleSheet(f"font-size: {style.px(16)}px; font-weight: 600;")
         return heading
 
@@ -142,7 +142,7 @@ class CaptionSetUp(SettingsPopover):
             self._note(
                 _tr(
                     'Shown as "You". Your mic is sent for your captions only while '
-                    "it's on."
+                    "this is on."
                 ),
                 row,
             )
@@ -163,7 +163,7 @@ class CaptionSetUp(SettingsPopover):
         self.as_default.setObjectName("caption_set_up.as_default")
         self.as_default.setCheckable(True)
         self.as_default.setToolTip(
-            _tr("New caption windows start like this, and this stops showing")
+            _tr("Use these choices for new caption windows and skip this card")
         )
         line.addWidget(self._button(self.as_default, row, switch=True), 1)
         self.start = QPushButton(_tr("Start captions"), row)
@@ -179,8 +179,8 @@ class CaptionSetUp(SettingsPopover):
         column.addWidget(
             self._note(
                 _tr(
-                    "On: new windows start like this and this stops showing. The "
-                    "languages on a window's bar change them, or bring it back."
+                    "New caption windows use these choices. Use Languages on the "
+                    "caption bar to change them or show this card again."
                 ),
                 row,
             )

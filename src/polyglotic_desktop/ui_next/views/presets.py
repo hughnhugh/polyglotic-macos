@@ -38,6 +38,12 @@ AA_TEXT = 4.5
 """WCAG 2.2's 1.4.3 for normal text: every preset's text at least this
 against its panel (caption text is large, whose floor is 3:1)."""
 
+PANEL_TEXT_CONTRAST = 4.5
+"""Minimum contrast ratio (1–21) for caption ink over a translucent panel.
+
+Below this ratio on black or white video, caption glyphs need an outline.
+"""
+
 
 @dataclass(frozen=True)
 class ColourPreset:
@@ -160,6 +166,22 @@ LOOKS: tuple[RecommendedLook, ...] = (
 
 LOOKS_BY_KEY = {look.key: look for look in LOOKS}
 
+LOOK_FIELDS = (
+    "original",
+    "translation",
+    "background",
+    "opacity",
+    "contrast",
+    "vibrance",
+    "thickness",
+    "edge",
+    "reading_size",
+    "reading_colour",
+    "faces",
+)
+"""The settings a recommended look changes.  Kept together so undo can
+restore only values that are still the ones the look applied."""
+
 
 def with_look(look: CaptionLook, key: str) -> CaptionLook:
     """`look` as the recommended look `key` makes it: what it sets, and
@@ -181,6 +203,19 @@ def with_look(look: CaptionLook, key: str) -> CaptionLook:
         reading_colour=chosen.reading_colour,
         faces=tuple(sorted(faces.items())),
     )
+
+
+def without_look(
+    now: CaptionLook, applied: CaptionLook, before: CaptionLook
+) -> CaptionLook:
+    """Undo a recommended look: restore each setting still equal to what
+    the look applied, while keeping any setting the learner changed since."""
+    restored = {
+        field: getattr(before, field)
+        for field in LOOK_FIELDS
+        if getattr(now, field) == getattr(applied, field)
+    }
+    return replace(now, **restored)
 
 
 def look_of(look: CaptionLook) -> RecommendedLook | None:
@@ -363,6 +398,23 @@ LARGE_TEXT = 3.0
 VIDEOS = ("#f3f5f7", "#000000")
 """A light video and a black one: what a panel that isn't solid is seen
 over, at its worst (284)."""
+
+
+@lru_cache(maxsize=256)
+def minimum_panel_opacity(
+    panel: str, original: str, translation: str, ratio: float = PANEL_TEXT_CONTRAST
+) -> float:
+    """Least panel opacity, in one-percent steps, that keeps both inks at
+    `ratio` over both representative light and black backgrounds."""
+    for percent in range(101):
+        opacity = percent / 100
+        if all(
+            contrast(ink, _mix(video, panel, opacity)) >= ratio
+            for ink in (original, translation)
+            for video in ("#000000", "#ffffff")
+        ):
+            return opacity
+    return 1.0
 
 
 def readable_through(

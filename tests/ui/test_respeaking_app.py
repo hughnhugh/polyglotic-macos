@@ -38,6 +38,26 @@ from polyglotic_desktop.ui_next.os_words import pc_or_mac
 CALL = Source(SourceId("app-1"), SourceCategory.CALL)
 
 
+def test_a_look_choice_is_recorded_even_when_reading_lines_follow_the_default() -> None:
+    settings = Settings(MemorySettingsStore({}))
+    settings.update(opacity=0.95, changed=settings.value.changed)
+
+    restarted = AppSettings.from_stored(settings.value.to_stored())
+
+    assert "opacity" in settings.value.changed
+    assert restarted.opacity == 0.95
+
+
+def test_the_last_own_respeak_key_survives_sharing_and_a_restart() -> None:
+    chosen = AppSettings(
+        respeak_key="", last_respeak_key="f9", changed=("respeak_key",)
+    )
+
+    restarted = AppSettings.from_stored(chosen.to_stored())
+
+    assert restarted.respeak_key == "" and restarted.last_respeak_key == "f9"
+
+
 class StandInMic:
     def __init__(self) -> None:
         self.on_piece: Callable[[MicPiece], None] | None = None
@@ -338,6 +358,18 @@ def test_dictation_for_others_turns_it_off_and_gives_it_its_own_key(
         assert card.respeak_way.value() == "own" and card.respeak_box.text() == "Insert"
         card.respeak_way.choose("shared")
         assert changes[-1] == {"respeak_key": ""}
+        card.show_respeaking(True, "")  # the settings update comes back to the card
+        stored = AppSettings(
+            respeak_key="", last_respeak_key="insert", changed=("respeak_key",)
+        ).to_stored()
+        restarted = AppSettings.from_stored(stored)
+        card.show_respeaking(
+            True, restarted.respeak_key, last_own=restarted.last_respeak_key
+        )
+        card.respeak_way.choose("own")
+        assert wanted[-1] == "insert"  # its learner-chosen key survives the restart
+        card.not_taken("insert")
+        assert card.respeak_box.listening  # another app has it: listen for a new key
     finally:
         shiboken6.delete(card)
 

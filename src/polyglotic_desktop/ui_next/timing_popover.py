@@ -107,7 +107,7 @@ def timing_line(mode: CaptionMode) -> str:
         CaptionMode.STEADY: _tr("Word by word at the speaker's pace, a moment behind"),
         CaptionMode.PREVIEW: _tr("Word by word at the speaker's pace, a moment behind"),
         CaptionMode.CALM: _tr(
-            "Only words the speech model is sure of: later, and still"
+            "Only words the speech model is sure of: later, but they stay put"
         ),
         CaptionMode.WHOLE: _tr(
             "Each sentence once, finished: nothing moves as you read"
@@ -120,7 +120,7 @@ def timing_line(mode: CaptionMode) -> str:
 
 def path_name(path: ReadingPath) -> str:
     return {
-        ReadingPath.ACQUISITION: _tr("Translation after I've read it"),
+        ReadingPath.ACQUISITION: _tr("Translation a moment later"),
         ReadingPath.BOTH: _tr("Translation with it"),
         ReadingPath.FOLLOW: _tr("Translation with it"),  # not offered on the chip
     }[path]

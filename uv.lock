@@ -728,6 +728,7 @@ dependencies = [
     { name = "segno" },
     { name = "sounddevice", marker = "sys_platform == 'darwin'" },
     { name = "soundfile" },
+    { name = "sudachipy" },
     { name = "velopack" },
     { name = "websockets" },
 ]
@@ -747,7 +748,6 @@ dev = [
 languages = [
     { name = "simplemma" },
     { name = "sudachidict-small" },
-    { name = "sudachipy" },
 ]
 package = [
     { name = "pyinstaller" },
@@ -766,6 +766,7 @@ requires-dist = [
     { name = "segno", specifier = ">=1.6.6" },
     { name = "sounddevice", marker = "sys_platform == 'darwin'", specifier = ">=0.5.6" },
     { name = "soundfile", specifier = ">=0.14.0" },
+    { name = "sudachipy", specifier = ">=0.6" },
     { name = "velopack", specifier = ">=1.2.161" },
     { name = "websockets", specifier = ">=17.4" },
 ]
@@ -785,7 +786,6 @@ dev = [
 languages = [
     { name = "simplemma", specifier = ">=2.0.0" },
     { name = "sudachidict-small", specifier = ">=20261015" },
-    { name = "sudachipy", specifier = ">=0.6" },
 ]
 package = [{ name = "pyinstaller", specifier = ">=6.22.3" }]
 

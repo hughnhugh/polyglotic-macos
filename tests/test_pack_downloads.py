@@ -5,6 +5,8 @@ failure content-free."""
 
 from __future__ import annotations
 
+import gzip
+import hashlib
 import json
 import logging
 import threading
@@ -31,7 +33,7 @@ from polyglotic_desktop.core.lexicon.pack_download import (
     Step,
     retry_after,
 )
-from polyglotic_desktop.core.lexicon.packs import PackOffer, Reader
+from polyglotic_desktop.core.lexicon.packs import PackOffer, Reader, Rider
 
 READER = Reader(frozenset({"1"}), frozenset({"spaced"}), "0.1.5")
 FILE = "packs/files/wiktru-en-2026.11.14.sqlite.gz"
@@ -105,14 +107,101 @@ def deliveries(
         "retry", lambda tries, problem: 0.05 if retry_after(tries, problem) else None
     )
     options.setdefault("stall_sec", 0.5)
+    reader = options.pop("reader", READER)
     return PackDeliveries(
         packs,
         PackFolder(tmp_path / "packs"),
-        READER,
+        reader,  # type: ignore[arg-type]
         seen.on_progress,
         seen.on_installed,
         **options,  # type: ignore[arg-type]
     )
+
+
+@pytest.fixture
+def japanese_server(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[tuple[StandIn, Rider, bytes]]:
+    """A Japanese pack and its required dictionary beside it in fake storage."""
+    built = tmp_path / "japanese-built"
+    tiny_pack(built, language="ja", dictionary="jmdict")
+    tiny_pack(built, language="ja", dictionary="jmdict", meanings="zh")
+    bucket = tmp_path / "japanese-bucket"
+    assert publish(monkeypatch, bucket, built, language="ja") == 0
+    dictionary = b"stand-in Sudachi system dictionary"
+    packed = gzip.compress(dictionary, mtime=0)
+    rider = Rider(
+        kind="japanese-dictionary",
+        format="test",
+        min_app="0.1.5",
+        file="test.system.dic",
+        size=len(dictionary),
+        sha256=hashlib.sha256(dictionary).hexdigest(),
+        gz_size=len(packed),
+        gz_sha256=hashlib.sha256(packed).hexdigest(),
+    )
+    object_name = "packs/v1/test.system.dic.gz"
+    (bucket / object_name).parent.mkdir(parents=True, exist_ok=True)
+    (bucket / object_name).write_bytes(packed)
+    monkeypatch.setattr("polyglotic_desktop.adapters.japanese_dictionary.RIDER", rider)
+    monkeypatch.setattr(
+        "polyglotic_desktop.adapters.japanese_dictionary.OBJECT_NAME", object_name
+    )
+    with StandIn(bucket) as stand_in:
+        yield stand_in, rider, packed
+
+
+def test_japanese_pack_and_dictionary_download_as_one_delivery(
+    japanese_server: tuple[StandIn, Rider, bytes], tmp_path: Path
+) -> None:
+    server, rider, _packed = japanese_server
+    seen = Seen()
+    got = deliveries(
+        server,
+        tmp_path,
+        seen,
+        reader=Reader(frozenset({"1"}), frozenset({"japanese"}), "0.1.12"),
+    )
+    got.want("ja", "en")
+    seen.wait()
+    assert seen.installed[0][0].split == "japanese"
+    assert (tmp_path / "packs" / rider.file).read_bytes() == (
+        b"stand-in Sudachi system dictionary"
+    )
+    requested = [path for path, _range, code in server.requests if code == 200]
+    assert requested.index(
+        "packs/files/jmdict-en-2026.11.14.sqlite.gz"
+    ) < requested.index("packs/v1/test.system.dic.gz")
+    assert seen.steps == [
+        Step.LIST,
+        Step.DOWNLOADING,
+        Step.CHECKING,
+        Step.OPENING,
+        Step.DONE,
+    ]
+    got.close()
+
+
+def test_wrong_japanese_dictionary_hash_is_refused_and_deleted(
+    japanese_server: tuple[StandIn, Rider, bytes], tmp_path: Path
+) -> None:
+    server, rider, packed = japanese_server
+    server.faults.swap["packs/v1/test.system.dic.gz"] = (
+        bytes([packed[0] ^ 1]) + packed[1:]
+    )
+    seen = Seen()
+    got = deliveries(
+        server,
+        tmp_path,
+        seen,
+        reader=Reader(frozenset({"1"}), frozenset({"japanese"}), "0.1.12"),
+    )
+    got.want("ja", "en")
+    seen.wait()
+    assert seen.last.problem is Problem.FILE_REFUSED
+    assert not (tmp_path / "packs" / rider.file).exists()
+    assert not list((tmp_path / "packs").glob("*system.dic*"))
+    got.close()
 
 
 def test_a_pack_downloads_checks_opens_and_is_installed(

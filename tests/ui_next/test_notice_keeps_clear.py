@@ -76,7 +76,7 @@ def test_where_the_strip_leaves_no_gap_the_notice_goes_under_it(
     still start below it."""
     window.resize(260, 300)
     QApplication.processEvents()
-    window.show_notice("Can't reach Polyglotic's server - trying again in 8 s")
+    window.show_notice("Can't connect to Polyglotic - trying again in 8 s")
     at_rest = window.notice.geometry()
     window._show_band(True)
     under = window.notice.geometry()

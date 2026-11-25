@@ -12,6 +12,7 @@ so the band looks as it did on Windows.
 
 import math
 from enum import StrEnum
+from functools import cache
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt
 from PySide6.QtGui import (
@@ -43,14 +44,29 @@ installed, their space is taken as a third of an em."""
 
 
 class Glyph(StrEnum):
+    HOME = "home"
+    """The main window's Home: a house."""
+    WORDS = "words"
+    """The main window's Words: an open book."""
+    LEARNING = "learning"
+    """The main window's Learning: a sprout."""
+    ACCOUNT = "account"
+    """The main window's Account: a person."""
+    HELP = "help"
+    """The main window's Help: a question mark in a circle."""
     LOCK = "lock"
     SETTINGS = "settings"
     CLOSE = "close"
+    MINIMISE = "minimise"
     MORE = "more"
     MIC = "mic"
     MIC_OFF = "mic_off"
     LINKS = "links"
     REPORT = "report"
+    COPY = "copy"
+    """A caption's Copy button (polyglotic-hq 950): two overlapping pages."""
+    SAVE = "save"
+    """A caption's Save button (polyglotic-hq 950): a bookmark ribbon."""
     SPEAKER = "speaker"
     """The lookup card's "say it" (polyglotic-hq 286): a speaker, one wave."""
     SPEAKING = "speaking"
@@ -126,10 +142,53 @@ def _gear() -> QPainterPath:
     return path
 
 
+@cache
 def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
     """`glyph`'s lines (stroked) and dots (filled), on the 16-unit grid."""
     lines, dots = QPainterPath(), QPainterPath()
-    if glyph is Glyph.LANGUAGES:
+    if glyph is Glyph.HOME:
+        lines.moveTo(1.5, 7.25)
+        lines.lineTo(8, 1.75)
+        lines.lineTo(14.5, 7.25)
+        lines.moveTo(3.25, 6)
+        lines.lineTo(3.25, 14.25)
+        lines.lineTo(12.75, 14.25)
+        lines.lineTo(12.75, 6)
+        lines.moveTo(6.25, 14.25)
+        lines.lineTo(6.25, 9.25)
+        lines.lineTo(9.75, 9.25)
+        lines.lineTo(9.75, 14.25)
+    elif glyph is Glyph.WORDS:
+        lines.moveTo(1.5, 3)
+        lines.quadTo(5, 2, 8, 4.25)
+        lines.quadTo(11, 2, 14.5, 3)
+        lines.lineTo(14.5, 13.5)
+        lines.quadTo(11, 12.5, 8, 14.5)
+        lines.quadTo(5, 12.5, 1.5, 13.5)
+        lines.closeSubpath()
+        lines.moveTo(8, 4.25)
+        lines.lineTo(8, 14.5)
+    elif glyph is Glyph.LEARNING:
+        # A sprout stays legible at the sidebar's 13--15 px; a cap's tassel
+        # and overlapping edges would merge at the footer-sized strokes.
+        lines.moveTo(8, 14.5)
+        lines.lineTo(8, 6)
+        lines.cubicTo(5.5, 6, 3.25, 4.5, 2.5, 2)
+        lines.cubicTo(5.75, 1.75, 7.75, 3.25, 8, 6)
+        lines.cubicTo(8.25, 3.25, 10.25, 1.75, 13.5, 2)
+        lines.cubicTo(12.75, 4.5, 10.5, 6, 8, 6)
+    elif glyph is Glyph.ACCOUNT:
+        lines.addEllipse(QPointF(8, 4.5), 3, 3)
+        lines.moveTo(2.25, 14.5)
+        lines.cubicTo(2.75, 9.5, 5, 8.5, 8, 8.5)
+        lines.cubicTo(11, 8.5, 13.25, 9.5, 13.75, 14.5)
+    elif glyph is Glyph.HELP:
+        lines.addEllipse(QPointF(8, 8), 6.25, 6.25)
+        lines.moveTo(5.75, 6)
+        lines.cubicTo(6, 3.25, 10.5, 3.25, 10.5, 6)
+        lines.cubicTo(10.5, 7.75, 8, 7.75, 8, 10)
+        dots.addEllipse(QPointF(8, 12.25), 0.75, 0.75)
+    elif glyph is Glyph.LANGUAGES:
         lines.addEllipse(QRectF(1.5, 1.5, 13, 13))
         lines.addEllipse(QRectF(5, 1.5, 6, 13))
         lines.moveTo(1.5, 8)
@@ -157,6 +216,9 @@ def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
         lines.lineTo(12.75, 12.75)
         lines.moveTo(12.75, 3.25)
         lines.lineTo(3.25, 12.75)
+    elif glyph is Glyph.MINIMISE:
+        lines.moveTo(3.25, 8)
+        lines.lineTo(12.75, 8)
     elif glyph is Glyph.MORE:
         for x in (2.5, 8.0, 13.5):
             dots.addEllipse(QPointF(x, 8), 1.25, 1.25)
@@ -178,6 +240,25 @@ def _outline(glyph: Glyph) -> tuple[QPainterPath, QPainterPath]:
         lines.lineTo(10.5, 5)
         lines.lineTo(12.75, 8.5)
         lines.lineTo(3.5, 8.5)
+    elif glyph is Glyph.COPY:  # two overlapping pages (polyglotic-hq 950)
+        lines.addRoundedRect(QRectF(5.5, 5.25, 8.25, 9.0), 1.5, 1.5)
+        lines.moveTo(10.5, 5.25)
+        lines.lineTo(10.5, 3.25)
+        lines.quadTo(10.5, 2.0, 9.25, 2.0)
+        lines.lineTo(3.5, 2.0)
+        lines.quadTo(2.25, 2.0, 2.25, 3.25)
+        lines.lineTo(2.25, 9.75)
+        lines.quadTo(2.25, 11.0, 3.5, 11.0)
+        lines.lineTo(5.5, 11.0)
+    elif glyph is Glyph.SAVE:  # a bookmark ribbon (polyglotic-hq 950)
+        lines.moveTo(3.5, 14.0)
+        lines.lineTo(3.5, 3.25)
+        lines.quadTo(3.5, 2.0, 4.75, 2.0)
+        lines.lineTo(11.25, 2.0)
+        lines.quadTo(12.5, 2.0, 12.5, 3.25)
+        lines.lineTo(12.5, 14.0)
+        lines.lineTo(8.0, 10.75)
+        lines.closeSubpath()
     elif glyph is Glyph.FILL:  # four lines edge to edge: text filling its width
         for y in (2.5, 6.0, 10.0, 13.5):
             lines.moveTo(1.75, y)

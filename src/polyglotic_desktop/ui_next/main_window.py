@@ -47,10 +47,20 @@ desktop has no tray (`no_tray`: GNOME without its extension), closing it
 is `main`'s to answer (`closed_without_tray`, polyglotic-hq 571).
 """
 
+import math
 from itertools import pairwise
 from typing import Protocol, runtime_checkable
 
-from PySide6.QtCore import QChildEvent, QEvent, QObject, QRect, Qt, QTimer, Signal
+from PySide6.QtCore import (
+    QChildEvent,
+    QEvent,
+    QObject,
+    QRect,
+    QRectF,
+    Qt,
+    QTimer,
+    Signal,
+)
 from PySide6.QtGui import (
     QAction,
     QCloseEvent,
@@ -80,6 +90,8 @@ from PySide6.QtWidgets import (
 from polyglotic_desktop.perf import spans
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.controls import label
+from polyglotic_desktop.ui_next.glyphs import Glyph
+from polyglotic_desktop.ui_next.glyphs import paint as paint_glyph
 from polyglotic_desktop.ui_next.home import COLUMN
 from polyglotic_desktop.ui_next.resize_handle import CURSORS, ResizeHandle
 
@@ -109,6 +121,83 @@ SIDEBAR_AT_MINIMUM = 184
 NARROW = 820
 """Below this window width the sidebar is at its narrower width."""
 WORDS_COLUMN = 960
+
+SIDEBAR_GLYPHS = {
+    "home": Glyph.HOME,
+    "words": Glyph.WORDS,
+    "learning": Glyph.LEARNING,
+    "account": Glyph.ACCOUNT,
+    "settings": Glyph.SETTINGS,
+    "help": Glyph.HELP,
+}
+"""Decorative marks for every named sidebar destination."""
+
+_SIDEBAR_PIXMAPS: dict[tuple[Glyph, int, int, float], QPixmap] = {}
+"""Rendered sidebar marks, keyed by glyph, logical side, RGBA and DPR."""
+
+
+def _sidebar_pixmap(
+    glyph: Glyph, side: int, colour: QColor, device_pixel_ratio: float
+) -> QPixmap:
+    """Return one already-rasterised mark for this display and text state."""
+    key = (glyph, side, colour.rgba(), device_pixel_ratio)
+    if cached := _SIDEBAR_PIXMAPS.get(key):
+        return cached
+    physical_side = math.ceil(side * device_pixel_ratio)
+    pixmap = QPixmap(physical_side, physical_side)
+    pixmap.setDevicePixelRatio(device_pixel_ratio)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap)
+    paint_glyph(painter, glyph, QRectF(0, 0, side, side), colour)
+    painter.end()
+    _SIDEBAR_PIXMAPS[key] = pixmap
+    return pixmap
+
+
+def _paint_sidebar_glyph(
+    widget: QWidget, painter: QPainter, glyph: Glyph, side: int, colour: QColor
+) -> None:
+    top = round((widget.height() - side) / 2)
+    pixmap = _sidebar_pixmap(glyph, side, colour, widget.devicePixelRatioF())
+    painter.drawPixmap(style.px(12), top, pixmap)
+
+
+class SidebarButton(QPushButton):
+    """A sidebar label with a decorative glyph that follows its text state."""
+
+    def __init__(self, title: str, glyph: Glyph, *, foot: bool = False) -> None:
+        super().__init__(title)
+        self.glyph = glyph
+        self.foot = foot
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        theme = style.current()
+        if not self.isEnabled():
+            colour = theme["TEXT_FAINT"]
+        elif self.underMouse() or self.isChecked():
+            colour = theme["TEXT"]
+        else:
+            colour = theme["TEXT_FAINT" if self.foot else "TEXT_DIM"]
+        side = style.px(13 if self.foot else 15)
+        painter = QPainter(self)
+        _paint_sidebar_glyph(self, painter, self.glyph, side, QColor(colour))
+        painter.end()
+
+
+class SidebarQuitButton(QToolButton):
+    """Quit keeps QAction behaviour while sharing the footer's glyph treatment."""
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        theme = style.current()
+        colour = theme["TEXT"] if self.underMouse() else theme["TEXT_FAINT"]
+        if not self.isEnabled():
+            colour = theme["TEXT_FAINT"]
+        side = style.px(13)
+        painter = QPainter(self)
+        _paint_sidebar_glyph(self, painter, Glyph.START, side, QColor(colour))
+        painter.end()
 
 
 @runtime_checkable
@@ -271,7 +360,8 @@ class MainWindow(QMainWindow):
         )
         side.addWidget(machine_made)
         side.addSpacing(12)
-        self.quit_button = QToolButton()
+        self.quit_button = SidebarQuitButton()
+        self.quit_button.setObjectName("SidebarQuitButton")
         self.quit_button.setDefaultAction(quit_action)
         self.quit_button.setProperty("kind", "ghost")
         self.quit_button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -327,7 +417,12 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(shown)
         if place is None:
             return
-        button = QPushButton(title)
+        glyph = SIDEBAR_GLYPHS.get(key)
+        button = (
+            SidebarButton(title, glyph, foot=place == "foot")
+            if glyph is not None
+            else QPushButton(title)
+        )
         button.setObjectName("FootButton" if place == "foot" else "NavButton")
         button.setCheckable(True)
         button.setCursor(Qt.CursorShape.PointingHandCursor)

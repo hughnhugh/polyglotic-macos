@@ -2,6 +2,7 @@
 transcript view, without Qt."""
 
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 
 from tests.ui_next.made_up import (
     EN,
@@ -14,11 +15,13 @@ from tests.ui_next.made_up import (
 
 from polyglotic_desktop.core.listening.captions import Clause
 from polyglotic_desktop.core.listening.display import DisplayOptions, RowKind
+from polyglotic_desktop.core.listening.sources import WHOLE_SYSTEM, SourceLabel
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.views.captions import (
     TEXT_SIZES,
     TRANSCRIPT_LINES,
     CaptionLines,
+    Labels,
 )
 
 
@@ -153,11 +156,6 @@ def test_a_translation_can_be_turned_off_and_on() -> None:
 
 
 def test_the_label_above_a_caption_says_its_source_and_the_language_spoken() -> None:
-    from dataclasses import replace
-
-    from polyglotic_desktop.core.listening.sources import SourceLabel
-    from polyglotic_desktop.ui_next.views.captions import Labels
-
     view = CaptionLines((APP, MIC), EN, keep=10, yours=(MIC,))
     first, second = finished_updates(2)
     view.apply(first)
@@ -173,6 +171,49 @@ def test_the_label_above_a_caption_says_its_source_and_the_language_spoken() -> 
     app_line = view.lines[0]
     assert app_line.label.startswith("Discord  ") and app_line.label_color == "#4dd0e1"
     assert view.lines[0].caption_id == first.caption_id
+
+
+def test_caption_panel_labels_use_local_time_and_name_each_source_change() -> None:
+    now = datetime(2026, 11, 23, 10, 43, tzinfo=UTC)
+    view = CaptionLines(
+        (APP, MIC),
+        EN,
+        keep=10,
+        yours=(MIC,),
+        clock=lambda: now,
+        labels=Labels(
+            sources={APP: SourceLabel("System audio", "#4dd0e1")},
+            show_source=True,
+            show_language=True,
+            show_time=True,
+            spoken=lambda heard: {EN: "English", ZH: "Chinese"}[heard[0]],
+        ),
+    )
+    actual = []
+    for update, source, language, name in zip(
+        finished_updates(4),
+        (APP, APP, MIC, APP),
+        (EN, ZH, ZH, ZH),
+        ("System audio", "", "You", "System audio"),
+        strict=True,
+    ):
+        now += timedelta(minutes=2)
+        view.apply(
+            replace(
+                update, source_id=source, language=language, languages_heard=(language,)
+            )
+        )
+        time = now.astimezone().strftime("%H:%M")
+        spoken = "English" if language == EN else "Chinese"
+        actual.append(" · ".join(part for part in (name, spoken, time) if part))
+    assert [(line.label, line.label_color) for line in view.lines] == [
+        (label, "") for label in actual
+    ]
+    view.set_limits(3)
+    assert [line.label for line in view.lines] == [
+        f"System audio · {actual[1]}",
+        *actual[2:],
+    ]
 
 
 def test_a_captions_delay_is_on_its_label_only_when_asked() -> None:
@@ -220,3 +261,70 @@ def test_a_views_text_settles_after_the_time_chosen() -> None:
 
     assert shown(3.0).startswith("He went to this door and")
     assert shown(0.0).startswith("We walked to this door and")
+
+
+def test_own_source_is_omitted_while_you_and_other_sources_stay() -> None:
+    now = datetime(2026, 11, 25, 5, 17, tzinfo=UTC)
+    labels = Labels(
+        sources={
+            WHOLE_SYSTEM: SourceLabel("Everything the PC plays", "#f5a97f"),
+            OTHER_APP: SourceLabel("Zoom", "#a5d66f"),
+        },
+        own_source=WHOLE_SYSTEM,
+        show_source=True,
+        show_language=True,
+        show_time=True,
+        spoken=lambda heard: {EN: "English", ZH: "Chinese"}[heard[0]],
+        pace=lambda wpm: f"{wpm} wpm",
+    )
+    view = CaptionLines(
+        (WHOLE_SYSTEM, MIC, OTHER_APP),
+        EN,
+        keep=10,
+        yours=(MIC,),
+        clock=lambda: now,
+        labels=labels,
+    )
+    updates = finished_updates(4, WHOLE_SYSTEM)
+    for update, source, wpm in zip(
+        updates,
+        (WHOLE_SYSTEM, MIC, WHOLE_SYSTEM, OTHER_APP),
+        (165, 167, 170, 150),
+        strict=True,
+    ):
+        view.apply(
+            replace(
+                update,
+                source_id=source,
+                language=EN,
+                languages_heard=(EN,),
+                pace_wpm=wpm,
+            )
+        )
+    local = now.astimezone().strftime("%H:%M")
+    assert [line.label for line in view.lines] == [
+        f"English · {local} · 165 wpm",
+        f"You · English · {local} · 167 wpm",
+        f"English · {local} · 170 wpm",
+        f"Zoom · English · {local} · 150 wpm",
+    ]
+
+    # Turning caption info off hides every header regardless of source.
+    view.set_labels(replace(labels, show_info=False))
+    assert [line.label for line in view.lines] == ["", "", "", ""]
+
+    # A mic-only window still keeps "You" on the learner's own speech.
+    mic_only = CaptionLines(
+        (MIC,),
+        EN,
+        keep=10,
+        yours=(MIC,),
+        clock=lambda: now,
+        labels=replace(labels, own_source=MIC),
+    )
+    mic_only.apply(
+        replace(
+            updates[0], source_id=MIC, language=EN, languages_heard=(EN,), pace_wpm=167
+        )
+    )
+    assert mic_only.lines[0].label == f"You · English · {local} · 167 wpm"

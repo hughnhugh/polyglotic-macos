@@ -244,6 +244,18 @@ def test_the_start_is_timed_alone_and_the_heavy_steps_share_the_pc() -> None:
     )
 
 
+def test_main_is_the_ui_labs_mandatory_timing_measurement() -> None:
+    windows = workflow("windows.yml")
+    runs = [
+        str(step.get("run", ""))
+        for step in windows["jobs"]["ui-lab"]["steps"]
+        if "tools.ui_lab --out build/ui-lab --gate" in str(step.get("run", ""))
+    ]
+    assert len(runs) == 1
+    assert "github.ref == 'refs/heads/main'" in runs[0]
+    assert "--require-timings" in runs[0]
+
+
 MOST_DAYS_KEPT = 7
 """The longest any workflow keeps what it uploads. GitHub's Free plan has
 500 MB of artifact storage for the whole account (all three repos), counted

@@ -29,7 +29,9 @@ jobs:
     # On the user's PC, in Docker: a self-hosted runner (polyglotic-hq
     # project 069, decision 0025). Its image has curl and jq but not gh;
     # feed_check.py reads the GitHub API with GH_TOKEN (urllib), not gh.
-    runs-on: [self-hosted, linux]
+    # The light runner (hughs-pc-linux-light, label `light` only, 768 MB):
+    # quick jobs never queue behind the test suite (polyglotic-hq, 2026-11-24).
+    runs-on: [light]
     timeout-minutes: 15
     env:
       UPDATE_FEED: ${{ vars.UPDATE_FEED }}

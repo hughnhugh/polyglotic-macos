@@ -230,15 +230,16 @@ class LabPanel(Panel):
             Row(
                 _tr("Older captions dim"),
                 _tr(
-                    "All at once to Older captions' brightness, or step by step: "
-                    "each caption back a little dimmer, over this many captions."
+                    "All at once to Older captions' brightness, or step by step, "
+                    "each caption back a little dimmer, over the number of "
+                    "captions you choose."
                 ),
                 self.older_steps,
             )
         )
         self.unfinished = Segmented(
             [
-                (Unfinished.AS_NOW, _tr("As now")),
+                (Unfinished.AS_NOW, _tr("Default")),
                 (Unfinished.SAME, _tr("Same as finished")),
                 (Unfinished.DIMMER, _tr("Dimmer")),
                 (Unfinished.ITALIC, _tr("Italic")),
@@ -252,8 +253,8 @@ class LabPanel(Panel):
                 _tr("Text still being spoken"),
                 _tr(
                     "How a line that may still change looks beside finished text. "
-                    "As now: Steady's and Quick preview's dim italic line, Live "
-                    "updates' a little dim. Colour: the theme's blue."
+                    "Default: dim italic in Whole captions, a little dim in the "
+                    "other timings. Colour: the theme's blue."
                 ),
                 _left(self.unfinished),
             )
@@ -338,7 +339,7 @@ class LabPanel(Panel):
                 _tr(
                     "Captions that arrive together come in one at a time, at least "
                     "this far apart and in order - none is dropped. 0 s: as they "
-                    "come. None waits longer than the longest wait for text."
+                    "come. None waits longer than Longest wait for text, in Timing."
                 ),
                 self.arrival_gap,
             )
@@ -358,8 +359,8 @@ class LabPanel(Panel):
                 _tr("Gap between new lines"),
                 _tr(
                     "A new caption's lines show one at a time, this far apart, "
-                    "instead of all together. 0 s: together, as now. None waits "
-                    "longer than the longest wait for text."
+                    "instead of all together. 0 s: together (the default). None "
+                    "waits longer than Longest wait for text, in Timing."
                 ),
                 self.line_gap,
             )
@@ -369,9 +370,9 @@ class LabPanel(Panel):
         self._fill()
         self._learning_load()
 
-        self.reset = QPushButton(_tr("Reset the lab"))
+        self.reset = QPushButton(_tr("Reset the Lab"))
         self.reset.setObjectName("lab.reset")
-        self.reset.setToolTip(_tr("Every setting in the Lab as Polyglotic has it."))
+        self.reset.setToolTip(_tr("Every Lab setting back to its default."))
         self.reset.clicked.connect(view.reset_lab)
         reset = QHBoxLayout()
         reset.setContentsMargins(INSET - 1, 0, 0, 0)
@@ -410,7 +411,7 @@ class LabPanel(Panel):
             self.add(row)
         self.own_label = Segmented(
             [
-                (OwnLabel.AS_NOW, _tr("As now")),
+                (OwnLabel.AS_NOW, _tr("Default")),
                 (OwnLabel.BADGE, _tr("Badge")),
                 (OwnLabel.NONE, _tr("None")),
             ]
@@ -420,7 +421,7 @@ class LabPanel(Panel):
         self.add(
             Row(
                 _tr("Your speech's label"),
-                _tr('"You" over what you say: as now, in a badge, or not shown.'),
+                _tr('"You" over what you say: as usual, in a badge, or not shown.'),
                 _left(self.own_label),
             )
         )
@@ -440,18 +441,18 @@ class LabPanel(Panel):
         self.fill.setToolTip(
             _tr(
                 "Line by line: a line of what was said, then the line of its "
-                "translation, both cut where their words match. A long clause "
-                "that can't be cut so wraps as it does now."
+                "translation, both cut where their words match. A long clause that "
+                "can't be cut wraps."
             )
         )
         self.fill.changed.connect(lambda v: self._set(fill=Fill(v)))
         self.fill_row = Row(
-            _tr("Captions fill the width"),
+            _tr("Fill the width"),
             _tr(
-                "Off: each clause on a row of its own, as now. Translation "
-                "below: a caption's clauses run on in lines as wide as the "
-                "window, and its translation fills the lines under them. No "
-                "Arrows while captions fill the width."
+                "Off: each clause on a row of its own (the default). Translation "
+                "below: a caption's clauses run on in lines as wide as the window, "
+                "and its translation fills the lines under them. No Arrows while "
+                "this is on."
             ),
             _left(self.fill),
         )
@@ -468,10 +469,10 @@ class LabPanel(Panel):
         self.join_row = Row(
             _tr("Between clauses"),
             _tr(
-                "When captions fill the width: an ellipsis where one clause "
-                "ends and the next begins, one at the end of every line that "
-                "runs on as well, or only a space. Choosing one while Captions "
-                "fill the width is Off sets it to Translation below."
+                "With Fill the width: an ellipsis where one clause ends and the "
+                "next begins, one at the end of every line that runs on as well, "
+                "or only a space. Choosing one while Fill the width is Off sets it "
+                "to Translation below."
             ),
             _left(self.join),
         )
@@ -480,9 +481,9 @@ class LabPanel(Panel):
         self.flow = SwitchRow(
             _tr("New layout"),
             _tr(
-                "Captions are laid out a new way, however they fill the width: "
-                "Arrows and word links work in all of them and in Learning "
-                "load, and Line by line always fills its lines."
+                "A new way to lay out captions, with Fill the width on or off: "
+                "Arrows and word links work in every layout and in Learning load, "
+                "and Line by line always fills its lines."
             ),
             "lab.flow",
         )
@@ -504,7 +505,7 @@ class LabPanel(Panel):
         for poured in (self.fill_row, self.join_row, self.run_on):
             poured.setHidden(not flags.on(flags.FILL_THE_WIDTH))
         self.aligned = SwitchRow(
-            _tr("Parts lined up"),
+            _tr("Line up the parts"),
             _tr(
                 "Each part of what was said starts at the same place as its "
                 "translation, so a word's translation is under it - however "
@@ -529,11 +530,11 @@ class LabPanel(Panel):
                 _tr("Parts placed"),
                 _tr(
                     "Where the parts of a line go in the room the line has. "
-                    "Packed: each straight after the one before, as now. Nearest "
-                    "their links: each part moves over its translation's words, "
-                    "so the word links are as short as they can be. Evenly: a "
-                    "full line's parts are spread over the width. "
-                    "Choosing one also turns on New layout."
+                    "Packed: each straight after the one before (the default). "
+                    "Nearest their links: each part moves over its translation's "
+                    "words, so the word links are as short as they can be. Evenly: "
+                    "a full line's parts are spread over the width. Choosing one "
+                    "also turns on New layout."
                 ),
                 _left(self.placing),
             )
@@ -556,12 +557,13 @@ class LabPanel(Panel):
         self.add(self.load)
         # where its words are: a link to them while it's on (342)
         self.to_load = label(
-            _tr("{open} - its words, the check and its settings.").format(
-                open=f"<a href='load'>{_tr('Open it on Learning')}</a>"
-            ),
+            _tr(
+                "{open} - its words, the check of what you know and its settings."
+            ).format(open=f"<a href='load'>{_tr('Open it on Learning')}</a>"),
             "Faint",
             wrap=True,
         )
+        self.to_load.setObjectName("lab.to_learning")
         self.to_load.setContentsMargins(INSET, 0, 0, 0)
         self.to_load.linkActivated.connect(lambda _: self.load_wanted.emit())
         self.add(self.to_load)

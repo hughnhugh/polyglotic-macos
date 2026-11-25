@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from PySide6.QtGui import QFont, QFontDatabase, QFontMetricsF, QRawFont
+from PySide6.QtGui import QFont, QFontDatabase, QFontInfo, QFontMetricsF, QRawFont
 from PySide6.QtWidgets import QApplication
 
 from polyglotic_desktop.core.listening.captions import Language
@@ -41,6 +41,7 @@ def test_each_language_starts_with_its_default_face() -> None:
         language: fonts.caption_families(language, system="win32")[0]
         for language in (
             "zh",
+            "zh-hant",
             "th",
             "vi",
             "ar",
@@ -54,7 +55,8 @@ def test_each_language_starts_with_its_default_face() -> None:
         )
     }
     assert first == {
-        "zh": "Ma Shan Zheng Captions",
+        "zh": "Microsoft YaHei UI",
+        "zh-hant": "Microsoft JhengHei UI",
         "th": "Noto Sans Thai Looped",
         "vi": "Be Vietnam Pro",
         "ar": "Noto Naskh Arabic Captions",
@@ -83,13 +85,13 @@ def test_thai_and_arabic_name_windows_own_faces_not_qts_fallback() -> None:
 
 
 def test_the_downloaded_defaults_come_first_and_windows_own_after() -> None:
-    """Traditional Chinese's, Cantonese's, Japanese's and Korean's faces
-    are downloaded: until they're here, Qt passes over them to Windows'."""
-    assert fonts.caption_families("zh-hant", system="win32")[:4] == (
-        "LXGW WenKai TC Captions",
-        "Noto Sans TC Captions",
+    """Cantonese's, Japanese's and Korean's faces are downloaded: until
+    they're here, Qt passes over them to Windows'. Traditional Chinese
+    defaults to the platform's plain CJK UI face (polyglotic-hq 952)."""
+    assert fonts.caption_families("zh-hant", system="win32")[:3] == (
         "Microsoft JhengHei UI",
         "Microsoft JhengHei",
+        "Noto Sans TC Captions",
     )
     assert fonts.caption_families("yue", system="win32")[:2] == (
         "Noto Sans HK Captions",
@@ -103,7 +105,7 @@ def test_the_downloaded_defaults_come_first_and_windows_own_after() -> None:
         "Pretendard",
         "Malgun Gothic",
     )
-    for script in ("zh-hant", "yue", "ja", "ko"):
+    for script in ("yue", "ja", "ko"):
         assert fonts.FACES[fonts.DEFAULTS[script]].pack, script
 
 
@@ -120,8 +122,8 @@ def test_every_list_ends_in_the_latin_faces_for_the_letters_in_it() -> None:
 def test_the_learners_choice_comes_first() -> None:
     assert fonts.caption_families("zh", "KaiTi", system="win32")[:3] == (
         "KaiTi",
-        "Ma Shan Zheng Captions",
-        "Noto Sans SC Captions",
+        "Microsoft YaHei UI",
+        "Microsoft YaHei",
     )
     assert fonts.caption_families("en", "IBM Plex Sans", system="win32")[:2] == (
         "IBM Plex Sans",
@@ -145,39 +147,71 @@ def test_on_another_os_every_script_has_a_face_of_its_own(system: str) -> None:
     assert "Kohinoor Devanagari" in fonts.caption_families("hi", system="darwin")
 
 
-def test_chinese_is_in_calligraphy_with_its_sans_behind() -> None:
-    """532 (the user, preview 1: "make a stand out one the default and
-    customisable"): Simplified's default is Ma Shan Zheng, carried by the
-    app; Traditional's LXGW WenKai TC - each with the script's sans after
-    it, for what the calligraphy hasn't got."""
-    assert fonts.caption_families("zh", system="win32")[:3] == (
+@pytest.mark.parametrize(
+    ("system", "simplified", "traditional"),
+    [
+        ("win32", "Microsoft YaHei UI", "Microsoft JhengHei UI"),
+        ("darwin", "PingFang SC", "PingFang TC"),
+        ("linux", "Noto Sans CJK SC", "Noto Sans CJK TC"),
+    ],
+)
+def test_chinese_defaults_to_the_platforms_plain_face_per_os(
+    system: str, simplified: str, traditional: str
+) -> None:
+    """952: a fresh install defaults Chinese (Simplified and Traditional) to
+    the platform's plain CJK UI face, keeping calligraphy/kai as choices."""
+    assert fonts.default_family("zh", system) == simplified
+    assert fonts.default_family("zh-hant", system) == traditional
+    assert fonts.caption_families("zh", system=system)[0] == simplified
+    assert fonts.caption_families("zh-hant", system=system)[0] == traditional
+    assert not fonts.brushed(simplified) and not fonts.brushed(traditional)
+    assert fonts.reading_families(fonts.caption_families("zh", system=system))[0] == (
+        simplified
+    )
+    assert (
+        fonts.reading_families(fonts.caption_families("zh-hant", system=system))[0]
+        == traditional
+    )
+
+
+def test_calligraphy_stays_a_choice_with_its_sans_behind() -> None:
+    """952: the brush and kai faces remain choices in CHOICES; when chosen,
+    the script's sans sits directly behind them for rarer glyphs and readings."""
+    assert fonts.caption_families("zh", "Ma Shan Zheng Captions", system="win32")[
+        :3
+    ] == (
         "Ma Shan Zheng Captions",
         "Noto Sans SC Captions",
         "Microsoft YaHei UI",
     )
+    assert fonts.caption_families("zh-hant", "LXGW WenKai TC Captions", system="win32")[
+        :3
+    ] == (
+        "LXGW WenKai TC Captions",
+        "Noto Sans TC Captions",
+        "Microsoft JhengHei UI",
+    )
     assert fonts.FACES["Ma Shan Zheng Captions"].kind == fonts.CALLIGRAPHY
-    # never slanted (the quiet view's italic, Quick preview's): a brush's
-    # strokes bent by a made-up slant read as a mistake, as Arabic's did
     assert fonts.upright("zh", "Ma Shan Zheng Captions")
     assert fonts.FACES["Ma Shan Zheng Captions"].upright  # whatever the script
-    # and since 526 no Chinese face is slanted (DECISIONS #230 item 3)
     assert fonts.upright("zh", "Noto Sans SC Captions")
     assert not fonts.FACES["Ma Shan Zheng Captions"].pack  # in the app
-    assert fonts.CHOICES["zh"][:2] == (
-        "Ma Shan Zheng Captions",
-        "Noto Sans SC Captions",
-    )
+    assert "Ma Shan Zheng Captions" in fonts.CHOICES["zh"]
+    assert "Noto Sans SC Captions" in fonts.CHOICES["zh"]
     assert "Polyglotic Kai" in fonts.CHOICES["zh"]
-    assert fonts.CHOICES["zh-hant"][0] == "LXGW WenKai TC Captions"
+    assert "LXGW WenKai TC Captions" in fonts.CHOICES["zh-hant"]
     assert "Noto Sans TC Captions" in fonts.CHOICES["zh-hant"]
 
 
 def test_readings_skip_a_face_without_tone_marks() -> None:
     """Ma Shan Zheng has no ā or ǒ: a reading in it would be a brush's
     consonants and another face's vowels in one word (532). Nor over the
-    other brushed faces (551: Polyglotic Kai's are in Noto Sans SC too)."""
-    families = fonts.caption_families("zh", system="win32")
-    assert fonts.reading_families(families)[0] == "Noto Sans SC Captions"
+    other brushed faces (551: Polyglotic Kai's are in Noto Sans SC too).
+    Default plain faces keep their own readings."""
+    plain = fonts.caption_families("zh", system="win32")
+    assert fonts.reading_families(plain)[0] == "Microsoft YaHei UI"
+    brushed = fonts.caption_families("zh", "Ma Shan Zheng Captions", system="win32")
+    assert fonts.reading_families(brushed)[0] == "Noto Sans SC Captions"
     chosen = fonts.caption_families("zh", "Noto Serif SC Captions", system="win32")
     assert fonts.reading_families(chosen)[0] == "Noto Serif SC Captions"
     assert fonts.reading_families(["Some PC Font"]) == ["Some PC Font"]
@@ -295,11 +329,8 @@ def test_mandarin_shown_in_traditional_takes_traditionals_faces() -> None:
     languages.show_mandarin_in_traditional(True)
     assert caption_language(mandarin) == "zh-hant"
     font = CaptionLayout()._font(mandarin, 1.0, False)
-    assert font.families()[:3] == [
-        "LXGW WenKai TC Captions",
-        "Noto Sans TC Captions",
-        "Microsoft JhengHei UI",
-    ]
+    assert font.families() == list(fonts.caption_families("zh-hant"))
+    assert font.families()[0] == fonts.default_family("zh-hant")
 
 
 @pytest.mark.usefixtures("faces")
@@ -309,9 +340,22 @@ def test_a_reading_is_in_a_real_semibold_or_its_texts_weight() -> None:
     engine = CaptionLayout()
     chinese = engine._font(row("我们", "zh"), 1.0, False)
     reading = reading_lines.reading_font(chinese)
-    assert reading.weight() == QFont.Weight.DemiBold
+    assert reading.families()[0] == fonts.default_family("zh")
+    # The plain system face (952) can have just one weight, e.g. Micro Hei.
+    family = QFontInfo(chinese).family()
+    assert QFontInfo(reading).family() == family
+    semibold = QFont.Weight.DemiBold
+    available = [QFontDatabase.weight(family, s) for s in QFontDatabase.styles(family)]
+    assert reading.weight() == (
+        semibold if any(w >= semibold for w in available) else chinese.weight()
+    )
     # over Ma Shan Zheng, in Noto Sans SC's real SemiBold (532)
-    assert reading.families()[0] == "Noto Sans SC Captions"
+    brushed = CaptionLayout(
+        replace(CaptionStyle(), faces=(("zh", "Ma Shan Zheng Captions"),))
+    )._font(row("我们", "zh"), 1.0, False)
+    brushed_reading = reading_lines.reading_font(brushed)
+    assert brushed_reading.weight() == QFont.Weight.DemiBold
+    assert brushed_reading.families()[0] == "Noto Sans SC Captions"
     thai = engine._font(row("สวัสดี", "th"), 1.0, False)
     assert reading_lines.reading_font(thai).weight() == QFont.Weight.Medium
 

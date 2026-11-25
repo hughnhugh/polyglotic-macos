@@ -57,7 +57,12 @@ def test_main_opens_each_basic_pack_by_its_language(
         "(noun) house",
         "(verb) to marry",
     ]
-    assert [e.headword for e in english["ja"].lookup("食べ")] == ["食べる"]
+    # A Japanese pack from before its separately delivered Sudachi dictionary
+    # remains usable for captions and exact lookups while that rider downloads.
+    # In particular, discovering every pack must not ask Sudachi to open a path
+    # which does not exist (the hosted Linux and Windows train regression).
+    assert [e.headword for e in english["ja"].lookup("食べる")] == ["食べる"]
+    assert english["ja"].lookup("食べ") == []
     # Russian's word split is simplemma's, as Spanish's (polyglotic-hq 298)
     assert [e.headword for e in english["ru"].lookup("Руку")] == ["рука"]
     # Vietnamese's by its pack's own words: "học sinh" is one (325)

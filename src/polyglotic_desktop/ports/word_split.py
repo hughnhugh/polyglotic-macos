@@ -37,6 +37,8 @@ class SplitWord:
     guesses: tuple[str, ...] = ()
     content: bool = True
     kana: str = ""
+    particle: bool = False
+    """Whether the analyser identified this word as a particle."""
 
 
 class WordSplit(Protocol):

@@ -53,9 +53,9 @@ def system_time_zone() -> str:
 
 def account_error(error: AccountError) -> str:
     if error.code == "malformed_code":
-        return _tr("That code isn't valid - check it and try again.")
+        return _tr("That code isn't valid. Check it and try again.")
     if error.code == "code_not_valid":
-        return _tr("Check the code in your email, or request a new one.")
+        return _tr("Check the code in your email or request a new one.")
     if error.code == "email_not_allowed":
         return _tr("Use a permanent email address.")
     if error.code in {"too_many_attempts", "rate_limited"}:
@@ -156,41 +156,53 @@ class AccountWork(QObject):
             receive(result)
 
 
+def request_sign_in_region(
+    read: Callable[[], Region],
+    work: AccountWork,
+    receive: Callable[[Region | AccountError | None], None],
+    *,
+    beta_confirmed: bool = False,
+) -> None:
+    """Read the sign-in region on a worker. None means invite-code sign-in."""
+
+    def received(result: Region | AccountError) -> None:
+        if isinstance(result, AccountError):
+            if result.status == HTTPStatus.NOT_FOUND and not beta_confirmed:
+                log.info(
+                    "email sign-in region probe returned HTTP 404, using invite-code sign-in"
+                )
+                receive(None)
+                return
+            if result.status is not None:
+                reason = f"HTTP {result.status}"
+            elif result.code == "request_timed_out":
+                reason = "request_timed_out"
+            else:
+                reason = result.diagnostic or "unavailable"
+            log.warning(
+                "email sign-in region probe failed, keeping email sign-in (%s)", reason
+            )
+        receive(result)
+
+    work.run(read, received)
+
+
 def sign_in_region(
     read: Callable[[], Region], parent: QObject, *, beta_confirmed: bool = False
 ) -> Region | AccountError | None:
-    """Read the email sign-in region. None means a legacy invite-code server.
-
-    A failed probe keeps email sign-in available so the dialog can retry
-    the region check before it sends a code.
-    """
+    """Choose the first-run sign-in screen before the main window exists."""
     loop = QEventLoop()
     work = AccountWork(parent)
-    result: Region | AccountError = AccountError("unavailable")
+    result: Region | AccountError | None = AccountError("unavailable")
 
-    def received(answer: Region | AccountError) -> None:
+    def received(answer: Region | AccountError | None) -> None:
         nonlocal result
         result = answer
         loop.quit()
 
-    work.run(read, received)
+    request_sign_in_region(read, work, received, beta_confirmed=beta_confirmed)
     loop.exec(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
     work.deleteLater()
-    if isinstance(result, AccountError):
-        if result.status == HTTPStatus.NOT_FOUND and not beta_confirmed:
-            log.info(
-                "email sign-in region probe returned HTTP 404, using invite-code sign-in"
-            )
-            return None
-        if result.status is not None:
-            reason = f"HTTP {result.status}"
-        elif result.code == "request_timed_out":
-            reason = "request_timed_out"
-        else:
-            reason = result.diagnostic or "unavailable"
-        log.warning(
-            "email sign-in region probe failed, keeping email sign-in (%s)", reason
-        )
     return result
 
 
@@ -244,8 +256,8 @@ class EmailSignIn(TextDialog):
 
         self.code = QLineEdit()
         self.code.setObjectName("email_sign_in.code")
-        self.code.setAccessibleName(_tr("Six-digit email code"))
-        self.code.setPlaceholderText(_tr("Six-digit email code"))
+        self.code.setAccessibleName(_tr("Six-digit code from your email"))
+        self.code.setPlaceholderText(_tr("Six-digit code"))
         self.code.returnPressed.connect(self._submit)
         self.code.hide()
         layout.addWidget(self.code)
@@ -260,14 +272,14 @@ class EmailSignIn(TextDialog):
         self.consent.hide()
         self.consent.toggled.connect(self._buttons)
 
-        self.invite = QPushButton(_tr("Have an invite code? Sign in with it instead"))
+        self.invite = QPushButton(_tr("Use an invite code instead"))
         self.invite.setObjectName("email_sign_in.invite")
         self.invite.setProperty("kind", "ghost")
         self.invite.setAutoDefault(False)
         self.invite.setVisible(redeem is not None)
         self.invite.clicked.connect(self._use_invite)
         layout.addWidget(self.invite)
-        self.change_email = QPushButton(_tr("Change email or resend code"))
+        self.change_email = QPushButton(_tr("Change email or send a new code"))
         self.change_email.setAutoDefault(False)
         self.change_email.setProperty("kind", "ghost")
         self.change_email.clicked.connect(self._reset_code)
@@ -282,7 +294,7 @@ class EmailSignIn(TextDialog):
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         self.ok = buttons.button(QDialogButtonBox.StandardButton.Ok)
-        self.ok.setText(_tr("Email me a code"))
+        self.ok.setText(_tr("Send code"))
         self.back = add_back(self, buttons)
         self.cancel = buttons.button(QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(self._submit)
@@ -372,7 +384,7 @@ class EmailSignIn(TextDialog):
             self.change_email.show()
             self.invite.hide()
             self.ok.setText(_tr("Verify email"))
-            self.message.setText(_tr("Check your inbox for a six-digit code."))
+            self.message.setText(_tr("Enter the six-digit code from your email."))
         self._buttons()
         if self._challenge is not None:
             self.code.setFocus()
@@ -383,7 +395,7 @@ class EmailSignIn(TextDialog):
         self.code.hide()
         self.change_email.hide()
         self.invite.setVisible(self._redeem is not None)
-        self.ok.setText(_tr("Email me a code"))
+        self.ok.setText(_tr("Send code"))
         self.message.clear()
         self._buttons()
         self.email.setFocus()

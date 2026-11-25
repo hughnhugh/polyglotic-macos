@@ -100,8 +100,8 @@ def test_what_the_learner_did_is_counted_never_described() -> None:
     props = listening.session_ended(summary.ended(1.0))
     assert props["transcripts_opened"] == 2 and props["lines_flagged"] == 1
     assert props["joined_window"] is True and props["original_only"] is False
-    for value in props.values():  # numbers, yes/no and the plan's fixed lists
-        assert isinstance(value, int | float | bool | str)
+    for value in props.values():  # counts, yes/no and the plan's fixed lists
+        assert isinstance(value, int | float | bool | str | dict)
         assert not isinstance(value, str) or value.replace("_", "").isalnum()
 
 

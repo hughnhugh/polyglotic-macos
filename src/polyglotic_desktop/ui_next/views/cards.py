@@ -638,6 +638,8 @@ class Deck:
                 at + 1 if at < len(self.cards) - 1 else self._new_card(update.source_id)
             )
         card = self.cards[at]
+        if mine and mine[-1][0] is not card:
+            mine[-1][0].changed = True
         word = Word(text, clause, width, space, ratio, ahead)
         card.words.append((caption, word))
         card.changed = True
@@ -996,11 +998,14 @@ class Deck:
             synced = all(word.synced for _, word in mine)
             translations: dict[Language, str] = {}
             links: dict[Language, tuple[WordLink, ...]] = {}
+            continued: set[Language] = set()
             for (owner, target), (text, start) in card.lit.items():
                 if owner != caption or not text:
                     continue
                 translations[target] = text
                 whole = self._whole.get((caption, target))
+                if whole is not None and whole[0][start + len(text) :].strip():
+                    continued.add(target)
                 if whole is None or not synced:
                     continue
                 if card.translations.get((owner, target)) != (text, start):
@@ -1010,8 +1015,12 @@ class Deck:
                 for link in whole[1]:
                     o = (link.original[0] - offset, link.original[1] - offset)
                     t = (link.translation[0] - start, link.translation[1] - start)
-                    if o[0] >= 0 and o[1] <= len(said) and t[0] >= 0 and t[1] <= room:
-                        found.append(replace(link, original=o, translation=t))
+                    original = max(0, o[0]), min(len(said), o[1])
+                    translated = max(0, t[0]), min(room, t[1])
+                    if original[0] < original[1] and translated[0] < translated[1]:
+                        found.append(
+                            replace(link, original=original, translation=translated)
+                        )
                 if found:
                     links[target] = tuple(found)
             clauses.append(
@@ -1020,6 +1029,8 @@ class Deck:
                     translations,
                     links,
                     dict(source.written_in) if source is not None else {},
+                    original_continues=bool(mine and mine[-1][0] is not card),
+                    translations_continued=frozenset(continued),
                 )
             )
         if card.named is None:  # as first shown: a label never comes or goes
@@ -1057,7 +1068,15 @@ class Glide:
         self._w = omega
         self._at: float | None = None
 
-    def push(self, now: float, px: float, most: float | None = None) -> None:
+    def push(
+        self,
+        now: float,
+        px: float,
+        most: float | None = None,
+        *,
+        travel_share: float = 1.0,
+        rounding_speed: float = 0.0,
+    ) -> None:
         """The stack's place rose `px`: that much further to go - never
         more than `most` in all: a burst of cards isn't followed from
         below the window."""
@@ -1068,7 +1087,9 @@ class Glide:
         # From rest, the spring's peak speed is distance * w / e. At the
         # speed limit, distance * w <= 2 * limit keeps it from accelerating
         # further. Interpolate between those bounds for the speed it kept.
-        limit = GLIDE_FASTEST.value
+        # A row closing an entry gap travels further than the stack.
+        limit = (GLIDE_FASTEST.value - rounding_speed) / travel_share
+        self.speed = max(-limit, min(limit, self.speed))
         spare = max(0.0, limit - abs(self.speed))
         distance = max(1.0, abs(self.px))
         max_rate = (2.0 * limit + (math.e - 2.0) * spare) / distance

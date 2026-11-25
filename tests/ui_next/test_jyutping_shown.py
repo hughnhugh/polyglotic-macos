@@ -17,7 +17,11 @@ from tests.ui_next.made_up import EN
 from tests.ui_next.test_caption_window import areas
 
 from polyglotic_desktop.core.listening.captions import Language
-from polyglotic_desktop.core.listening.display import ReadingSystem, RowKind
+from polyglotic_desktop.core.listening.display import (
+    JapaneseReading,
+    ReadingSystem,
+    RowKind,
+)
 from polyglotic_desktop.core.listening.sources import SourceLabel
 from polyglotic_desktop.main import caption_look, look_settings
 from polyglotic_desktop.ui.learning import LearningTools
@@ -128,7 +132,10 @@ def test_each_language_has_its_own_switch_and_the_rest_are_shared(
     view = LookView(CaptionLook())
     panel = ReadingLinesPanel(view, notes=True)
     MADE.append(panel)
-    assert not panel.reading_size.isEnabled()
+    # Japanese Kana is on by default, so the shared reading controls already
+    # apply before another script is chosen.
+    assert panel.japanese.value() is JapaneseReading.KANA
+    assert panel.reading_size.isEnabled() and panel.reading_colour.isEnabled()
     panel.cantonese.click()
     assert view.value.reading_lines == ("yue",)
     # its size, words and colour are pinyin's; pinyin's or zhuyin isn't its
@@ -137,8 +144,12 @@ def test_each_language_has_its_own_switch_and_the_rest_are_shared(
     panel.chinese.click()
     assert view.value.reading_lines == ("yue", "zh")
     assert panel.reading_system.isEnabled()
+    # Turning Japanese off leaves the controls available for the two explicit
+    # non-Japanese reading systems.
+    panel.japanese.choose(JapaneseReading.OFF)
+    assert panel.reading_size.isEnabled() and panel.reading_colour.isEnabled()
 
 
 def test_the_switch_is_saved() -> None:
     stored = AppSettings.from_stored(look_settings(JYUTPING)).to_stored()
-    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("yue",)
+    assert caption_look(AppSettings.from_stored(stored)).reading_lines == ("ja", "yue")

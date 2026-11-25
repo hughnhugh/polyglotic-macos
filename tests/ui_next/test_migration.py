@@ -129,7 +129,15 @@ def test_todays_keys_are_not_touched() -> None:
         "set_up",  # the first window's set-up answered (465)
         "start_like_this",
         "kept_languages",  # while every window shows the original only (556)
+        "pending_spoken_sizes",
     }
+
+
+def test_todays_effective_opacity_is_copied_into_each_window() -> None:
+    today = {**TODAY, "opacity": 0.37}
+    windows = moved_over(today)
+    assert windows.last.opacity == 0.37
+    assert {choice.opacity for choice in windows.by_key.values()} == {0.37}
 
 
 def test_a_source_today_didnt_name_takes_todays_values_until_saved() -> None:

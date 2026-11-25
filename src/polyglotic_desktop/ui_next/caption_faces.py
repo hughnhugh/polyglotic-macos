@@ -32,6 +32,7 @@ text laid out before a face came and drawn after came out as boxes (479)."""
 _loaded: dict[str, list[str]] = {}
 """Each file added: the families Qt found in it (none: it wasn't there)."""
 _weights: dict[tuple[str, int], bool] = {}
+_installed: dict[str, bool] = {}
 _cjk_checked = False
 
 
@@ -98,6 +99,7 @@ def add(paths: Iterable[Path]) -> list[str]:
             )
             if _loaded[key]:
                 _weights.clear()
+                _installed.clear()
                 generation += 1
         found += _loaded[key]
     return found
@@ -136,6 +138,15 @@ def lightest(
         lighter = [w for w in have if w < drawn]
         if lighter:
             found = min(found, min(lighter))
+    return found
+
+
+def has_family(family: str) -> bool:
+    """Whether `family` is installed in Qt's font database. Kept until a face
+    is added."""
+    found = _installed.get(family)
+    if found is None:
+        found = _installed[family] = QFontDatabase.hasFamily(family)
     return found
 
 

@@ -148,8 +148,8 @@ def test_its_label_and_empty_window_say_everything(qapp: QApplication) -> None:
     finally:
         desktop.close()
     assert whose_captions(WHOLE_SYSTEM, EVERYTHING) == pc_or_mac(
-        "Anything the PC plays is captioned here",
-        "Anything the Mac plays is captioned here",
+        "Everything the PC plays is captioned here",
+        "Everything the Mac plays is captioned here",
     )
     assert whose_captions(ids("Chat"), "Chat") == "Chat's captions appear here"
 

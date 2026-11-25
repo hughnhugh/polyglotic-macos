@@ -105,6 +105,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES
 from polyglotic_desktop.core.listening.dictation_keys import (
     DEFAULT_KEY,
@@ -142,7 +143,11 @@ from polyglotic_desktop.ui_next.hotkeys_card import (
     WindowKeysCard,
 )
 from polyglotic_desktop.ui_next.lab_panel import LabPanel
-from polyglotic_desktop.ui_next.languages import detect_name, dictation_choices
+from polyglotic_desktop.ui_next.languages import (
+    detect_name,
+    dictation_choices,
+    language_name,
+)
 from polyglotic_desktop.ui_next.os_words import on_linux, pc_or_mac
 from polyglotic_desktop.ui_next.panels import (
     BehaviourPanel,
@@ -174,6 +179,7 @@ from polyglotic_desktop.ui_next.views.captions import (
 )
 from polyglotic_desktop.ui_next.views.panels import (
     DownloadsView,
+    JapaneseReadingsView,
     LanguagesView,
     LookView,
     TimingView,
@@ -194,6 +200,7 @@ SECTIONS = (
     "app",
     "lab",
 )
+
 """The page's ten sections, left to right at its top (304; Word links
 and Readings out of Look, 470; Presets first, polyglotic-hq 556: the
 caption settings' top, where a caption window's "Customise presets…"
@@ -287,8 +294,8 @@ class TranslationSizeCard(Card):
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(
-            _tr("Text sizes"),
-            _tr("Applies to any language; scripts are matched in size automatically."),
+            _tr("Caption text size"),
+            _tr("In every language: each script is sized to match."),
             parent,
         )
         self._caption_size = caption_size
@@ -297,7 +304,8 @@ class TranslationSizeCard(Card):
         cap_header = QHBoxLayout()
         cap_header.setContentsMargins(0, 0, 0, 0)
         cap_header.setSpacing(8)  # constant: header spacing matching Card rows
-        cap_header.addWidget(label(_tr("Caption size")))
+        self.caption_name = label(_tr("Caption size"))
+        cap_header.addWidget(self.caption_name)
         self.caption_shown = label("", "Dim")
         cap_header.addWidget(self.caption_shown)
         cap_header.addStretch(1)
@@ -328,7 +336,8 @@ class TranslationSizeCard(Card):
             0, 4, 0, 0
         )  # constant: slight visual split between the two rows
         trans_header.setSpacing(8)  # constant: header spacing matching Card rows
-        trans_header.addWidget(label(_tr("Translation size")))
+        self.translation_name = label(_tr("Translation size"))
+        trans_header.addWidget(self.translation_name)
         self.shown = label("", "Dim")
         trans_header.addWidget(self.shown)
         trans_header.addStretch(1)
@@ -414,6 +423,43 @@ class TranslationSizeCard(Card):
         self._translation_size = round(min(t_high, max(t_low, translation)), 2)
         self.slider.show_size(self._translation_size)
         self._refresh_labels()
+
+    def show_languages(self, sizes: tuple[tuple[Language, float], ...]) -> None:
+        if self.subtitle is not None:
+            self.subtitle.setText(
+                _tr("Text sizes are saved by language on this device.")
+            )
+        self.same.hide()
+        rows = (
+            (
+                self.caption_name,
+                self.caption_shown,
+                self.caption_slider,
+                self.caption_smaller,
+                self.caption_bigger,
+            ),
+            (
+                self.translation_name,
+                self.shown,
+                self.slider,
+                self.translation_smaller,
+                self.translation_bigger,
+            ),
+        )
+        for index, (name, badge, slider, smaller, bigger) in enumerate(rows):
+            visible = index < len(sizes)
+            for widget in (name, badge, slider, smaller, bigger):
+                widget.setVisible(visible)
+            if visible:
+                code, size = sizes[index]
+                title = language_name(code)
+                name.setText(title)
+                slider.setAccessibleName(title)
+                if index == 0:
+                    self.show_caption_size(size)
+                else:
+                    self.show_size(size)
+        self.setVisible(bool(sizes))
 
     def _refresh_labels(self) -> None:
         self.caption_shown.setText(size_badge(self._caption_size))
@@ -507,6 +553,7 @@ class SettingsPage(Page):
         speech: LanguagesView,
         sound: SoundView | None = None,
         downloads: DownloadsView | None = None,
+        japanese_readings: JapaneseReadingsView | None = None,
         presets: PresetsView | None = None,
     ) -> None:
         """`themes`: each window theme's key and name;
@@ -515,8 +562,12 @@ class SettingsPage(Page):
         the caption settings' views (`main`'s `Panels`); `sound`: Home's
         Sound, shown again in Speech (polyglotic-hq 372)."""
         super().__init__(_tr("Settings"))
+        # Kept as a semantic hook for accessibility/tests; U1 now applies the
+        # flat treatment consistently throughout the main window.
+        self.setProperty("flatSettings", True)
         self._sound = sound
         self._downloads = downloads
+        self._japanese_readings = japanese_readings
         self._presets = presets or PresetsView()
         """The presets (polyglotic-hq 556): their section, and the line
         saying which one is in use and what it hasn't saved (587)."""
@@ -572,7 +623,7 @@ class SettingsPage(Page):
             box.setObjectName(f"settings.{key}")
             column = QVBoxLayout(box)
             column.setContentsMargins(0, 0, 0, 0)
-            column.setSpacing(16)
+            column.setSpacing(32)
             self.section[key] = box
             self.content.addWidget(box)
         self._marks: dict[QWidget, Glyph] = {}
@@ -582,6 +633,7 @@ class SettingsPage(Page):
         """The caption sections whose cards are made (`_make`)."""
         self._current = "look"
         """The section on show (`show_section`)."""
+        self._language_sizes: tuple[tuple[Language, float], ...] | None = None
         self._caption_now = 1.0
         """The caption windows' caption size (`show_caption_sizes`)."""
         self._translation_now = 1.0
@@ -621,14 +673,14 @@ class SettingsPage(Page):
 
         appearance = Card(
             _tr("Appearance"),
-            _tr(
-                "This window and the transcripts. The caption windows stay as they are."
-            ),
+            _tr("This window and the transcripts, not the caption windows."),
         )
         self.theme = Segmented(list(themes))
         self.theme.setObjectName("settings.theme")
         self.theme.changed.connect(lambda v: self.theme_chosen.emit(str(v)))
-        appearance.add(Row(_tr("Theme"), _tr("Its colours and headings."), self.theme))
+        appearance.add(
+            Row(_tr("Theme"), _tr("This window's colours and headings."), self.theme)
+        )
         self.window_theme = Segmented(
             [
                 ("system", pc_or_mac(_tr("Like this PC"), _tr("Like this Mac"))),
@@ -653,10 +705,14 @@ class SettingsPage(Page):
 
         updates = Card(
             _tr("Updates"),
-            _tr("Updates download quietly and apply when you quit Polyglotic.")
+            _tr(
+                "Updates download in the background and install when you quit "
+                "Polyglotic."
+            )
             if on_linux()
             else _tr(
-                "Updates download quietly and apply the next time Polyglotic starts."
+                "Updates download in the background and install the next time "
+                "Polyglotic starts."
             ),
         )
         self.version = label("", "Dim", wrap=True)
@@ -712,6 +768,7 @@ class SettingsPage(Page):
         row.addWidget(label(_tr("Want to help build Polyglotic?"), "Faint"))
         tell_us = QToolButton()
         tell_us.setDefaultAction(work_with_us)
+        tell_us.setObjectName("settings.tell_us")
         tell_us.setProperty("kind", "ghost")
         tell_us.setCursor(Qt.CursorShape.PointingHandCursor)
         row.addWidget(tell_us)
@@ -728,9 +785,8 @@ class SettingsPage(Page):
         card = Card(
             _tr("Text size"),
             _tr(
-                "Polyglotic's own words: this window, a word's card, menus, and"
-                " the buttons on caption windows and transcripts. Captions keep"
-                " their own size: A- and A+ on each caption window and transcript."
+                "Menus, buttons, this window and word cards. Captions keep their "
+                "own size: A- and A+ on each caption window and transcript."
             ),
         )
         self.text_size = Segmented(
@@ -751,6 +807,12 @@ class SettingsPage(Page):
     def show_text_size(self, size: str) -> None:
         """The app's text size as the settings have it ("normal")."""
         self.text_size.set_value(size)
+
+    def show_language_sizes(self, sizes: tuple[tuple[Language, float], ...]) -> None:
+        self._language_sizes = sizes
+        card = getattr(self, "_translation_size", None)
+        if card is not None:
+            card.show_languages(sizes)
 
     def show_caption_sizes(self, caption: float, translation: float) -> None:
         """Show the caption windows' independent sizes once Look is built."""
@@ -798,8 +860,8 @@ class SettingsPage(Page):
         self.transcript_ask = SwitchRow(
             _tr("Ask to save before quitting"),
             _trn(
-                "With Last %Ln hour(s) or Whole session: Quit asks about a transcript "
-                "of {line_limit} that isn't saved.",
+                "With Last %Ln hour(s) or Whole session, Quit asks first if a "
+                "transcript of {line_limit} isn't saved.",
                 TRANSCRIPT_HOURS,
             ).format(line_limit=_trn("more than %Ln line(s)", ASK_FROM_LINES)),
             "settings.transcript_ask",
@@ -831,10 +893,10 @@ class SettingsPage(Page):
         card = Card(
             _tr("Dictation (preview)"),
             _tr(
-                "Hold a key and speak. Release it to type where your cursor is."
-                " When your own speech is captioned, dictation also appears in"
-                " the caption window and uses its spoken language. Otherwise,"
-                " dictation listens only during the hold."
+                "Hold a key and speak; let go, and it's typed where your cursor "
+                "is. While your own speech is captioned, dictation shows in that "
+                "caption window too and uses its spoken language. Otherwise it "
+                "listens only while you hold the key."
             ),
         )
         self.dictation_on = SwitchRow(
@@ -845,7 +907,7 @@ class SettingsPage(Page):
         )
         card.add(self.dictation_on)
         # the key: press the one you want (polyglotic-hq 289, decision 0081)
-        self.dictation_key = KeyBox(str(DEFAULT_KEY))
+        self.dictation_key = KeyBox(str(DEFAULT_KEY), "settings.dictation_key")
         self.dictation_key.pressed_key.connect(self._dictation_key_pressed)
         self.dictation_key.listening_changed.connect(self.dictation_key_listening)
         self.dictation_key_reset = _button(_tr("Reset"), "settings.dictation_key_reset")
@@ -867,19 +929,20 @@ class SettingsPage(Page):
                 _tr("Key"),
                 pc_or_mac(
                     _tr(
-                        "Click, then press the key or combination you want to hold:"
-                        " Right Ctrl, F9, Ctrl + Alt + D… A key on its own, or with"
-                        " Ctrl, Alt or Win, is Polyglotic's while dictation is on;"
-                        " Right Ctrl alone still works in other programs."
+                        "Click, then press the key or combination you want to "
+                        "hold: Right Ctrl, F9, Ctrl + Alt + D… While dictation is "
+                        "on, the key you choose is Polyglotic's, alone or with "
+                        "Ctrl, Alt or Win; Right Ctrl alone still works in other "
+                        "programs."
                     ),
                     # a Mac's keys as its menus write them (key_words); the
                     # example is one macOS leaves free: ⌃⌥D is refused (⌥
                     # without ⌘), ⌥⌘D hides the Dock, ⌃⌘D looks a word up (451)
                     _tr(
-                        "Click, then press the key or combination you want to hold:"
-                        " Right ⌘, F9, ⌃⌘E… A key on its own, or with ⌃, ⌥ or ⌘,"
-                        " is Polyglotic's while dictation is on; Right ⌘ alone"
-                        " still works in other apps."
+                        "Click, then press the key or combination you want to "
+                        "hold: Right ⌘, F9, ⌃⌘E… While dictation is on, the key "
+                        "you choose is Polyglotic's, alone or with ⌃, ⌥ or ⌘; "
+                        "Right ⌘ alone still works in other apps."
                     ),
                 ),
                 key_box,
@@ -908,8 +971,8 @@ class SettingsPage(Page):
                 " ".join(
                     (
                         _tr(
-                            "Choose a language or use {detect} when dictation"
-                            " records its own audio."
+                            "Choose a language or use {detect} for when your "
+                            "speech isn't captioned."
                         ).format(detect=detect_name()),
                         pc_or_mac(
                             _tr("The tray's menu switches it too."),
@@ -1373,6 +1436,8 @@ class SettingsPage(Page):
             )
             self._translation_size.caption_chosen.connect(self.caption_size_chosen)
             self._translation_size.chosen.connect(self.translation_size_chosen)
+            if self._language_sizes is not None:
+                self._translation_size.show_languages(self._language_sizes)
             placed = (
                 (self._look, Glyph.LOOK),
                 (self._translation_size, Glyph.TEXT_SIZE),
@@ -1389,7 +1454,9 @@ class SettingsPage(Page):
             self._quiet = QuietViewPanel(look, notes=True)
             placed = ((self._word_links, Glyph.LINKS), (self._quiet, Glyph.QUIET))
         elif key == "readings":
-            self._reading = ReadingLinesPanel(look, notes=True)
+            self._reading = ReadingLinesPanel(
+                look, notes=True, japanese_readings=self._japanese_readings
+            )
             placed = ((self._reading, Glyph.READINGS),)
         elif key == "timing":
             self._timing = TimingPanel(timing, languages=speech, presets=self._presets)
@@ -1655,18 +1722,24 @@ class SettingsPage(Page):
             }
 
     def show_respeaking(
-        self, on: bool, key: str, taken: bool = False, what: str = "original"
+        self,
+        on: bool,
+        key: str,
+        taken: bool = False,
+        what: str = "original",
+        last_own: str | None = None,
     ) -> None:
         """Speaker typing preferences and whether another program has its key."""
         for card in self.respeak_cards:
-            card.show_respeaking(on, key, taken, what)
+            card.show_respeaking(on, key, taken, what, last_own)
         self._show_keys()
 
     def respeak_key_not_taken(self, wanted: str) -> None:
         """Another program has the key pressed for re-speaking: the one
         before is kept."""
         for card in self.respeak_cards:
-            card.not_taken(wanted)
+            if card.isVisible():
+                card.not_taken(wanted)
 
     def set_version(self, version: str, channel: str, store: bool = False) -> None:
         """This copy's version and update channel - or, for the Microsoft
@@ -1703,15 +1776,15 @@ class SettingsPage(Page):
             "up_to_date": _tr("Polyglotic is up to date."),
             "ready": ready,
             "no_feed": _tr(
-                "Couldn't reach the update server. Polyglotic looks again later."
+                "Couldn't reach the update server. Polyglotic tries again later."
             ),
             "not_downloaded": _tr(
                 "The update couldn't be downloaded. Polyglotic tries again later."
             ),
             "not_writable": not_writable_notice(),
             "metered": _tr(
-                "Version {version} is available. Your connection is metered, so "
-                "it waits: Home offers to download it anyway."
+                "Version {version} is available. Your connection is metered, so it "
+                "waits: Home can download it anyway."
             ),
             "not_installed": _tr(
                 "This copy wasn't installed by the installer, so it can't update "

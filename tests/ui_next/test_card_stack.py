@@ -21,7 +21,7 @@ from polyglotic_desktop.core.listening.captions import (
     Clause,
     Language,
 )
-from polyglotic_desktop.core.listening.display import RowKind
+from polyglotic_desktop.core.listening.display import LongLines, RowKind
 from polyglotic_desktop.core.listening.history import CaptionHistory
 from polyglotic_desktop.core.listening.playout import PlayoutRules, ReadingPath
 from polyglotic_desktop.core.listening.timing import CaptionId, CaptionMode
@@ -407,9 +407,10 @@ def test_a_labelled_card_keeps_room_for_its_label_too(
     )
     canvas = window.canvas
     first, last = window.view.lines[0], window.view.lines[-1]
-    assert first.label and not last.label
-    # A later untranslated card may reserve several estimated rows; the
-    # labelled card still includes its label rather than being clipped to one.
+    assert first.label and last.label
+    assert canvas._laid(last).label is not None
+    # The earlier card still includes its label even while the live card
+    # reserves room for its translation.
     assert canvas._tall(first) > window._translation_room()
     before = canvas._tall(last)
     say(windows, caption(2))  # its translation comes
@@ -457,11 +458,26 @@ def test_a_source_is_named_on_its_first_card_not_on_every_one(
 
     window = windows.windows["app"]
     window.set_look(replace(window.look, show_source=True))
+    window.set_show_mic(True)
     window.set_labels({APP: SourceLabel("Discord", "#4fb6c9")}, "You")
-    say(windows, caption(1), caption(2))
-    labels = [line.label for line in window.view.lines]
-    assert "Discord" in labels[0]
-    assert not any(labels[1:])
+    say(
+        windows,
+        caption(1),
+        caption(2),
+        replace(caption(3), source_id=MIC),
+        replace(caption(4), source_id=MIC),
+    )
+    lines = window.view.lines
+    labels = [line.label for line in lines]
+    yours = [line.label for line in lines if line.by_you]
+    # The window's own source is omitted; another party ("You") is named once per run.
+    assert all("Discord" not in label for label in labels)
+    assert (
+        len(yours) >= 2
+        and "You" in yours[0]
+        and all("You" not in label for label in yours[1:])
+    )
+    assert all("English" in label for label in labels)
 
 
 # -- after 553's first recording of the stack (2026-11-20) ---------------------------
@@ -1135,13 +1151,27 @@ def test_cards_that_arrived_while_reading_do_not_roll_through_the_window(
     assert all(max(ys) - min(ys) < 0.5 for ys in positions.values())
 
 
-def test_a_card_all_but_flat_on_the_drum_is_drawn_flat(windows: CaptionWindows) -> None:
-    # 584: at rest the drum squashed Everyday's second card to 0.986 and
-    # Video's older one to 0.967 - a squash too slight to see but enough
-    # to soften its text
-    window = say(windows, *(caption(n) for n in range(1, 9)))
+def test_a_card_all_but_flat_on_the_drum_is_drawn_flat(
+    windows: CaptionWindows, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polyglotic_desktop.ui_next import caption_window
+
+    # 584: Video's older card squashed only to 0.967. Feed that geometry
+    # directly so the test exercises the threshold at any card height.
+    raw_squashes: list[float] = []
+
+    def almost_flat(
+        top: float, _height: float, _view: float
+    ) -> tuple[float, float, float]:
+        scale = (1.0 + FLAT_ENOUGH) / 2.0
+        raw_squashes.append(scale)
+        return top, scale, 1.0
+
+    monkeypatch.setattr(caption_window, "drum", almost_flat)
+    window = say(windows, caption(1), caption(2))
+    assert raw_squashes
     assert window.canvas.placed
-    assert all(squash < FLAT_ENOUGH for *_, squash in window.canvas.turning)
+    assert not window.canvas.turning
 
 
 def test_translation_moves_continuously_as_its_card_turns(
@@ -1486,7 +1516,7 @@ def test_live_video_reserves_its_translation_at_the_foot(
     windows.set_timing(CaptionMode.INSTANT)
     windows.set_subtitles((28 / 1080, 760 / 1920))
     window.set_text_size(28 / window.text_px())
-    window.set_translation_size(22 / window.text_px())
+    windows.set_language_size(window, FR, 22 / 28)
     window.set_look(replace(window.look, show_source=False, show_language=False))
     window.resize(760, height)
     window.set_show_mic(False)
@@ -1515,7 +1545,7 @@ def test_tiny_video_can_paint_a_caption_with_the_toolbar_and_footer_closed(
     windows.set_timing(CaptionMode.INSTANT)
     windows.set_subtitles((28 / 1080, 560 / 1920))
     window.set_text_size(28 / window.text_px())
-    window.set_translation_size(22 / window.text_px())
+    windows.set_language_size(window, FR, 22 / 28)
     window.set_look(replace(window.look, show_source=False, show_language=False))
     window.resize(560, 96)
     window.set_show_mic(False)
@@ -2114,12 +2144,15 @@ def test_original_only_arrival_has_no_translation_gap(windows: CaptionWindows) -
     assert not window._translation_expiry.isActive()
 
 
+@pytest.mark.parametrize("choice", LongLines)
 def test_wrapped_translation_fills_the_space_below_its_own_clause(
     windows: CaptionWindows,
+    choice: LongLines,
 ) -> None:
     windows.set_timing(CaptionMode.INSTANT)
     first = replace(caption(1), clauses=(Clause("Good morning.", {FR: "Bonjour."}),))
     window = say(windows, first)
+    window.set_presets(replace(window.preset_menu, long_lines=choice))
     clock = windows.word_clock
     assert isinstance(clock, Clock)
     long_original = "One two three four five six seven."
@@ -2149,6 +2182,25 @@ def test_wrapped_translation_fills_the_space_below_its_own_clause(
     clock.now += 0.35
     window.receive(translated)
     laid = window.canvas._laid(window.view.lines[-1])
-    wrapped = next(row for row in laid.rows if row.row.kind is RowKind.TRANSLATION)
-    assert wrapped.layout.lineCount() == 2
-    assert positions() == (height, row_tops)
+    rows = [
+        row
+        for row in laid.rows
+        if row.row.kind is RowKind.TRANSLATION and row.row.clause == 0
+    ]
+    assert len(rows) == 2
+    assert all(row.layout.lineCount() == 1 for row in rows)
+    assert "".join(row.row.text for row in rows).strip() == long_translation.strip()
+    if choice is LongLines.GROUPED:
+        assert all(not row.layout.text().endswith("...") for row in rows)
+        assert positions() == (height, row_tops)
+    else:
+        # The arriving translation splits its original into matching rows.
+        originals = [
+            r for r in laid.rows if r.row.kind is RowKind.ORIGINAL and r.row.clause == 0
+        ]
+        assert "".join(r.row.text for r in originals).strip() == long_original
+        assert len(originals) == len(rows)
+        assert originals[0].top < rows[0].top < originals[1].top < rows[1].top
+        assert all(row.continues for row in rows)
+        assert laid.rows[-1].row.text == "Bonsoir."
+        assert not laid.rows[-1].continues

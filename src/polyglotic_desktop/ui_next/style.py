@@ -462,14 +462,14 @@ def stylesheet(t: Theme) -> str:
     TEXT, TEXT_DIM, TEXT_FAINT = t["TEXT"], t["TEXT_DIM"], t["TEXT_FAINT"]
     ACCENT, ACCENT_HOVER, ACCENT_TEXT = t["ACCENT"], t["ACCENT_HOVER"], t["ACCENT_TEXT"]
     FOCUS, MARKER, WARNING = t["FOCUS"], t["MARKER"], t["WARNING"]
+    content = BG if t.dark else SURFACE
     return f"""
 * {{ outline: none; }}
 QWidget {{ color: {TEXT}; font-size: {px(13)}px; font-family: {_UI_FAMILY_CSS}; }}
-QMainWindow, QDialog, QTabWidget, #Page, #Content {{ background: {BG}; }}
+QMainWindow, QDialog, QTabWidget {{ background: {BG}; }}
+#Page, #Content {{ background: {content}; }}
 QToolTip {{ background: {SURFACE_2}; color: {TEXT}; border: 1px solid {BORDER}; padding: 4px 6px; }}
-#Card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px; }}
-#Card[captionIdle="true"] {{ border-color: {ACCENT}; }}
-#Card[recommendedOffer="true"] {{ border-color: {ACCENT}; }}
+#Card {{ background: transparent; border: none; }}
 #CaptionIdle {{
     color: {readable_on(BG, WARNING)}; background: {WARNING};
     border-radius: {CAPTION_BADGE_RADIUS}px; font-weight: 600;
@@ -486,14 +486,15 @@ QToolTip {{ background: {SURFACE_2}; color: {TEXT}; border: 1px solid {BORDER}; 
 }}
 #CardTitle {{ font-size: {px(14)}px; font-weight: 600; }}
 #CardTitle[heading="true"] {{ font-size: {px(16)}px; }}
-#PinnedCard {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 8px; }}
+#PinnedCard {{ background: {content}; border: none; }}
+#settings\\.preset_line {{ background: transparent; border: none; }}
 #Brand {{ font-size: {px(15)}px; font-weight: 600; }}
 #RowTitle {{ font-weight: 600; }}
 #StateTitle {{ font-size: {px(20)}px; font-weight: 600; }}
 #Stat {{ font-size: {px(28)}px; font-weight: 600; }}
 #SectionLabel {{ color: {TEXT_FAINT}; font-size: {px(12)}px; font-weight: 600; letter-spacing: 0.6px; }}
 QPushButton, QToolButton {{
-    background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 8px;
+    background: {SURFACE_2}; border: none; border-radius: 8px;
     padding: 6px 12px; color: {TEXT};
 }}
 QPushButton:hover, QToolButton:hover {{ background: {SURFACE_3}; }}
@@ -503,7 +504,7 @@ QPushButton[kind="primary"], QToolButton[kind="primary"] {{
 }}
 QPushButton[kind="primary"]:hover, QToolButton[kind="primary"]:hover {{ background: {ACCENT_HOVER}; }}
 QToolButton:checked {{
-    background: {rgba(ACCENT, 0.22)}; border: 1px solid {ACCENT}; color: {ACCENT}; font-weight: 600;
+    background: {rgba(ACCENT, 0.22)}; color: {ACCENT}; font-weight: 600;
 }}
 QToolButton[kind="primary"]:checked {{ background: {ACCENT}; color: {ACCENT_TEXT}; border: none; }}
 QToolButton[kind="primary"]:checked:hover {{ background: {ACCENT_HOVER}; }}
@@ -562,19 +563,20 @@ QCheckBox {{ spacing: 8px; }}
 #SignInDialog QLineEdit:focus {{ border-color: {FOCUS}; }}
 #LanguagePicker QListWidget {{ border-color: {TEXT_FAINT}; }}
 #LanguagePicker QListWidget:focus {{ border-color: {FOCUS}; }}
-#Sidebar {{ background: {SIDEBAR}; border-right: 1px solid {BORDER}; }}
+#Sidebar {{ background: {SIDEBAR}; }}
 #NavButton {{
     background: transparent; border: none; border-radius: 8px; text-align: left;
-    padding: 9px 12px; color: {TEXT_DIM}; font-size: {px(13)}px;
+    padding: 9px 12px 9px {px(38)}px; color: {TEXT_DIM}; font-size: {px(13)}px;
 }}
 #NavButton:hover {{ background: {SURFACE_2}; color: {TEXT}; }}
 #NavButton:checked {{ background: {SURFACE_3}; color: {TEXT}; font-weight: 600; }}
 #FootButton {{
     background: transparent; border: none; border-radius: 8px; text-align: left;
-    padding: 5px 12px; color: {TEXT_FAINT}; font-size: {px(12)}px;
+    padding: 5px 12px 5px {px(34)}px; color: {TEXT_FAINT}; font-size: {px(12)}px;
 }}
 #FootButton:hover {{ background: {SURFACE_2}; color: {TEXT}; }}
 #FootButton:checked {{ background: {SURFACE_3}; color: {TEXT}; font-weight: 600; }}
+#SidebarQuitButton {{ padding-left: {px(34)}px; }}
 QSlider::groove:horizontal {{ height: 4px; background: {SURFACE_3}; border-radius: 2px; }}
 QSlider::sub-page:horizontal {{ background: {ACCENT}; border-radius: 2px; }}
 QSlider::handle:horizontal {{
@@ -594,8 +596,8 @@ QMenu {{ background: {SURFACE}; border: 1px solid {BORDER}; padding: 6px; border
 QMenu::item {{ padding: 7px 22px 7px 12px; border-radius: 6px; }}
 QMenu::item:selected {{ background: {SURFACE_2}; }}
 QMenu::separator {{ height: 1px; background: {BORDER}; margin: 5px 4px; }}
-QFrame[banner="true"] {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 9px; }}
-#Segmented, QFrame[segmented="true"] {{ background: {SURFACE_2}; border: 1px solid {BORDER}; border-radius: 9px; }}
+QFrame[banner="true"] {{ background: {SURFACE_2}; border: none; border-radius: 9px; }}
+#Segmented, QFrame[segmented="true"] {{ background: {SURFACE_2}; border: none; border-radius: 9px; }}
 #Segmented QPushButton {{
     background: transparent; border: none; border-radius: 6px; padding: 6px 12px; color: {TEXT_DIM};
 }}
@@ -615,7 +617,7 @@ QPushButton[switch="true"] {{
     text-align: left; padding: 3px 42px 3px 8px; font-weight: 600;
 }}
 QPushButton[switch="true"]:hover {{ background: {SURFACE_2}; }}
-#AppRow {{ background: transparent; border-bottom: 1px solid {BORDER}; }}
+#AppRow {{ background: transparent; border: none; }}
 #AddRow {{ background: transparent; border-radius: 6px; }}
 #AddRow:hover {{ background: {SURFACE_2}; }}
 #AddRow:disabled QLabel {{ color: {TEXT_FAINT}; }}

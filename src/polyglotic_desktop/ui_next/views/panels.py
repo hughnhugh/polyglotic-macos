@@ -36,6 +36,7 @@ from dataclasses import dataclass, field, replace
 from polyglotic_desktop.core.learning.curriculum import ChosenWords
 from polyglotic_desktop.core.lexicon.pack_download import PackProgress
 from polyglotic_desktop.core.listening.display import (
+    JapaneseReading,
     LinkDetail,
     LinkGap,
     LinkLine,
@@ -65,9 +66,12 @@ from polyglotic_desktop.ui_next.views.caption_window import (
 from polyglotic_desktop.ui_next.views.lab import CaptionLab
 from polyglotic_desktop.ui_next.views.presets import (
     BY_KEY,
+    LOOKS_BY_KEY,
     hex_colour,
+    look_of,
     preset_of,
     with_look,
+    without_look,
 )
 from polyglotic_desktop.ui_next.views.tone import (
     CONTRAST_RANGE,
@@ -454,6 +458,22 @@ class DownloadsView(Shared[FaceDownloads]):
         """The list read again, for the sizes (the card shown)."""
 
 
+@dataclass(frozen=True)
+class JapaneseReadings:
+    """Why Settings' furigana switch can or cannot affect captions."""
+
+    supported: bool = True
+    dictionary_here: bool = False
+    progress: PackProgress | None = None
+
+
+class JapaneseReadingsView(Shared[JapaneseReadings]):
+    """The Japanese dictionary's availability as Settings shows it."""
+
+    def __init__(self, value: JapaneseReadings | None = None) -> None:
+        super().__init__(value or JapaneseReadings())
+
+
 def quiet_view(
     look: CaptionLook,
     on: bool,
@@ -497,6 +517,7 @@ class LookView(Shared[CaptionLook]):
         value: CaptionLook,
         on_change: Callable[[CaptionLook], None] | None = None,
         first: CaptionLook | None = None,
+        recommended_before: CaptionLook | None = None,
     ) -> None:
         super().__init__(value, on_change)
         self.first = first
@@ -522,6 +543,9 @@ class LookView(Shared[CaptionLook]):
         self.started_from: str | None = None
         """The colour preset the look's colours last were (`presets`), while
         the app runs: custom colours are "Custom, from" it."""
+        self._recommended_before = recommended_before
+        """The learner's look before the first recommended look. It stays
+        across switches and restarts so the active look can be turned off."""
         self._remember(saved=True)
 
     def _remember(self, saved: bool = False) -> None:
@@ -559,8 +583,22 @@ class LookView(Shared[CaptionLook]):
     def set_recommended(self, key: str) -> None:
         """A recommended look (`presets.LOOKS`, polyglotic-hq 532): its
         colours, caption text, readings and Chinese faces at once - each
-        changed as freely after."""
-        self.change(with_look(self.value, key))
+        changed as freely after. Choosing the active one again turns it off
+        and restores the learner's earlier values."""
+        if look_of(self.value) is LOOKS_BY_KEY[key]:
+            before = self._recommended_before
+            if before is not None:
+                self.change(without_look(self.value, self.value, before))
+            self._recommended_before = None
+            return
+        if self._recommended_before is None:
+            self._recommended_before = self.value
+        applied = with_look(self.value, key)
+        self.change(applied)
+
+    @property
+    def recommended_before(self) -> CaptionLook | None:
+        return self._recommended_before
 
     def set_opacity(self, opacity: float) -> None:
         self.change(replace(self.value, opacity=round(min(1.0, max(0.0, opacity)), 2)))
@@ -712,6 +750,15 @@ class LookView(Shared[CaptionLook]):
     def set_reading_system(self, system: ReadingSystem) -> None:
         """Chinese's readings in pinyin or zhuyin (395)."""
         self.change(replace(self.value, reading_system=system))
+
+    def set_japanese_reading(self, reading: JapaneseReading) -> None:
+        """Choose Japanese's kana and/or romaji reading.
+
+        ``reading_lines`` used to hold the Furigana switch.  It remains as
+        migration input, but changing the replacement control must not turn
+        that retired representation into a second source of truth.
+        """
+        self.change(replace(self.value, japanese_reading=reading))
 
     def set_reading_colour(self, colour: ReadingColour) -> None:
         """Pinyin in its line's colour, its word link's, or the one picked

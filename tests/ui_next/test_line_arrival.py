@@ -209,6 +209,8 @@ def test_no_line_waits_longer_than_the_longest_wait_for_text(
 ) -> None:
     """Decision 0068's bound wins over the gap."""
     window, clock = paced(qapp, 0.5)
+    window.resize(window.width(), 700)  # room for both complete six-row captions
+    qapp.processEvents()
     window.longest_wait = 0.6
     window.receive(three_clauses("one"))
     window.receive(three_clauses("two"))
@@ -298,6 +300,8 @@ def test_each_line_that_comes_slides_the_text_above_up(
     the text above keeps its place for the first frame and rises."""
     monkeypatch.setattr(caption_window_module, "reduced_motion", lambda: False)
     window, clock = paced(qapp, arrival=Arrival.STEP_AND_SLIDE)
+    window.resize(window.width(), 700)
+    qapp.processEvents()
     if not window.sliding:
         pytest.skip("the lab's photographs: nothing slides")
     window.receive(three_clauses())
@@ -313,7 +317,7 @@ def test_each_line_that_comes_slides_the_text_above_up(
 
     older = top()
     window._show_next_line()
-    assert window.arriving and window.motion.offset(clock.now) > 1.0
+    assert window.arriving and window.glide.to(clock.now) > 1.0
     assert abs(top() - older) < 1.0  # where it was, for the first frame
     clock.now += 2.0
     assert top() < older - 1.0  # risen by the line that came
@@ -329,7 +333,7 @@ def test_an_incoming_caption_can_reveal_the_waiting_line_with_a_slide(
     window.receive(three_clauses("first"))
     first = shown_of(window, "first")
     assert first is not None
-    slide = window.motion.slide
+    before = window.glide.px
 
     clock.now += GAP
     window.receive(three_clauses("second"))
@@ -337,5 +341,5 @@ def test_an_incoming_caption_can_reveal_the_waiting_line_with_a_slide(
     revealed = shown_of(window, "first")
     assert revealed is not None and revealed[0] > first[0]
     assert shown_of(window, "second") is None
-    assert window.motion.slide is not slide
-    assert window.motion.offset(clock.now) > 1.0
+    assert window.glide.px != before
+    assert window.glide.to(clock.now) > 1.0

@@ -12,11 +12,13 @@ from polyglotic_desktop.core.lexicon.packs import (
     PackListError,
     PackOffer,
     Reader,
+    Rider,
     best_offer,
     list_serial,
     needs_newer_app,
     newer,
     read_pack_list,
+    riders_wanted,
     update_for,
     version_key,
 )
@@ -132,12 +134,12 @@ def test_an_old_app_is_never_offered_a_pack_it_cant_read() -> None:
 def test_a_pack_whose_word_split_this_app_hasnt_got_isnt_offered() -> None:
     japanese = replace(RUSSIAN, language="ja", split="japanese", file="jm.sqlite")
     assert best_offer((japanese,), "ja", "en", READER) is None
-    assert needs_newer_app((japanese,), "ja", "en", READER)
+    assert not needs_newer_app((japanese,), "ja", "en", READER)
 
 
 def test_only_unreadable_packs_says_a_newer_app_reads_them() -> None:
     new_format = replace(RUSSIAN, format="2")
-    assert needs_newer_app((new_format,), "ru", "en", READER)
+    assert not needs_newer_app((new_format,), "ru", "en", READER)
     assert not needs_newer_app((RUSSIAN,), "ru", "en", READER)
     assert not needs_newer_app((), "ru", "en", READER)  # simply not there yet
 
@@ -182,3 +184,55 @@ def test_a_pack_downloads_gzipped() -> None:
 
 def test_a_lists_serial_is_read() -> None:
     assert list_serial(listed(RUSSIAN)) == 3
+
+
+def test_japanese_chinese_pack_offers_drafts_to_both_chinese_locales() -> None:
+    old = replace(
+        RUSSIAN,
+        language="ja",
+        dictionary="jmdict",
+        meanings="zh",
+        file="jmdict-zh-2026.11.14.sqlite",
+        split="japanese",
+    )
+    version = "2026.11.25"
+    successor = replace(
+        old,
+        version=version,
+        min_app="0.1.12",
+        file=f"jmdict-zh-{version}.sqlite",
+        riders=tuple(
+            Rider(
+                "meanings",
+                "1",
+                "0.1.12",
+                f"jmdict-{locale}-{version}.meanings",
+                10,
+                "a" * 64,
+                9,
+                "b" * 64,
+                locale,
+            )
+            for locale in ("zh", "zh_TW")
+        ),
+    )
+    offers, skipped = read_pack_list(listed(old, successor))
+    assert skipped == 0 and offers == (old, successor)
+    reader = replace(
+        READER,
+        app_version="0.1.12",
+        splits=frozenset({"japanese"}),
+        riders=frozenset({("meanings", "1")}),
+    )
+    assert best_offer(offers, "ja", "zh", reader) == successor
+    assert best_offer(offers, "ja", "zh", replace(reader, app_version="0.1.11")) == old
+    for locale, rider in zip(("zh", "zh_TW"), successor.riders, strict=True):
+        assert riders_wanted(successor, reader, locale) == [rider]
+    assert riders_wanted(successor, replace(reader, app_version="0.1.11"), "zh") == []
+    assert riders_wanted(successor, reader, "es") == []
+    same_language = replace(
+        RUSSIAN,
+        meanings="zh",
+        riders=(replace(successor.riders[0], file=f"wiktru-zh-{version}.meanings"),),
+    )
+    assert riders_wanted(same_language, reader, "zh") == []

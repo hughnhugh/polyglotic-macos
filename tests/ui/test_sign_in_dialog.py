@@ -238,7 +238,11 @@ def test_the_sign_out_question_is_in_the_interfaces_language(
     # (polyglotic-hq 420: the first Mac run of the suite)
     assert title == ("" if sys.platform == "darwin" else "退出登录")
     assert button == "退出登录"
-    assert question == "要在这台电脑上退出 Polyglotic 的登录吗？"
+    assert question == (
+        "要在这台 Mac 上退出 Polyglotic 账户吗？"
+        if sys.platform == "darwin"
+        else "要在这台电脑上退出 Polyglotic 账户吗？"
+    )
     assert "重新登录" in why and "丢弃" in why
     # The Chinese Mac copy uses the product name Mac in its translated sentences.
     assert set(re.findall(r"[A-Za-z]{3,}", why)) == (

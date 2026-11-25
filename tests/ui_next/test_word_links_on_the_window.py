@@ -3,6 +3,7 @@ text size in its settings popover (the user's rehearsal feedback F9,
 polyglotic-hq 249, 2026-11-08: "I want the word links toggle to be on the
 main caption window instead of font change")."""
 
+import sys
 from dataclasses import replace
 
 from PySide6.QtCore import QEvent, Qt
@@ -33,7 +34,9 @@ from polyglotic_desktop.ui_next.word_classes import (
 
 
 def test_word_links_is_the_first_icon_in_the_strip() -> None:
-    assert STRIP == ("links", "lock", "report", "settings", "stop")
+    native = ("minimise",) if sys.platform == "win32" else ()
+    expected = ("links", "lock", "report", "settings", *native, "stop")
+    assert expected == STRIP
 
 
 def test_the_button_shows_and_asks_for_word_links(qapp: QApplication) -> None:

@@ -8,19 +8,22 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from PySide6.QtCore import QPoint, QRect, QRectF
+from PySide6.QtCore import QPoint, QRect, QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPaintEvent
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 from tools.ui_lab import design, lab
 from tools.ui_lab.checks import Finding, TextPiece
+
+from polyglotic_desktop.ui_next import style
 
 
 @pytest.fixture
@@ -112,6 +115,43 @@ def test_text_over_text_is_found(page: QWidget) -> None:
     assert not found(page, "text_overlap")
 
 
+def test_text_hidden_by_an_opaque_pinned_heading_is_not_an_overlap(
+    page: QWidget,
+) -> None:
+    under = label(page, "Its colours and headings.", "page.under")
+    under.move(10, 10)
+    pinned = QFrame(page)
+    pinned.setObjectName("PinnedCard")
+    pinned.setStyleSheet("background: #ffffff")
+    pinned.setGeometry(8, 8, 220, 32)
+    over = label(pinned, "Appearance", "page.pinned")
+    over.move(4, 4)
+    assert not found(page, "text_overlap")
+
+
+def test_overlapping_children_of_the_same_pinned_card_are_found(page: QWidget) -> None:
+    pinned = QFrame(page)
+    pinned.setObjectName("PinnedCard")
+    pinned.setGeometry(8, 8, 220, 40)
+    first = label(pinned, "Appearance", "page.first")
+    second = label(pinned, "Light or dark", "page.second")
+    first.move(4, 4)
+    second.move(5, 5)
+    assert found(page, "text_overlap")
+
+
+def test_control_raised_above_a_pinned_card_is_still_an_overlap(page: QWidget) -> None:
+    pinned = QFrame(page)
+    pinned.setObjectName("PinnedCard")
+    pinned.setGeometry(8, 8, 220, 40)
+    heading = label(pinned, "Appearance", "page.heading")
+    heading.move(4, 4)
+    neighbor = label(page, "Light or dark", "page.neighbor")
+    neighbor.move(12, 12)
+    neighbor.raise_()
+    assert found(page, "text_overlap")
+
+
 def test_a_list_row_scrolled_past_its_edge_isnt_over_the_text_above(
     page: QWidget,
 ) -> None:
@@ -193,6 +233,28 @@ def test_a_card_in_a_card_is_found(page: QWidget) -> None:
     rows.addWidget(outer)
     QVBoxLayout(outer).addWidget(inner)
     assert len(found(page, "nested_cards")) == 1
+
+
+def test_stray_strokes_find_both_edges_but_allow_field_borders(page: QWidget) -> None:
+    page.setObjectName("Content")
+    page.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+    field = QLineEdit(page)
+    field.setGeometry(20, 20, 240, 30)
+    border = style.current()["BORDER"]
+    field.setStyleSheet(f"QLineEdit {{ border: 1px solid {border}; }}")
+    page.show()
+    page.setFocus()
+    assert not found(page, "stray_stroke")
+
+    for geometry in ((20, 90, 120, 1), (280, 90, 1, 100)):
+        stroke = QFrame(page)
+        stroke.setStyleSheet(f"QFrame {{ background: {border}; }}")
+        stroke.setGeometry(*geometry)
+        stroke.show()
+    assert [finding.box for finding in found(page, "stray_stroke")] == [
+        (20, 90, 120, 1),
+        (280, 90, 1, 100),
+    ]
 
 
 def test_text_cramped_in_its_button_is_found(page: QWidget) -> None:

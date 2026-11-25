@@ -24,6 +24,8 @@ dependencies = [
     # keyring) over D-Bus, for the device token - pure Python, MIT
     "jeepney>=0.9.0; sys_platform == 'linux'",
     "segno>=1.6.6",
+    # Its 115 MB data dictionary is delivered only with a Japanese pack.
+    "sudachipy>=0.6",
 ]
 
 [dependency-groups]
@@ -41,7 +43,6 @@ dev = [
 languages = [
     "simplemma>=2.0.0",
     "sudachidict-small>=20261015",
-    "sudachipy>=0.6",
 ]
 package = [
     "pyinstaller>=6.22.3",
@@ -114,6 +115,7 @@ extra_checks = true
 [[tool.mypy.overrides]]
 module = [
     "onnxruntime", "soundfile", "genanki", "PyInstaller.*", "sudachipy",
+    "sudachidict_small",
     "catap", "sounddevice", "jeepney", "jeepney.*",
 ]
 ignore_missing_imports = true

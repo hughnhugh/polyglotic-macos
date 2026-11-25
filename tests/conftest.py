@@ -25,6 +25,8 @@ import pytest
 
 from tools import qt_lock
 
+pytest_plugins = ("tests.known_flaky_plugin",)
+
 # Windows' fonts for every test's Qt, whichever tests run (polyglotic-hq
 # 258). Offscreen Qt on Windows has no fonts of its own: without this, a
 # run of `tests/ui` alone drew text as boxes, and once a DesktopApp had

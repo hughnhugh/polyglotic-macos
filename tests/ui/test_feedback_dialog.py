@@ -6,6 +6,10 @@ import os
 from pathlib import Path
 from typing import Any
 
+import pytest
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPalette
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QToolButton
 from tests.ui.fakes import Built
 from tests.ui.test_consent_dialog import SCREENSHOTS
@@ -43,7 +47,7 @@ def test_a_problem_attaches_the_log_and_shows_it_first(qapp: QApplication) -> No
     assert form.chosen_kind() == "problem"
     assert form.attach.isChecked()
     assert not form.log_view.isHidden()
-    assert form.log_view.toPlainText() == LOG  # what's shown is what goes
+    assert form.log_view.toPlainText() == LOG.rstrip()  # what's shown is what goes
     assert not form.send.isEnabled()  # nothing written yet
     form.text.setPlainText("  The overlay stayed empty.  ")
     form.reply.setText(" tester@example.com ")
@@ -52,19 +56,40 @@ def test_a_problem_attaches_the_log_and_shows_it_first(qapp: QApplication) -> No
         "problem",
         "The overlay stayed empty.",
         "tester@example.com",
-        LOG,
+        LOG.rstrip(),
     )
     form.attach.setChecked(False)
     assert form.log_view.isHidden()
     assert form.report()[3] is None
 
 
-def test_a_suggestion_doesnt_attach_the_log_until_ticked(qapp: QApplication) -> None:
-    form = dialog("suggestion")
-    assert form.windowTitle() == "Suggest something"
+def test_suggestion_is_retired_from_the_old_feedback_form(qapp: QApplication) -> None:
+    """Project 955: suggestions live in the unified Report a problem / Make a
+    suggestion dialog; the old feedback form keeps problem, question and
+    work-with-us."""
+    form = dialog("question")
+    values = [form.kind.itemData(i) for i in range(form.kind.count())]
+    assert values == ["problem", "question", "work_with_us"]
+    assert "suggestion" not in values
+    assert form.windowTitle() == "Ask a question"
     assert not form.attach.isChecked() and form.log_view.isHidden()
-    form.text.setPlainText("A dark theme, please.")
-    assert form.report() == ("suggestion", "A dark theme, please.", None, None)
+    form.text.setPlainText("How do presets sync?")
+    assert form.report() == ("question", "How do presets sync?", None, None)
+
+
+def test_controls_have_translated_names_from_the_dialog(qapp: QApplication) -> None:
+    form = dialog("question")
+    assert form.kind.accessibleName() == form.windowTitle() == "Ask a question"
+    assert form.text.accessibleName() == form.text.placeholderText()
+    assert form.text.accessibleName() == "Ask us anything."
+    assert form.reply.accessibleName() == form.reply_label.text()
+    palette = form.reply.palette()
+    assert palette.color(QPalette.ColorRole.PlaceholderText) == palette.color(
+        QPalette.ColorRole.Text
+    )
+    form.kind.setCurrentIndex(form.kind.findData("work_with_us"))
+    assert form.kind.accessibleName() == "Help build Polyglotic"
+    assert form.reply.accessibleName() == form.reply_label.text()
 
 
 def test_without_a_log_there_is_nothing_to_attach(qapp: QApplication) -> None:
@@ -140,7 +165,11 @@ def test_a_report_is_kept_with_what_goes_with_every_one(
     report = ask_for_feedback("problem", tmp_path / "logs", app_info, "s-1", folder)
     assert report is not None
     assert folder.waiting() == [report]
-    assert (report.kind, report.text, report.log) == ("problem", "It froze.", LOG)
+    assert (report.kind, report.text, report.log) == (
+        "problem",
+        "It froze.",
+        LOG.rstrip(),
+    )
     assert (report.app_version, report.os, report.session_id) == (
         "0.1.0",
         "windows-11",
@@ -187,7 +216,7 @@ def test_a_quiet_line_in_settings_invites_people_to_work_with_us(
         for b in account.findChildren(QToolButton)
         if b.defaultAction() is app.work_with_us
     ]
-    assert tell_us.text() == "Tell us"
+    assert tell_us.text() == "Help build Polyglotic"
     tell_us.click()
     assert asked == ["work_with_us"]
     # not a banner: nowhere else
@@ -236,3 +265,100 @@ def test_tab_leaves_the_text_box(qapp: QApplication) -> None:
     assert qapp.focusWidget() is not form.text
     form.close()
     form.deleteLater()
+
+
+@pytest.mark.parametrize(
+    ("kind", "limit"),
+    [("problem", 2_000), ("question", 1_500)],
+)
+def test_each_kind_cuts_a_paste_shows_a_note_and_can_send_at_limit(
+    qapp: QApplication, kind: Any, limit: int
+) -> None:
+    form = dialog(kind)
+    form.text.setPlainText("🙂" * (limit + 20))
+    assert len(form.text.toPlainText()) == limit
+    assert form.cut_note.text() == f"Cut to {limit:,} characters"
+    assert form.count.text() == f"{limit:,} / {limit:,}"
+    assert not form.count.isHidden()
+    assert form.send.isEnabled()
+
+
+def test_counter_stays_quiet_until_eighty_percent(qapp: QApplication) -> None:
+    form = dialog("question")
+    form.text.setPlainText("x" * 1_199)
+    assert form.count.isHidden()
+    form.text.setPlainText("x" * 1_200)
+    assert not form.count.isHidden()
+
+
+def test_cleaned_nfc_text_is_the_one_counted_previewed_and_sent(
+    qapp: QApplication,
+) -> None:
+    form = dialog("question")
+    form.text.setPlainText("e\u0301" * 1_500 + "\u200bextra")
+    assert form.text.toPlainText() == "é" * 1_500
+    assert form.count.text() == "1,500 / 1,500"
+    assert form.send.isEnabled()
+    assert form.report()[1] == form.text.toPlainText()
+
+
+def test_typing_keeps_spaces_newlines_and_a_middle_caret_until_send(
+    qapp: QApplication,
+) -> None:
+    form = dialog("question")
+    form.show()
+    form.text.setFocus()
+    QTest.keyClicks(form.text, "two words")
+    QTest.keyClick(form.text, Qt.Key.Key_Return)
+    QTest.keyClicks(form.text, "next line")
+    cursor = form.text.textCursor()
+    cursor.setPosition(3)
+    form.text.setTextCursor(cursor)
+    QTest.keyClicks(form.text, " small")
+    assert form.text.toPlainText() == "two small words\nnext line"
+    assert form.text.textCursor().position() == 9
+    assert form.report()[1] == "two small words\nnext line"
+    form.close()
+
+
+def test_reply_draft_keeps_typing_whitespace_and_caret_but_send_is_clean(
+    qapp: QApplication,
+) -> None:
+    form = dialog("question")
+    form.text.setPlainText("Why?")
+    form.reply.setText("first last")
+    form.reply.setCursorPosition(5)
+    QTest.keyClicks(form.reply, " middle")
+    assert form.reply.cursorPosition() == 12
+    form.reply.setCursorPosition(len(form.reply.text()))
+    QTest.keyClick(form.reply, Qt.Key.Key_Space)
+    assert form.reply.text() == "first middle last "
+    assert form.report()[2] == "first middle last"
+
+
+def test_removed_controls_alone_cannot_be_sent_and_reply_is_cleaned_and_capped(
+    qapp: QApplication,
+) -> None:
+    form = dialog("question")
+    form.text.setPlainText("\x00\u200b\u202e")
+    assert form.text.toPlainText() == "\x00\u200b\u202e"
+    assert not form.send.isEnabled()
+    form.text.setPlainText("Why?")
+    form.reply.setText(" e\u0301" * 200)
+    assert len(form.reply.text()) <= 254
+    assert form.report()[2] == form.reply.text()
+
+
+def test_a_suggestion_is_counted_once_only_after_success(qapp: QApplication) -> None:
+    built = Built()
+    counted: list[bool] = []
+    feedback = QtFeedback(built.desktop, lambda: counted.append(True))
+    report = new_report(
+        "suggestion", "Please add it.", None, None, AppInfo("0.1", "linux"), None
+    )
+    feedback.outcome(report, Outcome.WAITING)
+    feedback.outcome(report, Outcome.SENT)
+    feedback.outcome(report, Outcome.SENT)
+    qapp.processEvents()
+    assert counted == [True]
+    built.close()

@@ -22,6 +22,7 @@ Only the clipboard: nothing selected or copied is logged, sent or kept.
 """
 
 from collections.abc import Callable, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -159,14 +160,12 @@ def held_pieces(lines: Sequence[Line], selection: Selection) -> list[Piece]:
 def word_rects(laid: LaidLine, words: Sequence[Words]) -> list[QRectF]:
     """Where `words` of a line laid out as `laid` are drawn, from its top
     left: a rectangle per line of text each run of them is on."""
-    rows = {(row.row.clause, row.row.kind): row for row in laid.rows}
     found = []
     for each in words:
-        row = rows.get((each.clause, each.side))
-        if row is None:
-            continue
-        for rect in row.rectangles(each.start, each.end):
-            found.append(rect.translated(0.0, row.top).adjusted(*PADDING))
+        for row in laid.rows:
+            if (row.row.clause, row.row.kind) == (each.clause, each.side):
+                for rect in row.rectangles(each.start, each.end):
+                    found.append(rect.translated(0.0, row.top).adjusted(*PADDING))
     return found
 
 
@@ -229,8 +228,9 @@ class HeldSelection(QObject):
         if app is not None:
             app.installEventFilter(self)
         if self.keys is not None:
-            for name in ("escape", "mouse"):
-                self.keys(name)  # forget the presses of the drag itself
+            for name in ("escape", "mouse", "copy"):
+                with suppress(KeyError):
+                    self.keys(name)  # forget the presses of the drag itself
             self._poll.start()
 
     def clear(self) -> None:
@@ -249,9 +249,9 @@ class HeldSelection(QObject):
             return ""
         return selected_text(self.captions(), self.selection)
 
-    def copy(self, at: QPoint) -> bool:
-        """The held words to the clipboard, "Copied" by `at` (on the
-        screen); False with none held."""
+    def copy(self, at: QPoint | None = None) -> bool:
+        """The held words to the clipboard, with the themed toast near `at`
+        (or near the bottom of the window when `at` is None); False with none held."""
         text = self.text()
         if not text:
             return False
@@ -261,15 +261,31 @@ class HeldSelection(QObject):
     def _over_window(self, at: QPoint) -> bool:
         return self.window.rect().contains(self.window.mapFromGlobal(at))
 
+    def _copy_pressed(self) -> bool:
+        keys = self.keys
+        if keys is None:
+            return False
+        try:
+            return keys("copy")
+        except KeyError:
+            return False
+
     def _look_at_keys(self) -> None:
-        """Over another app (a game has the keyboard): Esc, or a click
-        that isn't on this app's windows, lets go of it."""
+        """Over another app (a game or browser has the keyboard): Esc, or a
+        click that isn't on this app's windows, lets go of it; Ctrl+C (Cmd+C
+        on macOS) copies the held selection."""
         keys = self.keys
         if keys is None or self.selection is None:
             return
         if keys("escape"):
             self.clear()
             return
+        if (
+            QApplication.activeWindow() is None
+            and not self.copy_is_cards()
+            and self._copy_pressed()
+        ):
+            self.copy(None)
         if keys("mouse"):
             at = QCursor.pos()
             if not self._over_window(at) and QApplication.widgetAt(at) is None:
@@ -283,7 +299,7 @@ class HeldSelection(QObject):
             if event.key() == Qt.Key.Key_Escape:
                 self.clear()
             elif copy_key_is_ours(event) and not self.copy_is_cards():
-                return self.copy(QCursor.pos())
+                return self.copy(None)
         elif (
             kind == QEvent.Type.MouseButtonPress
             and isinstance(watched, QWidget)

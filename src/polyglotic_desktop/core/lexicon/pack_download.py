@@ -53,6 +53,8 @@ class Problem(StrEnum):
     UNREADABLE = "unreadable"
     """It passed its checks but isn't the language's dictionary: deleted."""
     NEEDS_NEWER_APP = "needs_newer_app"
+    SPLIT_UNAVAILABLE = "split_unavailable"
+    """This build lacks the word split required by an otherwise compatible pack."""
     NOT_OFFERED = "not_offered"
     """The list has no pack for the language (yet)."""
 

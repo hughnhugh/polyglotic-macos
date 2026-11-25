@@ -824,6 +824,12 @@ def _text_findings(pieces: list[TextPiece], photo: QImage) -> list[Finding]:
             needed = min(needed, floor)
         ratio = contrast(text, background)
         if ratio < needed - 0.005:
+            halo = _outline_halo(pixels, seen, piece.color, background)
+            if halo is not None:
+                background = halo
+                text = _over(piece.color, background)
+                ratio = contrast(text, background)
+        if ratio < needed - 0.005:
             key = (name, text.name(), background.name(), needed)
             low.setdefault(key, []).append(ratio)
     for (name, px), texts in small.items():
@@ -968,6 +974,62 @@ def _behind(
         if most == own:
             most = int(values[order[1]])
     return QColor((most >> 16) & 255, (most >> 8) & 255, most & 255)
+
+
+def _dilate1(mask: np.ndarray) -> np.ndarray:
+    """8-connected 1 px dilation of a 2D boolean mask."""
+    out = mask.copy()
+    height, width = mask.shape
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            sy0, sy1 = max(0, -dy), height - max(0, dy)
+            sx0, sx1 = max(0, -dx), width - max(0, dx)
+            dy0, dy1 = max(0, dy), height - max(0, -dy)
+            dx0, dx1 = max(0, dx), width - max(0, -dx)
+            if sy1 > sy0 and sx1 > sx0:
+                out[dy0:dy1, dx0:dx1] |= mask[sy0:sy1, sx0:sx1]
+    return out
+
+
+def _outline_halo(
+    pixels: np.ndarray, rect: QRectF, pen: QColor, background: QColor
+) -> QColor | None:
+    """Return the outline halo colour (#000000 or #ffffff) if the text strokes
+    inside `rect` are surrounded by a solid 1 px outline rather than sitting
+    directly on `background`."""
+    height, width = pixels.shape[:2]
+    left, top = max(0, int(rect.left()) - 1), max(0, int(rect.top()) - 1)
+    right = min(width, int(np.ceil(rect.right())) + 1)
+    bottom = min(height, int(np.ceil(rect.bottom())) + 1)
+    if right - left < 3 or bottom - top < 3:
+        return None
+    black, white = QColor("#000000"), QColor("#ffffff")
+    halo = black if contrast(pen, black) >= contrast(pen, white) else white
+    ink = _over(pen, halo)
+    area = pixels[top:bottom, left:right, :3].astype(np.int16)
+    p_rgb = np.array([ink.red(), ink.green(), ink.blue()], dtype=np.int16)
+    b_rgb = np.array(
+        [background.red(), background.green(), background.blue()], dtype=np.int16
+    )
+    h_rgb = np.array([halo.red(), halo.green(), halo.blue()], dtype=np.int16)
+    d_pen = np.abs(area - p_rgb).max(axis=2)
+    d_bg = np.abs(area - b_rgb).max(axis=2)
+    d_halo = np.abs(area - h_rgb).max(axis=2)
+    core = (d_pen <= 40) & (d_pen < d_bg)
+    core_count = int(core.sum())
+    if core_count < 4:
+        return None
+    ring = _dilate1(core) & ~core
+    halo_pixels = ring & (d_halo <= 24)
+    ring_bg = int((ring & (d_bg <= 16)).sum())
+    # A one-pixel outline follows the perimeter, regardless of stroke thickness.
+    edge = core & _dilate1(~core)
+    backed = edge & _dilate1(halo_pixels)
+    if 2 * backed.sum() > edge.sum() and halo_pixels.sum() >= 2 * ring_bg:
+        return halo
+    return None
 
 
 def _over(color: QColor, background: QColor) -> QColor:

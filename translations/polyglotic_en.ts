@@ -35,10 +35,10 @@
     <name>DesktopApp</name>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
-        <source>Captions paused after %n minute(s) hidden - show the windows to carry on</source>
+        <source>Hidden windows paused after %n minutes - show them to resume</source>
         <translation>
-            <numerusform>Captions paused after %n minute hidden - show the windows to carry on</numerusform>
-            <numerusform>Captions paused after %n minutes hidden - show the windows to carry on</numerusform>
+            <numerusform>Hidden windows paused after %n minute - show them to resume</numerusform>
+            <numerusform>Hidden windows paused after %n minutes - show them to resume</numerusform>
         </translation>
     </message>
 </context>
@@ -414,10 +414,10 @@
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
-        <source>With Last %Ln hour(s) or Whole session: Quit asks about a transcript of {line_limit} that isn&apos;t saved.</source>
+        <source>With Last %Ln hour(s) or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</source>
         <translation>
-            <numerusform>With Last %Ln hour or Whole session: Quit asks about a transcript of {line_limit} that isn&apos;t saved.</numerusform>
-            <numerusform>With Last %Ln hours or Whole session: Quit asks about a transcript of {line_limit} that isn&apos;t saved.</numerusform>
+            <numerusform>With Last %Ln hour or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</numerusform>
+            <numerusform>With Last %Ln hours or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -539,10 +539,10 @@
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
-        <source>%Ln word(s) picked</source>
+        <source>%Ln word(s)</source>
         <translation>
-            <numerusform>%Ln word picked</numerusform>
-            <numerusform>%Ln words picked</numerusform>
+            <numerusform>%Ln word</numerusform>
+            <numerusform>%Ln words</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -584,14 +584,6 @@
         <translation>
             <numerusform>you said it once</numerusform>
             <numerusform>you said it %Ln times</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
-        <source>%Ln word(s)</source>
-        <translation>
-            <numerusform>%Ln word</numerusform>
-            <numerusform>%Ln words</numerusform>
         </translation>
     </message>
     <message numerus="yes">

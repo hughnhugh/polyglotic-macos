@@ -177,9 +177,18 @@ def test_the_text_is_the_same_text_with_its_reading_line(
     by the readings' band; and the word under the mouse is found by its
     row and character as before."""
     width = 420
-    _line, plain, read = laid_both(flow, width)
+    line, plain, read = laid_both(flow, width)
     assert read.height > plain.height
-    assert [row.row.text for row in read.rows] == [row.row.text for row in plain.rows]
+    for laid in (plain, read):
+        for index, source in enumerate(line.rows):
+            # Reading guides can change a break. Every fragment must still
+            # start at the next source character and together cover the row.
+            cursor = 0
+            for fragment in (row for row in laid.rows if row.index == index):
+                assert fragment.start == cursor
+                cursor += len(fragment.row.text)
+                assert fragment.row.text == source.text[fragment.start : cursor]
+            assert cursor == len(source.text)
     for row in read.rows:
         covered = 0
         for n in range(row.layout.lineCount()):
@@ -188,7 +197,9 @@ def test_the_text_is_the_same_text_with_its_reading_line(
             covered += text_line.textLength()
             box = text_line.naturalTextRect()
             assert box.right() <= width + 1.0
-        assert covered == len(row.row.text)
+        display = row.row.text.rstrip() + "..." if row.continues else row.row.text
+        assert row.layout.text() == display
+        assert covered == len(display)
     said = next(row for row in read.rows if row.row.kind is RowKind.ORIGINAL)
     text_line = said.layout.lineAt(0)
     for index in (0, 3, 5):

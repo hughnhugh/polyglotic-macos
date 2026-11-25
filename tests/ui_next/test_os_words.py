@@ -159,7 +159,7 @@ def test_every_pc_string_has_a_mac_one() -> None:
         ("Drücke Strg+Alt+H.", "Drücke ⌃⌘H."),  # German's translation
         ("Ctrl+Alt+D", "Ctrl+Alt+D"),  # dictation's key: not one of the hotkeys
         # Qt's Ctrl is Command on a Mac (451)
-        ("Bigger text (Ctrl+wheel)", "Bigger text (⌘+wheel)"),
+        ("Bigger captions (Ctrl+wheel)", "Bigger captions (⌘+wheel)"),
         ("Größere Schrift (Strg+Mausrad)", "Größere Schrift (⌘+Mausrad)"),
         (
             "Copy the word, its reading and meaning (Ctrl+C)",
@@ -186,7 +186,10 @@ def test_a_mac_names_the_hotkeys_its_own_way(
         ),
         ("Drücke Strg+Alt+H.", "Drücke Strg+Alt+Umschalt+H."),  # Qt's German
         ("Ctrl+Alt+D", "Ctrl+Alt+D"),  # dictation's key: not one of the hotkeys
-        ("Bigger text (Ctrl+wheel)", "Bigger text (Ctrl+wheel)"),  # Ctrl is Ctrl
+        (
+            "Bigger captions (Ctrl+wheel)",
+            "Bigger captions (Ctrl+wheel)",
+        ),  # Ctrl is Ctrl
     ],
 )
 def test_linux_names_its_own_hotkeys(

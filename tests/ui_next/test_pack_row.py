@@ -23,6 +23,30 @@ def downloading(**fields: Any) -> PackLine:
     return PackLine(size=48 * MB, progress=replace(progress, **fields))
 
 
+def test_without_sudachipy_japanese_says_lookups_are_unavailable_not_update(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polyglotic_desktop import main
+
+    real_find = main.importlib.util.find_spec
+    monkeypatch.setattr(
+        main.importlib.util,
+        "find_spec",
+        lambda name: None if name == "sudachipy" else real_find(name),
+    )
+    assert "japanese" not in main.pack_reader("0.1.12").splits
+    words, actions, _share = shown(
+        "ja",
+        PackLine(
+            progress=PackProgress("ja", Step.LIST, problem=Problem.SPLIT_UNAVAILABLE)
+        ),
+    )
+    assert words == (
+        "Japanese lookups aren't in this version yet. Captions and translation work."
+    )
+    assert "Update" not in words and actions == ()
+
+
 THIS = pc_or_mac("PC", "Mac")
 """Where the pack is: 409's words."""
 
@@ -118,6 +142,11 @@ CASES = [
     (
         downloading(problem=Problem.NEEDS_NEWER_APP),
         "Its dictionary needs a newer Polyglotic. Update the app to get it.",
+        (),
+    ),
+    (
+        downloading(problem=Problem.SPLIT_UNAVAILABLE),
+        "Russian lookups aren't in this version yet. Captions and translation work.",
         (),
     ),
     (

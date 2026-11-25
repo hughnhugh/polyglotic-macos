@@ -34,9 +34,11 @@ from polyglotic_desktop.main import (
     stop_captioning,
     wire_caption_windows,
 )
+from polyglotic_desktop.ui import os_words
 from polyglotic_desktop.ui.app import ConnectionState, DesktopApp
 from polyglotic_desktop.ui.settings import AppSettings
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
+from polyglotic_desktop.ui_next.panels import ReadingLinesPanel
 from polyglotic_desktop.ui_next.views.caption_window import STORED_KEY, CaptionLook
 from polyglotic_desktop.ui_next.views.home import AppStatus
 from polyglotic_desktop.ui_next.views.placement import Rect
@@ -255,7 +257,7 @@ def test_the_sessions_state_shows_on_the_windows_notice_line(
     assert window.notice.text().startswith("Reconnecting - trying again in")
     desktop.set_connection(ConnectionState.SERVER_BUSY, 24.0)  # 203's item 4
     window._tick()
-    assert window.notice.text() == "Polyglotic is busy — try again in a few minutes"
+    assert window.notice.text() == "Polyglotic is busy - trying again soon"
 
 
 def test_todays_settings_keep_the_windows_own_setting(
@@ -311,10 +313,12 @@ def test_a_panel_change_is_saved_and_the_windows_follow(
         lambda: windows.set_look(caption_look(desktop.settings.value))
     )
     panels.look.set_opacity(0.3)
-    assert window.look.opacity == 0.3  # shown at once; saved once it settles (273)
+    assert windows.look.opacity == window.look.opacity == 0.3
+    window.opacity_wanted.emit(0.75)
+    assert window.look.opacity == 0.75
     assert panels.look_waiting and desktop.settings.value.opacity != 0.3
     panels.save_look()
-    assert desktop.settings.value.opacity == 0.3 and window.look.opacity == 0.3
+    assert desktop.settings.value.opacity == 0.3 and window.look.opacity == 0.75
     panels.timing.set_mode(CaptionMode.CALM)
     assert desktop.settings.value.caption_mode is CaptionMode.CALM
     panels.timing.set_max_wait(2.5)  # the longest wait for text (277)
@@ -326,8 +330,73 @@ def test_a_panel_change_is_saved_and_the_windows_follow(
     assert panels.languages.value.in_use == ("en",)  # the window's language
     window.set_language("ja")
     assert panels.languages.value.in_use == ("ja",)
-    desktop.settings.update(opacity=0.9)  # elsewhere: the panels show it
-    assert panels.look.value.opacity == 0.9
+    assert window.look.opacity == 0.75  # unrelated saves preserve the cog choice
+    desktop.settings.update(opacity=0.9)  # another explicit global change
+    assert panels.look.value.opacity == window.look.opacity == 0.9
+
+
+def test_a_look_choice_survives_restart_while_reading_lines_follow_default(
+    switched: tuple[DesktopApp, CaptionWindows],
+) -> None:
+    desktop, windows = switched
+    panels = Panels(desktop.settings, windows)
+
+    panels.look.set_opacity(0.95)
+    panels.save_look()
+    restarted = AppSettings.from_stored(desktop.settings.value.to_stored())
+
+    assert restarted.opacity == 0.95
+    assert "opacity" in restarted.changed
+    assert "reading_lines" not in restarted.changed
+    assert restarted.reading_lines == AppSettings().reading_lines
+
+
+@pytest.mark.parametrize("started_explicit", [False, True])
+def test_a_reading_line_off_on_pair_preserves_how_the_list_started(
+    switched: tuple[DesktopApp, CaptionWindows], started_explicit: bool
+) -> None:
+    """Two settled panel saves don't turn an implicit default into a choice."""
+    desktop, windows = switched
+    panels = Panels(desktop.settings, windows)
+    initial = panels.look.value.reading_lines
+    if started_explicit:
+        desktop.settings.update(reading_lines=initial)
+    panel = ReadingLinesPanel(panels.look, notes=True)
+
+    panel.chinese.setChecked(False)
+    panels.save_look()
+    changed = AppSettings.from_stored(desktop.settings.value.to_stored())
+    assert "zh" not in changed.reading_lines
+    assert "reading_lines" in changed.changed
+
+    # An unrelated save can refresh every panel between the two settled
+    # switch changes without changing what the reading-lines choice began as.
+    desktop.settings.update(opacity=0.95)
+
+    panel.chinese.setChecked(True)
+    panels.save_look()
+    restarted = AppSettings.from_stored(desktop.settings.value.to_stored())
+    assert restarted.reading_lines == (() if not started_explicit else initial)
+    assert ("reading_lines" in restarted.changed) is started_explicit
+
+    desktop.settings.update(interface_language="zh_CN")
+    after_language_change = caption_look(desktop.settings.value, panels.in_use())
+    assert ("zh" in after_language_change.reading_lines) is started_explicit
+
+
+def test_a_reading_line_choice_left_changed_survives_restart(
+    switched: tuple[DesktopApp, CaptionWindows],
+) -> None:
+    desktop, windows = switched
+    panels = Panels(desktop.settings, windows)
+    panel = ReadingLinesPanel(panels.look, notes=True)
+
+    panel.chinese.setChecked(False)
+    panels.save_look()
+
+    restarted = AppSettings.from_stored(desktop.settings.value.to_stored())
+    assert "zh" not in restarted.reading_lines
+    assert "reading_lines" in restarted.changed
 
 
 def test_the_looks_reset_leaves_the_windows_where_they_are(
@@ -446,19 +515,32 @@ def test_the_main_window_comes_when_the_tray_asks(
     assert built.window.isVisible() and built.window.current == "account"
 
 
+@pytest.mark.parametrize(
+    ("platform", "quit_instruction"),
+    [
+        pytest.param("win32", "Use the tray icon to quit.", id="windows"),
+        pytest.param("darwin", "Use the menu bar icon to quit.", id="macos"),
+        pytest.param("linux", "Use the panel icon to quit.", id="linux"),
+    ],
+)
 def test_closing_the_main_window_hides_it_and_the_tray_says_so_once(
+    monkeypatch: pytest.MonkeyPatch,
     hub: tuple[DesktopApp, CaptionWindows, Hub],
+    platform: str,
+    quit_instruction: str,
 ) -> None:
     desktop, _, built = hub
     desktop.tray = tray = RecordingTray()
     built.window.keep_in_tray = True  # as `main` sets it where there's a tray
-    built.window.show()
-    built.window.close()
-    assert not built.window.isVisible()  # hidden: the app runs on
-    assert len(tray.messages) == 1 and tray.messages[0][1].endswith("Quit from there.")
-    built.window.show()
-    built.window.close()  # the second time: nothing more
-    assert len(tray.messages) == 1
+    with monkeypatch.context() as platform_context:
+        platform_context.setattr(os_words.sys, "platform", platform)
+        built.window.show()
+        built.window.close()
+        assert not built.window.isVisible()  # hidden: the app runs on
+        assert tray.messages == [("Polyglotic is still running", quit_instruction)]
+        built.window.show()
+        built.window.close()  # the second time: nothing more
+        assert tray.messages == [("Polyglotic is still running", quit_instruction)]
 
 
 def test_the_tray_says_the_state_home_shows(
@@ -482,7 +564,9 @@ def test_home_follows_the_session_and_the_picker_acts(
     desktop.set_minutes(12, 48)
     assert built.home.state.minutes.text() == "Minutes this month: 12 of 60"
     desktop.show_notice("server_restarting")
-    assert built.home.state.notice.text().startswith("The server is restarting")
+    assert built.home.state.notice.text().startswith(
+        "Polyglotic's server is restarting"
+    )
     built.picker.set_translate_into("Web Browser", "ja")
     assert windows.windows["Web Browser"].choices.translate_into == "ja"
     built.picker.add("Video Player")
@@ -583,7 +667,7 @@ def test_captions_failing_on_the_server_on_home_and_every_window(
     assert not window.notice.isVisible() and built.home.state.notice.isHidden()
     desktop.caption_failed()
     window._tick()
-    words = "Captions failing on the server - still trying"
+    words = "Some captions failed - still trying"
     assert window.notice.text() == words == built.home.state.notice.text()
     assert not built.home.state.notice.isHidden()
     desktop.feed.apply(finished_updates(1)[0])  # the model is back

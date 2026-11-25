@@ -142,9 +142,7 @@ def test_the_window_s_settings_list_the_apps_and_say_what_to_do(
         "Google Chrome - starts when it plays",
     ]
     assert popover.no_app.isVisibleTo(popover)
-    assert popover.no_app.text() == (
-        "Don't see your app here? Make sure it's playing audio."
-    )
+    assert popover.no_app.text() == ("Don't see your app? Play some sound in it.")
     assert "starts when Google Chrome plays" in popover.apps.item(2).toolTip()
     place = window.geometry()
     popover._app_chosen(popover.apps.item(2))  # Google Chrome

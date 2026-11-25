@@ -1,0 +1,33 @@
+{
+  "width": 20,
+  "steps": [
+    {
+      "original": "Hi there friend. Next one",
+      "translation": "Salut. Suivant un",
+      "expected_pairs": [
+        [
+          "Hi there friend.",
+          "Salut. Suivant"
+        ],
+        [
+          "Next one",
+          "un…"
+        ]
+      ]
+    },
+    {
+      "original": "Hi there friend. Next one grows",
+      "translation": "Salut. Suivant un grandit",
+      "expected_pairs": [
+        [
+          "Hi there friend.",
+          "Salut. Suivant"
+        ],
+        [
+          "Next one grows",
+          "un grandit…"
+        ]
+      ]
+    }
+  ]
+}

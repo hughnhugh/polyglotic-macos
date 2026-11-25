@@ -4,6 +4,8 @@ what each language's dictionary can do, your level, and which words
 captions point out - each said in words, not left to guess.
 
 Top to bottom, in the pages' column:
+- **Learn another language** - every caption language, by name, each
+  saying what it gets (none pinned on top: 293);
 - **a card per language being learned** (`views.learning.cards`): its
   dictionary's tier - full, basic or none yet - and what that gives; a
   full dictionary's level, with "Change your level" for each one open
@@ -13,12 +15,10 @@ Top to bottom, in the pages' column:
   decision 0095); "Make X your main language" for another full dictionary
   (Words' first section, Home's; from the next start); "Stop learning"
   for the others;
-- **Learn another language** - every caption language, by name, each
-  saying what it gets (none pinned on top: 293);
 - **Word introductions** - Off · A few per caption · Every new word
   (`core.learning.highlights.WordIntroductions`), what each does, a
   caption drawn with the marks, and where the words go;
-- **Words and Anki** - Words, and the site's help on importing;
+- **Words** - saved words, Anki exports and the site's help on importing;
 - **Your learning data** - Account's "Delete learning data…", the same
   command.
 
@@ -498,7 +498,7 @@ class LanguageCardView(Card):
         self.links = Segmented(
             [
                 (LinkChoice.EVERY, _tr("Every word")),
-                (LinkChoice.PAST_KNOWN, _tr("Past what you know")),
+                (LinkChoice.PAST_KNOWN, _tr("Words beyond your level")),
                 (LinkChoice.OFF, _tr("Off")),
             ],
             card.choices.links,
@@ -509,7 +509,8 @@ class LanguageCardView(Card):
             lambda choice: self._choose(replace(self._choices, links=choice))
         )
         said = _tr(
-            "Which words are joined to their translation while word links are on."
+            "Choose whether every word or only words beyond a frequency rank or "
+            "your level get links to their translation."
         )
         if card.key_words_only:
             said = in_sentence(
@@ -524,11 +525,13 @@ class LanguageCardView(Card):
         if card.offers_links_from:
             self.links_from = Combo()
             self.links_from.setObjectName(f"learning.{card.code}.links_from")
-            self.links_from.setAccessibleName(_tr("Start links at"))
+            self.links_from.setAccessibleName(_tr("Link words after"))
             if card.links_from_line:
-                self.links_from.addItem(_tr("What you know"), None)
+                self.links_from.addItem(_tr("Your level"), None)
             for n in LINKS_FROM:
-                self.links_from.addItem(QLocale().toString(n), n)
+                self.links_from.addItem(
+                    _tr("Frequency rank {rank}").format(rank=QLocale().toString(n)), n
+                )
             at = self.links_from.findData(
                 card.choices.links_from
                 if card.links_from_line
@@ -538,7 +541,7 @@ class LanguageCardView(Card):
             self.links_from.activated.connect(self._links_from_chosen)
             line = QHBoxLayout()
             line.setSpacing(12)
-            line.addWidget(label(_tr("Start links at"), "RowTitle"), 1)
+            line.addWidget(label(_tr("Link words after"), "RowTitle"), 1)
             line.addWidget(self.links_from)
             self.add(line)
 
@@ -550,7 +553,7 @@ class LanguageCardView(Card):
                 in_sentence(_tr("Make {language} your main language"), language=name),
                 f"learning.{card.code}.switch",
             )
-            self.switch.setToolTip(_tr("From the next time Polyglotic starts"))
+            self.switch.setToolTip(_tr("Takes effect when Polyglotic next starts"))
             buttons.addWidget(self.switch)
         if not card.main:
             self.stop = _button(
@@ -558,7 +561,7 @@ class LanguageCardView(Card):
                 f"learning.{card.code}.stop",
             )
             self.stop.setProperty("kind", "ghost")
-            self.stop.setToolTip(_tr("Its words are kept - delete them on Account"))
+            self.stop.setToolTip(_tr("Keeps its words; delete them on Account"))
             buttons.addWidget(self.stop)
         if self.switch is not None or self.stop is not None:
             self.add(buttons)
@@ -596,7 +599,7 @@ class LanguageCardView(Card):
         number.hide()  # until "Another number…"
         self.first, self.first_number, self.mark_known = first, number, mark
         self._row(
-            _tr("Mark the most common words known"),
+            _tr("Mark common words as known"),
             _tr(
                 "Every word up to the number you choose counts as known - your "
                 "level moves there. Words you marked yourself stay as you set them."
@@ -659,14 +662,14 @@ class LanguageCardView(Card):
             window_choice(size),
         )
         self.window_size.setObjectName(f"learning.{code}.window")
-        self.window_size.setAccessibleName(_tr("Learning window"))
+        self.window_size.setAccessibleName(_tr("New words to highlight"))
         self.window_size.changed.connect(self._window_chosen)
         self._window_note = label(self._window_said(size), "Faint", wrap=True)
         line = QHBoxLayout()
         line.setSpacing(12)
         words = QVBoxLayout()
         words.setSpacing(2)
-        words.addWidget(label(_tr("Learning window"), "RowTitle"))
+        words.addWidget(label(_tr("New words to highlight"), "RowTitle"))
         words.addWidget(self._window_note)
         line.addLayout(words, 1)
         line.addWidget(self.window_size, 0, Qt.AlignmentFlag.AlignTop)
@@ -677,10 +680,10 @@ class LanguageCardView(Card):
         custom.setContentsMargins(0, 0, 0, 0)
         custom.setSpacing(8)
         custom.addStretch(1)
-        custom.addWidget(label(_tr("Words in the window"), "Faint"))
+        custom.addWidget(label(_tr("Number of words"), "Faint"))
         self.window_custom = QLineEdit()
         self.window_custom.setObjectName(f"learning.{code}.window_custom")
-        self.window_custom.setAccessibleName(_tr("Words in the learning window"))
+        self.window_custom.setAccessibleName(_tr("Number of new words to highlight"))
         bounds = _tr("{least} to {most}").format(
             least=QLocale().toString(MIN_WINDOW), most=QLocale().toString(MAX_WINDOW)
         )
@@ -698,12 +701,12 @@ class LanguageCardView(Card):
     def _window_said(size: WindowSize) -> str:
         if size is UNLIMITED:
             return _tr(
-                "Every word past what you know can be pointed out, however rare. "
+                "Highlights every word beyond your level, however rare. "
                 "Hover or click any word to look it up."
             )
         return _tr(
-            "The next words past what you know are the ones pointed out. "
-            "Rarer words are left alone: hover or click one to look it up."
+            "Highlights this many words beyond your level. Rarer words are left "
+            "alone; hover or click one to look it up."
         )
 
     def _show_custom(self, size: WindowSize) -> None:
@@ -817,10 +820,9 @@ class LearningPage(Page):
         "Learn another language" may say of it (330; None: nothing known)."""
         intro = label(
             _tr(
-                "For each language you learn, Polyglotic keeps your words: lookups "
-                "use its dictionary, your level estimates which words you know, "
-                "and captions point out new ones. Captions and translation work "
-                "in every language, whatever you choose here."
+                "Choose what you're learning and which new words captions highlight. "
+                "Your level estimates the words you know. Captions and translation "
+                "work in every language without these choices."
             ),
             "PageSubtitle",
             wrap=True,
@@ -837,7 +839,7 @@ class LearningPage(Page):
         self.none_yet = Card(
             _tr("Languages you're learning"),
             _tr(
-                "None yet. Pick one below for lookups, your level and word "
+                "None yet. Pick one above for lookups, your level and word "
                 "introductions."
             ),
         )
@@ -866,7 +868,7 @@ class LearningPage(Page):
         self.choices.setPlaceholderText(_tr("Choose a language"))
         self.choices.currentIndexChanged.connect(self._chosen)
         row.add_widget(self.choices, 1)
-        self.add = _button(_tr("Learn it"), "learning.add")
+        self.add = _button(_tr("Add language"), "learning.add")
         # a double-click's second click is let go: after the first, the list
         # moves on to the next language, and the second added that one too
         # (269: Japanese after English)
@@ -878,20 +880,20 @@ class LearningPage(Page):
         self.chosen_gives = label("", "Faint", wrap=True)
         another.add(self.chosen_gives)
         self.another = another
-        self.content.addWidget(another)
+        # "move this to the top of learning section" (the user, 2026-11-25, 960)
+        self.content.insertWidget(self.content.indexOf(intro) + 1, another)
 
         introductions = Card(
             _tr("Word introductions"),
             _tr(
-                "Captions point out words that are probably new to you, so you "
-                "notice them as you hear them. They're guessed from your level; "
-                "a click on any word corrects it."
+                "Choose how many likely new words captions highlight. Your level "
+                "provides the estimate; click a word to correct it."
             ),
         )
         self.introductions = Segmented(
             [
                 (WordIntroductions.OFF, _tr("Off")),
-                (WordIntroductions.A_FEW, _tr("A few per caption")),
+                (WordIntroductions.A_FEW, _tr("A few")),
                 (WordIntroductions.EVERY, _tr("Every new word")),
             ],
             WordIntroductions.A_FEW,
@@ -907,9 +909,9 @@ class LearningPage(Page):
         introductions.add(
             label(
                 _tr(
-                    "Dotted yellow: a word new to you. Dashed green: a word in your "
-                    "deck. A saved word takes its category's colour. Only finished "
-                    "captions in a language you're learning are marked."
+                    "Dotted yellow marks a new word; dashed green marks one in your "
+                    "deck. A saved word uses its category's colour. Marks appear only "
+                    "on finished captions in a language you're learning."
                 ),
                 "Faint",
                 wrap=True,
@@ -918,9 +920,9 @@ class LearningPage(Page):
         introductions.add(
             label(
                 _tr(
-                    "Where they go: hear a word a few times and it joins Words you "
-                    "keep hearing, on Words. Add it to your deck there or from its "
-                    "lookup, and it goes into your next Anki export."
+                    "After you hear a word a few times, it appears under Repeated "
+                    "words on the Words page. Add it to your deck there or from "
+                    "its lookup to include it in your next Anki export."
                 ),
                 "Dim",
                 wrap=True,
@@ -929,10 +931,10 @@ class LearningPage(Page):
         self.content.addWidget(introductions)
 
         words = Card(
-            _tr("Words and Anki"),
+            _tr("Words"),
             _tr(
-                "Your deck, your saved words and the words you keep hearing are on "
-                "Words. Each language exports a deck of its own."
+                "Open Words to manage your deck, saved words and Repeated words. "
+                "Each language has its own Anki export."
             ),
         )
         self.open_words = _button(_tr("Open Words"), "learning.open_words")
@@ -951,8 +953,8 @@ class LearningPage(Page):
         self.installed = Card(
             pc_or_mac(_tr("Dictionaries on this PC"), _tr("Dictionaries on this Mac")),
             _tr(
-                "Downloaded for the languages you learn. Removing one frees its "
-                "space; lookups in its language stop until it's downloaded again."
+                "These dictionaries are stored on this device. Removing one frees "
+                "space and disables its lookups until you download it again."
             ),
         )
         self.installed.setAccessibleName(
@@ -962,7 +964,7 @@ class LearningPage(Page):
         self.installed_rows.setSpacing(8)
         self.installed.add(self.installed_rows)
         self.no_packs = label(
-            _tr("None yet: when you learn a language, its card offers its dictionary."),
+            _tr("No dictionaries downloaded. Add a language to get its dictionary."),
             "Dim",
             wrap=True,
         )

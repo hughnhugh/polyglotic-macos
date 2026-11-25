@@ -78,6 +78,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractSlider,
     QApplication,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLayout,
@@ -89,6 +90,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.listening.display import LongLines
 from polyglotic_desktop.ports.system import KeyState  # theirs: the OS's
 from polyglotic_desktop.ui_next import style
 from polyglotic_desktop.ui_next.above_all import ABOVE_ALL, POPOVERS_TAKE_THE_KEYBOARD
@@ -154,6 +156,10 @@ ROWS = (
     *BAR_ROWS,
     "text_size",
     "translation_size",
+    "long_lines",
+    "opacity",
+    "show_pace",
+    "show_caption_info",
     "transcript",
     "join",
     "stop",
@@ -162,19 +168,26 @@ ROWS = (
 """The popover's rows, top to bottom (polyglotic-hq 593, 635, 655): its app,
 any bar chips folded away at narrow widths (`BAR_ROWS`: timing, languages,
 preset - shown only when overflowed or reached by keyboard), independent
-Caption size and Translation size (with Match), and its actions. Join windows
-shows only with two or more windows."""
+Caption size and Translation size (with Match), Long lines, panel opacity, the
+speaking pace and caption info switches, and its actions. Join windows shows
+only with two or more windows."""
 COLUMN_ROWS = (
     "app",
     *BAR_ROWS,
     "text_size",
     "translation_size",
+    "long_lines",
+    "opacity",
+    "show_pace",
+    "show_caption_info",
     "transcript",
     "stop",
 )
 """A joined window's column's popover: what is that app's own (109's 2a)."""
-WINDOW_ROWS = ("separate", "all_settings")
+WINDOW_ROWS = ("opacity", "separate", "all_settings")
 """The joined window's own popover: what is the whole window's."""
+ACTION_ROWS = frozenset({"transcript", "join", "stop", "separate", "all_settings"})
+"""Action rows separated from the settings rows above by a horizontal rule."""
 LANGUAGE_ROWS = (
     "spoken",
     "lyrics",
@@ -232,6 +245,18 @@ def _tr(text: str) -> str:
     return QApplication.translate("SettingsPopover", text)
 
 
+def long_lines_title() -> str:
+    return _tr("Long lines")
+
+
+def long_lines_name(choice: LongLines) -> str:
+    if choice is LongLines.DISPLAY_NEW_LINES:
+        #: Each original row is followed by its translation.
+        return _tr("Display new lines")
+    #: All original rows together, then their translation.
+    return _tr("Grouped")
+
+
 def _chip_text(value: str, open_: bool) -> str:
     """A value chip's words: the choice made, and an arrow - down to open
     its choices, up while they're open (as the lookup card's Save to)."""
@@ -246,16 +271,16 @@ def second_title(language: str) -> str:
     """The second language's row, named by the window's language (465)."""
     #: A caption window's row: what to do with lines already spoken in
     #: {language}, the language this window translates into
-    return in_sentence(_tr("When they already speak {language}"), language=language)
+    return in_sentence(_tr("Lines already in {language}"), language=language)
 
 
 def second_tip(language: str) -> str:
     """What the second language's row does, for its tooltip."""
     return in_sentence(
         _tr(
-            "{language} is this window's language, so those lines get no "
-            "translation. Translate them into a second language too, or leave "
-            "them as they are."
+            "{language} is this window's language, so those lines aren't "
+            "translated. Translate them into a second language, or leave them as "
+            "they are."
         ),
         language=language,
     )
@@ -351,7 +376,12 @@ class _Follows(QObject):
         button.setChecked(action.isChecked())
 
 
-class SizeSlider(QSlider):
+class WheelFreeSlider(QSlider):
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        event.ignore()
+
+
+class SizeSlider(WheelFreeSlider):
     """A text size's slider: moved by a drag, a click on its track, or its
     A- and A+ - never by the wheel, which passes over it (polyglotic-hq
     304's rule: the wheel never changes a setting it passes over)."""
@@ -373,9 +403,6 @@ class SizeSlider(QSlider):
         blocked = self.blockSignals(True)
         self.setValue(round((size - self.low) / self.step))
         self.blockSignals(blocked)
-
-    def wheelEvent(self, event: QWheelEvent) -> None:
-        event.ignore()
 
 
 FLAGS = (
@@ -437,14 +464,21 @@ class SettingsPopover(QWidget):
         self._poll = QTimer(self, interval=POLL_MS)
         self._poll.timeout.connect(self._look_at_keys)
         self.rows: dict[str, QWidget] = {}
+        self.actions_divider: QFrame | None = None
         column = QVBoxLayout(self)
         column.setContentsMargins(12, 12, 12, 12)
         column.setSpacing(6)
+        has_settings = False
         for name in rows:
+            if has_settings and self.actions_divider is None and name in ACTION_ROWS:
+                self.actions_divider = self._divider()
+                column.addWidget(self.actions_divider)
             row = getattr(self, f"_{name}_row")()
             row.setObjectName(f"settings_popover.{name}")
             self.rows[name] = row
             column.addWidget(row)
+            if name not in ACTION_ROWS:
+                has_settings = True
 
     # -- the rows ----------------------------------------------------------------------
 
@@ -541,6 +575,35 @@ class SettingsPopover(QWidget):
         legend.expanded.connect(self._fit)
         return legend
 
+    def _divider(self) -> QFrame:
+        rule = QFrame(self)
+        rule.setObjectName("settings_popover.actions_divider")
+        rule.setFixedHeight(1)
+        rule.setStyleSheet(f"background: {LINE}; border: none;")
+        return rule
+
+    def _show_pace_row(self) -> QPushButton:
+        self.pace_switch = SwitchButton(self, INK)
+        self.pace_switch.setText(style.button_text(_tr("Show speaking pace (WPM)")))
+        self.pace_switch.setAccessibleName(_tr("Show speaking pace (WPM)"))
+        self.pace_switch.setProperty("switch", True)
+        self.pace_switch.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.pace_switch.setCheckable(True)
+        self.pace_switch.clicked.connect(self._window.set_show_pace)
+        return self.pace_switch
+
+    def _show_caption_info_row(self) -> QPushButton:
+        self.caption_info_switch = SwitchButton(self, INK)
+        #: Toggle for each caption's header line (source, language, timestamp, WPM).
+        label = _tr("Show caption info")
+        self.caption_info_switch.setText(style.button_text(label))
+        self.caption_info_switch.setAccessibleName(label)
+        self.caption_info_switch.setProperty("switch", True)
+        self.caption_info_switch.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.caption_info_switch.setCheckable(True)
+        self.caption_info_switch.clicked.connect(self._window.set_show_caption_info)
+        return self.caption_info_switch
+
     def _bar_mic_row(self) -> QPushButton:
         button = SwitchButton(self, INK)
         button.setProperty("switch", True)
@@ -557,6 +620,7 @@ class SettingsPopover(QWidget):
             _tr("The language this window's captions are translated into")
         )
         self.languages = QListWidget(row)
+        self.languages.setObjectName("settings_popover.languages")
         self.languages.setAccessibleName(_tr("Translate into"))
         self.languages.setMaximumHeight(style.px(LIST_HEIGHT))
         self.languages.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
@@ -607,7 +671,7 @@ class SettingsPopover(QWidget):
         Its list is every language the speech model hears, the recent ones
         first (`spoken_list`; 317), made when first opened."""
         row, column, self.spoken = self._value_row(
-            _tr("They speak"), "spoken_button", self._toggle_spoken
+            _tr("Spoken language"), "spoken_button", self._toggle_spoken
         )
         self.spoken.setToolTip(
             _tr(
@@ -623,6 +687,7 @@ class SettingsPopover(QWidget):
             recent=lambda: self._window.recent_spoken(),
             dim=DIM,
         )
+        self.spoken_choices.setObjectName("settings_popover.spoken_choices")
         self.spoken_choices.chosen.connect(self._spoken_chosen)
         column.addWidget(self.spoken_choices)
         self.spoken_fallback = self._note(
@@ -651,7 +716,7 @@ class SettingsPopover(QWidget):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         column.addWidget(self._wide(self.owner.controls["lyrics"], switch=True))
-        note = QLabel(_tr("Captions singing too: the music is sent while it plays"))
+        note = QLabel(_tr("Caption singing too: the music is sent while it plays"))
         note.setProperty("note", True)
         note.setWordWrap(True)
         note.setContentsMargins(0, 0, 0, 2)
@@ -685,11 +750,42 @@ class SettingsPopover(QWidget):
         self.second_line = line
         self.second_choices = self._list(
             row,
-            _tr("When they already speak this window's language"),
+            _tr("Lines already in this window's language"),
             self._second_chosen,
         )
+        self.second_choices.setObjectName("settings_popover.second_choices")
         column.addWidget(self.second_choices)
         return row
+
+    def _long_lines_row(self) -> QWidget:
+        title = long_lines_title()
+        row, column, self.long_lines = self._value_row(
+            title, "long_lines_button", self._toggle_long_lines
+        )
+        choices = self.long_lines_choices = self._list(
+            row, title, self._long_lines_chosen
+        )
+        choices.setObjectName("settings_popover.long_lines_choices")
+        for choice in LongLines:
+            item = QListWidgetItem(long_lines_name(choice))
+            item.setData(Qt.ItemDataRole.UserRole, choice.value)
+            choices.addItem(item)
+        column.addWidget(choices)
+        return row
+
+    def _toggle_long_lines(self) -> None:
+        choices = self.long_lines_choices
+        choices.setVisible(choices.isHidden())
+        choices.setFixedHeight(
+            sum(choices.sizeHintForRow(i) for i in range(choices.count()))
+            + 2 * choices.frameWidth()
+        )
+        self.refresh()
+
+    def _long_lines_chosen(self, item: QListWidgetItem) -> None:
+        self.long_lines_choices.hide()
+        self._window.long_lines_wanted.emit(item.data(Qt.ItemDataRole.UserRole))
+        self.refresh()
 
     def _app_row(self) -> QWidget:
         """Captioning: the app this window captions, and the apps it can
@@ -697,19 +793,18 @@ class SettingsPopover(QWidget):
         before they play (F12, 249) - opened under it; and what to do when
         an app isn't there."""
         row, column, self.app = self._value_row(
-            _tr("Captioning"), "app_button", self._toggle_apps
+            _tr("Source"), "app_button", self._toggle_apps
         )
         self.app.setToolTip(_tr("The app this window captions - pick another here"))
         self.apps = QListWidget(row)
-        self.apps.setAccessibleName(_tr("Captioning"))
+        self.apps.setObjectName("settings_popover.apps")
+        self.apps.setAccessibleName(_tr("Source"))
         self.apps.setMaximumHeight(style.px(LIST_HEIGHT))
         self.apps.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
         self.apps.itemClicked.connect(self._app_chosen)
         self.apps.hide()
         column.addWidget(self.apps)
-        self.no_app = QLabel(
-            _tr("Don't see your app here? Make sure it's playing audio."), row
-        )
+        self.no_app = QLabel(_tr("Don't see your app? Play some sound in it."), row)
         self.no_app.setProperty("note", True)
         self.no_app.setWordWrap(True)
         self.no_app.setContentsMargins(0, 4, 0, 2)
@@ -796,7 +891,7 @@ class SettingsPopover(QWidget):
         self.text_slider = SizeSlider(*CAPTION_TEXT_SIZES, FINE_STEP, self)
         self.text_slider.setObjectName("settings_popover.text_size_slider")
         self.text_slider.valueChanged.connect(
-            lambda _: self._window.set_text_size(self.text_slider.chosen())
+            lambda _: self._window.choose_size(0, self.text_slider.chosen())
         )
         row, self.text_size = self._sized(
             _tr("Caption size"),
@@ -814,9 +909,7 @@ class SettingsPopover(QWidget):
             "settings_popover.translation_size_slider"
         )
         self.translation_slider.valueChanged.connect(
-            lambda _: self._window.set_translation_size(
-                self.translation_slider.chosen()
-            )
+            lambda _: self._window.choose_size(1, self.translation_slider.chosen())
         )
         self.translation_match = self._button(
             self.owner.controls["translation_same"], self, True
@@ -831,6 +924,26 @@ class SettingsPopover(QWidget):
             self.translation_slider,
             trailing=self.translation_match,
         )
+        return row
+
+    def _opacity_row(self) -> QWidget:
+        row = QWidget(self)
+        column = QVBoxLayout(row)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(3)
+        self.opacity_label = QLabel(row)
+        column.addWidget(self.opacity_label)
+        line = QHBoxLayout()
+        line.setContentsMargins(INSET - 1, 0, 0, 0)
+        self.opacity_slider = WheelFreeSlider(Qt.Orientation.Horizontal, row)
+        self.opacity_slider.setObjectName("settings_popover.opacity_slider")
+        self.opacity_slider.setAccessibleName(_tr("Panel: how solid"))
+        self.opacity_slider.setRange(0, 100)
+        self.opacity_slider.valueChanged.connect(
+            lambda percent: self.owner.opacity_wanted.emit(percent / 100)
+        )
+        line.addWidget(self.opacity_slider)
+        column.addLayout(line)
         return row
 
     def _all_settings_row(self) -> QWidget:
@@ -849,6 +962,43 @@ class SettingsPopover(QWidget):
         return self._wide(self.owner.controls["separate"])
 
     # -- what it shows -------------------------------------------------------------------
+
+    def _show_text_sizes(self) -> None:
+        window = self._window
+        per_language = window.language_sizes is not None
+        codes = window.size_languages() if per_language else ()
+        rows = (
+            (
+                "text_size",
+                self.text_size,
+                self.text_slider,
+                _tr("Caption size"),
+                window.view.text_size,
+            ),
+            (
+                "translation_size",
+                self.translation_size,
+                self.translation_slider,
+                _tr("Translation size"),
+                window.choices.translation_size,
+            ),
+        )
+        self.translation_match.setVisible(not per_language)
+        for index, (name, heading, slider, title, fallback) in enumerate(rows):
+            visible = (
+                index < len(codes)
+                if per_language
+                else index == 0 or window.choices.target is not None
+            )
+            self.rows[name].setVisible(visible)
+            if visible:
+                if per_language:
+                    title = language_name(codes[index])
+                value = window.size_readout(index, fallback)
+                slider.setAccessibleName(title)
+                slider.show_size(value)
+                badge = size_badge(value)
+                heading.setText(f"{title}  <span style='color:{DIM}'>{badge}</span>")
 
     @property
     def _window(self) -> "CaptionWindow":
@@ -877,22 +1027,30 @@ class SettingsPopover(QWidget):
                 item = self.languages.item(index)
                 item.setSelected(item.data(Qt.ItemDataRole.UserRole) == chosen)
             self.not_offered.setHidden(self.languages.isHidden())
-        if "text_size" in self.rows:
-            self.text_slider.show_size(self._window.view.text_size)
-            badge = size_badge(self._window.view.text_size)
-            self.text_size.setText(
-                f"{_tr('Caption size')}  <span style='color:{DIM}'>{badge}</span>"
+        if "show_pace" in self.rows:
+            self.pace_switch.setChecked(self._window.choices.show_pace)
+        if "show_caption_info" in self.rows:
+            self.caption_info_switch.setChecked(self._window.choices.show_caption_info)
+        if "long_lines" in self.rows:
+            choice = self._window.preset_menu.long_lines
+            choices = self.long_lines_choices
+            self.long_lines.setText(
+                _chip_text(long_lines_name(choice), choices.isVisible())
             )
-        if "translation_size" in self.rows:
-            has_target = self._window.choices.target is not None
-            self.rows["translation_size"].setVisible(has_target)
-            if has_target:
-                trans = self._window.choices.translation_size
-                self.translation_slider.show_size(trans)
-                badge = size_badge(trans)
-                self.translation_size.setText(
-                    f"{_tr('Translation size')}  <span style='color:{DIM}'>{badge}</span>"
-                )
+            for index in range(choices.count()):
+                if choices.item(index).data(Qt.ItemDataRole.UserRole) == choice.value:
+                    choices.setCurrentRow(index)
+                    break
+        if "opacity" in self.rows:
+            percent = round(self.owner.look.opacity * 100)
+            blocked = self.opacity_slider.blockSignals(True)
+            self.opacity_slider.setValue(percent)
+            self.opacity_slider.blockSignals(blocked)
+            self.opacity_label.setText(
+                f"{_tr('Panel: how solid')}  <span style='color:{DIM}'>{percent}%</span>"
+            )
+        if "text_size" in self.rows:
+            self._show_text_sizes()
         if "app" in self.rows:
             self.rows["app"].setVisible(bool(self._window.app_choices()))
             self.app.setText(_chip_text(self._window.label.name, self.apps.isVisible()))
@@ -913,9 +1071,9 @@ class SettingsPopover(QWidget):
         if "bar_mic" in self.rows:
             mic_row = cast(QPushButton, self.rows["bar_mic"])
             on = self._window.choices.show_mic
-            mic_row.setText(style.button_text(_tr("Caption what I say")))
+            mic_row.setText(style.button_text(_tr("Show my speech here")))
             mic_row.setChecked(on)
-            mic_row.setAccessibleName(_tr("Caption what I say"))
+            mic_row.setAccessibleName(_tr("Show my speech here"))
             tip = self._window.mic_button.toolTip()
             mic_row.setToolTip(tip)
             mic_row.setAccessibleDescription(tip)
@@ -1026,6 +1184,7 @@ class SettingsPopover(QWidget):
             "apps",
             "spoken_choices",
             "second_choices",
+            "long_lines_choices",
         ):
             if hasattr(self, opened):
                 getattr(self, opened).hide()

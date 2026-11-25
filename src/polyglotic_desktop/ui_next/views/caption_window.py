@@ -47,6 +47,7 @@ from polyglotic_desktop.core.learning.curriculum import DEFAULT_SIZE as CURRICUL
 from polyglotic_desktop.core.learning.highlights import WordIntroductions
 from polyglotic_desktop.core.listening.captions import Language
 from polyglotic_desktop.core.listening.display import (
+    JapaneseReading,
     LinkDetail,
     LinkGap,
     LinkLine,
@@ -119,6 +120,10 @@ class WindowChoices:
     geometry: Rect | None = None
     spoken_language: str | None = None
     translation_size: float = 1.0
+    opacity: float = 0.88
+    language_sizes: Mapping[Language, float] = field(default_factory=dict)
+    show_pace: bool = True
+    show_caption_info: bool = True
 
     @property
     def target(self) -> Language | None:
@@ -146,11 +151,17 @@ class WindowChoices:
             "translate_into": self.translate_into,
             "text_size": self.text_size,
             "show_mic": self.show_mic,
+            "show_pace": self.show_pace,
+            "show_caption_info": self.show_caption_info,
             "position": self.preset.value,
             "geometry": self.geometry.as_list() if self.geometry else None,
             "spoken_language": self.spoken_language or DETECT,
             "translation_size": legacy_share,
             "translation_text_size": self.translation_size,
+            "opacity": self.opacity,
+            "language_sizes": {
+                str(code): size for code, size in self.language_sizes.items()
+            },
         }
 
     @classmethod
@@ -171,8 +182,9 @@ class WindowChoices:
             found["text_size"] = size
         # a stored "mode" is left: every window is a panel, one saved as a
         # Strip too (the Strip went, polyglotic-hq 272)
-        if isinstance(stored.get("show_mic"), bool):
-            found["show_mic"] = stored["show_mic"]
+        for switch in ("show_mic", "show_pace", "show_caption_info"):
+            if isinstance(stored.get(switch), bool):
+                found[switch] = stored[switch]
         if stored.get("position") in {p.value for p in Preset}:
             found["preset"] = Preset(stored["position"])
         geometry = rect_from(stored.get("geometry"))
@@ -196,6 +208,13 @@ class WindowChoices:
                 found["translation_size"] = round(
                     min(high, max(low, caption * share)), 2
                 )
+        opacity = panel_opacity(stored.get("opacity"))
+        if opacity is not None:
+            found["opacity"] = opacity
+        found["language_sizes"] = {
+            Language(code): size
+            for code, size in _sizes(stored.get("language_sizes")).items()
+        }
         return replace(base, **found)  # type: ignore[arg-type]
 
 
@@ -300,10 +319,23 @@ class StoredWindows:
     """While every window shows the original only (a preset's Show,
     polyglotic-hq 556): each window's translation language from before, by
     its key, given back when translations show again."""
-    preset_sizes: dict[str, tuple[float, float]] = field(default_factory=dict)
-    """Each preset's remembered (caption_size, translation_size) pair (655),
-    saved when the learner adjusts a size or leaves a preset so switching back
-    restores it while untouched presets start from their tuned defaults."""
+    pending_spoken_sizes: dict[str, float] = field(default_factory=dict)
+    """Legacy original sizes waiting for the first detected language in a window."""
+
+    def migrate_language_sizes(self) -> None:
+        """Keep named languages from the last-used window first, then the rest."""
+        for choices in (self.last, *self.by_key.values()):
+            for code, size in (
+                (choices.spoken, choices.text_size),
+                (choices.target, choices.translation_size),
+            ):
+                if code:
+                    choices.language_sizes.setdefault(code, size)  # type: ignore[attr-defined]
+        self.pending_spoken_sizes = {
+            key: choices.text_size
+            for key, choices in self.by_key.items()
+            if choices.spoken is None and choices.text_size != WindowChoices().text_size
+        }
 
     def spoken_declined(self, key: str, code: str) -> None:
         """The window of `key` was asked to always hear `code` and the
@@ -400,10 +432,8 @@ class StoredWindows:
             "start_like_this": self.start_like_this,
             "kept_languages": dict(self.kept_languages),
         }
-        if self.preset_sizes:
-            stored["preset_sizes"] = {
-                k: [a, b] for k, (a, b) in self.preset_sizes.items()
-            }
+        if self.pending_spoken_sizes:
+            stored["pending_spoken_sizes"] = dict(self.pending_spoken_sizes)
         return stored
 
     @classmethod
@@ -423,7 +453,7 @@ class StoredWindows:
             }
         recent = own.get("recent_spoken")
         declined = own.get("declined_spoken")
-        return cls(
+        stored = cls(
             by_key,
             last,
             joined=JoinedChoices.from_stored(own.get("joined")),
@@ -449,22 +479,31 @@ class StoredWindows:
             set_up=own.get("set_up") is True or ("set_up" not in own and bool(by_key)),
             start_like_this=own.get("start_like_this") is True,
             kept_languages=_kept_languages(own.get("kept_languages")),
-            preset_sizes=_preset_sizes(own.get("preset_sizes")),
+            pending_spoken_sizes=_sizes(own.get("pending_spoken_sizes")),
         )
+        legacy_sizes = {
+            Language(code): size
+            for code, size in _sizes(own.get("language_sizes")).items()
+        }
+        if legacy_sizes:
+            stored.by_key = {
+                key: replace(value, language_sizes=dict(legacy_sizes))
+                for key, value in stored.by_key.items()
+            }
+            stored.last = replace(stored.last, language_sizes=dict(legacy_sizes))
+        elif not any(value.language_sizes for value in stored.by_key.values()):
+            stored.migrate_language_sizes()
+        return stored
 
 
-def _preset_sizes(value: object) -> dict[str, tuple[float, float]]:
-    """Each preset's saved (caption_size, translation_size) pair, validated."""
+def _sizes(value: object) -> dict[str, float]:
     if not isinstance(value, Mapping):
         return {}
-    found: dict[str, tuple[float, float]] = {}
-    for key, pair in value.items():
-        if not isinstance(pair, list | tuple) or len(pair) != 2:
-            continue
-        cap, trans = text_size(pair[0]), translation_size(pair[1])
-        if cap is not None and trans is not None:
-            found[str(key)] = (cap, trans)
-    return found
+    return {
+        code: size
+        for code, raw in value.items()
+        if isinstance(code, str) and code and (size := text_size(raw)) is not None
+    }
 
 
 def _kept_languages(value: object) -> dict[str, str]:
@@ -507,6 +546,17 @@ def translation_size(value: object) -> float | None:
         isinstance(value, int | float)
         and not isinstance(value, bool)
         and TRANSLATION_SIZES[0] <= value <= TRANSLATION_SIZES[1]
+    ):
+        return round(float(value), 2)
+    return None
+
+
+def panel_opacity(value: object) -> float | None:
+    """A caption panel's stored opacity, from transparent to solid."""
+    if (
+        isinstance(value, int | float)
+        and not isinstance(value, bool)
+        and 0 <= value <= 1
     ):
         return round(float(value), 2)
     return None
@@ -648,6 +698,8 @@ class CaptionLook:
     (polyglotic-hq 511, DECISIONS #200: "only over new words")."""
     reading_system: ReadingSystem = ReadingSystem.PINYIN
     """Chinese's reading line in pinyin or zhuyin (395)."""
+    japanese_reading: JapaneseReading = JapaneseReading.KANA
+    """Japanese readings as kana, romaji, both, or off (898)."""
     reading_colour: ReadingColour = ReadingColour.GREY
     """What colour a reading is drawn in (polyglotic-hq 395): a muted grey
     by default, its word link's where one joins it, so word links on show

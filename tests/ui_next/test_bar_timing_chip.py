@@ -1,5 +1,5 @@
 """A caption window's bar: the timing chip after the preset chip, offering
-only the timings the preset's use allows; the gear menu cut to seven rows;
+only the timings the preset's use allows; the gear menu with per-window opacity;
 and the microphone status light (polyglotic-hq 593; 585's sections 3 and
 6; the user, 2026-11-21: "So language detection, preset, timing")."""
 
@@ -246,7 +246,7 @@ def test_learnings_translation_after_or_with(
     with_it = timings.body.findChild(QPushButton, "timings.path.both")
     assert after is not None and with_it is not None
     assert after.isChecked() and not with_it.isChecked()
-    assert "after I've read it" in after.accessibleName()
+    assert "a moment later" in after.accessibleName()
     with_it.click()
     assert asked == ["both"]
 
@@ -448,14 +448,16 @@ def test_keyboard_reaches_and_changes_every_chip(
 # -- the gear menu -----------------------------------------------------------------------
 
 
-def test_the_gear_menu_has_seven_rows(
-    qapp: QApplication, window: CaptionWindow
-) -> None:
+def test_the_gear_menu_rows(qapp: QApplication, window: CaptionWindow) -> None:
     assert (
         "app",
         *BAR_ROWS,
         "text_size",
         "translation_size",
+        "long_lines",
+        "opacity",
+        "show_pace",
+        "show_caption_info",
         "transcript",
         "join",
         "stop",
@@ -466,6 +468,10 @@ def test_the_gear_menu_has_seven_rows(
         *BAR_ROWS,
         "text_size",
         "translation_size",
+        "long_lines",
+        "opacity",
+        "show_pace",
+        "show_caption_info",
         "transcript",
         "stop",
     ) == COLUMN_ROWS
@@ -544,11 +550,11 @@ def test_bar_mic_toggles_own_speech_without_taking_focus(
     mic = window.mic_button
     assert mic.isVisible() and mic.isCheckable() and not mic.isChecked()
     assert mic.focusPolicy() == Qt.FocusPolicy.NoFocus
-    assert window.windowFlags() & Qt.WindowType.WindowDoesNotAcceptFocus
-    assert mic.toolTip() == "Caption what I say: off"
-    assert mic.accessibleName() == "Caption what I say"
+    assert window.testAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+    assert mic.toolTip() == "Show my speech here: off"
+    assert mic.accessibleName() == "Show my speech here"
     iface = QAccessible.queryAccessibleInterface(mic)
-    assert iface.text(QAccessible.Text.Name) == "Caption what I say"
+    assert iface.text(QAccessible.Text.Name) == "Show my speech here"
     assert iface.state().checkable and not iface.state().checked
 
     changed: list[bool] = []
@@ -558,7 +564,7 @@ def test_bar_mic_toggles_own_speech_without_taking_focus(
     mic.click()
     assert window.choices.show_mic and mic.isChecked()
     assert changed == [True]
-    assert mic.toolTip() == "Caption what I say: on"
+    assert mic.toolTip() == "Show my speech here: on"
     assert iface.state().checked
     window.set_mic_level(0.6)
     assert mic.level == 0.6
@@ -569,7 +575,7 @@ def test_bar_mic_toggles_own_speech_without_taking_focus(
     assert not window.choices.show_mic and not mic.isChecked()
     assert changed == [True, False]
     assert mic.level is None
-    assert mic.toolTip() == "Caption what I say: off"
+    assert mic.toolTip() == "Show my speech here: off"
     assert not iface.state().checked
 
 
@@ -583,7 +589,7 @@ def test_bar_mic_is_keyboard_accessible_through_bar_controls(
         QTest.keyClick(focus(qapp), Qt.Key.Key_Tab)
     row = chooser.rows["bar_mic"]
     assert focus(qapp) is row
-    assert row.accessibleName() == "Caption what I say"
+    assert row.accessibleName() == "Show my speech here"
     QTest.keyClick(focus(qapp), Qt.Key.Key_Space)
     qapp.processEvents()
     assert window.choices.show_mic and window.mic_button.isChecked()

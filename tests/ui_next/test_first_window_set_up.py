@@ -113,7 +113,7 @@ def test_the_first_window_asks_its_languages_and_only_it(
     assert set_up is not None and set_up.isVisible()
     assert set_up.spoken.text().startswith("Detect · 30 languages")  # filled in
     assert set_up.language.text().startswith("English")
-    assert set_up.second_title.text() == "When they already speak English"
+    assert set_up.second_title.text() == "Lines already in English"
     assert set_up.second.text().startswith("Leave as they are")
     windows.set_captioned([("Discord.exe", APP), ("Video", SECOND_APP)])
     assert windows.windows["Video"].set_up is None  # one window asks
@@ -423,5 +423,5 @@ def test_the_set_up_and_the_chip_are_no_part_of_a_window_of_before(
         SourceLabel("Discord", "#4dd0e1"), mic=MIC, areas=areas,
     )  # fmt: skip
     assert window.set_up is None
-    assert window.chip.text() == "Detect → French  ▾"
+    assert window.chip.toolTip() == "Languages: Detect → French"
     window.close()

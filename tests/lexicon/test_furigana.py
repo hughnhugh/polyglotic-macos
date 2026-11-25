@@ -4,6 +4,9 @@ counter read by its number - from the word split's kana. Then the word
 split's own reading (Sudachi small, the dictionary the app ships), with
 its known misreadings put right. Made-up sentences."""
 
+from pathlib import Path
+
+import sudachidict_small
 from tests.lexicon.sample import FakeDictionaryFile
 
 from polyglotic_desktop.adapters.japanese_split import JapaneseSplit
@@ -15,6 +18,8 @@ from polyglotic_desktop.core.lexicon.furigana import (
 )
 from polyglotic_desktop.ports.dictionary import EntryRecord
 from polyglotic_desktop.ports.word_split import SplitWord
+
+SYSTEM_DIC = Path(sudachidict_small.__file__).parent / "resources" / "system.dic"
 
 
 def read(text: str, *words: tuple[str, str]) -> list[tuple[str, str, bool]]:
@@ -79,7 +84,7 @@ def test_a_counter_is_read_by_the_number_before_it() -> None:
 
 
 def furigana(text: str) -> list[tuple[str, str]]:
-    pack = BasicDictionary(FakeDictionaryFile([], {}), JapaneseSplit(), "ja")
+    pack = BasicDictionary(FakeDictionaryFile([], {}), JapaneseSplit(SYSTEM_DIC), "ja")
     reader = FuriganaReader(pack)
     return [(text[r.start : r.end], r.text) for r in reader.readings(text)]
 

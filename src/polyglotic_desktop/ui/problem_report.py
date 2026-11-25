@@ -24,6 +24,7 @@ interface's thread. Holds caption text and audio sizes: never log them.
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
 
 from PySide6.QtCore import QEvent, QLocale, QObject, Qt, QTimer, Signal
 from PySide6.QtGui import QFontDatabase, QResizeEvent, QShowEvent
@@ -42,9 +43,24 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from polyglotic_desktop.core.report_text import (
+    COUNTER_THRESHOLD,
+    REPLY_TO_LIMIT,
+    TEXT_LIMITS,
+    clean_report_text,
+    limited_clean_text,
+)
+from polyglotic_desktop.ui.feedback import (
+    FeedbackLog,
+    ReplyField,
+    can_send,
+    optional_reply_label,
+)
 from polyglotic_desktop.ui.os_words import pc_or_mac
+from polyglotic_desktop.ui.widgets import Segmented
 
-MAX_TEXT = 5000  # protocol.md's limit
+ReportMode = Literal["problem", "suggestion"]
+"""The two-way choice at the top of the modal: Report a problem or Make a suggestion."""
 
 
 def _tr(text: str) -> str:
@@ -132,6 +148,11 @@ class ProblemReportDialog(QDialog):
         parts: Sequence[Part],
         versions: str,
         parent: QWidget | None = None,
+        mode: ReportMode = "problem",
+        with_session: bool = True,
+        problem_requires_text: bool = False,
+        *,
+        read_suggestion_log: Callable[[], str | None] = lambda: None,
     ) -> None:
         super().__init__(parent)
         self.setObjectName("ProblemReportDialog")
@@ -139,58 +160,91 @@ class ProblemReportDialog(QDialog):
         self.setModal(False)
         self.setMinimumWidth(560)
         self.parts = tuple(parts)
+        self._versions = versions
+        self._with_session = with_session
+        self._problem_requires_text = problem_requires_text
+        self._read_suggestion_log = read_suggestion_log
+        self._suggestion_log: FeedbackLog | None = None
         self._look: LookDialog | None = None
         self._fitting = False
         outer = QVBoxLayout(self)
         outer.setContentsMargins(24, 20, 24, 20)
         outer.setSpacing(8)
-        title = QLabel(_tr("Report a problem"))
-        title.setObjectName("PageTitle")
-        outer.addWidget(title)
-        self.setWindowTitle(title.text())
+        self.mode = Segmented(
+            [
+                ("problem", _tr("Report a problem")),
+                ("suggestion", _tr("Make a suggestion")),
+            ],
+            mode,
+        )
+        for key in ("problem", "suggestion"):
+            if (button := self.mode.button_for(key)) is not None:
+                button.setObjectName(f"problem_report.mode.{key}")
+        outer.addWidget(self.mode, 0, Qt.AlignmentFlag.AlignLeft)
+        self.title = QLabel()
+        self.title.setObjectName("PageTitle")
+        outer.addWidget(self.title)
         self.body = QWidget()
         self.body.setObjectName("problem_report.body")
         layout = QVBoxLayout(self.body)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
-        intro = QLabel(
-            _tr(
-                "Tell us what happened, if you like. What's ticked goes with it, "
-                "so we can see the problem again and fix it - untick anything "
-                "you'd rather not send."
-            )
-        )
-        intro.setWordWrap(True)
-        intro.setObjectName("Dim")
-        layout.addWidget(intro)
+        self.intro = QLabel()
+        self.intro.setWordWrap(True)
+        self.intro.setObjectName("Dim")
+        layout.addWidget(self.intro)
         self.text = QPlainTextEdit()
         self.text.setObjectName("problem_report.text")
         # Tab goes on to the ticks and Send, as everywhere else: a tab
         # character is never wanted here, and the keyboard was stuck (278)
         self.text.setTabChangesFocus(True)
-        self.text.setPlaceholderText(_tr("What happened, and roughly when? (optional)"))
         self.text.setMinimumHeight(90)
         layout.addWidget(self.text)
+        counter_line = QWidget()
+        counter_layout = QHBoxLayout(counter_line)
+        counter_layout.setContentsMargins(0, 0, 0, 0)
+        self.cut_note = QLabel()
+        self.cut_note.setObjectName("Faint")
+        counter_layout.addWidget(self.cut_note)
+        counter_layout.addStretch(1)
+        self.count = QLabel()
+        self.count.setObjectName("Faint")
+        self.count.setAlignment(Qt.AlignmentFlag.AlignRight)
+        counter_layout.addWidget(self.count)
+        layout.addWidget(counter_line)
 
+        self.parts_box = QWidget(self.body)
+        self.parts_box.setObjectName("problem_report.parts")
+        parts_layout = QVBoxLayout(self.parts_box)
+        parts_layout.setContentsMargins(0, 0, 0, 0)
+        parts_layout.setSpacing(8)  # constant: matches body layout row spacing
         self.ticks: dict[str, QCheckBox] = {}
         for part in self.parts:
-            layout.addWidget(self._part_row(part))
+            parts_layout.addWidget(self._part_row(part))
             if part.others_voices:
                 note = QLabel(_tr("This includes other people's voices."))
                 note.setObjectName("Faint")
                 note.setContentsMargins(26, 0, 0, 0)
-                layout.addWidget(note)
+                parts_layout.addWidget(note)
+        layout.addWidget(self.parts_box)
 
-        about = QLabel(
-            _tr(
-                "Also sent: {versions}, and the listening session's ID. "
-                "Kept for 30 days to fix the problem, then deleted. "
-                "No screenshot is taken."
-            ).format(versions=versions)
-        )
-        about.setObjectName("Faint")
-        about.setWordWrap(True)
-        layout.addWidget(about)
+        self._suggestion_box = QWidget(self.body)
+        self._suggestion_layout = QVBoxLayout(self._suggestion_box)
+        self._suggestion_layout.setContentsMargins(0, 0, 0, 0)
+        self._suggestion_layout.setSpacing(layout.spacing())
+        reply_label = QLabel(optional_reply_label())
+        reply_label.setObjectName("Dim")
+        self._suggestion_layout.addWidget(reply_label)
+        self.reply = ReplyField()
+        self.reply.setObjectName("problem_report.reply")
+        self.reply.setAccessibleName(reply_label.text())
+        self._suggestion_layout.addWidget(self.reply)
+        layout.addWidget(self._suggestion_box)
+
+        self.about = QLabel()
+        self.about.setObjectName("Faint")
+        self.about.setWordWrap(True)
+        layout.addWidget(self.about)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setObjectName("problem_report.scroll")
@@ -220,10 +274,85 @@ class ProblemReportDialog(QDialog):
         buttons.accepted.connect(self._send)
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
+        self.mode.changed.connect(self._mode_changed)
         self.text.textChanged.connect(self._check)
+        self.reply.textChanged.connect(self._check)
         for tick in self.ticks.values():
             tick.toggled.connect(self._check)
+        self._apply_mode(mode)
+        self.text.setFocus()
+
+    def chosen_mode(self) -> ReportMode:
+        """The selected tab: `"problem"` or `"suggestion"`."""
+        return "suggestion" if self.mode.value() == "suggestion" else "problem"
+
+    def set_mode(self, mode: ReportMode) -> None:
+        """Switches the modal between `"problem"` and `"suggestion"`."""
+        self.mode.set_value(mode)
+        self._apply_mode(mode)
+
+    def limit(self) -> int:
+        """Character limit for the active mode (`core.report_text.TEXT_LIMITS`)."""
+        return TEXT_LIMITS[self.chosen_mode()]
+
+    def _mode_changed(self, value: object) -> None:
+        mode: ReportMode = "suggestion" if value == "suggestion" else "problem"
+        self._apply_mode(mode)
+
+    def _apply_mode(self, mode: ReportMode) -> None:
+        is_problem = mode == "problem"
+        title = _tr("Report a problem") if is_problem else _tr("Make a suggestion")
+        self.title.setText(title)
+        self.setWindowTitle(title)
+        if is_problem:
+            self.intro.setText(
+                _tr(
+                    "Tell us what happened, if you like. What's ticked goes with it, "
+                    "so we can see the problem again and fix it - untick anything "
+                    "you'd rather not send."
+                )
+            )
+            prompt = _tr("What happened, and roughly when? (optional)")
+            self.about.setText(
+                _tr(
+                    "Also sent: {versions}, and the listening session's ID. "
+                    "Kept for 30 days to fix the problem, then deleted. "
+                    "No screenshot is taken."
+                ).format(versions=self._versions)
+            )
+        else:
+            self.intro.setText(
+                _tr("Share an idea for how Polyglotic could work better for you.")
+            )
+            prompt = _tr("What would you like Polyglotic to do?")
+            self.about.setText(
+                (
+                    _tr("Also sent: {versions}, and the listening session's ID.")
+                    if self._with_session
+                    else _tr("Also sent: {versions}.")
+                ).format(versions=self._versions)
+                + " "
+                + _tr("No screenshot is taken.")
+                + " "
+                + _tr(
+                    "Please don't paste captions of other people's words. We may read "
+                    "feedback with the help of AI tools (Anthropic's Claude) to sort "
+                    "and summarise it."
+                )
+            )
+        self.text.setPlaceholderText(prompt)
+        self.text.setAccessibleName(prompt)
+        self.parts_box.setVisible(is_problem and bool(self.parts))
+        if not is_problem and self._suggestion_log is None:
+            self._suggestion_log = FeedbackLog(
+                self._suggestion_layout, self._read_suggestion_log()
+            )
+        self._suggestion_box.setVisible(not is_problem)
+        self.cut_note.clear()
         self._check()
+        if (body_layout := self.body.layout()) is not None:
+            body_layout.invalidate()
+        self._fit()
 
     def showEvent(self, event: QShowEvent) -> None:
         super().showEvent(event)
@@ -244,13 +373,19 @@ class ProblemReportDialog(QDialog):
     def _fit(self) -> None:
         """As tall as the line, the parts and what else goes need at this
         width - or, on a screen too short for that, as tall as its work area
-        leaves room for, with them scrolling between the title and Send."""
+        leaves room for, with them scrolling between the title and Send. Also
+        never narrower than the widest part row (capped to the work area)."""
         screen = self.screen()
         outer = self.layout()
         if screen is None or outer is None or self._fitting:
             return
+        margins = outer.contentsMargins()
+        pad_x = margins.left() + margins.right()
         bar = self.scroll_area.verticalScrollBar().sizeHint().width()
-        natural = self.body.heightForWidth(self.scroll_area.width() - bar)
+        max_w = screen.availableGeometry().width() - WINDOW_FRAME
+        min_body = self.body.minimumSizeHint().width()
+        view_w = max(self.scroll_area.width(), min(min_body, max(0, max_w - pad_x)))
+        natural = self.body.heightForWidth(view_w - bar)
         if natural < 0:
             natural = self.body.sizeHint().height()
         self._fitting = True
@@ -267,16 +402,25 @@ class ProblemReportDialog(QDialog):
                 if scrolls
                 else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
-            # wider by the bar, so the widest part still fits beside it
-            self.scroll_area.setMinimumWidth(
-                self.body.minimumSizeHint().width() + bar + 4 if scrolls else 0
+            # wider by the widest part (plus the bar when scrolling) so Look
+            # and long part labels never clip past the viewport's right edge
+            extra = bar + 4 if scrolls else 0
+            needed_scroll_w = min(min_body + extra, max(0, max_w - pad_x))
+            self.scroll_area.setMinimumWidth(needed_scroll_w)
+            final_view_w = max(self.scroll_area.width(), needed_scroll_w) - (
+                bar if scrolls else 0
             )
+            natural = self.body.heightForWidth(final_view_w)
+            if natural < 0:
+                natural = self.body.sizeHint().height()
             self.scroll_area.setFixedHeight(max(MIN_SCROLL, min(natural, room - rest)))
             outer.invalidate()
-            total = outer.totalSizeHint().height()
-            self.setMinimumHeight(total)
-            if self.height() != total:
-                self.resize(self.width(), total)
+            hint = outer.totalSizeHint()
+            target_w = min(max_w, max(self.width(), hint.width()))
+            target_h = hint.height()
+            self.setMinimumHeight(target_h)
+            if (self.width(), self.height()) != (target_w, target_h):
+                self.resize(target_w, target_h)
         finally:
             self._fitting = False
         self._keep_on_screen()
@@ -323,20 +467,63 @@ class ProblemReportDialog(QDialog):
         self._look = None
 
     def _check(self) -> None:
-        text = self.text.toPlainText()
-        something = bool(text.strip()) or any(
-            t.isChecked() for t in self.ticks.values()
+        limit = self.limit()
+        raw_text = self.text.toPlainText()
+        text = limited_clean_text(raw_text, limit)
+        # Keep whitespace in the editable draft: trimming belongs at the
+        # preview/send boundary.  Replacing the document on every keystroke
+        # would also discard the learner's caret and selection.
+        if len(clean_report_text(raw_text)) > limit:
+            cursor = self.text.textCursor()
+            position, anchor = cursor.position(), cursor.anchor()
+            self.text.setPlainText(text)
+            cursor = self.text.textCursor()
+            cursor.movePosition(cursor.MoveOperation.End)
+            end = cursor.position()  # Qt positions are UTF-16 units, not Python len().
+            cursor.setPosition(min(anchor, end))
+            cursor.setPosition(min(position, end), cursor.MoveMode.KeepAnchor)
+            self.text.setTextCursor(cursor)
+            self.cut_note.setText(
+                _tr("Cut to {limit} characters").format(limit=f"{limit:,}")
+            )
+        self.count.setText(
+            _tr("{count} / {limit}").format(count=f"{len(text):,}", limit=f"{limit:,}")
         )
-        self.send.setEnabled(something and len(text) <= MAX_TEXT)
+        self.count.setVisible(len(text) >= limit * COUNTER_THRESHOLD)
+        if self.chosen_mode() == "suggestion":
+            reply, cut = self.reply.cap()
+            if cut:
+                self.cut_note.setText(
+                    _tr("Cut to {limit} characters").format(limit=f"{REPLY_TO_LIMIT:,}")
+                )
+            something = can_send("suggestion", text, reply)
+        elif self._problem_requires_text:
+            something = bool(text.strip())
+        else:
+            something = bool(text.strip()) or any(
+                t.isChecked() for t in self.ticks.values()
+            )
+        self.send.setEnabled(something)
+
+    def suggestion_details(self) -> tuple[str | None, str | None]:
+        """The optional reply and opted-in plain log for a suggestion."""
+        if self.chosen_mode() != "suggestion" or self._suggestion_log is None:
+            return None, None
+        return self.reply.cleaned(), self._suggestion_log.attached()
 
     def _send(self) -> None:
         self.sent.emit()
         self.accept()
 
     def chosen(self) -> tuple[str, frozenset[str]]:
-        """What the tester wrote, and the keys of the parts left ticked."""
+        """What the learner wrote, and (in problem mode) the keys of the parts
+        left ticked. Suggestion mode sends no problem-report attachments."""
+        mode = self.chosen_mode()
+        text = limited_clean_text(self.text.toPlainText(), TEXT_LIMITS[mode])
+        if mode == "suggestion":
+            return text, frozenset()
         ticked = frozenset(k for k, t in self.ticks.items() if t.isChecked())
-        return self.text.toPlainText().strip(), ticked
+        return text, ticked
 
 
 class OneReportWindow:
@@ -348,10 +535,13 @@ class OneReportWindow:
     def __init__(self) -> None:
         self._open: ProblemReportDialog | None = None
 
-    def front(self) -> bool:
-        """The open report window to the front: False if none is open."""
+    def front(self, mode: ReportMode | None = None) -> bool:
+        """The open report window to the front: False if none is open.
+        Switches to `mode` if one is given."""
         if self._open is None:
             return False
+        if mode is not None:
+            self._open.set_mode(mode)
         self._open.show()
         self._open.raise_()
         self._open.activateWindow()

@@ -1,0 +1,2733 @@
+{
+  "window": {
+    "width": 720,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 1.4,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "大家好，",
+          "words": [
+            "大家",
+            "好",
+            "，"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo"
+          ],
+          "translation": "Hello everyone, today",
+          "links": []
+        }
+      ],
+      "moment": "A live caption grows"
+    },
+    {
+      "t": 2.4,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "大家好，今天我带",
+          "words": [
+            "大家",
+            "好",
+            "，",
+            "今天",
+            "我",
+            "带"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo",
+            "jīn",
+            "tiān",
+            "wǒ",
+            "dài"
+          ],
+          "translation": "Hello everyone, today I will take",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 3.4,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "大家好，今天我带你们去杭州",
+          "words": [
+            "大家",
+            "好",
+            "，",
+            "今天",
+            "我",
+            "带",
+            "你们",
+            "去",
+            "杭州"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo",
+            "jīn",
+            "tiān",
+            "wǒ",
+            "dài",
+            "nǐ",
+            "men",
+            "qù",
+            "háng",
+            "zhōu"
+          ],
+          "translation": "Hello everyone, today I will take you to an",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 4.4,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "大家好，今天我带你们去杭州的一家老",
+          "words": [
+            "大家",
+            "好",
+            "，",
+            "今天",
+            "我",
+            "带",
+            "你们",
+            "去",
+            "杭州",
+            "的",
+            "一家",
+            "老"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo",
+            "jīn",
+            "tiān",
+            "wǒ",
+            "dài",
+            "nǐ",
+            "men",
+            "qù",
+            "háng",
+            "zhōu",
+            "de",
+            "yī",
+            "jiā",
+            "lǎo"
+          ],
+          "translation": "Hello everyone, today I will take you to an old teahouse in",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 4.8,
+      "key": 1,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "大家好，今天我带你们去杭州的一家老茶馆",
+          "words": [
+            "大家",
+            "好",
+            "，",
+            "今天",
+            "我",
+            "带",
+            "你们",
+            "去",
+            "杭州",
+            "的",
+            "一家",
+            "老",
+            "茶馆"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo",
+            "jīn",
+            "tiān",
+            "wǒ",
+            "dài",
+            "nǐ",
+            "men",
+            "qù",
+            "háng",
+            "zhōu",
+            "de",
+            "yī",
+            "jiā",
+            "lǎo",
+            "chá",
+            "guǎn"
+          ],
+          "translation": "Hello everyone, today I will take you to an old teahouse in Hangzhou",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 5.6,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "大家好，",
+          "words": [
+            "大家",
+            "好",
+            "，"
+          ],
+          "reading": [
+            "dà",
+            "jiā",
+            "hǎo"
+          ],
+          "translation": "Hi everyone,",
+          "links": []
+        },
+        {
+          "said": "今天我带你们去杭州的一家老茶馆。",
+          "words": [
+            "今天",
+            "我",
+            "带",
+            "你们",
+            "去",
+            "杭州",
+            "的",
+            "一家",
+            "老",
+            "茶馆",
+            "。"
+          ],
+          "reading": [
+            "jīn",
+            "tiān",
+            "wǒ",
+            "dài",
+            "nǐ",
+            "men",
+            "qù",
+            "háng",
+            "zhōu",
+            "de",
+            "yī",
+            "jiā",
+            "lǎo",
+            "chá",
+            "guǎn"
+          ],
+          "translation": "today I'm taking you to an old teahouse in Hangzhou.",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                0,
+                5
+              ]
+            },
+            {
+              "original": [
+                7,
+                9
+              ],
+              "translation": [
+                43,
+                51
+              ]
+            },
+            {
+              "original": [
+                12,
+                13
+              ],
+              "translation": [
+                27,
+                30
+              ]
+            },
+            {
+              "original": [
+                13,
+                15
+              ],
+              "translation": [
+                31,
+                39
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "It finishes as two clauses"
+    },
+    {
+      "t": 7,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "这里的龙",
+          "words": [
+            "这里",
+            "的",
+            "龙"
+          ],
+          "reading": [
+            "zhè",
+            "lǐ",
+            "de",
+            "lóng"
+          ],
+          "translation": "The Longjing tea",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 8,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "这里的龙井茶特别有",
+          "words": [
+            "这里",
+            "的",
+            "龙井茶",
+            "特别",
+            "有"
+          ],
+          "reading": [
+            "zhè",
+            "lǐ",
+            "de",
+            "lóng",
+            "jǐng",
+            "chá",
+            "tè",
+            "bié",
+            "yǒu"
+          ],
+          "translation": "The Longjing tea here is very",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 9,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "这里的龙井茶特别有名，很多人",
+          "words": [
+            "这里",
+            "的",
+            "龙井茶",
+            "特别",
+            "有名",
+            "，",
+            "很多",
+            "人"
+          ],
+          "reading": [
+            "zhè",
+            "lǐ",
+            "de",
+            "lóng",
+            "jǐng",
+            "chá",
+            "tè",
+            "bié",
+            "yǒu",
+            "míng",
+            "hěn",
+            "duō",
+            "rén"
+          ],
+          "translation": "The Longjing tea here is very famous, many people",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 9.1,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "这里的龙井茶特别有名，很多人",
+          "words": [
+            "这里",
+            "的",
+            "龙井茶",
+            "特别",
+            "有名",
+            "，",
+            "很多",
+            "人"
+          ],
+          "reading": [
+            "zhè",
+            "lǐ",
+            "de",
+            "lóng",
+            "jǐng",
+            "chá",
+            "tè",
+            "bié",
+            "yǒu",
+            "míng",
+            "hěn",
+            "duō",
+            "rén"
+          ],
+          "translation": "The Longjing tea here is very famous, many people",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 9.9,
+      "key": 2,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "这里的龙井茶特别有名，",
+          "words": [
+            "这里",
+            "的",
+            "龙井茶",
+            "特别",
+            "有名",
+            "，"
+          ],
+          "reading": [
+            "zhè",
+            "lǐ",
+            "de",
+            "lóng",
+            "jǐng",
+            "chá",
+            "tè",
+            "bié",
+            "yǒu",
+            "míng"
+          ],
+          "translation": "The Longjing tea here is especially famous,",
+          "links": [
+            {
+              "original": [
+                3,
+                6
+              ],
+              "translation": [
+                4,
+                16
+              ]
+            },
+            {
+              "original": [
+                6,
+                8
+              ],
+              "translation": [
+                25,
+                35
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                36,
+                42
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "Its last words go to the next caption"
+    },
+    {
+      "t": 9.9,
+      "key": 3,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "很多人",
+          "words": [
+            "很多",
+            "人"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén"
+          ],
+          "translation": "many people specially",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 10.7,
+      "key": 3,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "很多人",
+          "words": [
+            "很多",
+            "人"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén"
+          ],
+          "translation": "many people specially",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 11.7,
+      "key": 3,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "很多人专门从",
+          "words": [
+            "很多",
+            "人",
+            "专门",
+            "从"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén",
+            "zhuān",
+            "mén",
+            "cóng"
+          ],
+          "translation": "many people specially come from",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 12.7,
+      "key": 3,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "很多人专门从外地过来",
+          "words": [
+            "很多",
+            "人",
+            "专门",
+            "从",
+            "外地",
+            "过来"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén",
+            "zhuān",
+            "mén",
+            "cóng",
+            "wài",
+            "dì",
+            "guò",
+            "lái"
+          ],
+          "translation": "many people specially come from other places to drink",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 13.1,
+      "key": 3,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "很多人专门从外地过来喝",
+          "words": [
+            "很多",
+            "人",
+            "专门",
+            "从",
+            "外地",
+            "过来",
+            "喝"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén",
+            "zhuān",
+            "mén",
+            "cóng",
+            "wài",
+            "dì",
+            "guò",
+            "lái",
+            "hē"
+          ],
+          "translation": "many people specially come from other places to drink",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 13.9,
+      "key": 3,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "很多人专门从外地过来喝。",
+          "words": [
+            "很多",
+            "人",
+            "专门",
+            "从",
+            "外地",
+            "过来",
+            "喝",
+            "。"
+          ],
+          "reading": [
+            "hěn",
+            "duō",
+            "rén",
+            "zhuān",
+            "mén",
+            "cóng",
+            "wài",
+            "dì",
+            "guò",
+            "lái",
+            "hē"
+          ],
+          "translation": "many people come all the way from elsewhere just to drink it.",
+          "links": [
+            {
+              "original": [
+                0,
+                3
+              ],
+              "translation": [
+                0,
+                11
+              ]
+            },
+            {
+              "original": [
+                6,
+                8
+              ],
+              "translation": [
+                34,
+                43
+              ]
+            },
+            {
+              "original": [
+                10,
+                11
+              ],
+              "translation": [
+                52,
+                57
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "t": 15,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说",
+          "words": [
+            "老板",
+            "说"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō"
+          ],
+          "translation": "The boss says",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 16,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de"
+          ],
+          "translation": "The boss says real good Longjing",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 17,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn"
+          ],
+          "translation": "The boss says real good Longjing depends on the",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 18,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看颜色、闻",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看",
+            "颜色",
+            "、",
+            "闻"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn",
+            "yán",
+            "sè",
+            "wén"
+          ],
+          "translation": "The boss says real good Longjing depends on the colour, the smell,",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 19,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看颜色、闻香气，",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看",
+            "颜色",
+            "、",
+            "闻",
+            "香气",
+            "，"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn",
+            "yán",
+            "sè",
+            "wén",
+            "xiāng",
+            "qì"
+          ],
+          "translation": "The owner says that really good Longjing is judged by its colour and its aroma,",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                4,
+                9
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                32,
+                40
+              ]
+            },
+            {
+              "original": [
+                12,
+                14
+              ],
+              "translation": [
+                58,
+                64
+              ]
+            },
+            {
+              "original": [
+                16,
+                18
+              ],
+              "translation": [
+                73,
+                78
+              ]
+            }
+          ]
+        },
+        {
+          "said": "还要",
+          "words": [
+            "还要"
+          ],
+          "reading": [
+            "hái",
+            "yào"
+          ],
+          "translation": "and also have",
+          "links": []
+        }
+      ],
+      "moment": "A live caption gains a clause"
+    },
+    {
+      "t": 20,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看颜色、闻香气，",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看",
+            "颜色",
+            "、",
+            "闻",
+            "香气",
+            "，"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn",
+            "yán",
+            "sè",
+            "wén",
+            "xiāng",
+            "qì"
+          ],
+          "translation": "The owner says that really good Longjing is judged by its colour and its aroma,",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                4,
+                9
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                32,
+                40
+              ]
+            },
+            {
+              "original": [
+                12,
+                14
+              ],
+              "translation": [
+                58,
+                64
+              ]
+            },
+            {
+              "original": [
+                16,
+                18
+              ],
+              "translation": [
+                73,
+                78
+              ]
+            }
+          ]
+        },
+        {
+          "said": "还要尝一尝回",
+          "words": [
+            "还要",
+            "尝一尝",
+            "回"
+          ],
+          "reading": [
+            "hái",
+            "yào",
+            "cháng",
+            "yi",
+            "cháng",
+            "huí"
+          ],
+          "translation": "and also have to taste the sweet",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 20.2,
+      "key": 4,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看颜色、闻香气，",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看",
+            "颜色",
+            "、",
+            "闻",
+            "香气",
+            "，"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn",
+            "yán",
+            "sè",
+            "wén",
+            "xiāng",
+            "qì"
+          ],
+          "translation": "The owner says that really good Longjing is judged by its colour and its aroma,",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                4,
+                9
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                32,
+                40
+              ]
+            },
+            {
+              "original": [
+                12,
+                14
+              ],
+              "translation": [
+                58,
+                64
+              ]
+            },
+            {
+              "original": [
+                16,
+                18
+              ],
+              "translation": [
+                73,
+                78
+              ]
+            }
+          ]
+        },
+        {
+          "said": "还要尝一尝回甘",
+          "words": [
+            "还要",
+            "尝一尝",
+            "回甘"
+          ],
+          "reading": [
+            "hái",
+            "yào",
+            "cháng",
+            "yi",
+            "cháng",
+            "huí",
+            "gān"
+          ],
+          "translation": "and also have to taste the sweet aftertaste",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 21,
+      "key": 4,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "老板说，真正好的龙井要看颜色、闻香气，",
+          "words": [
+            "老板",
+            "说",
+            "，",
+            "真正",
+            "好",
+            "的",
+            "龙井",
+            "要",
+            "看",
+            "颜色",
+            "、",
+            "闻",
+            "香气",
+            "，"
+          ],
+          "reading": [
+            "lǎo",
+            "bǎn",
+            "shuō",
+            "zhēn",
+            "zhèng",
+            "hǎo",
+            "de",
+            "lóng",
+            "jǐng",
+            "yào",
+            "kàn",
+            "yán",
+            "sè",
+            "wén",
+            "xiāng",
+            "qì"
+          ],
+          "translation": "The owner says that really good Longjing is judged by its colour and its aroma,",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                4,
+                9
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                32,
+                40
+              ]
+            },
+            {
+              "original": [
+                12,
+                14
+              ],
+              "translation": [
+                58,
+                64
+              ]
+            },
+            {
+              "original": [
+                16,
+                18
+              ],
+              "translation": [
+                73,
+                78
+              ]
+            }
+          ]
+        },
+        {
+          "said": "还要尝一尝回甘。",
+          "words": [
+            "还要",
+            "尝一尝",
+            "回甘",
+            "。"
+          ],
+          "reading": [
+            "hái",
+            "yào",
+            "cháng",
+            "yi",
+            "cháng",
+            "huí",
+            "gān"
+          ],
+          "translation": "and you have to taste the sweet aftertaste too.",
+          "links": [
+            {
+              "original": [
+                2,
+                5
+              ],
+              "translation": [
+                16,
+                21
+              ]
+            },
+            {
+              "original": [
+                5,
+                7
+              ],
+              "translation": [
+                26,
+                42
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "A long caption finishes"
+    },
+    {
+      "t": 22.6,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这",
+          "words": [
+            "我",
+            "感觉",
+            "这"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè"
+          ],
+          "translation": "I feel this",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 23.6,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē"
+          ],
+          "translation": "I feel this tea is delicious,",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 24.6,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，但也没有好",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，",
+            "但",
+            "也",
+            "没有",
+            "好"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē",
+            "dàn",
+            "yě",
+            "méi",
+            "yǒu",
+            "hǎo"
+          ],
+          "translation": "I feel this tea is delicious, but it is",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 25.6,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，但也没有好到让人觉得",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，",
+            "但",
+            "也",
+            "没有",
+            "好",
+            "到",
+            "让",
+            "人",
+            "觉得"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē",
+            "dàn",
+            "yě",
+            "méi",
+            "yǒu",
+            "hǎo",
+            "dào",
+            "ràng",
+            "rén",
+            "jué",
+            "de"
+          ],
+          "translation": "I feel this tea is delicious, but it is not that good",
+          "links": []
+        }
+      ],
+      "moment": "Your example: the line runs out"
+    },
+    {
+      "t": 26.6,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，但也没有好到让人觉得特别惊艳的",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，",
+            "但",
+            "也",
+            "没有",
+            "好",
+            "到",
+            "让",
+            "人",
+            "觉得",
+            "特别",
+            "惊艳",
+            "的"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē",
+            "dàn",
+            "yě",
+            "méi",
+            "yǒu",
+            "hǎo",
+            "dào",
+            "ràng",
+            "rén",
+            "jué",
+            "de",
+            "tè",
+            "bié",
+            "jīng",
+            "yàn",
+            "de"
+          ],
+          "translation": "I feel this tea is delicious, but it is not that good that it's absolutely",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 27,
+      "key": 5,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，但也没有好到让人觉得特别惊艳的地步",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，",
+            "但",
+            "也",
+            "没有",
+            "好",
+            "到",
+            "让",
+            "人",
+            "觉得",
+            "特别",
+            "惊艳",
+            "的",
+            "地步"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē",
+            "dàn",
+            "yě",
+            "méi",
+            "yǒu",
+            "hǎo",
+            "dào",
+            "ràng",
+            "rén",
+            "jué",
+            "de",
+            "tè",
+            "bié",
+            "jīng",
+            "yàn",
+            "de",
+            "dì",
+            "bù"
+          ],
+          "translation": "I feel this tea is delicious, but it is not that good that it's absolutely wonderful",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 27.8,
+      "key": 5,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "我感觉这茶很好喝，",
+          "words": [
+            "我",
+            "感觉",
+            "这",
+            "茶",
+            "很",
+            "好喝",
+            "，"
+          ],
+          "reading": [
+            "wǒ",
+            "gǎn",
+            "jué",
+            "zhè",
+            "chá",
+            "hěn",
+            "hǎo",
+            "hē"
+          ],
+          "translation": "I feel this tea is delicious,",
+          "links": [
+            {
+              "original": [
+                1,
+                3
+              ],
+              "translation": [
+                2,
+                6
+              ]
+            },
+            {
+              "original": [
+                4,
+                5
+              ],
+              "translation": [
+                12,
+                15
+              ]
+            },
+            {
+              "original": [
+                6,
+                8
+              ],
+              "translation": [
+                19,
+                28
+              ]
+            }
+          ]
+        },
+        {
+          "said": "但也没有好到让人觉得特别惊艳的地步。",
+          "words": [
+            "但",
+            "也",
+            "没有",
+            "好",
+            "到",
+            "让",
+            "人",
+            "觉得",
+            "特别",
+            "惊艳",
+            "的",
+            "地步",
+            "。"
+          ],
+          "reading": [
+            "dàn",
+            "yě",
+            "méi",
+            "yǒu",
+            "hǎo",
+            "dào",
+            "ràng",
+            "rén",
+            "jué",
+            "de",
+            "tè",
+            "bié",
+            "jīng",
+            "yàn",
+            "de",
+            "dì",
+            "bù"
+          ],
+          "translation": "but it's not so good that it's absolutely wonderful.",
+          "links": [
+            {
+              "original": [
+                10,
+                12
+              ],
+              "translation": [
+                31,
+                41
+              ]
+            },
+            {
+              "original": [
+                12,
+                14
+              ],
+              "translation": [
+                42,
+                51
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "t": 29.4,
+      "key": 6,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "不过价",
+          "words": [
+            "不过",
+            "价"
+          ],
+          "reading": [
+            "bù",
+            "guò",
+            "jià"
+          ],
+          "translation": "But the price",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 30.4,
+      "key": 6,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "不过价格很公道",
+          "words": [
+            "不过",
+            "价格",
+            "很",
+            "公道"
+          ],
+          "reading": [
+            "bù",
+            "guò",
+            "jià",
+            "gé",
+            "hěn",
+            "gōng",
+            "dào"
+          ],
+          "translation": "But the price is very fair",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 31.2,
+      "key": 6,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "不过价格很公道。",
+          "words": [
+            "不过",
+            "价格",
+            "很",
+            "公道",
+            "。"
+          ],
+          "reading": [
+            "bù",
+            "guò",
+            "jià",
+            "gé",
+            "hěn",
+            "gōng",
+            "dào"
+          ],
+          "translation": "But the price is fair.",
+          "links": [
+            {
+              "original": [
+                2,
+                4
+              ],
+              "translation": [
+                8,
+                13
+              ]
+            },
+            {
+              "original": [
+                5,
+                7
+              ],
+              "translation": [
+                17,
+                21
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "A short sentence after a sentence"
+    },
+    {
+      "t": 32.8,
+      "key": 7,
+      "source": "you",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶",
+          "words": [
+            "一壶"
+          ],
+          "reading": [
+            "yī",
+            "hú"
+          ],
+          "translation": "One pot",
+          "links": []
+        }
+      ],
+      "moment": "You speak: a new source"
+    },
+    {
+      "t": 33.6,
+      "key": 7,
+      "source": "you",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶多少钱",
+          "words": [
+            "一壶",
+            "多少钱"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "duō",
+            "shao",
+            "qián"
+          ],
+          "translation": "One pot how much",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 34.4,
+      "key": 7,
+      "source": "you",
+      "live": false,
+      "clauses": [
+        {
+          "said": "一壶多少钱？",
+          "words": [
+            "一壶",
+            "多少钱",
+            "？"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "duō",
+            "shao",
+            "qián"
+          ],
+          "translation": "How much is a pot?",
+          "links": [
+            {
+              "original": [
+                1,
+                2
+              ],
+              "translation": [
+                14,
+                17
+              ]
+            },
+            {
+              "original": [
+                2,
+                5
+              ],
+              "translation": [
+                0,
+                8
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "t": 36,
+      "key": 8,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶六",
+          "words": [
+            "一壶",
+            "六"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "liù"
+          ],
+          "translation": "Sixty-eight yuan a",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 37,
+      "key": 8,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶六十八块",
+          "words": [
+            "一壶",
+            "六十八",
+            "块"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "liù",
+            "shí",
+            "bā",
+            "kuài"
+          ],
+          "translation": "Sixty-eight yuan a pot, you",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 38,
+      "key": 8,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶六十八块，可以",
+          "words": [
+            "一壶",
+            "六十八",
+            "块",
+            "，",
+            "可以"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "liù",
+            "shí",
+            "bā",
+            "kuài",
+            "kě",
+            "yǐ"
+          ],
+          "translation": "Sixty-eight yuan a pot, you can get",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 38.6,
+      "key": 8,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "一壶六十八块，可以续杯",
+          "words": [
+            "一壶",
+            "六十八",
+            "块",
+            "，",
+            "可以",
+            "续杯"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "liù",
+            "shí",
+            "bā",
+            "kuài",
+            "kě",
+            "yǐ",
+            "xù",
+            "bēi"
+          ],
+          "translation": "Sixty-eight yuan a pot, you can get refills",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 39.4,
+      "key": 8,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "一壶六十八块，可以续水。",
+          "words": [
+            "一壶",
+            "六十八",
+            "块",
+            "，",
+            "可以",
+            "续水",
+            "。"
+          ],
+          "reading": [
+            "yī",
+            "hú",
+            "liù",
+            "shí",
+            "bā",
+            "kuài",
+            "kě",
+            "yǐ",
+            "xù",
+            "shuǐ"
+          ],
+          "translation": "Sixty-eight yuan a pot, and they'll top up the water.",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                17,
+                22
+              ]
+            },
+            {
+              "original": [
+                2,
+                6
+              ],
+              "translation": [
+                0,
+                16
+              ]
+            },
+            {
+              "original": [
+                9,
+                11
+              ],
+              "translation": [
+                36,
+                52
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "A correction in place (续杯 → 续水)"
+    },
+    {
+      "t": 41,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜",
+          "words": [
+            "如果",
+            "你",
+            "喜"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ"
+          ],
+          "translation": "If you like quiet",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 42,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang"
+          ],
+          "translation": "If you like quiet places, it is best",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 43,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，下午三点",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，",
+            "下午",
+            "三点"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang",
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn"
+          ],
+          "translation": "If you like quiet places, it is best to come after three",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 44,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，下午三点以后来最好，",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，",
+            "下午",
+            "三点",
+            "以后",
+            "来",
+            "最好",
+            "，"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang",
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn",
+            "yǐ",
+            "hòu",
+            "lái",
+            "zuì",
+            "hǎo"
+          ],
+          "translation": "If you like quiet places, it is best to come after three in the afternoon, at that",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 45,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，下午三点以后来最好，那时候人少",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，",
+            "下午",
+            "三点",
+            "以后",
+            "来",
+            "最好",
+            "，",
+            "那时候",
+            "人",
+            "少"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang",
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn",
+            "yǐ",
+            "hòu",
+            "lái",
+            "zuì",
+            "hǎo",
+            "nà",
+            "shí",
+            "hou",
+            "rén",
+            "shǎo"
+          ],
+          "translation": "If you like quiet places, it is best to come after three in the afternoon, at that time there are few",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 46,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，下午三点以后来最好，那时候人少，阳光也刚好",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，",
+            "下午",
+            "三点",
+            "以后",
+            "来",
+            "最好",
+            "，",
+            "那时候",
+            "人",
+            "少",
+            "，",
+            "阳光",
+            "也",
+            "刚好"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang",
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn",
+            "yǐ",
+            "hòu",
+            "lái",
+            "zuì",
+            "hǎo",
+            "nà",
+            "shí",
+            "hou",
+            "rén",
+            "shǎo",
+            "yáng",
+            "guāng",
+            "yě",
+            "gāng",
+            "hǎo"
+          ],
+          "translation": "If you like quiet places, it is best to come after three in the afternoon, at that time there are few people and the sunlight just",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 46.6,
+      "key": 9,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，下午三点以后来最好，那时候人少，阳光也刚好照进来",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，",
+            "下午",
+            "三点",
+            "以后",
+            "来",
+            "最好",
+            "，",
+            "那时候",
+            "人",
+            "少",
+            "，",
+            "阳光",
+            "也",
+            "刚好",
+            "照",
+            "进来"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang",
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn",
+            "yǐ",
+            "hòu",
+            "lái",
+            "zuì",
+            "hǎo",
+            "nà",
+            "shí",
+            "hou",
+            "rén",
+            "shǎo",
+            "yáng",
+            "guāng",
+            "yě",
+            "gāng",
+            "hǎo",
+            "zhào",
+            "jìn",
+            "lái"
+          ],
+          "translation": "If you like quiet places, it is best to come after three in the afternoon, at that time there are few people and the sunlight just shines in",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 47.4,
+      "key": 9,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "如果你喜欢安静的地方，",
+          "words": [
+            "如果",
+            "你",
+            "喜欢",
+            "安静",
+            "的",
+            "地方",
+            "，"
+          ],
+          "reading": [
+            "rú",
+            "guǒ",
+            "nǐ",
+            "xǐ",
+            "huan",
+            "ān",
+            "jìng",
+            "de",
+            "dì",
+            "fang"
+          ],
+          "translation": "If you like quiet places,",
+          "links": [
+            {
+              "original": [
+                5,
+                7
+              ],
+              "translation": [
+                12,
+                17
+              ]
+            },
+            {
+              "original": [
+                8,
+                10
+              ],
+              "translation": [
+                18,
+                24
+              ]
+            }
+          ]
+        },
+        {
+          "said": "下午三点以后来最好，",
+          "words": [
+            "下午",
+            "三点",
+            "以后",
+            "来",
+            "最好",
+            "，"
+          ],
+          "reading": [
+            "xià",
+            "wǔ",
+            "sān",
+            "diǎn",
+            "yǐ",
+            "hòu",
+            "lái",
+            "zuì",
+            "hǎo"
+          ],
+          "translation": "it's best to come after three in the afternoon,",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                37,
+                46
+              ]
+            },
+            {
+              "original": [
+                2,
+                4
+              ],
+              "translation": [
+                24,
+                29
+              ]
+            },
+            {
+              "original": [
+                7,
+                9
+              ],
+              "translation": [
+                5,
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "said": "那时候人少，阳光也刚好照进来。",
+          "words": [
+            "那时候",
+            "人",
+            "少",
+            "，",
+            "阳光",
+            "也",
+            "刚好",
+            "照",
+            "进来",
+            "。"
+          ],
+          "reading": [
+            "nà",
+            "shí",
+            "hou",
+            "rén",
+            "shǎo",
+            "yáng",
+            "guāng",
+            "yě",
+            "gāng",
+            "hǎo",
+            "zhào",
+            "jìn",
+            "lái"
+          ],
+          "translation": "when there are fewer people and the sunlight is just coming in.",
+          "links": [
+            {
+              "original": [
+                3,
+                5
+              ],
+              "translation": [
+                15,
+                27
+              ]
+            },
+            {
+              "original": [
+                6,
+                8
+              ],
+              "translation": [
+                36,
+                44
+              ]
+            }
+          ]
+        }
+      ],
+      "moment": "It finishes as three clauses"
+    },
+    {
+      "t": 49,
+      "key": 10,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "好了，",
+          "words": [
+            "好了",
+            "，"
+          ],
+          "reading": [
+            "hǎo",
+            "le"
+          ],
+          "translation": "Okay, we first",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 50,
+      "key": 10,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "好了，我们先喝茶",
+          "words": [
+            "好了",
+            "，",
+            "我们",
+            "先",
+            "喝茶"
+          ],
+          "reading": [
+            "hǎo",
+            "le",
+            "wǒ",
+            "men",
+            "xiān",
+            "hē",
+            "chá"
+          ],
+          "translation": "Okay, we first drink tea, next",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 51,
+      "key": 10,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "好了，我们先喝茶，下次再",
+          "words": [
+            "好了",
+            "，",
+            "我们",
+            "先",
+            "喝茶",
+            "，",
+            "下次",
+            "再"
+          ],
+          "reading": [
+            "hǎo",
+            "le",
+            "wǒ",
+            "men",
+            "xiān",
+            "hē",
+            "chá",
+            "xià",
+            "cì",
+            "zài"
+          ],
+          "translation": "Okay, we first drink tea, next time see you",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 51.2,
+      "key": 10,
+      "source": "video",
+      "live": true,
+      "clauses": [
+        {
+          "said": "好了，我们先喝茶，下次再见",
+          "words": [
+            "好了",
+            "，",
+            "我们",
+            "先",
+            "喝茶",
+            "，",
+            "下次",
+            "再见"
+          ],
+          "reading": [
+            "hǎo",
+            "le",
+            "wǒ",
+            "men",
+            "xiān",
+            "hē",
+            "chá",
+            "xià",
+            "cì",
+            "zài",
+            "jiàn"
+          ],
+          "translation": "Okay, we first drink tea, next time see you",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 52,
+      "key": 10,
+      "source": "video",
+      "live": false,
+      "clauses": [
+        {
+          "said": "好了，我们先喝茶，",
+          "words": [
+            "好了",
+            "，",
+            "我们",
+            "先",
+            "喝茶",
+            "，"
+          ],
+          "reading": [
+            "hǎo",
+            "le",
+            "wǒ",
+            "men",
+            "xiān",
+            "hē",
+            "chá"
+          ],
+          "translation": "All right, let's have our tea first,",
+          "links": [
+            {
+              "original": [
+                6,
+                8
+              ],
+              "translation": [
+                17,
+                29
+              ]
+            }
+          ]
+        },
+        {
+          "said": "下次再见！",
+          "words": [
+            "下次",
+            "再见",
+            "！"
+          ],
+          "reading": [
+            "xià",
+            "cì",
+            "zài",
+            "jiàn"
+          ],
+          "translation": "see you next time!",
+          "links": [
+            {
+              "original": [
+                0,
+                2
+              ],
+              "translation": [
+                8,
+                17
+              ]
+            },
+            {
+              "original": [
+                2,
+                4
+              ],
+              "translation": [
+                0,
+                7
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

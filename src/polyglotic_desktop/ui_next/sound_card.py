@@ -110,12 +110,12 @@ class SoundCard(Card):
             _tr("Speakers"),
             pc_or_mac(
                 _tr(
-                    "For Everything the PC plays. Apps you add are heard on any "
-                    "speakers."
+                    "Used for Everything the PC plays. Apps you add are captioned "
+                    "whichever speakers they play on."
                 ),
                 _tr(
-                    "For Everything the Mac plays. Apps you add are heard on any "
-                    "speakers."
+                    "Used for Everything the Mac plays. Apps you add are captioned "
+                    "whichever speakers they play on."
                 ),
             ),
             self.speakers,
@@ -124,11 +124,8 @@ class SoundCard(Card):
 
         self.add(label(_tr("What you say"), "RowTitle"))
         self.my_speech = SwitchRow(
-            _tr("Caption what I say"),
-            _tr(
-                "In every window. Your mic is sent for your captions only while "
-                "this is on."
-            ),
+            _tr("Show my speech in every window"),
+            _tr("Your mic is sent for your captions only while this is on."),
             "sound.my_speech",
         )
         self.my_speech.switch.clicked.connect(lambda on: view.set_my_speech(bool(on)))
@@ -219,7 +216,7 @@ class SoundCard(Card):
         self.meter.setToolTip(
             _tr("Your microphone's level now")
             if value.my_speech
-            else _tr("Shown while what you say is captioned")
+            else _tr("Your mic's level, shown while your speech is captioned")
         )
 
 

@@ -15,33 +15,82 @@ from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
+from PySide6.QtCore import QLocale, QTranslator
 from PySide6.QtGui import QShowEvent
-from PySide6.QtWidgets import QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
 from tests import budget_judge
 from tests.budget_judge import Sampled, within
 from tools.ui_lab import __main__ as cli
-from tools.ui_lab import lab, new_parts, pages
+from tools.ui_lab import caption_window, lab, new_parts, pages
 
 from polyglotic_desktop.core.lexicon.chinese import ChineseDictionary
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.ui.learning import LearningTools
+from polyglotic_desktop.ui_next import caption_windows as caption_windows_module
 from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next.views.caption_window import StoredWindows
 from polyglotic_desktop.ui_next.words_page import WordsPage
 from tools import busy_pc, start_record, timing_record
 
 
 @pytest.fixture(autouse=True)
 def load(monkeypatch: pytest.MonkeyPatch) -> list[float]:
-    """The PC's load as the lab reads it: 40 % (busy, not saturated)
+    """The PC's load as the lab reads it: 10 % (quiet)
     unless a test says otherwise."""
-    readings = [0.4]
+    readings = [0.1]
     monkeypatch.setattr(busy_pc, "busy_share", lambda seconds=0.2: readings[0])
+    monkeypatch.setattr(busy_pc, "wait_for_calm", lambda *args, **kwargs: readings[0])
     return readings
 
 
 def slow_state(lab_: lab.Lab) -> QWidget:
     lab_.time("click", lambda: time.sleep(0.06), budget=budgets.CLICK)
     return QLabel("slow")
+
+
+def test_first_window_state_forgets_languages_from_earlier_states(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The set-up golden has a new learner's language order in every run."""
+    monkeypatch.setattr(
+        caption_windows_module,
+        "stored_windows",
+        lambda _stored: StoredWindows(recent_spoken=("zh", "vi")),
+    )
+    state_lab = lab.Lab(lab.application(), tmp_path)
+    windows, _ = caption_window._first_window(state_lab)
+    try:
+        assert windows.recent_spoken() == ()
+    finally:
+        for close in reversed(state_lab.closing):
+            close()
+
+
+@contextlib.contextmanager
+def restored_interface_language() -> Iterator[None]:
+    """Scope an in-process CLI run as its real one-run process scopes it.
+
+    The lab deliberately installs translators and the locale for the life of
+    its process. This test invokes that production path in pytest's shared Qt
+    process, so put back its dynamic property, default locale, style language,
+    and exact prior translator stack even when an assertion or the CLI fails.
+    """
+    app = QApplication.instance()
+    assert app is not None
+    language = app.property("interface_language")
+    locale = QLocale()
+    translators = list(app.findChildren(QTranslator))
+    try:
+        yield
+    finally:
+        for translator in app.findChildren(QTranslator):
+            if translator not in translators:
+                app.removeTranslator(translator)
+                translator.setParent(None)
+        app.setProperty("interface_language", language)
+        QLocale.setDefault(locale)
+        interface_language_code = language if isinstance(language, str) else ""
+        style.use_interface_language(interface_language_code)
 
 
 def test_learner_caption_actions_reach_the_timing_gate(tmp_path: Path) -> None:
@@ -97,6 +146,68 @@ def test_a_state_writes_its_png_and_json(tmp_path: Path) -> None:
     ).read_text(encoding="utf-8")
 
 
+def test_busy_every_try_is_unmeasured_but_checks_still_fail(
+    tmp_path: Path, load: list[float]
+) -> None:
+    load[0] = 0.9
+    state = lab.State("ui_next.busy", slow_state, gated=True)
+    (result,) = lab.run([state], tmp_path)
+    assert result.tries == busy_pc.MOST_TRIES
+    assert result.timing_unmeasured
+    assert result.over_budget() == []
+    assert "not measured (busy)" in (tmp_path / "summary.md").read_text().lower()
+    result.findings.append(lab.Finding("clipped", "widget", "detail"))
+    assert result.failed()
+
+
+@pytest.mark.parametrize(("required", "fails"), [(False, 0), (True, 1)])
+def test_all_busy_is_a_warning_except_on_the_mandatory_measurement_run(
+    tmp_path: Path,
+    load: list[float],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    required: bool,
+    fails: int,
+) -> None:
+    load[0] = 0.9
+    state = lab.State("ui_next.busy", slow_state, gated=True)
+    monkeypatch.setattr(cli, "new_states", lambda: [state])
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    args = [
+        "--gate",
+        "--checks-only",
+        "--language",
+        "es",
+        "--out",
+        str(tmp_path / str(required)),
+    ]
+    if required:
+        args.append("--require-timings")
+    app = lab.application()
+    prior_language = app.property("interface_language")
+    prior_locale = QLocale()
+    prior_number = prior_locale.toString(1234.5, "f", 1)
+    prior_translators = list(app.findChildren(QTranslator))
+    with restored_interface_language():
+        assert cli.main(args) == fails
+        said = capsys.readouterr().err
+        assert app.property("interface_language") == "es"
+        assert QLocale().name().startswith("es")
+    assert app.property("interface_language") == prior_language
+    assert QLocale().name() == prior_locale.name()
+    assert QLocale().toString(1234.5, "f", 1) == prior_number
+    assert list(app.findChildren(QTranslator)) == prior_translators
+    assert "timing not measured (busy)" in said
+    assert ("required timing not measured" in said) is required
+
+
+def test_quiet_over_budget_still_fails(tmp_path: Path) -> None:
+    (result,) = lab.run([lab.State("ui_next.quiet", slow_state, gated=True)], tmp_path)
+    assert not result.timing_unmeasured
+    assert result.over_budget() == ["click"]
+    assert result.failed()
+
+
 @pytest.mark.parametrize(("gated", "fails"), [(True, 1), (False, 0)])
 def test_only_a_new_part_over_budget_fails_the_gate(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, gated: bool, fails: int
@@ -141,7 +252,7 @@ def test_a_new_part_over_budget_is_run_once_more_and_both_runs_shown(
 
 @pytest.mark.parametrize(
     ("slow", "tries", "fails"),
-    [((1, 7, 13), 4, 0), ((1, 7, 13, 19), 4, 1)],
+    [((1, 7, 13), 4, 0), ((1, 7, 13, 19), 4, 0)],
     ids=["a slow click in three runs", "one slow click in every run"],
 )
 def test_a_saturated_pc_gets_two_runs_more_and_says_so(
@@ -165,7 +276,7 @@ def test_a_saturated_pc_gets_two_runs_more_and_says_so(
     (result,) = lab.run([lab.State("ui_next.click", state, gated=True)], tmp_path)
     assert result.tries == tries and len(result.over_budget()) == fails
     written = json.loads((tmp_path / "ui_next.click.json").read_text(encoding="utf-8"))
-    assert written["tries"] == tries and written["busy"] == [0.97, 0.97]
+    assert written["tries"] == tries and written["busy"] == [0.97, 0.97, 0.97, 0.97]
     table = (tmp_path / "summary.md").read_text(encoding="utf-8")
     assert "on try 4 (try 1 over: median" in table and "the PC 97% busy)" in table
 
@@ -502,3 +613,28 @@ def test_the_lab_command_runs_holding_the_shared_qt_lock(
     monkeypatch.setattr(cli.qt_lock, "held", waited_too_long)
     assert cli.locked(["--gate"]) == 2
     assert "gave up after 45 min" in capsys.readouterr().err
+
+
+def test_timing_states_show_the_default_and_explicit_live_update_intervals(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from unittest.mock import Mock
+
+    from tools.ui_lab import panels
+
+    from polyglotic_desktop.core.listening.timing import LIVE_UPDATE_INTERVAL_SEC
+
+    panel = Mock()
+    make_panel = Mock(return_value=panel)
+    monkeypatch.setattr(panels, "TimingPanel", make_panel)
+    monkeypatch.setattr(panels, "page", Mock())
+
+    for state in panels.STATES:
+        if not state.name.startswith("ui_next.panel_timing_"):
+            continue
+        state.run(Mock())
+        view = make_panel.call_args.args[0]
+        expected = (
+            6.0 if state.name.endswith("_live_slower") else LIVE_UPDATE_INTERVAL_SEC
+        )
+        assert view.value.live_interval == expected, state.name

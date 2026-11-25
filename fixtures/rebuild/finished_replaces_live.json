@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "name": "finished_replaces_live",
+  "covers": [
+    "B-L1",
+    "B-F1"
+  ],
+  "view": {
+    "mode": "steady",
+    "target": "en",
+    "max_lines": 3
+  },
+  "events": [
+    {
+      "at_seconds": 0.0,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "finish1",
+        "source_id": "speaker-a",
+        "kind": "live",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "早上",
+            "translations": {
+              "en": "Morning"
+            }
+          }
+        ],
+        "replaces": []
+      }
+    },
+    {
+      "at_seconds": 1.1,
+      "message": {
+        "type": "caption_update",
+        "caption_id": "finish1",
+        "source_id": "speaker-a",
+        "kind": "finished",
+        "language": "zh",
+        "languages_heard": [
+          "zh"
+        ],
+        "clauses": [
+          {
+            "original": "早上好。",
+            "translations": {
+              "en": "Good morning."
+            }
+          }
+        ],
+        "replaces": []
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "at_seconds": 0.0,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "finish1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": false,
+            "clauses": [
+              {
+                "original": "早上",
+                "translation": "Morning",
+                "translation_language": "en",
+                "settled": false,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "早",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "上",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at_seconds": 1.1,
+      "state": {
+        "lines": [
+          {
+            "key": 1,
+            "caption_id": "finish1",
+            "source_id": "speaker-a",
+            "language": "zh",
+            "final": true,
+            "clauses": [
+              {
+                "original": "早上好。",
+                "translation": "Good morning.",
+                "translation_language": "en",
+                "settled": true,
+                "tokens": [
+                  {
+                    "span": [
+                      0,
+                      1
+                    ],
+                    "after": 1,
+                    "text": "早",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      1,
+                      2
+                    ],
+                    "after": 2,
+                    "text": "上",
+                    "reading": null
+                  },
+                  {
+                    "span": [
+                      2,
+                      4
+                    ],
+                    "after": 4,
+                    "text": "好。",
+                    "reading": null
+                  }
+                ],
+                "links": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

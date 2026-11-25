@@ -57,6 +57,8 @@ from polyglotic_desktop.core.listening.display import (
 from polyglotic_desktop.core.listening.history import Caption
 from polyglotic_desktop.core.listening.sources import SourceId
 from polyglotic_desktop.core.listening.timing import CaptionId
+from polyglotic_desktop.ports.word_breaks import WordBreaks
+from polyglotic_desktop.ports.word_split import SplitWord
 
 Span = tuple[int, int]
 Unit = tuple[int, int, int]
@@ -83,9 +85,14 @@ def wide(char: str) -> bool:
     )
 
 
-def units(text: str) -> tuple[Unit, ...]:
+def units(text: str, words: Sequence[SplitWord] | None = None) -> tuple[Unit, ...]:
     """`text` as the pieces a line is never broken inside, covering it end
     to end; a trailing ellipsis stays with the last word."""
+    word_edges = (
+        {edge for word in words for edge in (word.start, word.end)}
+        if words is not None
+        else None
+    )
     starts = [0]
     for at in range(1, len(text)):
         char, before = text[at], text[at - 1]
@@ -94,6 +101,7 @@ def units(text: str) -> tuple[Unit, ...]:
         if (
             before.isspace()
             or (wide(before) or wide(char))
+            and (word_edges is None or at in word_edges)
             and not (char in NO_START or before in NO_END)
         ):
             starts.append(at)
@@ -282,6 +290,7 @@ def caption_model(
     target: Language | None,
     second: Language | None = None,
     previous: CaptionModel | None = None,
+    word_breaks: WordBreaks | None = None,
 ) -> CaptionModel:
     """`caption` as its model, translated into `target` - or, for a clause
     already in it, into `second`; None: captions only. `previous`: the
@@ -309,7 +318,16 @@ def caption_model(
         ):
             clauses.append(old)
         else:
-            clauses.append(_clause_model(clause, shown, target, settled))
+            clauses.append(
+                _clause_model(
+                    clause,
+                    shown,
+                    target,
+                    settled,
+                    caption.language,
+                    word_breaks,
+                )
+            )
     links: list[Link] = []
     for n, model in enumerate(clauses):
         for pairs in model.pairs:
@@ -351,12 +369,22 @@ def _clause_model(
     shown: TranslationShown | None,
     target: Language | None,
     settled: bool,
+    original_language: Language | None,
+    word_breaks: WordBreaks | None,
 ) -> ClauseModel:
     """`shown`: its translation as the window shows it (None: none);
     `target`: the window's."""
     translation = shown.text if shown is not None else None
-    original_units = units(clause.original)
-    translation_units = units(translation) if translation else ()
+    original_words = (
+        word_breaks.words(clause.original, original_language) if word_breaks else None
+    )
+    translation_words = (
+        word_breaks.words(translation, shown.language if shown else target)
+        if word_breaks and translation
+        else None
+    )
+    original_units = units(clause.original, original_words)
+    translation_units = units(translation, translation_words) if translation else ()
     pairs: tuple[GroupedLink, ...] = ()
     cuts: tuple[tuple[int, int], ...] = ()
     if settled and shown is not None and translation:

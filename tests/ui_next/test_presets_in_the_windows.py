@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from dataclasses import replace
 
 import pytest
+from PySide6.QtGui import QImage, QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton
 
 from polyglotic_desktop.core.listening.timing import CaptionMode
@@ -21,10 +22,13 @@ from polyglotic_desktop.ui_next.caption_windows import (
 from polyglotic_desktop.ui_next.views.caption_window import (
     ORIGINAL_ONLY,
     STORED_KEY,
+    CaptionLook,
+    TextEdge,
     WindowChoices,
 )
 from polyglotic_desktop.ui_next.views.placement import Rect, subtitle_slot
 from polyglotic_desktop.ui_next.views.preset_menu import PresetItem, PresetMenu, Show
+from polyglotic_desktop.ui_next.views.presets import BY_KEY
 
 FULL_HD = Rect(0, 0, 1920, 1040)
 QHD = Rect(0, 0, 2560, 1400)
@@ -86,6 +90,176 @@ def test_the_bar_has_the_preset_chip_and_word_links_button(
         assert gone not in window.buttons
     assert window.preset_chip.text() == "Video, film && TV ▾"
     assert window.preset_chip.accessibleName() == "Preset: Video, film & TV"  # 593
+
+
+def test_an_explicit_look_sets_both_windows_opacity(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    windows.set_captioned([("Video Player.exe", APP), ("Microphone", MIC)])
+    first, second = windows.windows.values()
+    windows._set_opacity(first, 0.42)
+    windows._set_opacity(second, 0.79)
+
+    windows.set_look(replace(windows.look, opacity=0.93))
+
+    assert (first.look.opacity, second.look.opacity) == (0.93, 0.93)
+    assert (first.choices.opacity, second.choices.opacity) == (0.93, 0.93)
+
+
+def test_video_look_removes_both_windows_boxes(
+    windows: CaptionWindows, qapp: QApplication
+) -> None:
+    windows.set_captioned([("Video Player.exe", APP), ("Microphone", MIC)])
+    windows.set_look(CaptionLook(opacity=0.0, edge=TextEdge.OUTLINE))
+
+    assert all(window.look.opacity == 0.0 for window in windows.windows.values())
+    assert all(window.choices.opacity == 0.0 for window in windows.windows.values())
+
+
+@pytest.mark.parametrize("preset_key", ["paper", "classic"])
+def test_cog_uses_full_opacity_range_and_outlines_text(
+    windows: CaptionWindows, qapp: QApplication, preset_key: str
+) -> None:
+    window = opened(windows, qapp)
+    preset = BY_KEY[preset_key]
+    look = replace(
+        windows.look,
+        background=preset.background,
+        original=preset.original,
+        translation=preset.translation,
+        opacity=preset.opacity,
+        edge=TextEdge.NONE,
+    )
+    windows.set_look(look)
+    window._show_band(True)
+    window.toggle_settings()
+    popover = window.popover
+    assert popover is not None
+    slider = popover.opacity_slider
+    assert (slider.minimum(), slider.maximum()) == (0, 100)
+    for percent in (0, 1, 33, 65, 100):
+        slider.setValue(percent)
+        assert window.choices.opacity == window.look.opacity == percent / 100
+        assert f"{percent}%" in popover.opacity_label.text()
+        if percent in (0, 100):
+            panel = QImage(window.size(), QImage.Format.Format_ARGB32_Premultiplied)
+            panel.fill(0)
+            with QPainter(panel) as painter:
+                window.canvas._panel(painter, 0, panel.height())
+            alpha = panel.pixelColor(20, 60).alpha()
+            assert alpha in (0, 1) if percent == 0 else alpha == 255
+            assert window.canvas.ink.edge is (
+                TextEdge.OUTLINE if percent == 0 else TextEdge.NONE
+            )
+            assert window.look.edge is TextEdge.NONE
+
+
+def test_cog_pace_is_a_plain_switch_and_reopens_saved(
+    windows: CaptionWindows, store: Store, qapp: QApplication
+) -> None:
+    window = opened(windows, qapp)
+    window.set_pace(165, 187, 120, 98)
+    window._show_band(True)
+    window.toggle_settings()
+    popover = window.popover
+    assert popover is not None
+    assert popover.rows["show_pace"] is popover.pace_switch
+    assert popover.pace_switch.text() == "Show speaking pace (WPM)"
+    assert popover.pace_switch.accessibleName() == "Show speaking pace (WPM)"
+    assert popover.pace_switch.isChecked()
+    assert popover.findChild(QPushButton, "settings_popover.pace_undo") is None
+    popover.pace_switch.click()
+    assert window.pace.isHidden()
+    popover.pace_switch.click()
+    assert window.choices.show_pace and window.pace.isVisible()
+    popover.pace_switch.click()
+    windows.save_now()
+    restored = CaptionWindows(store, MIC, lambda: [FULL_HD])
+    try:
+        reopened = opened(restored, qapp)
+        assert not reopened.choices.show_pace and reopened.pace.isHidden()
+        reopened.toggle_settings()
+        assert reopened.popover is not None
+        reopened.popover.pace_switch.click()
+        assert reopened.pace.isVisible()
+    finally:
+        restored.close()
+
+
+def test_cog_caption_info_switch_and_actions_divider(
+    windows: CaptionWindows, store: Store, qapp: QApplication
+) -> None:
+    from polyglotic_desktop.ui_next.settings_popover import (
+        COLUMN_ROWS,
+        LANGUAGE_ROWS,
+        ROWS,
+        WINDOW_ROWS,
+        SettingsPopover,
+    )
+
+    assert ROWS.index("show_caption_info") == ROWS.index("show_pace") + 1
+    assert COLUMN_ROWS.index("show_caption_info") == COLUMN_ROWS.index("show_pace") + 1
+
+    window = opened(windows, qapp)
+    assert window.choices.show_caption_info
+    window._show_band(True)
+    window.toggle_settings()
+    popover = window.popover
+    assert popover is not None
+    assert popover.rows["show_caption_info"] is popover.caption_info_switch
+    assert popover.caption_info_switch.text() == "Show caption info"
+    assert popover.caption_info_switch.accessibleName() == "Show caption info"
+    assert popover.caption_info_switch.isChecked()
+    assert popover.findChild(QPushButton, "settings_popover.caption_info_undo") is None
+
+    divider = popover.actions_divider
+    assert divider is not None and divider.isVisible() and divider.height() == 1
+    assert (
+        popover.pace_switch.geometry().bottom()
+        < popover.caption_info_switch.geometry().top()
+    )
+    assert (
+        popover.caption_info_switch.geometry().bottom()
+        < divider.geometry().top()
+        <= divider.geometry().bottom()
+        < popover.rows["transcript"].geometry().top()
+    )
+
+    popover.caption_info_switch.click()
+    assert not window.choices.show_caption_info
+    windows.save_now()
+    restored = CaptionWindows(store, MIC, lambda: [FULL_HD])
+    try:
+        reopened = opened(restored, qapp)
+        assert not reopened.choices.show_caption_info
+        reopened.toggle_settings()
+        assert reopened.popover is not None
+        assert not reopened.popover.caption_info_switch.isChecked()
+        reopened.popover.caption_info_switch.click()
+        assert reopened.choices.show_caption_info
+    finally:
+        restored.close()
+
+    # Column and joined-window popovers also separate settings from actions;
+    # the language chip popover has no action rows and therefore no divider.
+    for row_set, expects_divider in (
+        (COLUMN_ROWS, True),
+        (LANGUAGE_ROWS, False),
+    ):
+        extra = SettingsPopover(window, rows=row_set)
+        try:
+            assert (extra.actions_divider is not None) is expects_divider
+        finally:
+            extra.close()
+
+    windows.set_captioned([("Video Player.exe", APP), ("Microphone", MIC)])
+    joined = windows.joined_window
+    assert joined is not None
+    joined_popover = SettingsPopover(joined, rows=WINDOW_ROWS)
+    try:
+        assert joined_popover.actions_divider is not None
+    finally:
+        joined_popover.close()
 
 
 def test_the_dropdown_picks_shows_adds_and_customises(
@@ -198,16 +372,13 @@ def test_the_learners_own_place_is_kept_while_its_a_subtitle(
     window.take_place(window.choices.preset, Rect(100, 100, 700, 300), 1.2)
     windows._changed(window)  # moved and sized by the learner
     windows.set_subtitles((0.045, 0.8))
-    changed: list[tuple[float, float]] = []
-    windows.subtitles_changed.connect(lambda s, w: changed.append((s, w)))
     window.step_text(1)  # A+ while it's a subtitle: Video's size, not its own
     windows.save_now()
     saved = store.values[STORED_KEY]
     assert isinstance(saved, dict)
     own = saved["windows"]["Video Player.exe"]
     assert own["geometry"] == [100, 100, 700, 300] and own["text_size"] == 1.2
-    (share, width) = changed[-1]
-    assert share > 0.045 and width == 0.8
+    assert own["language_sizes"]["en"] == 1.1
 
 
 def test_subtitle_text_stays_within_a_windows_sizes() -> None:

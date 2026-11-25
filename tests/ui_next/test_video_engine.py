@@ -204,3 +204,28 @@ def test_overfull_translation_paints_every_row_in_order() -> None:
 
     assert len(ink) > 2
     assert " ".join(row.strip() for row in ink.values()) == copy.translation
+
+
+def test_odd_height_keeps_matching_rows_together() -> None:
+    from polyglotic_desktop.ui_next.video import Copy, VideoFlow
+
+    # Three cells fit. Showing the last three rows would orphan a translation.
+    flow = VideoFlow(
+        lambda text, tr: len(text) * 10,
+        100,
+        0,
+        64,
+        16,
+        16,
+        row_heights=(18, 18),
+        translation_gap=3,
+        paired_ranges=lambda line: [
+            (tr, i, i + 1) for i in range(3) for tr in (False, True)
+        ],
+    )
+    copy = Copy(Mock(key=0, live=False, provisional=False), "ABC", "abc", True)
+    flow.advance([copy], 0)
+    assert [row.text for row in sorted(flow.rows(), key=lambda row: row.y)] == [
+        "C",
+        "c",
+    ]

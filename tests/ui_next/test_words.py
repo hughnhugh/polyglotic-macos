@@ -192,11 +192,15 @@ def test_words_you_keep_hearing_go_into_the_deck_in_one_click(
     page: WordsPage, tools: LearningTools
 ) -> None:
     computer = entry(tools, "电脑")
+    assert page.first.hearing.accessibleName() == "Repeated words"
     assert [i.entry_id for i in page.first.hearing.words.items] == [computer]
     act(page, "hearing", Column.ADD, computer)
     assert tools.vocabulary.status_of_entry(computer).status is WordStatus.LEARNING
     assert page.first.hearing.words.items == []  # in the deck: no longer new
     assert page.first.hearing_empty.isVisible()
+    assert page.first.hearing_empty.text() == (
+        "No repeated words yet. New words appear here after you hear them a few times."
+    )
 
 
 def test_words_you_keep_hearing_lists_a_few_then_more_in_steps(
@@ -268,7 +272,7 @@ def test_the_list_filters_by_status_and_search(
     page.first._searching.timeout.emit()
     assert (
         page.first.words.words.items == []
-        and page.first.words_note.text() == "No matches."
+        and page.first.words_note.text() == "No words match."
     )
     assert not page.first.words.isVisible()
 
@@ -548,7 +552,10 @@ def test_an_export_says_how_many_words_went_and_where(
     chosen_file(monkeypatch, tmp_path / "again.csv")
     page.first.export_csv.click()
     written(page)
-    assert "No new words since the last export" in page.first.export_result.text()
+    assert page.first.export_result.text() == (
+        "Every word available to export was already exported in this format. "
+        f"{tmp_path / 'again.csv'} is empty."
+    )
 
 
 def test_an_export_writes_off_the_interface_thread_with_the_buttons_busy(
@@ -576,7 +583,7 @@ def test_an_export_writes_off_the_interface_thread_with_the_buttons_busy(
     assert threads and threads[0] is not threading.main_thread()
     busy = (page.first.export_csv, page.first.export_deck, page.first.only_new)
     assert not any(b.isEnabled() for b in busy)
-    assert page.first.export_result.text() == "Writing words.csv…"
+    assert page.first.export_result.text() == "Saving words.csv…"
     page.first.export_csv.click()  # a second click meanwhile: nothing more
     release.set()
     written(page)
@@ -593,21 +600,28 @@ def test_a_csv_of_only_new_words_after_a_deck_file_has_them(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """368 (QA 361's B5): after an .apkg, Export CSV with "Only words not
-    exported yet" said nothing new - the two kinds shared one record."""
+    """368 (QA 361's B5): after an .apkg, Export CSV with words not yet
+    exported in this format still includes them; each format has its own record."""
     computer = entry(tools, "电脑")
     tools.vocabulary.set_status(computer, WordStatus.LEARNING)
     tools.vocabulary.mark_exported([computer], AnkiFormat.DECK)  # an .apkg had it
+    assert page.first.only_new.text() == "Only words not yet exported in this format"
     page.first.only_new.setChecked(True)
     chosen_file(monkeypatch, tmp_path / "words.csv")
     page.first.export_csv.click()
     written(page)
-    assert page.first.export_result.text().startswith("1 word written to")
+    assert (
+        page.first.export_result.text()
+        == f"1 word written to {tmp_path / 'words.csv'}."
+    )
     assert "电脑" in (tmp_path / "words.csv").read_text(encoding="utf-8-sig")
     chosen_file(monkeypatch, tmp_path / "again.csv")
     page.first.export_csv.click()  # the CSV's own record now has it
     written(page)
-    assert page.first.export_result.text().startswith("No new words")
+    assert page.first.export_result.text() == (
+        "Every word available to export was already exported in this format. "
+        f"{tmp_path / 'again.csv'} is empty."
+    )
 
 
 def test_an_export_click_within_the_click_budget(
@@ -665,7 +679,7 @@ def test_an_export_that_cant_be_written_says_so_not_an_error(
     finally:
         path.chmod(0o666)
     assert page.first.export_result.isVisible()
-    assert page.first.export_result.text().startswith(f"Couldn't write {path}.")
+    assert page.first.export_result.text().startswith(f"Could not save {path}.")
     assert (
         export_csv(tools, tmp_path / "later.csv", only_new=True) == 1
     )  # not marked exported
@@ -674,7 +688,7 @@ def test_an_export_that_cant_be_written_says_so_not_an_error(
 def test_export_for_anki_links_to_how_to_import_it(
     page: WordsPage, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """How to import into Anki opens the site's help on it, in the browser
+    """Anki import help opens the site's help on it, in the browser
     (polyglotic-hq 250, the user's F25)."""
     from PySide6.QtCore import QUrl
     from PySide6.QtGui import QDesktopServices
@@ -688,8 +702,16 @@ def test_export_for_anki_links_to_how_to_import_it(
         return True
 
     monkeypatch.setattr(QDesktopServices, "openUrl", open_url)
+    export_help = (
+        "Save your saved words, deck words and their sentences as a CSV to import "
+        "into Anki, or as an Anki deck to open in Anki."
+    )
+    assert any(
+        callable(text := getattr(widget, "text", None)) and text() == export_help
+        for widget in page.first.findChildren(QWidget)
+    )
     assert page.first.anki_help.isVisible()
-    assert page.first.anki_help.text() == "How to import into Anki"
+    assert page.first.anki_help.text() == "Anki import help"
     page.first.anki_help.click()
     assert opened == [HELP_ANKI]
     assert HELP_ANKI.endswith("/help/your-words-and-anki/")
@@ -700,11 +722,11 @@ def test_what_an_export_says(qapp: QApplication) -> None:
         "12 words written to polyglotic-words.apkg."
     )
     assert export_said(1, "w.csv", False) == "1 word written to w.csv."
-    assert export_said(0, "w.csv", False).startswith("No words to export yet")
-    assert export_said(0, "w.csv", True).startswith(
-        "No new words since the last export"
+    assert export_said(0, "w.csv", False).startswith("No words to export")
+    assert export_said(0, "w.csv", True) == (
+        "Every word available to export was already exported in this format. w.csv is empty."
     )
-    assert "open in another program" in export_said(None, "w.csv", False)
+    assert "open" in export_said(None, "w.csv", False)
     # saved sentences go with the words (polyglotic-hq 459)
     assert export_said(12, "w.apkg", False, 3) == (
         "12 words written to w.apkg. And 3 saved sentences."
@@ -790,7 +812,7 @@ def test_a_saved_words_row_says_its_counts_in_words(qapp: QApplication) -> None:
     assert heard_line(ExposureCount()) == "not heard yet"
     assert heard_line(ExposureCount(1)) == "heard once"
     assert heard_line(ExposureCount(12, 1, 3)) == (
-        "heard 12 times · 3 since it went in your deck · you said it once"
+        "heard 12 times · 3 since added to your deck · you said it once"
     )
     assert heard_line(ExposureCount(0, 2)) == "not heard yet · you said it 2 times"
     assert heard_in(1) == "Heard in 1 caption" and heard_in(4) == "Heard in 4 captions"
