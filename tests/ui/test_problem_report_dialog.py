@@ -6,6 +6,7 @@ main's parts, routing and diagnostics. Made-up text and bytes only."""
 import json
 import math
 import os
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -370,14 +371,18 @@ def test_a_parts_words_wrap_beside_its_tick_and_clicking_them_ticks_it(
     qapp.processEvents()
     facts = form.ticks["facts"]
     words = facts.accessibleName()
-    assert words.startswith("About this PC")
+    heading = "About this Mac" if sys.platform == "darwin" else "About this PC"
+    assert words.startswith(heading)
     shown = [label for label in form.body.findChildren(QLabel) if label.text() == words]
     assert len(shown) == 1 and shown[0].wordWrap()
-    one_line = QFontMetrics(shown[0].font()).horizontalAdvance(words)
-    assert form.body.minimumSizeHint().width() < one_line  # never one line's
-    QTest.mouseClick(shown[0], Qt.MouseButton.LeftButton)
+    label = shown[0]
+    one_line = QFontMetrics(label.font()).horizontalAdvance(words)
+    narrow = label.minimumSizeHint().width()
+    assert narrow < one_line
+    assert label.heightForWidth(narrow) > label.heightForWidth(one_line + 1)
+    QTest.mouseClick(label, Qt.MouseButton.LeftButton)
     assert not facts.isChecked()
-    QTest.mouseClick(shown[0], Qt.MouseButton.LeftButton)
+    QTest.mouseClick(label, Qt.MouseButton.LeftButton)
     assert facts.isChecked()
     form.deleteLater()
 
