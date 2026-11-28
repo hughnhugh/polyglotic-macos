@@ -31,6 +31,7 @@ failure is an `OSError` naming the call, never what was heard.
 from __future__ import annotations
 
 import ctypes
+import re
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -209,6 +210,7 @@ _SIGNATURES: dict[str, tuple[Any, list[Any]]] = {
     "pa_context_set_subscribe_callback": (None, [_vp, _SUBSCRIBE_CB, _vp]),
     "pa_context_subscribe": (_vp, [_vp, ctypes.c_int, _SUCCESS_CB, _vp]),
     "pa_operation_get_state": (ctypes.c_int, [_vp]),
+    "pa_operation_cancel": (None, [_vp]),
     "pa_operation_unref": (None, [_vp]),
     "pa_stream_new": (_vp, [_vp, ctypes.c_char_p, ctypes.POINTER(_SampleSpec), _vp]),
     "pa_stream_set_monitor_stream": (ctypes.c_int, [_vp, ctypes.c_uint32]),
@@ -241,6 +243,10 @@ _SIGNATURES: dict[str, tuple[Any, list[Any]]] = {
 _lib: Any = None
 
 
+class MissingLibrary(OSError):
+    """The Pulse client library or one of its dependencies could not load."""
+
+
 def library() -> Any:
     """libpulse, its calls typed - loaded once; OSError where there's none."""
     global _lib
@@ -248,7 +254,7 @@ def library() -> Any:
         try:
             found = ctypes.CDLL("libpulse.so.0")
         except OSError as e:
-            raise OSError("libpulse isn't installed (libpulse.so.0)") from e
+            raise MissingLibrary("libpulse isn't installed (libpulse.so.0)") from e
         for name, (result, arguments) in _SIGNATURES.items():
             call = getattr(found, name)
             call.restype = result
@@ -269,6 +275,23 @@ class Defaults:
     server: str
     output: str | None
     input: str | None
+    version: str = ""
+
+    def log_identity(self) -> str:
+        """Recognized server software and numeric versions only, never host/user data."""
+        version = (
+            self.version
+            if re.fullmatch(r"[0-9]+(?:\.[0-9]+)*", self.version)
+            else "unknown"
+        )
+        pw = re.fullmatch(
+            r"PulseAudio \(on PipeWire ([0-9]+(?:\.[0-9]+)*)\)", self.server
+        )
+        if pw:
+            return f"PipeWire {pw[1]} (PulseAudio {version})"
+        if self.server.lower() == "pulseaudio":
+            return f"PulseAudio {version}"
+        return f"other (Pulse protocol server version {version})"
 
 
 @dataclass(frozen=True, slots=True)
@@ -345,6 +368,12 @@ def playing_stream(
     )
 
 
+def server_failure(lib: Any, context: Any, message: str) -> OSError:
+    if context and lib.pa_context_errno(context) == 1:  # PA_ERR_ACCESS
+        return PermissionError(message)
+    return OSError(message)
+
+
 class Recording:
     """A record stream on one source, made by `PulseServer.record`: what
     it delivered, as (arrival on `time.perf_counter`, float32 bytes), taken
@@ -383,8 +412,11 @@ class Recording:
             )
             < 0
         ):
+            error = server_failure(
+                lib, context, "The sound server wouldn't record that device"
+            )
             self.close()
-            raise OSError("The sound server wouldn't record that device")
+            raise error
 
     def _state_changed(self, _stream: Any, _data: Any) -> None:
         pass  # read by `state` when asked
@@ -551,11 +583,15 @@ class PulseServer:
                 )
                 < 0
             ):
-                raise OSError("No sound server to connect to")
+                raise server_failure(
+                    self._lib, self._context, "No sound server to connect to"
+                )
             if not self._until(lambda: self._state() >= CONTEXT_READY, wait) or (
                 self._state() != CONTEXT_READY
             ):
-                raise OSError(f"The sound server didn't answer: {self._error()}")
+                raise server_failure(
+                    self._lib, self._context, "The sound server didn't answer"
+                )
         except OSError:
             self.close()
             raise
@@ -598,6 +634,7 @@ class PulseServer:
         """Waits for an operation's answer (its callbacks have run then)."""
         if not operation:
             raise OSError(f"The sound server refused: {self._error()}")
+        finished = False
         try:
             finished = self._until(
                 lambda: (
@@ -606,6 +643,8 @@ class PulseServer:
                 ANSWER_SEC,
             )
         finally:
+            if not finished:
+                self._lib.pa_operation_cancel(operation)
             self._lib.pa_operation_unref(operation)
         if not finished:
             raise OSError("The sound server didn't answer in time")
@@ -623,6 +662,7 @@ class PulseServer:
                         _text(i.server_name) or "",
                         _text(i.default_sink_name),
                         _text(i.default_source_name),
+                        _text(i.server_version) or "",
                     )
                 )
 
@@ -704,8 +744,13 @@ class PulseServer:
         if not self._until(lambda: recording.ready or recording.failed, ANSWER_SEC) or (
             not recording.ready
         ):
+            error = server_failure(
+                self._lib,
+                self._context,
+                "The sound server didn't start recording that device",
+            )
             recording.close()
-            raise OSError("The sound server didn't start recording that device")
+            raise error
         return recording
 
     def play(self, pcm: bytes, rate: int, channels: int = 1) -> Playback:

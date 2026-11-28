@@ -69,6 +69,17 @@ def runtime_folder(
     return data_folder(env, home) / "locks"
 
 
+def platform_kind(root: Path = Path("/")) -> str:
+    """Tremplin mounts the milestone in the guest. Older images also carry
+    the ChromeOS apt source and bind-mounted guest tools. Only test presence."""
+    if (root / "dev/.cros_milestone").is_file() or (
+        (root / "etc/apt/sources.list.d/cros.list").is_file()
+        and (root / "opt/google/cros-containers").is_dir()
+    ):
+        return "crostini"
+    return "linux"
+
+
 def os_name(release: str | None = None) -> str:
     """`linux-<major>` (protocol.md's `os`: `linux-6`, as the server's own
     smoke test says hello), from the kernel's release - `platform.release()`

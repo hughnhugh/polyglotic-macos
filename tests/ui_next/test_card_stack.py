@@ -985,10 +985,11 @@ def test_translation_with_it_does_not_wait_for_an_unseen_caption(
     window.grab()
     assert any(row.text == "Une carte." for row in window.view.lines[-1].rows)
     _, _, after = window.canvas.placed[-1]
-    # The reserved space expired while the card was at rest. The late
-    # translation fits by growing the card up from the same live edge.
+    # The reservation expired while the card was at rest. Its source kept
+    # its place; the late translation occupies the gap below it.
     assert after.height() > before.height()
-    assert after.bottom() == pytest.approx(before.bottom())
+    assert after.top() == pytest.approx(before.top())
+    assert after.bottom() <= window.canvas.height()
     assert not window.glide.moving(window.clock())
 
 

@@ -1,4 +1,10 @@
-"""Measure the painted caption list with 346's row identities and jump thresholds."""
+"""Measure the painted caption list with 346's row identities and jump thresholds.
+
+The display's instrument grew from this (`tools/scene_replay`, polyglotic-hq
+982): it plays the same streams into every surface on a patched clock and
+keeps every character's place. The glyph reader and the streams' adapter
+live there now; this module keeps 827's counters over the caption window.
+"""
 
 import json
 from collections.abc import Callable
@@ -10,21 +16,12 @@ from unittest.mock import patch
 
 import shiboken6
 from PySide6.QtWidgets import QApplication
-from tests.ui_next.made_up import EN, ZH
 from tests.ui_next.test_caption_window import window_of
+from tools.scene_replay.drive import glyphs  # noqa: F401 - 969's tests read it here
+from tools.scene_replay.streams import line_update
 
 from polyglotic_desktop.core.lexicon.readings import Reading
-from polyglotic_desktop.core.listening.captions import (
-    CaptionKind,
-    CaptionUpdate,
-    Clause,
-    Language,
-    WordLink,
-    WordTime,
-)
 from polyglotic_desktop.core.listening.display import RowKind, WordLinks
-from polyglotic_desktop.core.listening.timing import CaptionId
-from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next.caption_surface import PAD
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
 from polyglotic_desktop.ui_next.views.caption_window import CaptionLook
@@ -69,40 +66,6 @@ class Metrics:
 
 def load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _update(event: dict[str, Any]) -> CaptionUpdate:
-    clauses = []
-    for item in event["clauses"]:
-        text = item["said"]
-        start = 0
-        words = []
-        for word in item["words"]:
-            start = text.index(word, start)
-            end = start + len(word)
-            words.append(WordTime((start, end), event["t"], event["t"]))
-            start = end
-        links = tuple(
-            WordLink(tuple(link["original"]), tuple(link["translation"]), True, 1.0)
-            for link in item["links"]
-        )
-        clauses.append(
-            Clause(
-                text,
-                {EN: item["translation"]} if item["translation"] else {},
-                {EN: links},
-                words=tuple(words),
-            )
-        )
-    language = Language(event.get("language", ZH))
-    return CaptionUpdate(
-        CaptionId(str(event["key"])),
-        MIC if event["source"] == "you" else APP,
-        CaptionKind.LIVE if event["live"] else CaptionKind.FINISHED,
-        tuple(clauses),
-        language,
-        (language,),
-    )
 
 
 def _rows(window: CaptionWindow) -> dict[RowId, Row]:
@@ -311,7 +274,7 @@ def measure(
                 changed = event is not None and event["t"] <= now + 1e-8
                 letters = _letters(window) if changed else {}
                 while event is not None and event["t"] <= now + 1e-8:
-                    window.receive(_update(event))
+                    window.receive(line_update(event))
                     event = next(events, None)
                 window._tick()
                 window.canvas.repaint()

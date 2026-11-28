@@ -1,5 +1,6 @@
 """Email sign-in and the worker used by the open-beta account screens."""
 
+import itertools
 import logging
 import threading
 from collections.abc import Callable
@@ -8,7 +9,17 @@ from functools import partial
 from http import HTTPStatus
 from typing import cast
 
-from PySide6.QtCore import QEventLoop, QLocale, QObject, Qt, QTimer, QTimeZone, Signal
+import shiboken6
+from PySide6.QtCore import (
+    QEventLoop,
+    QLocale,
+    QObject,
+    Qt,
+    QTimer,
+    QTimeZone,
+    Signal,
+    Slot,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -115,15 +126,57 @@ def _cross_border_fields(layout: QVBoxLayout) -> tuple[QWidget, QCheckBox]:
     return notice, consent
 
 
-class AccountWork(QObject):
-    """Run one blocking account request and deliver its result to Qt."""
+class AccountRelay(QObject):
+    """Carries every account request's answer to the interface thread: one
+    object for the app's whole life, never a page's. A worker emitted on its
+    page's own `AccountWork` until polyglotic-hq 999, and a page closed or a
+    test torn down mid-request deleted that object under the emit: #1262's
+    segmentation fault. Each request has a token; the answer to one whose
+    `AccountWork` is gone, or that has a newer one, is dropped."""
 
-    _finished = Signal(object)
+    answered = Signal(int, object)
+
+    def __init__(self) -> None:
+        super().__init__()  # no parent: kept by `relay`, never deleted
+        self._waiting: dict[int, AccountWork] = {}
+        self._tokens = itertools.count(1)
+        self.answered.connect(self._deliver)
+
+    def wait_for(self, work: "AccountWork") -> int:
+        """A new request's token, its answer to go to `work`."""
+        token = next(self._tokens)
+        self._waiting[token] = work
+        return token
+
+    @Slot(int, object)
+    def _deliver(self, token: int, answer: object) -> None:
+        work = self._waiting.pop(token, None)
+        if work is not None and shiboken6.isValid(work):  # else its page closed
+            work._done(token, answer)
+
+
+_relay: AccountRelay | None = None
+
+
+def relay() -> AccountRelay:
+    """The app's one `AccountRelay`, made on the interface thread (where
+    the first `AccountWork` is) so its answers are delivered there."""
+    global _relay
+    if _relay is None:
+        _relay = AccountRelay()
+    return _relay
+
+
+class AccountWork(QObject):
+    """Run one blocking account request and deliver its result to Qt -
+    through `relay`, so the worker never touches this object, which the
+    page that owns it may delete at any moment."""
 
     def __init__(self, parent: QObject) -> None:
         super().__init__(parent)
         self._receive: Callable[[object], None] | None = None
-        self._finished.connect(self._done)
+        self._token = 0
+        self._relay = relay()
 
     @property
     def busy(self) -> bool:
@@ -135,6 +188,8 @@ class AccountWork(QObject):
         if self.busy:
             raise RuntimeError("an account request is already running")
         self._receive = cast(Callable[[object], None], receive)
+        answers = self._relay  # the worker holds the relay, never `self`
+        token = self._token = answers.wait_for(self)
 
         def work() -> None:
             try:
@@ -143,14 +198,14 @@ class AccountWork(QObject):
                 answer = failed
             except (OSError, ValueError):
                 answer = AccountError("unavailable")
-            with suppress(
-                RuntimeError
-            ):  # The app quit while the request was in flight.
-                self._finished.emit(answer)
+            with suppress(RuntimeError):  # the app ended while it ran
+                answers.answered.emit(token, answer)
 
         threading.Thread(target=work, name="account-request", daemon=True).start()
 
-    def _done(self, result: object) -> None:
+    def _done(self, token: int, result: object) -> None:
+        if token != self._token:
+            return  # an older request's answer
         receive, self._receive = self._receive, None
         if receive is not None:
             receive(result)

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
-from PySide6.QtGui import QEnterEvent, QMouseEvent, QWheelEvent
+from PySide6.QtGui import QEnterEvent, QKeySequence, QMouseEvent, QWheelEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QStyle, QStyleOptionSlider
 from tests.ui_next.made_up import finished_updates
@@ -346,10 +346,15 @@ def test_scrollbar_follows_panel_theme_colours(qapp: QApplication) -> None:
 def test_shortcuts_are_listed_in_help_and_hotkeys_settings(qapp: QApplication) -> None:
     keys_list = hotkeys_card.window_keys()
     labels = {what: key for what, key in keys_list}
-    assert "Jump to the first caption" in labels
-    assert "Home" in labels["Jump to the first caption"]
-    assert "Back to live in a caption or transcript window" in labels
-    assert "End" in labels["Back to live in a caption or transcript window"]
+    for action, key in (
+        ("Jump to the first caption", "Home"),
+        ("Back to live in a caption or transcript window", "End"),
+    ):
+        plain, modified = labels[action].split(" / ")
+        for label, sequence in ((plain, key), (modified, f"Ctrl+{key}")):
+            assert QKeySequence.fromString(
+                label, QKeySequence.SequenceFormat.NativeText
+            ) == QKeySequence(sequence)
 
     # Listed in Help even when global hotkeys are disabled (preview builds).
     topics = dict(help_page.set_up(()))

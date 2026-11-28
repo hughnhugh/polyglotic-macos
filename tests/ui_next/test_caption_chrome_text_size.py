@@ -112,3 +112,26 @@ def test_its_notice_is_measured_again_at_a_new_text_size(
     window.restyle()
     assert window.notice.width() >= window.notice.sizeHint().width()
     window.close()
+
+
+def test_a_place_kept_from_a_smaller_text_size_widens_to_its_least_width(
+    at_100: QApplication,
+) -> None:
+    """polyglotic-hq 999: a window kept at 320 px, then Windows' Text size
+    raised to 200 %, stayed at 320 and squashed its hover band's buttons
+    over each other (its layout needed 394 px of 300). Open, it widens as
+    the text size changes; placed again at 320, it takes its least width."""
+    window = window_of(at_100)
+    preset, size = window.choices.preset, window.choices.text_size
+    window.take_place(preset, placement.Rect(100, 100, 320, 200), size)
+    assert window.width() == max(320, window._minimum().width)
+    style.use_text_scale(2.0)
+    window.restyle()
+    band_shown(window)
+    least = window._minimum().width
+    assert least >= 2 * MIN_PANEL.width
+    assert window.width() == least
+    assert window.band.width() >= window.band.minimumSizeHint().width()
+    window.take_place(preset, placement.Rect(100, 100, 320, 200), size)
+    assert window.width() == least
+    window.close()

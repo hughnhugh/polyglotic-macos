@@ -92,7 +92,7 @@ from polyglotic_desktop.core.listening.dictation_keys import DictationKey
 from polyglotic_desktop.core.listening.failing import FailingCaptions
 from polyglotic_desktop.core.listening.held_back import LIVE_UPDATES_HELD_BACK
 from polyglotic_desktop.core.listening.history import CaptionHistory
-from polyglotic_desktop.core.listening.hotkeys import Hotkey
+from polyglotic_desktop.core.listening.hotkeys import CONFLICT_NOTIFY_MS, Hotkey
 from polyglotic_desktop.core.listening.hotkeys import keys as hotkey_keys
 from polyglotic_desktop.core.listening.sources import (
     EVERYTHING_ELSE,
@@ -229,6 +229,17 @@ def fitted_tip(lines: list[str], limit: int = TIP_MAX) -> str:
 
 
 QT_KEYS = {
+    "minus": "-",
+    "equal": "=",
+    "bracket_left": "[",
+    "bracket_right": "]",
+    "backslash": "\\",
+    "semicolon": ";",
+    "apostrophe": "'",
+    "grave": "`",
+    "comma": ",",
+    "period": ".",
+    "slash": "/",
     "space": "Space",
     "enter": "Return",
     "tab": "Tab",
@@ -248,6 +259,13 @@ QT_KEYS = {
     "scroll_lock": "ScrollLock",
     "print_screen": "Print",
     "menu": "Menu",
+    "media_play": "Media Toggle Play/Pause",
+    "media_stop": "Media Stop",
+    "media_next": "Media Next",
+    "media_prev": "Media Previous",
+    "volume_up": "Volume Up",
+    "volume_down": "Volume Down",
+    "volume_mute": "Volume Mute",
 }
 """`dictation_keys.KEYS` that Qt names otherwise; letters, digits and F1-F24
 are its own names, upper case."""
@@ -305,6 +323,8 @@ class DesktopApp(QObject):
     label (`source_labels`) may be another."""
     dictation_settings_wanted = Signal()
     """The tray's "More languages…" for dictation: Settings > App."""
+    hotkeys_settings_wanted = Signal()
+    """The tray's hotkey conflict item: opens Settings > Hotkeys (966)."""
 
     def __init__(
         self,
@@ -409,6 +429,11 @@ class DesktopApp(QObject):
         captions left" (`show_usage`; polyglotic-hq 684): `main` opens
         Upgrade from it."""
         self.usage.setVisible(False)
+        self.hotkey_conflict = self._action("app.hotkey_conflict", "")
+        """The tray's conflict item when another program holds a hotkey (966):
+        opens Settings > Hotkeys to switch to a free key."""
+        self.hotkey_conflict.setVisible(False)
+        self.hotkey_conflict.triggered.connect(self.hotkeys_settings_wanted)
         self.quit_check: Callable[[], bool] | None = None
         """Asked before Quit goes on (`may_quit`): `main` hands it the
         transcripts' question (polyglotic-hq 334)."""
@@ -524,6 +549,9 @@ class DesktopApp(QObject):
         """Hidden caption windows' line in the tray's tooltip (`show_hidden`)."""
         self.usage_line = ""
         """A capped plan's allowance left, in the tray's tooltip (`show_usage`)."""
+        self.hotkey_conflict_line = ""
+        """Hotkey conflict line in the tray's tooltip (`show_hotkey_conflicts`)."""
+        self._last_hotkey_conflicts: tuple[tuple[str, str, bool], ...] = ()
         self.banner_in_view: Callable[[], bool] = lambda: False
         """Whether Home's banner is in front of the learner now (`main`'s
         main window sets it): a report's outcome is then said there only,
@@ -681,6 +709,7 @@ class DesktopApp(QObject):
         menu.setDefaultAction(self.open_window)
         menu.addAction(self.install_update)  # hidden until one is ready
         menu.addAction(self.usage)  # hidden on an unlimited plan
+        menu.addAction(self.hotkey_conflict)  # hidden unless another app holds a hotkey
         menu.addSeparator()
         for action in (
             self.pause,
@@ -764,6 +793,67 @@ class DesktopApp(QObject):
         for key in keys:
             if key in self.hotkeys:
                 self.hotkeys[key].setShortcut(QKeySequence())
+
+    def show_hotkey_conflicts(
+        self, conflicts: Mapping[str, tuple[str, str, bool]]
+    ) -> None:
+        """Report hotkeys held by another program in the tray menu, tooltip,
+        and tray notification (no silent failure, polyglotic-hq 966).
+
+        `conflicts`: hotkey name -> `(label, key_text, shared)` where `shared`
+        is True if a fallback hook is sharing the chord so it still works."""
+        ordered = tuple(
+            (name, key_text, shared)
+            for name, (_label, key_text, shared) in sorted(conflicts.items())
+        )
+        if not conflicts:
+            self.hotkey_conflict.setVisible(False)
+            self.hotkey_conflict.setText("")
+            self.hotkey_conflict_line = ""
+            self._last_hotkey_conflicts = ()
+            if self.tray is not None:
+                self.tray.setToolTip(self._tooltip())
+            return
+        items = list(conflicts.values())
+        keys_joined = QLocale().createSeparatedList(
+            [key_text for _, key_text, _ in items]
+        )
+        self.hotkey_conflict.setText(
+            self.tr("Hotkey conflict: {keys}").format(keys=keys_joined)
+        )
+        self.hotkey_conflict.setVisible(True)
+        self.hotkey_conflict_line = self.tr("Another program uses {keys}").format(
+            keys=keys_joined
+        )
+        if self.tray is not None:
+            self.tray.setToolTip(self._tooltip())
+        if ordered == self._last_hotkey_conflicts:
+            return
+        self._last_hotkey_conflicts = ordered
+        if len(items) == 1:
+            label_text, key_text, shared = items[0]
+            if shared:
+                title = self.tr("Hotkey shared with another program")
+                body = self.tr(
+                    "Another program also uses {key} ({name}). Polyglotic shares it"
+                    " so it still works; open Settings > Hotkeys to switch."
+                ).format(key=key_text, name=label_text)
+            else:
+                title = self.tr("Hotkey conflict")
+                body = self.tr(
+                    "{name} ({key}) is used by another program. Open Settings >"
+                    " Hotkeys to choose a free key."
+                ).format(name=label_text, key=key_text)
+        else:
+            title = self.tr("Hotkey conflicts")
+            body = self.tr(
+                "Another program uses {keys}. Open Settings > Hotkeys to choose"
+                " free keys."
+            ).format(keys=keys_joined)
+        if self.tray is not None:
+            self.tray.showMessage(
+                title, body, self.tray.icon(), CONFLICT_NOTIFY_MS.value
+            )
 
     @Slot(str)
     def _hotkey(self, key: str) -> None:
@@ -862,7 +952,15 @@ class DesktopApp(QObject):
         title = f"Polyglotic - {self.state_title}" if self.state_title else "Polyglotic"
         idle = self.tr("Nothing selected to caption") if self._needs_source else ""
         # the usage line sits in the middle: the first to go when it's too long
-        return fitted_tip([title, idle, self.usage_line, *self.hidden_line.split("\n")])
+        return fitted_tip(
+            [
+                title,
+                idle,
+                self.usage_line,
+                self.hotkey_conflict_line,
+                *self.hidden_line.split("\n"),
+            ]
+        )
 
     @property
     def _needs_source(self) -> bool:

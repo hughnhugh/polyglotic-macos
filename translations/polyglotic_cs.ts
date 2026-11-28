@@ -26,7 +26,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Add email address</source>
-        <translation type="unfinished">Přidat e-mail</translation>
+        <translation>Přidat e-mail</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -41,7 +41,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose shared data</source>
-        <translation type="unfinished">Zvolit, co sdílet</translation>
+        <translation>Zvolit, co sdílet</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -71,12 +71,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Shared data</source>
-        <translation type="unfinished">Vaše data</translation>
+        <translation>Sdílená data</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose whether to send usage statistics, crash reports and how often you hear words.</source>
-        <translation type="unfinished">Co Polyglotic odesílá kvůli provozu služby a co se rozhodnete sdílet: statistiky používání, hlášení o pádech, jak často slyšíte slova.</translation>
+        <translation>Zvolte, zda chcete sdílet statistiky používání, hlášení o pádech a údaje o tom, jak často slyšíte jednotlivá slova.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -86,22 +86,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another PC and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this PC.</source>
-        <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají na našem serveru jako slova ze slovníku a časy: uložená slova a stavy vás provázejí na jiný počítač a vyhledávání nám ukazují, jak se lidé učí. Smazat je můžete tam, ve všech jazycích, které se učíte – a pokud chcete, i v tomto počítači.</translation>
+        <translation>Na našem serveru uchováváme slova, která vyhledáte, uložíte nebo označíte, i s příslušnými časy. Díky tomu máte uložená slova a pokrok i na jiném počítači a my vidíme, jak se lidé učí. Data pro všechny jazyky můžete smazat ze serveru a případně i z tohoto počítače.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another computer and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this Mac.</source>
-        <translation type="unfinished">Slova, která vyhledáte, uložíte a označíte, se uchovávají na našem serveru jako slova ze slovníku a časy: uložená slova a stavy vás provázejí na jiný počítač a vyhledávání nám ukazují, jak se lidé učí. Smazat je můžete tam, ve všech jazycích, které se učíte – a pokud chcete, i v tomto Macu.</translation>
+        <translation>Na našem serveru uchováváme slova, která vyhledáte, uložíte nebo označíte, i s příslušnými časy. Díky tomu máte uložená slova a pokrok i na jiném počítači a my vidíme, jak se lidé učí. Data pro všechny jazyky můžete smazat ze serveru a případně i z tohoto Macu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Privacy and testing</source>
-        <translation type="unfinished">Soukromí a smlouva pro testery</translation>
+        <translation>Soukromí a testování</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Read what we keep and the terms you accepted as a tester.</source>
-        <translation type="unfinished">Co uchováváme a proč a s čím jste jako tester souhlasili.</translation>
+        <translation>Přečtěte si, co uchováváme a jaké podmínky jste při vstupu do testování přijali.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -136,17 +136,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Not signed in — {needed}.</source>
-        <translation type="unfinished">Nepřihlášeno – {needed}.</translation>
+        <translation>Nejste přihlášeni – {needed}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in with invite code</source>
-        <translation type="unfinished">Přihlášeno pomocí kódu pozvánky</translation>
+        <translation>Přihlášeno kódem pozvánky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Account ID: {id}. Include it when you contact us about your data.</source>
-        <translation type="unfinished">ID vašeho účtu: {id}. Uveďte ho, pokud nám budete psát o svých datech.</translation>
+        <translation>ID účtu: {id}. Uveďte ho, až nám budete psát ohledně svých dat.</translation>
     </message>
 </context>
 <context>
@@ -154,12 +154,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Na některých místech musí všichni účastníci hovoru souhlasit, než se k hovoru začnou vytvářet titulky. Řekněte to lidem, se kterými mluvíte.</translation>
+        <translation>Na některých místech je k titulkování hovoru nutný souhlas všech účastníků. Řekněte jim, že používáte titulky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Got it</source>
-        <translation type="unfinished">Rozumím</translation>
+        <translation>Rozumím</translation>
     </message>
 </context>
 <context>
@@ -193,22 +193,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Detect finds the language each time someone speaks.</source>
-        <translation type="unfinished">Rozpoznat zjistí jazyk pokaždé, když někdo mluví.</translation>
+        <translation>Volba Auto rozpozná jazyk pokaždé, když někdo promluví.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Choose a translation language, or show only the original.</source>
-        <translation type="unfinished">Přeložte tyto řádky i do druhého jazyka, nebo je nechte.</translation>
+        <translation>Vyberte jazyk překladu, nebo zobrazte jen originál.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Set up captions</source>
-        <translation type="unfinished">Nastavte si titulky</translation>
+        <translation>Nastavit titulky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Shown as &quot;You&quot;. Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Zobrazí se jako „Vy“. Mikrofon se pro vaše titulky odesílá, jen když je to zapnuté.</translation>
+        <translation>Vaše řeč se označí jako „Vy“. Zvuk z mikrofonu se odesílá kvůli vašim titulkům jen při zapnuté volbě.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -218,7 +218,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Use these choices for new caption windows and skip this card</source>
-        <translation type="unfinished">Nová okna titulků začnou takto a tohle se už nezobrazí</translation>
+        <translation>Použít tato nastavení pro nová okna a přeskočit tuto kartu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>New caption windows use these choices. Use Languages on the caption bar to change them or show this card again.</source>
-        <translation type="unfinished">Zapnuto: nová okna začnou takto a tohle se už nezobrazí. Jazyky na liště okna je změní, nebo tohle vrátí.</translation>
+        <translation>Nová okna titulků převezmou tato nastavení. V nabídce Jazyky na liště je můžete změnit nebo tuto kartu znovu zobrazit.</translation>
     </message>
 </context>
 <context>
@@ -261,22 +261,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: on</source>
-        <translation type="unfinished">Titulkovat, co říkám: zapnuto</translation>
+        <translation>Zobrazovat mou řeč: zapnuto</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: off</source>
-        <translation type="unfinished">Titulkovat, co říkám: vypnuto</translation>
+        <translation>Zobrazovat mou řeč: vypnuto</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view: captions in grey and gold, only your chosen words in blue, no underlines. Point at a word to see the word it&apos;s linked to</source>
-        <translation type="unfinished">Tlumené zobrazení zapnuto nebo vypnuto: titulky v klidné šedé a zlaté, modře jen vybraná slova, bez podtržení – ukažte na slovo a uvidíte jeho protějšek</translation>
+        <translation>Tlumené zobrazení: šedé a zlaté titulky bez podtržení, modře jen vybraná slova. Najeďte na slovo a zobrazí se jeho protějšek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{wpm} wpm</source>
-        <translation type="unfinished">{wpm} slov/min</translation>
+        <translation>{wpm} slov/min</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -296,12 +296,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the PC plays is captioned here</source>
-        <translation type="unfinished">Zde se titulkuje vše, co počítač přehrává</translation>
+        <translation>Tady se zobrazují titulky ke všemu, co přehrává počítač</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the Mac plays is captioned here</source>
-        <translation type="unfinished">Zde se titulkuje vše, co počítač přehrává</translation>
+        <translation>Tady se zobrazují titulky ke všemu, co přehrává Mac</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,7 +326,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic je vytížený. Zkuste to za pár minut</translation>
+        <translation>Polyglotic je vytížený – za chvíli to zkusí znovu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -376,7 +376,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Some captions failed - still trying</source>
-        <translation type="unfinished">Titulkování na serveru selhává – stále to zkoušíme</translation>
+        <translation>Některé titulky se nepodařilo vytvořit – zkoušíme to dál</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -386,17 +386,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Busy time - live updates slowed; captions continue</source>
-        <translation type="unfinished">Špička – živé aktualizace zpomaleny; titulky pokračují</translation>
+        <translation>Špička – živé aktualizace zpomaleny; titulky pokračují</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying to reconnect</source>
-        <translation type="unfinished">Bez internetu? Server Polyglotic není dostupný</translation>
+        <translation>Bez připojení – zkoušíme se znovu připojit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Server Polyglotic není dostupný</translation>
+        <translation>K Polyglotic se nelze připojit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -406,7 +406,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">Server Polyglotic má problém</translation>
+        <translation>Server Polyglotic ohlásil chybu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -451,12 +451,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying again in {n} s</source>
-        <translation type="unfinished">Bez internetu? Server Polyglotic není dostupný – další pokus za {n} s</translation>
+        <translation>Bez připojení – další pokus za {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic - trying again in {n} s</source>
-        <translation type="unfinished">Server Polyglotic není dostupný – další pokus za {n} s</translation>
+        <translation>K Polyglotic se nelze připojit – další pokus za {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -466,7 +466,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error - trying again in {n} s</source>
-        <translation type="unfinished">Server Polyglotic má problém – další pokus za {n} s</translation>
+        <translation>Server Polyglotic ohlásil chybu – další pokus za {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -562,7 +562,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Detect</source>
-        <translation type="unfinished">Rozpoznat</translation>
+        <translation>Rozpoznat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -572,7 +572,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your speech is shown here: your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Zde se zobrazuje vaše řeč: váš mikrofon se pro vaše titulky odesílá, jen když je tato volba zapnutá</translation>
+        <translation>Tady se zobrazí vaše řeč. Zvuk z mikrofonu se odesílá kvůli vašim titulkům jen při zapnuté volbě.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Propojení slov</translation>
+        <translation>Propojení slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -598,22 +598,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Tlumené zobrazení</translation>
+        <translation>Tlumené zobrazení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Our curriculum</source>
-        <translation type="unfinished">Náš učební plán</translation>
+        <translation>Náš učební plán</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Words at your edge</source>
-        <translation type="unfinished">Slova na vaší hranici</translation>
+        <translation>Slova na vaší hranici</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Dávka učení</translation>
+        <translation>Dávka učení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -628,7 +628,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Fill the width, in every window: captions run on in lines as wide as the window, each line of what was said over its translation</source>
-        <translation type="unfinished">Vyplnit šířku zapnout nebo vypnout, ve všech oknech: titulky na sebe navazují řádek po řádku v řádcích širokých jako okno - každý řádek toho, co zaznělo, nad svým překladem</translation>
+        <translation>Vyplnit šířku ve všech oknech: titulky se zalamují podle šířky okna a pod každým řádkem je jeho překlad.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -638,7 +638,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Line up the parts, in every window: each part of what was said starts where its translation does, so a word&apos;s translation is under it</source>
-        <translation type="unfinished">Zarovnat části zapnout nebo vypnout, ve všech oknech: každá část toho, co zaznělo, začíná na stejném místě jako její překlad, takže překlad slova je pod ním</translation>
+        <translation>Zarovnat části ve všech oknech: každá část originálu začíná na stejném místě jako překlad, takže překlad vidíte přímo pod ní.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -653,12 +653,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Menší text (Ctrl+kolečko)</translation>
+        <translation>Zmenšit titulky (Ctrl+kolečko)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Bigger captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Větší text (Ctrl+kolečko)</translation>
+        <translation>Zvětšit titulky (Ctrl+kolečko)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -683,7 +683,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all caption windows</source>
-        <translation type="unfinished">Zamknout všechna okna</translation>
+        <translation>Zamknout všechna okna titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -698,7 +698,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Minimalizovat</translation>
+        <translation>Minimalizovat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -713,7 +713,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Start new windows with these languages</source>
-        <translation type="unfinished">Nová okna začínat takto</translation>
+        <translation>Používat tyto jazyky v nových oknech</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -728,7 +728,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Each new caption window asks what its app speaks and what to translate into, until you choose Use as my default</source>
-        <translation type="unfinished">Okno titulků se při otevření zeptá, čím se mluví a do čeho překládat, dokud tam nezvolíte Použít jako výchozí</translation>
+        <translation>Každé nové okno titulků se zeptá na mluvený jazyk a jazyk překladu, dokud nezvolíte Použít jako výchozí.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -738,7 +738,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Captions singing in music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent</source>
-        <translation type="unfinished">Titulkovat zpěv v hudebních přehrávačích na Auto: jejich zvuk se posílá, i když není slyšet řeč, vždy po několika sekundách. Vypnuto: posílá se jen to, co zní jako řeč</translation>
+        <translation>V hudebních přehrávačích s mluveným jazykem Auto se zobrazují i titulky ke zpěvu. Zvuk se odesílá po několika sekundách, i když nikdo nemluví. Při vypnutí se odesílá jen řeč.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -748,7 +748,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Váš mikrofon se pro vaše titulky odesílá, jen když je tato volba zapnutá</translation>
+        <translation>Zvuk z mikrofonu se odesílá kvůli vašim titulkům jen při zapnuté volbě.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -793,17 +793,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Caption actions</source>
-        <translation type="unfinished">Akce titulku</translation>
+        <translation>Akce titulku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Save caption</source>
-        <translation type="unfinished">Uložit titulek</translation>
+        <translation>Uložit titulek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Copy caption</source>
-        <translation type="unfinished">Kopírovat titulek</translation>
+        <translation>Kopírovat titulek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -844,19 +844,19 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{now} wpm · avg {average}</source>
         <extracomment>Speaking pace beside the speaker or microphone icon; {now} is current words per minute, {average} is session average.</extracomment>
-        <translation type="unfinished">{now} slov/min · prům. {average}</translation>
+        <translation>{now} slov/min · prům. {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Them: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for the other speakers&apos; pace row (speaker icon).</extracomment>
-        <translation type="unfinished">Oni: {now} slov za minutu, průměr {average}</translation>
+        <translation>Ostatní: {now} slov za minutu, průměr {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>You: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for your own speaking pace row (microphone icon).</extracomment>
-        <translation type="unfinished">Vy: {now} slov za minutu, průměr {average}</translation>
+        <translation>Vy: {now} slov za minutu, průměr {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -875,7 +875,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Steady</source>
-        <translation type="unfinished">Ustálené</translation>
+        <translation>Ustálené</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -890,7 +890,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Calm</source>
-        <translation type="unfinished">Klidné</translation>
+        <translation>Klidné</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -935,7 +935,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Only words the speech model is sure of: later, but they stay put</source>
-        <translation type="unfinished">Jen slova, kterými si je řečový model jistý: později a klidně</translation>
+        <translation>Jen slova, která model spolehlivě rozpozná. Zobrazí se později a už se nemění.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -950,7 +950,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Translation a moment later</source>
-        <translation type="unfinished">Překlad, až to přečtu</translation>
+        <translation>Překlad s krátkým zpožděním</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -1036,6 +1036,69 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_windows.py"/>
         <source>Didn&apos;t catch that? Tap {key}, then hold it and say it.</source>
         <translation>Nebylo rozumět? Stiskněte {key}, poté klávesu podržte a zopakujte to.</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureStatus</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Listening for speech…</source>
+        <translation>Čekám na řeč…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Play sound in a Linux app, such as a Linux browser. ChromeOS tabs and Android apps play outside Linux.</source>
+        <translation type="unfinished">Přehrajte zvuk v linuxové aplikaci, například v prohlížeči pro Linux. Karty ChromeOS a aplikace pro Android přehrávají zvuk mimo Linux.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>For your microphone, open Settings → About ChromeOS → Developers → Linux development environment and turn on “Allow Linux to access your microphone”.</source>
+        <translation type="unfinished">Pro mikrofon otevřete Nastavení → O systému ChromeOS → Vývojáři → Vývojové prostředí Linux a zapněte „Povolit Linuxu přístup k mikrofonu“.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Linux audio support is missing. Install {package} to listen.</source>
+        <translation type="unfinished">Chybí podpora zvuku pro Linux. Nainstalujte {package}.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Polyglotic can’t reach the sound server. Check that PulseAudio or pipewire-pulse is running.</source>
+        <translation type="unfinished">Polyglotic se nemůže připojit ke zvukovému serveru. Ověřte, že běží PulseAudio nebo pipewire-pulse.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>The sound server denied recording access. Check your audio permissions.</source>
+        <translation type="unfinished">Zvukový server zamítl nahrávání. Zkontrolujte oprávnění ke zvuku.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No speaker output is available to record. Check your Linux sound settings.</source>
+        <translation type="unfinished">Žádný zvukový výstup nelze nahrávat. Zkontrolujte nastavení zvuku v Linuxu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No microphone is available. Check your Linux sound settings.</source>
+        <translation type="unfinished">Není dostupný žádný mikrofon. Zkontrolujte nastavení zvuku v Linuxu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No audio data has arrived from this source. Check your Linux sound settings.</source>
+        <translation type="unfinished">Z tohoto zdroje nepřicházejí žádná zvuková data. Zkontrolujte nastavení zvuku v Linuxu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Your microphone is silent. Check that it’s unmuted and try speaking.</source>
+        <translation type="unfinished">Mikrofon je tichý. Ověřte, že není ztlumený, a zkuste promluvit.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No sound is reaching Polyglotic. Is audio playing on the selected output?</source>
+        <translation type="unfinished">Do aplikace Polyglotic nepřichází zvuk. Přehrává se zvuk na vybraném výstupu?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Recording failed. Check the selected device in your Linux sound settings.</source>
+        <translation type="unfinished">Nahrávání se nezdařilo. Zkontrolujte vybrané zařízení v nastavení zvuku v Linuxu.</translation>
     </message>
 </context>
 <context>
@@ -1233,7 +1296,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How strongly captions stand out from their panel. Soft is as faint as a line still being spoken, never too faint to read; Crisp draws every line at full strength.</source>
-        <translation type="unfinished">Jak výrazně titulky vystupují z panelu. Jemný je tak slabý jako text, který ještě zní, a nikdy příliš slabý na čtení; Ostrý kreslí každý řádek v plné síle.</translation>
+        <translation>Jak výrazně titulky vystupují z panelu. Při volbě Jemný jsou titulky tlumené jako právě vyslovovaný řádek, ale stále čitelné. Volba Ostrý zobrazí všechny řádky naplno.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1263,7 +1326,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How thick captions&apos; letters are, and their readings a step thicker. A font without a weight draws the nearest it has.</source>
-        <translation type="unfinished">Jak silná jsou písmena titulků; pinyin o stupeň silnější. Písmo bez této tloušťky použije nejbližší, kterou má.</translation>
+        <translation>Tloušťka písma titulků. Výslovnost je o stupeň tučnější. Pokud písmo danou tloušťku nemá, použije se nejbližší dostupná.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1288,7 +1351,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Around the letters</source>
-        <translation type="unfinished">Kolem písmen</translation>
+        <translation>Kolem písmen</translation>
     </message>
 </context>
 <context>
@@ -1419,12 +1482,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished">Zkopírováno do schránky</translation>
+        <translation>Zkopírováno do schránky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Saved</source>
-        <translation type="unfinished">Uloženo</translation>
+        <translation>Uloženo</translation>
     </message>
 </context>
 <context>
@@ -1589,7 +1652,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Clicks pass through to the windows underneath</source>
-        <translation type="unfinished">Kliknutí jimi projdou k tomu, co je pod nimi</translation>
+        <translation>Kliknutí míří do oken pod titulky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1624,22 +1687,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Help build Polyglotic…</source>
-        <translation type="unfinished">Napište nám</translation>
+        <translation>Pomozte vylepšit Polyglotic…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the tray</source>
-        <translation type="unfinished">Zastavit titulkování a zavřít Polyglotic – zavřením okna zůstane v oznamovací oblasti</translation>
+        <translation>Ukončit Polyglotic – po zavření okna zůstane v oznamovací oblasti</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Zastavit titulkování a zavřít Polyglotic – zavřením okna zůstane v řádku nabídek</translation>
+        <translation>Ukončit Polyglotic – po zavření okna zůstane v řádku nabídek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it running</source>
-        <translation type="unfinished">Zastavit titulkování a zavřít Polyglotic – zavřením okna poběží dál</translation>
+        <translation>Ukončit Polyglotic – po zavření okna poběží dál</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1673,22 +1736,62 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict: {keys}</source>
+        <translation type="unfinished">Konflikt zkratky: {keys}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}</source>
+        <translation type="unfinished">Jiný program používá {keys}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey shared with another program</source>
+        <translation type="unfinished">Zkratka sdílena s jiným programem</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program also uses {key} ({name}). Polyglotic shares it so it still works; open Settings &gt; Hotkeys to switch.</source>
+        <translation type="unfinished">Jiný program také používá {key} ({name}). Polyglotic ji sdílí, aby dál fungovala; pro změnu otevřete Nastavení &gt; Klávesové zkratky.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict</source>
+        <translation type="unfinished">Konflikt zkratky</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>{name} ({key}) is used by another program. Open Settings &gt; Hotkeys to choose a free key.</source>
+        <translation type="unfinished">{name} ({key}) používá jiný program. Otevřete Nastavení &gt; Klávesové zkratky a vyberte volnou klávesu.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflicts</source>
+        <translation type="unfinished">Konflikty zkratek</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}. Open Settings &gt; Hotkeys to choose free keys.</source>
+        <translation type="unfinished">Jiný program používá {keys}. Otevřete Nastavení &gt; Klávesové zkratky a vyberte volné klávesy.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows captioning {apps}</source>
-        <translation type="unfinished">Titulkování {apps} při skrytých oknech</translation>
+        <translation>Skrytá okna dál titulkují {apps}</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows paused after %n minutes - show them to resume</source>
-        <translation type="unfinished">
-            <numerusform>Titulky pozastaveny po %n minutě skrytí – zobrazte okna a pokračujte</numerusform>
-            <numerusform>Titulky pozastaveny po %n minutách skrytí – zobrazte okna a pokračujte</numerusform>
-            <numerusform>Titulky pozastaveny po %n minutách skrytí – zobrazte okna a pokračujte</numerusform>
+        <translation>
+            <numerusform>Po %n minutě se titulky ve skrytých oknech pozastavily. Zobrazte je a titulky budou pokračovat.</numerusform>
+            <numerusform>Po %n minutách se titulky ve skrytých oknech pozastavily. Zobrazte je a titulky budou pokračovat.</numerusform>
+            <numerusform>Po %n minutách se titulky ve skrytých oknech pozastavily. Zobrazte je a titulky budou pokračovat.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Nothing selected to caption</source>
-        <translation type="unfinished">Zatím se netitulkuje</translation>
+        <translation>Není vybraný žádný zdroj titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1698,22 +1801,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captions are paused</source>
-        <translation type="unfinished">Polyglotic stále běží, titulky jsou pozastavené</translation>
+        <translation>Titulky jsou pozastavené</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to resume or quit.</source>
-        <translation type="unfinished">Je v oznamovací oblasti. Odtud ho můžete obnovit nebo ukončit.</translation>
+        <translation>Pokračovat nebo skončit můžete přes ikonu v oznamovací oblasti.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to resume or quit.</source>
-        <translation type="unfinished">Je v řádku nabídek. Odtud ho můžete obnovit nebo ukončit.</translation>
+        <translation>Pokračovat nebo skončit můžete přes ikonu v řádku nabídek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to resume or quit.</source>
-        <translation type="unfinished">Jeho ikona je na panelu. Odtud ho můžete obnovit nebo ukončit.</translation>
+        <translation>Pokračovat nebo skončit můžete přes ikonu na panelu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1723,17 +1826,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to quit.</source>
-        <translation type="unfinished">Je v oznamovací oblasti. Odtud ho můžete ukončit.</translation>
+        <translation>Aplikaci ukončíte přes ikonu v oznamovací oblasti.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to quit.</source>
-        <translation type="unfinished">Je v řádku nabídek. Odtud ho můžete ukončit.</translation>
+        <translation>Aplikaci ukončíte přes ikonu v řádku nabídek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to quit.</source>
-        <translation type="unfinished">Jeho ikona je na panelu. Odtud ho můžete ukončit.</translation>
+        <translation>Aplikaci ukončíte přes ikonu na panelu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1763,27 +1866,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captioning is starting - the first captions may be slow.</source>
-        <translation type="unfinished">Model řeči se spouští – první titulky mohou být pomalé.</translation>
+        <translation>Spouští se titulkování. První titulky se mohou opozdit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Translation is starting - captions appear first.</source>
-        <translation type="unfinished">Překladač se spouští – nejdřív titulky, překlady o něco později.</translation>
+        <translation>Spouští se překlad. Nejdřív se zobrazí titulky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic&apos;s server is restarting - captions resume shortly.</source>
-        <translation type="unfinished">Server se restartuje – titulky budou za chvíli pokračovat.</translation>
+        <translation>Server Polyglotic se restartuje. Titulky budou za chvíli pokračovat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Lots of speech at once - captions update less often</source>
-        <translation type="unfinished">Hodně řeči najednou – živé aktualizace zpomaleny; titulky pokračují</translation>
+        <translation>Hodně řeči najednou – titulky se aktualizují méně často</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Listening continues on another device</source>
-        <translation type="unfinished">Poslech se přesunul na jiné zařízení</translation>
+        <translation>Poslech pokračuje na jiném zařízení</translation>
     </message>
 </context>
 <context>
@@ -1958,13 +2061,55 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Play/Pause</source>
+        <extracomment>the keyboard&apos;s Play/Pause media key</extracomment>
+        <translation type="unfinished">Přehrát/Pozastavit</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Stop</source>
+        <extracomment>the keyboard&apos;s Stop media key</extracomment>
+        <translation type="unfinished">Zastavit</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Next track</source>
+        <extracomment>the keyboard&apos;s Next Track media key</extracomment>
+        <translation type="unfinished">Další skladba</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Previous track</source>
+        <extracomment>the keyboard&apos;s Previous Track media key</extracomment>
+        <translation type="unfinished">Předchozí skladba</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Up</source>
+        <extracomment>the keyboard&apos;s Volume Up key</extracomment>
+        <translation type="unfinished">Zvýšit hlasitost</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Down</source>
+        <extracomment>the keyboard&apos;s Volume Down key</extracomment>
+        <translation type="unfinished">Snížit hlasitost</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Mute</source>
+        <extracomment>the keyboard&apos;s Mute key</extracomment>
+        <translation type="unfinished">Ztlumit</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>That key types. Hold it with Ctrl, Alt or Win, or choose another.</source>
         <translation>Tato klávesa píše. Držte ji s Ctrl, Alt nebo Win, nebo zvolte jinou.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>That key types. Hold it with ⌘ or ⌃, or choose another.</source>
-        <translation>Tahle klávesa píše. Drž ji s ⌘ nebo ⌃, nebo vyber jinou.</translation>
+        <translation>Tahle klávesa píše. Držte ji s ⌘ nebo ⌃, nebo vyberte jinou.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -1979,7 +2124,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>macOS keeps that one for itself: choose another.</source>
-        <translation>Tuhle si macOS nechává pro sebe: vyber jinou.</translation>
+        <translation>Tuhle si macOS nechává pro sebe: vyberte jinou.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -2053,7 +2198,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Hold {key} while you speak</source>
-        <translation type="unfinished">Během mluvení držte {key}</translation>
+        <translation>Během mluvení držte {key}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2108,7 +2253,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Nothing else is being captioned to re-speak for</source>
-        <translation type="unfinished">Nic jiného se právě netitulkuje, není za koho přeříkávat</translation>
+        <translation>Nic jiného se právě netitulkuje, není za koho přeříkávat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2173,12 +2318,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Re-speaking</source>
-        <translation type="unfinished">Přeříkávání</translation>
+        <translation>Přeříkávání</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Hold {key} and speak</source>
-        <translation type="unfinished">Držte {key} a mluvte</translation>
+        <translation>Držte {key} a mluvte</translation>
     </message>
 </context>
 <context>
@@ -2281,7 +2426,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
         <source>A font for each language&apos;s captions.</source>
-        <translation type="unfinished">Titulky každého jazyka ve vlastním písmu.</translation>
+        <translation>Písmo titulků podle jazyka.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
@@ -2404,12 +2549,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">Zkrátit na {limit} znaků</translation>
+        <translation>Zkrátit na {limit} znaků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} z {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
 </context>
 <context>
@@ -2440,7 +2585,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Checks each step now and stops at the first problem.</source>
-        <translation type="unfinished">Projde po pořadě, co Polyglotic právě dělá, a zastaví se u první věci, která nefunguje.</translation>
+        <translation>Projde jednotlivé kroky a zastaví se u prvního problému.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2485,7 +2630,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your report includes these results, but nothing you heard or read.</source>
-        <translation type="unfinished">K vašemu hlášení se přiloží výsledek této kontroly: jen fajfky a křížky, nic z toho, co jste slyšeli nebo četli.</translation>
+        <translation>Ke hlášení se přiloží výsledky kontroly. To, co jste slyšeli nebo četli, se neodesílá.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2495,7 +2640,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Suggest a feature</source>
-        <translation type="unfinished">Navrhnout funkci</translation>
+        <translation>Navrhnout funkci</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2505,7 +2650,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize caption windows</source>
-        <translation type="unfinished">Přesouvání, zamykání a změna velikosti oken titulků</translation>
+        <translation>Přesouvání, zamykání a změna velikosti oken titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2535,7 +2680,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Signed in and connected to the server</source>
-        <translation type="unfinished">Přihlášeno a připojeno k serveru</translation>
+        <translation>Přihlášeno a připojeno k serveru</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2643,7 +2788,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is at capacity. Polyglotic will keep trying.</source>
-        <translation type="unfinished">Právě obsluhuje tolik posluchačů, kolik unese. Polyglotic to sám zkusí znovu – nemusíte nic dělat.</translation>
+        <translation>Server je plně vytížený. Polyglotic se bude dál zkoušet připojit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2668,7 +2813,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Nothing to caption</source>
-        <translation type="unfinished">Není přidáno nic k titulkování</translation>
+        <translation>Žádný zdroj titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2688,7 +2833,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Open it to start captions.</source>
-        <translation type="unfinished">Otevřete ho. Titulkuje se, jakmile je otevřené.</translation>
+        <translation>Otevřete aplikaci a spustí se titulky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2712,12 +2857,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this PC&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Přehrává zvuk? Jde jeho výstup do reproduktorů nebo sluchátek tohoto počítače a není ztlumený?</translation>
+        <translation>Pusťte zvuk a ověřte, že jde do reproduktorů nebo sluchátek tohoto počítače a není ztlumený.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this Mac&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Přehrává zvuk? Jde jeho výstup do reproduktorů nebo sluchátek tohoto Macu a není ztlumený?</translation>
+        <translation>Pusťte zvuk a ověřte, že jde do reproduktorů nebo sluchátek tohoto Macu a není ztlumený.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2759,12 +2904,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this PC&apos;s sound settings.</source>
-        <translation type="unfinished">Není ztlumený, nebo není v nastavení zvuku počítače vybraný jiný mikrofon?</translation>
+        <translation>Ověřte, že mikrofon není ztlumený a je vybraný v nastavení zvuku tohoto počítače.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this Mac&apos;s sound settings.</source>
-        <translation type="unfinished">Není ztlumený, nebo není v nastavení zvuku Macu vybraný jiný mikrofon?</translation>
+        <translation>Ověřte, že mikrofon není ztlumený a je vybraný v nastavení zvuku tohoto Macu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2786,12 +2931,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Sound heard, but no speech</source>
-        <translation type="unfinished">Zvuk je, ale žádná řeč</translation>
+        <translation>Je slyšet zvuk, ale nikdo nemluví</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Music and sound effects aren&apos;t captioned. Play clear speech louder than any background sound.</source>
-        <translation type="unfinished">Hudba a efekty se netitulkují. Mluví někdo, dost nahlas, aby byl slyšet přes všechno ostatní?</translation>
+        <translation>Hudba a zvukové efekty se netitulkují. Pusťte zřetelnou řeč, která je hlasitější než zvuky na pozadí.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2881,7 +3026,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Speech heard, but no captions shown</source>
-        <translation type="unfinished">Řeč byla slyšet, ale žádný titulek se nevykreslil</translation>
+        <translation>Je slyšet řeč, ale titulky se nezobrazují</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2933,7 +3078,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption one app separately</source>
-        <translation type="unfinished">Titulkujte jednu aplikaci a vše ostatní zvlášť</translation>
+        <translation>Titulky pro jednu aplikaci zvlášť</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2998,7 +3143,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In a caption window, press Home or Ctrl+Home to jump to the first caption, and End or Ctrl+End to return to live.</source>
-        <translation type="unfinished">V okně titulků stiskněte Home nebo Ctrl+Home pro skok na první titulek a End nebo Ctrl+End pro návrat na živé titulky.</translation>
+        <translation>V okně titulků přejdete klávesou Home nebo Ctrl+Home na první titulek. Klávesou End nebo Ctrl+End se vrátíte k aktuálním titulkům.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3028,7 +3173,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Desktop shortcuts</source>
-        <translation type="unfinished">Zkratky vašeho vlastního prostředí</translation>
+        <translation>Klávesové zkratky na ploše</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3058,7 +3203,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any app (preview)</source>
-        <translation type="unfinished">Diktujte do libovolného programu (náhled)</translation>
+        <translation>Diktování do libovolné aplikace (náhled)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3155,12 +3300,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captioning a call</source>
-        <translation type="unfinished">Titulky při hovoru</translation>
+        <translation>Titulky při hovoru</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Na některých místech musí všichni účastníci hovoru souhlasit, než se k hovoru začnou vytvářet titulky. Řekněte to lidem, se kterými mluvíte.</translation>
+        <translation>Na některých místech je k titulkování hovoru nutný souhlas všech účastníků. Řekněte jim, že používáte titulky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3334,7 +3479,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic je vytížený. Zkuste to za pár minut</translation>
+        <translation>Polyglotic je vytížený – za chvíli to zkusí znovu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3374,7 +3519,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Server Polyglotic není dostupný</translation>
+        <translation>K Polyglotic se nelze připojit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3384,7 +3529,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">Server Polyglotic má problém</translation>
+        <translation>Server Polyglotic ohlásil chybu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3588,27 +3733,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this PC appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">tento počítač je zřejmě offline. Zkontrolujte jeho připojení k internetu; pokud funguje, problém je u nás</translation>
+        <translation>tento počítač zřejmě není připojený k internetu. Zkontrolujte připojení. Pokud funguje, může mít výpadek Polyglotic</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this Mac appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">tento Mac je zřejmě offline. Zkontrolujte jeho připojení k internetu; pokud funguje, problém je u nás</translation>
+        <translation>tento Mac zřejmě není připojený k internetu. Zkontrolujte připojení. Pokud funguje, může mít výpadek Polyglotic</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">zkontrolujte internet; pokud funguje, nejspíš máme výpadek</translation>
+        <translation>zkontrolujte připojení k internetu. Pokud funguje, může mít výpadek Polyglotic</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the problem is with Polyglotic. Captions resume automatically</source>
-        <translation type="unfinished">nejde o váš internet – problém je u nás. Titulky se vrátí samy</translation>
+        <translation>problém je na straně Polyglotic. Titulky budou pokračovat automaticky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>captions resume automatically shortly</source>
-        <translation type="unfinished">titulky se za chvíli samy vrátí</translation>
+        <translation>titulky budou za chvíli automaticky pokračovat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3667,7 +3812,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>not playing</source>
-        <translation type="unfinished">ticho</translation>
+        <translation>nepřehrává</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3721,7 +3866,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Translate into</source>
-        <translation type="unfinished">Přeložit do</translation>
+        <translation>Přeložit do</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3791,7 +3936,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{app}&apos;s window: translate into</source>
-        <translation type="unfinished">Jazyk okna: {app}</translation>
+        <translation>Okno aplikace {app}: přeložit do</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3821,12 +3966,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Caption</source>
-        <translation type="unfinished">Titulkovat</translation>
+        <translation>Titulkovat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>What to caption</source>
-        <translation type="unfinished">Co titulkovat</translation>
+        <translation>Co titulkovat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3836,7 +3981,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else</source>
-        <translation type="unfinished">Titulkovat i vše ostatní, co počítač přehrává (ve vlastním okně)</translation>
+        <translation>Titulkovat i vše ostatní</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3851,7 +3996,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>apps that can play sound, those playing first</source>
-        <translation type="unfinished">aplikace s otevřeným zvukem, hrající nahoře</translation>
+        <translation>aplikace, které umí přehrávat zvuk, nejdřív ty, které právě přehrávají</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3876,7 +4021,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Now pick one of your apps to caption</source>
-        <translation type="unfinished">Vyberte aplikaci k titulkování</translation>
+        <translation>Teď vyberte aplikaci pro titulky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3896,22 +4041,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Only the apps you choose, each in its own window.</source>
-        <translation type="unfinished">Titulkovat pouze vybrané aplikace.</translation>
+        <translation>Jen vybrané aplikace, každá ve vlastním okně.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>All apps&apos; sound together, in one window.</source>
-        <translation type="unfinished">Titulkovat zvuk všech aplikací společně.</translation>
+        <translation>Zvuk všech aplikací dohromady v jednom okně.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps one by one again</source>
-        <translation type="unfinished">Zkusit aplikace znovu</translation>
+        <translation>Zkusit znovu jednotlivé aplikace</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your speech is shown as</source>
-        <translation type="unfinished">Vaše řeč je označena</translation>
+        <translation>Označení vaší řeči</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3931,12 +4076,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: shown in {windows}. Your mic is sent for your captions only while it&apos;s shown</source>
-        <translation type="unfinished">Moje řeč: zobrazuje se v {windows} – pro vaše titulky se odesílá, jen když ji některé okno zobrazuje</translation>
+        <translation>Moje řeč se zobrazuje v těchto oknech: {windows}. Zvuk z mikrofonu se odesílá kvůli vašim titulkům, jen když se vaše řeč zobrazuje.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: not shown in any window - turn it on with a row&apos;s mic, or in a window&apos;s settings</source>
-        <translation type="unfinished">Moje řeč: nezobrazuje se v žádném okně – zapněte ji mikrofonem u řádku nebo v nastavení okna</translation>
+        <translation>Moje řeč se nezobrazuje v žádném okně. Zapněte ji ikonou mikrofonu u řádku nebo v nastavení okna.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4031,7 +4176,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>One app plus everything else - turn off Also caption everything else to add another</source>
-        <translation type="unfinished">Jedna aplikace vedle všeho ostatního – pro přidání další to vypněte</translation>
+        <translation>Jedna aplikace a vše ostatní. Chcete-li přidat další aplikaci, vypněte volbu Titulkovat i vše ostatní.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4051,7 +4196,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Last session</source>
-        <translation type="unfinished">Last session</translation>
+        <translation>Poslední relace</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4086,7 +4231,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>View all changes</source>
-        <translation type="unfinished">Všechny změny</translation>
+        <translation>Zobrazit všechny změny</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4236,12 +4381,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Them {average} avg · {peak} peak</source>
-        <translation type="unfinished">Them {average} avg · {peak} peak</translation>
+        <translation>Ostatní: prům. {average} · max. {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>You {average} avg · {peak} peak</source>
-        <translation type="unfinished">You {average} avg · {peak} peak</translation>
+        <translation>Vy: prům. {average} · max. {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4324,7 +4469,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Open a caption window&apos;s controls</source>
-        <translation type="unfinished">Otevřít ovládání lišty titulků</translation>
+        <translation>Otevřít ovládání okna titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4378,13 +4523,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any program, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Fungují z libovolného programu, i když je hra vpředu. Klikněte na klávesu a pak stiskněte tu, kterou chcete.</translation>
+        <source>In Polyglotic&apos;s windows</source>
+        <translation type="unfinished">V oknech Polygloticu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any app, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Fungují z libovolné aplikace, i když je hra vpředu. Klikněte na klávesu a pak stiskněte tu, kterou chcete.</translation>
+        <source>Everywhere</source>
+        <translation type="unfinished">Všude</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>{name}&apos;s scope</source>
+        <translation type="unfinished">Rozsah pro {name}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Use {key}</source>
+        <translation type="unfinished">Použít {key}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Choose any key or combination, and whether it acts only in Polyglotic&apos;s windows or everywhere. Click a key, then press the one you want.</source>
+        <translation type="unfinished">Vyberte libovolnou klávesu nebo kombinaci a zda má platit jen v oknech Polygloticu, nebo všude. Klikněte na pole klávesy a stiskněte požadovanou klávesu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4398,8 +4558,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>This desktop doesn&apos;t allow global hotkeys. Add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
-        <translation>Toto prostředí nepovoluje globální klávesové zkratky. Přidejte vlastní zkratku v nastavení klávesnice svého prostředí (GNOME: Nastavení &gt; Klávesnice &gt; Vlastní zkratky) s příkazem {command} --lock, --pause nebo --hide.</translation>
+        <source>This desktop doesn&apos;t allow global hotkeys. Hotkeys set to In Polyglotic&apos;s windows still work; for global shortcuts, add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
+        <translation type="unfinished">Toto desktopové prostředí neumožňuje globální zkratky. Zkratky nastavené na „V oknech Polygloticu“ nadále fungují; pro globální zkratky přidejte vlastní zkratku v nastavení klávesnice (GNOME: Nastavení &gt; Klávesnice &gt; Vlastní zkratky) s příkazem {command} --lock, --pause nebo --hide.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4408,13 +4568,33 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Another program has this key: choose another.</source>
-        <translation>Tuto klávesu má jiný program: zvolte jinou.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose a free key:</source>
+        <translation type="unfinished">Jiný program používá {key}, takže zde nebude fungovat. Vyberte volnou klávesu:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Space works in caption and transcript windows.</source>
-        <translation type="unfinished">Mezerník funguje v oknech titulků a přepisu.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose another.</source>
+        <translation type="unfinished">Jiný program používá {key}, takže zde nebude fungovat. Vyberte jinou.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works, or switch to a free key:</source>
+        <translation type="unfinished">Jiný program také používá {key}. Polyglotic ji sdílí, aby dál fungovala, nebo přepněte na volnou klávesu:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works.</source>
+        <translation type="unfinished">Jiný program také používá {key}. Polyglotic ji sdílí, aby dál fungovala.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>This key types: it will also run this hotkey while you type in other apps (the key still goes through to them).</source>
+        <translation type="unfinished">Tato klávesa slouží ke psaní: spustí tuto zkratku i při psaní v jiných aplikacích (klávesa se jim dál normálně předá).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Global hotkeys aren&apos;t available on this desktop. Switch to In Polyglotic&apos;s windows to use it inside the app.</source>
+        <translation type="unfinished">Globální zkratky nejsou v tomto prostředí dostupné. Přepněte na „V oknech Polygloticu“, abyste ji mohli používat v aplikaci.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4444,12 +4624,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Hold a key to type it</source>
-        <translation type="unfinished">Zapnout klávesu pro podržení</translation>
+        <translation type="unfinished">Psát podržením klávesy</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Types what was said, or its translation, from the caption window you&apos;re watching. With no captions, it listens to the speakers chosen in Settings &gt; Speech.</source>
-        <translation type="unfinished">Použije se text nebo překlad z okna titulků, které sledujete. Když titulky nejsou k dispozici, poslouchá se zvuk z reproduktorů vybraných v Nastavení &gt; Řeč.</translation>
+        <translation>Napíše originál nebo překlad z okna titulků, které sledujete. Pokud titulky nejsou k dispozici, použije výstup zvuku vybraný v Nastavení › Řeč.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4469,7 +4649,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Share dictation&apos;s key</source>
-        <translation type="unfinished">Jedna klávesa pro obojí</translation>
+        <translation>Použít klávesu pro diktování</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4494,7 +4674,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>the key you choose</source>
-        <translation type="unfinished">její klávesu</translation>
+        <translation>zvolenou klávesu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4509,12 +4689,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Jump to the first caption</source>
-        <translation type="unfinished">Přejít na první titulek</translation>
+        <translation>Přejít na první titulek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Back to live in a caption or transcript window</source>
-        <translation type="unfinished">Zpět na živé v okně titulků nebo přepisu</translation>
+        <translation>Přejít na aktuální titulky v okně titulků nebo přepisu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4534,7 +4714,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>While a caption window, a transcript or a word&apos;s card is the active window.</source>
-        <translation type="unfinished">Když je aktivní okno titulků, přepis nebo karta slova.</translation>
+        <translation>Když je aktivní okno titulků, přepisu nebo karty slova.</translation>
     </message>
 </context>
 <context>
@@ -4562,7 +4742,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Minimalizovat</translation>
+        <translation>Minimalizovat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -4851,12 +5031,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>All at once to Older captions&apos; brightness, or step by step, each caption back a little dimmer, over the number of captions you choose.</source>
-        <translation type="unfinished">Všechny naráz na jas starších titulků, nebo postupně: každý další titulek zpět o kousek tmavší, přes tolik titulků.</translation>
+        <translation>Ztlumit naráz na jas nastavený u volby Starší titulky nebo postupně. Při postupném ztlumení je každý starší titulek o něco tmavší, až po zvolený počet titulků.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Default</source>
-        <translation type="unfinished">Výchozí</translation>
+        <translation>Výchozí</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4886,7 +5066,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>How a line that may still change looks beside finished text. Default: dim italic in Whole captions, a little dim in the other timings. Colour: the theme&apos;s blue.</source>
-        <translation type="unfinished">Jak vypadá řádek, který se ještě může změnit, vedle hotového textu. Výchozí: bledá kurzíva v časování Celé titulky, v ostatních časováních trochu bledší. Barva: modrá barva motivu.</translation>
+        <translation>Vzhled řádku, který se vedle hotového textu může ještě měnit. Výchozí: u režimu Celé titulky tlumená kurzíva, v ostatních režimech mírně tlumený text. Barva: modrá podle motivu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4951,7 +5131,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Captions that arrive together come in one at a time, at least this far apart and in order - none is dropped. 0 s: as they come. None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">Titulky, které přijdou naráz, se objeví jeden po druhém, alespoň s tímto odstupem a v pořadí – žádný se neztratí. 0 s: jak přijdou. Žádný nečeká déle než nejdelší čekání na text.</translation>
+        <translation>Titulky doručené naráz se zobrazí po jednom, v pořadí a s odstupem alespoň podle této volby. Žádný se nevynechá. Při 0 s se zobrazí hned. Nejdelší prodlevu určuje volba Nejdelší čekání na text v části Časování.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4961,17 +5141,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new caption&apos;s lines show one at a time, this far apart, instead of all together. 0 s: together (the default). None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">Řádky nového titulku se zobrazují po jednom, s tímto odstupem, místo všech najednou. 0 s: najednou, jako teď. Žádný nečeká déle než nejdelší čekání na text.</translation>
+        <translation>Řádky nového titulku se zobrazí po jednom se zvoleným odstupem. Při 0 s se zobrazí najednou (výchozí). Nejdelší prodlevu určuje volba Nejdelší čekání na text v části Časování.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Reset the Lab</source>
-        <translation type="unfinished">Obnovit laboratoř</translation>
+        <translation>Obnovit nastavení laboratoře</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Every Lab setting back to its default.</source>
-        <translation type="unfinished">Všechna nastavení Laboratoře, jak je má Polyglotic.</translation>
+        <translation>Vrátí všechna nastavení Laboratoře na výchozí hodnoty.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5021,7 +5201,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>&quot;You&quot; over what you say: as usual, in a badge, or not shown.</source>
-        <translation type="unfinished">„Vy“ nad tím, co říkáte: jako teď, v odznaku, nebo skryté.</translation>
+        <translation>Označení „Vy“ nad vaší řečí: běžné, se štítkem nebo skryté.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5041,17 +5221,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line by line: a line of what was said, then the line of its translation, both cut where their words match. A long clause that can&apos;t be cut wraps.</source>
-        <translation type="unfinished">Řádek po řádku: řádek toho, co zaznělo, a pod ním řádek překladu, oba rozdělené tam, kde si slova odpovídají. Dlouhá věta, kterou tak rozdělit nelze, se zalomí jako teď.</translation>
+        <translation>Řádek po řádku: pod řádkem originálu je řádek překladu. Oba končí tam, kde si slova odpovídají. Dlouhá část věty se zalomí, pokud ji takto rozdělit nelze.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Fill the width</source>
-        <translation type="unfinished">Vyplnit šířku</translation>
+        <translation>Vyplnit šířku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Off: each clause on a row of its own (the default). Translation below: a caption&apos;s clauses run on in lines as wide as the window, and its translation fills the lines under them. No Arrows while this is on.</source>
-        <translation type="unfinished">Vyp.: každá část věty na vlastním řádku, jako teď. Překlad pod tím: části titulku pokračují v řádcích širokých jako okno a překlad vyplní řádky pod nimi. Bez Šipek, dokud titulky vyplňují šířku.</translation>
+        <translation>Vypnuto: každá část věty má vlastní řádek (výchozí). Překlad pod tím: části titulku se řadí za sebe přes celou šířku okna a překlad je v řádcích pod nimi. Šipky se při této volbě nezobrazují.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5071,7 +5251,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>With Fill the width: an ellipsis where one clause ends and the next begins, one at the end of every line that runs on as well, or only a space. Choosing one while Fill the width is Off sets it to Translation below.</source>
-        <translation type="unfinished">Když titulky vyplňují šířku: výpustka tam, kde jedna část končí a další začíná, také na konci každého řádku, který pokračuje, nebo jen mezera. Volba jedné z nich, když je Titulky vyplní šířku vypnuto, ho nastaví na Překlad pod tím.</translation>
+        <translation>Při volbě Vyplnit šířku lze mezi části vložit výpustku, přidat ji ještě na konec každého pokračujícího řádku nebo použít jen mezeru. Je-li volba Vyplnit šířku vypnutá, výběrem se zapne Překlad pod tím.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5081,7 +5261,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new way to lay out captions, with Fill the width on or off: Arrows and word links work in every layout and in Learning load, and Line by line always fills its lines.</source>
-        <translation type="unfinished">Titulky se rozvrhují novým způsobem, ať šířku vyplňují jakkoli: Šipky a propojení slov fungují ve všech a také v Učební dávce a Řádek po řádku vždy zaplní své řádky.</translation>
+        <translation>Nové rozvržení titulků funguje s volbou Vyplnit šířku i bez ní. Šipky a propojení slov fungují v každém rozvržení i v režimu Dávka učení. Režim Řádek po řádku vždy využívá celou šířku řádků.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5096,7 +5276,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line up the parts</source>
-        <translation type="unfinished">Zarovnat části</translation>
+        <translation>Zarovnat části</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5126,12 +5306,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Where the parts of a line go in the room the line has. Packed: each straight after the one before (the default). Nearest their links: each part moves over its translation&apos;s words, so the word links are as short as they can be. Evenly: a full line&apos;s parts are spread over the width. Choosing one also turns on New layout.</source>
-        <translation type="unfinished">Kam se části řádku umístí v prostoru, který řádek má. Těsně: každá hned za předchozí, jako teď. Blízko propojení: každá část se posune nad slova svého překladu, takže propojení slov jsou co nejkratší. Rovnoměrně: části plného řádku se rozloží po celé šířce. Výběrem se zapne i Nové rozvržení.</translation>
+        <translation>Umístění částí v řádku. Těsně: hned za sebou (výchozí). Blízko propojení: části se posunou nad slova překladu, aby spojnice byly co nejkratší. Rovnoměrně: části plného řádku se rozloží přes celou šířku. Výběrem se zapne i Nové rozvržení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Dávka učení</translation>
+        <translation>Dávka učení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5141,7 +5321,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>{open} - its words, the check of what you know and its settings.</source>
-        <translation type="unfinished">{open} – její slova, kontrola a nastavení.</translation>
+        <translation type="unfinished">{open} – slova, ověření znalostí a nastavení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5615,7 +5795,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words beyond your level</source>
-        <translation type="unfinished">Za tím, co znáte</translation>
+        <translation>Slova nad vaší úrovní</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5625,12 +5805,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Propojení slov</translation>
+        <translation>Propojení slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose whether every word or only words beyond a frequency rank or your level get links to their translation.</source>
-        <translation type="unfinished">Která slova se spojují se svým překladem, když je propojení slov zapnuté.</translation>
+        <translation>Zvolte, zda se s překladem propojí všechna slova, nebo jen ta za zvolenou hranicí četnosti či nad vaší úrovní.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5640,12 +5820,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Link words after</source>
-        <translation type="unfinished">Propojovat od</translation>
+        <translation type="unfinished">Propojovat slova od pořadí</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Frequency rank {rank}</source>
-        <translation type="unfinished">Pořadí četnosti {rank}</translation>
+        <translation>Pořadí podle četnosti: {rank}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5655,7 +5835,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Takes effect when Polyglotic next starts</source>
-        <translation type="unfinished">Od příštího spuštění Polyglotic</translation>
+        <translation>Projeví se při příštím spuštění Polyglotic</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5665,7 +5845,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Keeps its words; delete them on Account</source>
-        <translation type="unfinished">Jeho slova zůstanou – smažete je na stránce Účet</translation>
+        <translation>Slova zůstanou uložená. Smazat je můžete na stránce Účet.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5690,7 +5870,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Mark common words as known</source>
-        <translation type="unfinished">Označit nejběžnější slova jako známá</translation>
+        <translation>Označit běžná slova jako známá</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5729,17 +5909,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>New words to highlight</source>
-        <translation type="unfinished">Okno učení</translation>
+        <translation>Nová slova ke zvýraznění</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of words</source>
-        <translation type="unfinished">Slov v okně</translation>
+        <translation>Počet slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of new words to highlight</source>
-        <translation type="unfinished">Slov v okně učení</translation>
+        <translation>Počet nových slov ke zvýraznění</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5749,12 +5929,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights every word beyond your level, however rare. Hover or click any word to look it up.</source>
-        <translation type="unfinished">Označit se může každé slovo za těmi, která znáte, i to nejvzácnější. Najeďte na kterékoli slovo nebo na něj klikněte a vyhledá se.</translation>
+        <translation>Zvýrazní všechna slova nad vaší úrovní, i ta nejméně běžná. Chcete-li slovo vyhledat, najeďte na něj nebo klikněte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights this many words beyond your level. Rarer words are left alone; hover or click one to look it up.</source>
-        <translation type="unfinished">Označují se další slova za těmi, která znáte. Vzácnější zůstávají bez označení: najeďte na slovo nebo na něj klikněte a vyhledá se.</translation>
+        <translation>Zvýrazní tolik slov nad vaší úrovní. Méně běžná slova zůstanou bez zvýraznění. Vyhledáte je najetím nebo kliknutím.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5774,7 +5954,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose what you&apos;re learning and which new words captions highlight. Your level estimates the words you know. Captions and translation work in every language without these choices.</source>
-        <translation type="unfinished">Pro každý jazyk, který se učíte, si Polyglotic uchovává vaše slova: vyhledávání používá jeho slovník, vaše úroveň odhaduje, která slova znáte, a titulky označují nová. Titulky a překlad fungují v každém jazyce, ať tu zvolíte cokoli.</translation>
+        <translation>Vyberte, co se učíte a která nová slova mají titulky zvýrazňovat. Podle úrovně se odhaduje, která slova už znáte. Titulky a překlad fungují ve všech jazycích i bez tohoto nastavení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5784,7 +5964,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>None yet. Pick one above for lookups, your level and word introductions.</source>
-        <translation type="unfinished">Zatím žádné. Výše si jeden vyberte pro vyhledávání, svou úroveň a představování slov.</translation>
+        <translation>Zatím žádný jazyk. Vyberte ho výše, abyste mohli vyhledávat slova, nastavit úroveň a zvýrazňovat nová slova.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5799,7 +5979,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Add language</source>
-        <translation type="unfinished">Učit se ho</translation>
+        <translation>Přidat jazyk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5809,12 +5989,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose how many likely new words captions highlight. Your level provides the estimate; click a word to correct it.</source>
-        <translation type="unfinished">Titulky označují slova, která jsou pro vás nejspíš nová, abyste si jich všimli, když je slyšíte. Odhadují se podle vaší úrovně; kliknutí na kterékoli slovo ho opraví.</translation>
+        <translation>Zvolte, kolik pravděpodobně nových slov mají titulky zvýrazňovat. Odhad vychází z vaší úrovně. Kliknutím na slovo ho můžete opravit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A few</source>
-        <translation type="unfinished">Pár na titulek</translation>
+        <translation>Několik</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5824,22 +6004,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Dotted yellow marks a new word; dashed green marks one in your deck. A saved word uses its category&apos;s colour. Marks appear only on finished captions in a language you&apos;re learning.</source>
-        <translation type="unfinished">Žluté tečkování: slovo pro vás nové. Zelené čárkování: slovo ve vašem balíčku. Uložené slovo má barvu své kategorie. Označují se jen hotové titulky v jazyce, který se učíte.</translation>
+        <translation>Žluté tečky označují nové slovo, zelené čárky slovo z vašeho balíčku. Uložená slova mají barvu své kategorie. Značky jsou jen v hotových titulcích v jazyce, který se učíte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>After you hear a word a few times, it appears under Repeated words on the Words page. Add it to your deck there or from its lookup to include it in your next Anki export.</source>
-        <translation type="unfinished">Kam se dostanou: když slovo uslyšíte několikrát, přidá se mezi Slova, která slyšíte pořád, na stránce Slova. Tam nebo z jeho vyhledání ho přidejte do balíčku a dostane se do vašeho příštího exportu pro Anki.</translation>
+        <translation>Když slovo uslyšíte několikrát, objeví se na stránce Slova mezi Opakovaně slyšenými slovy. Přidejte ho odtud nebo z karty slova do balíčku a zahrne se do příštího exportu do Anki.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words</source>
-        <translation type="unfinished">Slova a Anki</translation>
+        <translation>Slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Open Words to manage your deck, saved words and Repeated words. Each language has its own Anki export.</source>
-        <translation type="unfinished">Váš balíček, uložená slova a slova, která slyšíte pořád, najdete na stránce Slova. Každý jazyk exportuje svůj vlastní balíček.</translation>
+        <translation>Na stránce Slova můžete spravovat balíček, uložená i opakovaně slyšená slova. Každý jazyk má vlastní export do Anki.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5864,12 +6044,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>These dictionaries are stored on this device. Removing one frees space and disables its lookups until you download it again.</source>
-        <translation type="unfinished">Stažené pro jazyky, které se učíte. Odebráním jednoho uvolníte místo; vyhledávání v jeho jazyce přestane fungovat, dokud se znovu nestáhne.</translation>
+        <translation>Tyto slovníky jsou uložené v zařízení. Odebráním slovníku uvolníte místo a vyhledávání v něm se vypne, dokud ho znovu nestáhnete.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>No dictionaries downloaded. Add a language to get its dictionary.</source>
-        <translation type="unfinished">Zatím žádné: když se začnete učit jazyk, jeho karta nabídne slovník.</translation>
+        <translation>Zatím žádné stažené slovníky. Přidejte jazyk a získáte jeho slovník.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5988,7 +6168,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>{language} lookups aren&apos;t in this version yet. Captions and translation work.</source>
-        <translation type="unfinished">Vyhledávání v jazyce {language} zatím není v této verzi dostupné. Titulky a překlad fungují.</translation>
+        <translation>Vyhledávání v jazyce {language} zatím není v této verzi dostupné. Titulky i překlad fungují.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -6179,7 +6359,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Dávka učení</translation>
+        <translation>Dávka učení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -6510,7 +6690,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Translated by a machine, not yet checked by a person</source>
-        <translation type="unfinished">Translated by a machine, not yet checked by a person</translation>
+        <translation>Strojový překlad bez lidské kontroly</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6585,12 +6765,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found - {meaning}</source>
-        <translation type="unfinished">Ve slovníku není jako celek – {meaning}</translation>
+        <translation>Celé spojení ve slovníku nenalezeno – {meaning}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found</source>
-        <translation type="unfinished">Ve slovníku není jako celek</translation>
+        <translation>Celé spojení ve slovníku nenalezeno</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6630,7 +6810,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Parts of this word</source>
-        <translation type="unfinished">Uvnitř tohoto slova</translation>
+        <translation>Části tohoto slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6640,7 +6820,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Chinese equivalent</source>
-        <translation type="unfinished">Čínsky</translation>
+        <translation>Čínský ekvivalent</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6867,12 +7047,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Keep Polyglotic running?</source>
-        <translation type="unfinished">Polyglotic běží dál</translation>
+        <translation>Nechat Polyglotic běžet?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Caption windows stay open. To reopen this window, launch Polyglotic again. You can quit from the sidebar.</source>
-        <translation type="unfinished">Okna titulků zůstanou otevřená. Do tohoto okna se vrátíte, když Polyglotic znovu otevřete ze svých aplikací. Ukončit najdete dole v jeho postranním panelu.</translation>
+        <translation>Okna titulků zůstanou otevřená. Toto okno znovu otevřete spuštěním Polyglotic. Aplikaci můžete ukončit z postranního panelu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
@@ -6913,12 +7093,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>That code isn&apos;t valid. Check it and try again.</source>
-        <translation type="unfinished">Tento kód není platný. Zkontroluj ho a zkus to znovu.</translation>
+        <translation>Kód je neplatný. Zkontrolujte ho a zkuste to znovu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Check the code in your email or request a new one.</source>
-        <translation type="unfinished">Zkontrolujte kód v e-mailu nebo požádejte o nový.</translation>
+        <translation>Zkontrolujte kód v e-mailu nebo si vyžádejte nový.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6955,12 +7135,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Too many attempts. Try again in {time}.</source>
-        <translation>Příliš mnoho pokusů. Zkus to znovu za {time}.</translation>
+        <translation>Příliš mnoho pokusů. Zkuste to znovu za {time}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Too many attempts. Try again later.</source>
-        <translation>Příliš mnoho pokusů. Zkus to znovu později.</translation>
+        <translation>Příliš mnoho pokusů. Zkuste to znovu později.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6975,7 +7155,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>This plan is unavailable for your account.</source>
-        <translation>Tento tarif není pro tvůj účet dostupný.</translation>
+        <translation>Tento tarif není pro váš účet dostupný.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6991,9 +7171,9 @@
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>A payment on this account is still being confirmed. Finish paying in the open checkout, or try again in about %n minute(s).</source>
         <translation>
-            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokonči ji na otevřené platební stránce nebo to zkus znovu asi za %n minutu.</numerusform>
-            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokonči ji na otevřené platební stránce nebo to zkus znovu asi za %n minuty.</numerusform>
-            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokonči ji na otevřené platební stránce nebo to zkus znovu asi za %n minut.</numerusform>
+            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokončete ji na otevřené platební stránce nebo to zkuste znovu asi za %n minutu.</numerusform>
+            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokončete ji na otevřené platební stránce nebo to zkuste znovu asi za %n minuty.</numerusform>
+            <numerusform>Platba na tomto účtu stále čeká na potvrzení. Dokončete ji na otevřené platební stránce nebo to zkuste znovu asi za %n minut.</numerusform>
         </translation>
     </message>
     <message>
@@ -7034,12 +7214,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code from your email</source>
-        <translation type="unfinished">Šestimístný kód z e-mailu</translation>
+        <translation>Šestimístný kód z e-mailu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code</source>
-        <translation type="unfinished">Šestimístný kód z e-mailu</translation>
+        <translation>Šestimístný kód</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -7049,17 +7229,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Use an invite code instead</source>
-        <translation type="unfinished">Máte kód pozvánky? Přihlaste se raději pomocí něj</translation>
+        <translation>Použít kód pozvánky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Change email or send a new code</source>
-        <translation type="unfinished">Změnit e-mail nebo odeslat kód znovu</translation>
+        <translation>Změnit e-mail nebo poslat nový kód</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Send code</source>
-        <translation type="unfinished">Poslat kód e-mailem</translation>
+        <translation>Poslat kód</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -7074,7 +7254,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Enter the six-digit code from your email.</source>
-        <translation type="unfinished">Ve schránce najdete šestimístný kód.</translation>
+        <translation>Zadejte šestimístný kód z e-mailu.</translation>
     </message>
 </context>
 <context>
@@ -7120,12 +7300,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each caption window picks its own language, or Original only, and whether your speech shows in it.</source>
-        <translation type="unfinished">Každé okno si volí vlastní jazyk – nebo Jen originál – a zda se v něm zobrazuje vaše řeč.</translation>
+        <translation>V každém okně titulků můžete zvolit jazyk překladu nebo Jen originál a nastavit, zda se má zobrazovat vaše řeč.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every caption window</source>
-        <translation type="unfinished">Všechna okna</translation>
+        <translation>Všechna okna titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7145,7 +7325,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions singing in Spotify and other music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent.</source>
-        <translation type="unfinished">Titulkuje zpěv ve Spotify a dalších hudebních přehrávačích na Auto: jejich zvuk se posílá, i když není slyšet řeč, vždy po několika sekundách. Vypnuto: posílá se jen to, co zní jako řeč.</translation>
+        <translation>Ve Spotify a dalších hudebních přehrávačích s mluveným jazykem Auto se zobrazují i titulky ke zpěvu. Zvuk se odesílá po několika sekundách, i když nikdo nemluví. Při vypnutí se odesílá jen řeč.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7165,17 +7345,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The characters Mandarin captions are written in, with Detect too. Lookups, transcripts, copies and Anki use the same. Translations into Chinese keep the script you translate into.</source>
-        <translation type="unfinished">Znaky, kterými se píšou titulky v mandarínštině, i při automatickém rozpoznání. Vyhledávání, přepis, kopírování i Anki používají totéž; překlady do čínštiny zůstávají v jazyce, který jste vybrali.</translation>
+        <translation>Znaková sada titulků v mandarínštině platí i při volbě Auto. Stejné znaky se používají při vyhledávání, v přepisech, v kopírovaném textu i v Anki. Překlady do čínštiny používají zvolenou variantu čínštiny.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Lines already in a window&apos;s language</source>
-        <translation type="unfinished">Když už mluví jazykem okna</translation>
+        <translation>Řádky už v jazyce okna</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>They aren&apos;t translated there unless you pick a second language for them.</source>
-        <translation type="unfinished">Řádky, které už jsou v jazyce okna, se tam nepřekládají. Zvolte druhý jazyk a přeloží se do něj, žlutě jako každý překlad.</translation>
+        <translation>Přeloží se jen tehdy, když pro ně vyberete druhý jazyk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7215,7 +7395,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Váš mikrofon se pro vaše titulky odesílá, jen když je tato volba zapnutá.</translation>
+        <translation>Zvuk z mikrofonu se odesílá kvůli vašim titulkům jen při zapnuté volbě.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7225,12 +7405,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Add an app on Home first: each caption window&apos;s language gets a row here.</source>
-        <translation type="unfinished">Nejdřív přidejte aplikaci: jazyk každého okna tu dostane řádek.</translation>
+        <translation>Nejprve přidejte aplikaci na stránce Domů. Tady se pak zobrazí řádek pro jazyk každého okna titulků.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into</source>
-        <translation type="unfinished">Okna titulků překládající do jazyka {language} – když už někdo mluví jazykem {language}, přeložit také do</translation>
+        <translation>V oknech s překladem do jazyka {language} překládat řádky v jazyce {language} do</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7240,7 +7420,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into:</source>
-        <translation type="unfinished">Okna titulků překládající do jazyka {language} – když už někdo mluví jazykem {language}, přeložit také do:</translation>
+        <translation>V oknech s překladem do jazyka {language} překládat řádky v jazyce {language} do:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7265,22 +7445,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Card stack</source>
-        <translation type="unfinished">Balíček karet</translation>
+        <translation>Balíček karet</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each line keeps its place, with its translation under it, and the lines roll up together as new ones come. Off: live lines below, earlier lines above.</source>
-        <translation type="unfinished">Každý vyslovený řádek zůstává na svém místě, s překladem pod sebou, a řádky se společně odvíjejí vzhůru, jak přicházejí nové. Vyp.: živé řádky dole, přepis nahoře.</translation>
+        <translation>Každý řádek drží pohromadě s překladem pod ním. S novými řádky se posouvají nahoru společně. Vypnuto: živé řádky dole, dřívější nahoře.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">Živé řádky dole, přepis nahoře</translation>
+        <translation>Živé řádky dole, dřívější nahoře</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The lines being spoken stay at the foot of the caption window; each caption moves up, with its translation, once it has been read. Off: one list of captions.</source>
-        <translation type="unfinished">Řádky, které se právě říkají, zůstávají dole v okně titulků; každý titulek se po převýslovnost přesune i s překladem nahoru do přepisu. Vyp.: jeden seznam titulků.</translation>
+        <translation>Právě vyslovované řádky zůstávají dole v okně. Po přečtení se každý titulek i s překladem posune nahoru. Vypnuto: titulky v jednom seznamu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7345,12 +7525,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Live updates every</source>
-        <translation type="unfinished">Živé aktualizace každých</translation>
+        <translation>Živé aktualizace každých</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shorter: text sooner, and more of it changes.</source>
-        <translation type="unfinished">Kratší intervaly zobrazí text dříve a častěji ho upraví.</translation>
+        <translation>Kratší doba: text přijde dřív a víc se ho změní.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7375,7 +7555,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>How long words on screen can still be corrected as more is heard. Shorter: fewer words change while you read, and more mistakes stay - most of all with live updates faster than every second.</source>
-        <translation type="unfinished">Jak dlouho se slova na obrazovce ještě mohou opravovat, jak je slyšet víc. Kratší: při výslovnost se mění méně slov a víc chyb zůstane tak, jak zazněly poprvé - nejvíc, když se Živě aktualizuje častěji než jednou za sekundu.</translation>
+        <translation>Jak dlouho se mohou slova na obrazovce opravovat podle další řeči. Při kratší době se toho při čtení méně mění, ale zůstane víc chyb, hlavně při živé aktualizaci častější než jednou za sekundu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7385,12 +7565,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Longest wait for text, below, is shorter, so text still comes every {seconds}.</source>
-        <translation type="unfinished">Text se přesto aktualizuje každých {seconds}: nejdelší čekání na text níže je kratší.</translation>
+        <translation>Nastavení Nejdelší čekání na text níže má kratší dobu. Text se proto stále zobrazí každých {seconds}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Look</source>
-        <translation type="unfinished">Vzhled</translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7410,12 +7590,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours</source>
-        <translation type="unfinished">Barvy</translation>
+        <translation>Barvy</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Matched colours for the text and the panel. Pick a set, then change any colour.</source>
-        <translation type="unfinished">Sladěná sada barev pro text a panel. Vyberte jednu a pak změňte libovolnou barvu.</translation>
+        <translation>Sladěné barvy textu a panelu. Vyberte sadu a upravte libovolnou barvu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7425,7 +7605,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Contrast, vibrance and thickness, in every caption window; contrast and vibrance in transcripts too. The middle of each is the default.</source>
-        <translation type="unfinished">Jak výrazně titulky vystupují, jak živé jsou jejich barvy a jak silná jsou písmena, v každém okně titulků - kontrast a barva i v přepisech. Uprostřed: jako dosud.</translation>
+        <translation>Kontrast, sytost a tloušťka písma platí pro všechna okna titulků. Kontrast a sytost se použijí i v přepisech. Výchozí hodnoty jsou uprostřed.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7435,7 +7615,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of what was said.</source>
-        <translation type="unfinished">Barva slov, jak zazněla.</translation>
+        <translation>Barva původní řeči.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7455,7 +7635,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of the box behind the text. The slider below sets how solid it is.</source>
-        <translation type="unfinished">Rámeček za textem. Jak je plný, určuje posuvník níže.</translation>
+        <translation>Barva panelu za textem. Jeho krytí nastavíte posuvníkem níže.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7500,7 +7680,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Propojení slov</translation>
+        <translation>Propojení slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7525,7 +7705,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words in what was said and its translation that mean the same. On hover: point at a word. Underline: colours show word class. Arrows: curves join them. A caption window&apos;s preset menu turns them on and off, under Helpers.</source>
-        <translation type="unfinished">Podtržení barevně označuje slovní druh. Při najetí myší uvidíte protějšek, šipky slova spojí. Přepínač je také v nabídce předvoleb.</translation>
+        <translation>Propojí slova, která v originálu a překladu znamenají totéž. Při najetí: najeďte na slovo. Podtržení: barva značí slovní druh. Šipky: slova spojují oblouky. Přepínač je také v nabídce předvolby v části Pomůcky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7580,7 +7760,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words linked</source>
-        <translation type="unfinished">Podrobnost</translation>
+        <translation>Propojená slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7605,7 +7785,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their link&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Každé slovo, které propojení spojuje, dostane jeho barvu, jako jeho podtržení.</translation>
+        <translation>Propojená slova mají stejnou barvu jako spojnice a podtržení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7615,12 +7795,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their word class&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Propojené slovo má barvu svého slovního druhu, stejně jako jeho podtržení.</translation>
+        <translation>Propojená slova i jejich podtržení mají barvu podle slovního druhu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Which words are marked as new is set on {learning}.</source>
-        <translation type="unfinished">Která slova se označují jako nová, nastavíte v části {learning}.</translation>
+        <translation>Která slova se označí jako nová, nastavíte na stránce {learning}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7630,27 +7810,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Tlumené zobrazení</translation>
+        <translation>Tlumené zobrazení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions in soft grey and gold, a little bigger, with pinyin over every word and only your chosen words in blue - no underlines or arrows. Point at a word to see the word it&apos;s linked to. Turns word links off.</source>
-        <translation type="unfinished">Titulky v klidné šedé a zlaté, o něco větší, s pchin-jinem nad každým slovem a modře jen vybraná slova – bez podtržení a šipek. Ukažte na slovo a uvidíte jeho protějšek. Vypne propojení slov.</translation>
+        <translation>O něco větší titulky v tlumené šedé a zlaté, s pinyinem nad každým slovem. Modře jsou jen vybraná slova. Podtržení i šipky zmizí. Najeďte na slovo a zobrazí se jeho protějšek. Tato volba vypne propojení slov.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Our curriculum</source>
-        <translation type="unfinished">Náš učební plán</translation>
+        <translation>Náš učební plán</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A few words just past what you know: the ones the talk is about, then the ones you hear most. A word from the talk leaves once you know it; the others after three days.</source>
-        <translation type="unfinished">Pár slov těsně nad tím, co znáte: nejdřív ta, o kterých se mluví, pak ta, která slyšíte nejčastěji. Slovo z hovoru jde dál, jakmile ho znáte; ostatní po třech dnech, kdy jste je potkali.</translation>
+        <translation>Několik slov těsně nad vaší úrovní: nejdřív slova k tématu hovoru, pak ta, která slyšíte nejčastěji. Slovo k tématu se vyřadí, jakmile ho znáte. Ostatní se vyřadí po třech dnech.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words at your edge</source>
-        <translation type="unfinished">Slova na vaší hranici</translation>
+        <translation>Slova na vaší hranici</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7660,12 +7840,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Dávka učení</translation>
+        <translation>Dávka učení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The words you&apos;re learning now, coloured as in the Lab&apos;s Learning load.</source>
-        <translation type="unfinished">Každé slovo vaší učební dávky, jako v Laboratoři.</translation>
+        <translation>Právě učená slova v barvách podle nastavení Dávka učení v Laboratoři.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7711,7 +7891,7 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
         <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
-        <translation type="unfinished">Výslovnost</translation>
+        <translation>Výslovnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7721,7 +7901,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. Copying and lookups leave it out.</source>
-        <translation type="unfinished">Malá slabika nad každým čínským znakem, v tom, co zaznělo, i v překladech do čínštiny. Není součástí textu: kopírování a vyhledávání slov fungují jako dřív.</translation>
+        <translation>Malá slabika nad každým čínským znakem v originálu i v překladech do čínštiny. Při kopírování ani vyhledávání se nepoužívá.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7736,7 +7916,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Chinese readings in</source>
-        <translation type="unfinished">Výslovnost nad čínštinou</translation>
+        <translation type="unfinished">Zápis čínské výslovnosti</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7756,22 +7936,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana</source>
-        <translation type="unfinished">Kana</translation>
+        <translation>Kana</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Romaji</source>
-        <translation type="unfinished">Rómadži</translation>
+        <translation>Rómadži</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings</source>
-        <translation type="unfinished">Čtení japonštiny</translation>
+        <translation>Výslovnost japonštiny</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana stays above each word&apos;s kanji. Romaji uses modified Hepburn; Both keeps kana above and adds romaji below.</source>
-        <translation type="unfinished">Kana zůstává nad kandži každého slova. Rómadži používá upravený Hepburnův přepis. Volba „Obojí“ zachová kanu nahoře a přidá rómadži dole.</translation>
+        <translation>Kana zůstává nad kandži každého slova. Rómadži používá upravený Hepburnův přepis. Volba Obojí ponechá kanu nahoře a přidá rómadži dole.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7821,12 +8001,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word introductions mark. Less to read as you learn.</source>
-        <translation type="unfinished">Za tím, co znáte: jen nad slovy za vaší hranicí znalostí v Učení, těmi, na která ukazují propojení slov. S učením je výslovnost méně.</translation>
+        <translation>Za tím, co znáte: výslovnost se zobrazí jen nad novými slovy, která se zvýrazňují podle úrovně na stránce Učení. Čím víc slov znáte, tím méně výslovnosti uvidíte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Respelling above English</source>
-        <translation type="unfinished">Přepis výslovnosti nad angličtinou</translation>
+        <translation>Přepis výslovnosti nad angličtinou</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7840,7 +8020,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Respelling over</source>
-        <translation type="unfinished">Přepis výslovnosti nad</translation>
+        <translation>Přepis výslovnosti nad</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7860,7 +8040,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Relative to the characters. Medium reads better in a small window.</source>
-        <translation type="unfinished">Vůči velikosti samotných znaků. Střední se lépe čte v malém okně.</translation>
+        <translation>Velikost vůči znakům. Střední velikost se v malém okně čte lépe.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7890,7 +8070,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Grey keeps readings behind their text. With Grey or Its word link&apos;s colour, a linked word&apos;s reading takes its link&apos;s colour. Word links can colour the linked words too.</source>
-        <translation type="unfinished">Šedá nechá výslovnost v pozadí za jejich textem. Se šedou nebo s barvou propojení slova dostane výslovnost barvu propojení svého slova, kde nějaké je. Propojení slov umí obarvit i propojená slova.</translation>
+        <translation>Šedá výslovnost je méně výrazná než původní text. Při volbě Šedá nebo Barva propojení převezme výslovnost propojeného slova barvu jeho spojnice. Propojení slov může obarvit i samotná slova.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7905,17 +8085,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings aren&apos;t in this version yet.</source>
-        <translation type="unfinished">Japonská čtení zatím nejsou v této verzi dostupná.</translation>
+        <translation>Výslovnost japonštiny zatím není v této verzi dostupná.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The Japanese dictionary is downloading: {percent}%.</source>
-        <translation type="unfinished">Stahuje se japonský slovník: {percent} %.</translation>
+        <translation>Stahuje se japonský slovník: {percent} %.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shows once the Japanese dictionary is here.</source>
-        <translation type="unfinished">Zobrazí se, až bude japonský slovník dostupný.</translation>
+        <translation>Zobrazí se po stažení japonského slovníku.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7950,22 +8130,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Zmizet po tichu</translation>
+        <translation>Skrýt po odmlce</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions disappear after this long without speech. Never: they stay until the next one.</source>
-        <translation type="unfinished">Titulky zmizí, když nikdo tak dlouho nemluví. Nikdy: zůstanou do dalšího řádku.</translation>
+        <translation>Po této době bez řeči titulky zmizí. Při volbě Nikdy zůstanou až do dalšího titulku.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Pause hidden windows after</source>
-        <translation type="unfinished">Přestat poslouchat po skrytí</translation>
+        <translation>Pozastavit skrytá okna po</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Nothing more of a hidden caption window&apos;s app is sent after this long. Showing the window carries on.</source>
-        <translation type="unfinished">Skryté okno titulků po této době přestane poslouchat, takže z jeho aplikace se už nic neodesílá. Zobrazením se znovu spustí.</translation>
+        <translation>Po této době se ze zdroje skrytého okna už nic neodesílá. Zobrazením okna titulkování obnovíte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -8000,7 +8180,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours, panel, font, word links and fading. To move the windows back, use Reset positions on Home.</source>
-        <translation type="unfinished">Barvy, panel, písmo, propojení slov a mizení, jak je měl Polyglotic původně. Umístění oken obnovíte tlačítkem Obnovit umístění na stránce Domů.</translation>
+        <translation>Obnoví barvy, panel, písmo, propojení slov a skrývání titulků. Polohu oken vrátíte volbou Obnovit umístění na stránce Domů.</translation>
     </message>
 </context>
 <context>
@@ -8101,7 +8281,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Every helper on: the app&apos;s defaults</source>
-        <translation type="unfinished">Všechny pomůcky zapnuté: výchozí nastavení aplikace</translation>
+        <translation>Všechny pomůcky jsou zapnuté podle výchozího nastavení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8221,27 +8401,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Helpers</source>
-        <translation type="unfinished">Pomůcky</translation>
+        <translation>Pomůcky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Propojení slov</translation>
+        <translation>Propojení slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Tlumené zobrazení</translation>
+        <translation>Tlumené zobrazení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Readings</source>
-        <translation type="unfinished">Výslovnost</translation>
+        <translation>Výslovnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Pinyin, Jyutping or a respelling over the words</source>
-        <translation type="unfinished">Pinyin, jyutping nebo přepis výslovnosti nad slovy</translation>
+        <translation>Pinyin, jyutping nebo přepis výslovnosti nad slovy</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8331,17 +8511,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>On hover</source>
-        <translation type="unfinished">Při najetí</translation>
+        <translation>Při najetí</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Underline</source>
-        <translation type="unfinished">Podtržení</translation>
+        <translation>Podtržení</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Arrows</source>
-        <translation type="unfinished">Šipky</translation>
+        <translation>Šipky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8351,17 +8531,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Follow</source>
-        <translation type="unfinished">Sledování</translation>
+        <translation>Sledování</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Acquisition</source>
-        <translation type="unfinished">Osvojování</translation>
+        <translation>Osvojování</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Steady</source>
-        <translation type="unfinished">Ustálené</translation>
+        <translation>Ustálené</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8376,7 +8556,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Calm</source>
-        <translation type="unfinished">Klidné</translation>
+        <translation>Klidné</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8386,22 +8566,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Soft shadow</source>
-        <translation type="unfinished">Jemný stín</translation>
+        <translation>Jemný stín</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Outline</source>
-        <translation type="unfinished">Obrys</translation>
+        <translation>Obrys</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Faint ahead</source>
-        <translation type="unfinished">Bledě napřed</translation>
+        <translation>Bledě napřed</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>With the newest word</source>
-        <translation type="unfinished">S nejnovějším slovem</translation>
+        <translation>S nejnovějším slovem</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8441,17 +8621,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the language</source>
-        <translation type="unfinished">Zobrazit jazyk</translation>
+        <translation>Zobrazit jazyk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the source</source>
-        <translation type="unfinished">Zobrazit zdroj</translation>
+        <translation>Zobrazit zdroj</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Zmizet po tichu</translation>
+        <translation>Skrýt po odmlce</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8471,7 +8651,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Panel: plnost</translation>
+        <translation>Panel: plnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8511,12 +8691,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Caption timing</source>
-        <translation type="unfinished">Časování titulků</translation>
+        <translation>Časování titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>What you read first</source>
-        <translation type="unfinished">Co čtete nejdřív</translation>
+        <translation>Co čtete nejdřív</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8526,7 +8706,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the newest word too</source>
-        <translation type="unfinished">Zobrazit i nejnovější slovo</translation>
+        <translation>Zobrazit i nejnovější slovo</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8536,12 +8716,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">Dvě zóny</translation>
+        <translation>Živé řádky dole, dřívější nahoře</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Card stack</source>
-        <translation type="unfinished">Balíček karet</translation>
+        <translation>Balíček karet</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8586,7 +8766,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Pick one for what you&apos;re doing, here or on a caption window&apos;s bar. Changes on the bar are saved to the preset; changes here need Save.</source>
-        <translation type="unfinished">Zvolte způsob zobrazení titulků zde nebo na liště okna titulků. Změny na liště se ukládají automaticky. Chcete-li zachovat změny provedené v Nastavení, zvolte zde Uložit.</translation>
+        <translation>Předvolbu si vyberte tady nebo na liště okna titulků. Změny na liště se uloží do předvolby automaticky. Změny zde potvrďte tlačítkem Uložit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8651,7 +8831,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Your changes to it go; its built-in settings stay</source>
-        <translation type="unfinished">Co jste v ní uložili, zmizí; její vlastní nastavení zůstanou</translation>
+        <translation>Vaše úpravy se smažou a obnoví se výchozí nastavení předvolby</translation>
     </message>
 </context>
 <context>
@@ -8676,7 +8856,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Make a suggestion</source>
-        <translation type="unfinished">Podat návrh</translation>
+        <translation>Poslat návrh</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8711,47 +8891,47 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Share an idea for how Polyglotic could work better for you.</source>
-        <translation type="unfinished">Podělte se o nápad, jak by pro vás Polyglotic mohl fungovat lépe.</translation>
+        <translation>Napište nám, jak by vám Polyglotic mohl lépe sloužit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>What would you like Polyglotic to do?</source>
-        <translation type="unfinished">Co by pro vás Polyglotic vylepšilo?</translation>
+        <translation>Co by měl Polyglotic umět?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
-        <translation type="unfinished">Také se odešle: {versions} a ID relace poslechu.</translation>
+        <translation>Také se odešle: {versions} a ID relace poslechu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}.</source>
-        <translation type="unfinished">Také se odešle: {versions}.</translation>
+        <translation>Také se odešle: {versions}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>No screenshot is taken.</source>
-        <translation type="unfinished">Nepořizuje se žádný snímek obrazovky.</translation>
+        <translation>Nepořizuje se žádný snímek obrazovky.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Please don&apos;t paste captions of other people&apos;s words. We may read feedback with the help of AI tools (Anthropic&apos;s Claude) to sort and summarise it.</source>
-        <translation type="unfinished">Nevkládejte prosím titulky se slovy jiných lidí. Zpětnou vazbu můžeme číst s pomocí nástrojů AI (Claude od Anthropic), abychom ji roztřídili a shrnuli.</translation>
+        <translation>Nevkládejte prosím titulky se slovy jiných lidí. Zpětnou vazbu můžeme číst s pomocí nástrojů AI (Claude od Anthropic), abychom ji roztřídili a shrnuli.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Look</source>
-        <translation type="unfinished">Zobrazit</translation>
+        <translation>Zobrazit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">Zkrátit na {limit} znaků</translation>
+        <translation>Zkrátit na {limit} znaků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} / {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8849,27 +9029,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Text you selected and saved from captions, with its translation. Search either language.</source>
-        <translation type="unfinished">Co jste v titulcích označili a uložili, i s překladem. Hledejte v kterémkoli jazyce: najde se věta s většinou vašich slov.</translation>
+        <translation>Text vybraný a uložený z titulků i s překladem. Hledat můžete v obou jazycích.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Search saved sentences</source>
-        <translation type="unfinished">Hledat ve větách</translation>
+        <translation>Hledat v uložených větách</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Vymazat hledání</translation>
+        <translation>Vymazat hledání</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by category</source>
-        <translation type="unfinished">Zobrazit věty v této kategorii</translation>
+        <translation>Filtrovat podle kategorie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by saved word</source>
-        <translation type="unfinished">Zobrazit věty s tímto uloženým slovem</translation>
+        <translation>Filtrovat podle uloženého slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8879,7 +9059,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>No saved sentences yet. Select several words in the caption window, then choose a category.</source>
-        <translation type="unfinished">Zatím žádné - v okně titulků táhněte přes víc než jedno slovo a pak vyberte kategorii.</translation>
+        <translation>Zatím žádné uložené věty. V okně titulků označte několik slov a vyberte kategorii.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8889,7 +9069,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>All saved words</source>
-        <translation type="unfinished">Jakékoli uložené slovo</translation>
+        <translation>Všechna uložená slova</translation>
     </message>
 </context>
 <context>
@@ -8976,12 +9156,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Caption text size</source>
-        <translation type="unfinished">Velikosti textu</translation>
+        <translation>Velikost textu titulků</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>In every language: each script is sized to match.</source>
-        <translation type="unfinished">Platí pro všechny jazyky. Velikost textu v různých písmech se automaticky sjednotí.</translation>
+        <translation>Platí pro všechny jazyky. Velikost různých písem se automaticky sladí.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9031,7 +9211,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Text sizes are saved by language on this device.</source>
-        <translation type="unfinished">Velikost textu se na tomto zařízení ukládá zvlášť pro každý jazyk.</translation>
+        <translation>Velikost textu se v tomto zařízení ukládá zvlášť pro každý jazyk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9046,7 +9226,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window and the transcripts, not the caption windows.</source>
-        <translation type="unfinished">Toto okno a přepisy. Okna titulků zůstanou, jak jsou.</translation>
+        <translation>Platí pro toto okno a přepisy. Okna titulků mají vlastní nastavení.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9056,7 +9236,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window&apos;s colours and headings.</source>
-        <translation type="unfinished">Jeho barvy a nadpisy.</translation>
+        <translation>Barvy a nadpisy tohoto okna.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9096,12 +9276,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install when you quit Polyglotic.</source>
-        <translation type="unfinished">Aktualizace se stahují potichu a použijí se, když Polyglotic ukončíte.</translation>
+        <translation>Aktualizace se stahují na pozadí a nainstalují se při ukončení Polyglotic.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install the next time Polyglotic starts.</source>
-        <translation type="unfinished">Aktualizace se stahují potichu a použijí se při příštím spuštění Polyglotic.</translation>
+        <translation>Aktualizace se stahují na pozadí a nainstalují se při příštím spuštění Polyglotic.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9151,7 +9331,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Menus, buttons, this window and word cards. Captions keep their own size: A- and A+ on each caption window and transcript.</source>
-        <translation type="unfinished">Vlastní texty Polyglotic: toto okno, karta slova, nabídky a tlačítka v oknech titulků a přepisů. Titulky mají vlastní velikost: A- a A+ v každém okně titulků a přepisu.</translation>
+        <translation>Platí pro nabídky, tlačítka, toto okno a karty slov. Velikost titulků změníte tlačítky A− a A+ v každém okně titulků nebo přepisu.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9219,10 +9399,10 @@
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>With Last %Ln hour(s) or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</source>
-        <translation type="unfinished">
-            <numerusform>S volbou Poslední %Ln hodina nebo Celá relace se Ukončit zeptá na neuložený přepis {line_limit}.</numerusform>
-            <numerusform>S volbou Poslední %Ln hodiny nebo Celá relace se Ukončit zeptá na neuložený přepis {line_limit}.</numerusform>
-            <numerusform>S volbou Poslední %Ln hodin nebo Celá relace se Ukončit zeptá na neuložený přepis {line_limit}.</numerusform>
+        <translation>
+            <numerusform>Při volbě „Poslední %Ln hodina“ nebo „Celá relace“ se Polyglotic před ukončením zeptá na uložení přepisu ({line_limit}).</numerusform>
+            <numerusform>Při volbě „Poslední %Ln hodiny“ nebo „Celá relace“ se Polyglotic před ukončením zeptá na uložení přepisu ({line_limit}).</numerusform>
+            <numerusform>Při volbě „Poslední %Ln hodin“ nebo „Celá relace“ se Polyglotic před ukončením zeptá na uložení přepisu ({line_limit}).</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9242,7 +9422,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold a key and speak; let go, and it&apos;s typed where your cursor is. While your own speech is captioned, dictation shows in that caption window too and uses its spoken language. Otherwise it listens only while you hold the key.</source>
-        <translation type="unfinished">Podržte klávesu a mluvte. Uvolněním klávesy vložíte text na místo kurzoru. Pokud se vaše řeč zobrazuje v titulcích, diktovaný text se objeví také v okně titulků a použije jazyk řeči nastavený pro toto okno. Jinak diktování poslouchá jen při podržení klávesy.</translation>
+        <translation>Podržte klávesu a mluvte. Po uvolnění se text napíše na místo kurzoru. Pokud máte zapnuté titulky vlastní řeči, diktovaný text se zobrazí i v jejich okně a použije se mluvený jazyk tohoto okna. Jinak diktování poslouchá jen při podržení klávesy.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9267,12 +9447,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right Ctrl, F9, Ctrl + Alt + D… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with Ctrl, Alt or Win; Right Ctrl alone still works in other programs.</source>
-        <translation type="unfinished">Klikněte a pak stiskněte klávesu nebo kombinaci, kterou chcete držet: pravý Ctrl, F9, Ctrl + Alt + D… Samotná klávesa, nebo s Ctrl, Alt či Win, patří při zapnutém diktování Polyglotic; samotný pravý Ctrl v jiných programech dál funguje.</translation>
+        <translation>Klikněte a stiskněte klávesu nebo kombinaci, kterou chcete držet, například pravý Ctrl, F9 nebo Ctrl + Alt + D. Při zapnutém diktování si Polyglotic vyhradí zvolenou klávesu samostatně i s Ctrl, Alt nebo Win. Samotný pravý Ctrl dál funguje i v jiných aplikacích.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with ⌃, ⌥ or ⌘; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Klikněte a pak stiskněte klávesu nebo kombinaci, kterou chcete držet: pravý ⌘, F9, ⌃⌘E… Samotná klávesa, nebo s ⌃, ⌥ či ⌘, patří při zapnutém diktování Polyglotic; samotný pravý ⌘ v jiných programech dál funguje.</translation>
+        <translation>Klikněte a stiskněte klávesu nebo kombinaci, kterou chcete držet, například pravý ⌘, F9 nebo ⌃⌘E. Při zapnutém diktování si Polyglotic vyhradí zvolenou klávesu samostatně i s ⌃, ⌥ nebo ⌘. Samotný pravý ⌘ dál funguje i v jiných aplikacích.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9287,7 +9467,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Choose a language or use {detect} for when your speech isn&apos;t captioned.</source>
-        <translation type="unfinished">Vyberte jazyk nebo použijte možnost „{detect}“, když diktování nahrává zvuk samostatně.</translation>
+        <translation>Vyberte jazyk pro diktování bez titulků vlastní řeči, nebo použijte volbu {detect}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9327,6 +9507,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hold {key} and speak in Polyglotic&apos;s windows. Let go to type.</source>
+        <translation type="unfinished">V oknech Polyglotic podržte klávesu {key} a mluvte. Uvolněním klávesy vložíte text.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold {key} and speak; let go, and it&apos;s typed.</source>
         <translation>Držte {key} a mluvte; pusťte a napíše se to.</translation>
     </message>
@@ -9339,18 +9524,18 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Look</source>
-        <translation type="unfinished">Vzhled</translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Propojení slov</translation>
+        <translation>Propojení slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Readings</source>
         <extracomment>Settings&apos; section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
-        <translation type="unfinished">Výslovnost</translation>
+        <translation>Výslovnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9445,7 +9630,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Couldn&apos;t reach the update server. Polyglotic tries again later.</source>
-        <translation type="unfinished">Server aktualizací nebyl dostupný. Polyglotic se podívá znovu později.</translation>
+        <translation>K serveru aktualizací se nepodařilo připojit. Polyglotic to zkusí později.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9455,7 +9640,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Version {version} is available. Your connection is metered, so it waits: Home can download it anyway.</source>
-        <translation type="unfinished">Je k dispozici verze {version}. Vaše připojení je měřené, proto čeká: na Domů ji můžete přesto stáhnout.</translation>
+        <translation>Je k dispozici verze {version}. Stahování čeká, protože se připojení účtuje podle objemu dat. Na stránce Domů ji přesto můžete stáhnout.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9468,19 +9653,19 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Long lines</source>
-        <translation type="unfinished">Dlouhé řádky</translation>
+        <translation>Dlouhé řádky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Display new lines</source>
         <extracomment>Each original row is followed by its translation.</extracomment>
-        <translation type="unfinished">Zobrazit nové řádky</translation>
+        <translation type="unfinished">Střídat řádky</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Grouped</source>
         <extracomment>All original rows together, then their translation.</extracomment>
-        <translation type="unfinished">Seskupené</translation>
+        <translation type="unfinished">Seskupit podle jazyka</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9491,12 +9676,12 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in {language}</source>
         <extracomment>A caption window&apos;s row: what to do with lines already spoken in {language}, the language this window translates into</extracomment>
-        <translation type="unfinished">Když už mluví jazykem {language}</translation>
+        <translation>Řádky už v jazyce {language}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{language} is this window&apos;s language, so those lines aren&apos;t translated. Translate them into a second language, or leave them as they are.</source>
-        <translation type="unfinished">{language} je jazyk tohoto okna, takže tyto řádky nemají překlad. Přeložte je i do druhého jazyka, nebo je nechte, jak jsou.</translation>
+        <translation>Řádky v jazyce {language} se v tomto okně nepřekládají. Můžete je přeložit do jiného jazyka nebo je ponechat beze změny.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9526,13 +9711,13 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show speaking pace (WPM)</source>
-        <translation type="unfinished">Zobrazit tempo řeči (slov/min)</translation>
+        <translation>Zobrazit tempo řeči (slov/min)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show caption info</source>
         <extracomment>Toggle for each caption&apos;s header line (source, language, timestamp, WPM).</extracomment>
-        <translation type="unfinished">Zobrazit informace o titulcích</translation>
+        <translation>Zobrazit údaje o titulku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9552,7 +9737,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Spoken language</source>
-        <translation type="unfinished">Mluvený jazyk</translation>
+        <translation>Mluvený jazyk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9572,17 +9757,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Caption singing too: the music is sent while it plays</source>
-        <translation type="unfinished">Titulkuje i zpěv: hudba se posílá, dokud hraje</translation>
+        <translation>Titulkovat i zpěv: hudba se odesílá během přehrávání</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in this window&apos;s language</source>
-        <translation type="unfinished">Když už mluví jazykem tohoto okna</translation>
+        <translation>Řádky už v jazyce tohoto okna</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Source</source>
-        <translation type="unfinished">Titulkování</translation>
+        <translation>Zdroj zvuku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9592,7 +9777,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Don&apos;t see your app? Play some sound in it.</source>
-        <translation type="unfinished">Nevidíte tu svou aplikaci? Ujistěte se, že přehrává zvuk.</translation>
+        <translation>Nevidíte svou aplikaci? Pusťte v ní zvuk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9632,7 +9817,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Panel: plnost</translation>
+        <translation>Panel: plnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9642,7 +9827,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show my speech here</source>
-        <translation type="unfinished">Zobrazit zde moji řeč</translation>
+        <translation>Zobrazit zde moji řeč</translation>
     </message>
 </context>
 <context>
@@ -9855,12 +10040,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the PC plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Pro Vše, co počítač přehrává. Přidané aplikace se poslouchají na jakýchkoli reproduktorech.</translation>
+        <translation>Používá se pro titulky ke všemu, co počítač přehrává. U přidaných aplikací nezáleží na tom, jaký zvukový výstup používají.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the Mac plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Pro Vše, co počítač přehrává. Přidané aplikace se poslouchají na jakýchkoli reproduktorech.</translation>
+        <translation>Používá se pro titulky ke všemu, co Mac přehrává. U přidaných aplikací nezáleží na tom, jaký zvukový výstup používají.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9870,12 +10055,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Show my speech in every window</source>
-        <translation type="unfinished">Titulkovat, co říkám</translation>
+        <translation>Zobrazit mou řeč ve všech oknech</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Ve všech oknech. Váš mikrofon se pro vaše titulky odesílá jen tehdy, když je toto zapnuté.</translation>
+        <translation>Zvuk z mikrofonu se odesílá kvůli vašim titulkům jen při zapnuté volbě.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9890,7 +10075,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic&apos;s level, shown while your speech is captioned</source>
-        <translation type="unfinished">Zobrazí se, když se titulkuje, co říkáte</translation>
+        <translation>Úroveň signálu mikrofonu se zobrazuje, když se titulkuje vaše řeč</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -10244,17 +10429,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>1-month pass</source>
-        <translation type="unfinished">Přístup na 1 měsíc</translation>
+        <translation>Přístup na 1 měsíc</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>3-month pass</source>
-        <translation type="unfinished">Přístup na 3 měsíce</translation>
+        <translation>Přístup na 3 měsíce</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>6-month pass</source>
-        <translation type="unfinished">Přístup na 6 měsíců</translation>
+        <translation>Přístup na 6 měsíců</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10324,7 +10509,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Next payment: {amount} on {date}</source>
-        <translation type="unfinished">Další platba: {amount} dne {date}</translation>
+        <translation>Další platba: {amount} dne {date}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10439,7 +10624,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Use a code</source>
-        <translation type="unfinished">Máte kód?</translation>
+        <translation>Použít kód</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10489,7 +10674,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>QR code for payment</source>
-        <translation type="unfinished">QR kód pro platbu</translation>
+        <translation>QR kód k platbě</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10569,7 +10754,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Your plan change is still being confirmed.</source>
-        <translation>Změna tvého tarifu se stále potvrzuje.</translation>
+        <translation>Změna vašeho tarifu se stále potvrzuje.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10589,7 +10774,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Scan the QR code to pay on your phone.</source>
-        <translation type="unfinished">Naskenujte kód telefonem a otevřete platbu.</translation>
+        <translation>Naskenujte QR kód a zaplaťte na telefonu.</translation>
     </message>
 </context>
 <context>
@@ -10858,7 +11043,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Words met</source>
-        <translation type="unfinished">Slyšená slova</translation>
+        <translation>Slyšená slova</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -10917,12 +11102,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new</source>
-        <translation type="unfinished">{known} známých · {deck} v balíčku · {new} nových</translation>
+        <translation>Známá: {known} · v balíčku: {deck} · nová: {new}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new · {unheard} not heard</source>
-        <translation type="unfinished">{known} známých · {deck} v balíčku · {new} nových · {unheard} zatím neslyšených</translation>
+        <translation>Známá: {known} · v balíčku: {deck} · nová: {new} · dosud neslyšená: {unheard}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10937,37 +11122,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>in deck</source>
-        <translation type="unfinished">v balíčku</translation>
+        <translation>v balíčku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>new</source>
-        <translation type="unfinished">nové (slyšené, neznámé)</translation>
+        <translation>nové</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>not heard</source>
-        <translation type="unfinished">zatím neslyšené</translation>
+        <translation>dosud neslyšená</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Frequency</source>
-        <translation type="unfinished">Podle četnosti</translation>
+        <translation>Četnost</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>HSK level</source>
-        <translation type="unfinished">Podle úrovně HSK</translation>
+        <translation>Úroveň HSK</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Group words by frequency or HSK level</source>
-        <translation type="unfinished">Zobrazit pásma</translation>
+        <translation>Seskupit slova podle četnosti nebo úrovně HSK</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by HSK level</source>
-        <translation type="unfinished">Slyšená slova podle úrovně HSK</translation>
+        <translation>Slova podle úrovně HSK</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10977,7 +11162,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by frequency</source>
-        <translation type="unfinished">Slyšená slova podle toho, jak jsou běžná</translation>
+        <translation>Slova podle četnosti</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10993,7 +11178,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>In deck</source>
-        <translation type="unfinished">V balíčku</translation>
+        <translation>V balíčku</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -11018,27 +11203,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Open dictionary</source>
-        <translation type="unfinished">Vyhledat</translation>
+        <translation>Otevřít slovník</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Change status</source>
-        <translation type="unfinished">Změnit stav</translation>
+        <translation>Změnit stav</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Estimated from your level. Choose a status to change it.</source>
-        <translation type="unfinished">Odhadnuto z vaší úrovně – vyberte jeden a nastavte ho sami</translation>
+        <translation>Stav se odhaduje podle vaší úrovně. Můžete vybrat jiný.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Move to another category</source>
-        <translation type="unfinished">Přesunout do jiné kategorie</translation>
+        <translation>Přesunout do jiné kategorie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Remove from saved words</source>
-        <translation type="unfinished">Odebrat z uložených slov</translation>
+        <translation>Odebrat z uložených slov</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -11048,7 +11233,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>{count} selected</source>
-        <translation type="unfinished">Vybráno: {count}</translation>
+        <translation>Vybráno: {count}</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -11077,7 +11262,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Could not save {name}. Close it if it is open, or choose a folder you can write to, then try again.</source>
-        <translation type="unfinished">{name} nešlo zapsat. Možná je otevřený v jiném programu, nebo je složka jen pro výslovnost – zavřete ho nebo zvolte jinou složku a zkuste to znovu.</translation>
+        <translation>Soubor {name} se nepodařilo uložit. Pokud je otevřený, zavřete ho, nebo vyberte složku, do které smíte zapisovat, a zkuste to znovu.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11091,12 +11276,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word available to export was already exported in this format. {name} is empty.</source>
-        <translation type="unfinished">Od posledního exportu žádná nová slova – {name} je prázdný.</translation>
+        <translation>Všechna dostupná slova už byla v tomto formátu exportována. Soubor {name} je prázdný.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words to export. Save a word or add one to your deck first. {name} is empty.</source>
-        <translation type="unfinished">Zatím nejsou žádná slova k exportu – {name} je prázdný. Nejdřív slovo uložte nebo ho přidejte do balíčku.</translation>
+        <translation>Žádná slova k exportu. Nejdřív slovo uložte nebo ho přidejte do balíčku. Soubor {name} je prázdný.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11134,7 +11319,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{n} since added to your deck</source>
-        <translation type="unfinished">{n} od zařazení do balíčku</translation>
+        <translation>Od přidání do balíčku: {n}</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11148,12 +11333,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No known words yet</source>
-        <translation type="unfinished">Teprve začínáte – zatím žádná známá slova</translation>
+        <translation>Zatím žádná známá slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Choose colour</source>
-        <translation type="unfinished">Změnit barvu</translation>
+        <translation>Vybrat barvu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11173,7 +11358,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Delete this category and remove its saved words</source>
-        <translation type="unfinished">Smazat kategorii i slova v ní uložená</translation>
+        <translation>Smazat tuto kategorii a odebrat slova v ní uložená</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11188,27 +11373,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Loading your words…</source>
-        <translation type="unfinished">Načítám vaše slova…</translation>
+        <translation>Načítají se vaše slova…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Repeated words</source>
-        <translation type="unfinished">Slova, která slyšíte pořád</translation>
+        <translation>Opakovaně slyšená slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>New words you hear often, most frequent first. Add useful ones to your deck.</source>
-        <translation type="unfinished">Slova pro vás nová, nejčastěji slyšená nahoře – užitečná přidejte do balíčku.</translation>
+        <translation>Nová slova se řadí od nejčastěji slyšených. Užitečná si přidejte do balíčku.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark known</source>
-        <translation type="unfinished">Tato znám</translation>
+        <translation>Označit jako známá</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No repeated words yet. New words appear here after you hear them a few times.</source>
-        <translation type="unfinished">Zatím nic – slova pro vás nová se tu objeví, až je několikrát uslyšíte.</translation>
+        <translation>Zatím žádná opakovaně slyšená slova. Nové slovo se tu objeví, až ho uslyšíte několikrát.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11228,37 +11413,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word you have heard, saved or given a status.</source>
-        <translation type="unfinished">Každé slovo, které jste potkali. Kterýkoli stav opravte ručně.</translation>
+        <translation>Všechna slova, která jste slyšeli, uložili nebo označili.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Filter by status</source>
-        <translation type="unfinished">Zobrazit slova s tímto stavem</translation>
+        <translation>Filtrovat podle stavu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Any status</source>
-        <translation type="unfinished">Všechny stavy</translation>
+        <translation>Libovolný stav</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words, readings or meanings</source>
-        <translation type="unfinished">Hledat – slovo, výslovnost nebo význam</translation>
+        <translation>Hledat slova, výslovnost nebo významy</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words</source>
-        <translation type="unfinished">Hledat ve vašich slovech</translation>
+        <translation>Hledat slova</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Vymazat hledání</translation>
+        <translation>Vymazat hledání</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark new</source>
-        <translation type="unfinished">Znovu nové</translation>
+        <translation>Označit jako nová</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11273,7 +11458,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saved words use their category colour in captions. Avoid yellow and white because captions use them for translations and speech.</source>
-        <translation type="unfinished">Každá kategorie má vlastní barvu, ať jsou její slova slyšet kdekoli. Žluté a bílé se raději vyhněte: v titulcích znamenají překlad a to, co zaznělo.</translation>
+        <translation>Uložená slova mají v titulcích barvu své kategorie. Vyhněte se žluté a bílé, které titulky používají pro překlad a originál.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11288,37 +11473,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No saved words yet. Select a word in a caption, then choose a category.</source>
-        <translation type="unfinished">Zatím žádná – klikněte na slovo v titulku a zvolte kategorii, do které ho uložit.</translation>
+        <translation>Zatím žádná uložená slova. Vyberte slovo v titulku a zvolte kategorii.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export to Anki</source>
-        <translation type="unfinished">Exportovat pro Anki</translation>
+        <translation>Exportovat do Anki</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Save your saved words, deck words and their sentences as a CSV to import into Anki, or as an Anki deck to open in Anki.</source>
-        <translation type="unfinished">Uložená slova a slova ve vašem balíčku, s jejich větami: soubor CSV, který Anki umí importovat, nebo soubor balíčku – dvakrát na něj klikněte a Anki je přidá ve stylu karet Polyglotic, bez nastavování.</translation>
+        <translation>Uložená slova a slova z balíčku včetně vět můžete uložit jako CSV pro import do Anki nebo jako balíček, který otevřete v Anki.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Only words not yet exported in this format</source>
-        <translation type="unfinished">Jen slova, která ještě nebyla exportována</translation>
+        <translation>Jen slova dosud neexportovaná v tomto formátu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSV</source>
-        <translation type="unfinished">Soubor CSV</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki deck (.apkg)</source>
-        <translation type="unfinished">Soubor balíčku Anki (.apkg)</translation>
+        <translation>Balíček Anki (.apkg)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki import help</source>
-        <translation type="unfinished">Jak importovat do Anki</translation>
+        <translation>Nápověda k importu do Anki</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11328,17 +11513,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{count} more. Filter or search to find them.</source>
-        <translation type="unfinished">Dalších {count} – najdete je filtrem nebo hledáním.</translation>
+        <translation>Další slova: {count}. Najdete je pomocí filtru nebo hledání.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words match.</source>
-        <translation type="unfinished">Žádné shody.</translation>
+        <translation>Žádná slova neodpovídají.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words yet. Words appear here after you hear them.</source>
-        <translation type="unfinished">Zatím žádná – slova se tu objeví, jak je budete slyšet.</translation>
+        <translation>Zatím žádná slova. Objeví se tu, jakmile je uslyšíte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11362,17 +11547,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export words to Anki</source>
-        <translation type="unfinished">Exportovat slova pro Anki</translation>
+        <translation>Exportovat slova do Anki</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSVs (*.csv)</source>
-        <translation type="unfinished">Soubory CSV (*.csv)</translation>
+        <translation>Soubory CSV (*.csv)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export an Anki deck</source>
-        <translation type="unfinished">Exportovat slova jako soubor balíčku Anki</translation>
+        <translation>Exportovat balíček Anki</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11382,7 +11567,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saving {name}…</source>
-        <translation type="unfinished">Zapisuji {name}…</translation>
+        <translation>Ukládá se soubor {name}…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>

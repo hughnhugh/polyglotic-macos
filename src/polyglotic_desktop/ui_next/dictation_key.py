@@ -99,6 +99,31 @@ def _name(part: str) -> str:
         "print_screen": _tr("Print Screen"),
         #: the key that opens a program's right-click menu
         "menu": _tr("Menu"),
+        "minus": "-",
+        "equal": "=",
+        "bracket_left": "[",
+        "bracket_right": "]",
+        "backslash": "\\",
+        "semicolon": ";",
+        "apostrophe": "'",
+        "grave": "`",
+        "comma": ",",
+        "period": ".",
+        "slash": "/",
+        #: the keyboard's Play/Pause media key
+        "media_play": _tr("Play/Pause"),
+        #: the keyboard's Stop media key
+        "media_stop": _tr("Stop"),
+        #: the keyboard's Next Track media key
+        "media_next": _tr("Next track"),
+        #: the keyboard's Previous Track media key
+        "media_prev": _tr("Previous track"),
+        #: the keyboard's Volume Up key
+        "volume_up": _tr("Volume Up"),
+        #: the keyboard's Volume Down key
+        "volume_down": _tr("Volume Down"),
+        #: the keyboard's Mute key
+        "volume_mute": _tr("Mute"),
     }
     return names.get(part) or part.upper()
 
@@ -201,6 +226,57 @@ _QT_KEYS: dict[Qt.Key, str] = {
     Qt.Key.Key_ScrollLock: "scroll_lock",
     Qt.Key.Key_Print: "print_screen",
     Qt.Key.Key_Menu: "menu",
+    Qt.Key.Key_Minus: "minus",
+    Qt.Key.Key_Underscore: "minus",
+    Qt.Key.Key_Equal: "equal",
+    Qt.Key.Key_Plus: "equal",
+    Qt.Key.Key_BracketLeft: "bracket_left",
+    Qt.Key.Key_BraceLeft: "bracket_left",
+    Qt.Key.Key_BracketRight: "bracket_right",
+    Qt.Key.Key_BraceRight: "bracket_right",
+    Qt.Key.Key_Backslash: "backslash",
+    Qt.Key.Key_Bar: "backslash",
+    Qt.Key.Key_Semicolon: "semicolon",
+    Qt.Key.Key_Colon: "semicolon",
+    Qt.Key.Key_Apostrophe: "apostrophe",
+    Qt.Key.Key_QuoteDbl: "apostrophe",
+    Qt.Key.Key_QuoteLeft: "grave",
+    Qt.Key.Key_AsciiTilde: "grave",
+    Qt.Key.Key_Comma: "comma",
+    Qt.Key.Key_Less: "comma",
+    Qt.Key.Key_Period: "period",
+    Qt.Key.Key_Greater: "period",
+    Qt.Key.Key_Slash: "slash",
+    Qt.Key.Key_Question: "slash",
+    Qt.Key.Key_MediaTogglePlayPause: "media_play",
+    Qt.Key.Key_MediaPlay: "media_play",
+    Qt.Key.Key_MediaPause: "media_play",
+    Qt.Key.Key_MediaStop: "media_stop",
+    Qt.Key.Key_MediaNext: "media_next",
+    Qt.Key.Key_MediaPrevious: "media_prev",
+    Qt.Key.Key_VolumeUp: "volume_up",
+    Qt.Key.Key_VolumeDown: "volume_down",
+    Qt.Key.Key_VolumeMute: "volume_mute",
+}
+_WINDOWS_OEM_VKS: dict[int, str] = {
+    0xBD: "minus",
+    0xBB: "equal",
+    0xDB: "bracket_left",
+    0xDD: "bracket_right",
+    0xDC: "backslash",
+    0xBA: "semicolon",
+    0xDE: "apostrophe",
+    0xC0: "grave",
+    0xBC: "comma",
+    0xBE: "period",
+    0xBF: "slash",
+    0xB3: "media_play",
+    0xB2: "media_stop",
+    0xB0: "media_next",
+    0xB1: "media_prev",
+    0xAF: "volume_up",
+    0xAE: "volume_down",
+    0xAD: "volume_mute",
 }
 _KEYPAD_NAVIGATION = {
     "insert",
@@ -245,17 +321,45 @@ def modifier_of(event: QKeyEvent) -> str | None:
 
 def key_of(event: QKeyEvent) -> str | None:
     """The (non-modifier) key the event is for, as `dictation_keys.KEYS`
-    names it; None for one dictation can't be held on (a number pad digit,
-    punctuation)."""
+    names it; None for one the app can't bind (a number pad digit)."""
     vk = event.nativeVirtualKey()  # Windows': the key whatever the layout or Shift
-    if not os_words.on_a_mac() and (0x41 <= vk <= 0x5A or 0x30 <= vk <= 0x39):
-        return chr(vk).lower()  # a Mac's codes differ (Tab is 0x30): Qt's key there
+    if not os_words.on_a_mac():
+        if 0x41 <= vk <= 0x5A or 0x30 <= vk <= 0x39:
+            return chr(vk).lower()  # a Mac's codes differ (Tab is 0x30): Qt's key there
+        if vk in _WINDOWS_OEM_VKS:
+            return _WINDOWS_OEM_VKS[vk]
     qt_key = _qt_key(event)
     name = None if qt_key is None else _QT_KEYS.get(qt_key)
     keypad = bool(event.modifiers() & Qt.KeyboardModifier.KeypadModifier)
     if name is None or keypad and name not in _KEYPAD_NAVIGATION:
         return None
     return name if name in KEYS else None
+
+
+def modifiers_of(event: QKeyEvent) -> frozenset[Modifier]:
+    """The held `Modifier` flags on `event`."""
+    mods = event.modifiers()
+    held: set[Modifier] = set()
+    if mods & Qt.KeyboardModifier.ControlModifier:
+        held.add(Modifier.CTRL)
+    if mods & Qt.KeyboardModifier.AltModifier:
+        held.add(Modifier.ALT)
+    if mods & Qt.KeyboardModifier.ShiftModifier:
+        held.add(Modifier.SHIFT)
+    if mods & Qt.KeyboardModifier.MetaModifier:
+        held.add(Modifier.WIN)
+    return frozenset(held)
+
+
+def event_key(event: QKeyEvent) -> DictationKey | None:
+    """A pressed `QKeyEvent` as a `DictationKey`, or None for a bare modifier
+    or unknown key."""
+    if modifier_of(event) is not None:
+        return None
+    name = key_of(event)
+    if name is None:
+        return None
+    return DictationKey(modifiers_of(event), name)
 
 
 class KeyCapture:

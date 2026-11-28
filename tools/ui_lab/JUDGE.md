@@ -55,7 +55,7 @@ looks for what they can't see:**
    - start from ENGINEERING.md's checklist, with a test where the fix is behaviour (a size, a colour, a name) and not only looks.
 6. **Re-run.**
    - Run `uv run python -m tools.ui_lab --gate`: the budgets and the checks must pass.
-   - Then `uv run python -m tools.ui_lab approve --only <state>...` for the pictures you changed on purpose (names, or patterns such as `ui_next.w4_words_*`; plain `approve` runs every state). Approving never removes a golden; `uv run python -m tools.ui_lab prune` removes those whose state is gone.
+   - Then `uv run python -m tools.ui_lab approve --reason "<the change and its commit>" --only <state>...` for the pictures you changed on purpose (names, or patterns such as `ui_next.w4_words_*`; plain `approve` runs every state). The reason goes with the changed states into the approval log, `goldens/APPROVALS.md`; approve only for a change you can name. Approving never removes a golden; `uv run python -m tools.ui_lab prune` removes those whose state is gone.
    - **Look at every golden you approve** (the state's PNG against `git show HEAD:tools/ui_lab/goldens/<state>.png`). Never approve a picture you haven't looked at.
    - Commit the goldens with the fix. The pull request shows before and after.
 7. **Repeat** from step 2 until a full pass files no blocker or should, or you reach your brief's limit (3 passes, or its time). Then report:

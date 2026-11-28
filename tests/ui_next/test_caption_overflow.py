@@ -73,7 +73,7 @@ def readings(text: str, language: str | None) -> list[Reading]:
     ],
 )
 @pytest.mark.parametrize("choice", LongLines)
-def test_each_continuation_is_linked_and_slides(
+def test_each_continuation_is_linked_and_arrives(
     qapp: QApplication,
     mode: CaptionMode,
     video: bool,
@@ -116,7 +116,9 @@ def test_each_continuation_is_linked_and_slides(
             CaptionId("walk"),
             APP,
             CaptionKind.FINISHED,
-            (Clause("山", {TARGET: "Walk."}),),
+            (
+                Clause("山", {TARGET: "OK"}),
+            ),  # The translated overflow is entirely new ink.
             Language("ja"),
         )
         shown.receive(update)
@@ -200,11 +202,10 @@ def test_each_continuation_is_linked_and_slides(
                     assert char_under([(row, QPointF())], point) is None
                 if i:
                     key = kind, row.start
-                    assert first_tops[key] > final_tops[key] + 0.5, (
-                        key,
-                        first_tops,
-                        final_tops,
-                    )
+                    if not video and choice is LongLines.GROUPED:
+                        assert first_tops[key] == pytest.approx(final_tops[key])
+                    else:
+                        assert first_tops[key] > final_tops[key] + 0.5
                     if video:
                         assert entries[kind is RowKind.TRANSLATION, row.start] > 0.5
     finally:

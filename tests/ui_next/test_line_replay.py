@@ -52,8 +52,7 @@ def test_shown_characters_keep_their_horizontal_place(qapp: QApplication) -> Non
     assert measure(load(FIXTURES / "motion.json"), qapp).x_shift == 0
 
 
-@pytest.mark.xfail(
-    strict=True, reason="Unit 4 preserves Unit 3's frozen breaks through a final split"
-)
 def test_a_final_split_keeps_shown_characters_on_their_line(qapp: QApplication) -> None:
+    """A strict xfail until 984: a new row now waits where it stays, so a
+    final split no longer moves shown characters to another line."""
     assert measure(load(FIXTURES / "a.json"), qapp).rewrap == 0

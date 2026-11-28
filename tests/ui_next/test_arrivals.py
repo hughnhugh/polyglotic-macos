@@ -7,7 +7,7 @@ from itertools import pairwise
 import pytest
 from PySide6.QtWidgets import QApplication
 from tests.budget_judge import sampled, within
-from tests.ui_next.line_replay import FIXTURES, load, measure
+from tests.ui_next.line_replay import FIXTURES, glyphs, load, measure
 from tests.ui_next.made_up import finished_updates
 from tests.ui_next.test_caption_window import _on_words, areas, window_of
 
@@ -492,11 +492,11 @@ def test_editing_an_earlier_original_does_not_restart_the_arrival_slide(
         expanded = tops(window)
         assert expanded[edited] < before[edited]
         window.receive(second)
-        assert window.arriving and window.glide.px < 0
+        assert not window.arriving
         assert tops(window)[edited] == pytest.approx(expanded[edited])
         clock.now += GLIDE_SETTLE_SEC
         rest = tops(window)
-        assert rest[edited] > expanded[edited]
+        assert rest[edited] == pytest.approx(expanded[edited])
         assert rest[newest] == pytest.approx(expanded[newest])
     finally:
         window.close()
@@ -538,24 +538,37 @@ def test_new_clause_rows_close_the_entry_gap(qapp: QApplication) -> None:
     assert gaps[0] > gaps[len(gaps) // 2] > gaps[-1]
 
 
-def test_a_new_wrap_closes_the_same_entry_gap(qapp: QApplication) -> None:
-    gaps = []
+def test_a_grouped_wrap_fades_at_rest_after_the_ink_clears(qapp: QApplication) -> None:
+    reveal = []
+    waiting = []
 
     def observe(window: CaptionWindow, now: float) -> None:
-        if now >= 0.5:
-            _, laid, _ = window.canvas.placed[-1]
-            first, second, *_ = (r for r in laid.rows if r.row.kind is RowKind.ORIGINAL)
-            assert first.layout.lineCount() == second.layout.lineCount() == 1
-            gaps.append(
-                second.top
-                + second.layout.lineAt(0).y()
-                - first.top
-                - first.layout.lineAt(0).y()
-            )
+        if now < 0.5:
+            return
+        _, laid, rect = window.canvas.placed[-1]
+        existing = []
+        entering = []
+        for row in laid.rows:
+            if getattr(row, "opacity", 1.0) <= 0:
+                continue
+            boxes = [
+                box.translated(rect.x(), rect.y() + row.top)
+                for _, _, box in glyphs(row.layout)
+            ]
+            if row.row.kind is RowKind.ORIGINAL and row.visual_line:
+                entering.extend(boxes)
+                if row.visual_line == 1:
+                    reveal.append((rect.y() + row.top, getattr(row, "opacity", 1.0)))
+            else:
+                existing.extend(boxes)
+        waiting.append(not entering)
+        assert not any(a.intersects(b) for a in entering for b in existing)
 
     measure(load(FIXTURES / "e.json"), qapp, observe=observe)
-    assert gaps[0] - gaps[-1] == pytest.approx(ENTRY_GAP_PX.value, abs=0.1)
-    assert gaps[0] > gaps[len(gaps) // 2] > gaps[-1]
+    assert waiting[0] and not waiting[-1]
+    assert any(0 < opacity < 1 for _, opacity in reveal)
+    assert reveal[-1][1] == 1
+    assert all(y == pytest.approx(reveal[-1][0]) for y, _ in reveal)
 
 
 def test_a_gliding_caption_frame_fits_its_budget(

@@ -112,7 +112,12 @@ from polyglotic_desktop.core.listening.dictation_keys import (
     DictationKey,
     refusal,
 )
-from polyglotic_desktop.core.listening.hotkeys import DICTATE, RESPEAK
+from polyglotic_desktop.core.listening.hotkeys import (
+    DICTATE,
+    RESPEAK,
+    HotkeyScope,
+    default_scope,
+)
 from polyglotic_desktop.ui_next import glyphs, style
 from polyglotic_desktop.ui_next.controls import (
     Card,
@@ -526,6 +531,8 @@ class SettingsPage(Page):
     hotkey_wanted = Signal(str, str)
     """A hotkey's name and the key the learner gave it, as kept ("" for
     none): one nothing refuses (`HotkeysCard`, polyglotic-hq 567)."""
+    hotkey_scope_wanted = Signal(str, str)
+    """A hotkey's name and its chosen scope ("app" or "everywhere"; 966)."""
     respeak_changes = Signal(dict)
     """Speaker typing settings the learner changed ({"type_theirs": False},
     {"respeak_key": ""}: Settings > Dictation, polyglotic-hq 626)."""
@@ -648,10 +655,14 @@ class SettingsPage(Page):
         keys = self._section_layout("hotkeys")
         self.hotkeys_card = HotkeysCard()
         self.hotkeys_card.hotkey_wanted.connect(self.hotkey_wanted)
+        self.hotkeys_card.hotkey_scope_wanted.connect(self.hotkey_scope_wanted)
         self.hotkeys_card.reset_wanted.connect(self.hotkeys_reset)
         self.hotkeys_card.listening.connect(self.hotkey_listening)
         self._hotkey_keys: dict[str, str] = {}
+        self._hotkey_scopes: dict[str, str] = {}
         self._hotkeys_taken: frozenset[str] = frozenset()
+        self._hotkeys_shared: frozenset[str] = frozenset()
+        self._hotkey_alternatives: dict[str, tuple[str, ...]] = {}
         self._hotkeys_unavailable = False
         self._dictation_offered = True
         self._speaker_typing_offered = True
@@ -1080,7 +1091,7 @@ class SettingsPage(Page):
         key = DictationKey.parse(pressed) if pressed else None
         own = [k for n, k in self.hotkeys_card.keys.items() if k and n != DICTATE]
         # re-speaking's own key is one of the app's too (567)
-        refused = refusal(key, own) if key else None
+        refused = refusal(key, own, typing_in_app=True) if key else None
         if key is None or refused is not None:
             self._dictation_note(refusal_words(refused))
             return
@@ -1094,6 +1105,11 @@ class SettingsPage(Page):
 
     @staticmethod
     def _hold_words(key: str) -> str:
+        parsed = DictationKey.parse(key)
+        if parsed is not None and default_scope(parsed) is HotkeyScope.APP:
+            return _tr(
+                "Hold {key} and speak in Polyglotic's windows. Let go to type."
+            ).format(key=key_words(parsed))
         return _tr("Hold {key} and speak; let go, and it's typed.").format(
             key=key_words(key)
         )
@@ -1685,13 +1701,25 @@ class SettingsPage(Page):
         keys: Mapping[str, str],
         taken: Collection[str],
         *,
+        scopes: Mapping[str, str] | None = None,
+        shared: Collection[str] = (),
+        alternatives: Mapping[str, Sequence[str]] | None = None,
         unavailable: bool = False,
     ) -> None:
         """Each hotkey's key now, by its name, as kept ("" none); `taken`:
-        those another program has; `unavailable`: this desktop doesn't allow
-        global hotkeys (GNOME Wayland, `NoHotkeys`)."""
+        those another program has (not working); `shared`: those shared via
+        fallback hook; `alternatives`: tested free keys per conflicting hotkey;
+        `scopes`: each hotkey's scope ("app" or "everywhere"); `unavailable`:
+        this desktop doesn't allow global hotkeys (GNOME Wayland, `NoHotkeys`)."""
         self._hotkey_keys = dict(keys)
+        self._hotkey_scopes = dict(scopes) if scopes else {}
         self._hotkeys_taken = frozenset(taken)
+        self._hotkeys_shared = frozenset(shared)
+        self._hotkey_alternatives = (
+            {n: tuple(alts) for n, alts in alternatives.items() if alts}
+            if alternatives
+            else {}
+        )
         self._hotkeys_unavailable = unavailable
         self._show_keys()
 
@@ -1713,6 +1741,9 @@ class SettingsPage(Page):
             self._hotkeys_taken,
             dictation,
             respeak,
+            scopes=self._hotkey_scopes,
+            shared=self._hotkeys_shared,
+            alternatives=self._hotkey_alternatives,
             unavailable=self._hotkeys_unavailable,
         )
         keys = self.hotkeys_card.keys

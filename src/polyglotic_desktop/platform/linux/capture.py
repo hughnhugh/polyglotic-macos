@@ -44,6 +44,7 @@ made on that thread (libpulse's loop is driven there: `pulse.PulseServer`).
 
 from __future__ import annotations
 
+import logging
 import os
 import threading
 import time
@@ -57,9 +58,11 @@ from polyglotic_desktop.core.listening.timing import VAD_SAMPLE_RATE
 from polyglotic_desktop.platform.linux import apps, pulse
 from polyglotic_desktop.platform.timeline import BYTES_PER_SAMPLE, Timeline
 from polyglotic_desktop.ports.capture import (
+    SOUND_PEAK,
     AppCaptureSupport,
     AppCaptureTrial,
     AudioCallback,
+    CaptureIssue,
     TrialOutcome,
 )
 
@@ -70,8 +73,12 @@ RESYNC_SEC = 0.2
 """How far a piece's arrival may stray from the time its samples count to
 before the stamps start again from its arrival (a stall, a lost piece)."""
 RECONNECT_SEC = 2.0
-NO_MIC = "No microphone is plugged in."
-NO_OUTPUT = "No speakers or headphones are plugged in."
+LEVEL_CHECK_SEC = 10.0
+"""Positive seconds without sound before diagnosing a device. Allows ordinary
+startup and short pauses without leaving an empty caption window unexplained."""
+log = logging.getLogger(__name__)
+NO_MIC = CaptureIssue.MIC
+NO_OUTPUT = CaptureIssue.OUTPUT
 APP_CLOSED = "The app has closed."
 MIX_BEHIND_SEC = 0.1
 """How long several streams' audio waits to be summed: a piece of one
@@ -146,9 +153,13 @@ def output_monitor(
     sink = by_name.get(chosen or "")
     if sink is None and (chosen is None or not strict_device):
         sink = by_name.get(server.server_info().output or "")
-    if sink is None or not sink.monitor:
+    if sink is None:
         return None
-    return sink.monitor, sink.description
+    monitor = sink.monitor or next(
+        (source.name for source in server.sources() if source.monitor_of == sink.index),
+        None,
+    )
+    return (monitor, sink.description) if monitor else None
 
 
 def microphone(server: Server, chosen: str | None) -> tuple[str, str] | None:
@@ -164,12 +175,34 @@ def microphone(server: Server, chosen: str | None) -> tuple[str, str] | None:
     return found.name, found.description
 
 
+class _Signal:
+    """Assess real input before the timeline adds padding for the speech pipeline."""
+
+    def __init__(self) -> None:
+        self.last_sound = time.perf_counter()
+        self.last_frame: float | None = None
+
+    def observe(self, arrival: float, samples: np.ndarray) -> None:
+        if samples.size:
+            self.last_frame = arrival
+            if np.max(np.abs(samples)) > SOUND_PEAK:
+                self.last_sound = arrival
+
+    def issue(self, now: float) -> CaptureIssue | None:
+        if now - self.last_sound < LEVEL_CHECK_SEC:
+            return None
+        if self.last_frame is None or now - self.last_frame >= LEVEL_CHECK_SEC:
+            return CaptureIssue.NO_FRAMES
+        return CaptureIssue.SILENT
+
+
 class _Capture:
     """The thread that runs one capture: connects to the sound server,
     records what `_wanted` names, delivers it continuous, and records
     something else when what's wanted changes."""
 
-    MISSING = ""
+    KIND = "app stream monitor"
+    MISSING = CaptureIssue.OPEN
     """What `error` says while there's nothing to record."""
 
     def __init__(
@@ -186,6 +219,9 @@ class _Capture:
         self._capturing: str | None = None
         self._error: str | None = None
         self._restarts = 0
+        self._reported: set[CaptureIssue] = set()
+        self._logged_server = False
+        self._logged_device = False
 
     @property
     def restarts(self) -> int:
@@ -203,6 +239,9 @@ class _Capture:
         if self._thread is not None:
             return
         self._stop.clear()
+        self._reported.clear()
+        self._logged_server = self._logged_device = False
+        self._error = None
         self._thread = threading.Thread(
             target=self._run, args=(on_audio,), name=type(self).__name__, daemon=True
         )
@@ -218,6 +257,24 @@ class _Capture:
         """The source to record now and its name for the learner."""
         raise NotImplementedError
 
+    def _issue(self, issue: CaptureIssue) -> None:
+        self._error = issue
+        if issue not in self._reported:
+            self._reported.add(issue)
+            log.warning("Linux capture (%s): %s", self.KIND, issue.value)
+
+    def _check_signal(self, signal: _Signal, now: float) -> None:
+        issue = signal.issue(now)
+        if issue:
+            self._issue(issue)
+        else:
+            self._error = None
+
+    def _opened(self) -> None:
+        if not self._logged_device:
+            log.info("Linux capture recording device: %s", self.KIND)
+            self._logged_device = True
+
     def _run(self, on_audio: AudioCallback) -> None:
         timeline = Timeline()
         try:
@@ -225,21 +282,40 @@ class _Capture:
                 try:
                     server = self._connect()
                 except OSError as e:
-                    self._capturing, self._error = None, str(e)
+                    self._capturing = None
+                    issue = CaptureIssue.SERVER
+                    if isinstance(e, pulse.MissingLibrary):
+                        issue = CaptureIssue.LIBRARY
+                    elif isinstance(e, PermissionError):
+                        issue = CaptureIssue.DENIED
+                    self._issue(issue)
                     self._restarts += 1
                     self._stop.wait(RECONNECT_SEC)
                     continue
                 try:
+                    if not self._logged_server:
+                        log.info(
+                            "Linux capture (%s) connected to %s",
+                            self.KIND,
+                            server.server_info().log_identity(),
+                        )
+                        self._logged_server = True
                     self._connected(server, timeline, on_audio)
                 except OSError as e:  # the server went: connect again
-                    self._capturing, self._error = None, str(e)
+                    self._capturing = None
+                    self._issue(
+                        CaptureIssue.DENIED
+                        if isinstance(e, PermissionError)
+                        else CaptureIssue.SERVER
+                    )
                     self._restarts += 1
                     self._stop.wait(RECONNECT_SEC)
                 finally:
                     server.close()
         except Exception as e:  # noqa: BLE001 - the thread must not die quietly
             # Report it by its type, never its text: it could hold anything.
-            self._error = f"Capture stopped: {type(e).__name__}"
+            self._issue(CaptureIssue.STOPPED)
+            log.warning("Linux capture thread ended (%s)", type(e).__name__)
         finally:
             self._capturing = None
 
@@ -251,7 +327,8 @@ class _Capture:
             seen = server.changes
             wanted = self._wanted(server)
             if wanted is None:
-                self._capturing, self._error = None, self.MISSING
+                self._capturing = None
+                self._issue(self.MISSING)
                 self._idle(server, timeline, on_audio, seen)
                 continue
             source, name = wanted
@@ -261,11 +338,17 @@ class _Capture:
                 if not server.alive:
                     raise
                 self._restarts += 1
-                self._capturing, self._error = None, str(e)
+                self._capturing = None
+                self._issue(
+                    CaptureIssue.DENIED
+                    if isinstance(e, PermissionError)
+                    else CaptureIssue.OPEN
+                )
                 self._idle(server, timeline, on_audio, seen)
                 continue
             try:
                 self._capturing, self._error = name, None
+                self._opened()
                 self._pump(server, recording, wanted, timeline, on_audio)
             finally:
                 recording.close()
@@ -294,17 +377,22 @@ class _Capture:
     ) -> None:
         stamper = Stamper()
         seen = server.changes
+        signal = _Signal()
         next_check = time.perf_counter() + DEVICE_POLL_SEC
         while not self._stop.is_set():
             server.run(WAKE_SEC)
             delivered = False
             for arrival, data in recording.take():
                 usable = data[: len(data) - len(data) % BYTES_PER_SAMPLE]
+                if not usable:
+                    continue
+                signal.observe(arrival, np.frombuffer(usable, "<f4"))
                 seconds = len(usable) / BYTES_PER_SAMPLE / VAD_SAMPLE_RATE
                 for piece in timeline.packet(stamper(arrival, seconds), usable):
                     on_audio(*piece)
                     delivered = True
             now = time.perf_counter()
+            self._check_signal(signal, now)
             if not delivered:
                 for piece in timeline.idle(now):
                     on_audio(*piece)
@@ -312,6 +400,10 @@ class _Capture:
                 if not server.alive:
                     raise OSError("The sound server went away")
                 self._restarts += 1
+                if self._wanted(server) == wanted:
+                    self._capturing = None
+                    self._issue(CaptureIssue.OPEN)
+                    self._idle(server, timeline, on_audio, server.changes)
                 return
             if server.changes != seen or now >= next_check:
                 seen, next_check = server.changes, now + DEVICE_POLL_SEC
@@ -323,6 +415,7 @@ class SystemCapture(_Capture):
     """Everything the PC plays: the default output's monitor as the default
     changes - or the output the learner chose, while it's plugged in."""
 
+    KIND = "speaker monitor"
     MISSING = NO_OUTPUT
 
     def __init__(
@@ -343,6 +436,7 @@ class MicCapture(_Capture):
     """A microphone: the one chosen while it's plugged in, else the default
     input - never an output's monitor (no microphone, then)."""
 
+    KIND = "microphone"
     MISSING = NO_MIC
 
     def _wanted(self, server: Server) -> tuple[str, str] | None:
@@ -439,6 +533,8 @@ class _Streams(_Capture):
         server.watch(pulse.STREAMS)
         recording: dict[Tap, tuple[Recording, Stamper]] = {}
         mixer = Mixer()
+        signal = _Signal()
+        self._error = None
         seen, next_check = server.changes - 1, 0.0
         try:
             while not self._stop.is_set():
@@ -454,9 +550,14 @@ class _Streams(_Capture):
                         self._end(mixer, timeline, on_audio, now)
                         return
                     self._follow(server, taps, recording)
-                if not self._deliver(recording, mixer, timeline, on_audio, now):
+                if not self._deliver(recording, mixer, timeline, on_audio, now, signal):
                     for piece in timeline.idle(now):
                         on_audio(*piece)
+                if recording or self._error not in (
+                    CaptureIssue.OPEN,
+                    CaptureIssue.DENIED,
+                ):
+                    self._check_signal(signal, now)
         finally:
             for kept, _ in recording.values():
                 kept.close()
@@ -479,9 +580,15 @@ class _Streams(_Capture):
                 self._restarts += 1
                 if not server.alive:
                     raise
-                self._error = str(e)
+                self._issue(
+                    CaptureIssue.DENIED
+                    if isinstance(e, PermissionError)
+                    else CaptureIssue.OPEN
+                )
         self._capturing = self._name() if recording else None
         if recording:
+            self._opened()
+        elif not taps and self._error in (CaptureIssue.OPEN, CaptureIssue.DENIED):
             self._error = None
 
     def _deliver(
@@ -491,6 +598,7 @@ class _Streams(_Capture):
         timeline: Timeline,
         on_audio: AudioCallback,
         now: float,
+        signal: _Signal,
     ) -> bool:
         """What the streams delivered, on: one stream's as it came, several
         summed. Whether anything was."""
@@ -500,6 +608,7 @@ class _Streams(_Capture):
             for arrival, data in kept.take():
                 usable = data[: len(data) - len(data) % BYTES_PER_SAMPLE]
                 samples = np.frombuffer(usable, "<f4")
+                signal.observe(arrival, samples)
                 start = stamper(arrival, len(samples) / VAD_SAMPLE_RATE)
                 if alone:
                     pieces.append((start, usable))

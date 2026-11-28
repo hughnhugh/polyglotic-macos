@@ -9,8 +9,15 @@ its checks didn't change at the switch-over (only `look()` and
 `target_languages` went), and saving keeps the keys a version doesn't know
 (G11). Made-up apps; settings in a temporary folder."""
 
+import io
+import json
+import os
+import subprocess
+import sys
+import tarfile
 from pathlib import Path
 
+import pytest
 from PySide6.QtWidgets import QApplication
 from tests.ui.fakes import FakeAppList
 
@@ -23,6 +30,9 @@ from polyglotic_desktop.ui.settings import AppSettings, Settings
 from polyglotic_desktop.ui_next.views.caption_window import STORED_KEY
 from polyglotic_desktop.ui_next.views.transcript import STORED_KEY as TRANSCRIPTS_KEY
 from polyglotic_desktop.ui_next.views.transcript import TranscriptChoices
+
+ROOT = Path(__file__).resolve().parents[2]
+LAST_RELEASE_REF = "c51062c4a"  # Release 0.1.12 (#1205)
 
 BEFORE_THE_SWITCH = {
     # every key the build before the switch-over knew, none at its default
@@ -145,3 +155,246 @@ def test_the_build_before_the_switch_runs_after_this_one_and_loses_nothing(
     assert again.windows.preset_menu.video_lines_shown == 1
     again.close()
     reopened.close()
+
+
+def _extract_release_src(ref: str, dest: Path) -> Path:
+    """Extract `src/polyglotic_desktop` at git commit `ref` into `dest`."""
+    try:
+        subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        )
+        archived = subprocess.run(
+            ["git", "archive", "--format=tar", ref, "src/polyglotic_desktop"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        message = (
+            f"cannot load {ref} from git (git missing or a shallow/snapshot checkout): "
+            f"{exc}"
+        )
+        if os.environ.get("GITHUB_REPOSITORY", "").endswith("/polyglotic-desktop"):
+            pytest.fail(message)
+        pytest.skip(message)
+    with tarfile.open(fileobj=io.BytesIO(archived.stdout)) as archive:
+        archive.extractall(dest, filter="data")
+    return dest / "src"
+
+
+_ROLLBACK_CHECK_SCRIPT = """
+import json
+import sys
+from dataclasses import fields, replace
+from pathlib import Path
+
+old_src, in_path, out_path = Path(sys.argv[1]).resolve(), Path(sys.argv[2]), Path(sys.argv[3])
+sys.path.insert(0, str(old_src))
+import polyglotic_desktop
+from polyglotic_desktop.ui.settings import _INVALID, _valid, AppSettings
+
+loaded_from = Path(polyglotic_desktop.__file__).resolve()
+assert loaded_from.is_relative_to(old_src), loaded_from
+
+stored = json.loads(in_path.read_text(encoding="utf-8"))
+defaults = AppSettings()
+rejected = {
+    f.name: stored[f.name]
+    for f in fields(AppSettings)
+    if f.name in stored and _valid(f.name, stored[f.name], getattr(defaults, f.name)) is _INVALID
+}
+assert not rejected, f"0.1.12 rejected existing keys: {rejected}"
+
+value = AppSettings.from_stored(stored)
+known = {f.name for f in fields(AppSettings)}
+unknown = {k: v for k, v in stored.items() if k not in known}
+changed = replace(value, transcript_ask_at_quit=not value.transcript_ask_at_quit)
+saved = {**unknown, **changed.to_stored()}
+out_path.write_text(json.dumps(saved), encoding="utf-8")
+print(json.dumps({
+    "hotkeys": value.hotkeys,
+    "dictation_key": value.dictation_key,
+    "respeak_key": value.respeak_key,
+    "last_respeak_key": value.last_respeak_key,
+    "theme": value.theme,
+    "window_theme": value.window_theme,
+    "learning": value.learning,
+    "opacity": value.opacity,
+    "caption_mode_chosen": value.caption_mode_chosen,
+    "japanese_reading": value.japanese_reading,
+    "video_lines_shown": value.video_lines_shown,
+    "type_what": value.type_what,
+    "saved_hotkeys": saved["hotkeys"],
+    "unknown_keys": sorted(unknown),
+}))
+"""
+
+
+def _run_release_reader(
+    old_src: Path, stored: dict[str, object], tmp_path: Path, stem: str
+) -> tuple[dict[str, object], dict[str, object]]:
+    in_path = tmp_path / f"{stem}_in.json"
+    out_path = tmp_path / f"{stem}_out.json"
+    in_path.write_text(json.dumps(stored), encoding="utf-8")
+    env = {**os.environ, "PYTHONPATH": str(old_src)}
+    done = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            _ROLLBACK_CHECK_SCRIPT,
+            str(old_src),
+            str(in_path),
+            str(out_path),
+        ],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.returncode == 0, (
+        f"0.1.12 reader failed:\nSTDOUT:\n{done.stdout}\nSTDERR:\n{done.stderr}"
+    )
+    report = json.loads(done.stdout)
+    after = json.loads(out_path.read_text(encoding="utf-8"))
+    return report, after
+
+
+def test_rollback_to_0_1_12_keeps_hotkeys_and_settings_and_round_trips(
+    tmp_path: Path,
+) -> None:
+    """0.1.12 (`c51062c4a`) reading a settings file written by 0.1.13 must
+    accept every existing key without resetting `hotkeys` or hold keys, and
+    saving an unrelated change in 0.1.12 must preserve every 0.1.13 choice."""
+    old_src = _extract_release_src(LAST_RELEASE_REF, tmp_path / "v0_1_12")
+    legacy_hotkeys = {
+        "lock": "ctrl+alt+l",
+        "pause": "f9",
+        "copy": "ctrl+alt+c",
+        "live": "space",
+        "smaller": "",
+    }
+    new_only_hotkeys = {
+        "hide": "space",
+        "bigger": "a",
+        "preset": "media_play",
+        "bar": "ctrl+alt+comma",
+    }
+    all_hotkeys = {**legacy_hotkeys, **new_only_hotkeys}
+    scopes = {"hide": "app", "bigger": "everywhere", "pause": "app"}
+
+    # Case 1: 0.1.13-only typing/media/punctuation hotkeys and hold keys.
+    v13_new_keys = AppSettings.from_stored(
+        {
+            "hotkeys": all_hotkeys,
+            "hotkey_scopes": scopes,
+            "dictation_key": "semicolon",
+            "respeak_key": "media_play",
+            "last_respeak_key": "ctrl+alt+comma",
+            "learning": "zh",
+            "theme": "glaze",
+            "window_theme": "light",
+            "opacity": 0.8,
+            "caption_mode_chosen": "steady",
+            "japanese_reading": "romaji",
+            "video_lines_shown": 1,
+            "type_theirs": True,
+            "type_what": "translation",
+            "transcript_ask_at_quit": True,
+        }
+    )
+    assert v13_new_keys.hotkeys == all_hotkeys
+    assert v13_new_keys.hotkey_scopes == scopes
+    assert v13_new_keys.dictation_key == "semicolon"
+    assert v13_new_keys.respeak_key == "media_play"
+    assert v13_new_keys.last_respeak_key == "ctrl+alt+comma"
+
+    report, after = _run_release_reader(
+        old_src, v13_new_keys.to_stored(), tmp_path, "new_keys"
+    )
+    assert report["hotkeys"] == legacy_hotkeys
+    assert report["saved_hotkeys"] == legacy_hotkeys
+    assert report["theme"] == "glaze"
+    assert report["window_theme"] == "light"
+    assert report["learning"] == "zh"
+    assert report["opacity"] == 0.8
+    assert report["caption_mode_chosen"] == "steady"
+    assert report["japanese_reading"] == "romaji"
+    assert report["video_lines_shown"] == 1
+    assert report["type_what"] == "translation"
+
+    reopened = AppSettings.from_stored(after)
+    assert reopened.hotkeys == all_hotkeys
+    assert reopened.hotkey_scopes == scopes
+    assert reopened.dictation_key == "semicolon"
+    assert reopened.respeak_key == "media_play"
+    assert reopened.last_respeak_key == "ctrl+alt+comma"
+    assert reopened.transcript_ask_at_quit is False  # changed in 0.1.12
+
+    # Case 2: 0.1.12-valid hold keys survive alongside 0.1.13-only hotkeys.
+    v13_legacy_hold = AppSettings.from_stored(
+        {
+            "hotkeys": all_hotkeys,
+            "hotkey_scopes": scopes,
+            "dictation_key": "f10",
+            "respeak_key": "f7",
+            "last_respeak_key": "f7",
+        }
+    )
+    report2, after2 = _run_release_reader(
+        old_src, v13_legacy_hold.to_stored(), tmp_path, "legacy_hold"
+    )
+    assert report2["hotkeys"] == legacy_hotkeys
+    assert report2["dictation_key"] == "f10"
+    assert report2["respeak_key"] == "f7"
+    assert report2["last_respeak_key"] == "f7"
+
+    reopened2 = AppSettings.from_stored(after2)
+    assert reopened2.hotkeys == all_hotkeys
+    assert reopened2.dictation_key == "f10"
+    assert reopened2.respeak_key == "f7"
+    assert reopened2.last_respeak_key == "f7"
+
+
+def test_resetting_v2_keys_in_settings_does_not_leave_stale_values(
+    qapp: QApplication, tmp_path: Path
+) -> None:
+    """Clearing or replacing 0.1.13-only hotkeys or hold keys through `Settings`
+    must clear the add-only v2 keys too, rather than letting `_unknown` keep
+    old values alive on disk."""
+    store = JsonSettingsStore(tmp_path / "settings.json")
+    try:
+        settings = Settings(store)
+        settings.update(
+            hotkeys={"lock": "ctrl+alt+l", "hide": "space"},
+            hotkey_scopes={"hide": "app"},
+            dictation_key="semicolon",
+            respeak_key="media_play",
+            last_respeak_key="ctrl+alt+comma",
+        )
+        store.flush()
+        reloaded = AppSettings.from_stored(store.load())
+        assert reloaded.hotkeys == {"lock": "ctrl+alt+l", "hide": "space"}
+        assert reloaded.dictation_key == "semicolon"
+        assert reloaded.respeak_key == "media_play"
+        assert reloaded.last_respeak_key == "ctrl+alt+comma"
+
+        settings.update(
+            hotkeys={},
+            hotkey_scopes={},
+            dictation_key="f9",
+            respeak_key="f7",
+            last_respeak_key="f7",
+        )
+        store.flush()
+        after_reset = AppSettings.from_stored(store.load())
+        assert after_reset.hotkeys == {}
+        assert after_reset.hotkey_scopes == {}
+        assert after_reset.dictation_key == "f9"
+        assert after_reset.respeak_key == "f7"
+        assert after_reset.last_respeak_key == "f7"
+    finally:
+        store.close()

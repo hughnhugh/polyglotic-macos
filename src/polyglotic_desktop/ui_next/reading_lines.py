@@ -392,10 +392,12 @@ def band_height(font: QFont, *, below: bool = False) -> float:
 def _band(font: QFont, metrics: QFontMetricsF, below: bool) -> tuple[float, float]:
     """Reserved height and distance from the base text to the reading baseline."""
     gap = LIFT * font.pixelSize()
-    if below:
-        return metrics.height() + gap, metrics.ascent() + gap
-    drop = metrics.descent() * 0.6 + gap
-    return metrics.ascent() + drop, drop
+    # Hiragino's descenders extend beyond its nominal descent. Its line
+    # spacing includes leading for that ink, shared above and below the line.
+    half_leading = max(0.0, metrics.leading()) / 2
+    ascent = metrics.ascent() + half_leading
+    descent = metrics.descent() * (1.0 if below else 0.6) + half_leading
+    return ascent + descent + gap, (ascent if below else descent) + gap
 
 
 def ruby(

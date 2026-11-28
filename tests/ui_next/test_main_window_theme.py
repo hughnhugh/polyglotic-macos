@@ -10,7 +10,7 @@ from collections.abc import Iterator
 
 import pytest
 import shiboken6
-from PySide6.QtCore import QEvent, QObject, QTimer
+from PySide6.QtCore import QEvent, QEventLoop, QObject, QTimer
 from PySide6.QtGui import QAction, QColor
 from PySide6.QtWidgets import (
     QApplication,
@@ -335,7 +335,11 @@ def test_a_theme_change_on_settings_restyles_only_the_section_on_show(
             assert isinstance(dark, SettingsPage)
             settings.show_section(key)
             dark.show_section(key)
-            qapp.processEvents()
+            # Restyling queues button measurements, which resize the scroll thumb.
+            # Drain the events they post too, as the UI lab does before a grab.
+            for _ in range(2):
+                qapp.sendPostedEvents()
+                qapp.processEvents(QEventLoop.ProcessEventsFlag.AllEvents, 50)
             assert window.grab().toImage() == built_dark.grab().toImage(), key
     finally:
         _close(built_dark)

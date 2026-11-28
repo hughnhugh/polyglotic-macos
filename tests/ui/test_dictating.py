@@ -500,7 +500,7 @@ def test_dictations_answers_never_reach_the_caption_feed(qapp: QApplication) -> 
 def test_dictation_settings_are_read_leniently() -> None:
     assert AppSettings().dictation is True  # on for a new learner (478; off in 283)
     assert AppSettings().dictation_key == "right_ctrl"  # polyglotic-hq 289
-    for kept in ("insert", "ctrl+alt+d", "ctrl+win", "pause"):  # 283's still read
+    for kept in ("insert", "ctrl+alt+d", "ctrl+win", "pause", "space"):
         assert AppSettings.from_stored({"dictation_key": kept}).dictation_key == kept
     read = AppSettings.from_stored(
         {
@@ -517,7 +517,11 @@ def test_dictation_settings_are_read_leniently() -> None:
     )
     assert AppSettings.from_stored(read.to_stored()) == read
     bad = AppSettings.from_stored(
-        {"dictation": "yes", "dictation_key": "space", "dictation_language": "Klingon"}
+        {
+            "dictation": "yes",
+            "dictation_key": "unknown",
+            "dictation_language": "Klingon",
+        }
     )
     assert (bad.dictation, bad.dictation_key, bad.dictation_language) == (
         True,  # the default (478)

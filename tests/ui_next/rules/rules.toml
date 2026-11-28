@@ -1,0 +1,311 @@
+# The display rulebook's rules (polyglotic-hq 933, ADR-009).
+#
+# One [[rule]] per rule, ten of its eleven parts here; the eleventh, its test
+# and its planted break, is declared on the tests (`@pins`, `@breaks`) in
+# test_<family>.py beside this file. `docs/display/RULEBOOK.md` is generated
+# from both: `uv run python -m tools.scene_replay rulebook --write`.
+#
+# - `statement`, `trigger`, `why`: plain language for the founder. No code
+#   words; where the code decides it goes in `decided`.
+# - `applies`: the surfaces the rule holds on today, checked over the whole
+#   replay matrix (`python -m tools.scene_replay judge`). `not_here`: surfaces
+#   it does not hold on, each with what happens there instead.
+# - `fails_today`: runs (stream@setup patterns) on an `applies` surface where
+#   the code does not do what the rule says. Each is in the rule's conflicts.
+# - `mark`, `marked_on`, `his_words`, `marked_statement`: the founder's, set
+#   only by Claude from his words. A statement edited after a mark fails the
+#   check until he marks it again.
+
+[[rule]]
+id = "movement.words-never-fall"
+title = "Words never fall"
+statement = """
+Text that is on screen never moves down. When unsure text is revised to
+something shorter, or taken away, the space it held stays as a gap. New text
+fills the gap first; otherwise everything moves up to make room. The gap
+closes only when more text arrives, or when you scroll, resize the window or
+change the text size.
+"""
+trigger = """
+A live caption is revised to fewer words; a draft caption is replaced by a
+shorter finished one; a caption is withdrawn; a translation is revised
+shorter or arrives late; readings appear or go; two captions are joined or
+one is split.
+"""
+applies = ["panel", "zones", "cards", "joined", "video-instant", "video-scrolling", "transcript"]
+fails_today = ["lines/motion@video-instant*", "lines/motion@video-scrolling*"]
+decided = [
+    { function = "ui_next/views/row_positions.py::row_tops", in_paint = false, note = "fits new rows into the gap; a kept row never gets a lower top" },
+    { function = "ui_next/caption_window.py::Canvas._place_rows", in_paint = true, note = "applies it to the page on every paint; remembers the last tops on the canvas" },
+    { function = "ui_next/caption_window.py::Canvas._follow_words", in_paint = true, note = "carries a surviving word's bound across a new line break" },
+    { function = "ui_next/video.py::VideoFlow.advance", in_paint = false, note = "Video's own placing, which does not go through row_tops" },
+]
+shaped_by = [
+    "desktop #1237 (969, commit 5c853b3d9): the rule, in six new fields on the canvas",
+    "809 (commit 5b38f1efe): room for the translation from the first slide-in",
+    "DECISIONS #230: lines only grow",
+]
+said_before = [
+    "The founder, 2026-11-25 ~22:07 (969's brief): \"Words never fall - hard rule, this occurs when text renders but is unsure / unestablished captions / translations, leave that gap there and allow new content to fill it / push it up. Cover all edge cases.\"",
+    "827's SPEC, rule 5 (frozen breaks): \"Once a pair is closed and shown, the place where each of its rows ends never moves. A correction changes words in place.\" Written, not applied: the windows do not pass the frozen breaks.",
+]
+recommendation = "keep"
+why = """
+It is your hard rule and it holds on every caption window, the card stack,
+the zones, the joined window and the transcript in all 972 replays of those.
+Two things need your eye. The fix that made it hold (969) pulls a row up
+over the row above when a word moves to the next line, in a narrow window,
+mostly with Long lines set to Display new lines (first conflict). And it does not
+yet hold in Video (second conflict). I would keep the rule, and settle the
+first conflict by not moving a word that is already shown to another line.
+"""
+
+[rule.picture]
+file = "movement.words-never-fall.png"
+stream = "rules/revised-shorter"
+setup = "panel+narrow"
+frames = [80, 90, 250, 340]
+caption = "A long live caption is arriving (top) when it is revised to one word. The word stays where it was, and the space under it is left as a gap with the translation still below it (second and third frames). When the next caption arrives, the translation moves up to close the gap (bottom). Nothing moved down."
+
+[[rule.conflicts]]
+with = "unwritten: a live caption's line breaks follow its newest text (the wrapping family)"
+what = "A live caption is revised and a word that ended the first row now starts the second. The word may not fall, so the whole second row is put where the word was: it is drawn over the first row, and its own place is left empty."
+wins = "Words never fall wins, and two rows are drawn over each other until the next change (0.6 s in the replay). A row is pulled to a new place like this in 5 of 432 caption-window and joined-window replays, all in a narrow window, 4 of them with Long lines: Display new lines. In 0.1.12, before the fix, the word fell 66 px instead."
+
+[rule.conflicts.picture]
+file = "movement.words-never-fall.overlap.png"
+stream = "lines/motion"
+setup = "panel+narrow+paired"
+frames = [263, 270]
+caption = "A narrow window, Long lines: Display new lines. After a revision (bottom) the second row of the caption is drawn over the first, and the place under it is empty."
+
+[[rule.conflicts]]
+with = "unwritten: Video breaks its two lines again from the newest text (the Video family)"
+what = "In Video, when a subtitle on two lines is revised, its lines are broken again from the new text. A word can move from the end of the first line to the start of the second, and the second line can start lower than it was: text falls by a line's height or by about 18 px."
+wins = "Today Video's line break wins and the words fall. Seen in 10 of 432 Video replays, all on the long made-up stream."
+
+[rule.conflicts.picture]
+file = "movement.words-never-fall.video.png"
+stream = "lines/motion"
+setup = "video-instant+narrow"
+frames = [593, 594]
+caption = "Video, one frame apart: the translation's second line is 18 px lower in the second frame."
+
+[[rule]]
+id = "wrapping.every-row-is-a-single-line"
+title = "Every row is a single line"
+statement = """
+Each row of a caption is one line of text. A caption too long for the window
+carries on in a new row of its own, under the first. A row is never wrapped
+inside itself.
+"""
+trigger = """
+A caption, or its translation, is wider than the window's room for text.
+"""
+applies = ["panel", "zones", "cards", "joined", "video-instant", "video-scrolling"]
+decided = [
+    { function = "ui_next/caption_layout.py::_single_line_rows", in_paint = false, note = "cuts a composed row into one item per line" },
+    { function = "ui_next/caption_layout.py::CaptionLayout._flowed", in_paint = false, note = "the composer's rows, for every caption window" },
+    { function = "ui_next/caption_layout.py::CaptionLayout._lay_out", in_paint = false, note = "which layout path a line takes; Video asks for one line a row" },
+    { function = "ui_next/caption_layout.py::_laid_text", in_paint = false, note = "the transcript's rows: Qt wraps them inside the row" },
+]
+shaped_by = [
+    "832 (commit 75b0de437): no line wraps; long translations become new rows",
+    "340 (decision 0132): the one layout, the composer",
+]
+said_before = [
+    "827's SPEC, rule 4: \"Overflow, never wrap. A row that is full ends with ... The text carries on at the start of the next pair, and that pair slides in. A row is never wrapped inside itself.\"",
+    "The founder, 2026-11-25 22:12, on the transcript: it should have \"the same style as the real time captions\".",
+]
+recommendation = "keep"
+why = """
+It holds in every caption window and in Video (1,296 replays). The transcript
+is the one place that still wraps a long row inside itself; moving it to the
+live style is already planned, and that would make this one rule everywhere.
+"""
+
+[rule.not_here]
+transcript = "a long row wraps inside itself there, on the older layout."
+
+[rule.picture]
+file = "wrapping.every-row-is-a-single-line.png"
+stream = "rules/one-long-line"
+setup = "panel+narrow"
+frames = [60]
+caption = "A caption far wider than a narrow window: it carries on in new rows, each one line, with its translation's rows under them."
+
+[[rule.conflicts]]
+with = "unwritten: the transcript wraps a long row inside itself (the transcript family)"
+what = "The same caption in the transcript window is one row that wraps."
+wins = "Each window keeps its own way today; they do not meet on one screen."
+
+[rule.conflicts.picture]
+file = "wrapping.every-row-is-a-single-line.transcript.png"
+stream = "rules/one-long-line"
+setup = "transcript+narrow"
+frames = [60]
+caption = "The same caption in the transcript: one row, wrapped inside itself."
+
+[[rule]]
+id = "movement.no-sideways-slide"
+title = "No sideways slide"
+statement = """
+Text never slides in from the side. A new row appears in its own place, and
+rows already on screen do not travel left or right.
+"""
+trigger = """
+A caption gains a row, or a new caption arrives.
+"""
+applies = ["panel", "zones", "cards", "joined", "video-instant", "transcript"]
+decided = [
+    { function = "ui_next/caption_window.py::Canvas._paint_panel", in_paint = true, note = "every row is drawn from the same left edge; nothing moves a row sideways" },
+]
+shaped_by = [
+    "959 (commit 14007500b): a new row slid in from the right, like a wedge",
+    "the revert (commit 5fd0c545a), 2026-11-25 ~18:20, at the founder's word",
+]
+said_before = [
+    "The founder, 2026-11-25 ~18:20, after trying preview 8g: \"can you revert this slide right changes. It is so bad\".",
+]
+recommendation = "keep"
+why = """
+You tried the alternative and rejected it. The rule holds in all 1,188
+replays outside Video Scrolling.
+"""
+
+[rule.not_here]
+video-scrolling = "a row longer than the window pans sideways there, by design (686's agreed Video simulation)."
+
+[rule.picture]
+file = "movement.no-sideways-slide.png"
+stream = "rules/grows-a-second-line"
+setup = "panel+narrow"
+frames = [60, 121, 140]
+caption = "A caption carries on to a second line: the new row comes in at the left edge, in its own place, with no travel across the window."
+
+[[rule.conflicts]]
+with = "unwritten: Video Scrolling pans a long row (the Video family)"
+what = "In Video Scrolling a row too long for the window moves sideways so its end can be read."
+wins = "Video Scrolling's pan, in that mode only; it was agreed in 686's simulation."
+
+[[rule]]
+id = "movement.the-approved-glide"
+title = "The approved glide"
+statement = """
+When captions move up to make room, they glide. They never move faster than
+300 px a second, and never jump (more than 6 px in a single frame). A change
+that comes while they are gliding joins the same glide.
+"""
+trigger = """
+A new caption arrives, or a caption on screen gains a row.
+"""
+applies = ["panel", "joined"]
+fails_today = [
+    "lines/motion@panel+narrow+paired",
+    "lines/motion@panel+readings+narrow+paired",
+    "lines/motion@joined+narrow",
+    "lines/motion@joined+narrow+paired",
+    "lines/motion@joined+readings+narrow+paired",
+]
+decided = [
+    { function = "ui_next/views/cards.py::Glide.push", in_paint = false, note = "the spring, and its top speed" },
+    { function = "ui_next/caption_window.py::CaptionWindow._note_arrivals", in_paint = false, note = "turns a change in the rows into a glide" },
+    { function = "ui_next/caption_window.py::Canvas._list_positions", in_paint = true, note = "reads how far the glide has got on every paint" },
+    { function = "ui_next/caption_window.py::CaptionWindow._settle_burst", in_paint = false, note = "more than the window's height at once: put in place with no glide" },
+]
+shaped_by = [
+    "552 and 583: the card stack's glide and its top speed",
+    "830: the glide for every growth of the stack, and the motion replay",
+    "desktop #1237 (969)",
+]
+said_before = [
+    "827's SPEC, rule 6: \"One motion rule. The stack only grows, by whole pairs. Every growth, whatever its cause, is one glide ... never faster than 300 px/s, keeping its speed when another change comes mid-glide.\"",
+    "346's thresholds, kept by 827's replay: a jump is more than 6 px in a frame at more than 360 px a second.",
+]
+recommendation = "keep"
+why = """
+It holds in 427 of 432 replays of a caption window and the joined window;
+the five that jump are narrow windows where a word moves to another row (the
+conflict with Words never fall). Steady's zones and cards, Video and the
+transcript each move in their own way today (see Where); whether they should
+share this glide is yours to rule on when those families are written.
+"""
+
+[rule.not_here]
+zones = "a caption moving from the live zone to the transcript above steps into place."
+cards = "the card stack turns and steps in its own way."
+video-instant = "subtitles lift in their own steps."
+video-scrolling = "subtitles lift in their own steps."
+transcript = "the transcript does not glide: a new line moves the page in one step."
+
+[rule.picture]
+file = "movement.the-approved-glide.png"
+stream = "lines/a"
+setup = "panel"
+frames = [29, 36, 44, 60]
+caption = "A caption finishes as two parts: the first part glides up to make room, a few pixels a frame, until it rests."
+
+[[rule.conflicts]]
+with = "movement.words-never-fall"
+what = "In a narrow window, when a revision moves a word to the next row, that row is put in a new place in a single frame: a jump of 28 to 84 px. The picture is under Words never fall."
+wins = "Words never fall wins: the row jumps instead of gliding."
+
+[[rule.conflicts]]
+with = "unwritten: too much at once is put in place at once (the movement family)"
+what = "When more arrives together than the window is tall, the captions are put in their places in one frame instead of gliding."
+wins = "The burst wins: no glide. Seen only on the made-up stream that sends a burst."
+
+[[rule]]
+id = "movement.a-new-row-waits-then-fades-in"
+title = "A new row waits, then fades in where it stays"
+statement = """
+A new row never appears on top of other text. It waits until the text in its
+place has moved away, then fades in at the place where it will stay.
+"""
+trigger = """
+A caption carries on to a second line (a narrow window, Long lines: Grouped);
+a live caption finishes as more than one part; a revision carries words onto
+a new line.
+"""
+applies = ["panel", "joined"]
+fails_today = ["lines/motion@*"]
+decided = [
+    { function = "ui_next/caption_window.py::Canvas._reveal_wraps", in_paint = true, note = "holds the new row back while anything is in its place or still to pass through it, and a translation while its text is held; then fades it in" },
+    { function = "ui_next/caption_window.py::CaptionWindow._note_arrivals", in_paint = false, note = "marks which new rows wait: a carried-on line in Grouped, and any new row that would not rise into place (a new part, words carried to a new line)" },
+]
+shaped_by = [
+    "desktop #1237 (969, commit 5c853b3d9)",
+    "959 (reverted): the same moment, tried as a slide from the right",
+    "984: every new row that appears where it stays waits for its place",
+]
+said_before = [
+    "The founder, 2026-11-25 ~17:35 (959's brief): \"for multi line captions (grouped), the 2nd lines will slide in and overlap with existing text\".",
+    "The founder, 2026-11-25 ~22:07 (969's brief): \"See if you can polish narrow width overflow second line slide in also (this overlaps text briefly and feels unpolished).\"",
+]
+recommendation = "keep"
+why = """
+It now holds for every new row in the captions you see: a second line in a
+narrow window, and a live caption that finishes as two parts in the ordinary
+wide window, where the second part used to be drawn over the first for about
+a fifth of a second. A new row whose place is already free still shows at
+once. What is left is on a made-up stream of rapid revisions (below).
+"""
+
+[rule.picture]
+file = "movement.a-new-row-waits-then-fades-in.png"
+stream = "rules/grows-a-second-line"
+setup = "panel+narrow"
+frames = [60, 100, 121, 140]
+caption = "A caption carries on to a second line. Its first row and its translation move apart first (second frame); only then does the new row fade in, in the place where it stays (third and fourth frames). In this replay the new words are not seen for 0.95 s after they arrive."
+
+[[rule.conflicts]]
+with = "movement.words-never-fall"
+what = "On the made-up stream of rapid revisions, a row held low so that its words do not fall still lies where a new caption, or words moved to another row, come in; in narrow windows a new row can also start to fade in and then move."
+wins = "Words never fall wins: two texts touch for a few frames. Seen in 8 of 216 caption-window replays and 8 of 216 joined-window replays, all on that one stream; none on the recorded captions."
+
+[rule.conflicts.picture]
+file = "movement.a-new-row-waits-then-fades-in.overlap.png"
+stream = "lines/motion"
+setup = "panel"
+frames = [2938, 2940, 2943]
+caption = "The made-up stream of rapid revisions: a new caption slides in (middle frame) while the row above it is still held low, and the two touch until that row has moved up (bottom)."

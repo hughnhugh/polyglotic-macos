@@ -48,6 +48,16 @@ UI_TIMING_WAIT_SECONDS = 60.0
 """Maximum quiet wait before each UI-lab try. A minute is bounded within the
 job timeout while allowing an ordinary competing test burst to finish."""
 
+UI_TIMING_SAMPLE_SECONDS = SAMPLE_SECONDS
+"""How long each reading of the load before a UI-lab try lasts (seconds;
+0.2-1.0). `SAMPLE_SECONDS`, not `wait_for_calm`'s 1 s: the lab reads it
+before each of about 410 states in each of five walks, so a second each
+was 34 of the job's minutes and more than half of each walk (10.2 minutes
+for 413 states on 2026-11-27, 1.8 for 359 before 904 added the wait;
+polyglotic-hq 994). The competing CI load it looks for lasts seconds to
+minutes, which a fifth of a second sees as well; a try over its budget is
+still taken again after a fresh wait."""
+
 CALM_WAIT_SECONDS = 60.0
 """How long a try of the start waits for the PC to calm before it's taken
 anyway: a busy spell of other agents' tests lasts minutes, so a retry

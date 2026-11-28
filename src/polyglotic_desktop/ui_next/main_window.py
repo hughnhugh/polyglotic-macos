@@ -162,26 +162,67 @@ def _paint_sidebar_glyph(
     painter.drawPixmap(style.px(12), top, pixmap)
 
 
-class SidebarButton(QPushButton):
-    """A sidebar label with a decorative glyph that follows its text state."""
+def sidebar_icon_colour(
+    theme: style.Theme,
+    section: str | None,
+    *,
+    foot: bool = False,
+    enabled: bool = True,
+    checked: bool = False,
+    hovered: bool = False,
+) -> QColor:
+    """Icon ink for a sidebar item (polyglotic-hq 964).
 
-    def __init__(self, title: str, glyph: Glyph, *, foot: bool = False) -> None:
+    Main sections take their theme hue token (soft at rest, lifted slightly on
+    hover, full strength when selected). Footer actions keep a brighter neutral
+    icon at rest and step up to TEXT on hover or selection.
+    """
+    if not enabled:
+        return QColor(theme["TEXT_FAINT"])
+    token = (
+        None if foot or section is None else style.SIDEBAR_SECTION_TOKENS.get(section)
+    )
+    if token is not None:
+        colour = QColor(theme[token])
+        if not checked:
+            colour.setAlphaF(
+                style.SIDEBAR_ICON_HOVER_ALPHA
+                if hovered
+                else style.SIDEBAR_ICON_REST_ALPHA
+            )
+        return colour
+    return QColor(theme["TEXT" if hovered or checked else "TEXT_DIM"])
+
+
+class SidebarButton(QPushButton):
+    """A sidebar label with a decorative glyph that follows its section and state."""
+
+    def __init__(
+        self,
+        title: str,
+        glyph: Glyph,
+        *,
+        foot: bool = False,
+        section: str | None = None,
+    ) -> None:
         super().__init__(title)
         self.glyph = glyph
         self.foot = foot
+        self.section = section
 
     def paintEvent(self, event: QPaintEvent) -> None:
         super().paintEvent(event)
-        theme = style.current()
-        if not self.isEnabled():
-            colour = theme["TEXT_FAINT"]
-        elif self.underMouse() or self.isChecked():
-            colour = theme["TEXT"]
-        else:
-            colour = theme["TEXT_FAINT" if self.foot else "TEXT_DIM"]
+        colour = sidebar_icon_colour(
+            style.current(),
+            self.section,
+            foot=self.foot,
+            enabled=self.isEnabled(),
+            checked=self.isChecked(),
+            hovered=self.underMouse(),
+        )
         side = style.px(13 if self.foot else 15)
         painter = QPainter(self)
-        _paint_sidebar_glyph(self, painter, self.glyph, side, QColor(colour))
+        _paint_sidebar_glyph(self, painter, self.glyph, side, colour)
         painter.end()
 
 
@@ -190,13 +231,17 @@ class SidebarQuitButton(QToolButton):
 
     def paintEvent(self, event: QPaintEvent) -> None:
         super().paintEvent(event)
-        theme = style.current()
-        colour = theme["TEXT"] if self.underMouse() else theme["TEXT_FAINT"]
-        if not self.isEnabled():
-            colour = theme["TEXT_FAINT"]
+        colour = sidebar_icon_colour(
+            style.current(),
+            None,
+            foot=True,
+            enabled=self.isEnabled(),
+            checked=False,
+            hovered=self.underMouse(),
+        )
         side = style.px(13)
         painter = QPainter(self)
-        _paint_sidebar_glyph(self, painter, Glyph.START, side, QColor(colour))
+        _paint_sidebar_glyph(self, painter, Glyph.START, side, colour)
         painter.end()
 
 
@@ -419,11 +464,13 @@ class MainWindow(QMainWindow):
             return
         glyph = SIDEBAR_GLYPHS.get(key)
         button = (
-            SidebarButton(title, glyph, foot=place == "foot")
+            SidebarButton(title, glyph, foot=place == "foot", section=key)
             if glyph is not None
             else QPushButton(title)
         )
         button.setObjectName("FootButton" if place == "foot" else "NavButton")
+        if place != "foot" and key in style.SIDEBAR_SECTION_TOKENS:
+            button.setProperty("section", key)
         button.setCheckable(True)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(lambda _=False, k=key: self.go_to(k))

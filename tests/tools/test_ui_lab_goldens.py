@@ -150,7 +150,7 @@ def test_an_unapproved_difference_fails_the_gate_and_keeps_its_pictures(
 ) -> None:
     out = tmp_path / "lab"
     assert cli.main(["--gate", "--out", str(out)]) == 1  # new
-    assert cli.main(["approve", "--out", str(out)]) == 0
+    assert cli.main(["approve", "--reason", "a test", "--out", str(out)]) == 0
     assert (store / "ui_next.label.png").is_file()
     assert cli.main(["--gate", "--out", str(out)]) == 0
     assert not list((out / "failed").glob("*.png"))
@@ -200,7 +200,7 @@ def test_approve_only_runs_the_states_named_and_prune_is_its_own_step(
     out = str(tmp_path / "lab")
     states = [_labelled("one"), _labelled("two"), _labelled("three")]
     monkeypatch.setattr(new_parts, "STATES", states)
-    assert cli.main(["approve", "--out", out]) == 0
+    assert cli.main(["approve", "--reason", "a test", "--out", out]) == 0
     before = {p.name: p.read_bytes() for p in store.glob("*.png")}
     assert sorted(before) == ["ui_next.one.png", "ui_next.three.png", "ui_next.two.png"]
 
@@ -213,18 +213,39 @@ def test_approve_only_runs_the_states_named_and_prune_is_its_own_step(
 
     monkeypatch.setattr(lab, "run", noted)
     (store / "ui_next.two.png").unlink()  # one to approve again
-    assert cli.main(["approve", "--only", "ui_next.t*o", "--out", out]) == 0
+    assert (
+        cli.main(
+            ["approve", "--reason", "a test", "--only", "ui_next.t*o", "--out", out]
+        )
+        == 0
+    )
     assert drawn == ["ui_next.two"]
     assert {p.name: p.read_bytes() for p in store.glob("*.png")} == before
 
     drawn.clear()
     with pytest.raises(SystemExit, match="no state is called ui_next.four"):
-        cli.main(["approve", "--only", "ui_next.one", "ui_next.four", "--out", out])
+        cli.main(
+            [
+                "approve",
+                "--reason",
+                "a test",
+                "--only",
+                "ui_next.one",
+                "ui_next.four",
+                "--out",
+                out,
+            ]
+        )
     assert drawn == []
 
     monkeypatch.setattr(new_parts, "STATES", states[:2])  # "three" is gone
     capsys.readouterr()
-    assert cli.main(["approve", "--only", "ui_next.one", "--out", out]) == 0
+    assert (
+        cli.main(
+            ["approve", "--reason", "a test", "--only", "ui_next.one", "--out", out]
+        )
+        == 0
+    )
     assert "1 golden(s) whose state is gone, kept" in capsys.readouterr().out
     assert (store / "ui_next.three.png").is_file()
     assert cli.main(["prune"]) == 0
@@ -241,3 +262,39 @@ def test_every_new_state_has_a_golden_and_none_is_left_over() -> None:
     """Add a state, approve its golden (`python -m tools.ui_lab approve`)."""
     stored = {p.stem for p in goldens.GOLDENS.glob("*.png")}
     assert stored == {state.name for state in cli.visual_states()}
+
+
+def test_approving_needs_a_reason_and_logs_it_with_what_changed(
+    one_state: lab.State, store: Path, tmp_path: Path
+) -> None:
+    """polyglotic-hq 999: a golden is approved only for a named, intended
+    change. `approve` refuses without `--reason`, approving nothing, and
+    writes each approval's day, reason and changed states to the log beside
+    the goldens; an approval that changes nothing writes nothing."""
+    out = str(tmp_path / "lab")
+    with pytest.raises(SystemExit):
+        cli.main(["approve", "--out", out])
+    assert not list(store.glob("*.png"))
+    assert cli.main(["approve", "--reason", "952: the plain face", "--out", out]) == 0
+    log = (store / goldens.APPROVALS).read_text(encoding="utf-8")
+    assert log.startswith("# Approved goldens")
+    assert "golden(s)\n\n952: the plain face\n\n- ui_next.label: no golden yet" in log
+    assert cli.main(["approve", "--reason", "nothing new", "--out", out]) == 0
+    assert (store / goldens.APPROVALS).read_text(encoding="utf-8") == log
+    with pytest.raises(SystemExit):
+        cli.main(["--reason", "not approving", "--out", out])
+
+
+def test_the_log_names_utcs_day(store: Path) -> None:
+    from datetime import date
+
+    store.mkdir(parents=True)
+    goldens.record(
+        ["ui_next.a: 4 pixels differ (0.10 %) - approved"],
+        "why",
+        store,
+        date(2026, 11, 27),
+    )
+    assert "\n## 2026-11-27: 1 golden(s)\n\nwhy\n\n- ui_next.a: 4 pixels" in (
+        store / goldens.APPROVALS
+    ).read_text(encoding="utf-8")

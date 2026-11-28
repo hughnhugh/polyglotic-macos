@@ -807,13 +807,11 @@ def test_settings_dictation_key_is_pressed_in_a_box(
     up(Qt.Key.Key_Control, 0x11D)
     assert wanted[-1] == "right_ctrl"
 
-    # a key that types: refused, said why, nothing asked
+    # A typing key is accepted for use in Polyglotic's windows.
     box.click()
     press(box, Qt.Key.Key_A, 0x1E, 0x41)
-    assert wanted == ["ctrl+alt+d", "right_ctrl"]
-    assert page.dictation_key_note.text() == (
-        "That key types. Hold it with Ctrl, Alt or Win, or choose another."
-    )
+    assert wanted == ["ctrl+alt+d", "right_ctrl", "a"]
+    assert page.dictation_key_note.isHidden()
     # one of the app's own hotkeys (Settings > App lists them): with Shift
     # on Linux (570)
     box.click()
@@ -834,17 +832,27 @@ def test_settings_dictation_key_is_pressed_in_a_box(
     down(Qt.Key.Key_Shift, 0x2A)
     up(Qt.Key.Key_Shift, 0x2A)
     assert "only Right Ctrl or Ctrl + Win work" in page.dictation_key_note.text()
-    # a key dictation can't be held on
+    # Punctuation is accepted and survives reloading the settings.
     box.click()
     press(box, Qt.Key.Key_Semicolon, 0x27, 0xBA)
+    assert wanted[-1] == "semicolon" and page.dictation_key_note.isHidden()
+    stored = AppSettings.from_stored({"dictation_key": wanted[-1]})
+    assert stored.dictation_key == "semicolon"
+    page.show_dictation(True, stored.dictation_key, None, False)
+    assert box.text() == ";"
+    assert page.dictation_on.detail.text() == (
+        "Hold ; and speak in Polyglotic's windows. Let go to type."
+    )
+    # An unrecognized key still has its own message.
+    box.click()
+    press(box, Qt.Key.Key_unknown, 0, 0)
     assert page.dictation_key_note.text() == (
         "Polyglotic can't use that key: choose another."
     )
-    # Esc stops listening; nothing asked, the note left as it was
     box.click()
     press(box, Qt.Key.Key_Escape, 0x01, 0x1B)
-    assert not box.listening and box.text() == "Ctrl + Alt + D"
-    assert wanted == ["ctrl+alt+d", "right_ctrl"]
+    assert not box.listening and box.text() == ";"
+    assert wanted == ["ctrl+alt+d", "right_ctrl", "a", "semicolon"]
     # F9, a key on its own, clears the note
     box.click()
     press(box, Qt.Key.Key_F9, 0x43, 0x78)
@@ -852,9 +860,7 @@ def test_settings_dictation_key_is_pressed_in_a_box(
 
     # another program has it: the one before kept, and said so
     page.dictation_key_not_taken("f9")
-    assert page.dictation_key_note.text() == (
-        "Another program has F9: kept Ctrl + Alt + D."
-    )
+    assert page.dictation_key_note.text() == ("Another program has F9: kept ;.")
     # Reset: back to Right Ctrl
     assert page.dictation_key_reset.isEnabled()
     page.dictation_key_reset.click()
@@ -881,9 +887,9 @@ def test_the_dictation_key_box_takes_tab_and_stops_when_left(
             QEvent.Type.KeyPress, Qt.Key.Key_Tab, Qt.KeyboardModifier.ControlModifier
         ),
     )
-    # caught by the box, not moving the focus; no Ctrl went down in it: Tab
-    assert not box.listening and wanted == []
-    assert page.dictation_key_note.text().startswith("That key types")
+    # The box catches Tab before it moves the focus.
+    assert not box.listening and wanted == ["tab"]
+    assert page.dictation_key_note.isHidden()
     box.click()
     QApplication.sendEvent(box, QFocusEvent(QEvent.Type.FocusOut))
     assert not box.listening
@@ -1005,12 +1011,10 @@ def test_dictation_key_on_a_mac(
     assert page.dictation_key_note.text() == (
         "On their own, only Right ⌘ or ⌃⌘ work: hold ⌘, ⌥ or ⇧ with a key."
     )
-    box.click()  # Tab: a key that types, not the digit 0
+    box.click()  # Native 0x30 is Tab on a Mac.
     press(box, Qt.Key.Key_Tab, 0, 0x30)
-    assert page.dictation_key_note.text() == (
-        "That key types. Hold it with ⌘ or ⌃, or choose another."
-    )
-    assert wanted == ["right_ctrl", "ctrl+win+d"]
+    assert page.dictation_key_note.isHidden()
+    assert wanted == ["right_ctrl", "ctrl+win+d", "tab"]
     # ⌃⌘L, the Mac's Lock hotkey (polyglotic-hq 428, 438): one of the app's
     # own - not "another program has it" once the OS refuses it
     box.click()
@@ -1020,7 +1024,7 @@ def test_dictation_key_on_a_mac(
     assert page.dictation_key_note.text() == (
         "That's one of Polyglotic's own hotkeys: choose another."
     )
-    assert wanted == ["right_ctrl", "ctrl+win+d"]
+    assert wanted == ["right_ctrl", "ctrl+win+d", "tab"]
     up(Qt.Key.Key_L, 0x25)
     up(Qt.Key.Key_Control, 0x37)
     up(Qt.Key.Key_Meta, 0x3B)

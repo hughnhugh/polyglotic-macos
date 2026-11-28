@@ -3,10 +3,12 @@
 By default `actions/checkout` writes the job's token into the checkout's
 git config, where every later step can read it - and so can anything a
 dependency runs during `uv sync`, the tests or the build. No job here
-fetches or pushes after its checkout (the secret scan lists a pull
-request's commits through the API with its own `GITHUB_TOKEN`; the
-release's publish job uses `GH_TOKEN` for `gh release create`), so every
-checkout says `persist-credentials: false`. Read as the YAML GitHub reads.
+fetches or pushes with the checkout's credentials (the secret scan lists a
+pull request's commits through the API with its own `GITHUB_TOKEN`; the
+release's publish job uses `GH_TOKEN` for `gh release create`; Checks
+(Linux) pushes to the public copy with that copy's own token, through
+git's environment), so every checkout says `persist-credentials: false`.
+Read as the YAML GitHub reads.
 """
 
 import re
@@ -14,6 +16,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+from tools import ci_lock
 
 WORKFLOWS = Path(__file__).resolve().parents[1] / ".github" / "workflows"
 
@@ -41,17 +45,65 @@ def test_every_checkout_keeps_no_credentials() -> None:
     assert keeping == [], "add `persist-credentials: false` to their checkout"
 
 
-def test_the_tests_run_on_linux_too() -> None:
+def test_the_linux_checks_run_on_the_public_copy_from_the_light_runner() -> None:
     """Decision 0038 (polyglotic-hq 179): the tests that don't need Windows
-    run on the Linux runner, with Qt's libraries unpacked by
-    `tools/linux_qt_libs.sh` (the runner can't install packages)."""
-    ci = yaml.safe_load((WORKFLOWS / "ci.yml").read_text(encoding="utf-8"))
-    linux = ci["jobs"]["linux"]
-    assert linux["runs-on"] == ["self-hosted", "linux"]
-    runs = [str(step.get("run", "")) for step in linux["steps"]]
-    assert any("tools/linux_qt_libs.sh" in run for run in runs)
-    assert any("uv run --no-sync pytest" in run for run in runs)  # in ci_memory (344)
+    run on Linux. Since polyglotic-hq 981 (DECISIONS #266, #267) on the
+    public test copy's free machines: Checks (Linux) runs on the light
+    runner and only sends the tree and waits (tools/public_copy_checks.py),
+    the copy's own workflow unpacking Qt's libraries with
+    `tools/linux_qt_libs.sh` from the tree. Its token and the owner's
+    patterns are secrets, and a cancelled job still cleans up the copy."""
+    linux = workflow("ci.yml")["jobs"]["linux"]
+    assert (
+        linux["name"] == "Checks (Linux)"
+    )  # the name the train and the merge gate read
+    assert linux["runs-on"] == ["light"]
+    steps = linux["steps"]
+    runs = [str(step.get("run", "")) for step in steps]
+    check = next(
+        s for s in steps if runs[steps.index(s)].endswith("-m tools.public_copy_checks")
+    )
+    assert check["env"]["PUBLIC_COPY_TOKEN"] == "${{ secrets.PUBLIC_COPY_TOKEN }}"
+    assert check["env"]["PUBLIC_COPY_SCAN"] == "${{ secrets.PUBLIC_COPY_SCAN }}"
+    clean = next(
+        s
+        for s in steps
+        if runs[steps.index(s)].endswith("-m tools.public_copy_checks --clean-up")
+    )
+    assert clean["if"] == "${{ always() }}"
+    assert steps.index(clean) > steps.index(check)
+    assert not any("pytest" in run or "uv sync" in run for run in runs), (
+        "the light runner doesn't test"
+    )
     assert (WORKFLOWS.parents[1] / "tools" / "linux_qt_libs.sh").is_file()
+
+
+OFFLINE_ONLY = {"linux"}
+"""Runner labels only an offline runner carries: `hughs-pc-linux` (self-hosted,
+Linux), off since 963a so its 3.8 GB suite stays off live's VM. A job asking
+for one waits forever (0.1.13's train, #1258, 2026-11-27)."""
+
+
+def labels(runs_on: object) -> set[str]:
+    """A job's runner labels, lower-cased, an expression's words included."""
+    if isinstance(runs_on, list):
+        return {str(label).lower() for label in runs_on}
+    return {word.lower() for word in re.findall(r"[\w.-]+", str(runs_on))}
+
+
+def test_no_job_waits_on_an_offline_runner() -> None:
+    """polyglotic-hq 981: every job a pull request, a push to main or a tag
+    starts runs where a runner is: none asks for a label only the switched
+    off Linux runner has."""
+    waiting = [
+        f"{path.name} / {job_id}: {job['runs-on']}"
+        for path in sorted(WORKFLOWS.glob("*.y*ml"))
+        for job_id, job in workflow(path.name)["jobs"].items()
+        if "runs-on" in job and labels(job["runs-on"]) & OFFLINE_ONLY
+    ]
+    assert waiting == []
+    assert labels(["self-hosted", "Linux"]) & OFFLINE_ONLY  # the test can fail
+    assert workflow("release.yml")["jobs"]["tag"]["runs-on"] == ["light"]
 
 
 def test_checks_on_windows_run_on_any_runner_labelled_checks() -> None:
@@ -68,6 +120,7 @@ def test_checks_on_windows_run_on_any_runner_labelled_checks() -> None:
     on_this_pc = ["self-hosted", "windows"]
     assert windows["jobs"]["ui-lab"]["runs-on"] == on_this_pc
     assert release["jobs"]["release"]["runs-on"] == on_this_pc
+    assert release["jobs"]["tag"]["runs-on"] == ["light"]  # 963a, 981
 
 
 def test_the_linux_tests_draw_chinese_with_a_real_font() -> None:
@@ -244,6 +297,52 @@ def test_the_start_is_timed_alone_and_the_heavy_steps_share_the_pc() -> None:
     )
 
 
+LAB_WORK_MINUTES = 35
+"""The UI lab's work alone on the PC, measured on 2026-11-27 (994): five
+gated walks, every other language, the dictionary and the starts."""
+
+
+def test_one_ui_lab_at_a_time_on_the_pc_and_none_dropped() -> None:
+    """polyglotic-hq 999: a train's lab and a pull request's ran at once on
+    2026-11-27, each walk waiting on the other's hold of the PC's lock, and
+    two walks gave up. Every lab is in one group, whatever calls it; a lab
+    that comes waits (`queue: max`), never cancelling a running or a waiting
+    one - GitHub's default cancels a waiting one for a newer."""
+    lab = workflow("windows.yml")["jobs"]["ui-lab"]
+    group = lab["concurrency"]
+    assert group["group"] == "ui-lab-on-the-pc"  # fixed: no ${{ }} per run
+    assert group["queue"] == "max"
+    assert not group.get("cancel-in-progress", False)
+    callers = [workflow("ci.yml"), workflow("windows-parts.yml")]
+    called = [
+        job
+        for w in callers
+        for job in w["jobs"].values()
+        if job.get("uses") == "./.github/workflows/windows.yml"
+    ]
+    assert len(called) == 2  # both reach the one job, so the one group
+
+
+def test_the_ui_labs_walks_outwait_a_whole_checks_run() -> None:
+    """polyglotic-hq 999: the PC's other runner also takes Checks (Windows),
+    whose pytest holds the PC's lock shared for 12-20 minutes; ci_lock's own
+    10-minute wait gave up twice on 2026-11-27. The lab's job names its
+    wait once (tools/ci_lock.py's variable), at least Checks' own limit, and
+    its time limit holds the work and one such wait."""
+    windows = workflow("windows.yml")
+    lab = windows["jobs"]["ui-lab"]
+    minutes = float(lab["env"][ci_lock.MINUTES_VARIABLE])
+    assert minutes >= windows["jobs"]["checks"]["timeout-minutes"]
+    assert lab["timeout-minutes"] >= LAB_WORK_MINUTES + minutes
+    locked = [
+        str(step.get("run", ""))
+        for step in lab["steps"]
+        if "tools.ci_lock " in str(step.get("run", ""))
+    ]
+    assert len(locked) >= 7  # five walks, the languages, the starts
+    assert not [r for r in locked if "--most-minutes" in r]  # the job's, once
+
+
 def test_main_is_the_ui_labs_mandatory_timing_measurement() -> None:
     windows = workflow("windows.yml")
     runs = [
@@ -385,23 +484,23 @@ def test_the_windows_jobs_are_written_once() -> None:
 def test_lint_and_types_run_on_every_pull_request_once() -> None:
     """They need no Windows (mypy checks as win32 on any machine,
     pyproject.toml), so they moved from Checks (Windows) to Checks (Linux):
-    every pull request gets them, and the Windows runner doesn't repeat
+    every pull request gets them - on the public copy since polyglotic-hq
+    981, as its static checks - and the Windows runner doesn't repeat
     them."""
-    quick = [
-        str(s.get("run", "")) for s in workflow("ci.yml")["jobs"]["linux"]["steps"]
-    ]
+    from tools.public_copy_checks import STATIC
+
     heavy = [
         str(s.get("run", ""))
         for s in workflow("windows.yml")["jobs"]["checks"]["steps"]
     ]
     for command in (
-        "uv run --no-sync ruff check --output-format=github",
+        "uv run --no-sync ruff check --output-format=full",
         "uv run --no-sync ruff format --check",
         "uv run --no-sync mypy",
         "uv run --no-sync python -m tools.mypy_platforms",
         "uv run --no-sync lint-imports",
     ):
-        assert command in quick and command not in heavy, command
+        assert command in STATIC and command not in heavy, command
 
 
 def github_path(pattern: str) -> re.Pattern[str]:
@@ -453,27 +552,6 @@ def test_a_pull_request_that_changes_ci_itself_runs_the_windows_jobs() -> None:
         assert not matched(path), path
     assert github_path("tests/**/test_*.py").match("tests/ui/test_x.py")
     assert not github_path("tools/*.py").match("tools/ui_lab/lab.py")
-
-
-def test_the_linux_tests_say_their_memory_against_the_cap() -> None:
-    """polyglotic-hq 350: the Linux runners are capped (the desktop's at
-    2,200 MB, 2026-11-15); a kill for memory names the step and what it
-    reached (`tools/ci_memory.py`, 344)."""
-    steps = workflow("ci.yml")["jobs"]["linux"]["steps"]
-    tests = [s for s in steps if str(s.get("name", "")).startswith("Tests")]
-    # in two processes since 2026-11-18 (one grew past the cap at 98 %):
-    # all but tests/ui_next, then tests/ui_next - together, the whole suite
-    assert len(tests) == 2
-    for step in tests:
-        assert step["run"].startswith(
-            'uv run --no-sync python -m tools.ci_memory --step "'
-        )
-    assert tests[0]["run"].endswith(
-        "-- uv run --no-sync pytest -p no:cacheprovider --ignore=tests/ui_next"
-    )
-    assert tests[1]["run"].endswith(
-        "-- uv run --no-sync pytest -p no:cacheprovider tests/ui_next"
-    )
 
 
 def test_the_macos_job_runs_only_by_hand_on_githubs_mac_and_keeps_a_day() -> None:

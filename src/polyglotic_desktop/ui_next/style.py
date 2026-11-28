@@ -234,7 +234,32 @@ MARGIN_DARK = {
     "DANGER": "#ff8a80",
     "FOCUS": "#ff8fbe",
     "MARKER": "#5c2440",
+    "NAV_HOME": "#6fa3eb",
+    "NAV_WORDS": "#e0a45c",
+    "NAV_LEARNING": "#5ac896",
+    "NAV_ACCOUNT": "#b28ee8",
 }
+
+SIDEBAR_SECTION_TOKENS: Mapping[str, str] = {
+    "home": "NAV_HOME",
+    "words": "NAV_WORDS",
+    "learning": "NAV_LEARNING",
+    "account": "NAV_ACCOUNT",
+}
+"""Main sidebar sections and their theme hue tokens (polyglotic-hq 964)."""
+
+SIDEBAR_PILL_ALPHA = 0.16
+"""Alpha ratio (0–1, range 0.10–0.22) for the selected sidebar pill's tint of
+its section hue: visible against SIDEBAR while keeping selected text >= 4.5:1
+and selected icons >= 3:1 in both themes."""
+
+SIDEBAR_ICON_REST_ALPHA = 0.80
+"""Alpha ratio (0–1, range 0.65–0.90) for unselected main-section sidebar icons:
+softens the hue at rest while holding WCAG 1.4.11 (>= 3:1) in both themes."""
+
+SIDEBAR_ICON_HOVER_ALPHA = 0.92
+"""Alpha ratio (0–1, range 0.80–1.00) for hovered main-section sidebar icons:
+lifts the hue slightly between rest and selected full strength (1.0)."""
 
 
 @dataclass(frozen=True)
@@ -463,6 +488,10 @@ def stylesheet(t: Theme) -> str:
     ACCENT, ACCENT_HOVER, ACCENT_TEXT = t["ACCENT"], t["ACCENT_HOVER"], t["ACCENT_TEXT"]
     FOCUS, MARKER, WARNING = t["FOCUS"], t["MARKER"], t["WARNING"]
     content = BG if t.dark else SURFACE
+    section_pills = "\n".join(
+        f'#NavButton[section="{section}"]:checked {{ background: {rgba(t[token], SIDEBAR_PILL_ALPHA)}; }}'
+        for section, token in SIDEBAR_SECTION_TOKENS.items()
+    )
     return f"""
 * {{ outline: none; }}
 QWidget {{ color: {TEXT}; font-size: {px(13)}px; font-family: {_UI_FAMILY_CSS}; }}
@@ -570,6 +599,7 @@ QCheckBox {{ spacing: 8px; }}
 }}
 #NavButton:hover {{ background: {SURFACE_2}; color: {TEXT}; }}
 #NavButton:checked {{ background: {SURFACE_3}; color: {TEXT}; font-weight: 600; }}
+{section_pills}
 #FootButton {{
     background: transparent; border: none; border-radius: 8px; text-align: left;
     padding: 5px 12px 5px {px(34)}px; color: {TEXT_FAINT}; font-size: {px(12)}px;

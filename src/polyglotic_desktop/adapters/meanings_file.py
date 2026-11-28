@@ -24,8 +24,8 @@ Tables:
   machine made them.
 
 `SqliteMeanings` reads one for core (the `MeaningsFile` port); it is safe
-from several threads, each through its own connection, as
-`SqliteDictionary` is. `MeaningsShelf` holds the ones open now, by
+from several threads, each through its own connection, and closed
+under none of their queries (`ReadConnections`), as `SqliteDictionary` is. `MeaningsShelf` holds the ones open now, by
 dictionary, for the dictionaries to read through (`view`) while a newer
 one replaces an older. `write_meanings` writes one, for `tools/dictionaries`.
 """
@@ -33,9 +33,10 @@ one replaces an older. `write_meanings` writes one, for `tools/dictionaries`.
 from __future__ import annotations
 
 import sqlite3
-import threading
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
+
+from polyglotic_desktop.adapters.read_connections import ReadConnections
 
 FORMAT = "1"
 KIND = "meanings"
@@ -70,15 +71,14 @@ class SqliteMeanings:
     def __init__(self, path: Path) -> None:
         if not path.is_file():
             raise FileNotFoundError(path)
-        self._uri = f"{path.resolve().as_uri()}?mode=ro&immutable=1"
-        self._local = threading.local()
-        self._opened: list[sqlite3.Connection] = []
-        self._opening = threading.Lock()
-        self._closed = False
+        self._connections = ReadConnections(
+            f"{path.resolve().as_uri()}?mode=ro&immutable=1"
+        )
         try:
-            self.info: dict[str, str] = dict(
-                self._db.execute("SELECT key, value FROM info")
-            )
+            with self._connections.reading() as db:
+                self.info: dict[str, str] = dict(
+                    db.execute("SELECT key, value FROM info")
+                )
         except sqlite3.DatabaseError as e:
             self.close()
             raise NotAMeaningsFile(f"{path.name}: {type(e).__name__}") from None
@@ -89,37 +89,19 @@ class SqliteMeanings:
                 f"format {self.info.get('format')!r}"
             )
 
-    @property
-    def _db(self) -> sqlite3.Connection:
-        db: sqlite3.Connection | None = getattr(self._local, "db", None)
-        if db is None:
-            db = sqlite3.connect(self._uri, uri=True, check_same_thread=False)
-            with self._opening:
-                if self._closed:
-                    db.close()
-                    raise sqlite3.ProgrammingError(
-                        "Cannot operate on a closed database."
-                    )
-                self._opened.append(db)
-            self._local.db = db
-        return db
-
     def close(self) -> None:
-        with self._opening:
-            self._closed = True
-            opened, self._opened = self._opened, []
-        for db in opened:
-            db.close()
+        self._connections.close()
 
     def meanings(self, entry_id: str) -> tuple[str, ...] | None:
         """The entry's meanings - None if the file has none for it, only a
         machine's (see the module), or can no longer be read (closed,
         gone): the dictionary's own are shown."""
         try:
-            row = self._db.execute(
-                "SELECT senses, machine FROM meanings WHERE id = ?",
-                (entry_id,),
-            ).fetchone()
+            with self._connections.reading() as db:
+                row = db.execute(
+                    "SELECT senses, machine FROM meanings WHERE id = ?",
+                    (entry_id,),
+                ).fetchone()
         except sqlite3.Error:
             return None
         if row is None or not row[0]:

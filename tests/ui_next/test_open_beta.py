@@ -1,10 +1,14 @@
 """Open-beta controls with in-memory account, price, code and checkout
 responses. The code typed here is made up: real ones live only on the server."""
 
+import os
+import subprocess
+import sys
 from collections.abc import Callable, Iterator
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
+from pathlib import Path
 from threading import Event, get_ident
 
 import pytest
@@ -787,3 +791,72 @@ def test_ending_switch_review_discloses_that_confirmation_resumes_renewal(
         assert not page.pay_here.isVisible()
     finally:
         page.deleteLater()
+
+
+RACE = """
+import os, random, sys, threading, time
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+import shiboken6
+from PySide6.QtCore import QCoreApplication, QEvent, QObject
+from PySide6.QtWidgets import QApplication
+from polyglotic_desktop.ui.open_beta import AccountWork
+
+app = QApplication([])
+answers = []
+for turn in range(int(sys.argv[1])):
+    page = QObject()  # the page that owns the request, closed mid-answer
+    work = AccountWork(page)
+    ready = threading.Event()
+    work.run(lambda: ready.wait(2) and "signed in", answers.append)
+    how = turn % 3
+    if how == 0:  # deleted at once, as a test's teardown does
+        ready.set()
+        until = time.perf_counter() + random.random() * 40e-6
+        while time.perf_counter() < until:
+            pass
+        shiboken6.delete(page)
+    else:  # closed by Qt in its event loop, as the app closes a page
+        page.deleteLater()
+        ready.set()
+        if how == 1:
+            QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        for _ in range(random.randint(0, 2)):
+            QCoreApplication.processEvents()
+    if turn % 50 == 0:
+        QCoreApplication.processEvents()
+time.sleep(0.3)
+QCoreApplication.processEvents()
+print("answers to closed pages:", len(answers))
+"""
+
+
+def test_a_page_closed_while_its_answer_comes_never_crashes_the_app() -> None:
+    """polyglotic-hq 999 (#1262's segmentation fault, 994): the request's
+    worker emitted on the `AccountWork` its page owns, and a page closed
+    mid-request - a test's teardown, the app closing the sign-in - deleted
+    it under the emit. In its own process, as a crash would end pytest's:
+    thousands of pages closed as their answers come. Each answer goes
+    through the app's one relay, and a closed page's is dropped."""
+    done = subprocess.run(
+        [sys.executable, "-c", RACE, "6000"],
+        cwd=Path(__file__).resolve().parents[2],
+        env=dict(os.environ, QT_QPA_PLATFORM="offscreen"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    assert done.returncode == 0, (done.returncode, done.stderr[-2000:])
+    assert "answers to closed pages:" in done.stdout  # it ran to its end
+
+
+def test_an_answer_to_an_older_request_is_dropped(qapp: QApplication) -> None:
+    """The relay's token: only the request a work waits for is answered."""
+    work = AccountWork(qapp)
+    results: list[object] = []
+    work.run(lambda: "first", results.append)
+    wait_until(lambda: _pumping(bool(results)))
+    assert results == ["first"] and not work.busy
+    work._done(1_000_000, "stale")  # a token it never had
+    assert results == ["first"]
+    work.deleteLater()

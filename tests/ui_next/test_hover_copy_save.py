@@ -383,3 +383,27 @@ def test_your_own_speech_has_its_save_and_copy_on_the_left(
     mine = shown.line_actions.geometry()
     assert mine.center().x() < rect.center().x()
     assert mine.left() <= round(rect.left()) + 2
+
+
+def test_the_save_and_copy_buttons_corners_follow_the_pills_on_the_scale(
+    windows: CaptionWindows,
+) -> None:
+    """polyglotic-hq 999: the buttons' corners were 4 px - the pill's 6 less
+    2 - off the interface's radii (the UI lab's design check) and not the
+    pill's curve inside its 1 px border and 2 px margin. They're 3 now."""
+    from tools.ui_lab.design import RADII
+
+    from polyglotic_desktop.ui_next import caption_window as cw
+
+    shown = window(windows)
+    sheet = shown.line_actions.styleSheet()
+    pill = sheet[: sheet.index("QToolButton {")]
+    buttons = sheet[sheet.index("QToolButton {") :]
+    assert f"border-radius: {cw.MARK_RADIUS}px" in pill
+    row = shown.line_actions.layout()
+    assert row is not None
+    margins = row.contentsMargins()
+    border = int(pill.split("border: ")[1].split("px")[0])
+    inner = cw.MARK_RADIUS - border - margins.left()
+    assert f"border-radius: {inner}px;" in buttons
+    assert inner in RADII

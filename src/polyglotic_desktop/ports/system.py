@@ -66,13 +66,22 @@ class ForegroundWatch(Protocol):
 
 class Hotkeys(Protocol):
     """Key combinations for the whole system; made with each combination as
-    kept (`core.listening.dictation_keys.DictationKey`: "ctrl+alt+l", "f9";
-    never a modifier alone) and what to call, on the hotkeys' own thread,
-    when it's pressed."""
+    kept (`core.listening.dictation_keys.DictationKey`: "ctrl+alt+l", "f9",
+    "space"; never a modifier alone) and what to call, on the hotkeys' own
+    thread, when it's pressed.
+
+    Optional platform attributes/methods:
+    - `available` (bool, default True): False when the desktop offers no global
+      hotkeys at all (e.g. GNOME Wayland).
+    - `hooked` (Collection[str], default empty): refused keys that still work
+      through a fallback hook (Windows `WH_KEYBOARD_LL`), sharing the chord
+      with another program.
+    - `probe(keys)` (Callable[[Sequence[str]], Collection[str]]): tests which
+      keys in `keys` another program currently holds, without keeping them."""
 
     def start(self) -> list[str]:
         """Takes the combinations and starts listening; returns those
-        another app already has (not working here)."""
+        another app already has (refused by the OS)."""
         ...
 
     def stop(self) -> None: ...

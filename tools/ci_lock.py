@@ -25,8 +25,8 @@ steps running when it came, not for every one that starts after it.
   file handle; Windows releases it when the handle closes, and closes every
   handle when the process ends - so a job cancelled, timed out or killed
   can't leave the PC locked.
-- **Never hangs a job:** a step waits at most `MOST_MINUTES`. A step held
-  alone then fails with a line saying the lock was held by other CI steps
+- **Never hangs a job:** a step waits at most `MOST_MINUTES`, or its job's
+  own `MINUTES_VARIABLE` (the UI lab's). A step held alone then fails with a line saying the lock was held by other CI steps
   throughout (a re-run is the answer, not a code change); a shared step
   runs unlocked and says so.
 - **Never fails a step otherwise:** where the file can't be opened or
@@ -73,6 +73,12 @@ MOST_MINUTES = 10.0
 """How long a step waits for the lock: about two of the other runner's
 pytest runs, or the start test's longest (4 tries, each waiting up to a
 minute for a calm PC)."""
+
+MINUTES_VARIABLE = "POLYGLOTIC_CI_LOCK_MINUTES"
+"""A job's own wait, in minutes, instead of `MOST_MINUTES` for every step it
+locks (`--most-minutes` still wins): the UI lab's, which outlasts a whole
+Checks (Windows) run on the PC's other runner (windows.yml, polyglotic-hq
+999)."""
 
 POLL_SECONDS = 0.5
 
@@ -310,7 +316,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="lock only if CI's lock file is already here (off CI: optional)",
     )
-    parser.add_argument("--most-minutes", type=float, default=MOST_MINUTES)
+    parser.add_argument(
+        "--most-minutes",
+        type=float,
+        default=float(os.environ.get(MINUTES_VARIABLE) or MOST_MINUTES),
+        help=f"how long to wait for the lock (default ${MINUTES_VARIABLE}, else "
+        f"{MOST_MINUTES:g})",
+    )
     args = parser.parse_args(own)
     if not command:
         parser.error("no command to run (after --)")

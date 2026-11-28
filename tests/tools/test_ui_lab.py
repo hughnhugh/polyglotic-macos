@@ -160,6 +160,49 @@ def test_busy_every_try_is_unmeasured_but_checks_still_fail(
     assert result.failed()
 
 
+def test_each_wait_for_a_calm_pc_reads_the_load_briefly(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Read before every gated state of five walks: a second's reading
+    each was most of a walk's time (polyglotic-hq 994)."""
+    asked: list[tuple[object, ...]] = []
+
+    def wait_for_calm(*args: object) -> float:
+        asked.append(args)
+        return 0.1
+
+    monkeypatch.setattr(busy_pc, "wait_for_calm", wait_for_calm)
+    state = lab.State("ui_next.slow", slow_state, gated=True)
+    (result,) = lab.run([state], tmp_path)
+    assert asked and all(args[-1] == busy_pc.UI_TIMING_SAMPLE_SECONDS for args in asked)
+    assert busy_pc.UI_TIMING_SAMPLE_SECONDS <= 0.25
+    assert result.reference_ms is not None
+
+
+def test_a_run_of_the_checks_alone_never_waits_for_a_calm_pc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, load: list[float]
+) -> None:
+    """`--checks-only` (every other language's runs, four at once) judges
+    no budget: no wait for a calm PC, no reference step, no try again - a
+    second's wait before each of their states made them 17-26 minutes
+    (polyglotic-hq 994). Its checks still fail it."""
+    load[0] = 0.9
+    waits: list[object] = []
+    monkeypatch.setattr(busy_pc, "wait_for_calm", lambda *a: waits.append(a))
+    state = lab.State("ui_next.slow", slow_state, gated=True)
+    (result,) = lab.run([state], tmp_path, timed=False)
+    assert waits == [] and result.reference_ms is None
+    assert result.tries == 1 and not result.timing_unmeasured
+    monkeypatch.setattr(cli, "new_states", lambda: [state])
+    monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
+    out = str(tmp_path / "checks")
+    with restored_interface_language():  # a language without goldens, as CI's
+        assert (
+            cli.main(["--gate", "--checks-only", "--language", "es", "--out", out]) == 0
+        )
+    assert waits == []
+
+
 @pytest.mark.parametrize(("required", "fails"), [(False, 0), (True, 1)])
 def test_all_busy_is_a_warning_except_on_the_mandatory_measurement_run(
     tmp_path: Path,
@@ -173,9 +216,8 @@ def test_all_busy_is_a_warning_except_on_the_mandatory_measurement_run(
     state = lab.State("ui_next.busy", slow_state, gated=True)
     monkeypatch.setattr(cli, "new_states", lambda: [state])
     monkeypatch.delenv("GITHUB_STEP_SUMMARY", raising=False)
-    args = [
+    args = [  # the budgets judged, as CI's walks are (not --checks-only: 994)
         "--gate",
-        "--checks-only",
         "--language",
         "es",
         "--out",
@@ -421,7 +463,17 @@ def test_the_goldens_are_approved_only_at_the_apps_normal_text_size(
     tmp_path: Path,
 ) -> None:
     with pytest.raises(SystemExit):
-        cli.main(["approve", "--app-text-size", "largest", "--out", str(tmp_path)])
+        cli.main(
+            [
+                "approve",
+                "--reason",
+                "a test",
+                "--app-text-size",
+                "largest",
+                "--out",
+                str(tmp_path),
+            ]
+        )
 
 
 def test_each_state_begins_at_the_runs_app_text_size() -> None:

@@ -93,6 +93,33 @@ def test_the_focus_ring_shows_on_every_surface(p: theme.Palette) -> None:
         assert _contrast(p.FOCUS, under) >= 3, under
 
 
+@pytest.mark.parametrize("p", PALETTES)
+def test_sidebar_section_hues_and_footer_icons_clear_contrast_in_both_themes(
+    p: theme.Palette,
+) -> None:
+    """964: every sidebar icon meets WCAG 1.4.11 (>= 3:1) against the sidebar
+    at rest, on hover, and when selected; selected pills keep label text >= 4.5:1
+    and footer actions stay neutral and brighter than TEXT_FAINT."""
+    hues = {
+        section: getattr(p, token)
+        for section, token in style.SIDEBAR_SECTION_TOKENS.items()
+    }
+    assert len(set(hues.values())) == 4  # Home, Words, Learning, Account each distinct
+    for section, hue in hues.items():
+        rest = _over(hue, style.SIDEBAR_ICON_REST_ALPHA, p.SIDEBAR)
+        hovered = _over(hue, style.SIDEBAR_ICON_HOVER_ALPHA, p.SURFACE_2)
+        pill = _over(hue, style.SIDEBAR_PILL_ALPHA, p.SIDEBAR)
+        assert _contrast(hue, p.SIDEBAR) >= 3.0, (section, "full")
+        assert _contrast(rest, p.SIDEBAR) >= 3.0, (section, "rest")
+        assert _contrast(hovered, p.SURFACE_2) >= 3.0, (section, "hover")
+        assert _contrast(hue, pill) >= 3.0, (section, "selected-icon")
+        assert _contrast(p.TEXT, pill) >= 4.5, (section, "selected-label")
+    assert _contrast(p.TEXT_DIM, p.SIDEBAR) > _contrast(p.TEXT_FAINT, p.SIDEBAR)
+    assert _contrast(p.TEXT_DIM, p.SIDEBAR) >= 3.0
+    assert _contrast(p.TEXT, p.SURFACE_2) >= 3.0
+    assert _contrast(p.TEXT, p.SURFACE_3) >= 3.0
+
+
 def test_margin_buttons_are_ink_and_pink_only_marks() -> None:
     light, dark = theme.MARGIN.light, theme.MARGIN.dark
     assert light.ACCENT == light.TEXT == "#172033"  # ink

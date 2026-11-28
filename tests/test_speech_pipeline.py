@@ -113,6 +113,14 @@ def drain(pipeline: SpeechPipeline) -> list[Ready]:
     return out
 
 
+def test_capture_status_distinguishes_silence_from_sound_without_speech() -> None:
+    pipeline = SpeechPipeline(LoudnessDetector, CaptionTiming())
+    pipeline.add_source(MIC, FakeCapture(np.zeros(SR, dtype=np.float32)))
+    pipeline.add_source(APP, FakeCapture(np.full(SR, 0.01, dtype=np.float32)))
+    assert not pipeline.hearing()
+    assert pipeline.capture_status() == {APP.id: None}
+
+
 def test_speech_comes_out_as_requests_with_ogg_opus() -> None:
     ready: list[int] = []
     timing = CaptionTiming(live_update_interval=1.5)

@@ -1,0 +1,8145 @@
+{
+ "aside": {
+  "actions on a line: copy, save, look up, say it": 14,
+  "interface text": 11,
+  "notices, questions and set-up prompts beside the captions": 19,
+  "the joined window's bar and its place on the screen": 16,
+  "the transcript window's strip, rail, menus and exports": 40,
+  "where the window itself sits on the screen": 19,
+  "window chrome: the bar, its buttons and the scroll bar": 66
+ },
+ "deciding": [
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "paint_loading"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "paint_bar"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "ink"
+   ],
+   "name": "dot_inks"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "paint_ellipsis"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "mark_lit"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "one_layout"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "settled_look"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "runs_on"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "caption_style"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "shown_links"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "marks_panel"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "unfinished_ink"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "look_ink"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "toned"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "toned.vivid"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_wordlike"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_row_letters"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas.lines_shown"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Canvas.lines_in_view"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Canvas._lines"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Canvas.own_subtitle"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._own_subtitle_font"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_own_subtitle"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._view_height"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._pace_inset"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._width"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._captions_beside_pace"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._seen_height"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._rolled"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._height"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._tall"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._entry"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._laid"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [],
+   "name": "Canvas._running_on"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._gap"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._above"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._positioned"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas.rows_that_fit"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Canvas.paintEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Canvas._paint_frame"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "when"
+   ],
+   "name": "Canvas._log_paint_failure"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._recover_paint"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas.hold"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Canvas._panel"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._sides"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._list_positions"
+  },
+  {
+   "choices": 120,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_panel"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._pace_overlaps_rows"
+  },
+  {
+   "choices": 22,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_video"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "when"
+   ],
+   "name": "Canvas._cover"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._run_on"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._moved"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Canvas._shift_rows"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what"
+   ],
+   "name": "Canvas._follow_words"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._place_rows"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._reveal_wraps"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Canvas._reveal_wraps.bounds"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas.scroll_by"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._block_rect"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Canvas._paint_hovered_line"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_marked"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._fill"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas.line_area"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas.hit"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas.shown_row"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Canvas.row_of"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas.char_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Canvas.line_rect"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Canvas._under"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Canvas._source_row_fits_only_beside_pace"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._place_last_source_row"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._keep_source_row"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._keep_source_row.whole"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._whole_pairs"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._clear_of"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Canvas._clear_of_lines"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_empty"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Canvas._paint_mark"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas._locked_parts"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Canvas.lock_spot"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "Canvas._paint_locked"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "ZoneCanvas.ready"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "ZoneCanvas.lines_in_view"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "ZoneCanvas._carries_on"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.walk"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.needed"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.whole_from"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.rolled_out"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.gap_after"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "ZoneCanvas.line_height"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "ZoneCanvas._paint_frame"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "linked_with"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "draw_panel"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": true,
+   "kinds": [],
+   "name": "copies_exactly"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.__init__"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "CaptionWindow.mark_showing"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._sources"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.readings"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._second"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionWindow._options"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionWindow._ink"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.follows"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._configure_view"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.receive"
+  },
+  {
+   "choices": 26,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._into_view"
+  },
+  {
+   "choices": 17,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._deal"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._show_kept"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._quiet"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._card_due"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._next_due"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._read_by"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._leaving"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._note_reading"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.read_until"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.still_read"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.check_card_room"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.hear"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.set_video"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.reading_hold"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._remember_dealt"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._measure"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._deal_again"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._lay_out_again"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._reading_place"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.held_top"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.pill_room"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._cards_a_page"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._card_pitch"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.scroll_subtitles"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.scroll_cards"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.scroll_cards.change"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._held_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._far_from_home"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.veil"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._come_home"
+  },
+  {
+   "choices": 18,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._scrolled"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._push"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.card_offset"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._settle"
+  },
+  {
+   "choices": 51,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.reserve_translation"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._unfilled_translation_rows"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._translation_space_left"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._schedule_translation_expiry"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.card_height"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._untranslated"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._translation_room"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._probe_room"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._is_new"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._let_paced"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow._hold_on_words"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "CaptionWindow._over_words"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._hold"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._view_holding"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.view_held"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._hold_view"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.let_go"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._resume_hover"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._release_view"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.let_in"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.apply_changed"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._note_corrections"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.correction_colour"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._pace_lines"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._lines_of"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._wait_for_line"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._show_next_line"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.show_every_line"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.sliding"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.age_of"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._note_text"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow._newness"
+  },
+  {
+   "choices": 47,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._note_arrivals"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._settle_burst"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.arriving"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.restyle"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._engine"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.reads"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.dictionary_ready"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionWindow.refresh_link_classes"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.set_look"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._style_pace"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionWindow.set_labels"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.set_timing"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.set_faint_ahead"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._style"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._use_zones"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.zone_room"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._place_zone"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._zone_changed"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._zone_paused"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.placed"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.entry_changed"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.load_changed"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.learning_changed"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.set_spoken_fallback"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.size_languages"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.set_language_sizes"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.choose_size"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.size_readout"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._set_text_sizes"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._step_text_sizes"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._mine_only"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.choose_bar_language"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.set_language"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.asking_spoken"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.set_second"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.set_show_mic"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.subtitle_height"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.video_sides"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.video_languages"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.set_locked"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._lock_spot"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.go_live"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.go_to_oldest"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow._navigation_key"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.inner_sides"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.set_hovered"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._refresh_popovers"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.set_reporting"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.settings_open"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.keyboard_bar_open"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.pick_app"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.close_settings"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.mic_offered"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.respeak_offered"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.set_presets"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.set_up_heard"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.finish_set_up"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.offers_lyrics"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.showEvent"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.hideEvent"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._refresh"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._place_overlays"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._notice_line"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow._wake"
+  },
+  {
+   "choices": 63,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._tick"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._look_for_pointer"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.resizeEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.set_show_pace"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionWindow.set_show_caption_info"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._pace_rows"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._update_pace"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.set_pace"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._place_pace"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.pace_foot"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow.moveEvent"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.enterEvent"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.came_over"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._check_still_over"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow.leaveEvent"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.mousePressEvent"
+  },
+  {
+   "choices": 17,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.mouseMoveEvent"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._pressed"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.mouseDoubleClickEvent"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.mouseReleaseEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "CaptionWindow._divider"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._hoverable_line_at"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow._set_hovered_line"
+  },
+  {
+   "choices": 34,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._place_line_actions"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._sync_line_actions"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow._watch_line_keys"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._look_at_line_keys"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._hover"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._line_at"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionWindow._save_hovered_line"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionWindow._marked_at"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow.word_at"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._repaint_line_keys"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._repaint_lines"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._unhover_word"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionWindow._held_changed"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow._on_held"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._select_across"
+  },
+  {
+   "choices": 13,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._select_to"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionWindow._pin_selected"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow._wheel_zoom"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionWindow.keyPressEvent"
+  },
+  {
+   "choices": 17,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionWindow.eventFilter"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionWindow.wheelEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionStyle.follows_known"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionStyle.paired_lines"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "LaidRow.rectangles"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "LaidLine.dots_below"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "reserve_translation_space"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_Kept.holds"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLayout.__init__"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLayout._ruby"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._above"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout.subtitle_room"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionLayout.subtitle_part"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout.subtitle_arrows"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionLayout._laid_row_text"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout.laid"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout.laid_card"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionLayout.left_open"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionLayout.paired_ranges"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLayout._keeping"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionLayout._composed"
+  },
+  {
+   "choices": 64,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLayout.paint"
+  },
+  {
+   "choices": 26,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout._lay_out"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout._subtitle_tracks"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "CaptionLayout._flow"
+  },
+  {
+   "choices": 19,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLayout._flowed"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout._poured"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._poured.measure"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout._pour"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLayout._place"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "CaptionLayout._link_room"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._label_font"
+  },
+  {
+   "choices": 17,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._font"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._families"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionLayout._script_scale"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._latin"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLayout._made"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "split_marks"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "drawn_whole"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "link_ink"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "drawn_ink"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "draw_text_edge"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_edge"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_whole_pixels"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_snapped"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_label_colour"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_coloured_words"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "_coloured_range"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "in_colours"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_runs"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_reading_colours"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "grey"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_coloured_readings"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "cursor_x"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "char_under"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "span_rects"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_local_span_rects"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "dot_place"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "dots_below"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_dots"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_underlines"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "_bar_strokes"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_link_bars"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_ends"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_arrows"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_line_alpha"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_row_marks"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_flow_arrows"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_arrow_curves"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "row_text_width"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "centre_rows"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "_FlowFont.__init__"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_FlowFont.width"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_FlowFonts.font"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_own_marks"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_badge"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_above"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_carried_breaks"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_laid_text"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_formatted"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_latin_ranges"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_advance"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_cjk_share"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "caption_language"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_script"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_is_kana"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_italic"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_pairs"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_begun"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_rest"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_break_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_codepoints"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "panned_row"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "moving_layout"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "move_wrapped_lines"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "graphemes"
+  },
+  {
+   "choices": 41,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "visible_row"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "visible_row.visible_marks"
+  },
+  {
+   "choices": 13,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_single_line_rows"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_layout.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_units"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_wrap_units"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "ease"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Tween.value"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Pan.follow"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "WordTrack.reveal"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "WordTrack.limit"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "WordTrack.visible"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "WordArrival.reveal"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "WordArrival.copy"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Track.revise"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Slot.position"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow.__init__"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow.wrap"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow.advance_width"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "VideoFlow.reading_need"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "VideoFlow.shape"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow._wrap_ranges"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "VideoFlow.spacing"
+  },
+  {
+   "choices": 24,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow._fit_caption"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "VideoFlow._limit_wrap"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "VideoFlow._shape_track"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "VideoFlow._layout"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow._settle"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow._pan_target"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow._pan_rows"
+  },
+  {
+   "choices": 137,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "VideoFlow.advance"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "VideoFlow.read_until"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow.animating"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "VideoFlow.rows"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "subtitle_cell"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "subtitle_gap"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "subtitle_pixels"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "subtitle_height"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video._reading_part"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Video._runs"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Video._span_width"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Video._reading_breaks"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video.enter"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video.is_current"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video._measure"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video._copy"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Video.copies"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Video.own_words"
+  },
+  {
+   "choices": 54,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Video.paint"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Video._live_rows"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Video._history_rows"
+  },
+  {
+   "choices": 20,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Video._paint_rows"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/video.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Video._paint_row"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "TranscriptColors.readable"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList.__init__"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "TranscriptList._width"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "TranscriptList._view_height"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptList._heading"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptList._lay_heading"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "TranscriptList.marks"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._saved_marks"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "TranscriptList._format"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList.learning_changed"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptList.set_reading"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList.set_tone"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptList.dictionary_ready"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "TranscriptList._lay_out_again"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "TranscriptList.changed"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._paint"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._heading_marks"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "TranscriptList._paint_selected"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._paint_said_now"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._paint_hovered"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": true,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "TranscriptList._paint_empty"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptList.go_to_oldest"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "TranscriptList.wheelEvent"
+  },
+  {
+   "choices": 13,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptList.keyPressEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "TranscriptList.line_at"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "TranscriptList.mouseMoveEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptList.hideEvent"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "TranscriptList.mousePressEvent"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "TranscriptList.mouseReleaseEvent"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList.mouseDoubleClickEvent"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "TranscriptList._drag_to"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "TranscriptList.spot_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "TranscriptList.copy_by_key"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "TranscriptList._copy_chosen"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "TranscriptList.sentence_selected"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "TranscriptList._marked_at"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList._hover"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "TranscriptList.word_at"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptWindow.__init__"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptWindow.follow"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptWindow.restyle"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptWindow.refresh"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "TranscriptWindow._place_overlays"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptWindow.set_text_size"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "TranscriptWindow.eventFilter"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "TranscriptWindow.keyPressEvent"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptWindow.resizeEvent"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/transcript_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "TranscriptWindow.showEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "marked"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "language_of"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "source_of.read"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "sources.of"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "past_only"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "knows"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "reader"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_jyutping"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_stress"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "Ruby.below_band"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_measure"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "reading_font"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_band"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "ruby"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_measure_ruby"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_spacing"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_unit"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_room"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "lead"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "placed"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_drawn"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "draw"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_marks"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/reading_lines.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "glyphs"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Panel.own"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_link_colours"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_said"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_link_classes"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionMarks.set_look"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionMarks.learning_changed"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionMarks.load_changed"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionMarks.forget"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionMarks.__call__"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionMarks._marks"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionMarks._hidden_links"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionMarks._learning"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionMarks._learning.saved"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionMarks._quiet"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionMarks._blue"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionMarks._known"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionMarks._saved"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_marks.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionMarks._format"
+  },
+  {
+   "choices": 5,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "translation_shown"
+  },
+  {
+   "choices": 11,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "with_link_classes"
+  },
+  {
+   "choices": 2,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_resolved_classes"
+  },
+  {
+   "choices": 19,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "caption_rows"
+  },
+  {
+   "choices": 5,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "numbered_links"
+  },
+  {
+   "choices": 1,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_agreed_class"
+  },
+  {
+   "choices": 4,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "group_links"
+  },
+  {
+   "choices": 2,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "_fits"
+  },
+  {
+   "choices": 17,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "counterpart"
+  },
+  {
+   "choices": 4,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_pieces"
+  },
+  {
+   "choices": 4,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_trimmed"
+  },
+  {
+   "choices": 1,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_trimmed.edge"
+  },
+  {
+   "choices": 2,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "clause_versions"
+  },
+  {
+   "choices": 4,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "first_rewritten"
+  },
+  {
+   "choices": 1,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "stack_height"
+  },
+  {
+   "choices": 6,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "following_top"
+  },
+  {
+   "choices": 4,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "ListeningMark.heard"
+  },
+  {
+   "choices": 2,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "ListeningMark.captioned"
+  },
+  {
+   "choices": 2,
+   "file": "core/listening/display.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "ListeningMark.showing"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/arrivals.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "visible_ink"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/arrivals.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "effective"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/arrivals.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "older_alphas"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/arrivals.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "ease_out"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "WindowChoices.target"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "WindowChoices.spoken"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "WindowChoices.to_stored"
+  },
+  {
+   "choices": 21,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "WindowChoices.from_stored"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedChoices.to_stored"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedChoices.from_stored"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "StoredWindows.migrate_language_sizes"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "StoredWindows.spoken_declined"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "StoredWindows.first_window"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "StoredWindows.for_new"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "StoredWindows.only_offered.kept"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "StoredWindows.to_stored"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "StoredWindows.from_stored"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_sizes"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_kept_languages"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "text_size"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_legacy_translation_share"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "translation_size"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "panel_opacity"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "stepped_translation"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "as_panel"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "rect_from"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "rows_marked"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "face_chosen"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "intro_seconds"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "shows"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "minutes_used_up"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "slowed_now"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Notices.showing"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Notices.retry_in"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Notices.next_change"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/caption_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "stepped"
+  },
+  {
+   "choices": 44,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Labels.of"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "CaptionLines.__init__"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLines.caption"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionLines.refresh_link_classes"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "CaptionLines.fallbacks"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLines.captions_of"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "CaptionLines.apply"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLines.set_display"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "CaptionLines.set_text_size"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLines._history_changed"
+  },
+  {
+   "choices": 26,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLines._rebuild"
+  },
+  {
+   "choices": 17,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLines._line"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_cuts"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_same"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/captions.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_clamped"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "unspaced"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "pieces"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Card.used"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Deck.__init__"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck.hear"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck.spoken"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck.has_live_caption"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Deck.expected"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Deck.coming"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck.room"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "Deck.finish"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "Deck.flush"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._ratio"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Deck._fits"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck._pieces"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Deck.show"
+  },
+  {
+   "choices": 21,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Deck._changed"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "Deck._changed.mark"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._changed.index"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._in_order"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._in_order.where"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._owner"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._take"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Deck._slot"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Deck._place"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck._breaks"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Deck._look_ahead"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Deck._new_card"
+  },
+  {
+   "choices": 22,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Deck._translate"
+  },
+  {
+   "choices": 22,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "Deck._fitted"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Deck._over"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Deck._edges"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "Deck._shorter"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "Deck._cuts"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "Deck._changes"
+  },
+  {
+   "choices": 36,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Deck._as_caption"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Glide.push"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Glide.to"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "drum"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "drum.turned"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "ease"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Depth.shift"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Depth.behind"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Depth.moved"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "depth_scale"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "depth_ink"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "depth_alpha"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_between"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/cards.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "drum_room"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/dwell.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_unspaced"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/dwell.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "need"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/dwell.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "subtitle_need"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/dwell.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Reading.read_by"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "flow_options"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Flowed.runs_of"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_Side.__init__"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_Side.width"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "_Side.unit_at"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "_Side.span"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_Side._at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_Side.fitting"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_Row.__init__"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_Row.empty"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_Row._before"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_Row.open"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_Row.lead"
+  },
+  {
+   "choices": 15,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_Row.add"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_Row.lead_natural"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_Row.put"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_Row.closes"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_Row.close"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_below"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_tight"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "Flow.__init__"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Flow._side"
+  },
+  {
+   "choices": 69,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Flow.compose"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow.compose.close"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "Flow.compose.place"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow.compose.block"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "Flow._remap_boundary"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Flow._boundaries"
+  },
+  {
+   "choices": 13,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._segments"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._frozen_segments"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._frozen_segments.position"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Flow._frozen_segments.cut"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Flow._starts"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Flow._fits"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "Flow._place"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._near"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Flow._near_parts"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._near_rows"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Flow._wants"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._even"
+  },
+  {
+   "choices": 31,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._split"
+  },
+  {
+   "choices": 14,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Flow._paired_break"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Flow._paired_break.nearest"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._meant_cut"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._halves.cut"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._stacked"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Flow._wrap_units"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "Flow._wrapped"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/flow.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Flow._placed"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/known_colours.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "step"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/known_colours.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_at"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/known_colours.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_with_lightness"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/known_colours.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "ink"
+   ],
+   "name": "_l_star"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionLab.line_by_line"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLab.lined_up"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLab.filled"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "CaptionLab.with_filled"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLab.with_lined_up"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLab.unpoured"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionLab.choose"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "CaptionLab.to_stored"
+  },
+  {
+   "choices": 19,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "CaptionLab.from_stored"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_number"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "newness"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "by_place"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "clause_gap"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/lab.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "changes_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/links.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_all_known"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/links.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "_keeps"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/links.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "hidden_links"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/pacing.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Pacing.next"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/pacing.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Pacing.wait_for"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "Rect.holds"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "default_size"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "slot"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "subtitle_slot"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "clamped"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "edges_at"
+  },
+  {
+   "choices": 18,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "resized"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "snapped"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "joined"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "columns"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "shares_of"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "divider_at"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "moved_divider"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "at_start"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/placement.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "area_for"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "_Line.empty"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_Line.add"
+  },
+  {
+   "choices": 18,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_flow"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "_flow.new_line"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "pour_stacked"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_fitting"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_last_row"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_ellipsis"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_between"
+  },
+  {
+   "choices": 11,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "pour_paired"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink"
+   ],
+   "name": "pour_paired.close"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_next_text"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_Side.__init__"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "_Side.fits"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/pour.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "ink",
+    "when"
+   ],
+   "name": "_Side.add"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/reveal.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "Reveal.shown"
+  },
+  {
+   "choices": 12,
+   "file": "ui_next/views/reveal.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Reveal.step"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/reveal.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "Reveal.wait_for"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/views/scroll.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "Scroll.placed"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/scroll.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "Scroll.scroll_by"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/scroll.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_index"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/scroll.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "_up"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/scroll.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "_down"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "_shown"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_trimmed"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "_clauses"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "selected_sentence"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_caption_links"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "_links"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink",
+    "when"
+   ],
+   "name": "SideAloud.lit"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "sides_aloud"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/sentences.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "worth_saving"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "strength"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "ratio"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "floored"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "floor_alpha"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "_share"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "vibrant"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "caption_text_colour"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_in_gamut"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_linear"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "_encoded"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "offered"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "reading_weight"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/views/tone.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "edge_colour"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/zones.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "handed_off"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/views/zones.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "Zones.live_lines"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/zones.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "Zones.pause"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_surface.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "ink"
+   ],
+   "name": "CaptionSurface.__init__"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_surface.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "CaptionSurface.changed"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_surface.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "CaptionSurface._width"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_surface.py",
+   "in_paint": true,
+   "kinds": [
+    "where"
+   ],
+   "name": "CaptionSurface._view_height"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "ShownClause.text"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "shown"
+  },
+  {
+   "choices": 7,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "place_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "held_pieces"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "word_rects"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "HeldSelection.draw"
+  },
+  {
+   "choices": 5,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "ink",
+    "when"
+   ],
+   "name": "HeldSelection.hold"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "when"
+   ],
+   "name": "HeldSelection.clear"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "HeldSelection.text"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "HeldSelection.copy"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "HeldSelection._copy_pressed"
+  },
+  {
+   "choices": 9,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "HeldSelection._look_at_keys"
+  },
+  {
+   "choices": 10,
+   "file": "ui_next/caption_selection.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "HeldSelection.eventFilter"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.dragging"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow._shares"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "JoinedWindow.set_columns"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.remove"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "ink"
+   ],
+   "name": "JoinedWindow.follow_alpha"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow._sync_controls"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.look"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.settings_open"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.close_settings"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what"
+   ],
+   "name": "JoinedWindow.show_bands"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where",
+    "when"
+   ],
+   "name": "JoinedWindow._band_left"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "JoinedWindow.came_over"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "JoinedWindow._check_still_over"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "JoinedWindow.leaveEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedWindow._widen"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "when"
+   ],
+   "name": "JoinedWindow.set_locked"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "what",
+    "where"
+   ],
+   "name": "JoinedWindow.edges_at"
+  },
+  {
+   "choices": 2,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedWindow.divider_at"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedWindow.press_divider"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.press"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where",
+    "when"
+   ],
+   "name": "JoinedWindow.drag_to"
+  },
+  {
+   "choices": 4,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.release"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "JoinedWindow.moveEvent"
+  },
+  {
+   "choices": 1,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedWindow.mousePressEvent"
+  },
+  {
+   "choices": 6,
+   "file": "ui_next/joined_window.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "JoinedWindow.mouseMoveEvent"
+  },
+  {
+   "choices": 8,
+   "file": "ui_next/views/row_positions.py",
+   "in_paint": false,
+   "kinds": [
+    "where"
+   ],
+   "name": "row_tops"
+  },
+  {
+   "choices": 3,
+   "file": "ui_next/views/row_positions.py",
+   "in_paint": false,
+   "kinds": [],
+   "name": "moved_characters"
+  }
+ ],
+ "files": {
+  "core/listening/display.py": {
+   "aside": 0,
+   "choosing": 19,
+   "functions": 22,
+   "lines": 776
+  },
+  "ui_next/caption_layout.py": {
+   "aside": 0,
+   "choosing": 98,
+   "functions": 113,
+   "lines": 3401
+  },
+  "ui_next/caption_marks.py": {
+   "aside": 0,
+   "choosing": 18,
+   "functions": 22,
+   "lines": 725
+  },
+  "ui_next/caption_selection.py": {
+   "aside": 0,
+   "choosing": 13,
+   "functions": 17,
+   "lines": 311
+  },
+  "ui_next/caption_surface.py": {
+   "aside": 0,
+   "choosing": 4,
+   "functions": 12,
+   "lines": 120
+  },
+  "ui_next/caption_window.py": {
+   "aside": 129,
+   "choosing": 408,
+   "functions": 532,
+   "lines": 10153
+  },
+  "ui_next/joined_window.py": {
+   "aside": 16,
+   "choosing": 41,
+   "functions": 60,
+   "lines": 751
+  },
+  "ui_next/reading_lines.py": {
+   "aside": 0,
+   "choosing": 24,
+   "functions": 35,
+   "lines": 740
+  },
+  "ui_next/transcript_window.py": {
+   "aside": 40,
+   "choosing": 88,
+   "functions": 125,
+   "lines": 2116
+  },
+  "ui_next/video.py": {
+   "aside": 0,
+   "choosing": 48,
+   "functions": 54,
+   "lines": 1824
+  },
+  "ui_next/views/arrivals.py": {
+   "aside": 0,
+   "choosing": 4,
+   "functions": 5,
+   "lines": 78
+  },
+  "ui_next/views/caption_window.py": {
+   "aside": 0,
+   "choosing": 32,
+   "functions": 36,
+   "lines": 945
+  },
+  "ui_next/views/captions.py": {
+   "aside": 0,
+   "choosing": 15,
+   "functions": 30,
+   "lines": 642
+  },
+  "ui_next/views/card_window_defaults.py": {
+   "aside": 0,
+   "choosing": 0,
+   "functions": 0,
+   "lines": 260
+  },
+  "ui_next/views/cards.py": {
+   "aside": 0,
+   "choosing": 49,
+   "functions": 64,
+   "lines": 1336
+  },
+  "ui_next/views/dwell.py": {
+   "aside": 0,
+   "choosing": 4,
+   "functions": 4,
+   "lines": 179
+  },
+  "ui_next/views/flow.py": {
+   "aside": 0,
+   "choosing": 49,
+   "functions": 63,
+   "lines": 1690
+  },
+  "ui_next/views/known_colours.py": {
+   "aside": 0,
+   "choosing": 4,
+   "functions": 6,
+   "lines": 114
+  },
+  "ui_next/views/lab.py": {
+   "aside": 0,
+   "choosing": 14,
+   "functions": 16,
+   "lines": 560
+  },
+  "ui_next/views/links.py": {
+   "aside": 0,
+   "choosing": 3,
+   "functions": 3,
+   "lines": 97
+  },
+  "ui_next/views/pacing.py": {
+   "aside": 0,
+   "choosing": 2,
+   "functions": 6,
+   "lines": 89
+  },
+  "ui_next/views/placement.py": {
+   "aside": 0,
+   "choosing": 15,
+   "functions": 22,
+   "lines": 360
+  },
+  "ui_next/views/pour.py": {
+   "aside": 0,
+   "choosing": 15,
+   "functions": 20,
+   "lines": 401
+  },
+  "ui_next/views/reveal.py": {
+   "aside": 0,
+   "choosing": 3,
+   "functions": 7,
+   "lines": 104
+  },
+  "ui_next/views/row_positions.py": {
+   "aside": 0,
+   "choosing": 2,
+   "functions": 2,
+   "lines": 51
+  },
+  "ui_next/views/scroll.py": {
+   "aside": 0,
+   "choosing": 5,
+   "functions": 9,
+   "lines": 168
+  },
+  "ui_next/views/sentences.py": {
+   "aside": 0,
+   "choosing": 9,
+   "functions": 9,
+   "lines": 319
+  },
+  "ui_next/views/tone.py": {
+   "aside": 0,
+   "choosing": 13,
+   "functions": 19,
+   "lines": 354
+  },
+  "ui_next/views/zones.py": {
+   "aside": 0,
+   "choosing": 3,
+   "functions": 8,
+   "lines": 97
+  }
+ }
+}

@@ -3,8 +3,8 @@
 python -m tools.ui_lab [--out DIR] [--gate] [--text-size PERCENT] [--language CODE]
 python -m tools.ui_lab --app-text-size largest --out DIR   # the app's own: no goldens
 python -m tools.ui_lab --language zh_CN --out DIR   # in another language: no goldens
-python -m tools.ui_lab approve [--out DIR]   # the new parts' goldens
-python -m tools.ui_lab approve --only STATE...   # only these states' (or patterns: ui_next.w4_*)
+python -m tools.ui_lab approve --reason WHY [--out DIR]   # the new parts' goldens
+python -m tools.ui_lab approve --reason WHY --only STATE...   # only these (or patterns: ui_next.w4_*)
 python -m tools.ui_lab prune                 # remove the goldens whose state is gone
 python -m tools.ui_lab judge [--out DIR]     # the judge's kit (JUDGE.md)
 python -m tools.ui_lab design [--accept]     # the design detector's findings (design.py)
@@ -12,7 +12,9 @@ python -m tools.ui_lab seen                  # the strings shown most: build/ui-
 python -m tools.ui_lab languages [--jobs 4]  # every other language, its checks gated
 
 Approving never removes a golden; `prune` is the only step that does
-(polyglotic-hq 258). On the user's PC, off CI, the command waits for the
+(polyglotic-hq 258). It needs a reason - the intended change, its commit -
+written with what it changed to the approval log (`goldens/APPROVALS.md`,
+polyglotic-hq 999). On the user's PC, off CI, the command waits for the
 shared Qt lock and 3.0 GB free, and holds the lock while it runs
 (`tools/qt_lock.py`, polyglotic-hq 563).
 """
@@ -85,6 +87,7 @@ def visual_states() -> list[lab.State]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    lab.as_the_app_starts()
     argv = list(sys.argv[1:] if argv is None else argv)
     command = argv.pop(0) if argv and argv[0] in COMMANDS else None
     parser = argparse.ArgumentParser(prog="python -m tools.ui_lab")
@@ -142,6 +145,11 @@ def main(argv: list[str] | None = None) -> int:
         help="approve: only these states (names, or patterns such as ui_next.w4_words_*)",
     )
     parser.add_argument(
+        "--reason",
+        help="approve: why these pictures changed - the intended change and its"
+        " commit - for the approval log",
+    )
+    parser.add_argument(
         "--accept",
         action="store_true",
         help="design: make every finding now the baseline (design_baseline.json)",
@@ -153,6 +161,10 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--accept is for design")
     if args.only and command != "approve":
         parser.error("--only is for approve")
+    if (command == "approve") != bool(args.reason and args.reason.strip()):
+        parser.error(
+            "approve needs --reason (the intended change), and only it takes one"
+        )
     if command == "approve" and args.app_text_size != "normal":
         parser.error("the goldens are at the app's normal text size")
     if command == "prune":
@@ -168,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.text_size != 100:
         lab.use_text_size(args.text_size)
     if command == "approve":
-        return approve(out, args.only)
+        return approve(out, args.reason, args.only)
     if command == "judge":
         out = args.out or Path("build/ui-lab/judge")
         judge.run(new_states(), out)
@@ -191,7 +203,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.at_normal:  # not text_sizes' own states, built at the other sizes
         other_sizes = {s.name for s in text_sizes.STATES}
         states = [s for s in states if s.name not in other_sizes]
-    results = lab.run(states, out, golden_store, args.language)
+    # --checks-only judges no budget, so its states aren't timed on a calm PC:
+    # every other language's runs, four at once, waited a second or more
+    # before each of their states (polyglotic-hq 994). --require-timings
+    # asks for them measured, so it keeps the waits.
+    timed = not args.checks_only or args.require_timings
+    results = lab.run(states, out, golden_store, args.language, timed=timed)
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary:  # in CI: the table on the run's page
         with open(summary, "a", encoding="utf-8") as page:
@@ -510,15 +527,18 @@ def chosen(states: list[lab.State], only: list[str] | None) -> list[lab.State]:
     return [s for s in states if any(fnmatch.fnmatchcase(s.name, n) for n in only)]
 
 
-def approve(out: Path, only: list[str] | None = None) -> int:
+def approve(out: Path, reason: str, only: list[str] | None = None) -> int:
     """Every state of the new interface run - or only those `only` names -
     and each picture that differs from its golden (or has none) becomes its
-    golden. No golden is removed: `prune` does that. At the app's Normal
-    text size, as the gate photographs them, whatever this process had."""
+    golden, with `reason` in the approval log. No golden is removed: `prune`
+    does that. At the app's Normal text size, as the gate photographs them,
+    whatever this process had."""
     states = visual_states()
     results = lab.run(at_app_text_size(chosen(states, only), "normal"), out)
     pictures = {r.state: r.photo for r in results if r.photo is not None}
     changes = goldens.approve(pictures)
+    if changes:
+        goldens.record(changes, reason)
     for line in changes:
         print(line)
     print(

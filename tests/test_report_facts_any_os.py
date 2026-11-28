@@ -56,3 +56,10 @@ def test_devices_that_cant_be_listed_never_stop_a_report() -> None:
     assert device_facts(fails) == {"unavailable": "AttributeError"}
     assert device_facts(None) == {"unavailable": "not asked"}
     assert device_facts(SoundDevices)["output"] == {"default": None, "active": []}
+
+
+def test_crostini_kind_is_available_in_app_and_report_facts() -> None:
+    app = AppInfo.this_app("linux-6", "13", platform_kind="crostini")
+    assert app.platform_kind == "crostini"
+    os_facts = report_facts(app, app.channel, [])["windows"]
+    assert isinstance(os_facts, dict) and os_facts["platform_kind"] == "crostini"

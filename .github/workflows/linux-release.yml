@@ -281,6 +281,14 @@ jobs:
           uv run --no-sync pytest -p no:cacheprovider -q -rs
           tests/test_linux_capture.py tests/ui/test_apps_one_by_one.py
 
+      - name: (3) Debian 13 capture with and without pipewire-pulse
+        id: debian
+        if: ${{ !cancelled() }}
+        timeout-minutes: 8
+        run: >-
+          docker run --rm --cpus 2 --memory 2g -e GITHUB_ACTIONS
+          -v "$PWD:/w:ro" -w /w debian:trixie bash tools/linux_debian_capture.sh
+
       - name: (5) The keyring, unlocked
         id: keyring
         if: ${{ !cancelled() }}
@@ -305,6 +313,7 @@ jobs:
           said() { [ "$1" = success ] && echo pass || echo fail; }
           {
             echo "$(said "${{ steps.capture.outcome }}") the sound server's capture tests (system, mic, one app, everything else)"
+            echo "$(said "${{ steps.debian.outcome }}") Debian 13 capture, with and without pipewire-pulse"
             echo "$(said "${{ steps.keyring.outcome }}") the keyring tests, unlocked"
             echo "$(said "${{ steps.locked.outcome }}") the keyring tests, locked"
           } | tee "$OUT/capture/summary.txt"

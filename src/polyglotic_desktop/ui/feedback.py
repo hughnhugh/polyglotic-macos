@@ -22,18 +22,20 @@ goes through `tr()`.
 
 from collections.abc import Callable
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFontDatabase, QPalette
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QFontDatabase, QPalette, QResizeEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
+    QFrame,
     QLabel,
     QLineEdit,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -47,6 +49,7 @@ from polyglotic_desktop.core.report_text import (
     limited_clean_text,
 )
 from polyglotic_desktop.ports.feedback import ReportKind
+from polyglotic_desktop.ui.consent import MIN_SCROLL, WINDOW_FRAME
 from polyglotic_desktop.ui.os_words import pc_or_mac
 
 KINDS: tuple[ReportKind, ...] = ("problem", "question", "work_with_us")
@@ -172,12 +175,21 @@ class FeedbackDialog(QDialog):
         )
         self.setObjectName("FeedbackDialog")
         self.setMinimumWidth(560)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(10)
+        self._fitting = False
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(24, 20, 24, 20)
+        outer.setSpacing(10)
         self.title = QLabel()
         self.title.setObjectName("PageTitle")
-        layout.addWidget(self.title)
+        outer.addWidget(self.title)
+        # what's between the title and Send scrolls on a screen too short
+        # for it all (`_fit`): at 200 % text size its last note was squeezed
+        # 20 px short, cutting its lines (polyglotic-hq 999)
+        self.body = QWidget()
+        self.body.setObjectName("feedback.body")
+        layout = QVBoxLayout(self.body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(outer.spacing())
 
         self.kind = QComboBox()
         self.kind.setObjectName("feedback.kind")
@@ -247,6 +259,20 @@ class FeedbackDialog(QDialog):
         about.setObjectName("Faint")
         about.setWordWrap(True)
         layout.addWidget(about)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setObjectName("feedback.scroll")
+        self.scroll_area.setWidget(self.body)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.scroll_area.viewport().setAutoFillBackground(False)
+        self.body.setAutoFillBackground(False)
+        outer.addWidget(self.scroll_area)
 
         buttons = QDialogButtonBox()
         self.send = QPushButton(self.tr("Send"))
@@ -256,13 +282,60 @@ class FeedbackDialog(QDialog):
         buttons.addButton(QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
+        outer.addWidget(buttons)
 
         self.kind.currentIndexChanged.connect(self._kind_changed)
         self.text.textChanged.connect(self._check)
         self.reply.textChanged.connect(self._check)
         self.kind.setCurrentIndex(KINDS.index(kind))
         self._kind_changed()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        QTimer.singleShot(0, self, self._fit)  # again once styled
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._fit()
+
+    def _fit(self) -> None:
+        """As tall as everything needs at this width - or, on a screen too
+        short for that, as tall as its work area leaves room for, with the
+        middle scrolling between the title and Send (as Your data's,
+        `ui.consent`, and Report a problem's)."""
+        screen = self.screen()
+        outer = self.layout()
+        if screen is None or outer is None or self._fitting:
+            return
+        self._fitting = True
+        try:
+            self.scroll_area.setFixedHeight(0)
+            outer.invalidate()
+            rest = outer.totalSizeHint().height()
+            room = screen.availableGeometry().height() - WINDOW_FRAME
+            width = self.scroll_area.width()
+            natural = self.body.heightForWidth(width)
+            if natural < 0:
+                natural = self.body.sizeHint().height()
+            scrolls = natural > room - rest
+            if scrolls:  # its words beside the bar: as tall as they are there
+                width -= self.scroll_area.verticalScrollBar().sizeHint().width()
+                natural = max(natural, self.body.heightForWidth(width))
+            # a scroll bar only on a screen too short for it all, never one
+            # flashing over the text (`ui.consent`, polyglotic-hq 269)
+            self.scroll_area.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                if scrolls
+                else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            self.scroll_area.setFixedHeight(max(MIN_SCROLL, min(natural, room - rest)))
+            outer.invalidate()
+            total = outer.totalSizeHint().height()
+            self.setMinimumHeight(total)
+            if self.height() != total:
+                self.resize(self.width(), total)
+        finally:
+            self._fitting = False
 
     def chosen_kind(self) -> ReportKind:
         value: ReportKind = self.kind.currentData()

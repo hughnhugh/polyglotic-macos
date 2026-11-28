@@ -250,3 +250,52 @@ forbidden_modules = [
     "polyglotic_desktop.core.lexicon",
     "polyglotic_desktop.core.releases",
 ]
+
+# The display's net (polyglotic-hq 933, ADR-009; unit display-0): three
+# ratchets that hold today, so the refactor cannot quietly break them.
+[[tool.importlinter.contracts]]
+id = "session-headless"
+name = "The listening session is headless: connection uses no Qt (polyglotic-hq 933, ADR-009)"
+type = "forbidden"
+source_modules = ["polyglotic_desktop.connection"]
+forbidden_modules = ["PySide6", "shiboken6"]
+
+[[tool.importlinter.contracts]]
+id = "capture-headless"
+name = "Capture and the speech pipeline are headless: no Qt on a capture thread (polyglotic-hq 933, ADR-009)"
+type = "forbidden"
+source_modules = [
+    "polyglotic_desktop.platform.speech_pipeline",
+    "polyglotic_desktop.platform.audio_buffer",
+    "polyglotic_desktop.platform.speech_detection",
+    "polyglotic_desktop.platform.mic_bleed",
+    "polyglotic_desktop.platform.opus",
+    "polyglotic_desktop.platform.dictation_mic",
+    "polyglotic_desktop.platform.capture_restarts",
+    "polyglotic_desktop.platform.timeline",
+    "polyglotic_desktop.platform.sound_unheard",
+    "polyglotic_desktop.platform.windows.capture",
+    "polyglotic_desktop.platform.macos.capture",
+    "polyglotic_desktop.platform.linux.capture",
+]
+forbidden_modules = ["PySide6", "shiboken6"]
+
+[[tool.importlinter.contracts]]
+id = "one-renderer"
+name = "The caption renderer serves every surface, so it imports none of them (polyglotic-hq 933, ADR-009)"
+type = "forbidden"
+source_modules = [
+    "polyglotic_desktop.ui_next.caption_layout",
+    "polyglotic_desktop.ui_next.caption_surface",
+    "polyglotic_desktop.ui_next.caption_marks",
+    "polyglotic_desktop.ui_next.reading_lines",
+    "polyglotic_desktop.ui_next.caption_selection",
+    "polyglotic_desktop.ui_next.video",
+]
+forbidden_modules = [
+    "polyglotic_desktop.ui_next.caption_window",
+    "polyglotic_desktop.ui_next.caption_windows",
+    "polyglotic_desktop.ui_next.joined_window",
+    "polyglotic_desktop.ui_next.transcript_window",
+    "polyglotic_desktop.ui_next.transcripts",
+]

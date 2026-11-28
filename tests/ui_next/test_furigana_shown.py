@@ -633,13 +633,19 @@ def test_wrapped_japanese_translation_keeps_its_last_reading_inside_the_window(
     shown.apply_changed(new_caption=True)
     QApplication.processEvents()
     shown.canvas.grab()
-    baselines = {
-        row.top + mark.y
+    rows = [
+        row
         for _, laid, _ in shown.canvas.placed
         for row in laid.rows
-        for mark in row.below
-    }
-    assert len(baselines) > 1
+        if row.row.kind is RowKind.TRANSLATION
+    ]
+    assert len({row.top + mark.y for row in rows for mark in row.below}) > 1
+    # A kana-only continuation has no furigana. Count only the caption's own
+    # readings across the wrap, skipping its display-only ellipses.
+    kana = [mark.text for row in rows for mark in row.above if mark.end >= 0]
+    romaji = [mark.text for row in rows for mark in row.below if mark.end >= 0]
+    assert kana == ["ともだち", "とうきょう", "の"] * 3
+    assert romaji == ["tomodachi", "to", "tōkyō", "de", "nomi", "mashi", "ta"] * 3
     assert_reading_geometry(shown, choice, RowKind.TRANSLATION)
 
 
@@ -668,6 +674,9 @@ def assert_reading_geometry(
     readings: list[QRectF] = []
     for _, laid, rect in shown.canvas.placed:
         assert {row.row.kind for row in laid.rows} == set(RowKind)
+        target = [row for row in laid.rows if row.row.kind is kind]
+        assert any(row.above for row in target)
+        assert any(row.below for row in target) == (choice is JapaneseReading.BOTH)
         for row in laid.rows:
             origin = rect.topLeft() + QPointF(0, row.top)
             for box in glyph_rects(
@@ -675,8 +684,6 @@ def assert_reading_geometry(
             ):
                 assert viewport.contains(box)
                 base_glyphs.append(box)
-            if row.row.kind is kind:
-                assert row.above and bool(row.below) == (choice is JapaneseReading.BOTH)
             for marks, font in (
                 (row.above, row.above_font),
                 (row.below, row.below_font),

@@ -72,10 +72,10 @@ from polyglotic_desktop.core.listening.timing import (
     SpeechKind,
     TranscriptionRequest,
 )
-from polyglotic_desktop.ports.capture import SourceCategory
+from polyglotic_desktop.ports.capture import CaptureIssue, SourceCategory
 from polyglotic_desktop.ui.recorded_captions import APP, MIC
 from polyglotic_desktop.ui_next import caption_window as caption_window_module
-from polyglotic_desktop.ui_next import style
+from polyglotic_desktop.ui_next import capture_status, style
 from polyglotic_desktop.ui_next.caption_selection import word_rects
 from polyglotic_desktop.ui_next.caption_surface import PAD
 from polyglotic_desktop.ui_next.caption_window import (
@@ -2808,3 +2808,28 @@ def test_joined_window_second_source_keeps_name_while_own_source_is_omitted(
         assert [line.label for line in first.view.lines] == ["", "", ""]
     finally:
         windows.close()
+
+
+def test_capture_issue_follows_visible_sources_and_clears(
+    windows: CaptionWindows,
+) -> None:
+    windows.set_captioned([("app", APP)])
+    window = windows.windows["app"]
+    window.set_show_mic(True)
+    windows.show_capture_status({MIC: CaptureIssue.SILENT}, True)
+    assert window.capture_message == capture_status.explanation(
+        CaptureIssue.SILENT, mic=True
+    )
+    windows.show_capture_status(
+        {APP: CaptureIssue.SERVER, MIC: CaptureIssue.SILENT}, True
+    )
+    assert window.capture_message == capture_status.explanation(
+        CaptureIssue.SERVER, mic=False
+    )
+    window.set_show_mic(False)
+    windows.show_capture_status({MIC: CaptureIssue.SILENT}, False)
+    assert window.capture_message == ""
+    windows.show_capture_status({}, True)
+    assert window.capture_message == capture_status.chromebook_help()
+    windows.show_capture_status({APP: None}, True)
+    assert window.capture_message == capture_status.listening_for_speech()

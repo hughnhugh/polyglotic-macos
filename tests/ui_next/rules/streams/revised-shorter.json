@@ -1,0 +1,89 @@
+{
+  "about": "969's case: a live caption is revised to fewer words, then the next caption arrives. Made-up text.",
+  "window": {
+    "width": 360,
+    "height": 690
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Avant.",
+          "words": [],
+          "reading": [],
+          "translation": "Before.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 1.0,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Un lac clair au-delà de la montagne et de la ville, Un lac clair au-delà de la montagne et de la ville, puis la route du nord.",
+          "words": [],
+          "reading": [],
+          "translation": "Here.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 1.4,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Un",
+          "words": [],
+          "reading": [],
+          "translation": "Here.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 4.0,
+      "key": 2,
+      "source": "video",
+      "live": true,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Un lac clair.",
+          "words": [],
+          "reading": [],
+          "translation": "Here.",
+          "links": []
+        }
+      ]
+    },
+    {
+      "t": 5.0,
+      "key": 3,
+      "source": "video",
+      "live": false,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Encore.",
+          "words": [],
+          "reading": [],
+          "translation": "More.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

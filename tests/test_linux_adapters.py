@@ -60,6 +60,8 @@ def test_linux_gets_a_whole_record() -> None:
             assert not piece, field.name
         elif field.name == "common_apps":  # listed before they play (561)
             assert piece, field.name
+        elif field.name == "platform_kind":
+            assert piece in {"linux", "crostini"}
         elif field.name == "qt_platform":  # X11, through XWayland (0258)
             assert piece == "xcb"
         elif (
@@ -545,3 +547,18 @@ def test_a_locked_windows_corner_takes_the_mouse_only_on_a_wayland_desktop(
     monkeypatch.setenv("XDG_SESSION_TYPE", "x11")
     monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
     assert not os_adapters("linux").unlock_spot
+
+
+def test_crostini_uses_guest_markers_only(tmp_path: Path) -> None:
+    assert system.platform_kind(tmp_path) == "linux"
+    apt = tmp_path / "etc/apt/sources.list.d/cros.list"
+    apt.parent.mkdir(parents=True)
+    apt.touch()
+    assert system.platform_kind(tmp_path) == "linux"
+    (tmp_path / "opt/google/cros-containers").mkdir(parents=True)
+    assert system.platform_kind(tmp_path) == "crostini"
+    apt.unlink()
+    milestone = tmp_path / "dev/.cros_milestone"
+    milestone.parent.mkdir()
+    milestone.touch()
+    assert system.platform_kind(tmp_path) == "crostini"

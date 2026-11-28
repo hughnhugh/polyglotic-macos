@@ -1,0 +1,18 @@
+{
+ "made_with": {
+  "fonts": "547 files, 31273397fba45bd5",
+  "pyside6": "6.12.0",
+  "qt": "6.12.0"
+ },
+ "recipes": {
+  "movement.a-new-row-waits-then-fades-in.overlap.png": "bf7c43a9e07978b5",
+  "movement.a-new-row-waits-then-fades-in.png": "e0e5f6bdd722bf16",
+  "movement.no-sideways-slide.png": "ec53d3f312209adf",
+  "movement.the-approved-glide.png": "7c144a51f9ef9d9a",
+  "movement.words-never-fall.overlap.png": "49fc16596ce63255",
+  "movement.words-never-fall.png": "d8a7f7ff3550482f",
+  "movement.words-never-fall.video.png": "3e9d84338b4374dc",
+  "wrapping.every-row-is-a-single-line.png": "564fa19e5acb2157",
+  "wrapping.every-row-is-a-single-line.transcript.png": "7d1783ab875a362e"
+ }
+}

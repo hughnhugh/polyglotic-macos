@@ -58,6 +58,9 @@ PACK_SUFFIX = ".sqlite"
 SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 CODE = re.compile(r"[a-z]{2,3}")
 """A learned language's code, or a meanings language's: `ru`, `zh`, `yue`."""
+RIDER_LOCALES = frozenset({"zh_TW"})
+"""The languages a meanings rider may be in beyond a bare code (`CODE`):
+Taiwan's Traditional Chinese, JMdict's drafts for it (polyglotic-hq 915)."""
 FROM_SOURCE = "0.0.0"
 """The version an app run from source has (`connection.app`): it reads
 every pack its formats and word splits allow, whatever `min_app` says."""
@@ -149,6 +152,12 @@ class PackOffer:
     def download(self) -> str:
         """The file to download: the pack, gzipped."""
         return self.file + ".gz"
+
+
+def rider_language(text: str) -> bool:
+    """Whether a meanings rider can be in `text`: a code (`es`) or one of
+    `RIDER_LOCALES` (`zh_TW`)."""
+    return bool(CODE.fullmatch(text)) or text in RIDER_LOCALES
 
 
 def version_key(text: str) -> tuple[int, ...] | None:
@@ -391,7 +400,7 @@ def _riders(raw: object, dictionary: str) -> tuple[Rider, ...]:
             and SHA256_HEX.fullmatch(rider.gz_sha256)
             and (
                 rider.kind != "meanings"
-                or (CODE.fullmatch(rider.meanings) or rider.meanings == "zh_TW")
+                or rider_language(rider.meanings)
                 and rider.file.startswith(f"{dictionary}-{rider.meanings}-")
             )
         ):

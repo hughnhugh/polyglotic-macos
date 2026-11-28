@@ -358,11 +358,17 @@ def speaking_pace(
     lab: Lab,
     *,
     width: int = 960,
+    narrowest: bool = False,
     short: bool = False,
     hidden: bool = False,
     opacity: float = 0.88,
     caption_pace: int | None = None,
 ) -> QWidget:
+    """Speaking pace in the strip; `narrowest`: at the window's least width
+    at the text size now, as `narrow` is - a bare 320 px was under it at
+    200 % (polyglotic-hq 999), a width no window takes."""
+    if narrowest:
+        width = least_size(MIN_PANEL).width
     shown = window(lab, captions=0 if caption_pace is not None else 2)
     if caption_pace is not None:
         for update in finished(2, APP):
@@ -1200,9 +1206,9 @@ STATES = [
         ("caption_hovered", caption_hovered, True),
         ("copied_toast", copied_toast, True),
         ("narrow", narrow, True),
-        ("pace_minimum", partial(speaking_pace, width=320), True),
+        ("pace_minimum", partial(speaking_pace, narrowest=True), True),
         ("pace_normal", speaking_pace, True),
-        ("pace_short", partial(speaking_pace, width=320, short=True), True),
+        ("pace_short", partial(speaking_pace, narrowest=True, short=True), True),
         ("pace_hidden", partial(speaking_pace, hidden=True), True),
         ("pace_transparent", partial(speaking_pace, opacity=0), True),
         ("pace_30", partial(speaking_pace, opacity=0.30, caption_pace=165), True),

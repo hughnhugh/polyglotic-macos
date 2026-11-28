@@ -26,7 +26,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Add email address</source>
-        <translation type="unfinished">E-mailadres toevoegen</translation>
+        <translation>E-mailadres toevoegen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -41,7 +41,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose shared data</source>
-        <translation type="unfinished">Kiezen wat je deelt</translation>
+        <translation>Kiezen wat je deelt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -66,17 +66,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Your plan</source>
-        <translation type="unfinished">Je abonnement</translation>
+        <translation>Je abonnement</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Shared data</source>
-        <translation type="unfinished">Je gegevens</translation>
+        <translation>Gedeelde gegevens</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose whether to send usage statistics, crash reports and how often you hear words.</source>
-        <translation type="unfinished">Wat Polyglotic verstuurt om de dienst te laten werken, en wat je kiest te delen: gebruiksstatistieken, crashrapporten, hoe vaak je woorden hoort.</translation>
+        <translation>Kies of je gebruiksstatistieken, crashrapporten en gegevens over hoe vaak je woorden hoort wilt delen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -86,22 +86,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another PC and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this PC.</source>
-        <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op onze server bewaard als woordenboekwoorden en tijden: opgeslagen woorden en statussen gaan mee naar een andere pc, en opzoekingen laten ons zien hoe mensen leren. Je kunt ze daar verwijderen, in elke taal die je leert – en ook op deze pc als je wilt.</translation>
+        <translation>We bewaren op onze server welke woorden je opzoekt, opslaat en markeert, en wanneer. Zo neem je je opgeslagen woorden en voortgang mee naar een andere pc en zien wij hoe mensen leren. Je kunt die gegevens voor alle talen van onze server verwijderen en kiezen of je ze ook van deze pc wilt wissen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another computer and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this Mac.</source>
-        <translation type="unfinished">De woorden die je opzoekt, opslaat en markeert, worden op onze server bewaard als woordenboekwoorden en tijden: opgeslagen woorden en statussen gaan mee naar een andere computer, en opzoekingen laten ons zien hoe mensen leren. Je kunt ze daar verwijderen, in elke taal die je leert – en ook op deze Mac als je wilt.</translation>
+        <translation>We bewaren op onze server welke woorden je opzoekt, opslaat en markeert, en wanneer. Zo neem je je opgeslagen woorden en voortgang mee naar een andere computer en zien wij hoe mensen leren. Je kunt die gegevens voor alle talen van onze server verwijderen en kiezen of je ze ook van deze Mac wilt wissen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Privacy and testing</source>
-        <translation type="unfinished">Privacy en de testersovereenkomst</translation>
+        <translation>Privacy en testvoorwaarden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Read what we keep and the terms you accepted as a tester.</source>
-        <translation type="unfinished">Wat we bewaren en waarom, en waarmee je als tester akkoord ging.</translation>
+        <translation>Lees wat we bewaren en met welke voorwaarden je als tester akkoord bent gegaan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -136,17 +136,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Not signed in — {needed}.</source>
-        <translation type="unfinished">Niet aangemeld – {needed}.</translation>
+        <translation>Niet aangemeld – {needed}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in with invite code</source>
-        <translation type="unfinished">Aangemeld met een uitnodigingscode</translation>
+        <translation>Aangemeld met een uitnodigingscode</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Account ID: {id}. Include it when you contact us about your data.</source>
-        <translation type="unfinished">Je account-ID: {id}. Vermeld die als je ons schrijft over je gegevens.</translation>
+        <translation>Account-ID: {id}. Vermeld dit ID als je contact met ons opneemt over je gegevens.</translation>
     </message>
 </context>
 <context>
@@ -154,12 +154,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Op sommige plaatsen moet iedereen die aan een gesprek deelneemt, toestemming geven voordat het wordt ondertiteld. Laat het weten aan de mensen met wie je praat.</translation>
+        <translation>Op sommige plaatsen moet iedereen in een gesprek instemmen met ondertiteling. Vertel de anderen dat je het gesprek ondertitelt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Got it</source>
-        <translation type="unfinished">Begrepen</translation>
+        <translation>Begrepen</translation>
     </message>
 </context>
 <context>
@@ -193,22 +193,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Detect finds the language each time someone speaks.</source>
-        <translation type="unfinished">De stand Automatisch bepaalt de taal elke keer dat iemand spreekt.</translation>
+        <translation>Bij Automatisch wordt de taal telkens herkend zodra iemand spreekt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Choose a translation language, or show only the original.</source>
-        <translation type="unfinished">Vertaal die regels ook in een tweede taal, of laat ze.</translation>
+        <translation>Kies een taal voor de vertaling of toon alleen het origineel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Set up captions</source>
-        <translation type="unfinished">Stel je ondertitels in</translation>
+        <translation>Ondertitels instellen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Shown as &quot;You&quot;. Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Getoond als &apos;Jij&apos;. Je microfoon wordt alleen voor je ondertitels verstuurd zolang dit aan staat.</translation>
+        <translation>Wat je zegt verschijnt onder &apos;Jij&apos;. We versturen je microfoongeluid alleen voor je ondertitels zolang dit aanstaat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -218,7 +218,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Use these choices for new caption windows and skip this card</source>
-        <translation type="unfinished">Nieuwe ondertitelvensters starten zo, en dit verschijnt niet meer</translation>
+        <translation>Deze keuzes voor nieuwe ondertitelvensters gebruiken en deze kaart overslaan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>New caption windows use these choices. Use Languages on the caption bar to change them or show this card again.</source>
-        <translation type="unfinished">Aan: nieuwe vensters starten zo en dit verschijnt niet meer. De talen op de balk van een venster wijzigen ze, of halen dit terug.</translation>
+        <translation>Nieuwe ondertitelvensters gebruiken deze keuzes. Via Talen op de ondertitelbalk kun je ze wijzigen of deze kaart weer tonen.</translation>
     </message>
 </context>
 <context>
@@ -261,22 +261,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: on</source>
-        <translation type="unfinished">Ondertitel wat ik zeg: aan</translation>
+        <translation>Mijn spraak hier tonen: aan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: off</source>
-        <translation type="unfinished">Ondertitel wat ik zeg: uit</translation>
+        <translation>Mijn spraak hier tonen: uit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view: captions in grey and gold, only your chosen words in blue, no underlines. Point at a word to see the word it&apos;s linked to</source>
-        <translation type="unfinished">Rustige weergave aan of uit: ondertitels in rustig grijs en goud, alleen je gekozen woorden in blauw, geen onderstrepingen – wijs een woord aan om zijn tegenhanger te zien</translation>
+        <translation>Rustige weergave: ondertitels in grijs en goud, alleen je gekozen woorden in blauw. Wijs een woord aan om het bijbehorende woord in de andere regel te zien. Er zijn geen onderstrepingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{wpm} wpm</source>
-        <translation type="unfinished">{wpm} w/min</translation>
+        <translation>{wpm} w/min</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -296,12 +296,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the PC plays is captioned here</source>
-        <translation type="unfinished">Alles wat de pc afspeelt, wordt hier ondertiteld</translation>
+        <translation>Alles wat de pc afspeelt, wordt hier ondertiteld</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the Mac plays is captioned here</source>
-        <translation type="unfinished">Alles wat de Mac afspeelt, wordt hier ondertiteld</translation>
+        <translation>Alles wat de Mac afspeelt, wordt hier ondertiteld</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,7 +326,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic is druk. Probeer het over een paar minuten opnieuw</translation>
+        <translation>Het is druk bij Polyglotic – nieuwe poging volgt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -376,7 +376,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Some captions failed - still trying</source>
-        <translation type="unfinished">Ondertitels mislukken op de server – nog bezig</translation>
+        <translation>Sommige ondertitels zijn mislukt – Polyglotic blijft het proberen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -391,12 +391,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying to reconnect</source>
-        <translation type="unfinished">Geen internet? Server van Polyglotic onbereikbaar</translation>
+        <translation>Offline – opnieuw verbinden…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Server van Polyglotic onbereikbaar</translation>
+        <translation>Verbinding met Polyglotic mislukt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -406,7 +406,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">De server van Polyglotic heeft een probleem</translation>
+        <translation>De server van Polyglotic heeft een fout gemeld</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -451,12 +451,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying again in {n} s</source>
-        <translation type="unfinished">Geen internet? Server onbereikbaar – nieuwe poging over {n} s</translation>
+        <translation>Offline – nieuwe poging over {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic - trying again in {n} s</source>
-        <translation type="unfinished">Server onbereikbaar – nieuwe poging over {n} s</translation>
+        <translation>Verbinding met Polyglotic mislukt – nieuwe poging over {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -466,7 +466,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error - trying again in {n} s</source>
-        <translation type="unfinished">Serverprobleem – nieuwe poging over {n} s</translation>
+        <translation>Serverfout bij Polyglotic – nieuwe poging over {n} s</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -562,7 +562,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Detect</source>
-        <translation type="unfinished">Automatisch</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -572,7 +572,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your speech is shown here: your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Hier staat wat je zelf zegt: je microfoon wordt alleen voor je ondertitels verstuurd zolang dit aan staat</translation>
+        <translation>Wat je zegt verschijnt hier. We versturen je microfoongeluid alleen voor je ondertitels zolang dit aanstaat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Woordkoppelingen</translation>
+        <translation>Woordkoppelingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -598,7 +598,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Rustige weergave</translation>
+        <translation>Rustige weergave</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -613,7 +613,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Leerlijst</translation>
+        <translation>Leerlijst</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -628,7 +628,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Fill the width, in every window: captions run on in lines as wide as the window, each line of what was said over its translation</source>
-        <translation type="unfinished">Breedte vullen aan of uit, in elk venster: ondertitels lopen regel voor regel door, in regels zo breed als het venster - elke regel van wat er gezegd is boven de vertaling ervan</translation>
+        <translation>Breedte vullen in alle vensters. Ondertitels lopen door over de volle breedte, telkens met de vertaling onder de gesproken regel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -638,7 +638,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Line up the parts, in every window: each part of what was said starts where its translation does, so a word&apos;s translation is under it</source>
-        <translation type="unfinished">Delen uitlijnen aan of uit, in elk venster: elk deel van wat er gezegd is begint op dezelfde plek als de vertaling ervan, zodat de vertaling van een woord eronder staat</translation>
+        <translation>Delen uitlijnen in alle vensters. Elk deel van de gesproken tekst begint op dezelfde plek als de vertaling, zodat de vertaling onder het bijbehorende woord staat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -653,12 +653,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Kleinere tekst (Ctrl+wieltje)</translation>
+        <translation>Kleinere ondertitels (Ctrl+muiswiel)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Bigger captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Grotere tekst (Ctrl+wieltje)</translation>
+        <translation>Grotere ondertitels (Ctrl+muiswiel)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -683,7 +683,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all caption windows</source>
-        <translation type="unfinished">Alle vensters vergrendelen</translation>
+        <translation>Alle ondertitelvensters vergrendelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -698,7 +698,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Minimaliseren</translation>
+        <translation>Minimaliseren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -713,7 +713,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Start new windows with these languages</source>
-        <translation type="unfinished">Nieuwe vensters zo starten</translation>
+        <translation>Deze talen voor nieuwe vensters gebruiken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -728,7 +728,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Each new caption window asks what its app speaks and what to translate into, until you choose Use as my default</source>
-        <translation type="unfinished">Een ondertitelvenster dat opent vraagt welke taal er wordt gesproken en waarnaar te vertalen, tot je daar Als mijn standaard gebruiken kiest</translation>
+        <translation>Elk nieuw ondertitelvenster vraagt naar de gesproken taal en de doeltaal, totdat je &apos;Als mijn standaard gebruiken&apos; kiest</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -738,7 +738,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Captions singing in music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent</source>
-        <translation type="unfinished">Zang in muziekspelers op Auto ondertitelen: hun geluid wordt ook verstuurd als er geen spraak klinkt, steeds een paar seconden. Uit: alleen wat als spraak klinkt wordt verstuurd</translation>
+        <translation>Ondertitelt zang in muziekspelers met Automatisch als gesproken taal. Ook zonder spraak wordt hun geluid in stukjes van een paar seconden verstuurd. Uit: alleen spraak wordt verstuurd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -748,7 +748,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Je microfoon wordt alleen voor je ondertitels verstuurd zolang dit aan staat</translation>
+        <translation>We versturen je microfoongeluid alleen voor je ondertitels zolang dit aanstaat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -793,17 +793,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Caption actions</source>
-        <translation type="unfinished">Ondertitelacties</translation>
+        <translation>Ondertitelacties</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Save caption</source>
-        <translation type="unfinished">Ondertitel opslaan</translation>
+        <translation>Ondertitel opslaan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Copy caption</source>
-        <translation type="unfinished">Ondertitel kopiëren</translation>
+        <translation>Ondertitel kopiëren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -844,19 +844,19 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{now} wpm · avg {average}</source>
         <extracomment>Speaking pace beside the speaker or microphone icon; {now} is current words per minute, {average} is session average.</extracomment>
-        <translation type="unfinished">{now} w/min · gem. {average}</translation>
+        <translation>{now} w/min · gem. {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Them: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for the other speakers&apos; pace row (speaker icon).</extracomment>
-        <translation type="unfinished">Zij: {now} woorden per minuut, gemiddeld {average}</translation>
+        <translation>Anderen: {now} woorden per minuut, gemiddeld {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>You: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for your own speaking pace row (microphone icon).</extracomment>
-        <translation type="unfinished">Jij: {now} woorden per minuut, gemiddeld {average}</translation>
+        <translation>Jij: {now} woorden per minuut, gemiddeld {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -874,27 +874,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Steady</source>
-        <translation type="unfinished">Rustig</translation>
+        <translation>Rustig</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Whole captions</source>
-        <translation type="unfinished">Hele ondertitels</translation>
+        <translation>Hele ondertitels</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Instant</source>
-        <translation type="unfinished">Direct</translation>
+        <translation>Direct</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Calm</source>
-        <translation type="unfinished">Kalm</translation>
+        <translation>Kalm</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Scrolling</source>
-        <translation type="unfinished">Scrollen</translation>
+        <translation>Scrollen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -934,7 +934,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Only words the speech model is sure of: later, but they stay put</source>
-        <translation type="unfinished">Alleen woorden waar het spraakmodel zeker van is: later, en stil</translation>
+        <translation>Alleen woorden waar het spraakmodel zeker van is. Ze verschijnen later en blijven staan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -949,7 +949,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Translation a moment later</source>
-        <translation type="unfinished">Vertaling nadat ik het gelezen heb</translation>
+        <translation>Vertaling iets later</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -1038,6 +1038,69 @@
     </message>
 </context>
 <context>
+    <name>CaptureStatus</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Listening for speech…</source>
+        <translation>Luisteren naar spraak…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Play sound in a Linux app, such as a Linux browser. ChromeOS tabs and Android apps play outside Linux.</source>
+        <translation type="unfinished">Speel geluid af in een Linux-app, bijvoorbeeld een Linux-browser. ChromeOS-tabbladen en Android-apps spelen geluid buiten Linux af.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>For your microphone, open Settings → About ChromeOS → Developers → Linux development environment and turn on “Allow Linux to access your microphone”.</source>
+        <translation type="unfinished">Ga voor je microfoon naar Instellingen → Over ChromeOS → Ontwikkelaars → Linux-ontwikkelomgeving en zet ‘Linux toegang geven tot je microfoon’ aan.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Linux audio support is missing. Install {package} to listen.</source>
+        <translation type="unfinished">De audio-ondersteuning voor Linux ontbreekt. Installeer {package} om te luisteren.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Polyglotic can’t reach the sound server. Check that PulseAudio or pipewire-pulse is running.</source>
+        <translation type="unfinished">Polyglotic kan de geluidsserver niet bereiken. Controleer of PulseAudio of pipewire-pulse draait.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>The sound server denied recording access. Check your audio permissions.</source>
+        <translation type="unfinished">De geluidsserver heeft de opname geweigerd. Controleer je audiomachtigingen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No speaker output is available to record. Check your Linux sound settings.</source>
+        <translation type="unfinished">Er is geen geluidsuitgang beschikbaar voor opname. Controleer de geluidsinstellingen van Linux.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No microphone is available. Check your Linux sound settings.</source>
+        <translation type="unfinished">Er is geen microfoon beschikbaar. Controleer de geluidsinstellingen van Linux.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No audio data has arrived from this source. Check your Linux sound settings.</source>
+        <translation type="unfinished">Deze bron heeft nog geen audiogegevens geleverd. Controleer de geluidsinstellingen van Linux.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Your microphone is silent. Check that it’s unmuted and try speaking.</source>
+        <translation type="unfinished">Je microfoon is stil. Controleer of het geluid aanstaat en probeer iets te zeggen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No sound is reaching Polyglotic. Is audio playing on the selected output?</source>
+        <translation type="unfinished">Polyglotic ontvangt geen geluid. Wordt er geluid afgespeeld op de gekozen uitgang?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Recording failed. Check the selected device in your Linux sound settings.</source>
+        <translation type="unfinished">De opname is mislukt. Controleer het gekozen apparaat in de geluidsinstellingen van Linux.</translation>
+    </message>
+</context>
+<context>
     <name>ColourControls</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1077,7 +1140,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Quiet</source>
-        <translation type="unfinished">Gedempt</translation>
+        <translation>Gedempt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1232,7 +1295,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How strongly captions stand out from their panel. Soft is as faint as a line still being spoken, never too faint to read; Crisp draws every line at full strength.</source>
-        <translation type="unfinished">Hoe sterk ondertitels afsteken tegen hun paneel. Zacht is zo vaag als tekst die nog wordt uitgesproken, en nooit te vaag om te lezen; Scherp tekent elke regel op volle sterkte.</translation>
+        <translation>Hoe sterk ondertitels afsteken tegen het paneel. Zacht maakt ze even licht als een regel die nog wordt uitgesproken, maar goed leesbaar. Scherp toont elke regel met maximaal contrast.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1262,7 +1325,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How thick captions&apos; letters are, and their readings a step thicker. A font without a weight draws the nearest it has.</source>
-        <translation type="unfinished">Hoe dik de letters van ondertitels zijn, het pinyin een stap dikker. Een lettertype zonder die dikte gebruikt de dichtstbijzijnde die het heeft.</translation>
+        <translation>Hoe dik de letters van ondertitels zijn. De uitspraak staat één stap dikker. Als het lettertype een dikte mist, wordt de dichtstbijzijnde gebruikt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1287,7 +1350,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Around the letters</source>
-        <translation type="unfinished">Rond de letters</translation>
+        <translation>Rond de letters</translation>
     </message>
 </context>
 <context>
@@ -1418,12 +1481,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished">Gekopieerd naar het klembord</translation>
+        <translation>Gekopieerd naar het klembord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Saved</source>
-        <translation type="unfinished">Opgeslagen</translation>
+        <translation>Opgeslagen</translation>
     </message>
 </context>
 <context>
@@ -1586,7 +1649,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Clicks pass through to the windows underneath</source>
-        <translation type="unfinished">Klikken gaan door naar wat eronder ligt</translation>
+        <translation>Klikken gaan naar de vensters eronder</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1621,22 +1684,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Help build Polyglotic…</source>
-        <translation type="unfinished">Laat het ons weten</translation>
+        <translation>Help Polyglotic verbeteren…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the tray</source>
-        <translation type="unfinished">Stop met ondertitelen en sluit Polyglotic – het venster sluiten houdt het in het systeemvak</translation>
+        <translation>Polyglotic afsluiten. Als je alleen het venster sluit, blijft Polyglotic in het systeemvak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Stop met ondertitelen en sluit Polyglotic – het venster sluiten houdt het in de menubalk</translation>
+        <translation>Polyglotic afsluiten. Als je alleen het venster sluit, blijft Polyglotic in de menubalk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it running</source>
-        <translation type="unfinished">Stop met ondertitelen en sluit Polyglotic – het venster sluiten laat het doorlopen</translation>
+        <translation>Polyglotic afsluiten. Als je alleen het venster sluit, blijft Polyglotic draaien</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1670,21 +1733,61 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict: {keys}</source>
+        <translation type="unfinished">Sneltoetsconflict: {keys}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}</source>
+        <translation type="unfinished">Een ander programma gebruikt {keys}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey shared with another program</source>
+        <translation type="unfinished">Sneltoets gedeeld met een ander programma</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program also uses {key} ({name}). Polyglotic shares it so it still works; open Settings &gt; Hotkeys to switch.</source>
+        <translation type="unfinished">Een ander programma gebruikt ook {key} ({name}). Polyglotic deelt de toets zodat hij blijft werken; open Instellingen &gt; Sneltoetsen om te wisselen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict</source>
+        <translation type="unfinished">Sneltoetsconflict</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>{name} ({key}) is used by another program. Open Settings &gt; Hotkeys to choose a free key.</source>
+        <translation type="unfinished">{name} ({key}) wordt gebruikt door een ander programma. Open Instellingen &gt; Sneltoetsen om een vrije toets te kiezen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflicts</source>
+        <translation type="unfinished">Sneltoetsconflicten</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}. Open Settings &gt; Hotkeys to choose free keys.</source>
+        <translation type="unfinished">Een ander programma gebruikt {keys}. Open Instellingen &gt; Sneltoetsen om vrije toetsen te kiezen.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows captioning {apps}</source>
-        <translation type="unfinished">{apps} wordt ondertiteld terwijl de vensters verborgen zijn</translation>
+        <translation>Verborgen vensters ondertitelen {apps}</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows paused after %n minutes - show them to resume</source>
-        <translation type="unfinished">
-            <numerusform>Ondertitels gepauzeerd na %n minuut verborgen – toon de vensters om verder te gaan</numerusform>
-            <numerusform>Ondertitels gepauzeerd na %n minuten verborgen – toon de vensters om verder te gaan</numerusform>
+        <translation>
+            <numerusform>Verborgen vensters na %n minuut gepauzeerd – toon ze om verder te gaan</numerusform>
+            <numerusform>Verborgen vensters na %n minuten gepauzeerd – toon ze om verder te gaan</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Nothing selected to caption</source>
-        <translation type="unfinished">Ondertiteling nog niet gestart</translation>
+        <translation>Geen geluidsbron gekozen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1694,22 +1797,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captions are paused</source>
-        <translation type="unfinished">Polyglotic draait nog, met ondertitels gepauzeerd</translation>
+        <translation>Ondertitels zijn gepauzeerd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to resume or quit.</source>
-        <translation type="unfinished">Het staat in het systeemvak. Hervat of sluit het daar af.</translation>
+        <translation>Gebruik het pictogram in het systeemvak om te hervatten of af te sluiten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to resume or quit.</source>
-        <translation type="unfinished">Het staat in de menubalk. Hervat of sluit het daar af.</translation>
+        <translation>Gebruik het pictogram in de menubalk om te hervatten of af te sluiten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to resume or quit.</source>
-        <translation type="unfinished">Het pictogram staat in het paneel. Hervat of sluit het daar af.</translation>
+        <translation>Gebruik het pictogram in het paneel om te hervatten of af te sluiten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1719,17 +1822,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to quit.</source>
-        <translation type="unfinished">Het staat in het systeemvak. Sluit het daar af.</translation>
+        <translation>Sluit af via het pictogram in het systeemvak.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to quit.</source>
-        <translation type="unfinished">Het staat in de menubalk. Sluit het daar af.</translation>
+        <translation>Sluit af via het pictogram in de menubalk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to quit.</source>
-        <translation type="unfinished">Het pictogram staat in het paneel. Sluit het daar af.</translation>
+        <translation>Sluit af via het pictogram in het paneel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1759,27 +1862,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captioning is starting - the first captions may be slow.</source>
-        <translation type="unfinished">Het spraakmodel start op – de eerste ondertitels kunnen traag zijn.</translation>
+        <translation>De ondertiteling start. De eerste ondertitels kunnen even op zich laten wachten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Translation is starting - captions appear first.</source>
-        <translation type="unfinished">De vertaler start op – eerst ondertitels, vertalingen iets later.</translation>
+        <translation>De vertaling start. De ondertitels verschijnen eerst.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic&apos;s server is restarting - captions resume shortly.</source>
-        <translation type="unfinished">De server start opnieuw – ondertitels gaan zo verder.</translation>
+        <translation>De server van Polyglotic start opnieuw op. De ondertitels komen zo terug.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Lots of speech at once - captions update less often</source>
-        <translation type="unfinished">Veel spraak tegelijk – live-updates trager; ondertitels gaan door</translation>
+        <translation>Veel spraak tegelijk – ondertitels worden minder vaak bijgewerkt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Listening continues on another device</source>
-        <translation type="unfinished">Luisteren is naar een ander apparaat verplaatst</translation>
+        <translation>Je luistersessie gaat verder op een ander apparaat</translation>
     </message>
 </context>
 <context>
@@ -1954,6 +2057,48 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Play/Pause</source>
+        <extracomment>the keyboard&apos;s Play/Pause media key</extracomment>
+        <translation type="unfinished">Afspelen/Pauzeren</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Stop</source>
+        <extracomment>the keyboard&apos;s Stop media key</extracomment>
+        <translation type="unfinished">Stoppen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Next track</source>
+        <extracomment>the keyboard&apos;s Next Track media key</extracomment>
+        <translation type="unfinished">Volgende track</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Previous track</source>
+        <extracomment>the keyboard&apos;s Previous Track media key</extracomment>
+        <translation type="unfinished">Vorige track</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Up</source>
+        <extracomment>the keyboard&apos;s Volume Up key</extracomment>
+        <translation type="unfinished">Volume omhoog</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Down</source>
+        <extracomment>the keyboard&apos;s Volume Down key</extracomment>
+        <translation type="unfinished">Volume omlaag</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Mute</source>
+        <extracomment>the keyboard&apos;s Mute key</extracomment>
+        <translation type="unfinished">Dempen</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
         <source>That key types. Hold it with Ctrl, Alt or Win, or choose another.</source>
         <translation>Die toets typt. Houd hem ingedrukt met Ctrl, Alt of Win, of kies een andere.</translation>
     </message>
@@ -2104,7 +2249,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Nothing else is being captioned to re-speak for</source>
-        <translation type="unfinished">Er wordt niets anders ondertiteld om voor na te zeggen</translation>
+        <translation>Er wordt niets anders ondertiteld om voor na te zeggen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2169,7 +2314,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
         <source>Re-speaking</source>
-        <translation type="unfinished">Nazeggen</translation>
+        <translation>Nazeggen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_sign.py"/>
@@ -2277,7 +2422,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
         <source>A font for each language&apos;s captions.</source>
-        <translation type="unfinished">De ondertitels van elke taal in een eigen lettertype.</translation>
+        <translation>Een eigen lettertype voor de ondertitels van elke taal.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
@@ -2400,12 +2545,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">Inkorten tot {limit} tekens</translation>
+        <translation>Inkorten tot {limit} tekens</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} van {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
 </context>
 <context>
@@ -2436,7 +2581,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Checks each step now and stops at the first problem.</source>
-        <translation type="unfinished">Dit kijkt op volgorde wat Polyglotic nu doet en stopt bij het eerste dat misgaat.</translation>
+        <translation>Controleert elke stap en stopt bij het eerste probleem.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2481,7 +2626,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your report includes these results, but nothing you heard or read.</source>
-        <translation type="unfinished">Je melding gaat mee met de uitkomst van deze controle: alleen vinkjes en kruisjes, niets van wat je hoorde of las.</translation>
+        <translation>Je melding bevat deze resultaten. Wat je hoorde of las, wordt niet meegestuurd.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2491,7 +2636,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Suggest a feature</source>
-        <translation type="unfinished">Functie voorstellen</translation>
+        <translation>Functie voorstellen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2501,7 +2646,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize caption windows</source>
-        <translation type="unfinished">Ondertitelvensters verplaatsen, vergrendelen en vergroten</translation>
+        <translation>Ondertitelvensters verplaatsen, vergrendelen en van formaat veranderen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2531,7 +2676,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Signed in and connected to the server</source>
-        <translation type="unfinished">Aangemeld en verbonden met de server</translation>
+        <translation>Aangemeld en verbonden met de server</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2637,7 +2782,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is at capacity. Polyglotic will keep trying.</source>
-        <translation type="unfinished">Hij heeft nu zoveel luisteraars als hij aankan. Polyglotic probeert het vanzelf opnieuw – je hoeft niets te doen.</translation>
+        <translation>De server zit vol. Polyglotic blijft het proberen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2662,7 +2807,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Nothing to caption</source>
-        <translation type="unfinished">Er is niets toegevoegd om te ondertitelen</translation>
+        <translation>Niets om te ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2682,7 +2827,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Open it to start captions.</source>
-        <translation type="unfinished">Open het. Het wordt ondertiteld zodra het open is.</translation>
+        <translation>Open de app om de ondertiteling te starten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2705,12 +2850,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this PC&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Speelt het geluid af? Gaat de uitvoer naar de luidsprekers of headset van deze pc, en staat die niet gedempt?</translation>
+        <translation>Speel iets af. Controleer of het geluid via de luidsprekers of hoofdtelefoon van deze pc loopt en of het aanstaat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this Mac&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Speelt het geluid af? Gaat de uitvoer naar de luidsprekers of headset van deze Mac, en staat die niet gedempt?</translation>
+        <translation>Speel iets af. Controleer of het geluid via de luidsprekers of hoofdtelefoon van deze Mac loopt en of het aanstaat.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2749,12 +2894,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this PC&apos;s sound settings.</source>
-        <translation type="unfinished">Is hij gedempt, of is er een andere microfoon gekozen in de geluidsinstellingen van de pc?</translation>
+        <translation>Controleer of de microfoon aanstaat en is geselecteerd in de geluidsinstellingen van deze pc.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this Mac&apos;s sound settings.</source>
-        <translation type="unfinished">Is hij gedempt, of is er een andere microfoon gekozen in de geluidsinstellingen van de Mac?</translation>
+        <translation>Controleer of de microfoon aanstaat en is geselecteerd in de geluidsinstellingen van deze Mac.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2776,12 +2921,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Sound heard, but no speech</source>
-        <translation type="unfinished">Geluid, maar geen spraak gehoord</translation>
+        <translation>Wel geluid, geen spraak gedetecteerd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Music and sound effects aren&apos;t captioned. Play clear speech louder than any background sound.</source>
-        <translation type="unfinished">Muziek en effecten worden niet ondertiteld. Praat iemand hard genoeg om boven de rest uit te komen?</translation>
+        <translation>Polyglotic ondertitelt geen muziek en geluidseffecten. Speel duidelijke spraak af die boven het achtergrondgeluid uitkomt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2871,7 +3016,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Speech heard, but no captions shown</source>
-        <translation type="unfinished">Er is spraak gehoord, maar geen ondertitel getekend</translation>
+        <translation>Wel spraak gedetecteerd, geen ondertitels op het scherm</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2920,7 +3065,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption one app separately</source>
-        <translation type="unfinished">Eén app ondertitelen, en al het andere apart</translation>
+        <translation>Eén app apart ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2985,7 +3130,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In a caption window, press Home or Ctrl+Home to jump to the first caption, and End or Ctrl+End to return to live.</source>
-        <translation type="unfinished">Druk in een ondertitelvenster op Home of Ctrl+Home om naar de eerste ondertitel te gaan, en op End of Ctrl+End om terug te gaan naar live.</translation>
+        <translation>Druk in een ondertitelvenster op Home of Ctrl+Home voor de eerste ondertitel. Druk op End of Ctrl+End om terug te gaan naar live.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3015,7 +3160,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Desktop shortcuts</source>
-        <translation type="unfinished">Sneltoetsen van je eigen bureaublad</translation>
+        <translation>Sneltoetsen op het bureaublad</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3045,7 +3190,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any app (preview)</source>
-        <translation type="unfinished">In elk programma dicteren (testversie)</translation>
+        <translation>In elke app dicteren (testversie)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3139,12 +3284,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captioning a call</source>
-        <translation type="unfinished">Een gesprek ondertitelen</translation>
+        <translation>Een gesprek ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Op sommige plaatsen moet iedereen die aan een gesprek deelneemt, toestemming geven voordat het wordt ondertiteld. Laat het weten aan de mensen met wie je praat.</translation>
+        <translation>Op sommige plaatsen moet iedereen in een gesprek instemmen met ondertiteling. Vertel de anderen dat je het gesprek ondertitelt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3318,7 +3463,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic is druk. Probeer het over een paar minuten opnieuw</translation>
+        <translation>Het is druk bij Polyglotic – nieuwe poging volgt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3358,7 +3503,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Server van Polyglotic onbereikbaar</translation>
+        <translation>Verbinding met Polyglotic mislukt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3368,7 +3513,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">De server van Polyglotic heeft een probleem</translation>
+        <translation>De server van Polyglotic heeft een fout gemeld</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3571,27 +3716,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this PC appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">deze pc lijkt offline. Controleer de internetverbinding; als die werkt, ligt het probleem bij ons</translation>
+        <translation>deze pc lijkt offline. Controleer de internetverbinding. Werkt die, dan is Polyglotic mogelijk onbereikbaar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this Mac appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">deze Mac lijkt offline. Controleer de internetverbinding; als die werkt, ligt het probleem bij ons</translation>
+        <translation>deze Mac lijkt offline. Controleer de internetverbinding. Werkt die, dan is Polyglotic mogelijk onbereikbaar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">controleer je internet; als dat werkt, liggen wij waarschijnlijk plat</translation>
+        <translation>controleer je internetverbinding. Werkt die, dan is Polyglotic mogelijk onbereikbaar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the problem is with Polyglotic. Captions resume automatically</source>
-        <translation type="unfinished">niet je internet – het probleem ligt bij ons. Ondertitels komen vanzelf terug</translation>
+        <translation>het probleem ligt bij Polyglotic. De ondertitels komen vanzelf terug</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>captions resume automatically shortly</source>
-        <translation type="unfinished">ondertitels komen zo vanzelf terug</translation>
+        <translation>de ondertitels komen zo vanzelf terug</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3650,7 +3795,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>not playing</source>
-        <translation type="unfinished">stil</translation>
+        <translation>geen geluid</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3703,7 +3848,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Translate into</source>
-        <translation type="unfinished">Vertalen naar</translation>
+        <translation>Vertalen naar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3773,7 +3918,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{app}&apos;s window: translate into</source>
-        <translation type="unfinished">Taal van het venster van {app}</translation>
+        <translation>Venster van {app} – vertalen naar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3808,7 +3953,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>What to caption</source>
-        <translation type="unfinished">Wat je ondertitelt</translation>
+        <translation>Wat je wilt ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3818,7 +3963,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else</source>
-        <translation type="unfinished">Ook al het andere ondertitelen wat de pc afspeelt (in een eigen venster)</translation>
+        <translation>Ook al het andere geluid ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3833,7 +3978,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>apps that can play sound, those playing first</source>
-        <translation type="unfinished">apps met geluid open, spelende eerst</translation>
+        <translation>apps die geluid kunnen afspelen, met actieve apps bovenaan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3858,7 +4003,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Now pick one of your apps to caption</source>
-        <translation type="unfinished">Kies een app om te ondertitelen</translation>
+        <translation>Kies nu een app om te ondertitelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3878,22 +4023,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Only the apps you choose, each in its own window.</source>
-        <translation type="unfinished">Ondertitel alleen de apps die je kiest.</translation>
+        <translation>Alleen de apps die je kiest, elk in een eigen venster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>All apps&apos; sound together, in one window.</source>
-        <translation type="unfinished">Ondertitel het geluid van alle apps samen.</translation>
+        <translation>Het geluid van alle apps samen, in één venster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps one by one again</source>
-        <translation type="unfinished">Apps opnieuw proberen</translation>
+        <translation>Apps weer apart proberen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your speech is shown as</source>
-        <translation type="unfinished">Je spraak heet</translation>
+        <translation>Wat je zegt verschijnt als</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3913,12 +4058,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: shown in {windows}. Your mic is sent for your captions only while it&apos;s shown</source>
-        <translation type="unfinished">Mijn spraak: getoond in {windows} – alleen voor je ondertitels verstuurd zolang een venster hem toont</translation>
+        <translation>Mijn spraak verschijnt in {windows}. We versturen je microfoongeluid alleen zolang het voor je ondertitels wordt gebruikt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: not shown in any window - turn it on with a row&apos;s mic, or in a window&apos;s settings</source>
-        <translation type="unfinished">Mijn spraak: in geen enkel venster getoond – zet hem aan met de microfoon van een rij, of de instellingen van een venster</translation>
+        <translation>Mijn spraak verschijnt in geen enkel venster. Zet dit aan via het microfoonpictogram naast een app of via de vensterinstellingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4013,7 +4158,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>One app plus everything else - turn off Also caption everything else to add another</source>
-        <translation type="unfinished">Eén app naast al het andere – zet dit uit om er nog een toe te voegen</translation>
+        <translation>Eén app plus al het overige geluid. Zet &apos;Ook al het andere geluid ondertitelen&apos; uit om nog een app toe te voegen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4033,7 +4178,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Last session</source>
-        <translation type="unfinished">Last session</translation>
+        <translation>Vorige sessie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4068,7 +4213,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>View all changes</source>
-        <translation type="unfinished">Alle wijzigingen</translation>
+        <translation>Alle wijzigingen bekijken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4218,12 +4363,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Them {average} avg · {peak} peak</source>
-        <translation type="unfinished">Them {average} avg · {peak} peak</translation>
+        <translation>Anderen: gem. {average} · piek {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>You {average} avg · {peak} peak</source>
-        <translation type="unfinished">You {average} avg · {peak} peak</translation>
+        <translation>Jij: gem. {average} · piek {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4306,7 +4451,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Open a caption window&apos;s controls</source>
-        <translation type="unfinished">Bediening van de ondertitelbalk openen</translation>
+        <translation>Bediening van een ondertitelvenster openen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4360,13 +4505,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any program, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Ze werken vanuit elk programma, zelfs met een game op de voorgrond. Klik op een toets en druk dan op de toets die je wilt.</translation>
+        <source>In Polyglotic&apos;s windows</source>
+        <translation type="unfinished">In vensters van Polyglotic</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any app, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Ze werken vanuit elke app, zelfs met een game op de voorgrond. Klik op een toets en druk dan op de toets die je wilt.</translation>
+        <source>Everywhere</source>
+        <translation type="unfinished">Overal</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>{name}&apos;s scope</source>
+        <translation type="unfinished">Bereik van {name}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Use {key}</source>
+        <translation type="unfinished">Gebruik {key}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Choose any key or combination, and whether it acts only in Polyglotic&apos;s windows or everywhere. Click a key, then press the one you want.</source>
+        <translation type="unfinished">Kies elke toets of combinatie en of deze alleen in vensters van Polyglotic of overal werkt. Klik op een toets en druk op de gewenste toets.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4380,8 +4540,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>This desktop doesn&apos;t allow global hotkeys. Add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
-        <translation>Deze bureaubladomgeving staat geen globale sneltoetsen toe. Voeg in plaats daarvan een aangepaste sneltoets toe in de toetsenbordinstellingen van je bureaublad (GNOME: Instellingen &gt; Toetsenbord &gt; Aangepaste sneltoetsen) met de opdracht {command} --lock, --pause of --hide.</translation>
+        <source>This desktop doesn&apos;t allow global hotkeys. Hotkeys set to In Polyglotic&apos;s windows still work; for global shortcuts, add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
+        <translation type="unfinished">Dit bureaublad staat geen globale sneltoetsen toe. Sneltoetsen op «In vensters van Polyglotic» blijven werken; voeg voor globale sneltoetsen een aangepaste sneltoets toe in de toetsenbordinstellingen (GNOME: Instellingen &gt; Toetsenbord &gt; Aangepaste sneltoetsen) met het commando {command} --lock, --pause of --hide.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4390,13 +4550,33 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Another program has this key: choose another.</source>
-        <translation>Een ander programma heeft deze toets: kies een andere.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose a free key:</source>
+        <translation type="unfinished">Een ander programma gebruikt {key}, dus deze werkt hier niet. Kies een vrije toets:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Space works in caption and transcript windows.</source>
-        <translation type="unfinished">De spatiebalk werkt in ondertitel- en transcriptvensters.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose another.</source>
+        <translation type="unfinished">Een ander programma gebruikt {key}, dus deze werkt hier niet. Kies een andere.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works, or switch to a free key:</source>
+        <translation type="unfinished">Een ander programma gebruikt ook {key}. Polyglotic deelt de toets zodat hij blijft werken, of kies een vrije toets:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works.</source>
+        <translation type="unfinished">Een ander programma gebruikt ook {key}. Polyglotic deelt de toets zodat hij blijft werken.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>This key types: it will also run this hotkey while you type in other apps (the key still goes through to them).</source>
+        <translation type="unfinished">Deze toets typt tekst: hij voert deze sneltoets ook uit terwijl je in andere apps typt (de toets wordt wel gewoon doorgegeven).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Global hotkeys aren&apos;t available on this desktop. Switch to In Polyglotic&apos;s windows to use it inside the app.</source>
+        <translation type="unfinished">Globale sneltoetsen zijn niet beschikbaar op dit bureaublad. Schakel over naar «In vensters van Polyglotic» om hem in de app te gebruiken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4426,12 +4606,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Hold a key to type it</source>
-        <translation type="unfinished">Houdtoets inschakelen</translation>
+        <translation>Typen door een toets ingedrukt te houden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Types what was said, or its translation, from the caption window you&apos;re watching. With no captions, it listens to the speakers chosen in Settings &gt; Speech.</source>
-        <translation type="unfinished">Gebruik de tekst of vertaling uit het ondertitelvenster waar je naar kijkt. Zonder ondertiteling wordt geluisterd naar de luidsprekers die je hebt gekozen bij Instellingen &gt; Spraak.</translation>
+        <translation>Typt de gesproken tekst of vertaling uit het ondertitelvenster dat je bekijkt. Zonder ondertitels luistert Polyglotic naar de luidsprekers die je hebt gekozen bij Instellingen &gt; Spraak.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4451,7 +4631,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Share dictation&apos;s key</source>
-        <translation type="unfinished">Eén toets voor beide</translation>
+        <translation>Dezelfde toets als voor dicteren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4476,7 +4656,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>the key you choose</source>
-        <translation type="unfinished">zijn toets</translation>
+        <translation>de toets die je kiest</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4491,12 +4671,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Jump to the first caption</source>
-        <translation type="unfinished">Naar de eerste ondertitel</translation>
+        <translation>Naar de eerste ondertitel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Back to live in a caption or transcript window</source>
-        <translation type="unfinished">Terug naar live in een ondertitelvenster of transcript</translation>
+        <translation>Terug naar live in een ondertitel- of transcriptvenster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4516,7 +4696,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>While a caption window, a transcript or a word&apos;s card is the active window.</source>
-        <translation type="unfinished">Terwijl een ondertitelvenster, een transcript of een woordkaart het actieve venster is.</translation>
+        <translation>Wanneer een ondertitelvenster, transcript of woordkaart actief is.</translation>
     </message>
 </context>
 <context>
@@ -4544,7 +4724,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Minimaliseren</translation>
+        <translation>Minimaliseren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -4826,12 +5006,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>All at once to Older captions&apos; brightness, or step by step, each caption back a little dimmer, over the number of captions you choose.</source>
-        <translation type="unfinished">Allemaal tegelijk naar de helderheid van oudere ondertitels, of stap voor stap: elke ondertitel verder terug iets doffer, over zoveel ondertitels.</translation>
+        <translation>Oudere ondertitels krijgen meteen de ingestelde helderheid of dimmen stap voor stap. In dat geval wordt elke eerdere ondertitel iets donkerder, over het aantal ondertitels dat je kiest.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Default</source>
-        <translation type="unfinished">Standaard</translation>
+        <translation>Standaard</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4861,7 +5041,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>How a line that may still change looks beside finished text. Default: dim italic in Whole captions, a little dim in the other timings. Colour: the theme&apos;s blue.</source>
-        <translation type="unfinished">Hoe een regel die nog kan veranderen eruitziet naast definitieve tekst. Standaard: vaag en cursief bij Hele ondertitels, iets gedimd bij de andere timings. Kleur: het blauw van het thema.</translation>
+        <translation>Zo ziet een regel die nog kan veranderen eruit naast definitieve tekst. Standaard is die bij Hele ondertitels gedimd en cursief, bij de andere standen licht gedimd. Bij Kleur is de regel blauw.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4926,7 +5106,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Captions that arrive together come in one at a time, at least this far apart and in order - none is dropped. 0 s: as they come. None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">Ondertitels die tegelijk aankomen, komen een voor een binnen, minstens zo ver uit elkaar en op volgorde – er valt er geen weg. 0 s: zoals ze komen. Geen wacht langer dan de langste wachttijd voor tekst.</translation>
+        <translation>Ondertitels die tegelijk binnenkomen, verschijnen één voor één, in volgorde en met minstens deze tussenpoos. Bij 0 s verschijnen ze zodra ze binnenkomen. De langste wachttijd stel je in bij Timing. Alle ondertitels verschijnen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4936,17 +5116,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new caption&apos;s lines show one at a time, this far apart, instead of all together. 0 s: together (the default). None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">De regels van een nieuwe ondertitel verschijnen één voor één, met deze tussenpoos, in plaats van allemaal tegelijk. 0 s: tegelijk, zoals nu. Geen regel wacht langer dan de langste wachttijd op tekst.</translation>
+        <translation>Regels van een nieuwe ondertitel verschijnen één voor één met deze tussenpoos. Bij 0 s verschijnen ze tegelijk (standaard). De bovengrens stel je in bij &apos;Langste wachttijd voor tekst&apos; onder Timing.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Reset the Lab</source>
-        <translation type="unfinished">Lab herstellen</translation>
+        <translation>Lab herstellen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Every Lab setting back to its default.</source>
-        <translation type="unfinished">Elke instelling in het Lab zoals Polyglotic die heeft.</translation>
+        <translation>Zet alle Lab-instellingen terug op hun standaardwaarde.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4996,7 +5176,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>&quot;You&quot; over what you say: as usual, in a badge, or not shown.</source>
-        <translation type="unfinished">&apos;Jij&apos; boven wat je zegt: zoals nu, in een badge of niet getoond.</translation>
+        <translation>Toon &apos;Jij&apos; boven wat je zegt, standaard of in een label, of verberg het.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5016,17 +5196,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line by line: a line of what was said, then the line of its translation, both cut where their words match. A long clause that can&apos;t be cut wraps.</source>
-        <translation type="unfinished">Regel voor regel: een regel van wat er gezegd is, daaronder de regel van de vertaling, beide afgebroken waar hun woorden overeenkomen. Een lange zin die zo niet af te breken is, loopt door zoals nu.</translation>
+        <translation>Bij Regel voor regel staat onder elke gesproken regel de bijbehorende vertaalde regel. Regels breken af waar de woorden overeenkomen. Een lang zinsdeel zonder passend afbreekpunt loopt door op de volgende regel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Fill the width</source>
-        <translation type="unfinished">Breedte vullen</translation>
+        <translation>Breedte vullen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Off: each clause on a row of its own (the default). Translation below: a caption&apos;s clauses run on in lines as wide as the window, and its translation fills the lines under them. No Arrows while this is on.</source>
-        <translation type="unfinished">Uit: elk zinsdeel op een eigen rij, zoals nu. Vertaling eronder: de zinsdelen van een ondertitel lopen door in regels zo breed als het venster, en de vertaling vult de regels eronder. Geen Pijlen terwijl ondertitels de breedte vullen.</translation>
+        <translation>Bij Uit krijgt elk zinsdeel een eigen rij (standaard). Bij Vertaling eronder lopen zinsdelen door over de volle breedte, met de vertaling op de regels eronder. Pijlen zijn dan uit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5046,7 +5226,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>With Fill the width: an ellipsis where one clause ends and the next begins, one at the end of every line that runs on as well, or only a space. Choosing one while Fill the width is Off sets it to Translation below.</source>
-        <translation type="unfinished">Wanneer ondertitels de breedte vullen: een beletselteken waar het ene zinsdeel eindigt en het volgende begint, ook aan het einde van elke regel die doorloopt, of alleen een spatie. Er een kiezen terwijl Ondertitels vullen de breedte op Uit staat, zet het op Vertaling eronder.</translation>
+        <translation>Kies bij Breedte vullen waar een beletselteken komt: tussen zinsdelen, ook aan regeleinden, of nergens. Spatie laat alleen een spatie tussen zinsdelen. Staat Breedte vullen uit, dan schakelt je keuze Vertaling eronder in.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5056,7 +5236,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new way to lay out captions, with Fill the width on or off: Arrows and word links work in every layout and in Learning load, and Line by line always fills its lines.</source>
-        <translation type="unfinished">Ondertitels worden op een nieuwe manier geplaatst, hoe ze de breedte ook vullen: Pijlen en woordkoppelingen werken in alle weergaven en in Leerlijst, en Regel voor regel vult zijn regels altijd.</translation>
+        <translation>Met deze opmaak werken Pijlen en woordkoppelingen in elke weergave, ook bij Leerlijst. Dat geldt ook als Breedte vullen uitstaat. Regel voor regel benut altijd de volle regelbreedte.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5071,7 +5251,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line up the parts</source>
-        <translation type="unfinished">Delen uitlijnen</translation>
+        <translation>Delen uitlijnen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5101,12 +5281,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Where the parts of a line go in the room the line has. Packed: each straight after the one before (the default). Nearest their links: each part moves over its translation&apos;s words, so the word links are as short as they can be. Evenly: a full line&apos;s parts are spread over the width. Choosing one also turns on New layout.</source>
-        <translation type="unfinished">Waar de delen van een regel komen in de ruimte die de regel heeft. Aaneen: elk deel direct na het vorige, zoals nu. Dicht bij hun koppelingen: elk deel schuift boven de woorden van zijn vertaling, zodat de woordkoppelingen zo kort mogelijk zijn. Gelijkmatig: de delen van een volle regel worden over de breedte verdeeld. Een keuze zet ook Nieuwe opmaak aan.</translation>
+        <translation>Bepaalt waar de zinsdelen op de regel staan. Aaneen zet ze direct achter elkaar (standaard). Dicht bij hun koppelingen zet elk deel zo dicht mogelijk boven de bijbehorende vertaling. Gelijkmatig verdeelt de delen over de volle regel. Een keuze schakelt ook Nieuwe opmaak in.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Leerlijst</translation>
+        <translation>Leerlijst</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5116,7 +5296,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>{open} - its words, the check of what you know and its settings.</source>
-        <translation type="unfinished">{open} – de woorden, de controle en de instellingen.</translation>
+        <translation>{open} – de woorden, de toets van wat je kent en de instellingen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5586,7 +5766,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words beyond your level</source>
-        <translation type="unfinished">Voorbij wat je kent</translation>
+        <translation>Boven je niveau</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5596,12 +5776,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Woordkoppelingen</translation>
+        <translation>Woordkoppelingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose whether every word or only words beyond a frequency rank or your level get links to their translation.</source>
-        <translation type="unfinished">Welke woorden met hun vertaling worden verbonden zolang woordkoppelingen aan staan.</translation>
+        <translation>Koppel elk woord aan zijn vertaling of koppel alleen woorden die minder vaak voorkomen of boven je niveau liggen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5611,12 +5791,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Link words after</source>
-        <translation type="unfinished">Koppelen vanaf</translation>
+        <translation>Koppelen na</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Frequency rank {rank}</source>
-        <translation type="unfinished">Frequentierang {rank}</translation>
+        <translation>Frequentierang {rank}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5626,7 +5806,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Takes effect when Polyglotic next starts</source>
-        <translation type="unfinished">Vanaf de volgende keer dat Polyglotic start</translation>
+        <translation>Gaat in zodra je Polyglotic opnieuw start</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5636,7 +5816,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Keeps its words; delete them on Account</source>
-        <translation type="unfinished">De woorden blijven bewaard – verwijder ze bij Account</translation>
+        <translation>De woorden blijven bewaard. Je kunt ze wissen bij Account</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5661,7 +5841,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Mark common words as known</source>
-        <translation type="unfinished">De meest gebruikte woorden als bekend markeren</translation>
+        <translation>Veelgebruikte woorden als bekend markeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5699,17 +5879,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>New words to highlight</source>
-        <translation type="unfinished">Leervenster</translation>
+        <translation>Nieuwe woorden markeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of words</source>
-        <translation type="unfinished">Woorden in het venster</translation>
+        <translation>Aantal woorden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of new words to highlight</source>
-        <translation type="unfinished">Woorden in het leervenster</translation>
+        <translation>Aantal nieuwe woorden om te markeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5719,12 +5899,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights every word beyond your level, however rare. Hover or click any word to look it up.</source>
-        <translation type="unfinished">Elk woord na de woorden die je kent kan worden aangewezen, hoe zeldzaam ook. Wijs een woord aan of klik erop om het op te zoeken.</translation>
+        <translation>Markeert alle woorden boven je niveau, ook de zeldzaamste. Wijs een woord aan of klik erop om het op te zoeken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights this many words beyond your level. Rarer words are left alone; hover or click one to look it up.</source>
-        <translation type="unfinished">Aangewezen worden de volgende woorden na de woorden die je kent. Zeldzamere blijven ongemoeid: wijs er een aan of klik erop om het op te zoeken.</translation>
+        <translation>Markeert zoveel woorden net boven je niveau. Zeldzamere woorden krijgen geen markering. Wijs ze aan of klik erop om ze op te zoeken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5744,7 +5924,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose what you&apos;re learning and which new words captions highlight. Your level estimates the words you know. Captions and translation work in every language without these choices.</source>
-        <translation type="unfinished">Voor elke taal die je leert, bewaart Polyglotic je woorden: opzoeken gebruikt het woordenboek, je niveau schat welke woorden je kent, en ondertitels wijzen nieuwe aan. Ondertitels en vertaling werken in elke taal, wat je hier ook kiest.</translation>
+        <translation>Kies welke talen je leert en welke nieuwe woorden ondertitels markeren. Polyglotic schat op basis van je niveau welke woorden je al kent. Ondertitels en vertaling werken in elke taal, ook zonder deze keuzes.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5754,7 +5934,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>None yet. Pick one above for lookups, your level and word introductions.</source>
-        <translation type="unfinished">Nog geen. Kies er hierboven een voor opzoeken, je niveau en woordintroducties.</translation>
+        <translation>Nog geen talen. Kies hierboven een taal om woorden op te zoeken, je niveau in te stellen en nieuwe woorden te laten markeren.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5769,7 +5949,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Add language</source>
-        <translation type="unfinished">Leren</translation>
+        <translation>Taal toevoegen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5779,12 +5959,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose how many likely new words captions highlight. Your level provides the estimate; click a word to correct it.</source>
-        <translation type="unfinished">Ondertitels wijzen woorden aan die waarschijnlijk nieuw voor je zijn, zodat je ze opmerkt als je ze hoort. Ze worden geschat op basis van je niveau; een klik op een woord corrigeert het.</translation>
+        <translation>Kies hoeveel vermoedelijk nieuwe woorden de ondertitels markeren. Polyglotic schat dit op basis van je niveau. Klik op een woord om de inschatting te corrigeren.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A few</source>
-        <translation type="unfinished">Een paar per ondertitel</translation>
+        <translation>Een paar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5794,22 +5974,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Dotted yellow marks a new word; dashed green marks one in your deck. A saved word uses its category&apos;s colour. Marks appear only on finished captions in a language you&apos;re learning.</source>
-        <translation type="unfinished">Gele stippellijn: een nieuw woord voor je. Groene streepjeslijn: een woord in je stapel. Een opgeslagen woord krijgt de kleur van zijn categorie. Alleen definitieve ondertitels in een taal die je leert worden gemarkeerd.</translation>
+        <translation>Een gele stippellijn markeert een nieuw woord. Een groene streepjeslijn markeert een woord in je stapel. Een opgeslagen woord krijgt de kleur van zijn categorie. Je ziet deze markeringen alleen in definitieve ondertitels van een taal die je leert.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>After you hear a word a few times, it appears under Repeated words on the Words page. Add it to your deck there or from its lookup to include it in your next Anki export.</source>
-        <translation type="unfinished">Waar ze heen gaan: hoor een woord een paar keer en het komt bij Woorden die je steeds hoort, op Woorden. Voeg het daar of via opzoeken toe aan je stapel, en het gaat mee in je volgende Anki-export.</translation>
+        <translation>Hoor je een woord een paar keer, dan verschijnt het bij Veelgehoorde woorden op de pagina Woorden. Voeg het daar of bij het opzoeken toe aan je stapel om het mee te nemen in je volgende Anki-export.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words</source>
-        <translation type="unfinished">Woorden en Anki</translation>
+        <translation>Woorden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Open Words to manage your deck, saved words and Repeated words. Each language has its own Anki export.</source>
-        <translation type="unfinished">Je stapel, je opgeslagen woorden en de woorden die je steeds hoort staan bij Woorden. Elke taal exporteert een eigen stapel.</translation>
+        <translation>Open Woorden voor je stapel, je opgeslagen woorden en Veelgehoorde woorden. Elke taal heeft een eigen Anki-export.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5834,12 +6014,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>These dictionaries are stored on this device. Removing one frees space and disables its lookups until you download it again.</source>
-        <translation type="unfinished">Gedownload voor de talen die je leert. Verwijderen maakt ruimte vrij; opzoeken in die taal stopt tot het opnieuw is gedownload.</translation>
+        <translation>Deze woordenboeken staan op dit apparaat. Als je er een verwijdert, komt er ruimte vrij. In die taal kun je pas weer woorden opzoeken als je het opnieuw downloadt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>No dictionaries downloaded. Add a language to get its dictionary.</source>
-        <translation type="unfinished">Nog geen: als je een taal gaat leren, biedt de kaart ervan het woordenboek aan.</translation>
+        <translation>Geen woordenboeken gedownload. Voeg een taal toe om het woordenboek te krijgen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5957,7 +6137,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>{language} lookups aren&apos;t in this version yet. Captions and translation work.</source>
-        <translation type="unfinished">Opzoeken in het {language} is nog niet beschikbaar in deze versie. Ondertitels en vertaling werken wel.</translation>
+        <translation>Woorden opzoeken in {language} kan in deze versie nog niet. Ondertitels en vertaling werken wel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -6143,12 +6323,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Add to my load</source>
-        <translation type="unfinished">Aan mijn leerlijst toevoegen</translation>
+        <translation>Aan mijn leerlijst toevoegen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Leerlijst</translation>
+        <translation>Leerlijst</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -6173,7 +6353,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Graduated</source>
-        <translation type="unfinished">Afgerond</translation>
+        <translation>Afgerond</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -6476,7 +6656,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Translated by a machine, not yet checked by a person</source>
-        <translation type="unfinished">Translated by a machine, not yet checked by a person</translation>
+        <translation>Automatisch vertaald. Nog door niemand nagekeken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6551,12 +6731,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found - {meaning}</source>
-        <translation type="unfinished">Niet als geheel in het woordenboek – {meaning}</translation>
+        <translation>Geen woordenboekvermelding voor de hele uitdrukking – {meaning}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found</source>
-        <translation type="unfinished">Niet als geheel in het woordenboek</translation>
+        <translation>Geen woordenboekvermelding voor de hele uitdrukking</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6596,7 +6776,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Parts of this word</source>
-        <translation type="unfinished">In dit woord</translation>
+        <translation>Delen van dit woord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6606,7 +6786,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Chinese equivalent</source>
-        <translation type="unfinished">Chinees ervoor</translation>
+        <translation type="unfinished">Chinese tegenhanger</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6833,12 +7013,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Keep Polyglotic running?</source>
-        <translation type="unfinished">Polyglotic blijft draaien</translation>
+        <translation>Polyglotic laten draaien?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Caption windows stay open. To reopen this window, launch Polyglotic again. You can quit from the sidebar.</source>
-        <translation type="unfinished">Je ondertitelvensters blijven open. Open Polyglotic opnieuw vanuit je apps om terug te gaan naar dit venster. Afsluiten staat onderaan de zijbalk.</translation>
+        <translation>Je ondertitelvensters blijven open. Start Polyglotic opnieuw om dit venster terug te halen. Afsluiten kan via de zijbalk.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
@@ -6879,12 +7059,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>That code isn&apos;t valid. Check it and try again.</source>
-        <translation type="unfinished">Die code is ongeldig. Controleer de code en probeer het opnieuw.</translation>
+        <translation>Die code is ongeldig. Controleer de code en probeer het opnieuw.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Check the code in your email or request a new one.</source>
-        <translation type="unfinished">Controleer de code in je e-mail of vraag een nieuwe aan.</translation>
+        <translation>Controleer de code in je e-mail of vraag een nieuwe aan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6996,12 +7176,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code from your email</source>
-        <translation type="unfinished">Zescijferige code per e-mail</translation>
+        <translation>Zescijferige code uit je e-mail</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code</source>
-        <translation type="unfinished">Zescijferige code per e-mail</translation>
+        <translation>Zescijferige code</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -7011,17 +7191,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Use an invite code instead</source>
-        <translation type="unfinished">Heb je een uitnodigingscode? Meld je daar dan mee aan</translation>
+        <translation>Uitnodigingscode gebruiken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Change email or send a new code</source>
-        <translation type="unfinished">E-mailadres wijzigen of code opnieuw sturen</translation>
+        <translation>E-mailadres wijzigen of nieuwe code sturen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Send code</source>
-        <translation type="unfinished">Stuur me een code per e-mail</translation>
+        <translation>Code versturen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -7036,7 +7216,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Enter the six-digit code from your email.</source>
-        <translation type="unfinished">Zoek in je inbox naar een zescijferige code.</translation>
+        <translation>Voer de zescijferige code uit je e-mail in.</translation>
     </message>
 </context>
 <context>
@@ -7082,12 +7262,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each caption window picks its own language, or Original only, and whether your speech shows in it.</source>
-        <translation type="unfinished">Elk venster kiest een eigen taal – of Alleen origineel – en of je spraak daar wordt getoond.</translation>
+        <translation>Kies per ondertitelvenster een doeltaal of Alleen origineel. Je kiest ook per venster of je eigen spraak wordt getoond.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every caption window</source>
-        <translation type="unfinished">Elk venster</translation>
+        <translation>Elk ondertitelvenster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7107,7 +7287,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions singing in Spotify and other music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent.</source>
-        <translation type="unfinished">Ondertitelt de zang in Spotify en andere muziekspelers op Auto: hun geluid wordt ook verstuurd als er geen spraak klinkt, steeds een paar seconden. Uit: alleen wat als spraak klinkt wordt verstuurd.</translation>
+        <translation>Ondertitelt zang in Spotify en andere muziekspelers met Automatisch als gesproken taal. Ook zonder spraak wordt hun geluid in stukjes van een paar seconden verstuurd. Uit: alleen spraak wordt verstuurd.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7127,17 +7307,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The characters Mandarin captions are written in, with Detect too. Lookups, transcripts, copies and Anki use the same. Translations into Chinese keep the script you translate into.</source>
-        <translation type="unfinished">De tekens waarin ondertitels in het Mandarijn worden geschreven, ook bij Automatisch. Opzoeken, het transcript, kopiëren en Anki gebruiken dezelfde; vertalingen naar het Chinees blijven in de taal die je koos.</translation>
+        <translation>Kies in welk schrift ondertitels in het Mandarijn verschijnen, ook bij Automatisch. Opzoeken, transcripten, kopiëren en Anki gebruiken hetzelfde schrift. Vertalingen naar het Chinees gebruiken het gekozen doelschrift.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Lines already in a window&apos;s language</source>
-        <translation type="unfinished">Als ze de taal van het venster al spreken</translation>
+        <translation>Regels die al in de taal van het venster staan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>They aren&apos;t translated there unless you pick a second language for them.</source>
-        <translation type="unfinished">Regels die al in de taal van een venster zijn, worden daar niet vertaald. Kies een tweede taal en ze worden daarnaar vertaald, in geel zoals elke vertaling.</translation>
+        <translation>Deze regels krijgen alleen een vertaling als je er een tweede taal voor kiest.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7177,7 +7357,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Je microfoon wordt alleen voor je ondertitels verstuurd zolang dit aan staat.</translation>
+        <translation>We versturen je microfoongeluid alleen voor je ondertitels zolang dit aanstaat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7187,12 +7367,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Add an app on Home first: each caption window&apos;s language gets a row here.</source>
-        <translation type="unfinished">Voeg eerst een app toe: de taal van elk venster krijgt hier een rij.</translation>
+        <translation>Voeg eerst een app toe op Start. Hier verschijnt dan een rij voor de taal van elk ondertitelvenster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into</source>
-        <translation type="unfinished">Ondertitelvensters die naar het {language} vertalen – als iemand al {language} spreekt, ook vertalen naar</translation>
+        <translation>Vensters die naar {language} vertalen – regels die al in {language} staan, vertalen naar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7202,7 +7382,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into:</source>
-        <translation type="unfinished">Ondertitelvensters die naar het {language} vertalen – als iemand al {language} spreekt, ook vertalen naar:</translation>
+        <translation>Vensters die naar {language} vertalen – regels die al in {language} staan, vertalen naar:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7232,17 +7412,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each line keeps its place, with its translation under it, and the lines roll up together as new ones come. Off: live lines below, earlier lines above.</source>
-        <translation type="unfinished">Elke gesproken regel houdt zijn plaats, met de vertaling eronder, en de regels rollen samen omhoog wanneer er nieuwe komen. Uit: live regels onder, transcript boven.</translation>
+        <translation>Elke regel houdt zijn plek, met de vertaling eronder. Als er nieuwe regels bijkomen, schuiven ze samen omhoog. Uit: live onder, eerder boven.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">Live regels onder, transcript boven</translation>
+        <translation>Live onder, eerder boven</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The lines being spoken stay at the foot of the caption window; each caption moves up, with its translation, once it has been read. Off: one list of captions.</source>
-        <translation type="unfinished">De regels die worden uitgesproken blijven onder in het ondertitelvenster; elke ondertitel schuift met zijn vertaling omhoog naar het transcript zodra hij gelezen is. Uit: één lijst met ondertitels.</translation>
+        <translation>Nieuwe tekst verschijnt onder in het ondertitelvenster. Na het lezen schuift elke ondertitel met zijn vertaling omhoog. Uit: één lijst met ondertitels.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7312,7 +7492,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shorter: text sooner, and more of it changes.</source>
-        <translation type="unfinished">Kortere intervallen tonen tekst eerder en passen die vaker aan.</translation>
+        <translation>Bij een korter interval verschijnt tekst sneller en verandert er meer.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7337,7 +7517,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>How long words on screen can still be corrected as more is heard. Shorter: fewer words change while you read, and more mistakes stay - most of all with live updates faster than every second.</source>
-        <translation type="unfinished">Hoe lang woorden op het scherm nog verbeterd mogen worden terwijl er meer te horen is. Korter: er veranderen minder woorden terwijl je leest, en er blijven meer fouten staan zoals ze eerst gehoord werden - vooral wanneer Live vaker dan eens per seconde bijwerkt.</translation>
+        <translation>Hoe lang woorden op het scherm nog kunnen veranderen terwijl er meer spraak binnenkomt. Bij een kortere tijd veranderen minder woorden tijdens het lezen en blijven meer fouten staan, vooral bij meer dan één live-update per seconde.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7347,7 +7527,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Longest wait for text, below, is shorter, so text still comes every {seconds}.</source>
-        <translation type="unfinished">De tekst wordt toch elke {seconds} bijgewerkt: de langste wachttijd voor tekst, hieronder, is korter.</translation>
+        <translation>Tekst verschijnt toch elke {seconds}, omdat de langste wachttijd hieronder korter is.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7362,7 +7542,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Recommended looks</source>
-        <translation type="unfinished">Aanbevolen stijlen</translation>
+        <translation>Aanbevolen stijlen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7372,12 +7552,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours</source>
-        <translation type="unfinished">Kleuren</translation>
+        <translation>Kleuren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Matched colours for the text and the panel. Pick a set, then change any colour.</source>
-        <translation type="unfinished">Een passende set kleuren voor de tekst en het paneel. Kies er een en wijzig dan elke kleur.</translation>
+        <translation>Bijpassende kleuren voor tekst en paneel. Kies een set en pas elke kleur naar wens aan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7387,7 +7567,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Contrast, vibrance and thickness, in every caption window; contrast and vibrance in transcripts too. The middle of each is the default.</source>
-        <translation type="unfinished">Hoe sterk ondertitels afsteken, hoe levendig hun kleuren zijn en hoe dik hun letters zijn, in elk ondertitelvenster - contrast en kleur ook in transcripts. In het midden: zoals het was.</translation>
+        <translation>Contrast, kleurintensiteit en letterdikte gelden voor alle ondertitelvensters. Contrast en kleurintensiteit gelden ook voor transcripten. De middelste standen zijn standaard.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7397,7 +7577,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of what was said.</source>
-        <translation type="unfinished">De kleur van de woorden zoals ze zijn uitgesproken.</translation>
+        <translation>De kleur van de gesproken tekst.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7417,7 +7597,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of the box behind the text. The slider below sets how solid it is.</source>
-        <translation type="unfinished">Het vlak achter de tekst. Hoe dekkend het is, regelt de schuifregelaar hieronder.</translation>
+        <translation>De kleur van het vlak achter de tekst. Met de schuifregelaar hieronder stel je de dekking in.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7462,7 +7642,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Woordkoppelingen</translation>
+        <translation>Woordkoppelingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7487,7 +7667,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words in what was said and its translation that mean the same. On hover: point at a word. Underline: colours show word class. Arrows: curves join them. A caption window&apos;s preset menu turns them on and off, under Helpers.</source>
-        <translation type="unfinished">De onderstreping geeft de woordsoort aan. Wijs een woord aan om het equivalent te zien of verbind ze met pijlen. Koppelingen zijn ook via het menu met voorinstellingen in te schakelen.</translation>
+        <translation>Koppelt woorden met dezelfde betekenis in de gesproken tekst en de vertaling. Bij Aanwijzen wijs je een woord aan. Bij Lijn geeft de kleur de woordsoort aan. Bij Pijlen verbinden bogen de woorden. Je vindt deze opties ook onder Hulpmiddelen in het menu met voorinstellingen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7542,7 +7722,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words linked</source>
-        <translation type="unfinished">Detail</translation>
+        <translation>Welke woorden koppelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7567,7 +7747,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their link&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Elk woord dat een koppeling verbindt krijgt haar kleur, net als zijn lijn.</translation>
+        <translation>Gekoppelde woorden krijgen dezelfde kleur als hun onderstreping.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7577,12 +7757,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their word class&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Elk gekoppeld woord krijgt net als de onderstreping de kleur van de eigen woordsoort.</translation>
+        <translation>Gekoppelde woorden en hun onderstreping krijgen de kleur van de woordsoort.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Which words are marked as new is set on {learning}.</source>
-        <translation type="unfinished">Welke woorden als nieuw worden aangewezen, staat bij {learning}.</translation>
+        <translation>Op {learning} stel je in welke woorden als nieuw worden gemarkeerd.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7592,12 +7772,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Rustige weergave</translation>
+        <translation>Rustige weergave</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions in soft grey and gold, a little bigger, with pinyin over every word and only your chosen words in blue - no underlines or arrows. Point at a word to see the word it&apos;s linked to. Turns word links off.</source>
-        <translation type="unfinished">Ondertitels in rustig grijs en goud, iets groter, met pinyin boven elk woord en alleen je gekozen woorden in blauw – geen onderstrepingen of pijlen. Wijs een woord aan om zijn tegenhanger te zien. Zet woordkoppelingen uit.</translation>
+        <translation>Iets grotere ondertitels in zacht grijs en goud, met pinyin boven elk woord. Alleen je gekozen woorden zijn blauw. Wijs een woord aan om het bijbehorende woord te zien. Onderstrepingen, pijlen en woordkoppelingen staan uit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7607,7 +7787,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A few words just past what you know: the ones the talk is about, then the ones you hear most. A word from the talk leaves once you know it; the others after three days.</source>
-        <translation type="unfinished">Een paar woorden net boven wat je kent: waar het gesprek over gaat, dan die je het vaakst hoort. Een woord uit het gesprek gaat door zodra je het kent; de andere nadat je ze op drie dagen tegenkwam.</translation>
+        <translation>Een paar woorden net boven je niveau. Eerst woorden waar het gesprek over gaat, daarna de woorden die je het vaakst hoort. Woorden uit het gesprek verdwijnen zodra je ze kent. De overige verdwijnen na drie dagen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7622,12 +7802,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Leerlijst</translation>
+        <translation>Leerlijst</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The words you&apos;re learning now, coloured as in the Lab&apos;s Learning load.</source>
-        <translation type="unfinished">Elk woord van je leerlijst, zoals in het Lab.</translation>
+        <translation>De woorden die je nu leert, in de kleuren van Leerlijst in het Lab.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7673,7 +7853,7 @@
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Readings</source>
         <extracomment>Settings &gt; Readings: the card of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese, furigana above Japanese, stress marks over Russian, romanization above Korean and Hindi, a respelling above English</extracomment>
-        <translation type="unfinished">Uitspraak</translation>
+        <translation>Uitspraak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7683,7 +7863,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. Copying and lookups leave it out.</source>
-        <translation type="unfinished">Een kleine lettergreep boven elk Chinees teken, in wat er gezegd is en in vertalingen naar het Chinees. Het hoort niet bij de tekst: kopiëren en woorden opzoeken werken zoals voorheen.</translation>
+        <translation>Een kleine lettergreep boven elk Chinees teken in gesproken tekst en vertalingen naar het Chinees. Bij kopiëren en opzoeken blijft die lettergreep buiten de tekst.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7698,7 +7878,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Chinese readings in</source>
-        <translation type="unfinished">Uitspraak boven Chinees</translation>
+        <translation>Schrift voor Chinese uitspraak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7718,22 +7898,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana</source>
-        <translation type="unfinished">Kana</translation>
+        <translation>Kana</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Romaji</source>
-        <translation type="unfinished">Rōmaji</translation>
+        <translation>Rōmaji</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings</source>
-        <translation type="unfinished">Japanse leeswijzen</translation>
+        <translation>Japanse uitspraak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana stays above each word&apos;s kanji. Romaji uses modified Hepburn; Both keeps kana above and adds romaji below.</source>
-        <translation type="unfinished">Kana blijven boven de kanji van elk woord staan. Rōmaji gebruikt het aangepaste Hepburn-systeem. Bij ‘Beide’ blijven de kana bovenaan en komt de rōmaji eronder.</translation>
+        <translation>Kana blijven boven de kanji van elk woord staan. Voor rōmaji gebruiken we het aangepaste Hepburn-systeem. Bij Beide blijven de kana bovenaan staan en komt de rōmaji eronder.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7783,7 +7963,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word introductions mark. Less to read as you learn.</source>
-        <translation type="unfinished">Voorbij wat je kent: alleen boven woorden voorbij je grens bij Leren, de woorden die woordkoppelingen aanwijzen. Hoe meer je leert, hoe minder te lezen.</translation>
+        <translation>Voorbij wat je kent toont de uitspraak alleen bij woorden boven je ingestelde niveau bij Leren, dezelfde woorden die Woordintroducties markeert. Hoe meer je leert, hoe minder je hoeft te lezen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7821,7 +8001,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Relative to the characters. Medium reads better in a small window.</source>
-        <translation type="unfinished">Ten opzichte van de grootte van de tekens. Middel leest beter in een klein venster.</translation>
+        <translation>De grootte ten opzichte van de tekens. Middel is beter leesbaar in een klein venster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7851,7 +8031,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Grey keeps readings behind their text. With Grey or Its word link&apos;s colour, a linked word&apos;s reading takes its link&apos;s colour. Word links can colour the linked words too.</source>
-        <translation type="unfinished">Grijs houdt de uitspraak achter de tekst. Met Grijs of de kleur van de woordkoppeling krijgt de uitspraak de kleur van de koppeling van zijn woord, waar die er is. Woordkoppelingen kunnen ook de gekoppelde woorden kleuren.</translation>
+        <translation>Grijs maakt de uitspraak minder opvallend dan de tekst. Bij Grijs of Kleur van de woordkoppeling krijgt de uitspraak van gekoppelde woorden de kleur van de koppeling. De woorden zelf kunnen die kleur ook krijgen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7866,17 +8046,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings aren&apos;t in this version yet.</source>
-        <translation type="unfinished">Japanse lezingen zijn nog niet beschikbaar in deze versie.</translation>
+        <translation>Japanse uitspraak bij ondertitels is in deze versie nog niet beschikbaar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The Japanese dictionary is downloading: {percent}%.</source>
-        <translation type="unfinished">Het Japanse woordenboek wordt gedownload: {percent}%.</translation>
+        <translation>Japans woordenboek wordt gedownload: {percent}%.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shows once the Japanese dictionary is here.</source>
-        <translation type="unfinished">Wordt getoond zodra het Japanse woordenboek beschikbaar is.</translation>
+        <translation>Verschijnt zodra het Japanse woordenboek beschikbaar is.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7911,22 +8091,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Vervagen na stilte</translation>
+        <translation>Vervagen na stilte</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions disappear after this long without speech. Never: they stay until the next one.</source>
-        <translation type="unfinished">Ondertitels verdwijnen als er zo lang niemand praat. Nooit: ze blijven tot de volgende regel.</translation>
+        <translation>Ondertitels verdwijnen na deze tijd zonder spraak. Bij Nooit blijven ze staan tot de volgende ondertitel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Pause hidden windows after</source>
-        <translation type="unfinished">Stoppen met luisteren als verborgen</translation>
+        <translation>Verborgen vensters pauzeren na</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Nothing more of a hidden caption window&apos;s app is sent after this long. Showing the window carries on.</source>
-        <translation type="unfinished">Een verborgen ondertitelvenster stopt na deze tijd met luisteren, zodat er niets meer van de app wordt verstuurd. Tonen start het weer.</translation>
+        <translation>Na deze tijd stopt het verzenden van geluid uit de app van een verborgen ondertitelvenster. Toon het venster om verder te gaan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7961,7 +8141,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours, panel, font, word links and fading. To move the windows back, use Reset positions on Home.</source>
-        <translation type="unfinished">Kleuren, paneel, lettertype, woordkoppelingen en vervagen, zoals Polyglotic ze eerst had. De plekken van de vensters herstelt Posities herstellen op Start.</translation>
+        <translation>Herstelt de kleuren, het paneel, het lettertype, de woordkoppelingen en het vervagen. Gebruik Posities herstellen op Start om de vensters terug te zetten.</translation>
     </message>
 </context>
 <context>
@@ -8062,7 +8242,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Every helper on: the app&apos;s defaults</source>
-        <translation type="unfinished">Alle hulpmiddelen aan: de eigen instelling van de app</translation>
+        <translation>Alle hulpmiddelen aan, volgens de standaardinstellingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8181,22 +8361,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Helpers</source>
-        <translation type="unfinished">Hulpmiddelen</translation>
+        <translation>Hulpmiddelen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Woordkoppelingen</translation>
+        <translation>Woordkoppelingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Rustige weergave</translation>
+        <translation>Rustige weergave</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Readings</source>
-        <translation type="unfinished">Uitspraak</translation>
+        <translation>Uitspraak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8291,17 +8471,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>On hover</source>
-        <translation type="unfinished">Aanwijzen</translation>
+        <translation>Aanwijzen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Underline</source>
-        <translation type="unfinished">Lijn</translation>
+        <translation>Lijn</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Arrows</source>
-        <translation type="unfinished">Pijlen</translation>
+        <translation>Pijlen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8311,32 +8491,32 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Follow</source>
-        <translation type="unfinished">Volgen</translation>
+        <translation>Volgen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Acquisition</source>
-        <translation type="unfinished">Verwerving</translation>
+        <translation>Verwerving</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Steady</source>
-        <translation type="unfinished">Rustig</translation>
+        <translation>Rustig</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Whole captions</source>
-        <translation type="unfinished">Hele ondertitels</translation>
+        <translation>Hele ondertitels</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Instant</source>
-        <translation type="unfinished">Direct</translation>
+        <translation>Direct</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Calm</source>
-        <translation type="unfinished">Kalm</translation>
+        <translation>Kalm</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8346,22 +8526,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Soft shadow</source>
-        <translation type="unfinished">Zachte schaduw</translation>
+        <translation>Zachte schaduw</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Outline</source>
-        <translation type="unfinished">Omlijning</translation>
+        <translation>Omlijning</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Faint ahead</source>
-        <translation type="unfinished">Vaag vooruit</translation>
+        <translation>Vaag vooruit</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>With the newest word</source>
-        <translation type="unfinished">Met het nieuwste woord</translation>
+        <translation>Met het nieuwste woord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8401,17 +8581,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the language</source>
-        <translation type="unfinished">Taal tonen</translation>
+        <translation>Taal tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the source</source>
-        <translation type="unfinished">Bron tonen</translation>
+        <translation>Bron tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Vervagen na stilte</translation>
+        <translation>Vervagen na stilte</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8431,7 +8611,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Paneel: dekking</translation>
+        <translation>Paneel: dekking</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8471,12 +8651,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Caption timing</source>
-        <translation type="unfinished">Ondertiteltiming</translation>
+        <translation>Ondertiteltiming</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>What you read first</source>
-        <translation type="unfinished">Wat je eerst leest</translation>
+        <translation>Wat je eerst leest</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8486,7 +8666,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the newest word too</source>
-        <translation type="unfinished">Ook het nieuwste woord tonen</translation>
+        <translation>Ook het nieuwste woord tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8496,7 +8676,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">Twee zones</translation>
+        <translation>Live onder, eerder boven</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8546,7 +8726,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Pick one for what you&apos;re doing, here or on a caption window&apos;s bar. Changes on the bar are saved to the preset; changes here need Save.</source>
-        <translation type="unfinished">Kies hier of vanuit de balk van het ondertitelvenster hoe ondertitels verschijnen. Wijzigingen via de balk worden automatisch opgeslagen. Kies hier Opslaan om wijzigingen in Instellingen te bewaren.</translation>
+        <translation>Kies een voorinstelling hier of op de ondertitelbalk. Wijzigingen op de balk worden direct opgeslagen in de voorinstelling. Klik hier op Opslaan om wijzigingen te bewaren.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8611,7 +8791,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Your changes to it go; its built-in settings stay</source>
-        <translation type="unfinished">Wat je erin opsloeg, verdwijnt; de eigen instellingen blijven</translation>
+        <translation>Verwijdert je wijzigingen en herstelt de ingebouwde instellingen</translation>
     </message>
 </context>
 <context>
@@ -8636,7 +8816,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Make a suggestion</source>
-        <translation type="unfinished">Een suggestie doen</translation>
+        <translation>Suggestie doen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8671,47 +8851,47 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Share an idea for how Polyglotic could work better for you.</source>
-        <translation type="unfinished">Deel een idee voor hoe Polyglotic beter voor je kan werken.</translation>
+        <translation>Deel een idee om Polyglotic beter te laten werken voor jou.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>What would you like Polyglotic to do?</source>
-        <translation type="unfinished">Wat zou Polyglotic beter maken voor jou?</translation>
+        <translation>Wat zou je willen dat Polyglotic kan?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
-        <translation type="unfinished">Ook verstuurd: {versions}, en de ID van de luistersessie.</translation>
+        <translation>Ook verstuurd: {versions}, en de ID van de luistersessie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}.</source>
-        <translation type="unfinished">Ook verstuurd: {versions}.</translation>
+        <translation>Ook verstuurd: {versions}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>No screenshot is taken.</source>
-        <translation type="unfinished">Er wordt geen schermafbeelding gemaakt.</translation>
+        <translation>Er wordt geen schermafbeelding gemaakt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Please don&apos;t paste captions of other people&apos;s words. We may read feedback with the help of AI tools (Anthropic&apos;s Claude) to sort and summarise it.</source>
-        <translation type="unfinished">Plak geen ondertitels van wat anderen zeggen. We lezen feedback mogelijk met hulp van AI-hulpmiddelen (Claude van Anthropic) om die te sorteren en samen te vatten.</translation>
+        <translation>Plak geen ondertitels van wat anderen zeggen. We lezen feedback mogelijk met hulp van AI-hulpmiddelen (Claude van Anthropic) om die te sorteren en samen te vatten.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Look</source>
-        <translation>Bekijken</translation>
+        <translation>Uiterlijk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">Inkorten tot {limit} tekens</translation>
+        <translation>Inkorten tot {limit} tekens</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} / {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8806,27 +8986,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Text you selected and saved from captions, with its translation. Search either language.</source>
-        <translation type="unfinished">Wat je in ondertitels hebt geselecteerd en opgeslagen, met de vertaling. Zoek in een van beide talen: een zin met de meeste van je woorden wordt gevonden.</translation>
+        <translation>Tekst die je in ondertitels hebt geselecteerd en opgeslagen, met de vertaling. Je kunt in beide talen zoeken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Search saved sentences</source>
-        <translation type="unfinished">Je zinnen doorzoeken</translation>
+        <translation>Opgeslagen zinnen zoeken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Zoekopdracht wissen</translation>
+        <translation>Zoekopdracht wissen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by category</source>
-        <translation type="unfinished">Zinnen in deze categorie tonen</translation>
+        <translation>Filteren op categorie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by saved word</source>
-        <translation type="unfinished">Zinnen met dit opgeslagen woord tonen</translation>
+        <translation>Filteren op opgeslagen woord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8836,7 +9016,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>No saved sentences yet. Select several words in the caption window, then choose a category.</source>
-        <translation type="unfinished">Nog geen - sleep in een ondertitelvenster over meer dan één woord en kies dan een categorie.</translation>
+        <translation>Nog geen opgeslagen zinnen. Selecteer meerdere woorden in het ondertitelvenster en kies een categorie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8846,7 +9026,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>All saved words</source>
-        <translation type="unfinished">Elk opgeslagen woord</translation>
+        <translation>Alle opgeslagen woorden</translation>
     </message>
 </context>
 <context>
@@ -8933,12 +9113,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Caption text size</source>
-        <translation type="unfinished">Tekstgroottes</translation>
+        <translation>Tekstgrootte van ondertitels</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>In every language: each script is sized to match.</source>
-        <translation type="unfinished">Geldt voor elke taal. De weergavegrootte van verschillende schriften wordt automatisch op elkaar afgestemd.</translation>
+        <translation>Geldt voor elke taal. De tekengrootte wordt afgestemd op het schrift.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -8988,7 +9168,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Text sizes are saved by language on this device.</source>
-        <translation type="unfinished">Tekstgroottes worden op dit apparaat per taal opgeslagen.</translation>
+        <translation>Tekstgroottes worden per taal opgeslagen op dit apparaat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9003,7 +9183,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window and the transcripts, not the caption windows.</source>
-        <translation type="unfinished">Dit venster en de transcripten. De ondertitelvensters blijven zoals ze zijn.</translation>
+        <translation>Geldt voor dit venster en de transcripten. Ondertitelvensters hebben hun eigen instelling.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9013,7 +9193,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window&apos;s colours and headings.</source>
-        <translation type="unfinished">De kleuren en koppen.</translation>
+        <translation>De kleuren en koppen in dit venster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9053,12 +9233,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install when you quit Polyglotic.</source>
-        <translation type="unfinished">Updates downloaden op de achtergrond en worden toegepast wanneer je Polyglotic afsluit.</translation>
+        <translation>Polyglotic downloadt updates op de achtergrond en installeert ze wanneer je het afsluit.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install the next time Polyglotic starts.</source>
-        <translation type="unfinished">Updates downloaden op de achtergrond en worden toegepast de volgende keer dat Polyglotic start.</translation>
+        <translation>Polyglotic downloadt updates op de achtergrond en installeert ze bij de volgende start.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9108,7 +9288,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Menus, buttons, this window and word cards. Captions keep their own size: A- and A+ on each caption window and transcript.</source>
-        <translation type="unfinished">De eigen tekst van Polyglotic: dit venster, de kaart van een woord, menu&apos;s en de knoppen op ondertitelvensters en transcripten. Ondertitels hebben hun eigen grootte: A- en A+ op elk ondertitelvenster en transcript.</translation>
+        <translation>Geldt voor menu&apos;s, knoppen, dit venster en woordkaarten. Pas de ondertitels aan met A- en A+ in elk ondertitelvenster of transcript.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9174,9 +9354,9 @@
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>With Last %Ln hour(s) or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</source>
-        <translation type="unfinished">
-            <numerusform>Bij Laatste %Ln uur of Hele sessie: Afsluiten vraagt naar een niet-opgeslagen transcript van {line_limit}.</numerusform>
-            <numerusform>Bij Laatste %Ln uur of Hele sessie: Afsluiten vraagt naar een niet-opgeslagen transcript van {line_limit}.</numerusform>
+        <translation>
+            <numerusform>Bij Laatste %Ln uur of Hele sessie vraagt Polyglotic bij het afsluiten wat je wilt doen als een transcript van {line_limit} nog niet is opgeslagen.</numerusform>
+            <numerusform>Bij Laatste %Ln uur of Hele sessie vraagt Polyglotic bij het afsluiten wat je wilt doen als een transcript van {line_limit} nog niet is opgeslagen.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9195,7 +9375,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold a key and speak; let go, and it&apos;s typed where your cursor is. While your own speech is captioned, dictation shows in that caption window too and uses its spoken language. Otherwise it listens only while you hold the key.</source>
-        <translation type="unfinished">Houd een toets ingedrukt en praat. Laat los om te typen waar de cursor staat. Als je eigen spraak wordt ondertiteld, verschijnt je dictaat ook in het ondertitelvenster en gebruikt het de ingestelde spreektaal van dat venster. Anders luistert de dicteerfunctie alleen zolang je de toets ingedrukt houdt.</translation>
+        <translation>Houd een toets ingedrukt en praat. Laat de toets los om de tekst op de plek van de cursor te zetten. Als je eigen spraak wordt ondertiteld, verschijnt de tekst ook in dat venster en gebruikt dicteren de gesproken taal van dat venster. Anders luistert de functie alleen zolang je de toets ingedrukt houdt.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9220,12 +9400,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right Ctrl, F9, Ctrl + Alt + D… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with Ctrl, Alt or Win; Right Ctrl alone still works in other programs.</source>
-        <translation type="unfinished">Klik en druk dan op de toets of combinatie die je wilt vasthouden: Rechter Ctrl, F9, Ctrl + Alt + D… Een toets alleen, of met Ctrl, Alt of Win, is van Polyglotic zolang dicteren aan staat; alleen Rechter Ctrl werkt nog in andere programma&apos;s.</translation>
+        <translation>Klik en druk op de toets of combinatie die je wilt gebruiken: rechter Ctrl, F9, Ctrl + Alt + D… Zolang dicteren aanstaat, gebruikt Polyglotic die toets alleen of samen met Ctrl, Alt of Win. De rechter Ctrl-toets zonder andere toetsen werkt ook in andere apps.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with ⌃, ⌥ or ⌘; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Klik en druk dan op de toets of combinatie die je wilt vasthouden: Rechter ⌘, F9, ⌃⌘E… Een toets alleen, of met ⌃, ⌥ of ⌘, is van Polyglotic zolang dicteren aan staat; alleen Rechter ⌘ werkt nog in andere programma&apos;s.</translation>
+        <translation>Klik en druk op de toets of combinatie die je wilt gebruiken: rechter ⌘, F9, ⌃⌘E… Zolang dicteren aanstaat, gebruikt Polyglotic die toets alleen of samen met ⌃, ⌥ of ⌘. De rechter ⌘-toets zonder andere toetsen werkt ook in andere apps.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9240,7 +9420,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Choose a language or use {detect} for when your speech isn&apos;t captioned.</source>
-        <translation type="unfinished">Kies een taal of gebruik {detect} wanneer de dicteerfunctie zelf audio opneemt.</translation>
+        <translation>Kies een taal of gebruik {detect} voor als je spraak niet wordt ondertiteld.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9280,6 +9460,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hold {key} and speak in Polyglotic&apos;s windows. Let go to type.</source>
+        <translation type="unfinished">Houd in de vensters van Polyglotic {key} ingedrukt en spreek. Laat de toets los om de tekst in te voeren.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold {key} and speak; let go, and it&apos;s typed.</source>
         <translation>Houd {key} ingedrukt en spreek; laat los, en het wordt getypt.</translation>
     </message>
@@ -9297,13 +9482,13 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Word links</source>
-        <translation type="unfinished">Woordkoppelingen</translation>
+        <translation>Woordkoppelingen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Readings</source>
         <extracomment>Settings&apos; section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
-        <translation type="unfinished">Uitspraak</translation>
+        <translation>Uitspraak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9398,7 +9583,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Couldn&apos;t reach the update server. Polyglotic tries again later.</source>
-        <translation type="unfinished">De updateserver was niet bereikbaar. Polyglotic kijkt later opnieuw.</translation>
+        <translation>De updateserver is onbereikbaar. Polyglotic probeert het later opnieuw.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9408,7 +9593,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Version {version} is available. Your connection is metered, so it waits: Home can download it anyway.</source>
-        <translation type="unfinished">Versie {version} is beschikbaar. Je verbinding heeft een datalimiet, dus hij wacht: op Start kun je hem toch downloaden.</translation>
+        <translation>Versie {version} is beschikbaar. Polyglotic wacht vanwege je datalimiet. Je kunt de update op Start toch downloaden.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9421,19 +9606,19 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Long lines</source>
-        <translation type="unfinished">Lange regels</translation>
+        <translation>Lange regels</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Display new lines</source>
         <extracomment>Each original row is followed by its translation.</extracomment>
-        <translation type="unfinished">Nieuwe regels weergeven</translation>
+        <translation>Regel voor regel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Grouped</source>
         <extracomment>All original rows together, then their translation.</extracomment>
-        <translation type="unfinished">Gegroepeerd</translation>
+        <translation>Gegroepeerd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9444,12 +9629,12 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in {language}</source>
         <extracomment>A caption window&apos;s row: what to do with lines already spoken in {language}, the language this window translates into</extracomment>
-        <translation type="unfinished">Als ze al {language} spreken</translation>
+        <translation>Regels die al in {language} staan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{language} is this window&apos;s language, so those lines aren&apos;t translated. Translate them into a second language, or leave them as they are.</source>
-        <translation type="unfinished">{language} is de taal van dit venster, dus die regels krijgen geen vertaling. Vertaal ze ook in een tweede taal, of laat ze zoals ze zijn.</translation>
+        <translation>{language} is de taal van dit venster. Je kunt regels in die taal zo laten of naar een tweede taal vertalen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9479,13 +9664,13 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show speaking pace (WPM)</source>
-        <translation type="unfinished">Spreektempo tonen (w/min)</translation>
+        <translation>Spreektempo tonen (w/min)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show caption info</source>
         <extracomment>Toggle for each caption&apos;s header line (source, language, timestamp, WPM).</extracomment>
-        <translation type="unfinished">Ondertitelinfo tonen</translation>
+        <translation>Ondertitelinfo tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9505,7 +9690,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Spoken language</source>
-        <translation type="unfinished">Gesproken taal</translation>
+        <translation>Gesproken taal</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9525,17 +9710,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Caption singing too: the music is sent while it plays</source>
-        <translation type="unfinished">Ondertitelt ook zang: de muziek wordt verstuurd zolang die speelt</translation>
+        <translation>Ondertitelt ook zang. De muziek wordt tijdens het afspelen verstuurd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in this window&apos;s language</source>
-        <translation type="unfinished">Als ze de taal van dit venster al spreken</translation>
+        <translation>Regels die al in de taal van dit venster staan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Source</source>
-        <translation type="unfinished">Ondertitelt</translation>
+        <translation>Bron</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9545,7 +9730,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Don&apos;t see your app? Play some sound in it.</source>
-        <translation type="unfinished">Zie je je app niet? Zorg dat hij audio afspeelt.</translation>
+        <translation>Zie je je app niet? Speel er iets met geluid in af.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9585,7 +9770,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Paneel: dekking</translation>
+        <translation>Paneel: dekking</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9595,7 +9780,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show my speech here</source>
-        <translation type="unfinished">Mijn spraak hier tonen</translation>
+        <translation>Mijn spraak hier tonen</translation>
     </message>
 </context>
 <context>
@@ -9807,12 +9992,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the PC plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Voor Alles wat de pc afspeelt. Apps die je toevoegt worden op elke luidspreker gehoord.</translation>
+        <translation>Voor Alles wat de pc afspeelt. Toegevoegde apps worden ondertiteld ongeacht welke luidsprekers ze gebruiken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the Mac plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Voor Alles wat de Mac afspeelt. Apps die je toevoegt worden op elke luidspreker gehoord.</translation>
+        <translation>Voor Alles wat de Mac afspeelt. Toegevoegde apps worden ondertiteld ongeacht welke luidsprekers ze gebruiken.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9822,12 +10007,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Show my speech in every window</source>
-        <translation type="unfinished">Ondertitel wat ik zeg</translation>
+        <translation>Mijn spraak in elk venster tonen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">In elk venster. Je microfoon wordt alleen voor je ondertitels verstuurd zolang dit aan staat.</translation>
+        <translation>We versturen je microfoongeluid alleen voor je ondertitels zolang dit aanstaat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9842,7 +10027,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic&apos;s level, shown while your speech is captioned</source>
-        <translation type="unfinished">Getoond zolang wat je zegt wordt ondertiteld</translation>
+        <translation>Microfoonniveau zolang je spraak wordt ondertiteld</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -10272,7 +10457,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Next payment: {amount} on {date}</source>
-        <translation type="unfinished">Volgende afschrijving: {amount} op {date}</translation>
+        <translation>Volgende betaling: {amount} op {date}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10362,7 +10547,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Your plan</source>
-        <translation type="unfinished">Je abonnement</translation>
+        <translation>Je abonnement</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10387,7 +10572,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Use a code</source>
-        <translation type="unfinished">Heb je een code?</translation>
+        <translation>Code gebruiken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10437,7 +10622,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>QR code for payment</source>
-        <translation type="unfinished">QR-code voor betaling</translation>
+        <translation>QR-code voor betaling</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10467,7 +10652,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Select plan</source>
-        <translation type="unfinished">Kies een abonnement</translation>
+        <translation>Kies een abonnement</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10537,7 +10722,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Scan the QR code to pay on your phone.</source>
-        <translation type="unfinished">Scan met je telefoon om de betaalpagina te openen.</translation>
+        <translation>Scan de QR-code om op je telefoon te betalen.</translation>
     </message>
 </context>
 <context>
@@ -10600,7 +10785,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/usage.py"/>
         <source>Listening allowance</source>
-        <translation type="unfinished">Luistertegoed</translation>
+        <translation>Luistertegoed</translation>
     </message>
 </context>
 <context>
@@ -10770,7 +10955,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
         <source>Heard in a finished caption at least once; names and your own speech don&apos;t count.</source>
-        <translation type="unfinished">Minstens één keer gehoord in een definitieve ondertitel; namen en je eigen spraak tellen niet.</translation>
+        <translation>Minstens één keer gehoord in een definitieve ondertitel; namen en je eigen spraak tellen niet.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/heard_card.py"/>
@@ -10858,12 +11043,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new</source>
-        <translation type="unfinished">{known} bekend · {deck} in je stapel · {new} nieuw</translation>
+        <translation>{known} bekend · {deck} in je stapel · {new} nieuw</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new · {unheard} not heard</source>
-        <translation type="unfinished">{known} bekend · {deck} in je stapel · {new} nieuw · {unheard} nog niet gehoord</translation>
+        <translation>{known} bekend · {deck} in je stapel · {new} nieuw · {unheard} niet gehoord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10878,37 +11063,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>in deck</source>
-        <translation type="unfinished">in je stapel</translation>
+        <translation>in je stapel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>new</source>
-        <translation type="unfinished">nieuw (gehoord, niet bekend)</translation>
+        <translation>nieuw</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>not heard</source>
-        <translation type="unfinished">nog niet gehoord</translation>
+        <translation>niet gehoord</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Frequency</source>
-        <translation type="unfinished">Op frequentie</translation>
+        <translation>Frequentie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>HSK level</source>
-        <translation type="unfinished">Op HSK-niveau</translation>
+        <translation>HSK-niveau</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Group words by frequency or HSK level</source>
-        <translation type="unfinished">Banden tonen</translation>
+        <translation>Woorden groeperen op frequentie of HSK-niveau</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by HSK level</source>
-        <translation type="unfinished">Woorden tegengekomen, per HSK-niveau</translation>
+        <translation>Woorden per HSK-niveau</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10918,7 +11103,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by frequency</source>
-        <translation type="unfinished">Woorden tegengekomen, naar hoe gewoon ze zijn</translation>
+        <translation>Woorden op frequentie</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10934,7 +11119,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>In deck</source>
-        <translation type="unfinished">In je stapel</translation>
+        <translation>In je stapel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10959,27 +11144,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Open dictionary</source>
-        <translation type="unfinished">Opzoeken</translation>
+        <translation>Woordenboek openen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Change status</source>
-        <translation type="unfinished">Status wijzigen</translation>
+        <translation>Status wijzigen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Estimated from your level. Choose a status to change it.</source>
-        <translation type="unfinished">Geschat op basis van je niveau – kies er een om het zelf in te stellen</translation>
+        <translation>Geschat op basis van je niveau. Kies een status om de inschatting te wijzigen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Move to another category</source>
-        <translation type="unfinished">Naar een andere categorie verplaatsen</translation>
+        <translation>Naar een andere categorie verplaatsen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Remove from saved words</source>
-        <translation type="unfinished">Uit je opgeslagen woorden verwijderen</translation>
+        <translation>Uit opgeslagen woorden verwijderen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10989,7 +11174,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>{count} selected</source>
-        <translation type="unfinished">{count} geselecteerd</translation>
+        <translation>{count} geselecteerd</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -11017,7 +11202,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Could not save {name}. Close it if it is open, or choose a folder you can write to, then try again.</source>
-        <translation type="unfinished">Kon {name} niet schrijven. Misschien is het open in een ander programma, of is de map alleen-lezen – sluit het of kies een andere map en probeer het opnieuw.</translation>
+        <translation>Kan {name} niet opslaan. Sluit het bestand als het open is of kies een map waarin je mag schrijven. Probeer het daarna opnieuw.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11030,12 +11215,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word available to export was already exported in this format. {name} is empty.</source>
-        <translation type="unfinished">Geen nieuwe woorden sinds de laatste export – {name} is leeg.</translation>
+        <translation>Alle beschikbare woorden zijn al naar dit formaat geëxporteerd. {name} is leeg.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words to export. Save a word or add one to your deck first. {name} is empty.</source>
-        <translation type="unfinished">Nog geen woorden om te exporteren – {name} is leeg. Sla eerst een woord op of voeg het toe aan je stapel.</translation>
+        <translation>Geen woorden om te exporteren. Sla eerst een woord op of voeg het toe aan je stapel. {name} is leeg.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11070,7 +11255,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{n} since added to your deck</source>
-        <translation type="unfinished">{n} sinds het in je stapel zit</translation>
+        <translation>{n} keer sinds het in je stapel zit</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11083,12 +11268,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No known words yet</source>
-        <translation type="unfinished">Net begonnen – nog geen bekende woorden</translation>
+        <translation>Nog geen bekende woorden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Choose colour</source>
-        <translation type="unfinished">Kleur wijzigen</translation>
+        <translation>Kleur kiezen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11108,7 +11293,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Delete this category and remove its saved words</source>
-        <translation type="unfinished">De categorie en de woorden erin verwijderen</translation>
+        <translation>Deze categorie en de daarin opgeslagen woorden verwijderen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11123,27 +11308,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Loading your words…</source>
-        <translation type="unfinished">Je woorden lezen…</translation>
+        <translation>Je woorden laden…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Repeated words</source>
-        <translation type="unfinished">Woorden die je steeds hoort</translation>
+        <translation>Veelgehoorde woorden</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>New words you hear often, most frequent first. Add useful ones to your deck.</source>
-        <translation type="unfinished">Woorden die nieuw voor je zijn, meest gehoord eerst – voeg de nuttige toe aan je stapel.</translation>
+        <translation>Nieuwe woorden die je vaak hoort, gesorteerd op hoe vaak je ze hoort. Voeg nuttige woorden toe aan je stapel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark known</source>
-        <translation type="unfinished">Deze ken ik</translation>
+        <translation>Als bekend markeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No repeated words yet. New words appear here after you hear them a few times.</source>
-        <translation type="unfinished">Nog niets – nieuwe woorden verschijnen hier als je ze een paar keer hebt gehoord.</translation>
+        <translation>Nog geen veelgehoorde woorden. Nieuwe woorden verschijnen hier nadat je ze een paar keer hebt gehoord.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11163,37 +11348,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word you have heard, saved or given a status.</source>
-        <translation type="unfinished">Elk woord dat je bent tegengekomen. Corrigeer elke status met de hand.</translation>
+        <translation>Alle woorden die je hebt gehoord, opgeslagen of een status hebt gegeven.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Filter by status</source>
-        <translation type="unfinished">Woorden met deze status tonen</translation>
+        <translation>Filteren op status</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Any status</source>
-        <translation type="unfinished">Alle statussen</translation>
+        <translation>Alle statussen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words, readings or meanings</source>
-        <translation type="unfinished">Zoeken – woord, uitspraak of betekenis</translation>
+        <translation>Zoeken op woord, uitspraak of betekenis</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words</source>
-        <translation type="unfinished">Je woorden doorzoeken</translation>
+        <translation>Woorden zoeken</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Zoekopdracht wissen</translation>
+        <translation>Zoekopdracht wissen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark new</source>
-        <translation type="unfinished">Weer nieuw</translation>
+        <translation>Als nieuw markeren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11208,7 +11393,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saved words use their category colour in captions. Avoid yellow and white because captions use them for translations and speech.</source>
-        <translation type="unfinished">Elke categorie heeft een eigen kleur, overal waar de woorden weer klinken. Geel en wit kun je beter vermijden: in ondertitels betekenen ze een vertaling en wat er gezegd is.</translation>
+        <translation>Opgeslagen woorden krijgen in ondertitels de kleur van hun categorie. Vermijd geel en wit. Die kleuren staan al voor vertaling en gesproken tekst.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11223,37 +11408,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No saved words yet. Select a word in a caption, then choose a category.</source>
-        <translation type="unfinished">Nog geen – klik op een woord in een ondertitel en kies een categorie om het op te slaan.</translation>
+        <translation>Nog geen opgeslagen woorden. Selecteer een woord in een ondertitel en kies een categorie.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export to Anki</source>
-        <translation type="unfinished">Exporteren voor Anki</translation>
+        <translation>Naar Anki exporteren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Save your saved words, deck words and their sentences as a CSV to import into Anki, or as an Anki deck to open in Anki.</source>
-        <translation type="unfinished">Opgeslagen woorden en woorden in je stapel, met hun zinnen: een CSV-bestand dat Anki kan importeren, of een stapelbestand – dubbelklik en Anki voegt ze toe met de kaartstijl van Polyglotic, zonder instellen.</translation>
+        <translation>Sla je opgeslagen woorden, de woorden in je stapel en hun zinnen op als CSV om in Anki te importeren, of als Anki-stapel om direct in Anki te openen.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Only words not yet exported in this format</source>
-        <translation type="unfinished">Alleen nog niet geëxporteerde woorden</translation>
+        <translation>Alleen woorden die nog niet naar dit formaat zijn geëxporteerd</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSV</source>
-        <translation type="unfinished">CSV-bestand</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki deck (.apkg)</source>
-        <translation type="unfinished">Anki-stapelbestand (.apkg)</translation>
+        <translation>Anki-stapel (.apkg)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki import help</source>
-        <translation type="unfinished">Zo importeer je in Anki</translation>
+        <translation>Hulp bij importeren in Anki</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11263,17 +11448,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{count} more. Filter or search to find them.</source>
-        <translation type="unfinished">Nog {count} – filter of zoek om ze te vinden.</translation>
+        <translation>Nog {count}. Filter of zoek om ze te vinden.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words match.</source>
-        <translation type="unfinished">Geen resultaten.</translation>
+        <translation>Geen woorden gevonden.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words yet. Words appear here after you hear them.</source>
-        <translation type="unfinished">Nog geen – woorden verschijnen hier terwijl je ze hoort.</translation>
+        <translation>Nog geen woorden. Zodra je woorden hoort, verschijnen ze hier.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11296,17 +11481,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export words to Anki</source>
-        <translation type="unfinished">Woorden exporteren voor Anki</translation>
+        <translation>Woorden naar Anki exporteren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSVs (*.csv)</source>
-        <translation type="unfinished">CSV-bestanden (*.csv)</translation>
+        <translation>CSV-bestanden (*.csv)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export an Anki deck</source>
-        <translation type="unfinished">Woorden exporteren als Anki-stapelbestand</translation>
+        <translation>Een Anki-stapel exporteren</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11316,7 +11501,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saving {name}…</source>
-        <translation type="unfinished">{name} schrijven…</translation>
+        <translation>{name} opslaan…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>

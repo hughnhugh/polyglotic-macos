@@ -473,8 +473,8 @@ def drawn(window: CaptionWindow) -> dict[tuple[int, int, int], tuple[float, floa
             for n in range(row.layout.lineCount()):
                 box = row.layout.lineAt(n).naturalTextRect()
                 found[(line.key, row.index, row.visual_line + n)] = (
-                    round(box.left(), 1),
-                    round(rect.top() + row.top + box.top(), 1),
+                    box.left(),
+                    rect.top() + row.top + box.top(),
                 )
     return found
 
@@ -567,12 +567,12 @@ def test_text_already_shown_stays_where_it_is_when_a_caption_runs_on(
     window.canvas.repaint()
     after = drawn(window)
     assert max(key for key, _, _ in after) > newest
-    moved = {
-        (after[at][0] - where[0], round(after[at][1] - where[1], 1))
-        for at, where in before.items()
-        if at in after
-    }
-    assert len(moved) == 1 and next(iter(moved))[0] == 0.0  # all rose together
+    common = before.keys() & after.keys()
+    assert common
+    assert all(after[at][0] == before[at][0] for at in common)
+    # Compare the travel itself at QTextLine's 1/64 px precision.
+    rises = [before[at][1] - after[at][1] for at in common]
+    assert max(rises) - min(rises) <= 1 / 64
 
 
 def test_run_on_lines_glide_with_the_caption_they_share(qapp: QApplication) -> None:

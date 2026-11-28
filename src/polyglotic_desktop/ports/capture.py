@@ -147,6 +147,24 @@ class AppCaptureTrial(Protocol):
         ...
 
 
+SOUND_PEAK = 0.001
+"""Float amplitude in [0, 1]. Above -60 dBFS counts as sound in capture checks."""
+
+
+class CaptureIssue(StrEnum):
+    """Content-free causes that the caption window can explain."""
+
+    LIBRARY = "missing_libpulse"
+    SERVER = "sound_server_unreachable"
+    DENIED = "recording_access_denied"
+    OUTPUT = "no_output_monitor"
+    MIC = "no_microphone"
+    OPEN = "device_open_failed"
+    NO_FRAMES = "no_frames"
+    SILENT = "silent_frames"
+    STOPPED = "capture_stopped"
+
+
 class AudioCapture(Protocol):
     """One source's audio. `start` begins delivering it to `on_audio` on a
     thread of the capture's own; `stop` ends it and waits for that thread.

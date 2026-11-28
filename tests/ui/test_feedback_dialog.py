@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPalette
+from PySide6.QtGui import QFont, QPalette
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QToolButton
 from tests.ui.fakes import Built
@@ -362,3 +362,36 @@ def test_a_suggestion_is_counted_once_only_after_success(qapp: QApplication) -> 
     qapp.processEvents()
     assert counted == [True]
     built.close()
+
+
+def test_on_a_screen_too_short_for_it_the_middle_scrolls_and_nothing_is_cut(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 999: at 200 % text size on a short screen the form was
+    taller than the screen, and the note under it was squeezed 20 px short,
+    cutting its first and last lines. What's between the title and Send
+    scrolls now, as Report a problem's does, and every note has its lines'
+    height."""
+    form = dialog()
+    big = QFont(form.font())
+    big.setPixelSize(big.pixelSize() * 2 if big.pixelSize() > 0 else 26)
+    form.setFont(big)
+    form.text.setPlainText("x" * 2_001)  # the count and the cutting note too
+    form.show()
+    for _ in range(4):
+        qapp.processEvents()
+    screen = form.screen().availableGeometry()
+    assert form.frameGeometry().height() <= screen.height()
+    assert form.send.isVisible()
+    assert screen.contains(form.send.mapToGlobal(form.send.rect().bottomRight()))
+    squeezed = [
+        label.text()[:30]
+        for label in form.findChildren(QLabel)
+        if label.isVisible()
+        and label.wordWrap()
+        and label.heightForWidth(label.width()) > label.height() + 1
+    ]
+    assert not squeezed
+    assert form.scroll_area.verticalScrollBar().maximum() > 0
+    form.close()
+    form.deleteLater()

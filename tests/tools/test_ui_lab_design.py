@@ -597,7 +597,10 @@ def test_the_labs_gate_fails_on_a_new_design_finding_until_accepted(
     monkeypatch.setattr(design, "BASELINE", tmp_path / "baseline.json")
     monkeypatch.setattr(cli, "new_states", lambda: list(new_parts.STATES))
     monkeypatch.setattr(new_parts, "STATES", [lab.State("ui_next.odd", odd, True)])
-    assert cli.main(["approve", "--out", str(tmp_path / "approve")]) == 0
+    assert (
+        cli.main(["approve", "--reason", "a test", "--out", str(tmp_path / "approve")])
+        == 0
+    )
     capsys.readouterr()
     assert cli.main(["--gate", "--checks-only", "--out", str(tmp_path / "a")]) == 1
     said = capsys.readouterr().err.splitlines()

@@ -126,9 +126,20 @@ KEY_CODES = {
     "scroll_lock": 107,  # F14
     "pause": 113,  # F15
     "menu": 110,
+    "minus": 27,  # kVK_ANSI_Minus
+    "equal": 24,  # kVK_ANSI_Equal
+    "bracket_left": 33,  # kVK_ANSI_LeftBracket
+    "bracket_right": 30,  # kVK_ANSI_RightBracket
+    "backslash": 42,  # kVK_ANSI_Backslash
+    "semicolon": 41,  # kVK_ANSI_Semicolon
+    "apostrophe": 39,  # kVK_ANSI_Quote
+    "grave": 50,  # kVK_ANSI_Grave
+    "comma": 43,  # kVK_ANSI_Comma
+    "period": 47,  # kVK_ANSI_Period
+    "slash": 44,  # kVK_ANSI_Slash
 }
 """macOS's key codes (the US layout's places) for `dictation_keys.KEYS`;
-F21 to F24 have none."""
+F21 to F24 and media keys have no Carbon key codes."""
 
 
 @dataclass(frozen=True, slots=True)

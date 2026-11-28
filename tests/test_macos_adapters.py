@@ -56,6 +56,8 @@ def test_macos_gets_a_whole_record() -> None:
         piece = getattr(mac, field.name)
         if field.name in NOT_ON_A_MAC_YET:
             assert piece is None, field.name
+        elif field.name == "platform_kind":
+            assert piece is None  # Only Linux distinguishes a ChromeOS guest.
         elif field.name == "common_apps":
             assert piece == categories.COMMON_APPS
         elif field.name == "typing_permission":  # a Mac's Accessibility (438)

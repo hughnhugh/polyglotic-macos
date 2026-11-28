@@ -42,6 +42,12 @@ from polyglotic_desktop.core.learning.load import (
 from polyglotic_desktop.core.listening.dictation import DICTATION_LANGUAGES
 from polyglotic_desktop.core.listening.dictation_keys import (
     DEFAULT_KEY,
+    DIGITS,
+    EDITING,
+    FUNCTION_KEYS,
+    LETTERS,
+    LONE_MODIFIERS,
+    OTHER_KEYS,
     DictationKey,
     refusal,
 )
@@ -58,7 +64,7 @@ from polyglotic_desktop.core.listening.display import (
     WordLinks,
 )
 from polyglotic_desktop.core.listening.hidden import PAUSE_AFTER_MIN, PAUSE_CHOICES
-from polyglotic_desktop.core.listening.hotkeys import Hotkey
+from polyglotic_desktop.core.listening.hotkeys import LIVE_SPACE, Hotkey, HotkeyScope
 from polyglotic_desktop.core.listening.hotkeys import refusal as hotkey_refusal
 from polyglotic_desktop.core.listening.offers import Use, offered
 from polyglotic_desktop.core.listening.playout import (
@@ -161,6 +167,27 @@ OLD_LIVE_DEFAULT = 1.5  # the interval before there were caption modes
 # the caption mode as versions before 176 kept it: Steady whether chosen or
 # not, so only Quick preview and Live updates show a choice
 OLD_CAPTION_TIMING = "caption_timing"
+# Add-only keys for bindings 0.1.12 rejects (polyglotic-hq 977; RULES #8):
+# legacy keys keep only values 0.1.12 accepts so rolling back never resets
+# `hotkeys` or hold keys.
+HOTKEYS_V2 = "hotkeys_v2"
+DICTATION_V2 = "dictation_key_v2"
+RESPEAK_V2 = "respeak_key_v2"
+LAST_RESPEAK_V2 = "last_respeak_key_v2"
+_STORED_ONLY_KEYS = frozenset(
+    {
+        HOTKEYS_V2,
+        DICTATION_V2,
+        RESPEAK_V2,
+        LAST_RESPEAK_V2,
+        OLD_CAPTION_TIMING,
+        "video_layout",
+    }
+)
+_LEGACY_KEYS = frozenset((*LETTERS, *DIGITS, *FUNCTION_KEYS, *EDITING, *OTHER_KEYS))
+"""Non-modifier keys 0.1.12's `DictationKey.parse` knew (before punctuation
+and media keys were added in 0.1.13)."""
+_HOTKEY_NAMES = frozenset(h.value for h in Hotkey)
 BUILT_INS = 7
 CAPTION_LAB_VERSION = 2
 """Version 2 expresses Older captions as retained WCAG contrast, not paint alpha."""
@@ -522,11 +549,14 @@ class AppSettings:
     dictation_key: str = str(DEFAULT_KEY)
     dictation_language: str | None = None
     dictation_australian: bool = False
-    # each hotkey's key (polyglotic-hq 567, decision 0273), by its name
+    # each hotkey's key (polyglotic-hq 567, 966; decision 0273), by its name
     # (`core.listening.hotkeys.Hotkey`: "lock", "live"...): a DictationKey as
-    # kept ("ctrl+alt+l", "f9"), or "" for none; a hotkey not in it has its
-    # default (Ctrl+Alt+L, P, H and J; the rest none)
+    # kept ("ctrl+alt+l", "f9", "space"), or "" for none; a hotkey not in it
+    # has its default (Ctrl+Alt+L, P, H and Space for live; the rest none)
     hotkeys: dict[str, str] = field(default_factory=dict)
+    # each hotkey's scope (polyglotic-hq 966), by its name: "app" (In
+    # Polyglotic's windows) or "everywhere"; missing uses `default_scope(key)`
+    hotkey_scopes: dict[str, str] = field(default_factory=dict)
     # Type what they said (669) keeps the former re-speaking binding. An
     # empty binding shares the dictation key using the tap-then-hold gesture.
     type_theirs: bool = True
@@ -704,6 +734,33 @@ class AppSettings:
             k: {name: list(v) if isinstance(v, tuple) else v for name, v in own.items()}
             for k, own in self.preset_values.items()
         }
+        # Keep legacy key fields strictly 0.1.12-valid so a rollback never makes
+        # 0.1.12 reject the whole `hotkeys` map or reset hold keys (977).
+        values["hotkeys"] = {
+            name: key
+            for name, key in self.hotkeys.items()
+            if _is_legacy_hotkey(name, key)
+        }
+        values[HOTKEYS_V2] = {
+            name: key
+            for name, key in self.hotkeys.items()
+            if not _is_legacy_hotkey(name, key)
+        }
+        if _is_legacy_hold_key(self.dictation_key):
+            values[DICTATION_V2] = None
+        else:
+            values["dictation_key"] = str(DEFAULT_KEY)
+            values[DICTATION_V2] = self.dictation_key
+        if self.respeak_key == "" or _is_legacy_hold_key(self.respeak_key):
+            values[RESPEAK_V2] = None
+        else:
+            values["respeak_key"] = DEFAULT_RESPEAK_KEY
+            values[RESPEAK_V2] = self.respeak_key
+        if _is_legacy_hold_key(self.last_respeak_key):
+            values[LAST_RESPEAK_V2] = None
+        else:
+            values["last_respeak_key"] = DEFAULT_RESPEAK_KEY
+            values[LAST_RESPEAK_V2] = self.last_respeak_key
         # what versions before 176 read: the mode followed, chosen or not
         values[OLD_CAPTION_TIMING] = self.requested_caption_mode.value
         return values
@@ -727,6 +784,21 @@ class AppSettings:
                     if f.name in _TUPLES and isinstance(value, list | tuple)
                     else value
                 )
+        # Overlay 0.1.13's add-only key fields over the legacy ones (977).
+        hotkeys_v2 = stored.get(HOTKEYS_V2)
+        if _hotkeys(hotkeys_v2):
+            assert isinstance(hotkeys_v2, dict)
+            if hotkeys_v2:
+                found["hotkeys"] = {**found.get("hotkeys", {}), **hotkeys_v2}
+        dictation_v2 = stored.get(DICTATION_V2)
+        if _hold_key(dictation_v2, typing_in_app=True):
+            found["dictation_key"] = dictation_v2
+        respeak_v2 = stored.get(RESPEAK_V2)
+        if _hold_key(respeak_v2):
+            found["respeak_key"] = respeak_v2
+        last_respeak_v2 = stored.get(LAST_RESPEAK_V2)
+        if _hold_key(last_respeak_v2):
+            found["last_respeak_key"] = last_respeak_v2
         if "recommended_look_before" in found:
             snapshot = found["recommended_look_before"]
             assert isinstance(snapshot, dict)  # checked by `_CHECKS`
@@ -1256,11 +1328,38 @@ def _text_or_none(value: object) -> bool:
     return value is None or isinstance(value, str)
 
 
-def _dictation_key(value: object) -> bool:
-    """A key dictation can be held on (polyglotic-hq 289): one kept by
-    this version or 283's, and not one refused (a key that types...)."""
+def _hold_key(value: object, *, typing_in_app: bool = False) -> bool:
+    """Validate a saved hold key, including one kept from an older release."""
     key = DictationKey.parse(value) if isinstance(value, str) else None
-    return key is not None and refusal(key) is None
+    return key is not None and refusal(key, typing_in_app=typing_in_app) is None
+
+
+def _is_legacy_hold_key(value: str) -> bool:
+    """Whether 0.1.12's `_dictation_key` accepts `value`."""
+    key = DictationKey.parse(value)
+    if key is None:
+        return False
+    if (
+        key.key is not None
+        and key.key not in _LEGACY_KEYS
+        and key.key not in LONE_MODIFIERS
+    ):
+        return False
+    return refusal(key, typing_in_app=False) is None
+
+
+def _is_legacy_hotkey(name: str, text: str) -> bool:
+    """Whether 0.1.12's `_hotkeys` accepts `name: text`."""
+    if name not in _HOTKEY_NAMES:
+        return False
+    if text == "":
+        return True
+    key = DictationKey.parse(text)
+    if key is None or key.key is None or key.key not in _LEGACY_KEYS:
+        return False
+    if Hotkey(name) is Hotkey.LIVE and key == LIVE_SPACE:
+        return True
+    return refusal(key, typing_in_app=False) is None
 
 
 def _hotkeys(value: object) -> bool:
@@ -1269,9 +1368,8 @@ def _hotkeys(value: object) -> bool:
     defaults - a file edited by hand."""
     if not isinstance(value, dict):
         return False
-    names = {h.value for h in Hotkey}
     for name, text in value.items():
-        if name not in names or not isinstance(text, str):
+        if name not in _HOTKEY_NAMES or not isinstance(text, str):
             return False
         key = DictationKey.parse(text) if text else None
         if text and (
@@ -1279,6 +1377,16 @@ def _hotkeys(value: object) -> bool:
         ):
             return False
     return True
+
+
+def _hotkey_scopes(value: object) -> bool:
+    """Hotkeys' scopes by their names (polyglotic-hq 966): each a hotkey's,
+    to "app" or "everywhere"."""
+    if not isinstance(value, dict):
+        return False
+    names = {h.value for h in Hotkey}
+    valid_scopes = {s.value for s in HotkeyScope}
+    return all(name in names and scope in valid_scopes for name, scope in value.items())
 
 
 def _languages(value: object) -> bool:
@@ -1399,12 +1507,13 @@ _CHECKS: dict[str, Callable[[object], bool]] = {
     "mandarin_script": lambda v: v is None or v in MANDARIN_SCRIPTS,
     "speaker_device": _text_or_none,
     "mic_device": _text_or_none,
-    "dictation_key": _dictation_key,
+    "dictation_key": lambda v: _hold_key(v, typing_in_app=True),
     "hotkeys": _hotkeys,
+    "hotkey_scopes": _hotkey_scopes,
     "preset_languages": _preset_languages,
     "preset_second_languages": _language_map,
-    "respeak_key": lambda v: v == "" or _dictation_key(v),
-    "last_respeak_key": _dictation_key,
+    "respeak_key": lambda v: v == "" or _hold_key(v),
+    "last_respeak_key": _hold_key,
     "type_what": lambda v: v in (TypeWhat.ORIGINAL, TypeWhat.TRANSLATION),
     "dictation_language": lambda v: v is None or v in DICTATION_LANGUAGES,
     "cohort": _text_or_none,
@@ -1598,7 +1707,7 @@ class Settings(QObject):
         # keys this version doesn't know (a newer version's, after a rollback)
         # are kept on every save, so going back and forth loses nothing
         # (polyglotic-hq project 107, 104's G11)
-        known = {f.name for f in fields(AppSettings)}
+        known = {f.name for f in fields(AppSettings)} | _STORED_ONLY_KEYS
         self._unknown = {k: v for k, v in stored.items() if k not in known}
 
     def update(self, **changes: object) -> None:
@@ -1651,7 +1760,7 @@ class Settings(QObject):
             # known rather than losing them.
             stored = self._store.load()
             if stored:
-                known = {f.name for f in fields(AppSettings)}
+                known = {f.name for f in fields(AppSettings)} | _STORED_ONLY_KEYS
                 self._unknown = {k: v for k, v in stored.items() if k not in known}
             self._store.save({**self._unknown, **new.to_stored()})
         self.changed.emit()

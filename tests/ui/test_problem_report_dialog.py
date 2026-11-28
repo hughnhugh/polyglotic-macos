@@ -4,12 +4,14 @@ ticked is what goes; the consent screen's diagnostics for testers; and
 main's parts, routing and diagnostics. Made-up text and bytes only."""
 
 import json
+import math
 import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFontMetrics, QFontMetricsF
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (
     QApplication,
@@ -44,6 +46,7 @@ from polyglotic_desktop.ports.feedback import Report
 from polyglotic_desktop.ports.problem_reports import ProblemReport
 from polyglotic_desktop.ui.consent import ConsentDialog
 from polyglotic_desktop.ui.problem_report import (
+    MEASURE_CH,
     LookDialog,
     OneReportWindow,
     Part,
@@ -129,8 +132,8 @@ def test_everything_is_ticked_with_its_size_and_a_way_to_look(
         "problem_report.part.speech:discord",
     }
     assert all(t.isChecked() for t in ticks.values())
-    assert "1 caption" in ticks["problem_report.part.captions"].text()
-    audio = ticks["problem_report.part.speech:app-1"].text()
+    assert "1 caption" in ticks["problem_report.part.captions"].accessibleName()
+    audio = ticks["problem_report.part.speech:app-1"].accessibleName()
     assert audio.startswith("Audio from VLC (8 s of speech")
     assert audio.endswith(" kB)")
     looks = {b.objectName() for b in form.findChildren(QPushButton)}
@@ -351,6 +354,47 @@ def test_on_a_short_screen_the_parts_scroll_and_no_text_overlaps(
     ]
     assert all(not a.intersects(b) for i, a in enumerate(rows) for b in rows[i + 1 :])
     assert form.scroll_area.verticalScrollBar().maximum() > 0
+    form.deleteLater()
+
+
+def test_a_parts_words_wrap_beside_its_tick_and_clicking_them_ticks_it(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 999: a check box's own text never wraps, so the
+    widest part set the dialog's least width, and at 200 % text size About
+    this PC's line ran 205 px past its right edge (and sat 0 px from its
+    box's side at 100 %). Its words wrap beside the tick now; the tick keeps
+    them as its name, and a click on them ticks or unticks it."""
+    form = dialog()
+    form.show()
+    qapp.processEvents()
+    facts = form.ticks["facts"]
+    words = facts.accessibleName()
+    assert words.startswith("About this PC")
+    shown = [label for label in form.body.findChildren(QLabel) if label.text() == words]
+    assert len(shown) == 1 and shown[0].wordWrap()
+    one_line = QFontMetrics(shown[0].font()).horizontalAdvance(words)
+    assert form.body.minimumSizeHint().width() < one_line  # never one line's
+    QTest.mouseClick(shown[0], Qt.MouseButton.LeftButton)
+    assert not facts.isChecked()
+    QTest.mouseClick(shown[0], Qt.MouseButton.LeftButton)
+    assert facts.isChecked()
+    form.deleteLater()
+
+
+def test_its_notes_keep_a_readable_measure_however_wide_it_is(
+    qapp: QApplication,
+) -> None:
+    """polyglotic-hq 999: at its 560 px the intro's lines ran ~81 characters
+    and the note under it ~86 (the UI lab's design check allows 80); wider,
+    more. Each note's lines stop at `MEASURE_CH` of its own font."""
+    form = dialog()
+    form.show()
+    form.resize(900, form.height())
+    qapp.processEvents()
+    for note in (form.intro, form.about):
+        most = math.ceil(MEASURE_CH * QFontMetricsF(note.font()).averageCharWidth())
+        assert note.contentsRect().width() <= most < note.width()
     form.deleteLater()
 
 

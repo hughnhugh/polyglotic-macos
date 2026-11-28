@@ -121,6 +121,9 @@ class AppInfo:
     """The OS's version number ("10.0.26200"): feedback carries it; `hello`
     and sign-in don't."""
 
+    platform_kind: str | None = None
+    """Fixed local diagnostic value for Linux or its ChromeOS guest."""
+
     @property
     def platform(self) -> str:
         """The app's platform, `os`'s first part (`windows`): all its
@@ -135,6 +138,8 @@ class AppInfo:
         os_version: str,
         stamped: Traversable | None = None,
         notes: Path | None = None,
+        *,
+        platform_kind: str | None = None,
     ) -> AppInfo:
         """This copy of the app on this OS: its name and version number come
         from the OS's adapters (`main.os_adapters`, decision 0038). A release
@@ -143,7 +148,7 @@ class AppInfo:
         stamp = stamped or files("polyglotic_desktop") / RELEASE_FILE
         release = this_release(stamp, first_channel(os))
         version = release.version if stamp.is_file() else source_version(notes)
-        return cls(version, os, release.channel, os_version)
+        return cls(version, os, release.channel, os_version, platform_kind)
 
 
 def source_notes() -> Path:

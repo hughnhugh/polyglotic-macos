@@ -373,7 +373,9 @@ def test_a_chinese_row_is_as_tall_as_in_yahei_ui() -> None:
         raw = QRawFont(str(caption_faces.FOLDER / name), 100)
         assert raw.ascent() == pytest.approx(101.6, abs=0.6), name
         assert raw.descent() == pytest.approx(25.4, abs=0.6), name
-    font = CaptionLayout()._font(row("我们", "zh"), 1.0, False)
+    # The shipped cuts match YaHei UI. The platform default can be PingFang.
+    style = CaptionStyle(faces=(("zh", "Noto Sans SC Captions"),))
+    font = CaptionLayout(style)._font(row("我们", "zh"), 1.0, False)
     assert QFontMetricsF(font).height() / font.pixelSize() < 1.32
 
 

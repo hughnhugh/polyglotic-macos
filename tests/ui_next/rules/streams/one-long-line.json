@@ -1,0 +1,25 @@
+{
+  "about": "One finished caption longer than any window is wide. Made-up text.",
+  "window": {
+    "width": 480,
+    "height": 420
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "key": 1,
+      "source": "video",
+      "live": false,
+      "language": "fr",
+      "clauses": [
+        {
+          "said": "Un lac clair au-delà de la montagne et de la ville, Un lac clair au-delà de la montagne et de la ville, puis la route du nord.",
+          "words": [],
+          "reading": [],
+          "translation": "A clear lake beyond the mountain and the town, A clear lake beyond the mountain and the town, then the north road.",
+          "links": []
+        }
+      ]
+    }
+  ]
+}

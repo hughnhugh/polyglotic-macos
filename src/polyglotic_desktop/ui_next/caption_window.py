@@ -383,6 +383,7 @@ from polyglotic_desktop.ui_next.views.presets import (
 )
 from polyglotic_desktop.ui_next.views.respeaking import MIC_METER_WIDTH
 from polyglotic_desktop.ui_next.views.reveal import Reveal
+from polyglotic_desktop.ui_next.views.row_positions import moved_characters, row_tops
 from polyglotic_desktop.ui_next.views.scroll import Anchor, Placed, Scroll
 from polyglotic_desktop.ui_next.views.sentences import (
     selected_sentence,
@@ -418,6 +419,12 @@ BAND_HEIGHT = 28
 """The hover band over the top of the canvas, in pixels at 100 % text size:
 it grows with Windows' text size (`band_height`), as does all the window's
 chrome - its captions keep the window's own text size (A- / A+)."""
+
+
+def line_action_radius() -> int:
+    """The hover Save/Copy buttons' corners: the pill's, inside its border
+    and margin (`LINE_ACTION_MARGIN`)."""
+    return MARK_RADIUS - LINE_ACTION_BORDER - LINE_ACTION_MARGIN
 
 
 def band_height() -> int:
@@ -522,6 +529,11 @@ HOVER_BLOCK_PAD_Y = 3.0
 """Vertical padding of the soft tint around a hovered caption block, in px."""
 LINE_ACTION_SIDE = 22
 """Side length of each hover Save/Copy icon button at 100% text size, in px."""
+LINE_ACTION_BORDER, LINE_ACTION_MARGIN = 1, 2
+"""The hover Save/Copy pill's border and its margin around the buttons, in
+px. The buttons' corners are the pill's (`MARK_RADIUS`) less both, so the
+curves run together: 3 px, on the interface's scale. They were 4, off it
+(the UI lab's design check, polyglotic-hq 999)."""
 LINE_KEY_POLL_MS = 40
 """How often OS key state is checked for Ctrl+C while hovering a caption."""
 HOVER_COPY_OVER_OTHER_APPS = False
@@ -1340,7 +1352,39 @@ class _TranslationSlot:
     filled_at: int | None = None
 
 
-type RowKey = tuple[int, tuple[int, int]]  # caption, then logical and visual row
+type RowKey = tuple[int, tuple[int, int]]  # caption, clause side, visual line
+type Page = list[tuple[Line, LaidLine, float]]
+
+UNLESS_COVERED = -math.inf
+"""A waiting row's fade start (`CaptionWindow._wrap_fades`) for a new row
+that appears where it stays: drawn at once at its first paint if its place
+is free; otherwise it waits there and fades in once the text has moved
+away, like a carried-on line (polyglotic-hq 984)."""
+
+
+def _row_key(line: Line, row: LaidRow, wrap: int = 0) -> RowKey:
+    side = 2 * row.row.clause + int(row.row.kind is RowKind.TRANSLATION)
+    return line.key, (side, row.visual_line + wrap)
+
+
+def _row_letters(
+    line: Line, laid: LaidLine, translation: bool
+) -> tuple[str, list[RowKey]]:
+    """Visible source characters and their visual rows, across clause boundaries."""
+    pieces = []
+    keys = []
+    for row in laid.rows:
+        if (row.row.kind is RowKind.TRANSLATION) != translation:
+            continue
+        for n in range(row.layout.lineCount()):
+            visual = row.layout.lineAt(n)
+            start = visual.textStart()
+            a = row.source_index(start) - row.start
+            b = row.source_index(start + visual.textLength()) - row.start
+            text = "".join(row.row.text[a:b].split())
+            pieces.append(text)
+            keys.extend([_row_key(line, row, n)] * len(text))
+    return "".join(pieces), keys
 
 
 class Canvas(CaptionSurface):
@@ -1394,6 +1438,12 @@ class Canvas(CaptionSurface):
         self._glide_page_key: tuple[object, ...] | None = None
         self._glide_page: list[tuple[Line, LaidLine, float]] = []
         self._wrap_copies: dict[QTextLayout, QTextLayout] = {}
+        self._viewport: tuple[object, ...] = ()
+        self._pinned: dict[RowKey, float] = {}
+        self._prior_layouts: dict[int, tuple[Line, LaidLine]] = {}
+        self._crossed: dict[RowKey, set[RowKey]] = {}
+        self._reading_page: Page | None = None
+        self._vacated_top: float | None = None
         self.at_rest: dict[RowKey, float] = {}
         """Where the last paint's rows sit at rest, before any slide - each
         row's top on the screen, by its line's key and row index: what the
@@ -1993,6 +2043,7 @@ class Canvas(CaptionSurface):
                 self._positioned(item.line, item.top, measured.get(item.line.key))
                 for item in placed
             ]
+            page = self._place_rows(page)
             if owner.sliding:
                 self.at_rest = self._rows_of(page)
             if offset and owner.deck is None:
@@ -2005,7 +2056,7 @@ class Canvas(CaptionSurface):
             page = self._glide_page
         owner._burst_pending = False
         self.shown = len(page)
-        return self._moved(page, offset), offset
+        return self._reveal_wraps(self._moved(page, offset), page), offset
 
     def _paint_panel(self, painter: QPainter) -> None:
         view = self.view
@@ -2486,22 +2537,24 @@ class Canvas(CaptionSurface):
                 (ln, laid, y + owner.card_offset(ln.key, offset))
                 for ln, laid, y in shown
             ]
-        if not owner._row_travel:
-            stack = offset * owner._stack_travel
-            return [(ln, laid, y + stack) for ln, laid, y in shown]
+        return self._shift_rows(shown, owner._row_travel, owner._stack_travel, offset)
+
+    def _shift_rows(
+        self, shown: Page, shifts: dict[RowKey, float], default: float, scale: float
+    ) -> Page:
+        if not shifts:
+            return [(ln, laid, y + scale * default) for ln, laid, y in shown]
         moved = []
         for ln, laid, y in shown:
-            first = owner._stack_travel
+            first = default
             rows = []
             changed = False
             for i, row in enumerate(laid.rows):
                 shares = [
-                    owner._row_travel.get(
-                        (ln.key, (row.index, row.visual_line + n)), owner._stack_travel
-                    )
+                    shifts.get(_row_key(ln, row, n), default)
                     for n in range(row.layout.lineCount())
                 ]
-                share = shares[0] if shares else owner._stack_travel
+                share = shares[0] if shares else default
                 if not i:
                     first = share
                 if any(s != share for s in shares):
@@ -2509,11 +2562,11 @@ class Canvas(CaptionSurface):
                     if copy is None:
                         copy = self._wrap_copies[row.layout] = moving_layout(row.layout)
                     row = move_wrapped_lines(
-                        row, copy, [offset * (s - share) for s in shares]
+                        row, copy, [scale * (s - share) for s in shares]
                     )
                     changed = True
                 if share != first:
-                    row = replace(row, top=row.top + offset * (share - first))
+                    row = replace(row, top=row.top + scale * (share - first))
                     changed = True
                 rows.append(row)
             if changed:
@@ -2524,29 +2577,159 @@ class Canvas(CaptionSurface):
                     height=max(laid.height, bottom),
                     link_paint=None,
                 )
-            moved.append((ln, laid, y + offset * first))
+            moved.append((ln, laid, y + scale * first))
         return moved
 
-    def _rows_of(
-        self, shown: list[tuple[Line, LaidLine, float]]
-    ) -> dict[RowKey, float]:
-        """Resting screen positions for each caption, row and wrapped line."""
-        top = float(self.mapToGlobal(QPoint(0, 0)).y())
-        if self.owner.deck is not None:
-            return {
-                (line.key, row.visual_key): top + y + row.top
-                for line, laid, y in shown
-                for row in laid.rows
-            }
+    def _rows_of(self, shown: Page) -> dict[RowKey, float]:
+        """Screen positions by caption, clause, side and visual line."""
+        top = float(self.mapToGlobal(QPoint()).y())
         return {
-            (line.key, (row.index, row.visual_line + n)): top
-            + y
-            + row.top
-            + row.layout.lineAt(n).y()
+            _row_key(line, row, n): top + y + row.top + row.layout.lineAt(n).y()
             for line, laid, y in shown
             for row in laid.rows
             for n in range(row.layout.lineCount())
         }
+
+    def _follow_words(self, page: Page) -> None:
+        """Carry bounds across visual rows when a revision moves surviving words."""
+        prior = self._prior_layouts
+        self._prior_layouts = {line.key: (line, laid) for line, laid, _ in page}
+        for line, laid, _ in page:
+            old = prior.get(line.key)
+            if old is not None and old[0] is line:
+                continue
+            parents = self.owner._row_parents.get((line.source, line.caption_id), ())
+            old_rows = [old] if old else []
+            if parents:
+                old_rows = [
+                    item
+                    for key, item in prior.items()
+                    if key == line.key or key in parents
+                ]
+            if not old_rows:
+                continue
+            for translation in (False, True):
+                text, keys = _row_letters(line, laid, translation)
+                earlier = [
+                    _row_letters(ln, shape, translation) for ln, shape in old_rows
+                ]
+                before = "".join(part for part, _ in earlier)
+                sources = [key for _, part in earlier for key in part]
+                if not text or not before or (text == before and sources == keys):
+                    continue
+                for source, dest in moved_characters(before, sources, text, keys):
+                    if source in self._pinned:
+                        self._crossed.setdefault(dest, set()).add(source)
+
+    def _place_rows(self, page: Page) -> Page:
+        owner = self.owner
+        anchor = self.view.scroll.anchor
+        viewport = (
+            owner.size(),
+            owner.pos(),
+            self.view.text_size,
+            owner.choices.translation_size,
+            anchor,
+            owner.deck is not None,
+            owner.zones is not None,
+            self.engine.style.flow,
+            owner.video_enabled,
+        )
+        if viewport != self._viewport:
+            self._viewport = viewport
+            self._prior_layouts.clear()
+            self._pinned = {}
+            self._reading_page = None
+            self._vacated_top = None
+        self._crossed = {}
+        if anchor is not None:
+            if self._reading_page is None:
+                self._reading_page = page
+            return self._reading_page
+        raw = self._rows_of(page)
+        self._follow_words(page)
+        if not raw:
+            if self._pinned:
+                self._vacated_top = min(self._pinned.values())
+            self._pinned = {}
+            return page
+        if self._vacated_top is not None:
+            self._pinned[min(raw, key=raw.__getitem__)] = self._vacated_top
+            self._vacated_top = None
+        ceilings = self._pinned.copy() if self._crossed else self._pinned
+        for dest, sources in self._crossed.items():
+            ceilings[dest] = min(
+                ceilings.get(dest, math.inf), *(self._pinned[k] for k in sources)
+            )
+        self._pinned = row_tops(raw, ceilings)
+        if self._pinned is raw:
+            return page
+        shifts = {k: self._pinned[k] - y for k, y in raw.items()}
+        return self._shift_rows(page, shifts, 0.0, 1.0)
+
+    def _reveal_wraps(self, page: Page, rest: Page) -> Page:
+        """A new row waits at its destination until the rows in its place,
+        or still to pass through it on their way to `rest`, have cleared."""
+        waiting = self.owner._wrap_fades
+        if not waiting:
+            return page
+
+        def bounds(row: LaidRow, y: float) -> QRectF:
+            box = QRectF()
+            for n in range(row.layout.lineCount()):
+                box = box.united(row.layout.lineAt(n).naturalTextRect())
+            for readings, font in (
+                (row.above, row.above_font),
+                (row.below, row.below_font),
+            ):
+                if font is not None:
+                    for mark in readings:
+                        ink = QFontMetricsF(mark.font or font).tightBoundingRect(
+                            mark.text
+                        )
+                        box = box.united(ink.translated(mark.x, mark.y))
+            return box.translated(0, y + row.top)
+
+        occupied = [
+            bounds(row, y).united(bounds(still, at))
+            for (line, laid, y), (_, kept, at) in zip(page, rest, strict=True)
+            for row, still in zip(laid.rows, kept.rows, strict=True)
+            if _row_key(line, row) not in waiting
+        ]
+        now = self.owner.clock()
+        result = []
+        for line, laid, y in page:
+            rows = []
+            blocked: set[int] = set()  # sides held back: a clause's text or translation
+            for row in laid.rows:
+                key = _row_key(line, row)
+                if key in waiting:
+                    since = waiting[key]
+                    box = bounds(row, y)
+                    side = key[1][0]
+                    if (
+                        side in blocked
+                        or (side % 2 and side - 1 in blocked)  # not before its text
+                        or any(box.intersects(other) for other in occupied)
+                    ):
+                        waiting[key] = None
+                        blocked.add(side)
+                        continue
+                    if since is None:
+                        since = waiting[key] = now
+                    share = (now - since) / COVER_FADE_SEC
+                    if share < 1:
+                        row = replace(row, opacity=ease_out(share))
+                    else:
+                        del waiting[key]
+                    occupied.append(box)
+                rows.append(row)
+            if len(rows) != len(laid.rows) or any(r.opacity < 1 for r in rows):
+                laid = replace(laid, rows=tuple(rows), link_paint=None)
+            result.append((line, laid, y))
+        for key in [k for k, since in waiting.items() if since == UNLESS_COVERED]:
+            del waiting[key]  # a later line of a wrapped row: drawn with its row
+        return result
 
     def scroll_by(self, dy: float) -> None:
         if dy:
@@ -2559,10 +2742,12 @@ class Canvas(CaptionSurface):
         last paint (`at_rest`)."""
         placed, measured = self._measure_positions()
         return self._rows_of(
-            [
-                self._positioned(item.line, item.top, measured[item.line.key])
-                for item in placed
-            ]
+            self._place_rows(
+                [
+                    self._positioned(item.line, item.top, measured[item.line.key])
+                    for item in placed
+                ]
+            )
         )
 
     def _block_rect(self, rect: QRectF) -> QRectF:
@@ -2950,6 +3135,29 @@ class Canvas(CaptionSurface):
         small = QFont(self.font())
         small.setPixelSize(style.px(13))
         width = self.width() - 2 * PAD
+        text = self.owner.capture_message
+        if text and not self.owner.mark_showing:
+            layout = QTextLayout(text, small)
+            option = QTextOption(Qt.AlignmentFlag.AlignHCenter)
+            option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+            layout.setTextOption(option)
+            layout.beginLayout()
+            height = 0.0
+            while (line := layout.createLine()).isValid():
+                line.setLineWidth(max(1, width))
+                line.setPosition(QPointF(0, height))
+                height += line.height()
+            layout.endLayout()
+            at = QPointF(PAD, max(0.0, (self.height() - height) / 2))
+            painter.save()
+            if look.opacity < minimum_panel_opacity(
+                look.background, waiting.name(), waiting.name(), AA_TEXT
+            ):
+                draw_text_edge(painter, layout, at, waiting, TextEdge.OUTLINE)
+            painter.setPen(waiting)
+            layout.draw(painter, at)
+            painter.restore()
+            return
         middle = self.height() / 2
         tall = QFontMetrics(font).height()
         heading = (
@@ -3141,7 +3349,7 @@ class ZoneCanvas(Canvas):
             foot = top - gap
             if foot <= 0.0:
                 break
-        return found
+        return self._place_rows(found[::-1])[::-1]
 
     def needed(self) -> float:
         """How tall the zone's captions are together, each whole."""
@@ -4252,6 +4460,7 @@ class CaptionWindow(CaptionTopLevel):
         the ones it opened with. How new each is (the Lab's New for)."""
         self._newness_drawn: tuple[tuple[int, float], ...] = ()
         self.listening = False  # speech heard, its caption not here yet
+        self.capture_message = ""
         self.speaking = False
         """Speech under way now (the session's listening mark): an arrival
         while it is slides quicker - the next caption is on its way."""
@@ -4396,6 +4605,8 @@ class CaptionWindow(CaptionTopLevel):
         self._row_travel: dict[RowKey, float] = {}
         """Row displacement as a share of the one spring; absent rows ride the stack."""
         self._stack_travel = 1.0
+        self._wrap_fades: dict[RowKey, float | None] = {}
+        self._row_parents: dict[tuple[SourceId, CaptionId], tuple[int, ...]] = {}
         self.bursts = 0
         """Caption batches too tall to follow; they settle together at the next paint."""
         self._burst_pending = False
@@ -4724,6 +4935,17 @@ class CaptionWindow(CaptionTopLevel):
             trace.tracer().windowed(update.times.seq)
         if update.source_id not in self.view.sources:
             return self.view.apply(update)
+        if update.replaces:
+            # CaptionGroups projects server continuations into these same replacements.
+            visible = {(ln.source, ln.caption_id): ln.key for ln in self.view.lines}
+            self._row_parents = {
+                k: v for k, v in self._row_parents.items() if k in visible
+            }
+            self._row_parents[update.source_id, update.caption_id] = tuple(
+                visible[k]
+                for cid in update.replaces
+                if (k := (update.source_id, cid)) in visible
+            )
         changed = False
         if self.deck is None:
             old = self._old_deck
@@ -6376,6 +6598,7 @@ class CaptionWindow(CaptionTopLevel):
         new = keys - known
         now = self.clock()
         if not self.sliding:
+            self._wrap_fades.clear()
             self.glide.stop()
             self.canvas.at_rest = {}  # what shows next isn't measured from this
             return
@@ -6388,13 +6611,17 @@ class CaptionWindow(CaptionTopLevel):
         # How far the oldest common row rose to make room for the new text.
         kept = rest.keys() & before.keys()
         risen = before[min(kept)] - rest[min(kept)] if kept else 0.0
+        if math.isclose(risen, 0.0, abs_tol=1e-9):
+            risen = 0.0  # rounding a shared screen coordinate cannot start a spring
         if self.deck is not None:
             if (
                 new or revealed_line
             ) and risen > 0.0:  # new cards slide up behind the anchored card
                 self._push(now, risen, new)
             return
+        self._wrap_fades = {k: t for k, t in self._wrap_fades.items() if k in rest}
         if not rest:
+            self.glide.stop()
             return
         if not before and not known and new:
             foot = (
@@ -6424,12 +6651,37 @@ class CaptionWindow(CaptionTopLevel):
                     - top
                     + left * self._row_travel.get(row, self._stack_travel)
                 )
+            elif (
+                row[1][1]
+                and row[0] not in new
+                and not self.canvas.engine.style.paired_lines
+            ):
+                # A grouped overflow enters at its final position after the lift.
+                self._wrap_fades[row] = None
+                travel[row] = 0.0
             else:
                 # A row first seen in an existing caption gets the same gap as
                 # a new caption. A translation filling reserved room stays put.
                 travel[row] = stack + (
                     gap if risen > 0 or row[0] in new or row[1][1] > 0 else 0.0
                 )
+        on_its_source = set()
+        for row, sources in self.canvas._crossed.items():
+            for source in sources & before.keys():
+                ceiling = before[source] + left * self._row_travel.get(
+                    source, self._stack_travel
+                )
+                lowest = max(0.0, ceiling - rest[row])
+                if lowest < travel[row]:
+                    travel[row] = lowest
+                    if source in rest:  # it would start where that row still is
+                        on_its_source.add(row)
+        for row in rest.keys() - before.keys() - self._wrap_fades.keys():
+            if row in on_its_source or math.isclose(travel[row], 0.0, abs_tol=1e-9):
+                # A new row that doesn't rise into place (a caption's new part,
+                # words carried to a new line) waits where it stays (984).
+                self._wrap_fades[row] = UNLESS_COVERED
+                travel[row] = 0.0
         if (
             not risen
             and all(before[row] == rest[row] for row in kept)
@@ -6462,6 +6714,7 @@ class CaptionWindow(CaptionTopLevel):
         if not self._burst_pending:
             self.bursts += 1
         self._burst_pending = True
+        self._wrap_fades.clear()
         self.glide.stop()
         self._row_travel.clear()
         self._stack_travel = 1.0
@@ -6471,12 +6724,13 @@ class CaptionWindow(CaptionTopLevel):
         """A caption still sliding into place: the frame timer keeps going."""
         if not self.sliding:
             self.glide.stop()
+            self._wrap_fades.clear()
         if self.deck is not None:
             now = self.clock()
             veiled = self._veil_at is not None
             moving = self.glide.moving(now)
             return veiled or moving or self.canvas.covering()
-        return self.glide.moving(self.clock())
+        return self.glide.moving(self.clock()) or bool(self._wrap_fades)
 
     @property
     def bar(self) -> BarInk:
@@ -6501,6 +6755,7 @@ class CaptionWindow(CaptionTopLevel):
         self._draw_line_action_glyphs()
         self.tag.restyle()
         self._fit_band()
+        self._keep_wide_enough()
         self._place_overlays()  # its notice and Back to live, measured again
         self.canvas.update()
 
@@ -6830,6 +7085,11 @@ class CaptionWindow(CaptionTopLevel):
         if fallback != self.spoken_fallback:
             self.spoken_fallback = fallback
             self._refresh_popovers()
+
+    def set_capture_message(self, message: str) -> None:
+        if message != self.capture_message:
+            self.capture_message = message
+            self.canvas.update()
 
     def set_listening(self, listening: bool) -> None:
         if listening != self.listening:
@@ -7842,7 +8102,7 @@ class CaptionWindow(CaptionTopLevel):
         box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         box.setMouseTracking(True)
         row = QHBoxLayout(box)
-        row.setContentsMargins(2, 2, 2, 2)
+        row.setContentsMargins(*(LINE_ACTION_MARGIN,) * 4)
         row.setSpacing(2)
         save_button = self.line_save_button = QToolButton(box)
         save_button.setObjectName("caption_window.line_actions.save")
@@ -7880,12 +8140,12 @@ class CaptionWindow(CaptionTopLevel):
         sheet = f"""
 QWidget#caption_window\\.line_actions {{
   background: rgba({bg.red()},{bg.green()},{bg.blue()},{alpha:.2f});
-  border: 1px solid rgba({ink.shade},0.18);
+  border: {LINE_ACTION_BORDER}px solid rgba({ink.shade},0.18);
   border-radius: {MARK_RADIUS}px;
 }}
 QToolButton {{
   background: transparent; color: {ink.text}; border: none;
-  border-radius: {max(3, MARK_RADIUS - 2)}px; padding: 0;
+  border-radius: {line_action_radius()}px; padding: 0;
   min-width: {button_side}px; min-height: {button_side}px;
   max-width: {button_side}px; max-height: {button_side}px;
 }}
@@ -8489,8 +8749,26 @@ QToolButton:pressed {{ background: rgba({ink.shade},0.28); }}
     def _set_place(self, rect: Rect) -> None:
         if self.host is not None:  # a column: the joined window has the place
             return
+        rect = self._wide_enough(rect)
         if rect != self._place():
             self.setGeometry(to_qrect(rect))
+
+    def _wide_enough(self, rect: Rect) -> Rect:
+        """`rect` at least the window's least width at the text size now
+        (`_minimum`), kept on its work area. A place kept from a smaller
+        text size - a window saved at 320 px, Windows' Text size since
+        raised to 200 % - squashed the hover band's buttons over each other
+        (its layout needed 394 px of 300; polyglotic-hq 999). A drag already
+        stops at the least width."""
+        least = self._minimum().width
+        if rect.width >= least:
+            return rect
+        return placement.clamped(replace(rect, width=least), self._area(rect))
+
+    def _keep_wide_enough(self) -> None:
+        """Widened to its least width, if a new text size made it narrower."""
+        if self.host is None and self.width() < self._minimum().width:
+            self._set_place(self._place())
 
     def _minimum(self) -> Size:
         """Room for the captions and the strip's icons."""

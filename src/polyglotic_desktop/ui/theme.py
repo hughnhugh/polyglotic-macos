@@ -45,6 +45,33 @@ class Palette:
     DANGER: str  # bad
     FOCUS: str  # the focus ring: a mark, at least 3:1 on the surfaces
     MARKER: str  # a highlighter's fill behind TEXT: a text selection
+    NAV_HOME: str  # sidebar Home hue (blue; >=3:1 on SIDEBAR)
+    NAV_WORDS: str  # sidebar Words hue (amber; >=3:1 on SIDEBAR)
+    NAV_LEARNING: str  # sidebar Learning hue (green; >=3:1 on SIDEBAR)
+    NAV_ACCOUNT: str  # sidebar Account hue (violet; >=3:1 on SIDEBAR)
+
+
+# Sidebar section hues (polyglotic-hq 964): desaturated from ui_next's word-link
+# palette (caption_marks.LINK_COLORS: blue #5c9dff, amber #ff9f43, green #3ddc97,
+# violet #b388ff) so they sit quietly in both themes while clearing WCAG 1.4.11
+# (>= 3:1) against SIDEBAR at rest (alpha 0.80), hover (0.92), and selected (1.0).
+# Contrast against Margin's SIDEBAR (#eceef2 light / #141922 dark):
+#   light (full / rest): Home 5.56 / 3.75, Words 4.93 / 3.44,
+#                        Learning 5.30 / 3.63, Account 6.41 / 4.21
+#   dark  (full / rest): Home 6.81 / 4.80, Words 8.08 / 5.58,
+#                        Learning 8.50 / 5.87, Account 6.65 / 4.72
+NAV_HUES_LIGHT: dict[str, str] = {
+    "NAV_HOME": "#265dad",
+    "NAV_WORDS": "#965710",
+    "NAV_LEARNING": "#196f4a",
+    "NAV_ACCOUNT": "#663ab3",
+}
+NAV_HUES_DARK: dict[str, str] = {
+    "NAV_HOME": "#6fa3eb",
+    "NAV_WORDS": "#e0a45c",
+    "NAV_LEARNING": "#5ac896",
+    "NAV_ACCOUNT": "#b28ee8",
+}
 
 
 @dataclass(frozen=True)
@@ -83,6 +110,7 @@ MARGIN = Theme(
         DANGER="#b42318",
         FOCUS="#b0185a",  # marker ink
         MARKER="#ffa8cc",
+        **NAV_HUES_LIGHT,
     ),
     dark=Palette(
         BG="#11151d",
@@ -102,6 +130,7 @@ MARGIN = Theme(
         DANGER="#ff8a80",
         FOCUS="#ff8fbe",
         MARKER="#5c2440",
+        **NAV_HUES_DARK,
     ),
     heading_family="Literata",
     heading_file="Literata-SemiBold.ttf",
@@ -126,6 +155,7 @@ GLAZE = Theme(
         DANGER="#b42318",
         FOCUS="#2a4c9c",  # cobalt
         MARKER="#a9cdbc",  # celadon
+        **NAV_HUES_LIGHT,
     ),
     dark=Palette(
         BG="#0e1614",
@@ -145,6 +175,7 @@ GLAZE = Theme(
         DANGER="#ff8a80",
         FOCUS="#a3b8f2",
         MARKER="#2f5a4c",  # pine
+        **NAV_HUES_DARK,
     ),
     heading_family="Source Serif 4",
     heading_file="SourceSerif4-SemiBold.ttf",
@@ -169,6 +200,7 @@ SIGNAL = Theme(
         DANGER="#b42318",
         FOCUS="#8a5800",
         MARKER="#f3ab14",  # amber
+        **NAV_HUES_LIGHT,
     ),
     dark=Palette(
         BG="#111317",
@@ -188,6 +220,7 @@ SIGNAL = Theme(
         DANGER="#ff8a80",
         FOCUS="#f5b82e",
         MARKER="#5c4512",
+        **NAV_HUES_DARK,
     ),
     heading_family="Overpass",
     heading_file="Overpass-SemiBold.ttf",
@@ -216,6 +249,10 @@ WARNING = _START.WARNING
 DANGER = _START.DANGER
 FOCUS = _START.FOCUS
 MARKER = _START.MARKER
+NAV_HOME = _START.NAV_HOME
+NAV_WORDS = _START.NAV_WORDS
+NAV_LEARNING = _START.NAV_LEARNING
+NAV_ACCOUNT = _START.NAV_ACCOUNT
 HEADING_FAMILY = MARGIN.heading_family
 current = "dark"  # the mode now: "light" or "dark"
 current_theme = DEFAULT_THEME

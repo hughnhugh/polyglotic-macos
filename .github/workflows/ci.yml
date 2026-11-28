@@ -1,8 +1,9 @@
-# CI (polyglotic-hq ENGINEERING.md, "Quality checks"), on the user's PC
-# (decision 0025). The release train (decision 0167, polyglotic-hq 379):
-# - **A pull request** runs Checks (Linux) here - lint, format, types, the
-#   import rule and the tests that don't need Windows - and the secret scan
-#   (secrets.yml). Quick, on the Linux runner.
+# CI (polyglotic-hq ENGINEERING.md, "Quality checks"). The release train
+# (decision 0167, polyglotic-hq 379):
+# - **A pull request** runs Checks (Linux) - lint, format, types, the
+#   import rule and the tests that don't need Windows - on the public test
+#   copy's machines, sent and waited for from the light runner
+#   (polyglotic-hq 981), and the secret scan (secrets.yml).
 # - **The Windows jobs** (Checks (Windows), UI lab (Windows): windows.yml)
 #   run here on a push to main, on a pull request labelled `train` (Claude's
 #   train branch: ready pull requests merged together, checked once), and
@@ -49,73 +50,87 @@ permissions:
 
 jobs:
   linux:
-    # The tests that don't need Windows, on Linux (decision 0038): what
-    # would break a macOS or Linux build shows here first. `windows_only`
-    # tests are skipped. On the user's PC, in Docker, as the secret scan
-    # (polyglotic-hq 069, decision 0025). Never for outside contributors.
+    # Lint, format, types, the import rule and the tests that don't need
+    # Windows (decision 0038), on the public test copy's free machines
+    # (polyglotic-hq 981; DECISIONS #266, #267: no paid minutes). This job,
+    # on the light runner (768 MiB, one CPU), only sends the checked-out
+    # tree through remote_test.py's path and waits for the result
+    # (tools/public_copy_checks.py): this PC's Linux runner is off, its
+    # 3.8 GB suite kept off live's VM (963a). Never for outside
+    # contributors (they get no secrets).
     name: Checks (Linux)
     if: ${{ !github.event.pull_request.draft && !contains(github.event.pull_request.labels.*.name, 'stacked') }}
-    runs-on: [self-hosted, linux]
-    timeout-minutes: 25
+    runs-on: [light]
+    timeout-minutes: 60  # the copy's shards have 30, plus a queue behind other runs
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0  # tags and main, for tests/test_schema_versions.py
+          fetch-depth: 0  # the pull request's base, for the literals' warning
 
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.5"
+          enable-cache: false
 
-      # The runner can't install packages: unpacked into the job's own folder
-      - name: Qt's system libraries
-        env:
-          POLYGLOTIC_APT_MIRROR: ${{ runner.environment == 'self-hosted' && vars.APT_MIRROR || '' }}
-        run: bash tools/linux_qt_libs.sh "$RUNNER_TEMP/qt-libs" >> "$GITHUB_ENV"
-
-      - name: Install (fails if uv.lock is out of date)
-        run: uv sync --locked
-
-      # The same result as on Windows: mypy checks as win32 on any machine
-      # (pyproject.toml), and these were Checks (Windows)' steps until the
-      # train (decision 0167), so a pull request gets them without a
-      # Windows runner
-      - name: Lint (ruff)
-        run: uv run --no-sync ruff check --output-format=github
-
+      # Nothing of the app is installed here: these two need the standard library only
       - name: Warn when a large Python source file grows (847)
         continue-on-error: true  # The ratchet schedules refactoring; it never gates a change.
-        run: uv run --no-sync python -m tools.size_ratchet
+        run: uv run --no-project --python 3.12 python -m tools.size_ratchet
 
       - name: Warn when a file gains unregistered literals (597)
         env:
           LITERALS_BASE: ${{ github.event.pull_request.base.sha }}
-        run: uv run --no-sync python -m tools.literals --warn --base "$LITERALS_BASE"
+        run: uv run --no-project --python 3.12 python -m tools.literals --warn --base "$LITERALS_BASE"
 
-      - name: Format (ruff format --check)
-        run: uv run --no-sync ruff format --check
+      # The scan before anything leaves for the public copy, as
+      # remote_test.py's: the version pre-commit's hook runs, its SHA-256
+      # from the release's checksums (2026-11-27)
+      - name: gitleaks, pinned
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl -fsSL -o "$archive" "https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "$GITLEAKS_SHA256  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+          echo "GITLEAKS=$RUNNER_TEMP/gitleaks" >> "$GITHUB_ENV"
 
-      - name: Types (mypy)
-        run: uv run --no-sync mypy
+      # Each test file's time from earlier runs, to cut the suite evenly
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            build/public-copy/times-linux.json
+            build/public-copy/nodes-linux.json
+          key: public-copy-times-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: public-copy-times-
 
-      # As macOS and Linux would see it: only Windows' own modules may fail
-      # there (decision 0038; tools/mypy_platforms.py)
-      - name: Types on macOS and Linux (mypy --platform)
-        run: uv run --no-sync python -m tools.mypy_platforms
+      - name: The checks, on the public copy's machines
+        env:
+          # fine-grained, the public copy alone (polyglotic-hq 981's report)
+          PUBLIC_COPY_TOKEN: ${{ secrets.PUBLIC_COPY_TOKEN }}
+          # the owner's name, email and home paths, which can't be written in a tree that goes public
+          PUBLIC_COPY_SCAN: ${{ secrets.PUBLIC_COPY_SCAN }}
+          PUBLIC_COPY_AUTHOR: ${{ github.repository_owner }}|${{ github.repository_owner_id }}
+          PUBLIC_COPY_LABEL: ${{ github.event.pull_request.number && format('pr{0}', github.event.pull_request.number) || github.ref_name }}
+        run: uv run --no-project --python 3.12 python -m tools.public_copy_checks
 
-      - name: Import rule (import-linter)
-        run: uv run --no-sync lint-imports
+      # A cancelled job (a newer push) leaves no run going on the copy
+      - name: Clean up on the public copy
+        if: ${{ always() }}
+        env:
+          PUBLIC_COPY_TOKEN: ${{ secrets.PUBLIC_COPY_TOKEN }}
+        run: uv run --no-project --python 3.12 python -m tools.public_copy_checks --clean-up
 
-      - name: The interface's translations (.qm)
-        run: uv run --no-sync python -m tools.i18n build
-
-      - name: Tests (pytest; Windows-only ones skipped; all but tests/ui_next)
-        # its peak memory against the container's cap, and a kill for memory
-        # (exit 137) named with the step (tools/ci_memory.py, polyglotic-hq 344, 350).
-        # In two processes (polyglotic-hq, 2026-11-18): the whole suite in one
-        # grew to 3,674 MB of the 3,800 MB cap and was killed at 98 % on the
-        # quiet view's train; each half now starts from nothing
-        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest)" -- uv run --no-sync pytest -p no:cacheprovider --ignore=tests/ui_next
-      - name: Tests (pytest; tests/ui_next)
-        run: uv run --no-sync python -m tools.ci_memory --step "Tests (pytest, ui_next)" -- uv run --no-sync pytest -p no:cacheprovider tests/ui_next
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: ${{ always() }}
+        continue-on-error: true
+        with:
+          path: |
+            build/public-copy/times-linux.json
+            build/public-copy/nodes-linux.json
+          key: public-copy-times-${{ github.run_id }}-${{ github.run_attempt }}
 
   windows:
     # Not on an ordinary pull request (decision 0167): a push to main, the

@@ -14,7 +14,8 @@ import pytest
 import shiboken6
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QAction, QGuiApplication, QKeyEvent
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QApplication, QLineEdit, QPushButton
 from tests.ui.fakes import FakeAppList, MemorySettingsStore
 from tests.ui_next.test_caption_window import window_of
 from tests.ui_next.test_lock_says_how_to_unlock import wired  # noqa: F401 - fixture
@@ -25,10 +26,20 @@ from polyglotic_desktop.core.listening.captions import (
     Clause,
 )
 from polyglotic_desktop.core.listening.dictation_keys import DictationKey
-from polyglotic_desktop.core.listening.hotkeys import DICTATE, Hotkey
+from polyglotic_desktop.core.listening.hotkeys import (
+    DICTATE,
+    Hotkey,
+    HotkeyScope,
+)
 from polyglotic_desktop.core.listening.hotkeys import keys as hotkey_keys
+from polyglotic_desktop.core.listening.hotkeys import scopes as hotkey_scopes
 from polyglotic_desktop.core.listening.timing import CaptionId
-from polyglotic_desktop.main import AppHotkeys
+from polyglotic_desktop.main import (
+    AppHotkeys,
+    LocalDictationKey,
+    LocalHotkeys,
+    type_in_app,
+)
 from polyglotic_desktop.ui.app import DesktopApp, key_sequence
 from polyglotic_desktop.ui.recorded_captions import APP
 from polyglotic_desktop.ui_next.caption_window import live_tip
@@ -103,13 +114,13 @@ def test_a_key_pressed_is_asked_for_and_clear_and_reset_too(card: HotkeysCard) -
     box = card.lines["copy"].box
     box.click()
     assert box.listening
-    press(box, Qt.Key.Key_C, 0x43, CTRL_ALT | Qt.KeyboardModifier.ShiftModifier)
-    assert wanted == []  # modifiers aren't down as Qt's own events here
+    press(box, Qt.Key.Key_C, 0x43, Qt.KeyboardModifier.NoModifier)
+    assert wanted == [("copy", "c")]  # 966: bare letter is valid
     card._pressed("copy", "ctrl+shift+c")
     card.lines["live"].clear.click()
     card.show_keys({"copy": "ctrl+shift+c"}, ())
     card.reset.click()
-    assert wanted == [("copy", "ctrl+shift+c"), ("live", "")]
+    assert wanted == [("copy", "c"), ("copy", "ctrl+shift+c"), ("live", "")]
     assert resets == [True]
 
 
@@ -117,11 +128,6 @@ def test_a_key_that_can_t_be_one_says_why_on_its_own_line(card: HotkeysCard) -> 
     wanted: list[tuple[str, str]] = []
     card.hotkey_wanted.connect(lambda name, key: wanted.append((name, key)))
     note = card.lines["bigger"].note
-    card._pressed("bigger", "ctrl+c")
-    assert note.text() == pc_or_mac(
-        "Every program uses that one (copy, paste…): add Alt or Shift to it.",
-        "Every app uses that one (copy, paste…): add ⌥ or ⇧ to it.",
-    )
     card._pressed("bigger", "right_ctrl")
     assert note.text() == HELD_ALONE
     card._pressed("bigger", f"{OWN}+l")  # Lock's
@@ -131,55 +137,111 @@ def test_a_key_that_can_t_be_one_says_why_on_its_own_line(card: HotkeysCard) -> 
     card.show_keys({}, (), dictation="insert")
     card._pressed("bigger", "insert")  # dictation's
     assert note.text() == "Dictate has that key: clear it there, or choose another."
-    card._pressed("bigger", "escape")
-    assert "Esc" in note.text()
-    card._pressed("bigger", "alt+b")
-    assert note.text().startswith(
-        pc_or_mac(
-            "Letting go of Alt opens a program's menu", "⌥ with a key types a character"
-        )
-    )
     assert wanted == []
-    card._pressed("bigger", "ctrl+shift+up")
-    assert wanted == [("bigger", "ctrl+shift+up")] and not note.isVisibleTo(card)
+    # 966: letters, digits, punctuation, Space, arrows, media keys and combos are accepted
+    for accepted in (
+        "a",
+        "7",
+        "comma",
+        "enter",
+        "left",
+        "media_play",
+        "ctrl+c",
+        "alt+b",
+        "ctrl+shift+up",
+    ):
+        card._pressed("bigger", accepted)
+    assert wanted == [
+        ("bigger", k)
+        for k in (
+            "a",
+            "7",
+            "comma",
+            "enter",
+            "left",
+            "media_play",
+            "ctrl+c",
+            "alt+b",
+            "ctrl+shift+up",
+        )
+    ]
+    assert not note.isVisibleTo(card)
 
 
 def test_a_key_another_program_has_and_one_two_share_are_said(
     card: HotkeysCard,
 ) -> None:
-    card.show_keys({"live": f"{OWN}+p"}, {"pause"})
-    assert card.lines["pause"].note.text() == (
-        "Another program has this key: choose another."
+    card.show_keys(
+        {"live": f"{OWN}+p"},
+        {"pause"},
+        alternatives={"pause": ("ctrl+alt+shift+p", "f9")},
     )
+    assert "Another program uses" in card.lines["pause"].note.text()
+    assert "won't work here" in card.lines["pause"].note.text()
+    assert card.lines["pause"].alt_buttons[0].isVisibleTo(card)
+    assert card.lines["pause"].alt_buttons[1].isVisibleTo(card)
+    chosen: list[tuple[str, str]] = []
+    card.hotkey_wanted.connect(lambda n, k: chosen.append((n, k)))
+    card.lines["pause"].alt_buttons[1].click()
+    assert chosen == [("pause", "f9")]
     assert card.lines["live"].note.text() == (
         "Pause captions has this key too, and only it works."
     )
     assert card.lines["lock"].note.text() == ""
 
 
+def test_everywhere_typing_key_warns_and_shared_hook_says_shared_with_alternatives(
+    card: HotkeysCard,
+) -> None:
+    """966: Everywhere on a typing key shows a plain warning; a Windows
+    low-level hook fallback says it shares the keys with another program and
+    offers two free alternatives."""
+    scope_changes: list[tuple[str, str]] = []
+    card.hotkey_scope_wanted.connect(lambda n, s: scope_changes.append((n, s)))
+    card.show_keys({"copy": "a"}, ())
+    assert card.scopes["copy"] is HotkeyScope.APP
+    assert card.lines["copy"].note.text() == ""
+    card.lines["copy"].scope.buttons[1].click()
+    assert scope_changes == [("copy", "everywhere")]
+    card.show_keys(
+        {"copy": "a"},
+        (),
+        scopes={"copy": "everywhere"},
+        shared={"lock"},
+        alternatives={"lock": ("ctrl+alt+shift+l", "f10")},
+    )
+    assert "types" in card.lines["copy"].note.text().lower()
+    assert "still goes through" in card.lines["copy"].note.text()
+    assert "shares it" in card.lines["lock"].note.text()
+    assert card.lines["lock"].alt_buttons[0].text().startswith("Use ")
+    assert card.lines["lock"].alt_buttons[1].text().startswith("Use ")
+
+
 def test_unavailable_hotkeys_never_say_another_program_and_explain_cli(
     qapp: QApplication, card: HotkeysCard
 ) -> None:
-    """644 bug 3 / 647: on GNOME Wayland (`NoHotkeys`), Settings > Hotkeys must
-    not label every shortcut 'Another program has this key' - it must say
-    plainly that this desktop doesn't allow global hotkeys and show how to use
-    `polyglotic --lock` instead."""
+    """644 bug 3 / 647 / 966: on GNOME Wayland (`NoHotkeys`), Settings > Hotkeys
+    never labels shortcuts 'Another program uses ...' - it explains global
+    hotkeys aren't available and shows `polyglotic --lock`, while allowing
+    In Polyglotic's windows hotkeys."""
     from polyglotic_desktop.platform.linux.hotkeys import NoHotkeys
 
     held = AppHotkeys(NoHotkeys, lambda _name: None)
     assert held.follow(hotkey_keys({}))
     assert not held.available
     assert set(held.not_working(["lock", "pause", "hide"])) == {"lock", "pause", "hide"}
+    assert held.not_working(["live"]) == []  # APP-scoped Space still works
 
     card.show_keys({}, held.taken, unavailable=not held.available)
     assert card.subtitle is not None
     assert "doesn't allow global hotkeys" in card.subtitle.text()
     assert "polyglotic --lock" in card.subtitle.text()
     for name, line in card.lines.items():
-        local = name == "live"
-        assert bool(line.note.text()) == local
-        assert line.box.isEnabled() == local
-        assert line.clear.isEnabled() == local
+        assert "Another program" not in line.note.text()
+        assert line.box.isEnabled()
+        if card.keys[name] is not None:
+            assert not line.scope.buttons[1].isEnabled()  # Everywhere disabled
+            assert line.scope.buttons[0].isEnabled()  # In Polyglotic's windows works
     assert not card.reset.isEnabled()
 
     # Custom AppImage command is reflected when set
@@ -288,15 +350,23 @@ def test_settings_has_a_hotkeys_section_after_dictation(qapp: QApplication) -> N
 
 
 class FakeHotkeys:
-    """The OS's hotkeys: `taken` combinations are another app's."""
+    """The OS's hotkeys: `taken` combinations are another app's; `hooked`
+    simulates Windows' WH_KEYBOARD_LL fallback sharing a refused key."""
 
     made: ClassVar[list["FakeHotkeys"]] = []
 
     def __init__(
-        self, bindings: Mapping[str, Callable[[], None]], taken: tuple[str, ...] = ()
+        self,
+        bindings: Mapping[str, Callable[[], None]],
+        taken: tuple[str, ...] = (),
+        *,
+        hooked: tuple[str, ...] = (),
+        passthrough: frozenset[str] = frozenset(),
     ) -> None:
         self.bindings = dict(bindings)
+        self.passthrough = frozenset(passthrough)
         self.taken = [k for k in bindings if k in taken]
+        self.hooked = [k for k in self.taken if k in hooked]
         self.started = self.stopped = False
         FakeHotkeys.made.append(self)
 
@@ -311,40 +381,228 @@ class FakeHotkeys:
 def test_the_app_takes_its_hotkeys_again_when_one_changes() -> None:
     FakeHotkeys.made.clear()
     pressed: list[str] = []
-    held = AppHotkeys(lambda b: FakeHotkeys(b, ("ctrl+alt+p",)), pressed.append)
+    held = AppHotkeys(
+        lambda b, passthrough=frozenset(): FakeHotkeys(
+            b, ("ctrl+alt+p", "ctrl+alt+shift+p"), passthrough=passthrough
+        ),
+        pressed.append,
+    )
     dictation = {DICTATE: DictationKey.parse("right_ctrl")}
     assert held.follow(hotkey_keys({}), dictation)
-    first = FakeHotkeys.made[-1]
+    # FakeHotkeys.made[0] is the active registration; made[1] was the free-alt probe
+    first = FakeHotkeys.made[0]
+    probe = FakeHotkeys.made[1]
+    assert probe.stopped
     assert set(first.bindings) == {
         "ctrl+alt+l",
         "ctrl+alt+p",
         "ctrl+alt+h",
     }
     assert held.taken == {"pause"}
+    assert held.shared == set()
+    # Two tested free alternatives, skipping the also-taken ctrl+alt+shift+p
+    assert len(held.alternatives["pause"]) == 2
+    assert "ctrl+alt+shift+p" not in held.alternatives["pause"]
     assert held.not_working(["lock", "pause", "copy"]) == ["pause", "copy"]
     assert held.live_space
     assert held.not_working(["live"]) == []
     assert not held.follow(hotkey_keys({}), dictation)  # nothing changed
+    before = len(FakeHotkeys.made)
     assert held.follow(hotkey_keys({"live": "f9", "copy": "ctrl+alt+c"}), dictation)
     assert first.stopped
-    second = FakeHotkeys.made[-1]
+    second = FakeHotkeys.made[before]
     assert {"f9", "ctrl+alt+c"} <= set(second.bindings)
     assert not held.live_space
     second.bindings["f9"]()
     assert pressed == ["live"]
     # dictation's key made a hotkey's (a file edited by hand): dictation keeps it
     insert = {DICTATE: DictationKey.parse("insert")}
+    before = len(FakeHotkeys.made)
     held.follow(hotkey_keys({"copy": "insert"}), insert)
-    assert "insert" not in FakeHotkeys.made[-1].bindings
+    assert "insert" not in FakeHotkeys.made[before].bindings
     # while Settings listens for a key, the app's let go - and back after
     held.box_listening = True
     assert held.follow(hotkey_keys({}), dictation)
-    assert FakeHotkeys.made[-1].stopped and held.bound == {}
+    assert held.bound == {} and held.local_bound == {}
     held.box_listening = False
+    before = len(FakeHotkeys.made)
     assert held.follow(hotkey_keys({}), dictation)
-    assert not FakeHotkeys.made[-1].stopped
+    active = FakeHotkeys.made[before]
+    assert not active.stopped
     held.stop()
-    assert FakeHotkeys.made[-1].stopped
+    assert active.stopped
+
+
+def test_app_scoped_typing_key_stays_local_and_everywhere_uses_passthrough() -> None:
+    """966: a typing key defaults to APP scope (never handed to global OS
+    hotkeys, so it does nothing in other apps); switching its scope to
+    Everywhere passes `passthrough` to the OS adapter."""
+    FakeHotkeys.made.clear()
+    held = AppHotkeys(
+        lambda b, passthrough=frozenset(): FakeHotkeys(b, passthrough=passthrough),
+        lambda _name: None,
+    )
+    chosen = hotkey_keys({"copy": "a"})
+    held.follow(chosen, scopes=hotkey_scopes(chosen, {}))
+    assert "a" not in FakeHotkeys.made[-1].bindings
+    assert DictationKey.parse("a") in held.local_bound
+
+    held.follow(chosen, scopes=hotkey_scopes(chosen, {"copy": "everywhere"}))
+    assert "a" in FakeHotkeys.made[-1].bindings
+    assert "a" in FakeHotkeys.made[-1].passthrough
+    assert DictationKey.parse("a") not in held.local_bound
+
+
+def test_shared_hook_keeps_hotkey_working_and_still_offers_two_alternatives() -> None:
+    """966: when the Windows low-level hook takes over a refused chord, it
+    is in `shared` (not `taken`), stays working, and still probes 2 free alts."""
+    FakeHotkeys.made.clear()
+    held = AppHotkeys(
+        lambda b, passthrough=frozenset(): FakeHotkeys(
+            b, ("ctrl+alt+p",), hooked=("ctrl+alt+p",), passthrough=passthrough
+        ),
+        lambda _name: None,
+    )
+    held.follow(hotkey_keys({}))
+    assert held.shared == {"pause"}
+    assert held.taken == set()
+    assert held.not_working(["pause"]) == []
+    assert len(held.alternatives["pause"]) == 2
+
+
+def test_tray_reports_hotkey_conflicts_without_silent_failure(
+    qapp: QApplication,
+) -> None:
+    """966: OS hotkey conflicts show in the tray menu, tooltip, and tray
+    notification, and clicking the tray item opens Settings > Hotkeys."""
+
+    class FakeTray:
+        def __init__(self) -> None:
+            self.messages: list[tuple[str, str, int]] = []
+            self.tip = ""
+
+        def icon(self) -> object:
+            return None
+
+        def setToolTip(self, tip: str) -> None:
+            self.tip = tip
+
+        def showMessage(self, title: str, body: str, _icon: object, ms: int) -> None:
+            self.messages.append((title, body, ms))
+
+        def hide(self) -> None:
+            pass
+
+    desktop = DesktopApp(MemorySettingsStore({}), None, FakeAppList())
+    fake_tray = FakeTray()
+    desktop.tray = fake_tray  # type: ignore[assignment]
+    opened: list[bool] = []
+    desktop.hotkeys_settings_wanted.connect(lambda: opened.append(True))
+    try:
+        desktop.show_hotkey_conflicts(
+            {"pause": ("Pause captions", "Ctrl + Alt + P", False)}
+        )
+        assert desktop.hotkey_conflict.isVisible()
+        assert "Ctrl + Alt + P" in desktop.hotkey_conflict.text()
+        assert "Ctrl + Alt + P" in fake_tray.tip
+        assert len(fake_tray.messages) == 1
+        assert "Pause captions" in fake_tray.messages[0][1]
+        assert "Ctrl + Alt + P" in fake_tray.messages[0][1]
+        # Identical state does not spam another notification.
+        desktop.show_hotkey_conflicts(
+            {"pause": ("Pause captions", "Ctrl + Alt + P", False)}
+        )
+        assert len(fake_tray.messages) == 1
+        # Clicking the tray item requests Settings > Hotkeys.
+        desktop.hotkey_conflict.trigger()
+        assert opened == [True]
+        # Clearing conflicts hides the tray item.
+        desktop.show_hotkey_conflicts({})
+        assert not desktop.hotkey_conflict.isVisible()
+    finally:
+        desktop.close()
+
+
+def test_local_hotkeys_fire_for_any_app_scoped_key_and_leave_edits_alone(
+    qapp: QApplication,
+) -> None:
+    window = window_of(qapp, captions=25)
+    fired: list[str] = []
+    local = LocalHotkeys(qapp, fired.append)
+    key_a = DictationKey.parse("a")
+    key_f9 = DictationKey.parse("f9")
+    assert key_a is not None and key_f9 is not None
+    local.set_bindings({key_a: "copy", key_f9: "pause"})
+    try:
+        QTest.keyClick(window, Qt.Key.Key_A)
+        QTest.keyClick(window, Qt.Key.Key_F9)
+        assert fired == ["copy", "pause"]
+
+        line = QLineEdit(window)
+        line.show()
+        line.setFocus()
+        QTest.keyClick(line, Qt.Key.Key_A)
+        assert line.text() == "a"
+        assert fired == ["copy", "pause"]  # typing key left alone in QLineEdit
+        QTest.keyClick(line, Qt.Key.Key_F9)
+        assert fired == ["copy", "pause", "pause"]  # non-typing key still fires
+    finally:
+        qapp.removeEventFilter(local)
+        local.deleteLater()
+        window.close()
+
+
+def test_local_dictation_key_holds_releases_and_cancels_in_app(
+    qapp: QApplication,
+) -> None:
+    window = window_of(qapp, captions=25)
+    outside = QLineEdit()
+    inside = QLineEdit(window)
+    inside.show()
+    inside.setFocus()
+    key = DictationKey.parse("a")
+    assert key is not None
+    events: list[str] = []
+    local = LocalDictationKey(
+        qapp,
+        key,
+        lambda: events.append("down"),
+        lambda: events.append("up"),
+        lambda: events.append("cancel"),
+    )
+    assert local.start()
+    try:
+        QTest.keyClick(outside, Qt.Key.Key_A)
+        assert outside.text() == "a"
+        assert events == []
+
+        QTest.keyPress(inside, Qt.Key.Key_A)
+        assert events == ["down"]
+        repeat = QKeyEvent(
+            QEvent.Type.KeyRelease,
+            Qt.Key.Key_A,
+            Qt.KeyboardModifier.NoModifier,
+            "a",
+            True,
+        )
+        QApplication.sendEvent(inside, repeat)
+        assert events == ["down"]
+        QTest.keyRelease(inside, Qt.Key.Key_A)
+        assert events == ["down", "up"]
+        assert inside.text() == ""
+        assert type_in_app("a cat")
+        assert inside.text() == "a cat"
+        assert events == ["down", "up"]
+
+        QTest.keyPress(inside, Qt.Key.Key_A)
+        QApplication.sendEvent(window, QEvent(QEvent.Type.WindowDeactivate))
+        assert events == ["down", "up", "down", "cancel", "up"]
+        QTest.keyRelease(outside, Qt.Key.Key_A)
+        assert events == ["down", "up", "down", "cancel", "up"]
+    finally:
+        local.stop()
+        outside.close()
+        window.close()
 
 
 def test_a_hotkey_s_key_is_shown_on_its_command_as_the_os_writes_it(

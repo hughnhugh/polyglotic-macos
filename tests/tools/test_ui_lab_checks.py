@@ -267,7 +267,10 @@ def test_a_finding_on_a_new_part_fails_the_gate_unless_waived(
     monkeypatch.setattr(
         new_parts, "STATES", [lab.State("ui_next.unnamed", unnamed, True)]
     )
-    assert cli.main(["approve", "--out", str(tmp_path / "approve")]) == 0
+    assert (
+        cli.main(["approve", "--reason", "a test", "--out", str(tmp_path / "approve")])
+        == 0
+    )
     for gated, waivers, fails in (
         (True, (), 1),
         (False, (), 0),
@@ -625,6 +628,51 @@ def test_the_lab_draws_in_windows_fonts() -> None:
         pytest.skip("needs Windows' fonts")
     done = subprocess.run(
         [sys.executable, "-c", _LAB_FONTS],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        cwd=Path(__file__).parents[2],
+    )
+    assert done.returncode == 0 and done.stdout.strip() == "ok", done.stderr[-2000:]
+
+
+_LAB_HEADING_FACE = """
+import os
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+from PySide6.QtGui import QFontDatabase, QFontInfo
+from PySide6.QtWidgets import QLabel
+from tools.ui_lab import lab
+from polyglotic_desktop.ui import theme
+family = theme.THEMES[theme.DEFAULT_THEME].heading_family
+app = lab.application()
+assert family not in QFontDatabase.families(), "a pytest session's fonts changed"
+lab.as_the_app_starts()
+app = lab.application()
+assert family in QFontDatabase.families(), family
+title = QLabel("Report a problem")
+title.setStyleSheet(f'font-family: "{family}"; font-size: 22pt;')
+title.ensurePolished()
+assert QFontInfo(title.font()).family() == family, QFontInfo(title.font()).family()
+print("ok")
+"""
+
+
+def test_a_page_title_is_in_the_heading_face_whatever_ran_before() -> None:
+    """polyglotic-hq 1004: the app loads the default theme's heading face
+    as it starts, so every page title (Report a problem, Sign in...) is in
+    it. The lab loaded it only for the main window's states, once per
+    process, so a dialog state's title was in it or in Windows' font by
+    which states ran before it in that process: on the 0.1.13 train's full
+    run qt_problem_report and qt_feedback_suggestion drew Literata, alone
+    Segoe UI. In a process of its own, before any state: the face is there
+    for the lab command (`as_the_app_starts`), and not for a plain
+    `application()` - a pytest session's fonts stay as they were (Literata
+    there moved test_translation_size's Chinese line on gpubox)."""
+    if not lab.WINDOWS_FONTS.is_dir():
+        pytest.skip("needs Windows' fonts")
+    done = subprocess.run(
+        [sys.executable, "-c", _LAB_HEADING_FACE],
         check=False,
         capture_output=True,
         text=True,

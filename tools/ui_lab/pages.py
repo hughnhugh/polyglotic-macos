@@ -572,6 +572,8 @@ def settings(
     timing: TimingView | None = None,
     pick_language: str | None = None,
     japanese_readings: JapaneseReadings | None = None,
+    *,
+    hotkeys_conflict: bool = False,
 ) -> Callable[[Lab], QWidget]:
     """Settings on `section` (one of `SECTIONS`: 304's six, and 470's Word
     links and Readings) - at `size` if given (the window's minimum) - the views made
@@ -631,10 +633,30 @@ def settings(
             )
             look.set_preset("classic")
             lab.pump()
-        if section == "hotkeys":  # every key in one place (567): one changed, one
-            # cleared, one another program has, and a key refused as pressed
-            page.show_hotkeys({"hide": "", "copy": "ctrl+alt+c"}, {"pause"})
-            page.hotkeys_card.lines["bigger"].box.pressed_key.emit("ctrl+c")
+        if section == "hotkeys":
+            if hotkeys_conflict:
+                # 966: refused hotkey with two tested free alternatives, a
+                # shared-hook hotkey with alternatives, and Everywhere on a
+                # typing key showing the pass-through warning.
+                page.show_hotkeys(
+                    {"hide": "", "copy": "a", "live": "space"},
+                    {"pause"},
+                    scopes={"copy": "everywhere", "live": "app"},
+                    shared={"lock"},
+                    alternatives={
+                        "pause": ("ctrl+alt+shift+p", "f9"),
+                        "lock": ("ctrl+alt+shift+l", "f10"),
+                    },
+                )
+            else:
+                # every key in one place (567, 966): one changed, one cleared,
+                # one another program has, and a modifier-only key refused
+                page.show_hotkeys(
+                    {"hide": "", "copy": "ctrl+alt+c"},
+                    {"pause"},
+                    alternatives={"pause": ("ctrl+alt+shift+p", "f9")},
+                )
+                page.hotkeys_card.lines["bigger"].box.pressed_key.emit("right_ctrl")
             lab.pump()
         if section == "lab":  # its own section, at its top (304)
             look.set_lab(CaptionLab(new_for=3.0, new_fade=NewFade.GRADUAL, older=0.55))
@@ -1116,6 +1138,10 @@ STATES = [
         ("settings_speech", settings("speech")),
         ("settings_dictation", settings("dictation")),
         ("settings_hotkeys", settings("hotkeys")),
+        (
+            "settings_hotkeys_conflict",
+            settings("hotkeys", hotkeys_conflict=True),
+        ),
         (
             "settings_hotkeys_scrolled",
             settings("hotkeys", roomy_size(), scrolled_into=1),

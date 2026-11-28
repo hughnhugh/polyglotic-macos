@@ -7,7 +7,7 @@ import pytest
 from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtGui import QAction, QColor, QImage, QKeySequence
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QLabel, QWidgetAction
+from PySide6.QtWidgets import QApplication, QLabel, QWidget, QWidgetAction
 
 from polyglotic_desktop.core.listening.hidden import Sight
 from polyglotic_desktop.core.listening.summary import ListeningSessionEnded
@@ -652,42 +652,195 @@ def _has_colour(image: QImage, colour: QColor, left: int, right: int) -> bool:
     )
 
 
-def test_sidebar_grab_has_label_coloured_glyphs_in_both_themes(
+def _over(colour: str, alpha: float, under: str) -> QColor:
+    top, bottom = QColor(colour), QColor(under)
+    return QColor(
+        round(top.red() * alpha + bottom.red() * (1 - alpha)),
+        round(top.green() * alpha + bottom.green() * (1 - alpha)),
+        round(top.blue() * alpha + bottom.blue() * (1 - alpha)),
+    )
+
+
+def _sidebar_themes() -> tuple[style.Theme, style.Theme]:
+    return (
+        style.Theme(
+            asdict(theme.MARGIN.dark),
+            theme.MARGIN.heading_family,
+            dark=True,
+        ),
+        style.Theme(
+            asdict(theme.MARGIN.light),
+            theme.MARGIN.heading_family,
+            dark=False,
+        ),
+    )
+
+
+def _grab_button(window: MainWindow, button: QWidget) -> QImage:
+    """Grab `button` composited onto the sidebar as the user sees it."""
+    top_left = button.mapTo(window.sidebar, QPoint(0, 0))
+    return window.sidebar.grab(QRect(top_left, button.size())).toImage()
+
+
+def test_sidebar_grab_shows_section_hues_hover_lift_tinted_pill_and_brighter_actions(
     qapp: QApplication,
 ) -> None:
-    """838: raster marks are visible and follow normal/selected label colour."""
-    from polyglotic_desktop.ui_next.main_window import SidebarQuitButton
-
-    themes = (
-        style.Theme({"BG": "#101418", "TEXT": "#f1f4f6"}, dark=True),
-        style.Theme({"BG": "#fafafa", "TEXT": "#17191b"}, dark=False),
+    """964: main sections take their four hues (soft at rest, lifted on hover,
+    full strength with a same-hue tinted pill when selected); Settings, Help
+    and Quit keep brighter neutral icons; labels stay unchanged."""
+    from polyglotic_desktop.ui_next.main_window import (
+        SidebarQuitButton,
+        sidebar_icon_colour,
     )
+
     try:
-        for theme in themes:
+        for theme in _sidebar_themes():
             style.use(theme)
             window = MainWindow(QAction("Quit"))
-            window.add_page("home", "Home", label("Home"))
+            for key, title, place in (
+                ("home", "Home", "top"),
+                ("words", "Words", "top"),
+                ("learning", "Learning", "top"),
+                ("account", "Account", "top"),
+                ("settings", "Settings", "foot"),
+                ("help", "Help", "foot"),
+            ):
+                window.add_page(key, title, label(title), place)
             window.set_theme(theme)
             window.show()
             qapp.processEvents()
-            button = window.nav_buttons["home"]
 
-            for checked, token in ((False, "TEXT_DIM"), (True, "TEXT")):
-                button.setChecked(checked)
+            icon_left = max(0, style.px(12) - 2)
+            icon_right = style.px(12) + style.px(15) + 4
+            label_left = style.px(34)
+
+            # Check every main section's rest, hover lift, selected icon & pill tint.
+            for section, token in style.SIDEBAR_SECTION_TOKENS.items():
+                rest = sidebar_icon_colour(theme, section)
+                hovered = sidebar_icon_colour(theme, section, hovered=True)
+                selected = sidebar_icon_colour(theme, section, checked=True)
+                assert (
+                    rest.rgb()
+                    == hovered.rgb()
+                    == selected.rgb()
+                    == QColor(theme[token]).rgb()
+                )
+                assert rest.alphaF() < hovered.alphaF() < selected.alphaF() == 1.0
+
+                other = "words" if section == "home" else "home"
+                window.go_to(other)
+                button = window.nav_buttons[section]
                 button.repaint()
                 qapp.processEvents()
-                image = button.grab().toImage()
-                colour = QColor(theme[token])
-                assert _has_colour(image, colour, 10, 30), (theme.dark, checked)
-                assert _has_colour(image, colour, 34, image.width()), (
-                    theme.dark,
-                    checked,
+                rest_image = _grab_button(window, button)
+                rest_ink = _over(
+                    theme[token], style.SIDEBAR_ICON_REST_ALPHA, theme["SIDEBAR"]
                 )
+                assert _has_colour(rest_image, rest_ink, icon_left, icon_right), (
+                    theme.dark,
+                    section,
+                )
+                assert _has_colour(
+                    rest_image,
+                    QColor(theme["TEXT_DIM"]),
+                    label_left,
+                    rest_image.width(),
+                ), (theme.dark, section)
+
+                # Hover lifts the hue slightly on the rendered button.
+                button.setAttribute(Qt.WidgetAttribute.WA_UnderMouse, True)
+                button.repaint()
+                qapp.processEvents()
+                hover_image = _grab_button(window, button)
+                hover_bg = hover_image.pixelColor(
+                    hover_image.width() - 6, hover_image.height() // 2
+                ).name()
+                hover_ink = _over(
+                    theme[token], style.SIDEBAR_ICON_HOVER_ALPHA, hover_bg
+                )
+                assert _has_colour(hover_image, hover_ink, icon_left, icon_right), (
+                    theme.dark,
+                    section,
+                    "hover",
+                )
+                button.setAttribute(Qt.WidgetAttribute.WA_UnderMouse, False)
+
+                # Selecting the section switches the pill tint to its hue and draws the icon full strength.
+                window.go_to(section)
+                button.repaint()
+                qapp.processEvents()
+                selected_image = _grab_button(window, button)
+                expected_pill = _over(
+                    theme[token], style.SIDEBAR_PILL_ALPHA, theme["SIDEBAR"]
+                )
+                pill_pixel = selected_image.pixelColor(
+                    selected_image.width() - 6, selected_image.height() // 2
+                )
+                assert (
+                    max(
+                        abs(pill_pixel.red() - expected_pill.red()),
+                        abs(pill_pixel.green() - expected_pill.green()),
+                        abs(pill_pixel.blue() - expected_pill.blue()),
+                    )
+                    <= 4
+                ), (theme.dark, section, pill_pixel.name(), expected_pill.name())
+                assert _has_colour(
+                    selected_image, QColor(theme[token]), icon_left, icon_right
+                ), (
+                    theme.dark,
+                    section,
+                    "selected",
+                )
+                assert _has_colour(
+                    selected_image,
+                    QColor(theme["TEXT"]),
+                    label_left,
+                    selected_image.width(),
+                ), (theme.dark, section, "selected-label")
+
+            # Settings, Help and Quit keep neutral icons, brighter (TEXT_DIM) at rest,
+            # stepping up to TEXT when selected/hovered; foot pill stays neutral SURFACE_3.
+            window.go_to("home")
+            for foot_key in ("settings", "help"):
+                foot_btn = window.nav_buttons[foot_key]
+                foot_btn.repaint()
+                qapp.processEvents()
+                foot_img = _grab_button(window, foot_btn)
+                assert _has_colour(
+                    foot_img, QColor(theme["TEXT_DIM"]), icon_left, icon_right
+                ), (
+                    theme.dark,
+                    foot_key,
+                )
+                assert _has_colour(
+                    foot_img, QColor(theme["TEXT_FAINT"]), label_left, foot_img.width()
+                ), (theme.dark, foot_key, "label")
+
+            window.go_to("settings")
+            settings_btn = window.nav_buttons["settings"]
+            settings_btn.repaint()
+            qapp.processEvents()
+            settings_img = _grab_button(window, settings_btn)
+            assert _has_colour(
+                settings_img, QColor(theme["TEXT"]), icon_left, icon_right
+            ), (
+                theme.dark,
+                "settings-selected",
+            )
+            neutral_pill = settings_img.pixelColor(
+                settings_img.width() - 6, settings_img.height() // 2
+            )
+            assert neutral_pill == QColor(theme["SURFACE_3"]), (
+                theme.dark,
+                neutral_pill.name(),
+            )
 
             quit_button = window.quit_button
             assert isinstance(quit_button, SidebarQuitButton)
-            quit_image = quit_button.grab().toImage()
-            assert _has_colour(quit_image, QColor(theme["TEXT_FAINT"]), 10, 30)
+            quit_image = _grab_button(window, quit_button)
+            assert _has_colour(
+                quit_image, QColor(theme["TEXT_DIM"]), icon_left, icon_right
+            )
             window.close()
     finally:
         style.use(style.Theme())

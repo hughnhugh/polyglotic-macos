@@ -155,6 +155,7 @@ def test_the_tray_menu_has_the_named_commands(qapp: QApplication) -> None:
         "app.open",
         "app.install_update",  # hidden until an update is ready (polyglotic-hq 299)
         "account.usage",  # a capped plan's allowance left (polyglotic-hq 684)
+        "app.hotkey_conflict",  # hidden unless another program holds a hotkey (966)
         "app.pause",
         "windows.lock",
         "windows.hide",

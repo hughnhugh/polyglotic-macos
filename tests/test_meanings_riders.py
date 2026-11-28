@@ -257,6 +257,46 @@ def test_a_meanings_rider_the_list_gets_wrong_is_left_out() -> None:
     assert [(r.meanings, r.file) for r in entry.riders] == [("es", good["file"])]
 
 
+def test_taiwans_meanings_go_up_beside_simplified_chinese(tmp_path: Path) -> None:
+    """JMdict's Chinese drafts come in Simplified and in Taiwan's Traditional
+    (polyglotic-hq 915). The app reads a `zh_TW` rider, but the publish step
+    dropped it as not a language's code (polyglotic-hq 985)."""
+    folder = tmp_path / "meanings"
+    for language in ("zh", "zh_TW"):
+        meanings_file(
+            folder,
+            language,
+            {"jmdict:1": ("吃",)},
+            dictionary="jmdict",
+            machine=frozenset({"jmdict:1"}),
+            source_language="ja",
+        )
+    out = tmp_path / "files"
+    out.mkdir()
+    stamped = publish_packs.stamp_meanings(folder, "jmdict", out, VERSION, "0.1.12")
+    riders = [rider for rider, _ in stamped]
+    assert [(r.meanings, r.file) for r in riders] == [
+        ("zh", f"jmdict-zh-{VERSION}.meanings"),
+        ("zh_TW", f"jmdict-zh_TW-{VERSION}.meanings"),
+    ]
+    whole = {
+        "list": 1,
+        "serial": 5,
+        "packs": [],
+        "built_in": [
+            {
+                "dictionary": "jmdict",
+                "language": "ja",
+                "riders": [
+                    {k: v for k, v in vars(r).items() if v != ""} for r in riders
+                ],
+            }
+        ],
+    }
+    (entry,) = read_built_in(json.dumps(whole).encode())  # the app keeps both
+    assert [r.meanings for r in entry.riders] == ["zh", "zh_TW"]
+
+
 def test_only_the_learners_language_is_wanted_and_only_by_an_app_that_reads_it(
     ecdict_bucket: Path,
 ) -> None:

@@ -30,6 +30,11 @@ action, not the worst moment of a busy PC (polyglotic-hq project 140).
   record, is "over its budget as main is" - named, a warning on the run's
   page, not failed. Frame budgets and the starts use their own judging.
   Main's own runs are held to the budget alone.
+- **Known debts** (933's ADR-015, polyglotic-hq 994): a test listed in
+  `tests/budget_debts.py`, over its budget in its last try but within the
+  debt's ceiling, is "known debt: over by X ms" - named, a warning on the
+  run's page, not failed and never skipped; over the ceiling, it fails.
+  Only listed tests; the budget itself is unchanged.
 - Each judgement is recorded in `JUDGED`: pytest's summary lists every
   one's median and longest run, the warm-up's too (`tests/conftest.py`),
   and in CI the run's page shows the table.
@@ -45,6 +50,8 @@ import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
+from tests import budget_debts
 
 from polyglotic_desktop.perf import budgets
 from polyglotic_desktop.perf.budgets import Budget
@@ -93,6 +100,9 @@ class Judged:
     (decision 0136): not failed."""
     notice: str = ""
     """An over-budget median reported for review on the shared Linux runner."""
+    debt: str = ""
+    """Over its budget, within its listed debt's ceiling (`budget_debts`),
+    which this says: not failed."""
 
     @property
     def on_a_busy_pc(self) -> bool:
@@ -112,6 +122,8 @@ class Judged:
         first = f"try 1: {self.tries[0].describe()}"
         if self.busy:
             first += f"; {busy_pc.describe(self.busy[-1])}"
+        if self.debt:
+            return f"{KNOWN_DEBT}: {self.debt} ({first})"
         if self.as_main:
             return f"{OVER_AS_MAIN_IS}: {self.as_main} ({first})"
         if self.notice:
@@ -126,6 +138,10 @@ class Judged:
 OVER_AS_MAIN_IS = "over its budget as main is"
 """The verdict's words for a pull request's test over its budget but not
 slower than main's record here (decision 0136): not failed."""
+
+KNOWN_DEBT = "known debt"
+"""The verdict's words for a listed debt over its budget but within its
+ceiling (`budget_debts`, ADR-015): not failed."""
 
 OVER_ON_A_BUSY_PC = "over on a busy PC"
 """The verdict's words when every reading said busy (`Judged.on_a_busy_pc`)."""
@@ -245,10 +261,12 @@ def within(
     if not passed and len(busy) < len(tries) - 1:
         busy.append(_load(last))  # the last try's: to say how busy
     test = os.environ.get("PYTEST_CURRENT_TEST", "").split(" (")[0]
-    as_main = "" if passed else beside_main(test, budget, last)
+    debt = known_debt(test, budget, last, passed)
+    as_main = "" if passed or debt else beside_main(test, budget, last)
     notice = ""
     if (
         not passed
+        and not debt
         and _frame_budget_is_advisory(budget)
         and last.longest <= longest_allowed(budget)
     ):
@@ -257,30 +275,71 @@ def within(
         test,
         budget,
         tuple(tries),
-        passed or bool(as_main or notice),
+        passed or bool(debt or as_main or notice),
         tuple(busy),
         busy_from,
         as_main,
         notice,
+        debt,
     )
     JUDGED.append(judged)
-    if as_main or notice:
-        title = "Timing notice" if notice else "Over its budget as main is"
+    if debt or as_main or notice:
+        title = (
+            "Known debt"
+            if debt
+            else "Timing notice"
+            if notice
+            else "Over its budget as main is"
+        )
         line = f"{test} {budget.name}: {last.describe()} - {judged.verdict()}"
         print(f"\n{title} - {line}", file=sys.stderr)
         if os.environ.get("GITHUB_ACTIONS"):
             print(f"::warning title={title}::{line}")
         return
+    listed = budget_debts.debt_of(test, budget)
     assert passed, (
         (
             f"{OVER_ON_A_BUSY_PC.upper()} (every reading {busy_from:.0%} busy or more): "
             if judged.on_a_busy_pc
             else ""
         )
+        + (
+            f"worse than its known debt's ceiling of {listed.ceiling_ms:g} ms"
+            f" (tests/budget_debts.py; {listed.measured}): "
+            if listed
+            else ""
+        )
         + f"{budget.name} over its {median_allowed(budget):g} ms (any one run"
         f" {longest_allowed(budget):g} ms) in {_all(len(tries))}: "
         + "; ".join(f"try {n}: {t.describe()}" for n, t in enumerate(tries, 1))
         + f"; {busy_pc.describe(busy[-1])}"
+    )
+
+
+def known_debt(test: str, budget: Budget, last: Sampled, passed: bool) -> str:
+    """For a test listed in `budget_debts`: over its budget but within its
+    debt's ceiling (median at most `Debt.ceiling_ms`, no run over the slot
+    budget) - the words for the verdict - else "" (it passes or fails as
+    any other). A listed test within its budget is noted in the summary:
+    its entry goes once the reference PC agrees."""
+    debt = budget_debts.debt_of(test, budget)
+    if debt is None:
+        return ""
+    if passed:
+        note = (
+            f"known debt within its budget here - {test} {budget.name}:"
+            f" {last.describe()}; remove its entry in tests/budget_debts.py"
+            f" once it's within on the reference PC"
+        )
+        if note not in NOTES:
+            NOTES.append(note)
+        return ""
+    if last.median > debt.ceiling_ms or last.longest > longest_allowed(budget):
+        return ""
+    return (
+        f"over by {last.median - median_allowed(budget):.1f} ms (median"
+        f" {last.median:.1f} of {median_allowed(budget):g}; ceiling"
+        f" {debt.ceiling_ms:g}); paid at {debt.milestone} (tests/budget_debts.py)"
     )
 
 
@@ -378,7 +437,9 @@ def summary_markdown() -> str:
             " (decision 0040) - and the first is shown with the last. A test"
             ' over in every try while every reading said busy is "over on a'
             ' busy PC" (decision 0103). On the shared Linux pull request runner,'
-            " a frame median miss within the slot limit is a timing notice. The warm-up"
+            " a frame median miss within the slot limit is a timing notice. A test"
+            " listed as a known debt (tests/budget_debts.py, ADR-015) over its budget"
+            " but within its ceiling is named so, not failed. The warm-up"
             " (a first pass of the same actions) is recorded, not judged."
         ),
         "",

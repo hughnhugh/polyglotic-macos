@@ -1,34 +1,40 @@
-"""System-wide hotkeys: Ctrl+Alt+L, P, H and J - or the keys the learner chose - work even while a game has focus.
+"""System-wide hotkeys on Windows: RegisterHotKey with WH_KEYBOARD_LL fallback and pass-through.
 
 A Qt shortcut only fires while one of the app's windows has the keyboard;
-Windows' `RegisterHotKey` fires whatever has it. The proof of concept
-(`ui/app.py`, `_Hotkeys`) registered them on Qt's thread and read
-`WM_HOTKEY` through a Qt native event filter; here they live on a thread
+Windows' `RegisterHotKey` fires whatever has it. The hotkeys live on a thread
 of their own with its own message loop, so this module needs no Qt:
 `GlobalHotkeys` calls each binding on that thread, and `main` hands the
 call to the interface's thread.
 
-Each is a combination as `core.listening.dictation_keys.DictationKey`
-keeps it ("ctrl+alt+l", "f9": polyglotic-hq 567, decision 0273): any key
-`HoldKey` takes, with any modifiers - but a modifier alone, which Windows
-can't register. A combination another app has already registered can't be
-taken: `start` says which, and the rest still work, and the log names
-which of ours they were ("Ctrl+Alt+H": polyglotic-hq 291 - a tester's log
-said only "1 hotkey(s)"). Windows doesn't say which app has it, and
-nothing pressed is ever logged.
+Each binding is a key as `core.listening.dictation_keys.DictationKey` keeps it
+("ctrl+alt+l", "f9", "space", "media_play"): any non-modifier key with any
+modifiers (polyglotic-hq 567, 966).
 
-`HoldKey` is dictation's key or combination, held (polyglotic-hq 283,
-289; decision 0081): the same `RegisterHotKey` for when a key goes down,
-then its state read until it comes up - or, for Right Ctrl alone or
-modifiers alone, which Windows can't register, their state read all the
-time.
+- **Normal global hotkeys** try `RegisterHotKey` first (zero hook overhead).
+- **Refused by `RegisterHotKey` (another program holds it):** `start` still
+  reports the key in `taken` (so Settings and the tray surface the conflict and
+  offer tested free alternatives), AND `GlobalHotkeys` falls back to a
+  low-level keyboard hook (`WH_KEYBOARD_LL`) on the hotkeys thread, matching
+  only our exact chord, running our action asynchronously via `PostThreadMessageW`,
+  and swallowing ONLY that chord (`hooked` lists the keys handled by fallback).
+- **Pass-through hotkeys** (a typing key chosen for `Everywhere`, polyglotic-hq
+  966): never registered with `RegisterHotKey` (which would swallow typing);
+  watched via `WH_KEYBOARD_LL` with `swallow=False` so our action runs and the
+  key is ALWAYS passed on to the active app via `CallNextHookEx`.
+- When every hotkey succeeds with `RegisterHotKey` and none is pass-through,
+  no keyboard hook is installed. Injected keystrokes (`LLKHF_INJECTED`) are
+  ignored so dictation typing never fires hotkeys. Nothing pressed is ever logged.
+
+`HoldKey` is dictation's key or combination, held (polyglotic-hq 283, 289;
+decision 0081).
 """
 
 import ctypes
 import ctypes.wintypes
 import logging
 import threading
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
+from dataclasses import dataclass
 
 from polyglotic_desktop.core.listening.dictation_keys import (
     HOLD_RELEASE_POLLS,
@@ -39,9 +45,16 @@ from polyglotic_desktop.core.listening.dictation_keys import (
 log = logging.getLogger(__name__)
 
 MOD_ALT, MOD_CONTROL, MOD_SHIFT = 0x0001, 0x0002, 0x0004
+MOD_WIN = 0x0008  # either Windows key
 MOD_NOREPEAT = 0x4000  # held down, it fires once
 WM_QUIT, WM_HOTKEY = 0x0012, 0x0312
+WM_KEYDOWN, WM_KEYUP = 0x0100, 0x0101
+WM_SYSKEYDOWN, WM_SYSKEYUP = 0x0104, 0x0105
+WM_APP_HOOK_HOTKEY = 0x8001  # WM_APP + 1: dispatched from WH_KEYBOARD_LL callback
+WH_KEYBOARD_LL = 13
+LLKHF_INJECTED = 0x00000010
 _PM_NOREMOVE, _PM_REMOVE = 0x0000, 0x0001
+_PROBE_BASE_ID = 0x7000
 
 _user32 = ctypes.WinDLL("user32", use_last_error=True)
 _user32.RegisterHotKey.argtypes = [
@@ -75,6 +88,42 @@ _user32.PostThreadMessageW.argtypes = [
     ctypes.wintypes.LPARAM,
 ]
 _user32.PostThreadMessageW.restype = ctypes.wintypes.BOOL
+_user32.GetAsyncKeyState.argtypes = [ctypes.c_int]
+_user32.GetAsyncKeyState.restype = ctypes.c_short
+
+
+class _KBDLLHOOKSTRUCT(ctypes.Structure):
+    _fields_ = (
+        ("vkCode", ctypes.wintypes.DWORD),
+        ("scanCode", ctypes.wintypes.DWORD),
+        ("flags", ctypes.wintypes.DWORD),
+        ("time", ctypes.wintypes.DWORD),
+        ("dwExtraInfo", ctypes.c_size_t),
+    )
+
+
+_HOOKPROC = ctypes.WINFUNCTYPE(
+    ctypes.c_ssize_t,
+    ctypes.c_int,
+    ctypes.wintypes.WPARAM,
+    ctypes.wintypes.LPARAM,
+)
+_user32.SetWindowsHookExW.argtypes = [
+    ctypes.c_int,
+    _HOOKPROC,
+    ctypes.wintypes.HINSTANCE,
+    ctypes.wintypes.DWORD,
+]
+_user32.SetWindowsHookExW.restype = ctypes.c_void_p
+_user32.UnhookWindowsHookEx.argtypes = [ctypes.c_void_p]
+_user32.UnhookWindowsHookEx.restype = ctypes.wintypes.BOOL
+_user32.CallNextHookEx.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_int,
+    ctypes.wintypes.WPARAM,
+    ctypes.wintypes.LPARAM,
+]
+_user32.CallNextHookEx.restype = ctypes.c_ssize_t
 
 
 def combination(key: str) -> str:
@@ -105,25 +154,122 @@ def registered(key: str) -> tuple[int, int]:
     return modifiers, VK_KEYS[parsed.key]
 
 
+_DOWN = 0x8000
+
+
+def _key_down(vk: int) -> bool:
+    return bool(_user32.GetAsyncKeyState(vk) & _DOWN)
+
+
+@dataclass(frozen=True, slots=True)
+class HookEntry:
+    """One chord watched by `WH_KEYBOARD_LL`."""
+
+    hotkey_id: int
+    key: str
+    modifiers: int
+    vk: int
+    swallow: bool
+
+
+class LowLevelMatcher:
+    """Pure chord matcher for `WH_KEYBOARD_LL` events: matches exact chords,
+    ignores injected keys and auto-repeats, swallows only non-passthrough
+    matched chords, and leaves every other key untouched."""
+
+    def __init__(
+        self,
+        entries: Sequence[HookEntry],
+        *,
+        key_down: Callable[[int], bool] = _key_down,
+    ) -> None:
+        self._by_chord: dict[tuple[int, int], HookEntry] = {
+            (entry.modifiers, entry.vk): entry for entry in entries
+        }
+        self._key_down = key_down
+        self._down_vks: set[int] = set()
+        self._swallowed_vks: set[int] = set()
+
+    def current_modifiers(self) -> int:
+        held = 0
+        for flag, codes, _ in MODIFIER_KEYS.values():
+            if any(self._key_down(vk) for vk in codes):
+                held |= flag
+        return held
+
+    def handle(self, wparam: int, vk: int, flags: int = 0) -> tuple[int | None, bool]:
+        """Process one low-level key event. Returns `(hotkey_id_to_fire, swallow)`."""
+        if flags & LLKHF_INJECTED:
+            return None, False
+        if wparam in (WM_KEYUP, WM_SYSKEYUP):
+            self._down_vks.discard(vk)
+            if vk in self._swallowed_vks:
+                self._swallowed_vks.discard(vk)
+                return None, True
+            return None, False
+        if wparam not in (WM_KEYDOWN, WM_SYSKEYDOWN):
+            return None, False
+        entry = self._by_chord.get((self.current_modifiers(), vk))
+        if entry is None:
+            return None, False
+        if vk in self._down_vks:
+            return None, entry.swallow
+        self._down_vks.add(vk)
+        if entry.swallow:
+            self._swallowed_vks.add(vk)
+        return entry.hotkey_id, entry.swallow
+
+
+def _default_register(hotkey_id: int, modifiers: int, vk: int) -> bool:
+    return bool(_user32.RegisterHotKey(None, hotkey_id, modifiers | MOD_NOREPEAT, vk))
+
+
+def _default_unregister(hotkey_id: int) -> None:
+    _user32.UnregisterHotKey(None, hotkey_id)
+
+
 class GlobalHotkeys:
     """Hotkeys for the whole system, each a combination as kept
-    ("ctrl+alt+l"), on a thread of their own."""
+    ("ctrl+alt+l", "space", "media_play"), on a thread of their own."""
 
-    def __init__(self, bindings: Mapping[str, Callable[[], None]]) -> None:
+    def __init__(
+        self,
+        bindings: Mapping[str, Callable[[], None]],
+        *,
+        passthrough: Collection[str] = (),
+        register_hotkey: Callable[[int, int, int], bool] | None = None,
+        unregister_hotkey: Callable[[int], None] | None = None,
+        install_hook: Callable[[object], int | None] | None = None,
+        remove_hook: Callable[[int], None] | None = None,
+        key_down: Callable[[int], bool] = _key_down,
+    ) -> None:
         """`bindings`: a combination as kept -> what to call, on the
-        hotkeys' thread, when it's pressed."""
+        hotkeys' thread, when it's pressed.
+        `passthrough`: subset of `bindings` keys that must NEVER be swallowed
+        (typing keys with Everywhere scope)."""
         self._keys = list(bindings)
         self._codes = [registered(key) for key in bindings]
         self._calls = dict(enumerate(bindings.values(), start=1))
+        self._passthrough = frozenset(passthrough)
+        self._register = register_hotkey or _default_register
+        self._unregister = unregister_hotkey or _default_unregister
+        self._install_hook = install_hook
+        self._remove_hook = remove_hook
+        self._key_down = key_down
         self._thread: threading.Thread | None = None
         self._thread_id = 0
         self._ready = threading.Event()
+        self._matcher: LowLevelMatcher | None = None
+        self._hook_handle: int | None = None
+        self._hook_proc: object | None = None
         self.taken: list[str] = []
-        """The keys another app had already registered (not working here)."""
+        """The keys `RegisterHotKey` refused (or that could not be hooked)."""
+        self.hooked: list[str] = []
+        """Subset of `taken` keys that still work via `WH_KEYBOARD_LL` fallback."""
 
     def start(self) -> list[str]:
         """Registers the hotkeys and starts listening; returns the keys
-        another app already has."""
+        another app already has (refused by `RegisterHotKey`)."""
         if self._thread is not None:
             raise RuntimeError("already started")
         self._thread = threading.Thread(target=self._run, name="hotkeys", daemon=True)
@@ -132,13 +278,30 @@ class GlobalHotkeys:
         return self.taken
 
     def stop(self) -> None:
-        """Unregisters the hotkeys and ends their thread."""
+        """Unregisters the hotkeys, removes any hook, and ends their thread."""
         thread = self._thread
         if thread is None:
             return
         _user32.PostThreadMessageW(self._thread_id, WM_QUIT, 0, 0)
         thread.join(timeout=5)
         self._thread = None
+
+    def probe(self, keys: Sequence[str]) -> list[str]:
+        """Return which of `keys` cannot be registered right now via
+        `RegisterHotKey`, immediately unregistering any that succeed."""
+        busy: list[str] = []
+        for offset, key in enumerate(keys):
+            try:
+                modifiers, vk = registered(key)
+            except ValueError:
+                busy.append(key)
+                continue
+            probe_id = _PROBE_BASE_ID + offset
+            if self._register(probe_id, modifiers, vk):
+                self._unregister(probe_id)
+            else:
+                busy.append(key)
+        return busy
 
     def post(self, key: str) -> None:
         """As if `key`'s combination had been pressed - for tests, without
@@ -147,29 +310,82 @@ class GlobalHotkeys:
             self._thread_id, WM_HOTKEY, self._keys.index(key) + 1, 0
         )
 
+    def simulate_hook(self, wparam: int, vk: int, flags: int = 0) -> bool:
+        """Feed a synthetic low-level keyboard event through the active hook
+        matcher (for tests without injecting real keys). Returns True if the
+        key event would be swallowed, False if passed on."""
+        matcher = self._matcher
+        if matcher is None:
+            return False
+        hotkey_id, swallow = matcher.handle(wparam, vk, flags)
+        if hotkey_id is not None and self._thread_id:
+            _user32.PostThreadMessageW(
+                self._thread_id, WM_APP_HOOK_HOTKEY, hotkey_id, 0
+            )
+        return swallow
+
+    def _on_ll_key(self, ncode: int, wparam: int, lparam: int) -> int:
+        if ncode >= 0 and lparam and self._matcher is not None:
+            kb = ctypes.cast(lparam, ctypes.POINTER(_KBDLLHOOKSTRUCT)).contents
+            hotkey_id, swallow = self._matcher.handle(int(wparam), kb.vkCode, kb.flags)
+            if hotkey_id is not None:
+                _user32.PostThreadMessageW(
+                    self._thread_id, WM_APP_HOOK_HOTKEY, hotkey_id, 0
+                )
+            if swallow:
+                return 1
+        return int(_user32.CallNextHookEx(self._hook_handle, ncode, wparam, lparam))
+
     def _run(self) -> None:
         msg = ctypes.wintypes.MSG()
         # the thread's message queue exists from its first message call:
         # before it, a stop's WM_QUIT would be lost
         _user32.PeekMessageW(ctypes.byref(msg), None, 0, 0, _PM_NOREMOVE)
         self._thread_id = threading.get_native_id()
-        done = []
+        done: list[int] = []
+        hook_entries: list[HookEntry] = []
         for hotkey_id, (key, (modifiers, vk)) in enumerate(
             zip(self._keys, self._codes, strict=True), start=1
         ):
-            if _user32.RegisterHotKey(None, hotkey_id, modifiers | MOD_NOREPEAT, vk):
+            if key in self._passthrough:
+                hook_entries.append(HookEntry(hotkey_id, key, modifiers, vk, False))
+            elif self._register(hotkey_id, modifiers, vk):
                 done.append(hotkey_id)
             else:
                 self.taken.append(key)
+                hook_entries.append(HookEntry(hotkey_id, key, modifiers, vk, True))
+        if hook_entries:
+            self._matcher = LowLevelMatcher(hook_entries, key_down=self._key_down)
+            if self._install_hook is not None:
+                self._hook_proc = self._on_ll_key
+                self._hook_handle = self._install_hook(self._hook_proc)
+            else:
+                proc = _HOOKPROC(self._on_ll_key)
+                self._hook_proc = proc
+                handle = _user32.SetWindowsHookExW(WH_KEYBOARD_LL, proc, None, 0)
+                self._hook_handle = int(handle) if handle else None
+            if self._hook_handle:
+                self.hooked = [entry.key for entry in hook_entries if entry.swallow]
+            else:
+                self._matcher = None
+                for entry in hook_entries:
+                    if not entry.swallow and entry.key not in self.taken:
+                        self.taken.append(entry.key)
+                log.warning("Windows refused the low-level keyboard hook")
         if self.taken:
             log.warning(
                 "hotkey(s) already taken by another app: %s",
                 ", ".join(combination(key) for key in self.taken),
             )
+            if self.hooked:
+                log.info(
+                    "hotkey(s) sharing keys via low-level keyboard hook: %s",
+                    ", ".join(combination(key) for key in self.hooked),
+                )
         self._ready.set()
         try:
             while _user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
-                if msg.message != WM_HOTKEY:
+                if msg.message not in (WM_HOTKEY, WM_APP_HOOK_HOTKEY):
                     continue
                 call = self._calls.get(msg.wParam)
                 if call is None:
@@ -179,16 +395,33 @@ class GlobalHotkeys:
                 except Exception:  # a failing action must not end the hotkeys
                     log.exception("a hotkey's action failed")
         finally:
+            if self._hook_handle:
+                if self._remove_hook is not None:
+                    self._remove_hook(self._hook_handle)
+                else:
+                    _user32.UnhookWindowsHookEx(self._hook_handle)
+                self._hook_handle = None
+            self._hook_proc = None
+            self._matcher = None
             for hotkey_id in done:
-                _user32.UnregisterHotKey(None, hotkey_id)
+                self._unregister(hotkey_id)
 
-
-MOD_WIN = 0x0008  # either Windows key
 
 VK_KEYS = {
     **{chr(code).lower(): code for code in range(0x41, 0x5B)},  # A-Z
     **{str(digit): 0x30 + digit for digit in range(10)},
     **{f"f{n}": 0x6F + n for n in range(1, 25)},  # F1 0x70 ... F24 0x87
+    "minus": 0xBD,  # VK_OEM_MINUS
+    "equal": 0xBB,  # VK_OEM_PLUS
+    "bracket_left": 0xDB,  # VK_OEM_4
+    "bracket_right": 0xDD,  # VK_OEM_6
+    "backslash": 0xDC,  # VK_OEM_5
+    "semicolon": 0xBA,  # VK_OEM_1
+    "apostrophe": 0xDE,  # VK_OEM_7
+    "grave": 0xC0,  # VK_OEM_3
+    "comma": 0xBC,  # VK_OEM_COMMA
+    "period": 0xBE,  # VK_OEM_PERIOD
+    "slash": 0xBF,  # VK_OEM_2
     "space": 0x20,
     "enter": 0x0D,
     "tab": 0x09,
@@ -208,6 +441,13 @@ VK_KEYS = {
     "scroll_lock": 0x91,
     "print_screen": 0x2C,
     "menu": 0x5D,  # VK_APPS
+    "media_play": 0xB3,  # VK_MEDIA_PLAY_PAUSE
+    "media_stop": 0xB2,  # VK_MEDIA_STOP
+    "media_next": 0xB0,  # VK_MEDIA_NEXT_TRACK
+    "media_prev": 0xB1,  # VK_MEDIA_PREV_TRACK
+    "volume_up": 0xAF,  # VK_VOLUME_UP
+    "volume_down": 0xAE,  # VK_VOLUME_DOWN
+    "volume_mute": 0xAD,  # VK_VOLUME_MUTE
 }
 """Each of `core.listening.dictation_keys.KEYS` and its virtual-key code."""
 LONE_VKS = {
@@ -245,15 +485,7 @@ OTHERS_EVERY = 3
 """While a key held alone is down, the other keys are read every this
 many reads (45 ms - shorter than a key's tap): all 250 each time cost 4%
 of one core while held, a third of that this way."""
-_DOWN = 0x8000
 _HOLD_ID = 0x283  # its own id, apart from GlobalHotkeys' 1, 2, 3...
-
-_user32.GetAsyncKeyState.argtypes = [ctypes.c_int]
-_user32.GetAsyncKeyState.restype = ctypes.c_short
-
-
-def _key_down(vk: int) -> bool:
-    return bool(_user32.GetAsyncKeyState(vk) & _DOWN)
 
 
 class HoldKey:

@@ -34,6 +34,7 @@ import json
 import os
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import numpy as np
@@ -43,6 +44,10 @@ from PySide6.QtGui import QImage
 
 GOLDENS = Path(__file__).resolve().parent / "goldens"
 MADE_WITH = "goldens.json"
+APPROVALS = "APPROVALS.md"
+"""The approval log, beside the goldens: each approval's day, why, and the
+states it changed - a golden is approved only for a named, intended change
+(polyglotic-hq 999)."""
 CHANNEL_TOLERANCE = 8
 """Out of 255: a channel within this is the same (anti-aliasing's noise)."""
 ALLOWED = {
@@ -202,6 +207,26 @@ def approve(pictures: dict[str, QImage], store: Path | None = None) -> list[str]
         json.dumps({"made_with": fingerprint()}, indent=1) + "\n", encoding="utf-8"
     )
     return changes
+
+
+def record(
+    changes: list[str], reason: str, store: Path | None = None, day: date | None = None
+) -> None:
+    """`changes` (`approve`'s lines) and why, added to the approval log
+    under the day (UTC's, as written)."""
+    store = GOLDENS if store is None else store
+    day = day or datetime.now(UTC).date()
+    path = store / APPROVALS
+    head = (
+        ""
+        if path.is_file()
+        else "# Approved goldens\n\nEach approval: the day (UTC), why, and what"
+        " it changed (`python -m tools.ui_lab approve --reason`).\n"
+    )
+    entry = [f"\n## {day.isoformat()}: {len(changes)} golden(s)\n", reason.strip()]
+    entry += ["", *(f"- {line}" for line in changes)]
+    with path.open("a", encoding="utf-8", newline="\n") as log:
+        log.write(head + "\n".join(entry) + "\n")
 
 
 def stale(states: Iterable[str], store: Path | None = None) -> list[Path]:

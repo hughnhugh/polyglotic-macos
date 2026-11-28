@@ -21,12 +21,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Redeem a code</source>
-        <translation type="unfinished">Kodu kullan</translation>
+        <translation>Kodu kullan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Add email address</source>
-        <translation type="unfinished">E-posta ekle</translation>
+        <translation>E-posta adresi ekle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -41,7 +41,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose shared data</source>
-        <translation type="unfinished">Neyin paylaşılacağını seç</translation>
+        <translation>Paylaşılacak verileri seç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -71,12 +71,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Shared data</source>
-        <translation type="unfinished">Verilerin</translation>
+        <translation>Paylaşılan veriler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Choose whether to send usage statistics, crash reports and how often you hear words.</source>
-        <translation type="unfinished">Polyglotic&apos;in hizmeti yürütmek için gönderdikleri ve paylaşmayı seçtiklerin: kullanım istatistikleri, çökme raporları, kelimeleri ne sıklıkla duyduğun.</translation>
+        <translation>Kullanım istatistiklerini, çökme raporlarını ve kelimeleri ne sıklıkta duyduğuna ilişkin verileri paylaşıp paylaşmayacağını seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -86,22 +86,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another PC and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this PC.</source>
-        <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur: kayıtlı kelimeler ve durumlar başka bilgisayarda da seninle gelir, baktıkların insanların nasıl öğrendiğini gösterir. Bunları orada, öğrendiğin tüm dillerde silebilirsin - istersen bu bilgisayarda da.</translation>
+        <translation>Anlamına baktığın, kaydettiğin ve işaretlediğin kelimeleri işlem zamanlarıyla birlikte sunucumuzda saklarız. Böylece kayıtlı kelimelerine ve ilerlemene başka bir bilgisayardan ulaşabilirsin. Bu veriler, insanların nasıl öğrendiğini anlamamıza da yardımcı olur. Tüm dillere ait bu verileri sunucumuzdan silebilir, dilersen bu bilgisayardan da kaldırabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>We keep the words you look up, save and mark, with their times, on our server. This lets saved words and progress follow you to another computer and shows us how people learn. You can delete this data for every language from our server, and choose whether to also delete it from this Mac.</source>
-        <translation type="unfinished">Baktığın, kaydettiğin ve işaretlediğin kelimeler sunucumuzda sözlük kelimeleri ve zamanlar olarak tutulur: kayıtlı kelimeler ve durumlar başka bilgisayarda da seninle gelir, baktıkların insanların nasıl öğrendiğini gösterir. Bunları orada, öğrendiğin tüm dillerde silebilirsin - istersen bu bilgisayarda da.</translation>
+        <translation>Anlamına baktığın, kaydettiğin ve işaretlediğin kelimeleri işlem zamanlarıyla birlikte sunucumuzda saklarız. Böylece kayıtlı kelimelerine ve ilerlemene başka bir bilgisayardan ulaşabilirsin. Bu veriler, insanların nasıl öğrendiğini anlamamıza da yardımcı olur. Tüm dillere ait bu verileri sunucumuzdan silebilir, dilersen bu Mac&apos;ten de kaldırabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Privacy and testing</source>
-        <translation type="unfinished">Gizlilik ve test kullanıcısı sözleşmesi</translation>
+        <translation>Gizlilik ve test koşulları</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Read what we keep and the terms you accepted as a tester.</source>
-        <translation type="unfinished">Neyi neden sakladığımız ve test kullanıcısı olarak neyi kabul ettiğin.</translation>
+        <translation>Hangi verileri sakladığımızı ve test kullanıcısı olarak kabul ettiğin koşulları oku.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
@@ -136,17 +136,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Not signed in — {needed}.</source>
-        <translation type="unfinished">Oturum açılmadı - {needed}.</translation>
+        <translation>Oturum kapalı — {needed}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Signed in with invite code</source>
-        <translation type="unfinished">Davet koduyla oturum açıldı</translation>
+        <translation>Davet koduyla oturum açıldı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/account_page.py"/>
         <source>Account ID: {id}. Include it when you contact us about your data.</source>
-        <translation type="unfinished">Hesap kimliğin: {id}. Verilerin hakkında bize yazarsan belirt.</translation>
+        <translation>Hesap kimliğin {id}. Verilerinle ilgili bize yazarken bu kimliği belirt.</translation>
     </message>
 </context>
 <context>
@@ -154,12 +154,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Bazı yerlerde, bir aramaya altyazı eklenmeden önce aramadaki herkesin onay vermesi gerekir. Konuştuğunuz kişilere haber verin.</translation>
+        <translation>Bazı yerlerde bir görüşmeye altyazı eklemek için tüm katılımcıların onayı gerekir. Konuştuğun kişilere haber ver.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/main.py"/>
         <source>Got it</source>
-        <translation type="unfinished">Anladım</translation>
+        <translation>Anladım</translation>
     </message>
 </context>
 <context>
@@ -193,22 +193,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Detect finds the language each time someone speaks.</source>
-        <translation type="unfinished">Algıla, biri her konuştuğunda dili bulur.</translation>
+        <translation>Algıla seçeneği, her konuşmada dili yeniden belirler.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Choose a translation language, or show only the original.</source>
-        <translation type="unfinished">Bu satırları ikinci bir dile de çevir ya da bırak.</translation>
+        <translation>Çeviri dilini seç veya yalnızca orijinali göster.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Set up captions</source>
-        <translation type="unfinished">Altyazılarını ayarla</translation>
+        <translation>Altyazıları ayarla</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Shown as &quot;You&quot;. Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">&quot;Sen&quot; olarak gösterilir. Mikrofonun altyazıların için yalnızca bu açıkken gönderilir.</translation>
+        <translation>Konuşman “Sen” etiketiyle görünür. Mikrofon sesi altyazı için yalnızca bu seçenek açıkken gönderilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -218,7 +218,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>Use these choices for new caption windows and skip this card</source>
-        <translation type="unfinished">Yeni altyazı pencereleri böyle başlar ve bu artık görünmez</translation>
+        <translation>Bu seçimleri yeni altyazı pencerelerinde kullan ve bu kartı atla</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_set_up.py"/>
         <source>New caption windows use these choices. Use Languages on the caption bar to change them or show this card again.</source>
-        <translation type="unfinished">Açık: yeni pencereler böyle başlar ve bu artık görünmez. Pencere çubuğundaki diller bunları değiştirir veya bunu geri getirir.</translation>
+        <translation>Yeni altyazı pencereleri bu seçimlerle açılır. Seçimleri değiştirmek veya bu kartı yeniden açmak için altyazı çubuğundaki Diller menüsünü kullan.</translation>
     </message>
 </context>
 <context>
@@ -261,22 +261,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: on</source>
-        <translation type="unfinished">Söylediklerime altyazı ekle: açık</translation>
+        <translation>Konuşmamı burada göster: açık</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Show my speech here: off</source>
-        <translation type="unfinished">Söylediklerime altyazı ekle: kapalı</translation>
+        <translation>Konuşmamı burada göster: kapalı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view: captions in grey and gold, only your chosen words in blue, no underlines. Point at a word to see the word it&apos;s linked to</source>
-        <translation type="unfinished">Sakin görünümü aç ya da kapat: altyazılar sakin gri ve altın renginde, yalnızca seçtiğin kelimeler mavi, alt çizgi yok – karşılığını görmek için bir kelimenin üzerine gel</translation>
+        <translation>Sakin görünümde altyazılar gri ve altın renginde, yalnızca seçtiğin kelimeler mavi görünür. Alt çizgi yoktur. Bir kelimenin karşılığını görmek için üzerine gel</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{wpm} wpm</source>
-        <translation type="unfinished">{wpm} kelime/dk</translation>
+        <translation>{wpm} kelime/dk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -296,12 +296,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the PC plays is captioned here</source>
-        <translation type="unfinished">Bilgisayarın çaldığı her şeye burada altyazı eklenir</translation>
+        <translation>Bilgisayardan gelen tüm seslerin altyazısı burada görünür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Everything the Mac plays is captioned here</source>
-        <translation type="unfinished">Bilgisayarın çaldığı her şeye burada altyazı eklenir</translation>
+        <translation>Mac&apos;ten gelen tüm seslerin altyazısı burada görünür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -326,7 +326,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic yoğun. Birkaç dakika sonra tekrar deneyin</translation>
+        <translation>Polyglotic yoğun — birazdan yeniden deniyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -376,7 +376,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Some captions failed - still trying</source>
-        <translation type="unfinished">Altyazılar sunucuda başarısız - hâlâ deneniyor</translation>
+        <translation>Bazı altyazılar oluşturulamadı — denemeye devam ediyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -391,12 +391,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying to reconnect</source>
-        <translation type="unfinished">İnternet yok mu? Polyglotic&apos;in sunucusuna ulaşılamıyor</translation>
+        <translation>Çevrimdışı — yeniden bağlanıyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Polyglotic&apos;in sunucusuna ulaşılamıyor</translation>
+        <translation>Polyglotic&apos;e bağlanılamıyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -406,7 +406,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">Polyglotic&apos;in sunucusunda bir sorun var</translation>
+        <translation>Polyglotic sunucusu hata bildirdi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -451,12 +451,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Offline - trying again in {n} s</source>
-        <translation type="unfinished">İnternet yok mu? Sunucuya ulaşılamıyor - {n} sn sonra tekrar</translation>
+        <translation>Çevrimdışı — {n} sn sonra yeniden denenecek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Can&apos;t connect to Polyglotic - trying again in {n} s</source>
-        <translation type="unfinished">Sunucuya ulaşılamıyor - {n} sn sonra tekrar denenecek</translation>
+        <translation>Polyglotic&apos;e bağlanılamıyor — {n} sn sonra yeniden denenecek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -466,7 +466,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Polyglotic&apos;s server reported an error - trying again in {n} s</source>
-        <translation type="unfinished">Sunucuda sorun var - {n} sn sonra tekrar denenecek</translation>
+        <translation>Polyglotic sunucusu hata bildirdi — {n} sn sonra yeniden denenecek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -572,7 +572,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your speech is shown here: your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Konuşman burada gösteriliyor: mikrofonun altyazıların için yalnızca bu açıkken gönderilir</translation>
+        <translation>Konuşman burada görünür. Mikrofon sesi altyazı için yalnızca bu seçenek açıkken gönderilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -598,22 +598,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Quiet view</source>
-        <translation type="unfinished">Sakin görünüm</translation>
+        <translation>Sakin görünüm</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Our curriculum</source>
-        <translation type="unfinished">Müfredatımız</translation>
+        <translation>Müfredatımız</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Words at your edge</source>
-        <translation type="unfinished">Sınırındaki kelimeler</translation>
+        <translation>Sınırındaki kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Öğrenme yükü</translation>
+        <translation>Öğrenme yükü</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -628,7 +628,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Fill the width, in every window: captions run on in lines as wide as the window, each line of what was said over its translation</source>
-        <translation type="unfinished">Genişliği doldur açık veya kapalı, her pencerede: altyazılar satır satır art arda, pencere genişliğinde satırlarda devam eder - söylenenin her satırı çevirisinin üstünde</translation>
+        <translation>Genişliği doldur, tüm pencereler için geçerlidir. Satırlar pencere genişliğine yayılır ve her satırın çevirisi hemen altında görünür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -638,7 +638,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Line up the parts, in every window: each part of what was said starts where its translation does, so a word&apos;s translation is under it</source>
-        <translation type="unfinished">Parçaları hizala açık veya kapalı, her pencerede: söylenenin her parçası çevirisiyle aynı yerden başlar, böylece bir kelimenin çevirisi onun altında olur</translation>
+        <translation>Parçaları hizala, tüm pencereler için geçerlidir. Her parça çevirisiyle aynı hizadan başlar, böylece kelimelerin karşılıkları altlarında görünür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -653,12 +653,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Smaller captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Daha küçük yazı (Ctrl+tekerlek)</translation>
+        <translation>Altyazıyı küçült (Ctrl+tekerlek)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Bigger captions (Ctrl+wheel)</source>
-        <translation type="unfinished">Daha büyük yazı (Ctrl+tekerlek)</translation>
+        <translation>Altyazıyı büyüt (Ctrl+tekerlek)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -683,7 +683,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Lock all caption windows</source>
-        <translation type="unfinished">Tüm pencereleri kilitle</translation>
+        <translation>Tüm altyazı pencerelerini kilitle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -698,7 +698,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Simge durumuna küçült</translation>
+        <translation>Simge durumuna küçült</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -713,7 +713,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Start new windows with these languages</source>
-        <translation type="unfinished">Yeni pencereleri böyle başlat</translation>
+        <translation>Yeni pencerelerde bu dilleri kullan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -728,7 +728,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Each new caption window asks what its app speaks and what to translate into, until you choose Use as my default</source>
-        <translation type="unfinished">Açılan altyazı penceresi hangi dilin konuşulduğunu ve hangi dile çevrileceğini sorar; orada Varsayılanım yap&apos;ı seçene kadar</translation>
+        <translation>“Varsayılanım yap”ı seçene kadar her yeni altyazı penceresi konuşulan dili ve çeviri dilini sorar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -738,7 +738,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Captions singing in music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent</source>
-        <translation type="unfinished">Algıla&apos;daki müzik çalarlarda şarkıya altyazı ver: konuşma duyulmasa da sesleri birkaç saniyelik parçalar hâlinde gönderilir. Kapalı: yalnızca konuşma olarak duyulan gönderilir</translation>
+        <translation>Konuşulan dil “Algıla” olan müzik çalarlarda şarkı sözlerine de altyazı ekler. Konuşma olmasa bile ses birkaç saniyelik parçalar hâlinde gönderilir. Kapalıyken yalnızca konuşma gönderilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -748,7 +748,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Your mic is sent for your captions only while this is on</source>
-        <translation type="unfinished">Mikrofonun altyazıların için yalnızca bu açıkken gönderilir</translation>
+        <translation>Mikrofon sesi altyazı için yalnızca bu seçenek açıkken gönderilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -793,17 +793,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Caption actions</source>
-        <translation type="unfinished">Altyazı eylemleri</translation>
+        <translation>Altyazı işlemleri</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Save caption</source>
-        <translation type="unfinished">Altyazıyı kaydet</translation>
+        <translation>Altyazıyı kaydet</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Copy caption</source>
-        <translation type="unfinished">Altyazıyı kopyala</translation>
+        <translation>Altyazıyı kopyala</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -844,19 +844,19 @@
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>{now} wpm · avg {average}</source>
         <extracomment>Speaking pace beside the speaker or microphone icon; {now} is current words per minute, {average} is session average.</extracomment>
-        <translation type="unfinished">{now} kelime/dk · ort. {average}</translation>
+        <translation>{now} kelime/dk · ort. {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>Them: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for the other speakers&apos; pace row (speaker icon).</extracomment>
-        <translation type="unfinished">Onlar: dakikada {now} kelime, ortalama {average}</translation>
+        <translation>Diğerleri: dakikada {now} kelime, ortalama {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
         <source>You: {now} words a minute, average {average}</source>
         <extracomment>Accessible name and tooltip for your own speaking pace row (microphone icon).</extracomment>
-        <translation type="unfinished">Siz: dakikada {now} kelime, ortalama {average}</translation>
+        <translation>Sen: dakikada {now} kelime, ortalama {average}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/caption_window.py"/>
@@ -933,7 +933,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Only words the speech model is sure of: later, but they stay put</source>
-        <translation type="unfinished">Yalnızca konuşma modelinin emin olduğu kelimeler: daha geç ve sabit</translation>
+        <translation>Yalnızca konuşma modelinin emin olduğu kelimeler görünür. Daha geç gelirler ve değişmezler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -948,7 +948,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
         <source>Translation a moment later</source>
-        <translation type="unfinished">Okuduktan sonra çeviri</translation>
+        <translation>Çeviri biraz sonra</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/timing_popover.py"/>
@@ -1037,6 +1037,69 @@
     </message>
 </context>
 <context>
+    <name>CaptureStatus</name>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Listening for speech…</source>
+        <translation>Konuşma bekleniyor…</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Play sound in a Linux app, such as a Linux browser. ChromeOS tabs and Android apps play outside Linux.</source>
+        <translation type="unfinished">Linux tarayıcısı gibi bir Linux uygulamasında ses çalın. ChromeOS sekmeleri ve Android uygulamaları sesi Linux dışında çalar.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>For your microphone, open Settings → About ChromeOS → Developers → Linux development environment and turn on “Allow Linux to access your microphone”.</source>
+        <translation type="unfinished">Mikrofon için Ayarlar → ChromeOS hakkında → Geliştiriciler → Linux geliştirme ortamı yolunu açıp “Linux&apos;un mikrofonunuza erişmesine izin ver” seçeneğini etkinleştirin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Linux audio support is missing. Install {package} to listen.</source>
+        <translation type="unfinished">Linux ses desteği eksik. Dinlemek için {package} paketini yükleyin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Polyglotic can’t reach the sound server. Check that PulseAudio or pipewire-pulse is running.</source>
+        <translation type="unfinished">Polyglotic ses sunucusuna ulaşamıyor. PulseAudio veya pipewire-pulse hizmetinin çalıştığını kontrol edin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>The sound server denied recording access. Check your audio permissions.</source>
+        <translation type="unfinished">Ses sunucusu kayda izin vermedi. Ses izinlerinizi kontrol edin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No speaker output is available to record. Check your Linux sound settings.</source>
+        <translation type="unfinished">Kayıt için kullanılabilir ses çıkışı yok. Linux ses ayarlarınızı kontrol edin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No microphone is available. Check your Linux sound settings.</source>
+        <translation type="unfinished">Kullanılabilir mikrofon yok. Linux ses ayarlarınızı kontrol edin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No audio data has arrived from this source. Check your Linux sound settings.</source>
+        <translation type="unfinished">Bu kaynaktan ses verisi gelmedi. Linux ses ayarlarınızı kontrol edin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Your microphone is silent. Check that it’s unmuted and try speaking.</source>
+        <translation type="unfinished">Mikrofonunuzdan ses gelmiyor. Sessize alınmadığını kontrol edip konuşmayı deneyin.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>No sound is reaching Polyglotic. Is audio playing on the selected output?</source>
+        <translation type="unfinished">Polyglotic&apos;e ses ulaşmıyor. Seçilen çıkışta ses çalıyor mu?</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/capture_status.py"/>
+        <source>Recording failed. Check the selected device in your Linux sound settings.</source>
+        <translation type="unfinished">Kayıt başarısız oldu. Linux ses ayarlarında seçilen aygıtı kontrol edin.</translation>
+    </message>
+</context>
+<context>
     <name>ColourControls</name>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1076,7 +1139,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Quiet</source>
-        <translation type="unfinished">Sakin</translation>
+        <translation>Sakin</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1086,7 +1149,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Clear</source>
-        <translation type="unfinished">Saydam</translation>
+        <translation>Saydam</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1191,7 +1254,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Light</source>
-        <translation type="unfinished">Hafif</translation>
+        <translation>Hafif</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1231,7 +1294,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How strongly captions stand out from their panel. Soft is as faint as a line still being spoken, never too faint to read; Crisp draws every line at full strength.</source>
-        <translation type="unfinished">Altyazıların panelden ne kadar belirgin durduğu. Yumuşak, hâlâ söylenen metin kadar soluktur ve okunamayacak kadar solmaz; Keskin her satırı tam güçte çizer.</translation>
+        <translation>Altyazının panel üzerinde ne kadar belirgin olduğunu ayarlar. Yumuşak, satırları konuşma sürerken olduğu kadar soluk ama okunaklı gösterir. Keskin, tüm satırları en belirgin hâliyle gösterir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1261,7 +1324,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>How thick captions&apos; letters are, and their readings a step thicker. A font without a weight draws the nearest it has.</source>
-        <translation type="unfinished">Altyazı harflerinin ne kadar kalın olduğu; pinyin bir adım daha kalın. Bu kalınlığı olmayan bir yazı tipi, sahip olduğu en yakın kalınlığı kullanır.</translation>
+        <translation>Altyazı harflerinin kalınlığı. Okunuşlar bir kademe daha kalın görünür. Yazı tipinde seçilen kalınlık yoksa en yakın kalınlık kullanılır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
@@ -1286,7 +1349,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/colour_controls.py"/>
         <source>Around the letters</source>
-        <translation type="unfinished">Harflerin çevresi</translation>
+        <translation>Harflerin çevresi</translation>
     </message>
 </context>
 <context>
@@ -1417,12 +1480,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished">Panoya kopyalandı</translation>
+        <translation>Panoya kopyalandı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/copying.py"/>
         <source>Saved</source>
-        <translation type="unfinished">Kaydedildi</translation>
+        <translation>Kaydedildi</translation>
     </message>
 </context>
 <context>
@@ -1583,7 +1646,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Clicks pass through to the windows underneath</source>
-        <translation type="unfinished">Tıklamalar alttakine geçer</translation>
+        <translation>Tıklamalar alttaki pencerelere gider</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1618,22 +1681,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Help build Polyglotic…</source>
-        <translation type="unfinished">Bize yaz</translation>
+        <translation>Polyglotic&apos;i geliştirmeye yardım et…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the tray</source>
-        <translation type="unfinished">Altyazıyı durdur ve Polyglotic&apos;i kapat - pencereyi kapatmak onu sistem tepsisinde tutar</translation>
+        <translation>Polyglotic&apos;ten çık — pencereyi kapatırsan uygulama sistem tepsisinde kalır</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it in the menu bar</source>
-        <translation type="unfinished">Altyazıyı durdur ve Polyglotic&apos;i kapat - pencereyi kapatmak onu menü çubuğunda tutar</translation>
+        <translation>Polyglotic&apos;ten çık — pencereyi kapatırsan uygulama menü çubuğunda kalır</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Quit Polyglotic - closing the window keeps it running</source>
-        <translation type="unfinished">Altyazıyı durdur ve Polyglotic&apos;i kapat - pencereyi kapatmak onu çalışır durumda tutar</translation>
+        <translation>Polyglotic&apos;ten çık — pencereyi kapatırsan uygulama çalışmaya devam eder</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1667,20 +1730,60 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict: {keys}</source>
+        <translation type="unfinished">Kısayol çakışması: {keys}</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}</source>
+        <translation type="unfinished">Başka bir program {keys} tuşunu kullanıyor</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey shared with another program</source>
+        <translation type="unfinished">Kısayol başka bir programla paylaşılıyor</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program also uses {key} ({name}). Polyglotic shares it so it still works; open Settings &gt; Hotkeys to switch.</source>
+        <translation type="unfinished">Başka bir program da {key} ({name}) kısayolunu kullanıyor. Polyglotic çalışmaya devam etmesi için paylaşıyor; değiştirmek için Ayarlar &gt; Kısayollar&apos;ı aç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflict</source>
+        <translation type="unfinished">Kısayol çakışması</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>{name} ({key}) is used by another program. Open Settings &gt; Hotkeys to choose a free key.</source>
+        <translation type="unfinished">{name} ({key}) başka bir program tarafından kullanılıyor. Boş bir tuş seçmek için Ayarlar &gt; Kısayollar&apos;ı aç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Hotkey conflicts</source>
+        <translation type="unfinished">Kısayol çakışmaları</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
+        <source>Another program uses {keys}. Open Settings &gt; Hotkeys to choose free keys.</source>
+        <translation type="unfinished">Başka bir program {keys} kullanıyor. Boş tuşlar seçmek için Ayarlar &gt; Kısayollar&apos;ı aç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows captioning {apps}</source>
-        <translation type="unfinished">{apps} gizliyken altyazılanıyor</translation>
+        <translation>Gizli pencerelerde altyazısı gösterilenler: {apps}</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Hidden windows paused after %n minutes - show them to resume</source>
-        <translation type="unfinished">
-            <numerusform>Altyazılar %n dakika gizli kaldıktan sonra duraklatıldı - devam etmek için pencereleri gösterin</numerusform>
+        <translation>
+            <numerusform>Gizli pencereler %n dakika sonra duraklatıldı. Sürdürmek için pencereleri göster</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Nothing selected to caption</source>
-        <translation type="unfinished">Altyazılar henüz başlamadı</translation>
+        <translation>Altyazı için kaynak seçilmedi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1690,22 +1793,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captions are paused</source>
-        <translation type="unfinished">Polyglotic hâlâ çalışıyor, altyazılar duraklatıldı</translation>
+        <translation>Altyazılar duraklatıldı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to resume or quit.</source>
-        <translation type="unfinished">Sistem tepsisinde. Oradan sürdür ya da çık.</translation>
+        <translation>Sürdürmek veya çıkmak için sistem tepsisindeki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to resume or quit.</source>
-        <translation type="unfinished">Menü çubuğunda. Oradan sürdür ya da çık.</translation>
+        <translation>Sürdürmek veya çıkmak için menü çubuğundaki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to resume or quit.</source>
-        <translation type="unfinished">Simgesi panelde. Oradan sürdür ya da çık.</translation>
+        <translation>Sürdürmek veya çıkmak için paneldeki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1715,17 +1818,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the tray icon to quit.</source>
-        <translation type="unfinished">Sistem tepsisinde. Oradan çık.</translation>
+        <translation>Çıkmak için sistem tepsisindeki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the menu bar icon to quit.</source>
-        <translation type="unfinished">Menü çubuğunda. Oradan çık.</translation>
+        <translation>Çıkmak için menü çubuğundaki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Use the panel icon to quit.</source>
-        <translation type="unfinished">Simgesi panelde. Oradan çık.</translation>
+        <translation>Çıkmak için paneldeki simgeyi kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
@@ -1755,27 +1858,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Captioning is starting - the first captions may be slow.</source>
-        <translation type="unfinished">Konuşma modeli başlatılıyor - ilk altyazılar yavaş olabilir.</translation>
+        <translation>Altyazılar başlatılıyor. İlk altyazılar biraz gecikebilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Translation is starting - captions appear first.</source>
-        <translation type="unfinished">Çevirmen başlatılıyor - önce altyazılar, çeviriler biraz sonra.</translation>
+        <translation>Çeviri başlatılıyor. Önce altyazılar görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Polyglotic&apos;s server is restarting - captions resume shortly.</source>
-        <translation type="unfinished">Sunucu yeniden başlatılıyor - altyazılar birazdan devam edecek.</translation>
+        <translation>Polyglotic sunucusu yeniden başlatılıyor. Altyazılar birazdan devam edecek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Lots of speech at once - captions update less often</source>
-        <translation type="unfinished">Aynı anda çok konuşma - canlı güncellemeler yavaşladı; altyazılar sürüyor</translation>
+        <translation>Aynı anda çok fazla konuşma var — altyazılar daha seyrek güncelleniyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Listening continues on another device</source>
-        <translation type="unfinished">Dinleme başka bir cihaza geçti</translation>
+        <translation>Dinleme başka bir cihazda sürüyor</translation>
     </message>
 </context>
 <context>
@@ -1947,6 +2050,48 @@
         <source>Menu</source>
         <extracomment>the key that opens a program&apos;s right-click menu</extracomment>
         <translation>Menü</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Play/Pause</source>
+        <extracomment>the keyboard&apos;s Play/Pause media key</extracomment>
+        <translation type="unfinished">Oynat/Duraklat</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Stop</source>
+        <extracomment>the keyboard&apos;s Stop media key</extracomment>
+        <translation type="unfinished">Durdur</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Next track</source>
+        <extracomment>the keyboard&apos;s Next Track media key</extracomment>
+        <translation type="unfinished">Sonraki parça</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Previous track</source>
+        <extracomment>the keyboard&apos;s Previous Track media key</extracomment>
+        <translation type="unfinished">Önceki parça</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Up</source>
+        <extracomment>the keyboard&apos;s Volume Up key</extracomment>
+        <translation type="unfinished">Sesi Artır</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Volume Down</source>
+        <extracomment>the keyboard&apos;s Volume Down key</extracomment>
+        <translation type="unfinished">Sesi Azalt</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
+        <source>Mute</source>
+        <extracomment>the keyboard&apos;s Mute key</extracomment>
+        <translation type="unfinished">Sessize Al</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/dictation_key.py"/>
@@ -2273,7 +2418,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
         <source>A font for each language&apos;s captions.</source>
-        <translation type="unfinished">Her dilin altyazıları kendi yazı tipinde.</translation>
+        <translation>Altyazılar için her dile ayrı bir yazı tipi seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/face_rows.py"/>
@@ -2396,12 +2541,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">{limit} karaktere kısalt</translation>
+        <translation>{limit} karaktere kısalt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/feedback.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} / {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
 </context>
 <context>
@@ -2432,7 +2577,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Checks each step now and stops at the first problem.</source>
-        <translation type="unfinished">Bu, Polyglotic&apos;in şu an ne yaptığını sırayla kontrol eder ve ters giden ilk şeyde durur.</translation>
+        <translation>Her adımı sırayla kontrol eder ve ilk sorunda durur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2477,7 +2622,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Your report includes these results, but nothing you heard or read.</source>
-        <translation type="unfinished">Raporun bu kontrolün sonucuyla gelir: yalnızca geçti veya kaldı, duyduğun ya da okuduğun hiçbir şey yok.</translation>
+        <translation>Bu sonuçlar raporuna eklenir. Duyduğun veya okuduğun içerik rapora girmez.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2487,7 +2632,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Suggest a feature</source>
-        <translation type="unfinished">Özellik öner</translation>
+        <translation>Özellik öner</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2497,7 +2642,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Move, lock and resize caption windows</source>
-        <translation type="unfinished">Altyazı pencerelerini taşı, kilitle ve boyutlandır</translation>
+        <translation>Altyazı pencerelerini taşı, kilitle ve boyutlandır</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2527,7 +2672,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Signed in and connected to the server</source>
-        <translation type="unfinished">Oturum açık ve sunucuya bağlı</translation>
+        <translation>Oturum açık, sunucuya bağlı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2631,7 +2776,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>The server is at capacity. Polyglotic will keep trying.</source>
-        <translation type="unfinished">Şu an kaldırabileceği kadar dinleyici var. Polyglotic kendiliğinden yeniden dener - yapman gereken bir şey yok.</translation>
+        <translation>Sunucu kapasitesi dolu. Polyglotic yeniden bağlanmayı deneyecek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2656,7 +2801,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Nothing to caption</source>
-        <translation type="unfinished">Altyazı eklenecek bir şey eklenmedi</translation>
+        <translation>Altyazı eklenecek kaynak yok</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2676,7 +2821,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Open it to start captions.</source>
-        <translation type="unfinished">Aç. Açıldığı anda altyazı eklenir.</translation>
+        <translation>Altyazıları başlatmak için uygulamayı aç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2698,12 +2843,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this PC&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Ses çalıyor mu? Çıkışı bu bilgisayarın hoparlörlerine ya da kulaklığına gidiyor ve sessizde değil mi?</translation>
+        <translation>Bir ses oynat. Sesin bu bilgisayarın hoparlörlerinden veya kulaklığından geldiğini ve sesin kapalı olmadığını kontrol et.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Play something, then check that it uses this Mac&apos;s speakers or headset and isn&apos;t muted.</source>
-        <translation type="unfinished">Ses çalıyor mu? Çıkışı bu bilgisayarın hoparlörlerine ya da kulaklığına gidiyor ve sessizde değil mi?</translation>
+        <translation>Bir ses oynat. Sesin bu Mac&apos;in hoparlörlerinden veya kulaklığından geldiğini ve sesin kapalı olmadığını kontrol et.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2739,12 +2884,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this PC&apos;s sound settings.</source>
-        <translation type="unfinished">Sessize mi alınmış, yoksa bilgisayarın ses ayarlarında başka bir mikrofon mu seçili?</translation>
+        <translation>Mikrofonun sesinin açık olduğunu ve bu bilgisayarın ses ayarlarında seçili olduğunu kontrol et.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Check that it isn&apos;t muted and is selected in this Mac&apos;s sound settings.</source>
-        <translation type="unfinished">Sessize mi alınmış, yoksa bilgisayarın ses ayarlarında başka bir mikrofon mu seçili?</translation>
+        <translation>Mikrofonun sesinin açık olduğunu ve bu Mac&apos;in ses ayarlarında seçili olduğunu kontrol et.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2766,12 +2911,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Sound heard, but no speech</source>
-        <translation type="unfinished">Ses var ama konuşma duyulmadı</translation>
+        <translation>Ses algılandı, konuşma algılanmadı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Music and sound effects aren&apos;t captioned. Play clear speech louder than any background sound.</source>
-        <translation type="unfinished">Müzik ve efektlere altyazı eklenmez. Biri diğer seslerin üzerinden duyulacak kadar yüksek konuşuyor mu?</translation>
+        <translation>Müzik ve ses efektlerine altyazı eklenmez. Arka plan seslerinden daha yüksek, net bir konuşma oynat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2861,7 +3006,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Speech heard, but no captions shown</source>
-        <translation type="unfinished">Konuşma duyuldu ama hiç altyazı çizilmedi</translation>
+        <translation>Konuşma algılandı, altyazı görünmedi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2907,7 +3052,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption one app separately</source>
-        <translation type="unfinished">Bir uygulamaya ve geri kalan her şeye ayrı ayrı altyazı ekle</translation>
+        <translation>Bir uygulamanın altyazısını ayrı göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2927,7 +3072,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Caption everything the PC plays</source>
-        <translation type="unfinished">Bilgisayarın çaldığı her şeye altyazı ekle</translation>
+        <translation>Bilgisayarın çaldığı her şeye altyazı ekle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -2972,7 +3117,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In a caption window, press Home or Ctrl+Home to jump to the first caption, and End or Ctrl+End to return to live.</source>
-        <translation type="unfinished">Bir altyazı penceresinde ilk altyazıya gitmek için Home veya Ctrl+Home, canlıya dönmek için End veya Ctrl+End tuşuna basın.</translation>
+        <translation>Altyazı penceresinde ilk altyazıya gitmek için Home veya Ctrl+Home, canlı altyazıya dönmek için End veya Ctrl+End tuşlarına bas.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3002,7 +3147,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Desktop shortcuts</source>
-        <translation type="unfinished">Masaüstünüzün kendi kısayolları</translation>
+        <translation>Masaüstü kısayolları</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3032,7 +3177,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Dictate into any app (preview)</source>
-        <translation type="unfinished">Her programa dikte et (önizleme)</translation>
+        <translation>Herhangi bir uygulamaya dikte et (önizleme)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3123,12 +3268,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>Captioning a call</source>
-        <translation type="unfinished">Bir aramaya altyazı ekleme</translation>
+        <translation>Görüşmeye altyazı ekleme</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
         <source>In some places everyone on a call has to agree before it&apos;s captioned. Tell the people you&apos;re talking with.</source>
-        <translation type="unfinished">Bazı yerlerde, bir aramaya altyazı eklenmeden önce aramadaki herkesin onay vermesi gerekir. Konuştuğunuz kişilere haber verin.</translation>
+        <translation>Bazı yerlerde bir görüşmeye altyazı eklemek için tüm katılımcıların onayı gerekir. Konuştuğun kişilere haber ver.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/help_page.py"/>
@@ -3302,7 +3447,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic is busy - trying again soon</source>
-        <translation type="unfinished">Polyglotic yoğun. Birkaç dakika sonra tekrar deneyin</translation>
+        <translation>Polyglotic yoğun — birazdan yeniden deniyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3342,7 +3487,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Can&apos;t connect to Polyglotic</source>
-        <translation type="unfinished">Polyglotic&apos;in sunucusuna ulaşılamıyor</translation>
+        <translation>Polyglotic&apos;e bağlanılamıyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3352,7 +3497,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Polyglotic&apos;s server reported an error</source>
-        <translation type="unfinished">Polyglotic&apos;in sunucusunda bir sorun var</translation>
+        <translation>Polyglotic sunucusu hata bildirdi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3554,27 +3699,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this PC appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">bu bilgisayar çevrimdışı görünüyor. İnternet bağlantısını kontrol et; çalışıyorsa sorun bizde</translation>
+        <translation>bu bilgisayar çevrimdışı görünüyor. İnternet bağlantısını kontrol et. Bağlantı varsa Polyglotic hizmeti kesintide olabilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>this Mac appears to be offline. Check its internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">bu bilgisayar çevrimdışı görünüyor. İnternet bağlantısını kontrol et; çalışıyorsa sorun bizde</translation>
+        <translation>bu Mac çevrimdışı görünüyor. İnternet bağlantısını kontrol et. Bağlantı varsa Polyglotic hizmeti kesintide olabilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>check your internet connection. If it works, Polyglotic may be down</source>
-        <translation type="unfinished">internetini kontrol et; çalışıyorsa sorun büyük olasılıkla bizde</translation>
+        <translation>internet bağlantını kontrol et. Bağlantı varsa Polyglotic hizmeti kesintide olabilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>the problem is with Polyglotic. Captions resume automatically</source>
-        <translation type="unfinished">senin internetin değil - sorun bizde. Altyazılar kendiliğinden geri gelir</translation>
+        <translation>sorun Polyglotic&apos;te. Altyazılar kendiliğinden devam edecek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>captions resume automatically shortly</source>
-        <translation type="unfinished">altyazılar birazdan kendiliğinden geri gelir</translation>
+        <translation>altyazılar birazdan kendiliğinden devam edecek</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3633,7 +3778,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>not playing</source>
-        <translation type="unfinished">sessiz</translation>
+        <translation>ses çalmıyor</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3685,7 +3830,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Translate into</source>
-        <translation type="unfinished">Çeviri dili</translation>
+        <translation>Çeviri dili</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3755,7 +3900,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>{app}&apos;s window: translate into</source>
-        <translation type="unfinished">{app} penceresinin dili</translation>
+        <translation>{app} penceresinin çeviri dili</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3790,7 +3935,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>What to caption</source>
-        <translation type="unfinished">Neye altyazı eklenecek</translation>
+        <translation>Altyazı kaynakları</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3800,7 +3945,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Also caption everything else</source>
-        <translation type="unfinished">Bilgisayarın çaldığı diğer her şeye de altyazı ekle (kendi penceresinde)</translation>
+        <translation>Diğer tüm seslere de altyazı ekle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3815,7 +3960,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>apps that can play sound, those playing first</source>
-        <translation type="unfinished">sesi açık uygulamalar, çalanlar önce</translation>
+        <translation>ses çalabilen uygulamalar, şu anda çalanlar önce</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3840,7 +3985,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Now pick one of your apps to caption</source>
-        <translation type="unfinished">Altyazı eklenecek uygulamayı seç</translation>
+        <translation>Şimdi altyazı eklenecek bir uygulama seç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3860,22 +4005,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Only the apps you choose, each in its own window.</source>
-        <translation type="unfinished">Yalnızca seçtiğiniz uygulamalar için altyazı oluşturun.</translation>
+        <translation>Yalnızca seçtiğin uygulamalar. Her biri ayrı pencerede.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>All apps&apos; sound together, in one window.</source>
-        <translation type="unfinished">Tüm uygulamaların sesleri için birlikte altyazı oluşturun.</translation>
+        <translation>Tüm uygulamaların sesi birlikte, tek bir pencerede.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Try apps one by one again</source>
-        <translation type="unfinished">Uygulamaları yeniden dene</translation>
+        <translation>Uygulamaları yeniden tek tek dene</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Your speech is shown as</source>
-        <translation type="unfinished">Konuşmanın etiketi</translation>
+        <translation>Konuşma etiketin</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3895,17 +4040,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: shown in {windows}. Your mic is sent for your captions only while it&apos;s shown</source>
-        <translation type="unfinished">Konuşmam: {windows} içinde gösteriliyor - altyazıların için yalnızca bir pencere gösterirken gönderilir</translation>
+        <translation>Konuşmam {windows} içinde görünüyor. Mikrofon sesi yalnızca konuşman gösterilirken altyazı için gönderilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>My speech: not shown in any window - turn it on with a row&apos;s mic, or in a window&apos;s settings</source>
-        <translation type="unfinished">Konuşmam: hiçbir pencerede gösterilmiyor - bir satırın mikrofonuyla ya da pencere ayarlarından aç</translation>
+        <translation>Konuşmam hiçbir pencerede görünmüyor. Bir satırdaki mikrofon düğmesinden veya pencere ayarlarından açabilirsin</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Caption everything the PC plays</source>
-        <translation type="unfinished">PC üzerinde çalınan her şey için altyazı oluştur</translation>
+        <translation>PC üzerinde çalınan her şey için altyazı oluştur</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -3995,7 +4140,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>One app plus everything else - turn off Also caption everything else to add another</source>
-        <translation type="unfinished">Bir uygulama ve diğer her şey - başka birini eklemek için bunu kapat</translation>
+        <translation>Bir uygulama ve diğer tüm sesler. Başka uygulama eklemek için “Diğer tüm seslere de altyazı ekle” seçeneğini kapat</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4015,7 +4160,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Last session</source>
-        <translation type="unfinished">Last session</translation>
+        <translation>Son oturum</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4050,7 +4195,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>View all changes</source>
-        <translation type="unfinished">Tüm değişiklikler</translation>
+        <translation>Tüm değişiklikleri gör</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4200,12 +4345,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>Them {average} avg · {peak} peak</source>
-        <translation type="unfinished">Them {average} avg · {peak} peak</translation>
+        <translation>Diğerleri: ort. {average} · en yüksek {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
         <source>You {average} avg · {peak} peak</source>
-        <translation type="unfinished">You {average} avg · {peak} peak</translation>
+        <translation>Sen: ort. {average} · en yüksek {peak}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/home.py"/>
@@ -4288,7 +4433,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/app.py"/>
         <source>Open a caption window&apos;s controls</source>
-        <translation type="unfinished">Altyazı çubuğunun denetimlerini aç</translation>
+        <translation>Altyazı penceresinin denetimlerini aç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4342,13 +4487,28 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any program, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Her programda, önde bir oyun olsa bile çalışırlar. Bir tuşa tıkla, sonra istediğin tuşa bas.</translation>
+        <source>In Polyglotic&apos;s windows</source>
+        <translation type="unfinished">Polyglotic pencerelerinde</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>They work from any app, even a game in front. Click a key, then press the one you want.</source>
-        <translation>Her uygulamada, önde bir oyun olsa bile çalışırlar. Bir tuşa tıkla, sonra istediğin tuşa bas.</translation>
+        <source>Everywhere</source>
+        <translation type="unfinished">Her yerde</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>{name}&apos;s scope</source>
+        <translation type="unfinished">{name} kapsamı</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Use {key}</source>
+        <translation type="unfinished">{key} kullan</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Choose any key or combination, and whether it acts only in Polyglotic&apos;s windows or everywhere. Click a key, then press the one you want.</source>
+        <translation type="unfinished">Herhangi bir tuş veya kombinasyon seç ve yalnızca Polyglotic pencerelerinde mi yoksa her yerde mi çalışacağını belirle. Bir tuşa tıkla, sonra istediğin tuşa bas.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4362,8 +4522,8 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>This desktop doesn&apos;t allow global hotkeys. Add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
-        <translation>Bu masaüstü genel kısayollara izin vermiyor. Bunun yerine masaüstünüzün klavye ayarlarında (GNOME: Ayarlar &gt; Klavye &gt; Özel Kısayollar) {command} --lock, --pause veya --hide komutuyla özel bir kısayol ekleyin.</translation>
+        <source>This desktop doesn&apos;t allow global hotkeys. Hotkeys set to In Polyglotic&apos;s windows still work; for global shortcuts, add a custom shortcut in your desktop&apos;s keyboard settings (GNOME: Settings &gt; Keyboard &gt; Custom Shortcuts) with the command {command} --lock, --pause or --hide instead.</source>
+        <translation type="unfinished">Bu masaüstü genel kısayollara izin vermiyor. «Polyglotic pencerelerinde» olarak ayarlanan kısayollar çalışmaya devam eder; genel kısayollar için masaüstü klavye ayarlarından (GNOME: Ayarlar &gt; Klavye &gt; Özel Kısayollar) {command} --lock, --pause veya --hide komutunu ekle.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4372,13 +4532,33 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Another program has this key: choose another.</source>
-        <translation>Bu tuş başka bir programda: başka bir tuş seç.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose a free key:</source>
+        <translation type="unfinished">Başka bir program {key} kullanıyor, bu yüzden burada çalışmayacak. Boş bir tuş seç:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
-        <source>Space works in caption and transcript windows.</source>
-        <translation type="unfinished">Boşluk tuşu altyazı ve döküm pencerelerinde çalışır.</translation>
+        <source>Another program uses {key}, so it won&apos;t work here. Choose another.</source>
+        <translation type="unfinished">Başka bir program {key} kullanıyor, bu yüzden burada çalışmayacak. Başka bir tane seç.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works, or switch to a free key:</source>
+        <translation type="unfinished">Başka bir program da {key} kullanıyor. Polyglotic çalışmaya devam etmesi için paylaşıyor ya da boş bir tuşa geçebilirsin:</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Another program also uses {key}. Polyglotic shares it so it still works.</source>
+        <translation type="unfinished">Başka bir program da {key} kullanıyor. Polyglotic çalışmaya devam etmesi için paylaşıyor.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>This key types: it will also run this hotkey while you type in other apps (the key still goes through to them).</source>
+        <translation type="unfinished">Bu tuş yazı yazar: başka uygulamalarda yazarken de bu kısayolu çalıştırır (tuş yine de o uygulamalara iletilir).</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
+        <source>Global hotkeys aren&apos;t available on this desktop. Switch to In Polyglotic&apos;s windows to use it inside the app.</source>
+        <translation type="unfinished">Bu masaüstünde genel kısayollar kullanılamıyor. Uygulama içinde kullanmak için «Polyglotic pencerelerinde» seçeneğine geç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4408,12 +4588,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Hold a key to type it</source>
-        <translation type="unfinished">Basılı tutma tuşunu etkinleştir</translation>
+        <translation>Yazmak için tuşa basılı tut</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Types what was said, or its translation, from the caption window you&apos;re watching. With no captions, it listens to the speakers chosen in Settings &gt; Speech.</source>
-        <translation type="unfinished">Baktığınız altyazı penceresindeki metni veya çeviriyi kullanın. Altyazı yoksa Ayarlar &gt; Konuşma bölümünde seçilen hoparlörler dinlenir.</translation>
+        <translation>İzlediğin altyazı penceresindeki konuşmayı veya çevirisini yazar. Altyazı yoksa Ayarlar &gt; Konuşma bölümünde seçtiğin hoparlörleri dinler.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4433,7 +4613,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Share dictation&apos;s key</source>
-        <translation type="unfinished">İkisi için tek tuş</translation>
+        <translation>Dikteyle aynı tuşu kullan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4458,7 +4638,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>the key you choose</source>
-        <translation type="unfinished">tuşunu</translation>
+        <translation>seçtiğin</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4473,12 +4653,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Jump to the first caption</source>
-        <translation type="unfinished">İlk altyazıya git</translation>
+        <translation>İlk altyazıya git</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>Back to live in a caption or transcript window</source>
-        <translation type="unfinished">Altyazı penceresinde veya dökümde canlıya dön</translation>
+        <translation>Altyazı veya döküm penceresinde canlı altyazıya dön</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
@@ -4498,7 +4678,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/hotkeys_card.py"/>
         <source>While a caption window, a transcript or a word&apos;s card is the active window.</source>
-        <translation type="unfinished">Bir altyazı penceresi, döküm veya kelime kartı etkin pencereyken.</translation>
+        <translation>Altyazı penceresi, döküm veya kelime kartı etkin pencereyken.</translation>
     </message>
 </context>
 <context>
@@ -4526,7 +4706,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
         <source>Minimise</source>
-        <translation type="unfinished">Simge durumuna küçült</translation>
+        <translation>Simge durumuna küçült</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/joined_window.py"/>
@@ -4801,12 +4981,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>All at once to Older captions&apos; brightness, or step by step, each caption back a little dimmer, over the number of captions you choose.</source>
-        <translation type="unfinished">Hepsi birden eski altyazıların parlaklığına ya da adım adım: geriye doğru her altyazı biraz daha soluk, bu kadar altyazı boyunca.</translation>
+        <translation>Parlaklık tek adımda Eski altyazılar ayarındaki düzeye iner ya da seçtiğin altyazı sayısı boyunca her eski altyazı biraz daha soluk görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Default</source>
-        <translation type="unfinished">Varsayılan</translation>
+        <translation>Varsayılan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4836,7 +5016,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>How a line that may still change looks beside finished text. Default: dim italic in Whole captions, a little dim in the other timings. Colour: the theme&apos;s blue.</source>
-        <translation type="unfinished">Hâlâ değişebilecek bir satırın kesin metnin yanında nasıl göründüğü. Varsayılan: Tam altyazılar&apos;da soluk italik, diğer zamanlamalarda biraz soluk. Renk: temanın mavisi.</translation>
+        <translation>Henüz değişebilen satırın kesin metnin yanında nasıl görüneceğini seç. Varsayılan olarak Tam altyazılar modunda soluk ve eğik, diğer zamanlamalarda biraz soluk görünür. Renk seçeneği temanın mavisini kullanır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4901,7 +5081,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Captions that arrive together come in one at a time, at least this far apart and in order - none is dropped. 0 s: as they come. None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">Birlikte gelen altyazılar en az bu kadar arayla ve sırayla tek tek gelir - hiçbiri düşmez. 0 sn: geldikleri gibi. Hiçbiri metin için en uzun bekleme süresinden fazla beklemez.</translation>
+        <translation>Birlikte gelen altyazılar sırayla ve en az bu kadar arayla görünür. Hepsi gösterilir. 0 sn ile geldikleri anda görünürler. Bekleme, Zamanlama bölümündeki “Metin için en uzun bekleme” sınırını aşmaz.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4911,17 +5091,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new caption&apos;s lines show one at a time, this far apart, instead of all together. 0 s: together (the default). None waits longer than Longest wait for text, in Timing.</source>
-        <translation type="unfinished">Yeni bir altyazının satırları hep birlikte değil, bu aralıkla birer birer görünür. 0 s: şimdiki gibi birlikte. Hiçbiri metin için en uzun bekleme süresinden fazla beklemez.</translation>
+        <translation>Yeni altyazının satırları bu aralıkla tek tek görünür. 0 sn ile hepsi aynı anda görünür (varsayılan). Bekleme, Zamanlama bölümündeki “Metin için en uzun bekleme” sınırını aşmaz.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Reset the Lab</source>
-        <translation type="unfinished">Laboratuvarı sıfırla</translation>
+        <translation>Laboratuvarı sıfırla</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Every Lab setting back to its default.</source>
-        <translation type="unfinished">Laboratuvardaki tüm ayarlar Polyglotic&apos;in varsayılanına.</translation>
+        <translation>Tüm Laboratuvar ayarlarını varsayılana döndürür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4971,7 +5151,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>&quot;You&quot; over what you say: as usual, in a badge, or not shown.</source>
-        <translation type="unfinished">Söylediklerinin üstünde &quot;Sen&quot;: şimdiki gibi, rozet içinde ya da hiç gösterilmeden.</translation>
+        <translation>Söylediklerinin üstündeki “Sen” etiketini normal biçimde veya rozet içinde göster ya da gizle.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -4991,17 +5171,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line by line: a line of what was said, then the line of its translation, both cut where their words match. A long clause that can&apos;t be cut wraps.</source>
-        <translation type="unfinished">Satır satır: söylenenin bir satırı, altında çevirisinin satırı; ikisi de sözcüklerinin eşleştiği yerden bölünür. Böyle bölünemeyen uzun bir cümlecik şimdiki gibi alt satıra kayar.</translation>
+        <translation>Satır satır düzeninde konuşma satırının altında çevirisi yer alır. İkisi de kelimelerin eşleştiği yerden bölünür. Bölünemeyen uzun bir ifade alt satıra taşar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Fill the width</source>
-        <translation type="unfinished">Genişliği doldur</translation>
+        <translation>Genişliği doldur</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Off: each clause on a row of its own (the default). Translation below: a caption&apos;s clauses run on in lines as wide as the window, and its translation fills the lines under them. No Arrows while this is on.</source>
-        <translation type="unfinished">Kapalı: şimdiki gibi her yan cümle kendi satırında. Çeviri altta: bir altyazının yan cümleleri pencere genişliğindeki satırlarda art arda akar, çevirisi de altlarındaki satırları doldurur. Altyazılar genişliği doldururken Oklar yok.</translation>
+        <translation>Kapalıyken her ifade ayrı satırda görünür (varsayılan). Çeviri altta seçeneğinde ifadeler pencere genişliğinde art arda görünür, çevirileri alt satırlara yayılır. Bu düzende Oklar kapalıdır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5021,7 +5201,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>With Fill the width: an ellipsis where one clause ends and the next begins, one at the end of every line that runs on as well, or only a space. Choosing one while Fill the width is Off sets it to Translation below.</source>
-        <translation type="unfinished">Altyazılar genişliği doldururken: bir yan cümlenin bitip sonrakinin başladığı yere üç nokta, devam eden her satırın sonuna da bir tane, ya da yalnızca bir boşluk. Altyazılar genişliği doldursun Kapalıyken birini seçmek onu Çeviri altta yapar.</translation>
+        <translation>Genişliği doldur açıkken ifadelerin arasına üç nokta koyabilir, taşan her satırın sonuna da ekleyebilir veya yalnızca boşluk bırakabilirsin. Ayar Kapalı ise bir seçenek belirlediğinde Çeviri altta açılır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5031,7 +5211,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>A new way to lay out captions, with Fill the width on or off: Arrows and word links work in every layout and in Learning load, and Line by line always fills its lines.</source>
-        <translation type="unfinished">Altyazılar, genişliği nasıl doldururlarsa doldursunlar yeni bir şekilde yerleştirilir: Oklar ve kelime bağları hepsinde ve Öğrenme yükünde çalışır, Satır satır da satırlarını her zaman doldurur.</translation>
+        <translation>Genişliği doldur açıkken de kapalıyken de yeni bir altyazı düzeni kullanılır. Oklar ve kelime bağları tüm düzenlerde ve Öğrenme yükünde çalışır. Satır satır düzeni her zaman genişliği doldurur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5046,7 +5226,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Line up the parts</source>
-        <translation type="unfinished">Parçaları hizala</translation>
+        <translation>Parçaları hizala</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5076,12 +5256,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Where the parts of a line go in the room the line has. Packed: each straight after the one before (the default). Nearest their links: each part moves over its translation&apos;s words, so the word links are as short as they can be. Evenly: a full line&apos;s parts are spread over the width. Choosing one also turns on New layout.</source>
-        <translation type="unfinished">Bir satırın parçalarının, satırdaki boş yerde nereye konacağı. Sıkışık: her biri bir öncekinin hemen ardında, şimdiki gibi. Bağlarına yakın: her parça çevirisindeki kelimelerin üstüne kayar, böylece kelime bağları olabildiğince kısa olur. Eşit aralıklı: dolu bir satırın parçaları genişliğe yayılır. Birini seçmek Yeni düzen&apos;i de açar.</translation>
+        <translation>Satır parçalarının boş alana nasıl yerleşeceğini seç. Sıkışık, parçaları art arda dizer (varsayılan). Bağlarına yakın, her parçayı çevirisindeki kelimelerin üstüne kaydırarak kelime bağlarını kısaltır. Eşit aralıklı, dolu bir satırın parçalarını genişliğe yayar. Birini seçmek Yeni düzen&apos;i de açar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Öğrenme yükü</translation>
+        <translation>Öğrenme yükü</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5091,7 +5271,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
         <source>{open} - its words, the check of what you know and its settings.</source>
-        <translation type="unfinished">{open} - kelimeleri, kontrol ve ayarları.</translation>
+        <translation>{open} — kelimeler, seviye kontrolü ve ayarlar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lab_panel.py"/>
@@ -5557,7 +5737,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words beyond your level</source>
-        <translation type="unfinished">Bildiklerinin ötesi</translation>
+        <translation>Seviyenin üstündekiler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5572,7 +5752,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose whether every word or only words beyond a frequency rank or your level get links to their translation.</source>
-        <translation type="unfinished">Kelime bağları açıkken hangi kelimelerin çevirisine bağlanacağı.</translation>
+        <translation>Çevirisine bağlanacak kelimeleri seç. Tüm kelimeleri, belli bir sıklık sırasından sonrakileri veya seviyenin üstündekileri bağlayabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5582,12 +5762,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Link words after</source>
-        <translation type="unfinished">Bağları şuradan başlat</translation>
+        <translation type="unfinished">Kelime bağları için eşik</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Frequency rank {rank}</source>
-        <translation type="unfinished">Sıklık sırası {rank}</translation>
+        <translation>Sıklık sırası {rank}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5597,7 +5777,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Takes effect when Polyglotic next starts</source>
-        <translation type="unfinished">Polyglotic&apos;in bir sonraki açılışından itibaren</translation>
+        <translation>Polyglotic yeniden açıldığında geçerli olur</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5607,7 +5787,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Keeps its words; delete them on Account</source>
-        <translation type="unfinished">Kelimeleri tutulur - Hesap&apos;tan sil</translation>
+        <translation>Kelimeler saklanır. Hesap sayfasından silebilirsin</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5632,7 +5812,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Mark common words as known</source>
-        <translation type="unfinished">En yaygın kelimeleri bilinen işaretle</translation>
+        <translation>Yaygın kelimeleri bilinen olarak işaretle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5669,17 +5849,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>New words to highlight</source>
-        <translation type="unfinished">Öğrenme aralığı</translation>
+        <translation>Vurgulanacak yeni kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of words</source>
-        <translation type="unfinished">Aralıktaki kelime sayısı</translation>
+        <translation>Kelime sayısı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Number of new words to highlight</source>
-        <translation type="unfinished">Öğrenme aralığındaki kelime sayısı</translation>
+        <translation>Vurgulanacak yeni kelime sayısı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5689,12 +5869,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights every word beyond your level, however rare. Hover or click any word to look it up.</source>
-        <translation type="unfinished">Bildiklerinden sonraki her kelime, ne kadar nadir olursa olsun işaretlenebilir. Bakmak için herhangi bir kelimenin üzerine gel ya da tıkla.</translation>
+        <translation>Ne kadar seyrek kullanılırsa kullanılsın seviyenin üstündeki her kelimeyi vurgular. Bir kelimenin anlamına bakmak için tıkla veya üzerine gel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Highlights this many words beyond your level. Rarer words are left alone; hover or click one to look it up.</source>
-        <translation type="unfinished">İşaretlenenler, bildiklerinden sonraki kelimelerdir. Daha nadir olanlara dokunulmaz: bakmak için üzerine gel ya da tıkla.</translation>
+        <translation>Seviyenin üstündeki kelimelerden bu kadarını vurgular. Daha seyrek kelimeler vurgulanmaz. Anlamlarına bakmak için tıkla veya üzerlerine gel.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5714,7 +5894,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose what you&apos;re learning and which new words captions highlight. Your level estimates the words you know. Captions and translation work in every language without these choices.</source>
-        <translation type="unfinished">Öğrendiğin her dil için Polyglotic kelimelerini tutar: sözlüğe bakma o dilin sözlüğünü kullanır, seviyen hangi kelimeleri bildiğini tahmin eder ve altyazılar yenileri işaretler. Burada ne seçersen seç, altyazılar ve çeviri her dilde çalışır.</translation>
+        <translation>Hangi dilleri öğrendiğini ve altyazılarda hangi yeni kelimelerin vurgulanacağını seç. Polyglotic, bildiğin kelimeleri seviyene göre tahmin eder. Altyazı ve çeviri, bu seçimleri yapmadan da her dilde çalışır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5724,7 +5904,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>None yet. Pick one above for lookups, your level and word introductions.</source>
-        <translation type="unfinished">Henüz yok. Sözlüğe bakma, seviyen ve kelime tanıtımları için yukarıdan birini seç.</translation>
+        <translation>Henüz dil eklenmedi. Sözlüğü kullanmak, seviyeni ayarlamak ve yeni kelimeleri görmek için yukarıdan bir dil seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5739,7 +5919,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Add language</source>
-        <translation type="unfinished">Öğren</translation>
+        <translation>Dil ekle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5749,12 +5929,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Choose how many likely new words captions highlight. Your level provides the estimate; click a word to correct it.</source>
-        <translation type="unfinished">Altyazılar muhtemelen senin için yeni olan kelimeleri işaretler, böylece onları duyarken fark edersin. Seviyenden tahmin edilir; herhangi bir kelimeye tıklamak onu düzeltir.</translation>
+        <translation>Altyazılarda kaç muhtemel yeni kelimenin vurgulanacağını seç. Polyglotic bunları seviyene göre tahmin eder. Bir kelimeye tıklayarak tahmini düzeltebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>A few</source>
-        <translation type="unfinished">Altyazı başına birkaç</translation>
+        <translation>Birkaç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5764,22 +5944,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Dotted yellow marks a new word; dashed green marks one in your deck. A saved word uses its category&apos;s colour. Marks appear only on finished captions in a language you&apos;re learning.</source>
-        <translation type="unfinished">Sarı noktalı: senin için yeni bir kelime. Yeşil kesik çizgili: destendeki bir kelime. Kayıtlı bir kelime kategorisinin rengini alır. Yalnızca öğrendiğin bir dildeki kesin altyazılar işaretlenir.</translation>
+        <translation>Sarı noktalı çizgi yeni bir kelimeyi, yeşil kesik çizgi destendeki bir kelimeyi gösterir. Kayıtlı kelimeler kategorilerinin rengini alır. İşaretler yalnızca öğrendiğin dildeki kesin altyazılarda görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>After you hear a word a few times, it appears under Repeated words on the Words page. Add it to your deck there or from its lookup to include it in your next Anki export.</source>
-        <translation type="unfinished">Nereye giderler: bir kelimeyi birkaç kez duy, Kelimeler&apos;deki Sık duyduğun kelimeler&apos;e katılır. Orada ya da sözlük kartından desteye ekle, bir sonraki Anki aktarımına girer.</translation>
+        <translation>Bir kelimeyi birkaç kez duyduğunda Kelimeler sayfasındaki Sık duyduğun kelimeler bölümünde görünür. Bir sonraki Anki aktarımına katmak için buradan veya kelimenin sözlük kartından destene ekle.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Words</source>
-        <translation type="unfinished">Kelimeler ve Anki</translation>
+        <translation>Kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>Open Words to manage your deck, saved words and Repeated words. Each language has its own Anki export.</source>
-        <translation type="unfinished">Desten, kayıtlı kelimelerin ve sık duyduğun kelimeler Kelimeler&apos;de. Her dil kendi destesini dışa aktarır.</translation>
+        <translation>Desteni, kayıtlı kelimelerini ve Sık duyduğun kelimeler listesini yönetmek için Kelimeler sayfasını aç. Her dilin Anki aktarımı ayrıdır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5804,12 +5984,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>These dictionaries are stored on this device. Removing one frees space and disables its lookups until you download it again.</source>
-        <translation type="unfinished">Öğrendiğin diller için indirildi. Birini kaldırmak yer açar; yeniden indirilene kadar o dilde kelime arama durur.</translation>
+        <translation>Bu sözlükler cihazında saklanır. Bir sözlüğü kaldırmak yer açar. Yeniden indirene kadar o dilde sözlüğe bakamazsın.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
         <source>No dictionaries downloaded. Add a language to get its dictionary.</source>
-        <translation type="unfinished">Henüz yok: bir dil öğrendiğinde, kartı sözlüğünü sunar.</translation>
+        <translation>İndirilmiş sözlük yok. Sözlük edinmek için dil ekle.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/learning_page.py"/>
@@ -5926,7 +6106,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
         <source>{language} lookups aren&apos;t in this version yet. Captions and translation work.</source>
-        <translation type="unfinished">{language} aramaları bu sürümde henüz yok. Altyazılar ve çeviri çalışır.</translation>
+        <translation>Bu sürümde {language} için sözlük araması henüz yok. Altyazı ve çeviri çalışır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/pack_row.py"/>
@@ -6117,7 +6297,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Öğrenme yükü</translation>
+        <translation>Öğrenme yükü</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/load_card.py"/>
@@ -6442,7 +6622,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Translated by a machine, not yet checked by a person</source>
-        <translation type="unfinished">Translated by a machine, not yet checked by a person</translation>
+        <translation>Otomatik çeviri. Henüz bir kişi tarafından kontrol edilmedi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6517,12 +6697,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found - {meaning}</source>
-        <translation type="unfinished">Bütün olarak sözlükte yok - {meaning}</translation>
+        <translation>İfadenin tamamı sözlükte yok — {meaning}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Full phrase not found</source>
-        <translation type="unfinished">Bütün olarak sözlükte yok</translation>
+        <translation>İfadenin tamamı sözlükte yok</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6532,7 +6712,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Known</source>
-        <translation type="unfinished">Biliyorum</translation>
+        <translation>Biliyorum</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6562,7 +6742,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Parts of this word</source>
-        <translation type="unfinished">Bu kelimenin içinde</translation>
+        <translation>Kelimenin parçaları</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6572,7 +6752,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
         <source>Chinese equivalent</source>
-        <translation type="unfinished">Çincesi</translation>
+        <translation>Çince karşılığı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/lookup_card.py"/>
@@ -6799,12 +6979,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Keep Polyglotic running?</source>
-        <translation type="unfinished">Polyglotic çalışmaya devam ediyor</translation>
+        <translation>Polyglotic çalışmaya devam etsin mi?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
         <source>Caption windows stay open. To reopen this window, launch Polyglotic again. You can quit from the sidebar.</source>
-        <translation type="unfinished">Altyazı pencerelerin açık kalır. Bu pencereye dönmek için Polyglotic&apos;i uygulamalarından yeniden aç. Çık, kenar çubuğunun en altında.</translation>
+        <translation>Altyazı pencereleri açık kalır. Bu pencereyi yeniden açmak için Polyglotic&apos;i tekrar başlat. Çıkmak için kenar çubuğunu kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/no_tray.py"/>
@@ -6845,12 +7025,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>That code isn&apos;t valid. Check it and try again.</source>
-        <translation type="unfinished">Bu kod geçersiz. Kontrol edip tekrar dene.</translation>
+        <translation>Kod geçersiz. Kontrol edip tekrar dene.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Check the code in your email or request a new one.</source>
-        <translation type="unfinished">E-postanızdaki kodu kontrol edin veya yeni bir kod isteyin.</translation>
+        <translation>E-postandaki kodu kontrol et veya yeni bir kod iste.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6958,12 +7138,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code from your email</source>
-        <translation type="unfinished">E-postayla gelen altı haneli kod</translation>
+        <translation>E-postandaki altı haneli kod</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Six-digit code</source>
-        <translation type="unfinished">E-postayla gelen altı haneli kod</translation>
+        <translation>Altı haneli kod</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6973,17 +7153,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Use an invite code instead</source>
-        <translation type="unfinished">Davet kodun mu var? Onunla oturum aç</translation>
+        <translation>Davet kodu kullan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Change email or send a new code</source>
-        <translation type="unfinished">E-postayı değiştir veya kodu yeniden gönder</translation>
+        <translation>E-posta adresini değiştir veya yeni kod gönder</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Send code</source>
-        <translation type="unfinished">Bana e-postayla kod gönder</translation>
+        <translation>Kod gönder</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
@@ -6998,7 +7178,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/open_beta.py"/>
         <source>Enter the six-digit code from your email.</source>
-        <translation type="unfinished">Altı haneli kod için gelen kutunuzu kontrol edin.</translation>
+        <translation>E-postandaki altı haneli kodu gir.</translation>
     </message>
 </context>
 <context>
@@ -7044,12 +7224,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each caption window picks its own language, or Original only, and whether your speech shows in it.</source>
-        <translation type="unfinished">Her pencere kendi dilini - ya da Yalnızca orijinal&apos;i - ve konuşmanın orada görünüp görünmeyeceğini seçer.</translation>
+        <translation>Her altyazı penceresinde çeviri dilini seçebilir veya Yalnızca orijinal&apos;i kullanabilirsin. Konuşmanın gösterilip gösterilmeyeceğini de her pencere için seçebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Every caption window</source>
-        <translation type="unfinished">Tüm pencereler</translation>
+        <translation>Tüm altyazı pencereleri</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7069,7 +7249,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions singing in Spotify and other music players whose spoken language is Detect. Their sound is sent even without speech, a few seconds at a time. Off: only speech is sent.</source>
-        <translation type="unfinished">Algıla&apos;daki Spotify ve diğer müzik çalarlarda şarkıya altyazı verir: konuşma duyulmasa da sesleri birkaç saniyelik parçalar hâlinde gönderilir. Kapalı: yalnızca konuşma olarak duyulan gönderilir.</translation>
+        <translation>Konuşulan dil “Algıla” olan Spotify ve diğer müzik çalarlarda şarkı sözlerine de altyazı ekler. Konuşma olmasa bile ses birkaç saniyelik parçalar hâlinde gönderilir. Kapalıyken yalnızca konuşma gönderilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7089,17 +7269,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The characters Mandarin captions are written in, with Detect too. Lookups, transcripts, copies and Anki use the same. Translations into Chinese keep the script you translate into.</source>
-        <translation type="unfinished">Mandarin altyazılarının yazıldığı karakterler, Algıla açıkken de. Sözlük, döküm, kopyalama ve Anki aynılarını kullanır; Çinceye çeviriler seçtiğin dilde kalır.</translation>
+        <translation>Mandarin altyazılarının yazı sistemi. Algıla seçeneğinde, sözlükte, dökümlerde, kopyalanan metinde ve Anki&apos;de de kullanılır. Çinceye çevirilerde hedef dilin yazı sistemi kullanılır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Lines already in a window&apos;s language</source>
-        <translation type="unfinished">Zaten pencerenin dilini konuştuklarında</translation>
+        <translation>Pencerenin çeviri dilindeki satırlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>They aren&apos;t translated there unless you pick a second language for them.</source>
-        <translation type="unfinished">Zaten pencerenin dilinde olan satırlar orada çevrilmez. Bir ikinci dil seç, o dile çevrilsinler; her çeviri gibi sarı.</translation>
+        <translation>İkinci bir dil seçersen bu satırlar o dile çevrilir. Diğer durumda olduğu gibi kalır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7139,7 +7319,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Mikrofonun altyazıların için yalnızca bu açıkken gönderilir.</translation>
+        <translation>Mikrofon sesi altyazı için yalnızca bu seçenek açıkken gönderilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7149,12 +7329,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Add an app on Home first: each caption window&apos;s language gets a row here.</source>
-        <translation type="unfinished">Önce bir uygulama ekle: her pencerenin dili burada bir satır alır.</translation>
+        <translation>Önce Ana sayfadan bir uygulama ekle. Her altyazı penceresinin dili burada bir satırda görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into</source>
-        <translation type="unfinished">Çeviri dili {language} olan altyazı pencereleri - biri zaten {language} konuştuğunda şu dile de çevir</translation>
+        <translation>Çeviri dili {language} olan pencerelerde {language} satırları için ikinci dil</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7164,7 +7344,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>For windows translating into {language}, translate {language} lines into:</source>
-        <translation type="unfinished">Çeviri dili {language} olan altyazı pencereleri - biri zaten {language} konuştuğunda şu dile de çevir:</translation>
+        <translation>Çeviri dili {language} olan pencerelerde {language} satırları için ikinci dil:</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7189,27 +7369,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Card stack</source>
-        <translation type="unfinished">Kart yığını</translation>
+        <translation>Kart yığını</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Each line keeps its place, with its translation under it, and the lines roll up together as new ones come. Off: live lines below, earlier lines above.</source>
-        <translation type="unfinished">Söylenen her satır, çevirisi altında olacak şekilde yerini korur ve yenileri geldikçe satırlar birlikte yukarı kayar. Kapalı: canlı satırlar altta, döküm üstte.</translation>
+        <translation>Her satır çevirisiyle birlikte yerinde kalır. Yeni satırlar geldikçe hepsi birlikte yukarı kayar. Kapalıyken canlı satırlar altta, öncekiler üstte görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">Canlı satırlar altta, döküm üstte</translation>
+        <translation>Canlı satırlar altta, öncekiler üstte</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The lines being spoken stay at the foot of the caption window; each caption moves up, with its translation, once it has been read. Off: one list of captions.</source>
-        <translation type="unfinished">Söylenmekte olan satırlar altyazı penceresinin altında kalır; her altyazı okunduktan sonra çevirisiyle birlikte yukarıya, döküme geçer. Kapalı: tek bir altyazı listesi.</translation>
+        <translation>Söylenmekte olan satırlar pencerenin altında kalır. Her altyazı okunduktan sonra çevirisiyle birlikte yukarı çıkar. Kapalıyken tüm altyazılar tek listede görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Follow</source>
-        <translation type="unfinished">Takip</translation>
+        <translation>Takip</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7219,7 +7399,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Acquisition</source>
-        <translation type="unfinished">Edinim</translation>
+        <translation>Edinim</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7249,7 +7429,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Faint ahead</source>
-        <translation type="unfinished">Önde soluk</translation>
+        <translation>Önde soluk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7259,7 +7439,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words ahead</source>
-        <translation type="unfinished">Öndeki kelimeler</translation>
+        <translation>Öndeki kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7274,7 +7454,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shorter: text sooner, and more of it changes.</source>
-        <translation type="unfinished">Daha kısa aralıklar metni daha erken gösterir ve daha sık düzeltir.</translation>
+        <translation>Süre kısaldıkça metin daha erken görünür ve daha çok kısmı değişir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7299,7 +7479,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>How long words on screen can still be corrected as more is heard. Shorter: fewer words change while you read, and more mistakes stay - most of all with live updates faster than every second.</source>
-        <translation type="unfinished">Daha fazlası duyuldukça ekrandaki sözcüklerin ne kadar süre daha düzeltilebileceği. Daha kısa: siz okurken daha az sözcük değişir ve ilk duyulduğu gibi kalan hata artar - en çok da Canlı saniyede birden sık güncellenirken.</translation>
+        <translation>Yeni ses geldikçe ekrandaki kelimelerin ne kadar süre düzeltilebileceğini belirler. Süre kısaldıkça okurken daha az kelime değişir ve daha çok hata kalır. Bu fark, canlı güncellemeler saniyede birden sık geldiğinde daha belirgindir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7309,7 +7489,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Longest wait for text, below, is shorter, so text still comes every {seconds}.</source>
-        <translation type="unfinished">Metin yine de her {seconds} güncellenir: aşağıdaki metin için en uzun bekleme daha kısa.</translation>
+        <translation>Aşağıdaki “Metin için en uzun bekleme” süresi daha kısa. Bu yüzden metin yine {seconds} arayla gelir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7334,12 +7514,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours</source>
-        <translation type="unfinished">Renkler</translation>
+        <translation>Renkler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Matched colours for the text and the panel. Pick a set, then change any colour.</source>
-        <translation type="unfinished">Metin ve panel için uyumlu bir renk seti. Birini seç, sonra istediğin rengi değiştir.</translation>
+        <translation>Metin ve panel için uyumlu renkler. Bir takım seçip dilediğin rengi değiştirebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7349,7 +7529,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Contrast, vibrance and thickness, in every caption window; contrast and vibrance in transcripts too. The middle of each is the default.</source>
-        <translation type="unfinished">Her altyazı penceresinde altyazıların ne kadar belirgin, renklerinin ne kadar canlı ve harflerinin ne kadar kalın olduğu; kontrast ve renk dökümlerde de. Ortada: eskisi gibi.</translation>
+        <translation>Kontrast, renk canlılığı ve harf kalınlığı tüm altyazı pencerelerinde geçerlidir. Kontrast ve canlılık dökümlerde de geçerlidir. Her ayarın orta noktası varsayılandır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7359,7 +7539,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of what was said.</source>
-        <translation type="unfinished">Kelimelerin söylendiği haldeki rengi.</translation>
+        <translation>Konuşma metninin rengi.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7379,7 +7559,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The colour of the box behind the text. The slider below sets how solid it is.</source>
-        <translation type="unfinished">Metnin arkasındaki kutu. Ne kadar dolgun olduğu aşağıdaki kaydırıcıdadır.</translation>
+        <translation>Metnin arkasındaki panelin rengi. Opaklığını alttaki kaydırıcıyla ayarla.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7449,7 +7629,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words in what was said and its translation that mean the same. On hover: point at a word. Underline: colours show word class. Arrows: curves join them. A caption window&apos;s preset menu turns them on and off, under Helpers.</source>
-        <translation type="unfinished">Alt çizgi sözcük türünü gösterir. Karşılığını görmek için sözcüğü işaretleyin veya ikisini okla bağlayın. Bağlantılar ön ayar menüsünden de açılabilir.</translation>
+        <translation>Konuşmadaki kelimeleri çevirideki karşılıklarına bağlar. Üzerine gelince, kelimeyi işaretlediğinde karşılığını gösterir. Alt çizgi, kelime türünü renkle belirtir. Oklar iki kelimeyi birleştirir. Bağları, altyazı penceresinin ön ayar menüsünde Yardımcılar bölümünden açıp kapatabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7474,7 +7654,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Close</source>
-        <translation type="unfinished">Yakın</translation>
+        <translation>Yakın</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7504,7 +7684,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words linked</source>
-        <translation type="unfinished">Ayrıntı</translation>
+        <translation>Bağlanacak kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7529,7 +7709,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their link&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Bir bağın birleştirdiği her kelime, alt çizgisi gibi onun rengini alır.</translation>
+        <translation>Bağlı kelimeler ve alt çizgileri, bağın rengini alır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7539,12 +7719,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Linked words take their word class&apos;s colour, like their underline.</source>
-        <translation type="unfinished">Bağlı sözcük ve alt çizgisi kendi sözcük türünün rengini alır.</translation>
+        <translation>Bağlı kelimeler ve alt çizgileri, kelime türünün rengini alır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Which words are marked as new is set on {learning}.</source>
-        <translation type="unfinished">Hangi kelimelerin yeni olarak işaretleneceği {learning} sayfasında.</translation>
+        <translation>Hangi kelimelerin yeni olarak işaretleneceğini {learning} sayfasından ayarla.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7559,22 +7739,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions in soft grey and gold, a little bigger, with pinyin over every word and only your chosen words in blue - no underlines or arrows. Point at a word to see the word it&apos;s linked to. Turns word links off.</source>
-        <translation type="unfinished">Altyazılar sakin gri ve altın renginde, biraz daha büyük, her kelimenin üstünde pinyin ve yalnızca seçtiğin kelimeler mavi – alt çizgi ya da ok yok. Karşılığını görmek için bir kelimenin üzerine gel. Kelime bağlarını kapatır.</translation>
+        <translation>Altyazılar yumuşak gri ve altın tonlarında, biraz daha büyük görünür. Her kelimenin üstünde pinyin vardır. Yalnızca seçtiğin kelimeler mavidir, alt çizgi ve ok görünmez. Karşılığını görmek için bir kelimenin üzerine gel. Bu mod kelime bağlarını kapatır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Our curriculum</source>
-        <translation type="unfinished">Müfredatımız</translation>
+        <translation>Müfredatımız</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A few words just past what you know: the ones the talk is about, then the ones you hear most. A word from the talk leaves once you know it; the others after three days.</source>
-        <translation type="unfinished">Bildiklerinin hemen ötesinde birkaç kelime: önce konuşmanın konusu olanlar, sonra en sık duydukların. Konuşmanın getirdiği kelime onu bildiğinde yoluna devam eder; diğerleri üç ayrı günde karşılaşıldıktan sonra.</translation>
+        <translation>Bildiğin seviyenin hemen üstünden birkaç kelime. Önce konuşmanın konusuyla ilgili olanlar, ardından en sık duydukların gelir. Konuşmayla ilgili bir kelimeyi öğrendiğinde, diğerleri üç gün sonra listeden çıkar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Words at your edge</source>
-        <translation type="unfinished">Sınırındaki kelimeler</translation>
+        <translation>Sınırındaki kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7584,12 +7764,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Learning load</source>
-        <translation type="unfinished">Öğrenme yükü</translation>
+        <translation>Öğrenme yükü</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The words you&apos;re learning now, coloured as in the Lab&apos;s Learning load.</source>
-        <translation type="unfinished">Öğrenme yükündeki her kelime, Laboratuvar&apos;daki gibi.</translation>
+        <translation>Şu anda öğrendiğin kelimeler, Laboratuvar&apos;daki Öğrenme yükü ayarının renkleriyle görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7645,7 +7825,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>A small syllable over each Chinese character, in what was said and in translations into Chinese. Copying and lookups leave it out.</source>
-        <translation type="unfinished">Her Çince karakterin üstünde küçük bir hece; söylenenlerde ve Çinceye çevirilerde. Metnin parçası değildir: kopyalama ve sözcük arama eskisi gibi çalışır.</translation>
+        <translation>Her Çince karakterin üstünde küçük bir hece görünür. Hem konuşmada hem Çince çevirilerde geçerlidir. Kopyalanan metinde ve sözlük aramasında bu heceler kullanılmaz.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7660,7 +7840,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Chinese readings in</source>
-        <translation type="unfinished">Çincenin üstünde okunuş</translation>
+        <translation>Çince okunuşların yazımı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7680,22 +7860,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana</source>
-        <translation type="unfinished">Kana</translation>
+        <translation>Kana</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Romaji</source>
-        <translation type="unfinished">Rōmaji</translation>
+        <translation>Rōmaji</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings</source>
-        <translation type="unfinished">Japonca okunuşlar</translation>
+        <translation>Japonca okunuşlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Kana stays above each word&apos;s kanji. Romaji uses modified Hepburn; Both keeps kana above and adds romaji below.</source>
-        <translation type="unfinished">Kana, her sözcüğün kanjisinin üzerinde kalır. Rōmaji, değiştirilmiş Hepburn sistemini kullanır. “İkisi” seçeneği kanayı üstte tutar ve alta rōmaji ekler.</translation>
+        <translation>Kana, her kelimenin kanjisinin üstünde kalır. Rōmaji, değiştirilmiş Hepburn sistemini kullanır. İkisi seçeneği kanayı üstte tutar, rōmajiyi alta ekler.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7745,12 +7925,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Past what you know: only over the words past your known line on Learning, the ones word introductions mark. Less to read as you learn.</source>
-        <translation type="unfinished">Bildiklerinin ötesi: yalnızca Öğrenme&apos;deki bilinen sınırının ötesindeki, kelime bağlantılarının gösterdiği kelimelerin üstünde. Öğrendikçe okunacak daha az şey.</translation>
+        <translation>Bildiklerinin ötesi, okunuşları yalnızca Öğrenme sayfasındaki seviyenin üstünde ve kelime tanıtımlarının işaretlediği kelimelerde gösterir. Öğrendikçe daha az okunuş görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Respelling above English</source>
-        <translation type="unfinished">İngilizcenin üstünde okunuş</translation>
+        <translation>İngilizcenin üstünde okunuş</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7782,7 +7962,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Relative to the characters. Medium reads better in a small window.</source>
-        <translation type="unfinished">Karakterlerin kendi boyutuna göre. Küçük bir pencerede Orta daha kolay okunur.</translation>
+        <translation>Boyut karakterlere göre ayarlanır. Küçük pencerelerde Orta daha kolay okunur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7812,7 +7992,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Grey keeps readings behind their text. With Grey or Its word link&apos;s colour, a linked word&apos;s reading takes its link&apos;s colour. Word links can colour the linked words too.</source>
-        <translation type="unfinished">Gri, okunuşları metinlerinin arka planında tutar. Gri ya da kelimesinin bağ rengiyle okunuş, bir bağ varsa kelimesinin bağının rengini alır. Kelime bağları bağlı kelimeleri de renklendirebilir.</translation>
+        <translation>Gri, okunuşları metinden daha soluk gösterir. Gri veya kelime bağının rengi seçildiğinde bağlı kelimelerin okunuşu bağın rengini alır. Kelime bağları, kelimelerin kendisini de renklendirebilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7827,17 +8007,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Japanese readings aren&apos;t in this version yet.</source>
-        <translation type="unfinished">Japonca okunuşlar bu sürümde henüz yok.</translation>
+        <translation>Japonca okunuşlar bu sürümde henüz yok.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>The Japanese dictionary is downloading: {percent}%.</source>
-        <translation type="unfinished">Japonca sözlük indiriliyor: %{percent}.</translation>
+        <translation>Japonca sözlük indiriliyor (%{percent}).</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Shows once the Japanese dictionary is here.</source>
-        <translation type="unfinished">Japonca sözlük hazır olduğunda gösterilir.</translation>
+        <translation>Japonca sözlük hazır olduğunda görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7872,22 +8052,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Sessizlikten sonra sol</translation>
+        <translation>Sessizlikten sonra gizle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Captions disappear after this long without speech. Never: they stay until the next one.</source>
-        <translation type="unfinished">Kimse konuşmadan bu kadar süre geçince altyazılar kaybolur. Asla: sonraki satıra kadar kalırlar.</translation>
+        <translation>Bu süre boyunca konuşma olmazsa altyazılar kaybolur. Asla seçeneğinde yeni altyazı gelene kadar ekranda kalırlar.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Pause hidden windows after</source>
-        <translation type="unfinished">Gizliyken dinlemeyi durdur</translation>
+        <translation>Gizli pencereleri duraklatma süresi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Nothing more of a hidden caption window&apos;s app is sent after this long. Showing the window carries on.</source>
-        <translation type="unfinished">Gizli bir altyazı penceresi bu süreden sonra dinlemeyi durdurur, böylece uygulamasından başka bir şey gönderilmez. Pencereyi göstermek yeniden başlatır.</translation>
+        <translation>Bir altyazı penceresi bu süre boyunca gizli kalırsa uygulamasının sesi artık gönderilmez. Pencereyi gösterdiğinde altyazılar sürer.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
@@ -7922,7 +8102,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/panels.py"/>
         <source>Colours, panel, font, word links and fading. To move the windows back, use Reset positions on Home.</source>
-        <translation type="unfinished">Renkler, panel, yazı tipi, kelime bağları ve solma; Polyglotic&apos;te ilk nasılsa öyle. Pencerelerin yerleri Ana sayfadaki Konumları sıfırla ile sıfırlanır.</translation>
+        <translation>Renkleri, paneli, yazı tipini, kelime bağlarını ve solma ayarını sıfırlar. Pencereleri eski yerlerine taşımak için Ana sayfada Konumları sıfırla&apos;yı kullan.</translation>
     </message>
 </context>
 <context>
@@ -8023,7 +8203,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Every helper on: the app&apos;s defaults</source>
-        <translation type="unfinished">Tüm yardımcılar açık: uygulamanın kendi kurulumu</translation>
+        <translation>Tüm yardımcılar açık (varsayılan)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8141,7 +8321,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
         <source>Helpers</source>
-        <translation type="unfinished">Yardımcılar</translation>
+        <translation>Yardımcılar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/preset_popover.py"/>
@@ -8251,17 +8431,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>On hover</source>
-        <translation type="unfinished">Üzerine gelince</translation>
+        <translation>Üzerine gelince</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Underline</source>
-        <translation type="unfinished">Alt çizgi</translation>
+        <translation>Alt çizgi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Arrows</source>
-        <translation type="unfinished">Oklar</translation>
+        <translation>Oklar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8271,12 +8451,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Follow</source>
-        <translation type="unfinished">Takip</translation>
+        <translation>Takip</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Acquisition</source>
-        <translation type="unfinished">Edinim</translation>
+        <translation>Edinim</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8306,22 +8486,22 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Soft shadow</source>
-        <translation type="unfinished">Yumuşak gölge</translation>
+        <translation>Yumuşak gölge</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Outline</source>
-        <translation type="unfinished">Dış çizgi</translation>
+        <translation>Dış çizgi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Faint ahead</source>
-        <translation type="unfinished">Önde soluk</translation>
+        <translation>Önde soluk</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>With the newest word</source>
-        <translation type="unfinished">En yeni kelimeyle</translation>
+        <translation>En yeni kelimeyle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8361,17 +8541,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the language</source>
-        <translation type="unfinished">Dili göster</translation>
+        <translation>Dili göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the source</source>
-        <translation type="unfinished">Kaynağı göster</translation>
+        <translation>Kaynağı göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Fade after silence</source>
-        <translation type="unfinished">Sessizlikten sonra sol</translation>
+        <translation>Sessizlikten sonra gizle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8391,7 +8571,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Panel: dolgunluk</translation>
+        <translation>Panel opaklığı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8431,12 +8611,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Caption timing</source>
-        <translation type="unfinished">Altyazı zamanlaması</translation>
+        <translation>Altyazı zamanlaması</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>What you read first</source>
-        <translation type="unfinished">Önce neyi okursunuz</translation>
+        <translation>İlk okunan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8446,7 +8626,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Show the newest word too</source>
-        <translation type="unfinished">En yeni kelimeyi de göster</translation>
+        <translation>En yeni kelimeyi de göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8456,7 +8636,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Live lines below, earlier above</source>
-        <translation type="unfinished">İki bölge</translation>
+        <translation>Canlı satırlar altta, öncekiler üstte</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8506,7 +8686,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Pick one for what you&apos;re doing, here or on a caption window&apos;s bar. Changes on the bar are saved to the preset; changes here need Save.</source>
-        <translation type="unfinished">Altyazıların nasıl görüneceğini buradan veya altyazı penceresinin çubuğundan seçin. Çubuktaki değişiklikler otomatik kaydedilir. Ayarlar’daki değişiklikleri saklamak için burada Kaydet’i kullanın.</translation>
+        <translation>Yaptığın işe uygun bir ön ayarı buradan veya altyazı çubuğundan seç. Çubuktaki değişiklikler ön ayara kaydedilir. Burada yaptıkların için Kaydet&apos;e bas.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
@@ -8571,7 +8751,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/presets_card.py"/>
         <source>Your changes to it go; its built-in settings stay</source>
-        <translation type="unfinished">Ona kaydettiklerin gider; kendi ayarları kalır</translation>
+        <translation>Ön ayarda yaptığın değişiklikler silinir ve yerleşik ayarlar geri yüklenir</translation>
     </message>
 </context>
 <context>
@@ -8596,7 +8776,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Make a suggestion</source>
-        <translation type="unfinished">Bir öneride bulun</translation>
+        <translation>Öneride bulun</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8631,47 +8811,47 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Share an idea for how Polyglotic could work better for you.</source>
-        <translation type="unfinished">Polyglotic&apos;in sizin için daha iyi çalışmasına yönelik bir fikir paylaşın.</translation>
+        <translation>Polyglotic&apos;in işini nasıl kolaylaştırabileceğine dair bir fikir paylaş.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>What would you like Polyglotic to do?</source>
-        <translation type="unfinished">Polyglotic&apos;i senin için ne daha iyi yapardı?</translation>
+        <translation>Polyglotic&apos;in ne yapmasını isterdin?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}, and the listening session&apos;s ID.</source>
-        <translation type="unfinished">Ayrıca gönderilir: {versions} ve dinleme oturumunun kimliği.</translation>
+        <translation>Ayrıca gönderilir: {versions} ve dinleme oturumunun kimliği.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Also sent: {versions}.</source>
-        <translation type="unfinished">Ayrıca gönderilir: {versions}.</translation>
+        <translation>Ayrıca gönderilir: {versions}.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>No screenshot is taken.</source>
-        <translation type="unfinished">Ekran görüntüsü alınmaz.</translation>
+        <translation>Ekran görüntüsü alınmaz.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Please don&apos;t paste captions of other people&apos;s words. We may read feedback with the help of AI tools (Anthropic&apos;s Claude) to sort and summarise it.</source>
-        <translation type="unfinished">Lütfen başkalarının sözlerinin altyazılarını yapıştırma. Geri bildirimleri sıralamak ve özetlemek için yapay zekâ araçlarının (Anthropic&apos;in Claude&apos;u) yardımıyla okuyabiliriz.</translation>
+        <translation>Lütfen başkalarının sözlerinin altyazılarını yapıştırma. Geri bildirimleri sıralamak ve özetlemek için yapay zekâ araçlarının (Anthropic&apos;in Claude&apos;u) yardımıyla okuyabiliriz.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Look</source>
-        <translation>Göster</translation>
+        <translation>Görünüm</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>Cut to {limit} characters</source>
-        <translation type="unfinished">{limit} karaktere kısalt</translation>
+        <translation>{limit} karaktere kısalt</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
         <source>{count} / {limit}</source>
-        <translation type="unfinished">{count} / {limit}</translation>
+        <translation>{count} / {limit}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui/problem_report.py"/>
@@ -8763,27 +8943,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Text you selected and saved from captions, with its translation. Search either language.</source>
-        <translation type="unfinished">Altyazılarda seçip kaydettikleriniz, çevirileriyle. İki dilde de arayın: kelimelerinizin çoğunu içeren cümle bulunur.</translation>
+        <translation>Altyazılardan seçip kaydettiğin metinler ve çevirileri. Her iki dilde de arayabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Search saved sentences</source>
-        <translation type="unfinished">Cümlelerinizde arayın</translation>
+        <translation>Kayıtlı cümlelerde ara</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Aramayı temizle</translation>
+        <translation>Aramayı temizle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by category</source>
-        <translation type="unfinished">Bu kategorideki cümleleri göster</translation>
+        <translation>Kategoriye göre filtrele</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>Filter by saved word</source>
-        <translation type="unfinished">Bu kayıtlı kelimeyi içeren cümleleri göster</translation>
+        <translation>Kayıtlı kelimeye göre filtrele</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8793,7 +8973,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>No saved sentences yet. Select several words in the caption window, then choose a category.</source>
-        <translation type="unfinished">Henüz yok - bir altyazı penceresinde birden fazla kelimenin üzerinden sürükleyin, sonra bir kategori seçin.</translation>
+        <translation>Henüz kayıtlı cümle yok. Altyazı penceresinde birkaç kelime seç, ardından bir kategori seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
@@ -8803,7 +8983,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/saved_sentences.py"/>
         <source>All saved words</source>
-        <translation type="unfinished">Herhangi bir kayıtlı kelime</translation>
+        <translation>Tüm kayıtlı kelimeler</translation>
     </message>
 </context>
 <context>
@@ -8890,12 +9070,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Caption text size</source>
-        <translation type="unfinished">Yazı boyutları</translation>
+        <translation>Altyazı yazı boyutu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>In every language: each script is sized to match.</source>
-        <translation type="unfinished">Tüm diller için geçerlidir. Yazı sistemlerinin görüntü boyutları otomatik olarak eşitlenir.</translation>
+        <translation>Her dilde metin benzer büyüklükte görünsün diye boyut yazı sistemine göre ayarlanır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -8945,7 +9125,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Text sizes are saved by language on this device.</source>
-        <translation type="unfinished">Yazı boyutu bu cihazda her dil için ayrı kaydedilir.</translation>
+        <translation>Yazı boyutu bu cihazda her dil için ayrı kaydedilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -8960,7 +9140,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window and the transcripts, not the caption windows.</source>
-        <translation type="unfinished">Bu pencere ve dökümler. Altyazı pencereleri olduğu gibi kalır.</translation>
+        <translation>Bu pencere ve dökümler için geçerlidir. Altyazı pencerelerinin boyutu ayrı ayarlanır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -8970,7 +9150,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>This window&apos;s colours and headings.</source>
-        <translation type="unfinished">Renkleri ve başlıkları.</translation>
+        <translation>Bu pencerenin renkleri ve başlıkları.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9010,12 +9190,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install when you quit Polyglotic.</source>
-        <translation type="unfinished">Güncellemeler sessizce iner ve Polyglotic&apos;ten çıktığında uygulanır.</translation>
+        <translation>Güncellemeler arka planda indirilir ve Polyglotic&apos;ten çıktığında kurulur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Updates download in the background and install the next time Polyglotic starts.</source>
-        <translation type="unfinished">Güncellemeler sessizce iner ve Polyglotic bir sonraki açıldığında uygulanır.</translation>
+        <translation>Güncellemeler arka planda indirilir ve Polyglotic bir sonraki açıldığında kurulur.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9065,7 +9245,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Menus, buttons, this window and word cards. Captions keep their own size: A- and A+ on each caption window and transcript.</source>
-        <translation type="unfinished">Polyglotic&apos;in kendi yazıları: bu pencere, bir kelimenin kartı, menüler ve altyazı pencereleriyle dökümlerdeki düğmeler. Altyazıların kendi boyutu var: her altyazı penceresinde ve dökümde A- ve A+.</translation>
+        <translation>Menülerin, düğmelerin, bu pencerenin ve kelime kartlarının yazı boyutu. Altyazı boyutunu her altyazı penceresinde ve dökümde A- ve A+ düğmeleriyle ayrı ayarlayabilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9129,8 +9309,8 @@
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>With Last %Ln hour(s) or Whole session, Quit asks first if a transcript of {line_limit} isn&apos;t saved.</source>
-        <translation type="unfinished">
-            <numerusform>Son %Ln saat veya Tüm oturum seçiliyken: Çık, {line_limit} ve kaydedilmemiş bir dökümü sorar.</numerusform>
+        <translation>
+            <numerusform>Son %Ln saat veya Tüm oturum seçiliyken, {line_limit} bir dökümü kaydetmediysen Çık düğmesi önce kaydetmek isteyip istemediğini sorar.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9148,7 +9328,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold a key and speak; let go, and it&apos;s typed where your cursor is. While your own speech is captioned, dictation shows in that caption window too and uses its spoken language. Otherwise it listens only while you hold the key.</source>
-        <translation type="unfinished">Bir tuşa basılı tutup konuşun. İmlecin olduğu yere yazmak için tuşu bırakın. Kendi konuşmanız altyazıya çevriliyorsa dikte de altyazı penceresinde görünür ve o pencerenin konuşma dilini kullanır. Diğer durumlarda dikte yalnızca tuş basılıyken dinler.</translation>
+        <translation>Bir tuşa basılı tutup konuş. Bıraktığında söylediklerin imlecin olduğu yere yazılır. Konuşman altyazıda gösteriliyorsa dikte de o pencerede görünür ve pencerenin konuşulan dil ayarını kullanır. Diğer durumda dikte yalnızca tuşa basılı tuttuğunda dinler.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9173,12 +9353,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right Ctrl, F9, Ctrl + Alt + D… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with Ctrl, Alt or Win; Right Ctrl alone still works in other programs.</source>
-        <translation type="unfinished">Tıkla, sonra basılı tutmak istediğin tuşa ya da kombinasyona bas: Sağ Ctrl, F9, Ctrl + Alt + D… Tek başına bir tuş ya da Ctrl, Alt veya Win ile birlikte, dikte açıkken Polyglotic&apos;indir; tek başına Sağ Ctrl diğer programlarda çalışmaya devam eder.</translation>
+        <translation>Tıkla, ardından basılı tutmak istediğin tuşa veya tuş birleşimine bas. Örnekler: Sağ Ctrl, F9, Ctrl + Alt + D… Dikte açıkken seçtiğin tuşu tek başına veya Ctrl, Alt ya da Win ile birlikte Polyglotic kullanır. Tek başına Sağ Ctrl, diğer programlarda da çalışır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Click, then press the key or combination you want to hold: Right ⌘, F9, ⌃⌘E… While dictation is on, the key you choose is Polyglotic&apos;s, alone or with ⌃, ⌥ or ⌘; Right ⌘ alone still works in other apps.</source>
-        <translation type="unfinished">Tıkla, sonra basılı tutmak istediğin tuşa ya da kombinasyona bas: Sağ ⌘, F9, ⌃⌘E… Tek başına bir tuş ya da ⌃, ⌥ veya ⌘ ile birlikte, dikte açıkken Polyglotic&apos;indir; tek başına Sağ ⌘ diğer programlarda çalışmaya devam eder.</translation>
+        <translation>Tıkla, ardından basılı tutmak istediğin tuşa veya tuş birleşimine bas. Örnekler: Sağ ⌘, F9, ⌃⌘E… Dikte açıkken seçtiğin tuşu tek başına veya ⌃, ⌥ ya da ⌘ ile birlikte Polyglotic kullanır. Tek başına Sağ ⌘, diğer uygulamalarda da çalışır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9193,7 +9373,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Choose a language or use {detect} for when your speech isn&apos;t captioned.</source>
-        <translation type="unfinished">Dikte kendi ses kaydını yaptığında bir dil seçin veya {detect} seçeneğini kullanın.</translation>
+        <translation>Konuşman altyazıda gösterilmiyorsa bir dil seç veya {detect} seçeneğini kullan.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9233,6 +9413,11 @@
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
+        <source>Hold {key} and speak in Polyglotic&apos;s windows. Let go to type.</source>
+        <translation type="unfinished">Polyglotic pencerelerinde {key} tuşunu basılı tutup konuş. Metni yazmak için tuşu bırak.</translation>
+    </message>
+    <message>
+        <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Hold {key} and speak; let go, and it&apos;s typed.</source>
         <translation>{key} tuşunu basılı tut ve konuş; bırak, yazılır.</translation>
     </message>
@@ -9256,7 +9441,7 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Readings</source>
         <extracomment>Settings&apos; section of reading lines over captions - pinyin above Chinese, Jyutping above Cantonese</extracomment>
-        <translation type="unfinished">Okunuşlar</translation>
+        <translation>Okunuşlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9351,7 +9536,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Couldn&apos;t reach the update server. Polyglotic tries again later.</source>
-        <translation type="unfinished">Güncelleme sunucusuna ulaşılamadı. Polyglotic daha sonra yeniden bakacak.</translation>
+        <translation>Güncelleme sunucusuna ulaşılamadı. Polyglotic daha sonra yeniden deneyecek.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9361,7 +9546,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
         <source>Version {version} is available. Your connection is metered, so it waits: Home can download it anyway.</source>
-        <translation type="unfinished">{version} sürümü hazır. Bağlantınız ölçülü olduğu için bekliyor: Ana sayfa yine de indirmenizi önerir.</translation>
+        <translation>{version} sürümü hazır. Bağlantın tarifeli olduğu için indirme bekletiliyor. İstersen Ana sayfadan indirebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_page.py"/>
@@ -9374,19 +9559,19 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Long lines</source>
-        <translation type="unfinished">Uzun satırlar</translation>
+        <translation>Uzun satırlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Display new lines</source>
         <extracomment>Each original row is followed by its translation.</extracomment>
-        <translation type="unfinished">Yeni satırları göster</translation>
+        <translation>Satır satır</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Grouped</source>
         <extracomment>All original rows together, then their translation.</extracomment>
-        <translation type="unfinished">Gruplanmış</translation>
+        <translation>Gruplu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9397,12 +9582,12 @@
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in {language}</source>
         <extracomment>A caption window&apos;s row: what to do with lines already spoken in {language}, the language this window translates into</extracomment>
-        <translation type="unfinished">Zaten şu dili konuştuklarında: {language}</translation>
+        <translation>{language} dilindeki satırlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>{language} is this window&apos;s language, so those lines aren&apos;t translated. Translate them into a second language, or leave them as they are.</source>
-        <translation type="unfinished">{language} bu pencerenin dili, bu yüzden bu satırlar çevrilmez. Onları ikinci bir dile de çevir ya da olduğu gibi bırak.</translation>
+        <translation>Bu pencerenin çeviri dili {language}. Bu dildeki satırları olduğu gibi bırakabilir veya ikinci bir dile çevirebilirsin.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9432,13 +9617,13 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show speaking pace (WPM)</source>
-        <translation type="unfinished">Konuşma hızını göster (kelime/dk)</translation>
+        <translation>Konuşma hızını göster (kelime/dk)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show caption info</source>
         <extracomment>Toggle for each caption&apos;s header line (source, language, timestamp, WPM).</extracomment>
-        <translation type="unfinished">Altyazı bilgisini göster</translation>
+        <translation>Altyazı bilgilerini göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9458,7 +9643,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Spoken language</source>
-        <translation type="unfinished">Konuşulan dil</translation>
+        <translation>Konuşulan dil</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9478,17 +9663,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Caption singing too: the music is sent while it plays</source>
-        <translation type="unfinished">Şarkıya da altyazı: müzik çaldığı sürece gönderilir</translation>
+        <translation>Şarkı sözlerine de altyazı ekle. Müzik çalarken gönderilir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Lines already in this window&apos;s language</source>
-        <translation type="unfinished">Zaten bu pencerenin dilini konuştuklarında</translation>
+        <translation>Pencerenin çeviri dilindeki satırlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Source</source>
-        <translation type="unfinished">Altyazı eklenen</translation>
+        <translation>Kaynak</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9498,7 +9683,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Don&apos;t see your app? Play some sound in it.</source>
-        <translation type="unfinished">Uygulamanı burada göremiyor musun? Ses çaldığından emin ol.</translation>
+        <translation>Uygulaman listede yoksa orada bir ses oynat.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9538,7 +9723,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Panel: how solid</source>
-        <translation type="unfinished">Panel: dolgunluk</translation>
+        <translation>Panel opaklığı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
@@ -9548,7 +9733,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/settings_popover.py"/>
         <source>Show my speech here</source>
-        <translation type="unfinished">Konuşmamı burada göster</translation>
+        <translation>Konuşmamı burada göster</translation>
     </message>
 </context>
 <context>
@@ -9759,12 +9944,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the PC plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Bilgisayarın çaldığı her şey için. Eklediğin uygulamalar her hoparlörde duyulur.</translation>
+        <translation>“Bilgisayarın çaldığı her şey” seçeneğinde kullanılır. Eklediğin uygulamalara, ses hangi hoparlörden gelirse gelsin altyazı eklenir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Used for Everything the Mac plays. Apps you add are captioned whichever speakers they play on.</source>
-        <translation type="unfinished">Bilgisayarın çaldığı her şey için. Eklediğin uygulamalar her hoparlörde duyulur.</translation>
+        <translation>“Bilgisayarın çaldığı her şey” seçeneğinde kullanılır. Eklediğin uygulamalara, ses hangi hoparlörden gelirse gelsin altyazı eklenir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9774,12 +9959,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Show my speech in every window</source>
-        <translation type="unfinished">Söylediklerime altyazı ekle</translation>
+        <translation>Konuşmamı tüm pencerelerde göster</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic is sent for your captions only while this is on.</source>
-        <translation type="unfinished">Her pencerede. Mikrofonun altyazıların için yalnızca bu açıkken gönderilir.</translation>
+        <translation>Mikrofon sesi altyazı için yalnızca bu seçenek açıkken gönderilir.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -9794,7 +9979,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
         <source>Your mic&apos;s level, shown while your speech is captioned</source>
-        <translation type="unfinished">Söylediklerine altyazı eklenirken gösterilir</translation>
+        <translation>Konuşman altyazıda gösterilirken mikrofonunun ses düzeyi görünür</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/sound_card.py"/>
@@ -10220,7 +10405,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Next payment: {amount} on {date}</source>
-        <translation type="unfinished">Sonraki ödeme: {date} tarihinde {amount}</translation>
+        <translation>Sonraki ödeme: {date} tarihinde {amount}</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10335,7 +10520,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Use a code</source>
-        <translation type="unfinished">Kodunuz mu var?</translation>
+        <translation>Kod kullan</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10385,7 +10570,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>QR code for payment</source>
-        <translation type="unfinished">Ödeme karekodu</translation>
+        <translation>Ödeme karekodu</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
@@ -10485,7 +10670,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/upgrade.py"/>
         <source>Scan the QR code to pay on your phone.</source>
-        <translation type="unfinished">Ödemeyi açmak için telefonunuzla tarayın.</translation>
+        <translation>Telefonundan ödeme yapmak için karekodu tara.</translation>
     </message>
 </context>
 <context>
@@ -10799,12 +10984,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new</source>
-        <translation type="unfinished">{known} bilinen · destede {deck} · {new} yeni</translation>
+        <translation>{known} bilinen · {deck} destede · {new} yeni</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>{known} known · {deck} in deck · {new} new · {unheard} not heard</source>
-        <translation type="unfinished">{known} bilinen · destede {deck} · {new} yeni · {unheard} henüz duyulmadı</translation>
+        <translation>{known} bilinen · {deck} destede · {new} yeni · {unheard} duyulmamış</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10819,37 +11004,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>in deck</source>
-        <translation type="unfinished">destende</translation>
+        <translation>destede</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>new</source>
-        <translation type="unfinished">yeni (duyuldu, bilinmiyor)</translation>
+        <translation>yeni</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>not heard</source>
-        <translation type="unfinished">henüz duyulmadı</translation>
+        <translation>duyulmamış</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Frequency</source>
-        <translation type="unfinished">Sıklığa göre</translation>
+        <translation>Sıklık</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>HSK level</source>
-        <translation type="unfinished">HSK seviyesine göre</translation>
+        <translation>HSK seviyesi</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Group words by frequency or HSK level</source>
-        <translation type="unfinished">Aralıkları göster</translation>
+        <translation>Kelimeleri sıklığa veya HSK seviyesine göre grupla</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by HSK level</source>
-        <translation type="unfinished">Karşılaşılan kelimeler, HSK seviyesine göre</translation>
+        <translation>HSK seviyesine göre kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
@@ -10859,13 +11044,13 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_bands.py"/>
         <source>Words by frequency</source>
-        <translation type="unfinished">Karşılaşılan kelimeler, ne kadar yaygın olduklarına göre</translation>
+        <translation>Sıklığa göre kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Known</source>
         <comment>a button: mark the word known</comment>
-        <translation type="unfinished">Biliyorum</translation>
+        <translation>Biliyorum</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10875,12 +11060,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>In deck</source>
-        <translation type="unfinished">Destende</translation>
+        <translation>Destede</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Known</source>
-        <translation type="unfinished">Bilinen</translation>
+        <translation>Bilinen</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10900,27 +11085,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Open dictionary</source>
-        <translation type="unfinished">Sözlükte bak</translation>
+        <translation>Sözlüğü aç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Change status</source>
-        <translation type="unfinished">Durumunu değiştir</translation>
+        <translation>Durumu değiştir</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Estimated from your level. Choose a status to change it.</source>
-        <translation type="unfinished">Seviyenden tahmin edildi - kendin belirlemek için birini seç</translation>
+        <translation>Bu durum seviyene göre tahmin edildi. Değiştirmek için bir durum seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Move to another category</source>
-        <translation type="unfinished">Başka bir kategoriye taşı</translation>
+        <translation>Başka kategoriye taşı</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>Remove from saved words</source>
-        <translation type="unfinished">Kayıtlı kelimelerden kaldır</translation>
+        <translation>Kayıtlı kelimelerden çıkar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10930,7 +11115,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
         <source>{count} selected</source>
-        <translation type="unfinished">{count} seçildi</translation>
+        <translation>{count} seçildi</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/word_table.py"/>
@@ -10957,7 +11142,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Could not save {name}. Close it if it is open, or choose a folder you can write to, then try again.</source>
-        <translation type="unfinished">{name} yazılamadı. Başka bir programda açık olabilir ya da klasör salt okunur olabilir - kapat ya da başka bir klasör seç ve yeniden dene.</translation>
+        <translation>{name} kaydedilemedi. Dosya açıksa kapat veya yazma iznin olan bir klasör seç, sonra tekrar dene.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -10969,12 +11154,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word available to export was already exported in this format. {name} is empty.</source>
-        <translation type="unfinished">Son dışa aktarımdan beri yeni kelime yok - {name} boş.</translation>
+        <translation>Dışa aktarılabilecek tüm kelimeler bu biçimde zaten aktarılmış. {name} boş.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words to export. Save a word or add one to your deck first. {name} is empty.</source>
-        <translation type="unfinished">Henüz dışa aktarılacak kelime yok - {name} boş. Önce bir kelime kaydet ya da desteye ekle.</translation>
+        <translation>Dışa aktarılacak kelime yok. Önce bir kelime kaydet veya destene ekle. {name} boş.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11006,7 +11191,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{n} since added to your deck</source>
-        <translation type="unfinished">desteye girdiğinden beri {n}</translation>
+        <translation>desteye eklendikten sonra {n} kez</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11018,12 +11203,12 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No known words yet</source>
-        <translation type="unfinished">Yeni başlangıç - henüz bilinen kelime yok</translation>
+        <translation>Henüz bilinen kelime yok</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Choose colour</source>
-        <translation type="unfinished">Rengi değiştir</translation>
+        <translation>Renk seç</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11043,7 +11228,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Delete this category and remove its saved words</source>
-        <translation type="unfinished">Kategoriyi ve içine kaydedilen kelimeleri sil</translation>
+        <translation>Bu kategoriyi sil ve içindeki kelimeleri kayıtlı kelimelerden çıkar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11058,27 +11243,27 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Loading your words…</source>
-        <translation type="unfinished">Kelimelerin okunuyor…</translation>
+        <translation>Kelimelerin yükleniyor…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Repeated words</source>
-        <translation type="unfinished">Sık duyduğun kelimeler</translation>
+        <translation>Sık duyduğun kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>New words you hear often, most frequent first. Add useful ones to your deck.</source>
-        <translation type="unfinished">Senin için yeni kelimeler, en çok duyulanlar önce - işe yarayanları desteye ekle.</translation>
+        <translation>Sık duyduğun yeni kelimeler, en çok duydukların başta. İşine yarayanları destene ekle.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark known</source>
-        <translation type="unfinished">Bunları biliyorum</translation>
+        <translation>Bilinen olarak işaretle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No repeated words yet. New words appear here after you hear them a few times.</source>
-        <translation type="unfinished">Henüz bir şey yok - yeni kelimeler birkaç kez duyunca burada görünür.</translation>
+        <translation>Henüz sık duyduğun kelime yok. Yeni kelimeler birkaç kez duyduğunda burada görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11098,37 +11283,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Every word you have heard, saved or given a status.</source>
-        <translation type="unfinished">Karşılaştığın her kelime. Her durumu elle düzelt.</translation>
+        <translation>Duyduğun, kaydettiğin veya durum atadığın tüm kelimeler.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Filter by status</source>
-        <translation type="unfinished">Bu durumdaki kelimeleri göster</translation>
+        <translation>Duruma göre filtrele</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Any status</source>
-        <translation type="unfinished">Tüm durumlar</translation>
+        <translation>Tüm durumlar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words, readings or meanings</source>
-        <translation type="unfinished">Ara - kelime, okunuş ya da anlam</translation>
+        <translation>Kelime, okunuş veya anlam ara</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Search words</source>
-        <translation type="unfinished">Kelimelerinde ara</translation>
+        <translation>Kelimelerde ara</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Clear search</source>
-        <translation type="unfinished">Aramayı temizle</translation>
+        <translation>Aramayı temizle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Mark new</source>
-        <translation type="unfinished">Yeniden yeni</translation>
+        <translation>Yeni olarak işaretle</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11143,7 +11328,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saved words use their category colour in captions. Avoid yellow and white because captions use them for translations and speech.</source>
-        <translation type="unfinished">Her kategorinin kendi rengi var; kelimeleri nerede yeniden duyulursa o renkte. Sarı ve beyazdan kaçınmak iyi olur: altyazılarda bir çeviriyi ve söyleneni gösterirler.</translation>
+        <translation>Kayıtlı kelimeler altyazılarda kendi kategorilerinin renginde görünür. Sarı ve beyazdan kaçın. Altyazılarda bu renkler çeviri ve konuşma için kullanılır.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11158,37 +11343,37 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No saved words yet. Select a word in a caption, then choose a category.</source>
-        <translation type="unfinished">Henüz yok - bir altyazıdaki kelimeye tıkla ve kaydetmek için bir kategori seç.</translation>
+        <translation>Henüz kayıtlı kelime yok. Altyazıda bir kelime seç, ardından bir kategori seç.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export to Anki</source>
-        <translation type="unfinished">Anki için dışa aktar</translation>
+        <translation>Anki için dışa aktar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Save your saved words, deck words and their sentences as a CSV to import into Anki, or as an Anki deck to open in Anki.</source>
-        <translation type="unfinished">Kayıtlı kelimeler ve destendeki kelimeler, cümleleriyle: Anki&apos;nin içe aktarabileceği bir CSV dosyası ya da bir deste dosyası - çift tıkla, Anki onları Polyglotic&apos;in kart stiliyle ekler, kurulum gerekmez.</translation>
+        <translation>Kayıtlı kelimelerini, destendeki kelimeleri ve bunların cümlelerini Anki&apos;ye aktarılabilen CSV veya Anki&apos;de açılan deste dosyası olarak kaydet.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Only words not yet exported in this format</source>
-        <translation type="unfinished">Yalnızca henüz dışa aktarılmamış kelimeler</translation>
+        <translation>Yalnızca bu biçimde henüz aktarılmamış kelimeler</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSV</source>
-        <translation type="unfinished">CSV dosyası</translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki deck (.apkg)</source>
-        <translation type="unfinished">Anki deste dosyası (.apkg)</translation>
+        <translation>Anki destesi (.apkg)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Anki import help</source>
-        <translation type="unfinished">Anki&apos;ye nasıl aktarılır</translation>
+        <translation>Anki&apos;ye nasıl aktarılır?</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11198,17 +11383,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>{count} more. Filter or search to find them.</source>
-        <translation type="unfinished">{count} tane daha - bulmak için filtrele ya da ara.</translation>
+        <translation>{count} kelime daha var. Bulmak için filtrele veya ara.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words match.</source>
-        <translation type="unfinished">Eşleşme yok.</translation>
+        <translation>Eşleşen kelime yok.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>No words yet. Words appear here after you hear them.</source>
-        <translation type="unfinished">Henüz yok - kelimeler duydukça burada görünür.</translation>
+        <translation>Henüz kelime yok. Kelimeler duydukça burada görünür.</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11230,17 +11415,17 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export words to Anki</source>
-        <translation type="unfinished">Kelimeleri Anki için dışa aktar</translation>
+        <translation>Kelimeleri Anki için dışa aktar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>CSVs (*.csv)</source>
-        <translation type="unfinished">CSV dosyaları (*.csv)</translation>
+        <translation>CSV dosyaları (*.csv)</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Export an Anki deck</source>
-        <translation type="unfinished">Kelimeleri Anki deste dosyası olarak dışa aktar</translation>
+        <translation>Anki destesi olarak dışa aktar</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
@@ -11250,7 +11435,7 @@
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>
         <source>Saving {name}…</source>
-        <translation type="unfinished">{name} yazılıyor…</translation>
+        <translation>{name} kaydediliyor…</translation>
     </message>
     <message>
         <location filename="../src/polyglotic_desktop/ui_next/words_page.py"/>

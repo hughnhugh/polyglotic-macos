@@ -1,8 +1,5 @@
 # Release notes
 
-- Fixed older caption lines becoming too dark; finished originals,
-  translations and readings now keep 90% of the newest line's contrast.
-
 What changed in each version of Polyglotic, in plain words for the people
 who use it. One source, used four times (polyglotic-hq RELEASING.md
 section 10): the GitHub Release's text above the SHA-256s (`release.yml`),
@@ -65,6 +62,28 @@ change is being confirmed.
 ### Better
 
 ### Fixed
+
+## 0.1.13 - 2026-11-28
+
+### New
+
+- Any key can now be a hotkey, even a single key for dictation. Choose whether it works only in Polyglotic or everywhere.
+- If another program already uses a hotkey, Settings > Hotkeys says so and suggests two free keys.
+
+### Better
+
+- Sidebar icons now stand out with soft section colours and a matching highlight on the selected page.
+- The interface translations are up to date with this version's wording in 19 languages.
+- Words you're reading stay in place when a caption is corrected. A new line fades in once it has room.
+
+### Fixed
+
+- Linux captions now explain missing or silent audio. Chromebook users also see which apps they can hear.
+- The app no longer risks closing itself when a dictionary update swaps a pack during a lookup or as it quits.
+- Japanese readings no longer overlap the text on a Mac.
+- Report a problem and Make a suggestion fit at the largest text sizes, and scroll on a short screen.
+- The caption window can't be made narrower than its buttons need.
+- The Save and Copy buttons' corners match the caption's rounded edge at every text size.
 
 ## 0.1.12 - 2026-11-25
 

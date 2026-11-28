@@ -30,7 +30,7 @@ keyboard (docs/macos.md).
 import ctypes
 import itertools
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
 from functools import cache
 from typing import Protocol
 
@@ -114,14 +114,30 @@ class Refused(OSError):
 
 class MacHotkeys:
     """`Hotkeys` on a Mac: each a combination as kept ("ctrl+win+l": ⌃⌘L),
-    its binding called on the app's main thread."""
+    its binding called on the app's main thread.
+
+    Carbon `RegisterEventHotKey` swallows registered keys exclusively without
+    requiring Accessibility/Input Monitoring permission. Keys requested as
+    `passthrough` (typing keys set to Everywhere) are never registered with
+    Carbon so typing is never swallowed; they require an Accessibility-backed
+    event monitor and are reported as taken when Carbon alone is used."""
 
     def __init__(
         self,
         bindings: Mapping[str, Callable[[], None]],
         carbon: Carbon | None = None,
+        *,
+        passthrough: Collection[str] = (),
     ) -> None:
-        self._codes = {key: registered(key) for key in bindings}
+        self._passthrough = frozenset(passthrough)
+        self._codes: dict[str, tuple[int, int]] = {}
+        for key in bindings:
+            if key in self._passthrough:
+                parsed = DictationKey.parse(key)
+                if parsed is None or parsed.held_alone:
+                    raise ValueError(f"not a hotkey: {key!r}")
+                continue
+            self._codes[key] = registered(key)
         self._keys = list(bindings)
         # ids of the app's own, never another MacHotkeys' in this process
         self._ids = {key: next(_HOTKEY_IDS) for key in bindings}
@@ -137,6 +153,9 @@ class MacHotkeys:
         if self._started:
             raise RuntimeError("already started")
         self._started = True
+        self.taken = [key for key in self._keys if key in self._passthrough]
+        if not self._codes:
+            return self.taken
         carbon = self._carbon if self._carbon is not None else carbon_events()
         try:
             carbon.listen(self._pressed)
@@ -146,6 +165,8 @@ class MacHotkeys:
             return self.taken
         self._carbon = carbon
         for key in self._keys:
+            if key not in self._codes:
+                continue
             try:
                 code, modifiers = self._codes[key]
                 self._refs.append(carbon.register(code, modifiers, self._ids[key]))
@@ -159,6 +180,21 @@ class MacHotkeys:
                 ", ".join(combination(key) for key in self.taken),
             )
         return self.taken
+
+    def probe(self, keys: Sequence[str]) -> list[str]:
+        """Return which of `keys` Carbon refuses right now, unregistering any
+        free ones immediately."""
+        carbon = self._carbon if self._carbon is not None else carbon_events()
+        busy: list[str] = []
+        for key in keys:
+            try:
+                code, modifiers = registered(key)
+                ref = carbon.register(code, modifiers, next(_HOTKEY_IDS))
+            except (ValueError, Refused, OSError):
+                busy.append(key)
+                continue
+            carbon.unregister(ref)
+        return busy
 
     def stop(self) -> None:
         """Gives the hotkeys back."""

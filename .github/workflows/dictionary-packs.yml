@@ -72,6 +72,7 @@ on:
       - "src/polyglotic_desktop/__init__.py"
       - "src/polyglotic_desktop/adapters/__init__.py"
       - "src/polyglotic_desktop/adapters/*_split.py"
+      - "src/polyglotic_desktop/adapters/read_connections.py"
       - "src/polyglotic_desktop/adapters/sqlite_dictionary.py"
       - "src/polyglotic_desktop/adapters/traditional_table.py"
       - "src/polyglotic_desktop/core/__init__.py"

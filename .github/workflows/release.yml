@@ -73,9 +73,10 @@ permissions:
 jobs:
   tag:
     name: The tag, its notes and what this run does
-    # On the user's PC, in Docker: a self-hosted runner (polyglotic-hq
-    # project 069, decision 0025). Never for outside contributors.
-    runs-on: [self-hosted, linux]
+    # Reading the tag and planning the build fits the desktop's light runner
+    # (polyglotic-hq 963a, 981): the Linux runner is off. Never for outside
+    # contributors.
+    runs-on: [light]
     timeout-minutes: 5
     outputs:
       tag: ${{ steps.plan.outputs.tag }}

@@ -317,6 +317,7 @@ src/polyglotic_desktop/
     watchdog.py        logs any stretch of interface-thread work over 50 ms by `file.py:function` and duration; on in normal use (`main` starts it)
   adapters/          storage and other infrastructure behind the ports
     sqlite_dictionary.py  the dictionary files (decision 0009); the learner's never stops the app (199)
+    read_connections.py   a read-only file's connection per thread, never closed under a query (a pack's and a meanings file's; 220, 995)
     audio_file.py         a pack's commonest words recorded ahead of time, Ogg Opus with the shared header kept once, on 64 kB pages (decision 0133; polyglotic-hq 405); a pack's rider, fetched after it (0192); a built-in dictionary's (CC-CEDICT's) from the list's own `built_in` entry, only for its learners (0197)
     meanings_file.py      a dictionary's meanings in one more language, by entry ID: a rider of its pack, or of a built-in dictionary (ECDICT's in each learner's language), read through a shelf every dictionary sees; people's only - a machine's rows wait for a label (decision 0234)
     traditional_table.py  the Simplified -> Traditional table in `data/` (OpenCC's, Apache-2.0; made by `tools/traditional_table.py`), read when Traditional is first wanted (decision 0164)
@@ -333,6 +334,7 @@ src/polyglotic_desktop/
     feedback_files.py     reports waiting to be sent, one JSON file each (apart from the content-free outbox)
     problem_report_files.py alpha testers' problem reports waiting to be sent, each as its request body (275)
     app_log.py            the app's log as a report attaches it: the newest part, the user's folder hidden
+    crash_trace.py        a fatal error's Python stacks (faulthandler) to logs/crash.log, rotated; never sent (997)
     signed_feed.py        the update feed checked against our signature, for its channel, before Velopack reads it (decisions 0019, 0020; off until main.FEED_KEYS is set)
     pack_list.py          the dictionary packs' list checked against the feed's keys, with a prefix of its own, and its last good copy kept (decision 0122)
     pack_downloads.py     the packs on this PC (each read by its own info) and their downloads, one at a time on a thread of their own: carried on, paused on a metered connection, retried, checked whole, opened, then renamed; each step in the log, content-free (decision 0122); a caption face's files as one download (`font`, polyglotic-hq 482)
@@ -367,7 +369,8 @@ tools/
   rule_cases.py      writes and checks docs/rule-cases/ from the rules (decision 0022)
   caption_fonts.py   how the captions' bundled faces in `ui/assets/fonts` were made, from pinned sources: Medium instances, Noto Sans SC's and Ma Shan Zheng's cuts and readings' SemiBold, the line boxes (polyglotic-hq 482, 532; decisions 0223, 0249); not part of the build
   mypy_platforms.py  mypy as macOS and Linux see the code: only Windows' own modules may fail (decision 0038)
-  linux_qt_libs.sh   Qt's system libraries for the Linux runner, unpacked without root (decision 0038)
+  linux_qt_libs.sh   Qt's system libraries for a Linux runner, unpacked without root (decision 0038)
+  public_copy_checks.py  CI's Checks (Linux) on the public test copy's free machines: the tree scanned, sent and waited for from the light runner (decision 0305)
   app_tour.py        the app from source on this OS's real windows, signed in to a stand-in server, captioning the app's own FLEURS sample fed straight in: checks and each window's grab() - Home, a caption window, the card, Words, Settings, the transcript (the macOS job, decision 0186); with `--real-capture` (Linux, 550) the sample played through the sound server and another into the mic, captured by the OS's own adapters, the token in the OS's keyring
   linux_session.sh   a Linux desktop session on GitHub's runner for the Linux job: PipeWire with a default output and a real default mic, gnome-keyring unlocked (or no keyring at all: `LINUX_SESSION_KEYRING=none`, 574), and a screen - Xvfb, or GNOME's (mutter) or KDE's (KWin) window manager headless with XWayland (polyglotic-hq 550)
   linux_desktop_tour.sh, linux_in_fedora.sh  the tour over a focused full-screen Wayland window on GNOME and KDE (Fedora 45's in a container), with the window manager's own pictures of its virtual screen (550)

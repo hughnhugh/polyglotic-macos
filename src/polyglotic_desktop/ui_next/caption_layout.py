@@ -2,6 +2,12 @@
 size, and painted - shared by the caption windows and the transcripts
 (decision 0031).
 
+Text already shown never moves down while the window size, text size and
+scroll position stay fixed. A shorter revision or retraction leaves a gap
+at that place. New content fills it or pushes earlier rows up (decision
+230). Scrolling, returning to live and resizing establish fresh positions.
+Caption windows apply this in views.row_positions before animating a layout.
+
 What keeps it fast (polyglotic-hq project 108's audit of today's overlay):
 - **Only what shows:** a surface asks for the lines it draws, as
   `views.scroll` walks them; nothing is laid out ahead.
@@ -370,6 +376,9 @@ class LaidRow:
     """Position of this painted line within its source row."""
     continues: bool = False
     """The layout ends with display-only punctuation after the last source word."""
+
+    opacity: float = 1.0
+    """Entry fade after a new wrapped row has room to appear."""
 
     @property
     def visual_key(self) -> tuple[int, int]:
@@ -982,7 +991,8 @@ class CaptionLayout:
         clip = painter.clipBoundingRect() if painter.hasClipping() else None
         above: dict[int, list[QPointF]] = {}  # Arrows: the clause's upper row's ends
         flowed: list[tuple[LaidRow, QPointF, list[Linked]]] = []
-        base_opacity = painter.opacity() if pair_opacity else 1.0
+        fading = pair_opacity is not None or any(r.opacity < 1.0 for r in laid.rows)
+        base_opacity = painter.opacity() if fading else 1.0
         for row in laid.rows:
             top_left = QPointF(at.x(), at.y() + row.top)
             if clip is not None:
@@ -993,8 +1003,9 @@ class CaptionLayout:
                     or y + bounds.top() - row.band >= clip.bottom()
                 ):
                     continue  # out of view, reading bands included
-            if pair_opacity:
-                painter.setOpacity(base_opacity * pair_opacity[row.row.clause])
+            if fading:
+                pair = pair_opacity[row.row.clause] if pair_opacity else 1.0
+                painter.setOpacity(base_opacity * pair * row.opacity)
             original = row.row.kind is RowKind.ORIGINAL
             base = ink.original if original else ink.translation
             unfinished = line.live or line.provisional
@@ -1094,7 +1105,7 @@ class CaptionLayout:
                 elif links and above:
                     _arrows(painter, row, top_left, links, above, alpha, self.style)
 
-        if pair_opacity:
+        if fading:
             painter.setOpacity(base_opacity)
         if flowed:
             _flow_arrows(painter, at, flowed, alpha, self.style, laid.link_paint)

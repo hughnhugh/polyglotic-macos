@@ -6,7 +6,9 @@ in a fixed order, then the key - "ctrl+alt+d", "f9", "right_ctrl",
 "ctrl+win" (modifiers alone, held together). The keys 283 offered
 ("insert", "f8", "f9", "f10", "scroll_lock", "pause") read as before.
 
-- **A key with or without modifiers** ("insert", "ctrl+alt+d") is the
+- **A key that types or edits** (like Space or Shift+A) is available for
+  dictation in Polyglotic's windows.
+- **Other keys with or without modifiers** ("insert", "ctrl+alt+d") is the
   app's while dictation is on: other programs don't get it, so it never
   types into the program underneath.
 - **Right Ctrl alone, or modifiers alone** (`held_alone`) can't be taken
@@ -48,6 +50,20 @@ _MODIFIER_NAMES = frozenset(m.value for m in Modifier)
 
 LETTERS = tuple("abcdefghijklmnopqrstuvwxyz")
 DIGITS = tuple("0123456789")
+PUNCTUATION = (
+    "minus",
+    "equal",
+    "bracket_left",
+    "bracket_right",
+    "backslash",
+    "semicolon",
+    "apostrophe",
+    "grave",
+    "comma",
+    "period",
+    "slash",
+)
+"""Punctuation keys that type characters on their own (or with Shift)."""
 FUNCTION_KEYS = tuple(f"f{n}" for n in range(1, 25))
 EDITING = (
     "space",
@@ -65,7 +81,18 @@ EDITING = (
     "page_down",
 )
 """Keys that edit text on their own (or with Shift)."""
+_TYPING_KEYS = frozenset((*LETTERS, *DIGITS, *PUNCTUATION, *EDITING))
 OTHER_KEYS = ("insert", "escape", "pause", "scroll_lock", "print_screen", "menu")
+MEDIA_KEYS = (
+    "media_play",
+    "media_stop",
+    "media_next",
+    "media_prev",
+    "volume_up",
+    "volume_down",
+    "volume_mute",
+)
+"""Dedicated media and volume keys."""
 LONE_MODIFIERS = (
     "right_ctrl",
     "left_ctrl",
@@ -77,8 +104,18 @@ LONE_MODIFIERS = (
     "right_win",
 )
 """A modifier pressed and let go on its own, by its side."""
-KEYS = frozenset((*LETTERS, *DIGITS, *FUNCTION_KEYS, *EDITING, *OTHER_KEYS))
-"""Every key dictation's can be, besides `LONE_MODIFIERS`."""
+KEYS = frozenset(
+    (
+        *LETTERS,
+        *DIGITS,
+        *PUNCTUATION,
+        *FUNCTION_KEYS,
+        *EDITING,
+        *OTHER_KEYS,
+        *MEDIA_KEYS,
+    )
+)
+"""Every non-modifier key a hotkey or dictation key can name."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,6 +160,11 @@ class DictationKey:
         """A modifier on its own, or modifiers alone: other programs still
         get it, and another key pressed with it means a shortcut."""
         return self.key is None or self.key in LONE_MODIFIERS
+
+    @property
+    def types(self) -> bool:
+        """Whether the key types or edits on its own or with Shift."""
+        return self.key in _TYPING_KEYS and self.modifiers <= {Modifier.SHIFT}
 
     def __str__(self) -> str:
         return "+".join(self.parts)
@@ -186,9 +228,13 @@ plainly here; the rest of Win's are found taken when tried. Alt's
 (Alt+Tab, Alt+F4, Alt+Esc) are refused as `ALT`."""
 
 
-def refusal(key: DictationKey, own: Iterable[DictationKey] = ()) -> Refusal | None:
-    """Why `key` can't be dictation's, if it can't; `own`: the app's own
-    hotkeys."""
+def refusal(
+    key: DictationKey,
+    own: Iterable[DictationKey] = (),
+    *,
+    typing_in_app: bool = False,
+) -> Refusal | None:
+    """Why a hold key is refused. Typing keys require an app-scoped binding."""
     modifiers, name = key.modifiers, key.key
     if name == "escape":
         return Refusal.WINDOWS if Modifier.CTRL in modifiers else Refusal.ESCAPE
@@ -202,7 +248,7 @@ def refusal(key: DictationKey, own: Iterable[DictationKey] = ()) -> Refusal | No
         return Refusal.MODIFIER
     if key in frozenset(own):
         return Refusal.APP_HOTKEY
-    if modifiers <= {Modifier.SHIFT} and name in (*LETTERS, *DIGITS, *EDITING):
+    if not typing_in_app and key.types:
         return Refusal.TYPES
     if (
         modifiers == {Modifier.CTRL}

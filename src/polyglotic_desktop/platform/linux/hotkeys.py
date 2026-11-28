@@ -46,7 +46,7 @@ import logging
 import os
 import select
 import threading
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from typing import Protocol
 
 from polyglotic_desktop.core.listening.dictation_keys import DictationKey, Modifier
@@ -85,11 +85,17 @@ MODIFIER_MASKS = {
     Modifier.WIN: MOD4,
 }
 NAMED_KEYSYMS = {
+    "minus": 0x002D, "equal": 0x003D, "bracket_left": 0x005B, "bracket_right": 0x005D,
+    "backslash": 0x005C, "semicolon": 0x003B, "apostrophe": 0x0027, "grave": 0x0060,
+    "comma": 0x002C, "period": 0x002E, "slash": 0x002F,
     "space": 0x0020, "enter": 0xFF0D, "tab": 0xFF09, "backspace": 0xFF08,
     "delete": 0xFFFF, "left": 0xFF51, "up": 0xFF52, "right": 0xFF53,
     "down": 0xFF54, "home": 0xFF50, "end": 0xFF57, "page_up": 0xFF55,
     "page_down": 0xFF56, "insert": 0xFF63, "escape": 0xFF1B, "pause": 0xFF13,
     "scroll_lock": 0xFF14, "print_screen": 0xFF61, "menu": 0xFF67,
+    "media_play": 0x1008FF14, "media_stop": 0x1008FF15, "media_next": 0x1008FF17,
+    "media_prev": 0x1008FF16, "volume_up": 0x1008FF13, "volume_down": 0x1008FF11,
+    "volume_mute": 0x1008FF12,
     **{f"f{n}": 0xFFBE + n - 1 for n in range(1, 25)},
 }  # fmt: skip
 """X11's keysym for each key a kept combination can name beside its
@@ -185,9 +191,16 @@ class X11Hotkeys:
         self,
         bindings: Mapping[str, Callable[[], None]],
         connect: Callable[[], Xcb] | None = None,
+        *,
+        passthrough: Collection[str] = (),
     ) -> None:
-        self._combinations = {key: binding_key(key) for key in bindings}
-        """Each binding's modifiers and key."""
+        self._passthrough = frozenset(passthrough)
+        # X11's root-window grab always swallows: pass-through typing keys are
+        # never grabbed so typing in other apps isn't broken.
+        self._combinations = {
+            key: binding_key(key) for key in bindings if key not in self._passthrough
+        }
+        """Each grabbed binding's modifiers and key."""
         self._bindings = dict(bindings)
         self._connect = connect or LibXcb
         self._xcb: Xcb | None = None
@@ -207,6 +220,9 @@ class X11Hotkeys:
         program already has - all of them if there's no X server to ask."""
         if self._xcb is not None:
             raise RuntimeError("already started")
+        self.taken = [key for key in self._bindings if key in self._passthrough]
+        if not self._combinations:
+            return self.taken
         try:
             xcb = self._connect()
         except OSError:
@@ -225,12 +241,39 @@ class X11Hotkeys:
         if self.taken:
             log.warning(
                 "hotkey(s) already taken by another program: %s",
-                ", ".join(combination(*self._combinations[key]) for key in self.taken),
+                ", ".join(
+                    combination(*self._combinations[key])
+                    if key in self._combinations
+                    else key
+                    for key in self.taken
+                ),
             )
         self._wake_r, self._wake_w = os.pipe()
         self._thread = threading.Thread(target=self._run, name="hotkeys", daemon=True)
         self._thread.start()
         return self.taken
+
+    def probe(self, keys: Sequence[str]) -> list[str]:
+        """Return which of `keys` X11 cannot grab right now, ungrabbing any
+        free ones immediately."""
+        xcb = self._xcb
+        if xcb is None or xcb.broken():
+            return list(keys)
+        first, mapping = xcb.keyboard()
+        busy: list[str] = []
+        for key in keys:
+            try:
+                held, pressed = binding_key(key)
+            except ValueError:
+                busy.append(key)
+                continue
+            keycode = keycode_for(pressed, mapping, first)
+            if keycode is None or not self._grab(xcb, keycode, held):
+                busy.append(key)
+                continue
+            for extra in IGNORED:
+                xcb.ungrab(keycode, held | extra)
+        return busy
 
     def _grab(self, xcb: Xcb, keycode: int, held: int) -> bool:
         """Every Caps Lock and NumLock variant of one combination, or none."""
@@ -380,7 +423,13 @@ class NoHotkeys:
 
     available = False
 
-    def __init__(self, bindings: Mapping[str, Callable[[], None]]) -> None:
+    def __init__(
+        self,
+        bindings: Mapping[str, Callable[[], None]],
+        *,
+        passthrough: Collection[str] = (),
+    ) -> None:
+        del passthrough
         self._keys = list(bindings)
 
     def start(self) -> list[str]:
@@ -405,13 +454,15 @@ def grab_works_here(environ: Mapping[str, str]) -> bool:
 def for_this_session(
     bindings: Mapping[str, Callable[[], None]],
     environ: Mapping[str, str] | None = None,
+    *,
+    passthrough: Collection[str] = (),
 ) -> X11Hotkeys | NoHotkeys:
     """The hotkeys this session can give: X11's grab where it hears every
     app, else none."""
     env = os.environ if environ is None else environ
     if grab_works_here(env):
-        return X11Hotkeys(bindings)
-    return NoHotkeys(bindings)
+        return X11Hotkeys(bindings, passthrough=passthrough)
+    return NoHotkeys(bindings, passthrough=passthrough)
 
 
 # --- libxcb, through ctypes ---------------------------------------------------

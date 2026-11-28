@@ -56,7 +56,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from polyglotic_desktop.core.listening.spoken import SteadyLanguage
 from polyglotic_desktop.perf import budgets, spans
 from polyglotic_desktop.perf.budgets import Budget
-from polyglotic_desktop.ui import interface_language
+from polyglotic_desktop.ui import interface_language, theme
 from polyglotic_desktop.ui_next import caption_windows, style
 from polyglotic_desktop.ui_next.caption_layout import LATIN_FAMILIES
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow
@@ -358,11 +358,31 @@ SimSun, PMingLiU - qwindowsfontdatabasebase.cpp, `extraTryFontsForFamily`).
 A Japanese face: Japan's glyph shapes (polyglotic-hq 176, 198)."""
 
 
+HEADING_FACE_AT_START = False
+"""Whether `application()` loads the default theme's heading face, as the
+app does as it starts. The lab command turns it on (`as_the_app_starts`),
+so every page title is in it whatever states ran before in the process
+(polyglotic-hq 1004; `pages.window_with` alone loaded it). A pytest session
+leaves it off: Literata added there moved test_translation_size's Chinese
+line against Latin on gpubox (the 0.1.13 train, ec92a7319)."""
+
+
+def as_the_app_starts() -> None:
+    """The lab command's start (`__main__.main`): its application gets the
+    fonts the app's has, the heading face included."""
+    global HEADING_FACE_AT_START
+    HEADING_FACE_AT_START = True
+
+
 def application() -> QApplication:
-    """The lab's application, its fonts as on Windows (`use_windows_fonts`)."""
+    """The lab's application, its fonts as on Windows (`use_windows_fonts`),
+    and for the lab command the default theme's heading face
+    (`HEADING_FACE_AT_START`)."""
     found = QApplication.instance() or QApplication(["polyglotic-ui-lab"])
     assert isinstance(found, QApplication)
     use_windows_fonts(found)
+    if HEADING_FACE_AT_START:
+        theme.load_heading_face(theme.DEFAULT_THEME)
     return found
 
 
@@ -419,13 +439,17 @@ def run(
     golden_store: Path | None = None,
     language: str = interface_language.ENGLISH,
     shown: Callable[[str, QWidget], None] | None = None,
+    timed: bool = True,
 ) -> list[Result]:
     """Every state: its PNG and JSON in `out`, then `summary.json`. With
     `golden_store`, each new part's picture is compared with its golden.
     In the interface `language`, installed as the app installs it (decision
     0034) - once per run: a later run in another language starts a new
     process. `shown`: told each state's name and widget as it's checked
-    (`seen`: which strings it shows)."""
+    (`seen`: which strings it shows). `timed`: whether its budgets are
+    judged; a run that judges only the checks and goldens (`--checks-only`,
+    every other language's) takes each state once, with no wait for a calm
+    PC, no reference step and no tries again (polyglotic-hq 994)."""
     out.mkdir(parents=True, exist_ok=True)
     failed = out / "failed"
     for stale in failed.glob("*.png") if failed.is_dir() else []:
@@ -445,7 +469,7 @@ def run(
             return_value=sample_time,
         ),
     ):
-        return _run_states(app, states, out, failed, golden_store, shown)
+        return _run_states(app, states, out, failed, golden_store, shown, timed)
 
 
 def _run_states(
@@ -455,40 +479,34 @@ def _run_states(
     failed: Path,
     golden_store: Path | None,
     shown: Callable[[str, QWidget], None] | None,
+    timed: bool = True,
 ) -> list[Result]:
     """`run`'s states, one by one (`run` says what each gets)."""
     results = []
     for state in states:
         busy: list[float | None] = []
-        if state.gated:
-            busy.append(
-                busy_pc.wait_for_calm(
-                    busy_pc.UI_TIMING_MAX_BUSY, busy_pc.UI_TIMING_WAIT_SECONDS
-                )
-            )
+        judged = state.gated and timed
+        if judged:
+            busy.append(_calm())
             print(
                 f"{state.name}: before try 1, {busy_pc.describe(busy[-1])}", flush=True
             )
-        lab, widget = _run_state(app, state, out)
+        lab, widget = _run_state(app, state, out, timed)
         first, tries = lab.result.actions, 1
-        while state.gated and lab.result.over_budget() and tries < busy_pc.MOST_TRIES:
+        while judged and lab.result.over_budget() and tries < busy_pc.MOST_TRIES:
             if tries >= 2 and not busy_pc.saturated(
                 busy[-1], busy_pc.UI_TIMING_MAX_BUSY
             ):
                 break
             _close(app, lab, widget)
-            busy.append(
-                busy_pc.wait_for_calm(
-                    busy_pc.UI_TIMING_MAX_BUSY, busy_pc.UI_TIMING_WAIT_SECONDS
-                )
-            )
+            busy.append(_calm())
             print(
                 f"{state.name}: before try {tries + 1}, {busy_pc.describe(busy[-1])}",
                 flush=True,
             )
-            lab, widget = _run_state(app, state, out)
+            lab, widget = _run_state(app, state, out, timed)
             tries += 1
-        if state.gated:
+        if judged:
             lab.result.busy = busy
             lab.result.timing_unmeasured = bool(busy) and all(
                 busy_pc.saturated(load, busy_pc.UI_TIMING_MAX_BUSY) for load in busy
@@ -537,12 +555,24 @@ def _run_states(
     return results
 
 
-def _run_state(app: QApplication, state: State, out: Path) -> tuple[Lab, QWidget]:
+def _calm() -> float | None:
+    """The PC's load once it's calm enough to time a try, or the wait's up
+    (`busy_pc.UI_TIMING_*`)."""
+    return busy_pc.wait_for_calm(
+        busy_pc.UI_TIMING_MAX_BUSY,
+        busy_pc.UI_TIMING_WAIT_SECONDS,
+        busy_pc.UI_TIMING_SAMPLE_SECONDS,
+    )
+
+
+def _run_state(
+    app: QApplication, state: State, out: Path, timed: bool = True
+) -> tuple[Lab, QWidget]:
     """`state` set up and its actions timed: its lab and the widget to
     photograph."""
     lab = Lab(app, out)
     lab.result = Result(state.name, state.gated)
-    if state.gated:  # the PC's speed now, for comparing with main's (0169)
+    if state.gated and timed:  # the PC's speed now, for comparing with main's (0169)
         lab.result.reference_ms = reference.time_step(app)
     with spans.recorded() as timings:
         widget = state.run(lab)

@@ -52,10 +52,10 @@ def test_a_key_a_mac_hasnt_got_isnt_planned() -> None:
 
 
 def test_every_key_but_f21_to_f24_has_a_mac_key_code() -> None:
-    from polyglotic_desktop.core.listening.dictation_keys import KEYS
+    from polyglotic_desktop.core.listening.dictation_keys import KEYS, MEDIA_KEYS
 
     missing = {key for key in KEYS if key not in hold_key.KEY_CODES}
-    assert missing == {"f21", "f22", "f23", "f24"}
+    assert missing == {"f21", "f22", "f23", "f24", *MEDIA_KEYS}
     # a PC keyboard's Print Screen, Scroll Lock and Pause are F13-F15 on a Mac
     shared = {"print_screen": "f13", "scroll_lock": "f14", "pause": "f15"}
     codes = hold_key.KEY_CODES

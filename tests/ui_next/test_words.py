@@ -19,7 +19,9 @@ from tests.budget_judge import Sampled, timed, within
 from tests.lexicon.sample import chinese_sample
 from tests.ui.fakes import tools_for
 from tests.ui_next.made_up import export_written
+from tools.linux_packed_tour import ANKI_EXPORT_BUTTON, ANKI_EXPORT_TITLE
 
+from polyglotic_desktop.adapters.anki_package import GenankiDeckWriter
 from polyglotic_desktop.core.learning.exposures import ExposureCount
 from polyglotic_desktop.core.learning.levels import KnownLine
 from polyglotic_desktop.core.learning.lookups import LookupContext
@@ -522,6 +524,27 @@ def test_the_csv_export_writes_the_words_and_remembers(
     assert "电脑" in path.read_text(encoding="utf-8")
     assert export_csv(tools, tmp_path / "again.csv", only_new=True) == 0
     assert not page.first.export_deck.isEnabled()  # no deck writer handed over
+
+
+def test_linux_packed_tour_can_find_the_anki_export_button_and_dialog(
+    tools: LearningTools, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    titles: list[str] = []
+
+    def cancel_save(_parent: QWidget, title: str, *_args: object) -> tuple[str, str]:
+        titles.append(title)
+        return "", ""
+
+    monkeypatch.setattr(words_page.QFileDialog, "getSaveFileName", cancel_save)
+    tools.deck_writer = GenankiDeckWriter()
+    page = WordsPage(tools, None)
+    button = page.first.export_deck
+    button.click()
+
+    assert (button.accessibleName() or button.text(), titles) == (
+        ANKI_EXPORT_BUTTON,
+        [ANKI_EXPORT_TITLE],
+    )
 
 
 def chosen_file(monkeypatch: pytest.MonkeyPatch, path: Path) -> None:

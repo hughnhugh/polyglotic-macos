@@ -15,11 +15,17 @@ if sys.platform != "win32":
     pytest.skip("Windows only", allow_module_level=True)
 
 from polyglotic_desktop.platform.windows.hotkeys import (
+    LLKHF_INJECTED,
     MOD_ALT,
     MOD_CONTROL,
     MOD_SHIFT,
     MOD_WIN,
+    VK_KEYS,
+    WM_KEYDOWN,
+    WM_KEYUP,
     GlobalHotkeys,
+    HookEntry,
+    LowLevelMatcher,
     combination,
     registered,
 )
@@ -115,3 +121,120 @@ def test_a_modifier_alone_or_a_key_not_kept_isnt_a_hotkey() -> None:
     for bad in ("right_ctrl", "ctrl+win", "Q", "", "ctrl+alt+ä"):
         with pytest.raises(ValueError):
             GlobalHotkeys({bad: lambda: None})
+
+
+def test_refused_registration_falls_back_to_low_level_hook_and_swallows_only_our_chord() -> (
+    None
+):
+    """966: when RegisterHotKey is refused for one chord, GlobalHotkeys falls
+    back to WH_KEYBOARD_LL, fires our action, swallows ONLY that chord, and
+    passes every other key on."""
+    fired: list[str] = []
+    done = threading.Event()
+    hooks_installed: list[object] = []
+    hooks_removed: list[int] = []
+    held_vks: set[int] = set()
+
+    def register(hid: int, mods: int, vk: int) -> bool:
+        del hid, mods
+        return vk != VK_KEYS["p"]  # pretend another program holds Ctrl+Alt+P
+
+    def on_pause() -> None:
+        fired.append("pause")
+        done.set()
+
+    def install_hook(proc: object) -> int:
+        hooks_installed.append(proc)
+        return 42
+
+    hotkeys = GlobalHotkeys(
+        {"ctrl+alt+l": lambda: fired.append("lock"), "ctrl+alt+p": on_pause},
+        register_hotkey=register,
+        unregister_hotkey=lambda _hid: None,
+        install_hook=install_hook,
+        remove_hook=hooks_removed.append,
+        key_down=lambda vk: vk in held_vks,
+    )
+    taken = hotkeys.start()
+    try:
+        assert taken == ["ctrl+alt+p"]
+        assert hotkeys.hooked == ["ctrl+alt+p"]
+        assert len(hooks_installed) == 1
+
+        # Unrelated keys and bare P pass straight through without firing.
+        assert not hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["a"])
+        assert not hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["p"])
+        held_vks.update({0x11, 0x12})  # Ctrl + Alt held
+        assert not hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["x"])
+        # Injected Ctrl+Alt+P passes through without firing.
+        assert not hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["p"], LLKHF_INJECTED)
+        assert fired == []
+
+        # Real Ctrl+Alt+P fires our action AND swallows ONLY our chord.
+        assert hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["p"]) is True
+        assert wait_for(done)
+        assert fired == ["pause"]
+        # Key auto-repeat while held stays swallowed and does not double-fire.
+        assert hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["p"]) is True
+        time.sleep(0.03)
+        assert fired == ["pause"]
+        # Releasing P swallows the paired keyup and re-arms the chord.
+        assert hotkeys.simulate_hook(WM_KEYUP, VK_KEYS["p"]) is True
+        # Releasing modifiers is never swallowed.
+        assert hotkeys.simulate_hook(WM_KEYUP, 0x11) is False
+    finally:
+        hotkeys.stop()
+    assert hooks_removed == [42]
+
+
+def test_everywhere_typing_key_uses_passthrough_hook_and_never_swallows() -> None:
+    """966: a typing key set to Everywhere runs our action via WH_KEYBOARD_LL
+    and ALWAYS passes the key on to the foreground app (never registers with
+    RegisterHotKey, never swallows)."""
+    registered_vks: list[int] = []
+    fired = threading.Event()
+
+    def record_register(_hid: int, _mods: int, vk: int) -> bool:
+        registered_vks.append(vk)
+        return True
+
+    hotkeys = GlobalHotkeys(
+        {"space": fired.set},
+        passthrough={"space"},
+        register_hotkey=record_register,
+        unregister_hotkey=lambda _hid: None,
+        install_hook=lambda _proc: 99,
+        remove_hook=lambda _h: None,
+        key_down=lambda _vk: False,
+    )
+    taken = hotkeys.start()
+    try:
+        assert taken == []
+        assert hotkeys.hooked == []  # not a refused fallback
+        assert registered_vks == []  # RegisterHotKey was NEVER called for Space
+        assert hotkeys.simulate_hook(WM_KEYDOWN, VK_KEYS["space"]) is False
+        assert wait_for(fired)
+        assert hotkeys.simulate_hook(WM_KEYUP, VK_KEYS["space"]) is False
+    finally:
+        hotkeys.stop()
+
+
+def test_low_level_matcher_and_probe_handle_punctuation_and_media_keys() -> None:
+    for name in ("comma", "minus", "slash", "media_play", "volume_up"):
+        mods, vk = registered(name)
+        assert mods == 0 and vk == VK_KEYS[name]
+    matcher = LowLevelMatcher(
+        [HookEntry(7, "media_play", 0, VK_KEYS["media_play"], True)],
+        key_down=lambda _vk: False,
+    )
+    assert matcher.handle(WM_KEYDOWN, VK_KEYS["media_play"]) == (7, True)
+    assert matcher.handle(WM_KEYUP, VK_KEYS["media_play"]) == (None, True)
+    busy_vks = {VK_KEYS["f9"]}
+    unregistered: list[int] = []
+    hotkeys = GlobalHotkeys(
+        {"ctrl+alt+l": lambda: None},
+        register_hotkey=lambda _hid, _mods, vk: vk not in busy_vks,
+        unregister_hotkey=unregistered.append,
+    )
+    assert hotkeys.probe(["f9", "f10", "ctrl+alt+shift+l"]) == ["f9"]
+    assert len(unregistered) == 2

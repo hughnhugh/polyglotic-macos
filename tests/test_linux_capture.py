@@ -13,6 +13,7 @@ import subprocess
 import threading
 import time
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -22,6 +23,7 @@ from polyglotic_desktop.platform.linux import apps, capture, devices, pulse
 from polyglotic_desktop.platform.linux.capture import MicCapture, SystemCapture
 from polyglotic_desktop.ports.capture import (
     AppCaptureSupport,
+    CaptureIssue,
     PlayingApp,
     SourceCategory,
 )
@@ -278,7 +280,11 @@ def test_a_recording_whose_device_went_is_opened_again() -> None:
     try:
         wait_for(lambda: server.recordings)
         server.recordings[0].failed = True
+        wait_for(lambda: system.error == CaptureIssue.OPEN)
+        assert system.capturing is None
+        server.change()
         wait_for(lambda: len(server.recordings) == 2)
+        wait_for(lambda: system.error is None)
         assert server.recordings[1].source == "alsa_output.speakers.monitor"
     finally:
         system.stop()
@@ -289,7 +295,7 @@ def test_a_device_that_wont_record_is_said_and_tried_again() -> None:
     server.refuse.add("alsa_output.speakers.monitor")
     system, _ = started(SystemCapture, server)
     try:
-        wait_for(lambda: system.error and "didn't start" in system.error)
+        wait_for(lambda: system.error == capture.CaptureIssue.OPEN)
         server.refuse.clear()
         server.change()
         wait_for(lambda: server.recordings, 4.0)
@@ -940,3 +946,114 @@ def test_linux_only_apps_have_a_category_but_no_public_name() -> None:
     assert categories.known_name("Discord") == "Discord"  # any case
     common = {a.name for a in categories.COMMON_APPS}
     assert all(categories.known_name(name) for name in common)  # each a public one
+
+
+@pytest.mark.parametrize(
+    ("error", "reason"),
+    [
+        (pulse.MissingLibrary(), CaptureIssue.LIBRARY),
+        (ConnectionRefusedError(), CaptureIssue.SERVER),
+        (PermissionError(), CaptureIssue.DENIED),
+        (RuntimeError(), CaptureIssue.STOPPED),
+    ],
+)
+def test_connection_failure_explained(error: Exception, reason: CaptureIssue) -> None:
+    def failed() -> FakeServer:
+        raise error
+
+    source = SystemCapture(connect=failed)
+    source.start(lambda *_: None)
+    try:
+        wait_for(lambda: source.error == reason)
+    finally:
+        source.stop()
+
+
+def test_record_permission_refusal(monkeypatch: pytest.MonkeyPatch) -> None:
+    server = FakeServer()
+
+    def denied(source: str) -> FakeRecording:
+        raise PermissionError(source)
+
+    monkeypatch.setattr(server, "record", denied)
+    source, _ = started(MicCapture, server)
+    try:
+        wait_for(lambda: source.error == CaptureIssue.DENIED)
+    finally:
+        source.stop()
+
+
+def test_monitor_from_suspended_sinks_paired_source() -> None:
+    server = FakeServer()
+    server.outputs = [replace(SPEAKERS, monitor=None, running=False)]
+    server.inputs = [MIC, replace(SPEAKERS_MONITOR, name="virtual-loopback")]
+    assert capture.output_monitor(server, None) == ("virtual-loopback", "Speakers")
+    server.inputs = [MIC]
+    assert capture.output_monitor(server, None) is None
+
+
+def test_real_frames_distinguished_from_timeline_padding_and_recover(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    monkeypatch.setattr(capture, "LEVEL_CHECK_SEC", 0.10)
+    caplog.set_level("INFO", logger=capture.__name__)
+    server = FakeServer()
+    source, _ = started(SystemCapture, server)
+    try:
+        wait_for(lambda: source.error == CaptureIssue.NO_FRAMES)
+        stream = server.recordings[0]
+        stream.pieces.append((time.perf_counter(), floats(0.0, 0.0)))
+        wait_for(lambda: source.error == CaptureIssue.SILENT)
+        stream.pieces.append((time.perf_counter(), floats(0.25)))
+        wait_for(lambda: source.error is None)
+        wait_for(lambda: source.error == CaptureIssue.NO_FRAMES)
+        assert caplog.text.count("no_frames") == 1
+        assert caplog.text.count("silent_frames") == 1
+        assert caplog.text.count("PipeWire 1.0.5") == 1
+        assert caplog.text.count("recording device: speaker monitor") == 1
+        assert SPEAKERS.name not in caplog.text
+    finally:
+        source.stop()
+
+
+def test_app_with_no_playing_stream_reports_no_frames(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(capture, "LEVEL_CHECK_SEC", 0.05)
+    server = FakeServer()
+    source = capture.AppCapture(93, "app", connect=lambda: server, alive=lambda _: True)
+    source.start(lambda *_: None)
+    try:
+        wait_for(lambda: source.error == CaptureIssue.NO_FRAMES)
+    finally:
+        source.stop()
+
+
+def test_server_log_omits_custom_names_and_versions() -> None:
+    assert pulse.Defaults("office-sound", None, None, "user-name").log_identity() == (
+        "other (Pulse protocol server version unknown)"
+    )
+    assert (
+        pulse.Defaults("pulseaudio", None, None, "17.0").log_identity()
+        == "PulseAudio 17.0"
+    )
+
+
+def test_libpulse_load_failure_has_a_distinct_type(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def failed(name: str) -> None:
+        raise OSError(name)
+
+    monkeypatch.setattr(pulse, "_lib", None)
+    monkeypatch.setattr(pulse.ctypes, "CDLL", failed)
+    with pytest.raises(pulse.MissingLibrary):
+        pulse.library()
+
+
+def test_libpulse_access_denied_has_a_distinct_type() -> None:
+    class Denied:
+        def pa_context_errno(self, context: int) -> int:
+            return 1
+
+    assert isinstance(pulse.server_failure(Denied(), 1, "record"), PermissionError)

@@ -80,13 +80,11 @@ from polyglotic_desktop.platform.speech_detection import Audio, FrameResult
 from polyglotic_desktop.ports.capture import (
     APP_CLOSED,
     NOT_ALLOWED,
+    SOUND_PEAK,
     AudioCapture,
+    CaptureIssue,
     SourceCategory,
 )
-
-SOUND_PEAK = 0.001
-"""A frame of audio whose loudest sample is above this (about -60 dB) is
-sound, not silence: what the "no captions?" check counts."""
 
 caption_log = logging.getLogger(CAPTION_LOG)
 
@@ -197,6 +195,21 @@ class SpeechPipeline:
             elif capture is not None and stopped(capture):
                 found[source_id] = replace(act, stopped=True)
         return found
+
+    def capture_status(self) -> dict[SourceId, CaptureIssue | None]:
+        """Each source with an explanation for its empty window. A known issue
+        takes precedence. None means sound reached the existing level meter.
+        Omitted sources are still waiting for their first audio."""
+        with self._lock:
+            status: dict[SourceId, CaptureIssue | None] = {
+                source: None
+                for source, activity in self._activity.items()
+                if activity.first_sound is not None
+            }
+            for source, capture in self._captures.items():
+                if isinstance(issue := capture.error, CaptureIssue):
+                    status[source] = issue
+            return status
 
     def add_source(
         self,

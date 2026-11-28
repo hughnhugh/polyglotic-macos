@@ -76,7 +76,8 @@ then connects them:
 It logs to `logs/polyglotic.log` in the data folder (from source, to the
 console as well; installed, it has none) - an exception nothing caught
 too, by its type and place (`CrashLog`), with a plain box if it stops the
-app starting. `--check-install REPORT` builds everything without
+app starting; a fatal error's Python stacks go to `logs/crash.log`, which
+stays on the PC (`adapters.crash_trace`). `--check-install REPORT` builds everything without
 showing, capturing or connecting, and writes what it found (the release
 build runs it on the packed app). Logs states only - never caption text,
 audio or settings.
@@ -141,6 +142,7 @@ from PySide6.QtGui import (
     QAction,
     QDesktopServices,
     QGuiApplication,
+    QInputMethodEvent,
     QKeyEvent,
     QKeySequence,
 )
@@ -164,6 +166,7 @@ from polyglotic_desktop.adapters.caption_word_breaks import (
     CaptionWordSplit,
     PackWordBreaks,
 )
+from polyglotic_desktop.adapters.crash_trace import CRASH_TRACE_CHECK_MS, CrashTrace
 from polyglotic_desktop.adapters.feedback_files import FeedbackFolder
 from polyglotic_desktop.adapters.japanese_dictionary import (
     FILE_NAME as JAPANESE_DICTIONARY,
@@ -287,14 +290,21 @@ from polyglotic_desktop.core.listening.display import (
 from polyglotic_desktop.core.listening.hidden import Sight
 from polyglotic_desktop.core.listening.history import copied_text, newest_finished
 from polyglotic_desktop.core.listening.hotkeys import (
+    ALTERNATIVE_COUNT,
     DICTATE,
     LIVE_SPACE,
     RESPEAK,
     Hotkey,
+    HotkeyScope,
     Platform,
+    candidate_alternatives,
     clashes,
+    default_scope,
+    find_free_alternatives,
+    is_typing_key,
 )
 from polyglotic_desktop.core.listening.hotkeys import keys as hotkey_keys
+from polyglotic_desktop.core.listening.hotkeys import scopes as hotkey_scopes
 from polyglotic_desktop.core.listening.maintenance import (
     SOON,
     Maintenance,
@@ -506,12 +516,18 @@ from polyglotic_desktop.ui.sign_in import (
     confirm_sign_out,
 )
 from polyglotic_desktop.ui.widgets import TextDialog
-from polyglotic_desktop.ui_next import caption_faces, fonts, style
+from polyglotic_desktop.ui_next import caption_faces, capture_status, fonts, style
 from polyglotic_desktop.ui_next import maintenance as maintenance_words
 from polyglotic_desktop.ui_next.account_page import AccountPage as NextAccountPage
 from polyglotic_desktop.ui_next.caption_window import CaptionWindow, notice_text
 from polyglotic_desktop.ui_next.caption_windows import CaptionWindows
-from polyglotic_desktop.ui_next.dictation_key import key_words
+from polyglotic_desktop.ui_next.dictation_key import (
+    KeyBox,
+    event_key,
+    key_of,
+    key_words,
+    modifier_of,
+)
 from polyglotic_desktop.ui_next.first_window import made_ahead
 from polyglotic_desktop.ui_next.fonts_ahead import FontsAhead
 from polyglotic_desktop.ui_next.help_page import HelpPage as NextHelpPage
@@ -1068,6 +1084,7 @@ class OsAdapters:
     X11 program, through XWayland on a Wayland desktop, where a window can
     stay on top, place itself and let clicks through (decision 0258); the
     packed app carries no other. None: Qt's own choice (Windows, a Mac)."""
+    platform_kind: str | None = None
     dictation: bool = True
     """Whether dictation is offered at all: False where the OS has none yet
     (Linux, until polyglotic-hq 546's slice 8) - the tray, Settings and Help
@@ -1469,6 +1486,7 @@ def linux_adapters() -> OsAdapters:
             menu_entry.taskbar_identity, icon=icons.ICONS / "polyglotic.svg"
         ),
         store_package=not_yet.none_found,
+        platform_kind=linux.platform_kind(),
         os_name=linux.os_name,
         os_version=linux.os_version,
         data_folder=linux.data_folder,
@@ -4137,6 +4155,13 @@ class Hub:
         self.settings.show_section("dictation")
         self.show(picker=False)
 
+    def open_hotkeys_settings(self) -> None:
+        """The tray's hotkey conflict item: the main window in front, on
+        Settings > Hotkeys (polyglotic-hq 966)."""
+        self.window.go_to("settings")
+        self.settings.show_section("hotkeys")
+        self.show(picker=False)
+
     def show(self, picker: bool = True) -> None:
         """The main window in front - on Home, where the learner picks
         what to caption, while nothing is chosen (with `picker`)."""
@@ -5809,56 +5834,123 @@ def plan_shown(plan: protocol.PlanState) -> PlanShown:
     return PlanShown(plan.tier, plan.source, plan.status, until, code)
 
 
-class LocalLiveShortcut(QObject):
-    """Handle Space inside caption and transcript windows, leaving text entry alone."""
+def _is_text_input(widget: QWidget | None) -> bool:
+    return widget is not None and (
+        isinstance(widget, (QLineEdit, QPlainTextEdit, QTextEdit))
+        or widget.testAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled)
+    )
 
-    def __init__(self, app: QApplication, live: QAction) -> None:
+
+_HOTKEY_WINDOWS = (CaptionWindow, JoinedWindow, TranscriptWindow, NextMainWindow)
+
+
+def type_in_app(text: str) -> bool:
+    """Commit dictated text to the focused editor without generating hotkeys."""
+    focus = QApplication.focusWidget()
+    if (
+        focus is None
+        or not isinstance(focus.window(), _HOTKEY_WINDOWS)
+        or not _is_text_input(focus)
+    ):
+        return False
+    event = QInputMethodEvent()
+    event.setCommitString(text)
+    return QApplication.sendEvent(focus, event)
+
+
+class LocalHotkeys(QObject):
+    """Handle hotkeys scoped to In Polyglotic's windows (caption, joined,
+    transcript, main), leaving text entry and listening key boxes alone
+    (polyglotic-hq 966)."""
+
+    def __init__(self, app: QApplication, pressed: Callable[[str], None]) -> None:
         super().__init__(app)
-        self.live = live
-        self.enabled = False
+        self._pressed = pressed
+        self.bindings: dict[DictationKey, str] = {}
         app.installEventFilter(self)
+
+    def set_bindings(self, bindings: Mapping[DictationKey, str]) -> None:
+        self.bindings = dict(bindings)
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         if (
-            not self.enabled
+            not self.bindings
             or event.type() not in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress)
             or not isinstance(event, QKeyEvent)
-            or event.key() != Qt.Key.Key_Space
-            or event.modifiers() != Qt.KeyboardModifier.NoModifier
             or not isinstance(watched, QWidget)
-            or not isinstance(
-                watched.window(), (CaptionWindow, JoinedWindow, TranscriptWindow)
-            )
         ):
+            return False
+        window = watched.window()
+        if not isinstance(window, _HOTKEY_WINDOWS):
             return False
         focus = QApplication.focusWidget()
         for widget in (watched, focus):
-            if (
-                widget is not None
-                and widget.window() is watched.window()
-                and (
-                    isinstance(widget, (QLineEdit, QPlainTextEdit, QTextEdit))
-                    or widget.testAttribute(Qt.WidgetAttribute.WA_InputMethodEnabled)
-                )
-            ):
+            if widget is not None and isinstance(widget, KeyBox) and widget.listening:
                 return False
+        pressed = event_key(event)
+        if pressed is None or pressed not in self.bindings:
+            return False
+        if is_typing_key(pressed):
+            for widget in (watched, focus):
+                if (
+                    widget is not None
+                    and widget.window() is window
+                    and _is_text_input(widget)
+                ):
+                    return False
         if event.type() == QEvent.Type.KeyPress and not event.isAutoRepeat():
-            self.live.trigger()
+            self._pressed(self.bindings[pressed])
         event.accept()
         return True
 
 
+class LocalLiveShortcut(LocalHotkeys):
+    """Backwards-compatible wrapper for the default Space-to-live shortcut."""
+
+    def __init__(self, app: QApplication, live: QAction) -> None:
+        self.live = live
+        super().__init__(app, lambda _name: self.live.trigger())
+
+    @property
+    def enabled(self) -> bool:
+        return LIVE_SPACE in self.bindings
+
+    @enabled.setter
+    def enabled(self, on: bool) -> None:
+        self.set_bindings({LIVE_SPACE: Hotkey.LIVE.value} if on else {})
+
+
+def _noop() -> None:
+    pass
+
+
+def _make_hotkeys(
+    factory: Callable[..., Hotkeys],
+    bindings: Mapping[str, Callable[[], None]],
+    passthrough: frozenset[str],
+) -> Hotkeys:
+    if passthrough:
+        try:
+            return factory(bindings, passthrough=passthrough)
+        except TypeError:
+            pass
+    return factory(bindings)
+
+
 class AppHotkeys:
-    """The app's hotkeys, taken from the OS as the settings say
-    (polyglotic-hq 567): each with a key that no other has before it
-    (`core.listening.hotkeys.clashes`), registered; registered again when
-    one changes; let go while Settings' key box listens, so a key the app
-    has reaches the box (and says whose it is) instead of doing its
-    action."""
+    """The app's hotkeys, split by scope (`HotkeyScope.APP` vs `EVERYWHERE`)
+    and taken from the OS as the settings say (polyglotic-hq 567, 966):
+    - `APP`-scoped hotkeys are kept in `local_bound` (handled by `LocalHotkeys`
+      while one of Polyglotic's windows is active);
+    - `EVERYWHERE`-scoped hotkeys are registered globally, with typing keys
+      passed through (`passthrough`) so typing in other apps is never swallowed;
+    - when the OS refuses a global hotkey, `taken` holds those not working,
+      `shared` holds those working via Windows `WH_KEYBOARD_LL` fallback, and
+      `alternatives` holds tested free alternatives for every conflict."""
 
     def __init__(
         self,
-        hotkeys: Callable[[Mapping[str, Callable[[], None]]], Hotkeys],
+        hotkeys: Callable[..., Hotkeys],
         pressed: Callable[[str], None],
     ) -> None:
         """`hotkeys`: the OS's, made with each combination as kept;
@@ -5867,60 +5959,177 @@ class AppHotkeys:
         self._pressed = pressed
         self._held: Hotkeys | None = None
         self.bound: dict[str, str] = {}
-        """Each combination registered, as kept, to its hotkey's name."""
+        """Each global combination registered, as kept, to its hotkey's name."""
+        self.passthrough: frozenset[str] = frozenset()
+        """Global keys that are typing keys and must pass through."""
+        self.local_bound: dict[DictationKey, str] = {}
+        """Each In-Polyglotic's-windows hotkey key to its hotkey's name."""
         self.taken: set[str] = set()
-        """The hotkeys (by name) whose key another program has."""
+        """The hotkeys (by name) refused by the OS and NOT working."""
+        self.shared: set[str] = set()
+        """The hotkeys (by name) refused by `RegisterHotKey` but working via
+        low-level keyboard hook fallback (sharing the chord with another app)."""
+        self.alternatives: dict[str, tuple[str, ...]] = {}
+        """For each conflicting hotkey (in `taken | shared`), tested free
+        alternative keys as kept."""
         self.available = True
         """Whether this desktop allows global hotkeys (False for `NoHotkeys`)."""
         self.box_listening = False
-        self.live_space = False
+
+    @property
+    def live_space(self) -> bool:
+        return self.local_bound.get(LIVE_SPACE) == Hotkey.LIVE.value
 
     def follow(
         self,
         keys: Mapping[Hotkey, DictationKey | None],
         hold: Mapping[str, DictationKey | None] = {},
+        scopes: Mapping[Hotkey, HotkeyScope] | None = None,
+        *,
+        platform: Platform = Platform.WINDOWS,
     ) -> bool:
-        """The hotkeys' keys now, and the hold keys' (dictation's): each
-        hotkey whose key no hotkey or hold key before it has, registered.
-        True if that changed anything."""
+        """The hotkeys' keys and scopes now, and the hold keys' (dictation's):
+        each hotkey whose key no hotkey or hold key before it has is bound
+        locally (`APP`) or globally (`EVERYWHERE`). True if anything changed."""
         together: dict[str, DictationKey | None] = {**hold}
         together.update((hotkey.value, key) for hotkey, key in keys.items())
         clashing = clashes(together)
-        live_space = (
-            not self.box_listening
-            and Hotkey.LIVE.value not in clashing
-            and keys.get(Hotkey.LIVE) == LIVE_SPACE
-        )
-        local_changed = live_space != self.live_space
-        self.live_space = live_space
-        wanted = {
-            str(key): hotkey.value
-            for hotkey, key in keys.items()
-            if key is not None and key != LIVE_SPACE and hotkey.value not in clashing
-        }
-        if self.box_listening:
-            wanted = {}
-        if wanted == self.bound and (self._held is not None or not wanted):
+        effective_scopes = dict(scopes) if scopes is not None else hotkey_scopes(keys)
+        local_wanted: dict[DictationKey, str] = {}
+        wanted: dict[str, str] = {}
+        passthrough_wanted: set[str] = set()
+        if not self.box_listening:
+            for hotkey, key in keys.items():
+                if key is None or hotkey.value in clashing:
+                    continue
+                if effective_scopes.get(hotkey) is HotkeyScope.APP:
+                    local_wanted[key] = hotkey.value
+                else:
+                    kept = str(key)
+                    wanted[kept] = hotkey.value
+                    if is_typing_key(key):
+                        passthrough_wanted.add(kept)
+        local_changed = local_wanted != self.local_bound
+        self.local_bound = local_wanted
+        passthrough_frozen = frozenset(passthrough_wanted)
+        if (
+            wanted == self.bound
+            and passthrough_frozen == self.passthrough
+            and (self._held is not None or not wanted)
+        ):
             return local_changed
         self.stop()
         self.bound = wanted
-        self.live_space = live_space
+        self.passthrough = passthrough_frozen
+        self.local_bound = local_wanted
         if wanted:
-            self._held = self._hotkeys(
-                {key: partial(self._pressed, name) for key, name in wanted.items()}
-            )
-            self.taken = {wanted[key] for key in self._held.start()}
-            self.available = bool(getattr(self._held, "available", True))
+            try:
+                self._held = _make_hotkeys(
+                    self._hotkeys,
+                    {key: partial(self._pressed, name) for key, name in wanted.items()},
+                    passthrough_frozen,
+                )
+            except ValueError:
+                # Some keys (e.g. media keys or F21-F24 on macOS Carbon) have
+                # no global binding on this OS: bind the rest and report these.
+                bindable: dict[str, str] = {}
+                unmapped: set[str] = set()
+                for kept_key, name in wanted.items():
+                    try:
+                        trial = _make_hotkeys(
+                            self._hotkeys,
+                            {kept_key: _noop},
+                            frozenset((kept_key,))
+                            if kept_key in passthrough_frozen
+                            else frozenset(),
+                        )
+                        del trial
+                        bindable[kept_key] = name
+                    except ValueError:
+                        unmapped.add(name)
+                if bindable:
+                    self._held = _make_hotkeys(
+                        self._hotkeys,
+                        {
+                            kept_key: partial(self._pressed, name)
+                            for kept_key, name in bindable.items()
+                        },
+                        passthrough_frozen & bindable.keys(),
+                    )
+                    refused = set(self._held.start())
+                    hooked = set(getattr(self._held, "hooked", ()))
+                    self.available = bool(getattr(self._held, "available", True))
+                    self.shared = {
+                        bindable[k] for k in refused & hooked if k in bindable
+                    }
+                    self.taken = {
+                        bindable[k] for k in refused - hooked if k in bindable
+                    } | unmapped
+                else:
+                    self.taken = unmapped
+                    self.available = True
+            else:
+                refused = set(self._held.start())
+                hooked = set(getattr(self._held, "hooked", ()))
+                self.available = bool(getattr(self._held, "available", True))
+                self.shared = {wanted[k] for k in refused & hooked if k in wanted}
+                self.taken = {wanted[k] for k in refused - hooked if k in wanted}
+            if self.available and (self.taken | self.shared):
+                self.alternatives = self._probe_alternatives(keys, together, platform)
         return True
+
+    def _probe_alternatives(
+        self,
+        keys: Mapping[Hotkey, DictationKey | None],
+        together: Mapping[str, DictationKey | None],
+        platform: Platform,
+    ) -> dict[str, tuple[str, ...]]:
+        """Test free global alternatives against the OS for each conflicting
+        hotkey so every offered suggestion is freshly verified."""
+        conflicts = [
+            hotkey
+            for hotkey in Hotkey
+            if hotkey.value in (self.taken | self.shared)
+            and keys.get(hotkey) is not None
+        ]
+        if not conflicts:
+            return {}
+        used: set[DictationKey] = {k for k in together.values() if k is not None}
+        probe_fn = getattr(self._held, "probe", None)
+        limit = ALTERNATIVE_COUNT.value
+        found: dict[str, tuple[str, ...]] = {}
+        for hotkey in conflicts:
+            current = keys[hotkey]
+            assert current is not None
+            candidates = candidate_alternatives(hotkey, current, used, platform)
+            if not candidates:
+                continue
+            batch = [str(c) for c in candidates[: max(12, limit * 6)]]
+            busy: set[str]
+            if callable(probe_fn):
+                busy = set(probe_fn(batch))
+            else:
+                trial = self._hotkeys({k: _noop for k in batch})
+                try:
+                    busy = set(trial.start())
+                finally:
+                    trial.stop()
+
+            def _is_free(candidate_key: str, busy_set: set[str] = busy) -> bool:
+                return candidate_key not in busy_set
+
+            free = find_free_alternatives(
+                candidates[: len(batch)], _is_free, limit=limit
+            )
+            if free:
+                found[hotkey.value] = tuple(str(k) for k in free)
+                used.update(free)
+        return found
 
     def not_working(self, names: Iterable[str]) -> list[str]:
         """Of `names`, the hotkeys that do nothing now: no key, a key
-        another hotkey or program has, or let go (`not_working`)."""
-        bound = (
-            [*self.bound.values(), Hotkey.LIVE.value]
-            if self.live_space
-            else self.bound.values()
-        )
+        another hotkey or program has (without fallback), or let go."""
+        bound = [*self.bound.values(), *self.local_bound.values()]
         return not_working(names, bound, self.taken)
 
     def stop(self) -> None:
@@ -5928,13 +6137,85 @@ class AppHotkeys:
             self._held.stop()
         self._held = None
         self.bound = {}
-        self.live_space = False
+        self.passthrough = frozenset()
+        self.local_bound = {}
         self.taken = set()
+        self.shared = set()
+        self.alternatives = {}
+
+
+class LocalDictationKey(QObject):
+    """Hold a typing key in Polyglotic's windows without registering it globally."""
+
+    def __init__(
+        self,
+        app: QApplication,
+        key: DictationKey,
+        down: Callable[[], None],
+        up: Callable[[], None],
+        cancel: Callable[[], None],
+    ) -> None:
+        super().__init__()
+        self._app = app
+        self._key = key
+        self._down, self._up, self._cancel = down, up, cancel
+        self._window: QWidget | None = None
+
+    def start(self) -> bool:
+        self._app.installEventFilter(self)
+        return True
+
+    def stop(self) -> None:
+        self._app.removeEventFilter(self)
+        self._drop_hold()
+
+    def _drop_hold(self) -> None:
+        if self._window is not None:
+            self._window = None
+            self._cancel()
+            self._up()
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        kind = event.type()
+        if kind == QEvent.Type.WindowDeactivate and watched is self._window:
+            self._drop_hold()
+        if not isinstance(event, QKeyEvent) or not isinstance(watched, QWidget):
+            return False
+        window = watched.window()
+        if not isinstance(window, _HOTKEY_WINDOWS):
+            return False
+        if kind == QEvent.Type.KeyRelease:
+            if window is not self._window:
+                return False
+            primary = key_of(event) == self._key.key
+            shift = bool(self._key.modifiers) and modifier_of(event) in (
+                "left_shift",
+                "right_shift",
+            )
+            if (primary or shift) and not event.isAutoRepeat():
+                self._window = None
+                self._up()
+            if not primary:
+                return False  # let Qt update the Shift state as usual
+        elif kind in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress):
+            if event_key(event) != self._key:
+                return False
+            if (
+                kind == QEvent.Type.KeyPress
+                and self._window is None
+                and not event.isAutoRepeat()
+            ):
+                self._window = window
+                self._down()
+        else:
+            return False
+        event.accept()
+        return True
 
 
 class DictationKeyHeld:
-    """Dictation's key, taken from the OS as the settings say
-    (polyglotic-hq 283, 289): let go while Settings' key box listens for a
+    """Dictation's key in the scope the settings say (polyglotic-hq 283,
+    289, 973): let go while Settings' key box listens for a
     new one; a key pressed there tried before it's kept - one another
     program has leaves the key before."""
 
@@ -6878,6 +7159,7 @@ def report_facts(
         "windows": {
             "os": app.os,
             "version": app.os_version,
+            **({"platform_kind": app.platform_kind} if app.platform_kind else {}),
             "screens": screens,
             **({"apps_one_by_one": apps_one_by_one} if apps_one_by_one else {}),
         },
@@ -9316,6 +9598,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     taskbar_id = system.taskbar_identity(TASKBAR_ID)  # before any window
     data = args.data or system.data_folder()
     start_logging(data)
+    # a fatal error's Python stacks, where the log can't follow (997)
+    crash_trace = CrashTrace(data / "logs")
+    crash_trace.start()
     crashes = CrashLog(
         partial(show_start_failure, data, system.show_error) if installed() else None,
         data / CRASH_NOTE,
@@ -9415,7 +9700,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     # order - the consent choice and every event (polyglotic-hq 136, 144)
     outbox = BackgroundOutbox(lambda: open_outbox(data / "outbox.sqlite"))
     credentials = system.credentials(credentials_entry(args.server, args.credentials))
-    app_info = AppInfo.this_app(system.os_name(), system.os_version())
+    app_info = AppInfo.this_app(
+        system.os_name(), system.os_version(), platform_kind=system.platform_kind
+    )
 
     @cache
     def beta_accounts() -> Accounts:
@@ -10007,9 +10294,13 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
             use_presets.usage(current),  # the preset in use, counted (556)
         )
         handoff.started(session, settings)
+        if system.platform_kind == "crostini":
+            hub.home.state.show_capture_problem(capture_status.chromebook_help())
 
     def not_listening() -> None:
         """Home's state while nothing is chosen to caption (no session)."""
+        if system.platform_kind == "crostini":
+            hub.home.state.show_capture_problem("")
         signed_in = credentials.load() is not None
         desktop.set_connection(
             ConnectionState.NOT_CONNECTED
@@ -10695,6 +10986,9 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         interface.panels.look.subscribe(faces_chosen)
 
     QTimer.singleShot(PACKS_AFTER_START_MS, start_packs)
+    trace_kept_small = QTimer(desktop, interval=CRASH_TRACE_CHECK_MS)
+    trace_kept_small.timeout.connect(crash_trace.keep_small)
+    trace_kept_small.start()
     pack_updates = QTimer(desktop, interval=PACK_UPDATES_EVERY_MS)
     pack_updates.timeout.connect(packs.check_updates)
 
@@ -10872,6 +11166,13 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     dictation_mic = DictationMic(  # the mic chosen, each hold (372)
         lambda: system.mic_capture(desktop.settings.value.mic_device)
     )
+
+    def type_dictated_text(text: str, target: int) -> bool:
+        key = DictationKey.parse(desktop.settings.value.dictation_key)
+        if key is not None and key.types:
+            return system.window_is_ours(target) and type_in_app(text)
+        return system.type_text(text)
+
     dictating = Dictating(
         desktop.settings,
         dictation_mic,
@@ -10885,6 +11186,7 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         mic_held=dictation_has_mic,
         forget_unsent=dictation_forget,
         share_captions=mic_captions,
+        type_text_for=type_dictated_text,
         typing_allowed=(
             permission.allowed
             if (permission := system.typing_permission) is not None
@@ -11040,11 +11342,16 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     others_key = OthersKey()
     shared_key = SharedKey(dictating, others_key, desktop.settings)
-    dictation_key = DictationKeyHeld(
-        lambda key: system.hold_key(
-            key, shared_key.down, shared_key.up, shared_key.other
-        )
-    )
+
+    def dictation_binding(key: str) -> HoldKey:
+        parsed = DictationKey.parse(key)
+        if parsed is not None and default_scope(parsed) is HotkeyScope.APP:
+            return LocalDictationKey(
+                app, parsed, shared_key.down, shared_key.up, shared_key.other
+            )
+        return system.hold_key(key, shared_key.down, shared_key.up, shared_key.other)
+
+    dictation_key = DictationKeyHeld(dictation_binding)
     respeak_key = DictationKeyHeld(  # a key of its own, when it has one
         lambda key: system.hold_key(
             key, others_key.key_down, others_key.key_up, others_key.key_other
@@ -11155,6 +11462,7 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
     # its language as modes at the tray: Detect, English, Mandarin, Cantonese
     desktop.set_dictation_languages(dictation_choices(DICTATION_LANGUAGES))
     desktop.dictation_settings_wanted.connect(hub.open_dictation_settings)
+    desktop.hotkeys_settings_wanted.connect(hub.open_hotkeys_settings)
     follow_dictation()
     if not system.dictation:  # none on this OS yet: never offered (574)
         desktop.offer_dictation(False)
@@ -11340,6 +11648,10 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     def heard() -> None:
         windows.heard(pipeline.hearing())
+        if system.platform_kind:
+            windows.show_capture_status(
+                pipeline.capture_status(), system.platform_kind == "crostini"
+            )
         if sources.sample_done:
             sample_ended()
 
@@ -11471,16 +11783,17 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
 
     settings_page.show_command(shortcut_command())
     hotkeys = AppHotkeys(system.hotkeys, desktop.hotkey_pressed.emit)
-    live_space = LocalLiveShortcut(app, desktop.go_live)
+    local_hotkeys = LocalHotkeys(app, desktop.hotkey_pressed.emit)
     hotkeys_shown: list[object] = [None]
 
     def follow_hotkeys() -> None:
-        """The hotkeys taken as the settings say (polyglotic-hq 567) - again
-        when a key changes - and shown where they're named: the tray's
-        commands, Settings > Hotkeys, Home and Help; another app may have
-        some (398)."""
+        """The hotkeys taken as the settings say (polyglotic-hq 567, 966) - again
+        when a key or scope changes - and shown where they're named: the tray's
+        commands and conflict notice, Settings > Hotkeys, Home and Help."""
         value = desktop.settings.value
-        keys = hotkey_keys(value.hotkeys, platform())
+        here = platform()
+        keys = hotkey_keys(value.hotkeys, here)
+        scopes = hotkey_scopes(keys, value.hotkey_scopes)
         others_on = value.type_theirs or (system.dictation and value.legacy_respeaking)
         other_binding = value.respeak_key or (
             DEFAULT_RESPEAK_KEY if not system.dictation else ""
@@ -11494,23 +11807,51 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         respeak = (
             DictationKey.parse(other_binding) if others_on and other_binding else None
         )
-        changed = hotkeys.follow(keys, {DICTATE: dictation, RESPEAK: respeak})
-        live_space.enabled = hotkeys.live_space
+        changed = hotkeys.follow(
+            keys, {DICTATE: dictation, RESPEAK: respeak}, scopes, platform=here
+        )
+        local_hotkeys.set_bindings(hotkeys.local_bound)
         shown = (
             keys,
+            scopes,
             hotkeys.bound,
+            hotkeys.local_bound,
             hotkeys.taken,
+            hotkeys.shared,
+            hotkeys.alternatives,
             hotkeys.available,
-            hotkeys.live_space,
         )
         if not changed and shown == hotkeys_shown[0]:
             return
         hotkeys_shown[0] = shown
         desktop.set_hotkeys(keys)
         desktop.hotkeys_not_working(hotkeys.not_working(desktop.hotkeys))
+        names = settings_hotkey_names()
+        conflicts: dict[str, tuple[str, str, bool]] = {}
+        if hotkeys.available:
+            for hotkey in Hotkey:
+                key = keys.get(hotkey)
+                if key is None:
+                    continue
+                if hotkey.value in hotkeys.taken:
+                    conflicts[hotkey.value] = (
+                        names[hotkey.value],
+                        key_words(key),
+                        False,
+                    )
+                elif hotkey.value in hotkeys.shared:
+                    conflicts[hotkey.value] = (
+                        names[hotkey.value],
+                        key_words(key),
+                        True,
+                    )
+        desktop.show_hotkey_conflicts(conflicts)
         settings_page.show_hotkeys(
             {h.value: str(k) if k else "" for h, k in keys.items()},
             hotkeys.taken,
+            scopes={h.value: s.value for h, s in scopes.items()},
+            shared=hotkeys.shared,
+            alternatives=hotkeys.alternatives,
             unavailable=not hotkeys.available,
         )
         # Help names Ctrl+Alt+L, P and H only while they're those and work (400)
@@ -11537,12 +11878,26 @@ def _start_and_run(argv: list[str] | None, shown: Callable[[], None]) -> None:
         follow_hotkeys()
         dictation_key_box(listening)
 
-    settings_page.hotkey_wanted.connect(
-        lambda name, key: desktop.settings.update(
-            hotkeys={**desktop.settings.value.hotkeys, name: key}
+    def hotkey_wanted(name: str, key: str) -> None:
+        # Changing or clearing a key resets its scope to the new key's default.
+        updated_scopes = {
+            k: v for k, v in desktop.settings.value.hotkey_scopes.items() if k != name
+        }
+        desktop.settings.update(
+            hotkeys={**desktop.settings.value.hotkeys, name: key},
+            hotkey_scopes=updated_scopes,
         )
+
+    def hotkey_scope_wanted(name: str, scope: str) -> None:
+        desktop.settings.update(
+            hotkey_scopes={**desktop.settings.value.hotkey_scopes, name: scope}
+        )
+
+    settings_page.hotkey_wanted.connect(hotkey_wanted)
+    settings_page.hotkey_scope_wanted.connect(hotkey_scope_wanted)
+    settings_page.hotkeys_reset.connect(
+        lambda: desktop.settings.update(hotkeys={}, hotkey_scopes={})
     )
-    settings_page.hotkeys_reset.connect(lambda: desktop.settings.update(hotkeys={}))
     settings_page.hotkey_listening.connect(key_box)
     settings_page.dictation_key_listening.connect(key_box)
     desktop.settings.changed.connect(follow_hotkeys)

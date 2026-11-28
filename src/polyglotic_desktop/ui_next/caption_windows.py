@@ -161,10 +161,12 @@ from polyglotic_desktop.core.releases import flags
 from polyglotic_desktop.core.shared import EntryId
 from polyglotic_desktop.core.shared.open_beta import UsageMeter
 from polyglotic_desktop.perf import spans, trace
+from polyglotic_desktop.ports.capture import CaptureIssue
 from polyglotic_desktop.ports.settings import SettingsStore
 from polyglotic_desktop.ports.system import OnTop
 from polyglotic_desktop.ports.word_breaks import WordBreaks
 from polyglotic_desktop.ports.word_classes import ClassEvidenceFor
+from polyglotic_desktop.ui_next import capture_status
 from polyglotic_desktop.ui_next.caption_window import (
     ACCENT,
     HINTED_LINES,
@@ -1520,6 +1522,32 @@ class CaptionWindows(QObject):
                 caption_id, result.clauses, result.language, result.languages_heard
             ):
                 window.apply_changed(new_caption=False)
+
+    def show_capture_status(
+        self, status: Mapping[SourceId, CaptureIssue | None], crostini: bool
+    ) -> None:
+        for window in self.windows.values():
+            source = window.source
+            issue = status.get(source)
+            if (
+                issue is None
+                and window.mic is not None
+                and window.mic in window.view.sources
+            ):
+                issue = status.get(window.mic)
+                if issue:
+                    source = window.mic
+            if issue:
+                message = capture_status.explanation(issue, mic=source == window.mic)
+            elif window.source != SAMPLE and any(
+                s in status for s in window.view.sources
+            ):
+                message = capture_status.listening_for_speech()
+            elif crostini and window.source != SAMPLE:
+                message = capture_status.chromebook_help()
+            else:
+                message = ""
+            window.set_capture_message(message)
 
     def heard(self, under_way: Collection[SourceId]) -> None:
         """Whose speech is under way now: the listening mark, in every

@@ -130,6 +130,24 @@ def test_a_step_held_alone_gives_up_with_a_clear_line_not_a_hung_job(
 
 
 @WINDOWS
+def test_a_jobs_own_wait_replaces_the_default_and_the_flag_wins(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """polyglotic-hq 999: the UI lab's walks gave up after the default 10
+    minutes while a Checks (Windows) run held the PC shared; the lab's job
+    names a longer wait once, for every step it locks."""
+    lock = tmp_path / "steps.lock"
+    monkeypatch.setenv(ci_lock.MINUTES_VARIABLE, "0.02")
+    with ci_lock.held(alone=False, path=lock):
+        timing = step("alone", lock, "print('ran')")
+        out, _ = timing.communicate(timeout=30)
+        assert "ci_lock: gave up after 0.02 min" in out
+        flagged = step("alone", lock, "print('ran')", "--most-minutes", "0.03")
+        out, _ = flagged.communicate(timeout=30)
+        assert "ci_lock: gave up after 0.03 min" in out
+
+
+@WINDOWS
 def test_a_shared_step_that_waited_too_long_runs_unlocked(tmp_path: Path) -> None:
     lock = tmp_path / "steps.lock"
     with ci_lock.held(alone=True, path=lock):

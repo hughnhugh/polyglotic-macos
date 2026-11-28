@@ -25,12 +25,18 @@ _MODIFIERS = {
     Modifier.WIN: "LOGO",
 }
 _KEYSYMS = {
-    "backspace": "BackSpace", "delete": "Delete", "down": "Down",
-    "end": "End", "enter": "Return", "escape": "Escape", "home": "Home",
-    "insert": "Insert", "left": "Left", "menu": "Menu", "page_down": "Page_Down",
-    "page_up": "Page_Up", "pause": "Pause", "print_screen": "Print",
-    "right": "Right", "scroll_lock": "Scroll_Lock", "space": "space",
-    "tab": "Tab", "up": "Up",
+    "apostrophe": "apostrophe", "backslash": "backslash", "backspace": "BackSpace",
+    "bracket_left": "bracketleft", "bracket_right": "bracketright", "comma": "comma",
+    "delete": "Delete", "down": "Down", "end": "End", "enter": "Return",
+    "equal": "equal", "escape": "Escape", "grave": "grave", "home": "Home",
+    "insert": "Insert", "left": "Left", "media_next": "XF86AudioNext",
+    "media_play": "XF86AudioPlay", "media_prev": "XF86AudioPrev",
+    "media_stop": "XF86AudioStop", "menu": "Menu", "minus": "minus",
+    "page_down": "Page_Down", "page_up": "Page_Up", "pause": "Pause",
+    "period": "period", "print_screen": "Print", "right": "Right",
+    "scroll_lock": "Scroll_Lock", "semicolon": "semicolon", "slash": "slash",
+    "space": "space", "tab": "Tab", "up": "Up", "volume_down": "XF86AudioLowerVolume",
+    "volume_mute": "XF86AudioMute", "volume_up": "XF86AudioRaiseVolume",
 }  # fmt: skip
 
 

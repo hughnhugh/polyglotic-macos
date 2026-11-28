@@ -65,7 +65,34 @@ jobs:
     # Then the start with a big learner, held to its budget (decision 0046).
     name: UI lab (Windows)
     runs-on: [self-hosted, windows]
-    timeout-minutes: 40  # every language's walk (294); the start's waits for the lock and a calm PC (312)
+    # One UI lab at a time on the PC (polyglotic-hq 999): on 2026-11-27 a
+    # train's lab and a pull request's ran at once, each walk waiting for the
+    # other's to let go of the PC's lock (2,042 s of waits; two walks gave up
+    # and the pull request's job hit its limit). One group for every lab,
+    # whichever workflow calls this. A lab that comes while one runs waits,
+    # holding no runner; `queue: max` keeps every waiting lab, in the order
+    # they came (GitHub's default keeps one and cancels it for a newer, so a
+    # train's lab could cancel main's timing record). A re-push still
+    # cancels its own older run (ci.yml's group, per branch).
+    concurrency:
+      group: ui-lab-on-the-pc
+      queue: max
+    # Each step's wait for the PC's lock (tools/ci_lock.py): the job's
+    # Checks (Windows) limit, so a walk outwaits a whole pytest run on the
+    # PC's other runner (12-20 minutes; ci_lock's own 10 gave up twice on
+    # 2026-11-27). Minutes; at least `checks`' timeout-minutes.
+    env:
+      POLYGLOTIC_CI_LOCK_MINUTES: 30
+    # 80 (polyglotic-hq 994 and 999, measured 2026-11-27): five gated walks
+    # of about 410 states at 0.5-0.6 s each (a calm-PC reading, the
+    # reference step, the state) are 21-25 minutes, every other language
+    # about 5-9, the dictionary and the starts 2: about 35 alone on the PC.
+    # Then one wait for the PC's lock (30, above: one Checks run; another
+    # lab never, by the group) and about a third of the work again for the
+    # waits for a calm PC (60 s at most before a try; 10 minutes of them in
+    # one walk on 2026-11-27). At 40, no run on main or a train finished
+    # from 904's calm wait (a second a state; 2026-11-25) to 994.
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

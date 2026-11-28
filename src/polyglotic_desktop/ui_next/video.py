@@ -47,6 +47,7 @@ from polyglotic_desktop.ui_next.views.arrivals import ENTRY_GAP_PX
 from polyglotic_desktop.ui_next.views.captions import Line
 from polyglotic_desktop.ui_next.views.cards import Glide
 from polyglotic_desktop.ui_next.views.flow import CONTINUATION
+from polyglotic_desktop.ui_next.views.row_positions import row_tops
 
 INSTANT_WORD_INTERVAL = tunable(
     "video_motion.instant_word_interval",
@@ -586,7 +587,17 @@ class VideoFlow:
 
     def _layout(self, rows: list[PaintRow], *, resized: bool = False) -> list[PaintRow]:
         placed: list[PaintRow] = []
+        natural = {}
         bottom = self.foot
+        lower = None
+        for row in reversed(rows):
+            if lower is not None:
+                bottom -= self.spacing(row, lower)
+            bottom -= row.height
+            natural[row.key] = bottom
+            lower = row
+        previous = {} if resized else {k: slot.row.y for k, slot in self.slots.items()}
+        positions = row_tops(natural, previous)
         remaining = [self.lines_shown, self.lines_shown]
         for _, caption in groupby(reversed(rows), lambda row: row.copy.line.key):
             chunk = list(caption)
@@ -596,16 +607,10 @@ class VideoFlow:
                 count = remaining[side]
                 if count == 0:
                     break
-                if lower := (group or placed):
-                    bottom -= self.spacing(row, lower[-1])
-                y = bottom - row.height
-                old = self.slots.get(row.key)
-                if old is not None and not resized:
-                    y = min(y, old.row.y)
+                y = positions[row.key]
                 if y < self.top + self.label_height - EPS:
                     break
                 group.append(replace(row, y=y))
-                bottom = y
                 if count is not None:
                     remaining[side] = count - 1
             if len(group) < len(chunk):
@@ -1124,7 +1129,7 @@ class Video:
         self.flow: VideoFlow | None = None
         self._sides = (True, True)
         self._scrolling = False
-        self.history_through: int | None = None
+        self.history_page: tuple[Line, ...] | None = None
         self._entered_after = -1
         self._prior_captions: set[tuple[SourceId, CaptionId]] = set()
         self.live_start = -1
@@ -1300,17 +1305,17 @@ class Video:
             return []
         lines = [line for line in lines if line.rows]
         if anchor is None:
-            self.history_through = None
+            self.history_page = None
             lines = [line for line in lines if self.is_current(line)]
             if not lines:
                 self.flow = None
                 self.live_start = -1
                 self._painted.clear()
                 return []
-        elif lines:
-            if self.history_through is None:
-                self.history_through = lines[-1].key
-            lines = [line for line in lines if line.key <= self.history_through]
+        else:
+            if self.history_page is None:
+                self.history_page = tuple(lines)
+            lines = list(self.history_page)
         if not lines:
             return []
         laid = engine.laid(lines[-1], room, size, single_rows=True)

@@ -19,6 +19,10 @@ colors:
   danger: "#ff8a80"
   focus: "#ff8fbe"
   marker: "#5c2440"
+  nav-home: "#6fa3eb"
+  nav-words: "#e0a45c"
+  nav-learning: "#5ac896"
+  nav-account: "#b28ee8"
   light-bg: "#f5f6f7"
   light-sidebar: "#eceef2"
   light-surface: "#ffffff"
@@ -36,6 +40,10 @@ colors:
   light-danger: "#b42318"
   light-focus: "#b0185a"
   light-marker: "#ffa8cc"
+  light-nav-home: "#265dad"
+  light-nav-words: "#965710"
+  light-nav-learning: "#196f4a"
+  light-nav-account: "#663ab3"
 typography:
   page-title:
     fontFamily: "Literata, Segoe UI Variable Text, Segoe UI"
@@ -154,7 +162,9 @@ the light content column, `SURFACE_2` controls, `SURFACE_3` hover and
 selection, `BORDER` input outlines; `TEXT`, `TEXT_DIM` (secondary), `TEXT_FAINT` (notes, counts);
 `ACCENT` the primary action (paper in dark, ink in light: buttons are the
 text colour); `SUCCESS`, `WARNING`, `DANGER` states, always with words;
-`FOCUS` and `MARKER` the pink. Glaze and Signal swap the palette.
+`FOCUS` and `MARKER` the pink. `NAV_HOME`, `NAV_WORDS`, `NAV_LEARNING` and
+`NAV_ACCOUNT` tint the sidebar icons and their selected backgrounds. Glaze
+and Signal swap the palette.
 
 ### Named Rules
 - **One accent per window.** The accent is for the primary action, the

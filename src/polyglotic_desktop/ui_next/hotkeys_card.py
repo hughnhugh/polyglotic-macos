@@ -22,7 +22,7 @@ section". Three cards:
 No key is ever logged.
 """
 
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Sequence
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QKeySequence
@@ -40,13 +40,16 @@ from polyglotic_desktop.core.listening.dictation_keys import (
 )
 from polyglotic_desktop.core.listening.dictation_keys import refusal as key_refusal
 from polyglotic_desktop.core.listening.hotkeys import (
+    ALTERNATIVE_COUNT,
     DICTATE,
-    LIVE_SPACE,
     ORDER,
     RESPEAK,
     Hotkey,
+    HotkeyScope,
     clashes,
+    default_scope,
     holder,
+    is_typing_key,
 )
 from polyglotic_desktop.core.listening.hotkeys import (
     defaults as hotkey_defaults,
@@ -56,9 +59,10 @@ from polyglotic_desktop.core.listening.hotkeys import (
 )
 from polyglotic_desktop.core.listening.respeaking import DEFAULT_RESPEAK_KEY
 from polyglotic_desktop.core.listening.type_theirs import TypeWhat
-from polyglotic_desktop.ui_next import os_words
+from polyglotic_desktop.ui_next import os_words, style
 from polyglotic_desktop.ui_next.controls import (
     Card,
+    Flow,
     Segmented,
     SwitchRow,
     label,
@@ -120,8 +124,12 @@ def shortcut_words(sequence: QKeySequence.StandardKey | str) -> str:
 
 
 class HotkeyLine(QWidget):
-    """One hotkey: what it does, its key (click to change), Clear, and a
-    note under them when there's something to say."""
+    """One hotkey: what it does, its key (click to change), Clear, its scope
+    (In Polyglotic's windows / Everywhere), a note when there's something to
+    say, and tested free alternative buttons on conflict."""
+
+    alternative_chosen = Signal(str)
+    """A suggested free alternative key was clicked (as kept)."""
 
     def __init__(self, name: str, title: str) -> None:
         super().__init__()
@@ -129,7 +137,7 @@ class HotkeyLine(QWidget):
         grid = QGridLayout(self)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(8)
-        grid.setVerticalSpacing(2)
+        grid.setVerticalSpacing(4)
         self.title = label(title, "RowTitle", wrap=True)
         grid.addWidget(self.title, 0, 0)
         self.box = KeyBox("", f"hotkeys.{name}.key", title)
@@ -141,38 +149,89 @@ class HotkeyLine(QWidget):
         self.clear.setToolTip(_tr("No key: the hotkey does nothing"))
         self.clear.setAccessibleName(_tr("Clear {name}'s key").format(name=title))
         grid.addWidget(self.clear, 0, 2)
+        self.scope = Segmented(
+            [
+                (HotkeyScope.APP.value, _tr("In Polyglotic's windows")),
+                (HotkeyScope.EVERYWHERE.value, _tr("Everywhere")),
+            ],
+            HotkeyScope.EVERYWHERE.value,
+        )
+        self.scope.setObjectName(f"hotkeys.{name}.scope")
+        self.scope.setAccessibleName(_tr("{name}'s scope").format(name=title))
+        grid.addWidget(self.scope, 1, 0, 1, 3)
+        self.scope.hide()  # shown while the hotkey has a key
         self.note = label("", "Faint", wrap=True)
         self.note.setObjectName(f"hotkeys.{name}.note")
-        grid.addWidget(self.note, 1, 0, 1, 3)
+        self.note.setMaximumWidth(style.px(390))
+        grid.addWidget(self.note, 2, 0, 1, 3)
         self.note.hide()  # after its parent: never a window of its own
+        self.alternatives_box = QWidget()
+        self.alternatives_box.setObjectName(f"hotkeys.{name}.alternatives")
+        alt_flow = Flow(self.alternatives_box, spacing=6, line_spacing=4)
+        alt_flow.setContentsMargins(0, 2, 0, 0)
+        self.alt_buttons: list[QPushButton] = []
+        self._alt_keys: list[str] = []
+        for idx in range(ALTERNATIVE_COUNT.default):
+            btn = QPushButton("")
+            btn.setObjectName(f"hotkeys.{name}.alt_{idx}")
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.clicked.connect(lambda _checked=False, i=idx: self._pick_alternative(i))
+            btn.hide()
+            alt_flow.addWidget(btn)
+            self.alt_buttons.append(btn)
+        grid.addWidget(self.alternatives_box, 3, 0, 1, 3)
+        self.alternatives_box.hide()
         grid.setColumnStretch(0, 1)
+
+    def _pick_alternative(self, index: int) -> None:
+        if 0 <= index < len(self._alt_keys):
+            self.alternative_chosen.emit(self._alt_keys[index])
 
     def show_note(self, text: str) -> None:
         self.note.setText(text)
         self.note.setHidden(not text)
 
+    def show_alternatives(self, alternatives: Sequence[str]) -> None:
+        self._alt_keys = list(alternatives)
+        flow = self.alternatives_box.layout()
+        assert isinstance(flow, Flow)
+        while len(self.alt_buttons) < len(self._alt_keys):
+            idx = len(self.alt_buttons)
+            btn = QPushButton("")
+            btn.setObjectName(f"{self.objectName()}.alt_{idx}")
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.clicked.connect(lambda _checked=False, i=idx: self._pick_alternative(i))
+            flow.addWidget(btn)
+            self.alt_buttons.append(btn)
+        for idx, btn in enumerate(self.alt_buttons):
+            if idx < len(self._alt_keys):
+                text = key_words(self._alt_keys[idx])
+                btn.setText(_tr("Use {key}").format(key=text))
+                btn.show()
+            else:
+                btn.setText("")
+                btn.hide()
+        self.alternatives_box.setVisible(bool(self._alt_keys))
+
 
 class HotkeysCard(Card):
-    """The hotkeys, each one's key changed, cleared or all reset."""
+    """The hotkeys, each one's key and scope changed, cleared or all reset."""
 
     hotkey_wanted = Signal(str, str)
     """A hotkey's name and the key the learner gave it, as kept ("" for
     none) - one nothing here refuses."""
+    hotkey_scope_wanted = Signal(str, str)
+    """A hotkey's name and its chosen scope ("app" or "everywhere")."""
     reset_wanted = Signal()
-    """Reset all: every hotkey's key its default."""
+    """Reset all: every hotkey's key and scope back to its default."""
     listening = Signal(bool)
     """A key box listens: the app's own keys must let keys through."""
 
     def __init__(self) -> None:
-        self._normal_subtitle = os_words.pc_or_mac(
-            _tr(
-                "They work from any program, even a game in front. Click a key,"
-                " then press the one you want."
-            ),
-            _tr(
-                "They work from any app, even a game in front. Click a key, then"
-                " press the one you want."
-            ),
+        self._normal_subtitle = _tr(
+            "Choose any key or combination, and whether it acts only in"
+            " Polyglotic's windows or everywhere. Click a key, then press the"
+            " one you want."
         )
         super().__init__(_tr_settings("Hotkeys"), self._normal_subtitle)
         self.setObjectName("settings.hotkeys_card")
@@ -187,6 +246,12 @@ class HotkeysCard(Card):
             line.clear.clicked.connect(
                 lambda _checked=False, n=hotkey.value: self._clear(n)
             )
+            line.scope.changed.connect(
+                lambda scope, n=hotkey.value: self._scope_changed(n, str(scope))
+            )
+            line.alternative_chosen.connect(
+                lambda alt, n=hotkey.value: self._choose_alternative(n, alt)
+            )
             self.lines[hotkey.value] = line
             self.add(line)
         self.reset = QPushButton(_tr("Reset all"))
@@ -197,7 +262,10 @@ class HotkeysCard(Card):
         self.add(right_row(self.reset))
         self._keys: dict[str, DictationKey | None] = {}
         """Each hotkey's key now, and dictation's (`DICTATE`), by name."""
+        self._scopes: dict[str, HotkeyScope] = {}
         self._taken: frozenset[str] = frozenset()
+        self._shared: frozenset[str] = frozenset()
+        self._alternatives: dict[str, tuple[str, ...]] = {}
         self._unavailable = False
         self._command = "polyglotic"
         self._said: dict[str, str] = {}
@@ -208,6 +276,11 @@ class HotkeysCard(Card):
     def keys(self) -> Mapping[str, DictationKey | None]:
         """Each hotkey's key now, and dictation's (`DICTATE`), by name."""
         return self._keys
+
+    @property
+    def scopes(self) -> Mapping[str, HotkeyScope]:
+        """Each hotkey's effective scope now, by name."""
+        return self._scopes
 
     def set_command(self, command: str) -> None:
         """How a desktop shortcut starts this app (`polyglotic` or the AppImage
@@ -222,10 +295,11 @@ class HotkeysCard(Card):
         if self._unavailable:
             self.subtitle.setText(
                 _tr(
-                    "This desktop doesn't allow global hotkeys. Add a custom "
-                    "shortcut in your desktop's keyboard settings (GNOME: "
-                    "Settings > Keyboard > Custom Shortcuts) with the command "
-                    "{command} --lock, --pause or --hide instead."
+                    "This desktop doesn't allow global hotkeys. Hotkeys set to"
+                    " In Polyglotic's windows still work; for global shortcuts,"
+                    " add a custom shortcut in your desktop's keyboard settings"
+                    " (GNOME: Settings > Keyboard > Custom Shortcuts) with the"
+                    " command {command} --lock, --pause or --hide instead."
                 ).format(command=self._command)
             )
         else:
@@ -238,59 +312,131 @@ class HotkeysCard(Card):
         dictation: str | None = None,
         respeak: str | None = None,
         *,
+        scopes: Mapping[str, str] | None = None,
+        shared: Collection[str] = (),
+        alternatives: Mapping[str, Sequence[str]] | None = None,
         unavailable: bool = False,
     ) -> None:
         """Each hotkey's key now, as kept ("" none) - a hotkey not in
-        `keys` has its default; `taken`: those another program has;
-        `dictation`: dictation's key while it's on; `respeak`:
-        re-speaking's own key, while it has one (567); `unavailable`:
-        this desktop doesn't allow global hotkeys (GNOME Wayland, `NoHotkeys`)."""
+        `keys` has its default; `taken`: those refused by the OS and not
+        working; `shared`: those refused by the OS but working via Windows
+        low-level hook fallback; `alternatives`: tested free alternative keys
+        per conflicting hotkey; `scopes`: each hotkey's scope ("app" or
+        "everywhere"); `dictation`: dictation's key while it's on; `respeak`:
+        re-speaking's own key, while it has one; `unavailable`: this desktop
+        doesn't allow global hotkeys (GNOME Wayland, `NoHotkeys`)."""
         defaults = hotkey_defaults(os_words.platform())
         found: dict[str, DictationKey | None] = {
             DICTATE: DictationKey.parse(dictation) if dictation else None,
             RESPEAK: DictationKey.parse(respeak) if respeak else None,
         }
+        resolved_scopes: dict[str, HotkeyScope] = {}
+        raw_scopes = scopes or {}
         for hotkey in ORDER:
             text = keys.get(hotkey.value)
-            found[hotkey.value] = (
+            key = (
                 defaults[hotkey]
                 if text is None
                 else DictationKey.parse(text)
                 if text
                 else None
             )
+            found[hotkey.value] = key
+            if key is None:
+                resolved_scopes[hotkey.value] = HotkeyScope.EVERYWHERE
+            else:
+                raw = raw_scopes.get(hotkey.value)
+                resolved_scopes[hotkey.value] = (
+                    HotkeyScope(raw)
+                    if raw in (HotkeyScope.APP.value, HotkeyScope.EVERYWHERE.value)
+                    else default_scope(key)
+                )
         changed = {n for n in self.lines if found.get(n) != self._keys.get(n)}
         self._said = {n: t for n, t in self._said.items() if n not in changed}
         self._keys = found
+        self._scopes = resolved_scopes
         self._taken = frozenset() if unavailable else frozenset(taken)
+        self._shared = frozenset() if unavailable else frozenset(shared)
+        self._alternatives = (
+            {}
+            if unavailable or not alternatives
+            else {n: tuple(alts) for n, alts in alternatives.items() if alts}
+        )
         self._unavailable = unavailable
         self._update_subtitle()
-        shared = clashes(found)
+        shared_clashes = clashes(found)
         for name, line in self.lines.items():
             key = found[name]
+            scope = resolved_scopes[name]
             line.box.show_key(str(key) if key else "")
-            can_edit = not unavailable or name == Hotkey.LIVE
-            line.box.setEnabled(can_edit)
-            line.clear.setEnabled(can_edit and key is not None)
-            if unavailable:
-                note = ""
-            elif name in self._said:
+            line.box.setEnabled(True)
+            line.clear.setEnabled(key is not None)
+            line.scope.setVisible(key is not None)
+            if key is not None:
+                line.scope.set_value(scope.value)
+                # On GNOME Wayland (unavailable), Everywhere isn't offered.
+                line.scope.buttons[1].setEnabled(not unavailable)
+            alts: tuple[str, ...] = ()
+            if name in self._said:
                 note = self._said[name]
-            elif name in shared:
+            elif name in shared_clashes:
                 note = _tr("{other} has this key too, and only it works.").format(
-                    other=self.names[shared[name]]
+                    other=self.names[shared_clashes[name]]
                 )
-            elif name in self._taken:
-                note = _tr("Another program has this key: choose another.")
+            elif not unavailable and name in self._taken and key is not None:
+                alts = self._alternatives.get(name, ())
+                key_label = key_words(key)
+                note = (
+                    _tr(
+                        "Another program uses {key}, so it won't work here."
+                        " Choose a free key:"
+                    ).format(key=key_label)
+                    if alts
+                    else _tr(
+                        "Another program uses {key}, so it won't work here."
+                        " Choose another."
+                    ).format(key=key_label)
+                )
+            elif not unavailable and name in self._shared and key is not None:
+                alts = self._alternatives.get(name, ())
+                key_label = key_words(key)
+                note = (
+                    _tr(
+                        "Another program also uses {key}. Polyglotic shares it"
+                        " so it still works, or switch to a free key:"
+                    ).format(key=key_label)
+                    if alts
+                    else _tr(
+                        "Another program also uses {key}. Polyglotic shares it"
+                        " so it still works."
+                    ).format(key=key_label)
+                )
+            elif (
+                key is not None
+                and scope is HotkeyScope.EVERYWHERE
+                and is_typing_key(key)
+            ):
+                note = _tr(
+                    "This key types: it will also run this hotkey while you"
+                    " type in other apps (the key still goes through to them)."
+                )
+            elif unavailable and key is not None and scope is HotkeyScope.EVERYWHERE:
+                note = _tr(
+                    "Global hotkeys aren't available on this desktop. Switch"
+                    " to In Polyglotic's windows to use it inside the app."
+                )
             else:
                 note = ""
-            if not note and name == Hotkey.LIVE and key == LIVE_SPACE:
-                note = _tr("Space works in caption and transcript windows.")
             line.show_note(note)
+            line.show_alternatives(alts)
         self.reset.setEnabled(
             any(
                 found[h.value] != defaults[h]
-                for h in (ORDER if not unavailable else (Hotkey.LIVE,))
+                or (
+                    defaults[h] is not None
+                    and resolved_scopes[h.value] != default_scope(defaults[h])  # type: ignore[arg-type]
+                )
+                for h in ORDER
             )
         )
 
@@ -318,6 +464,16 @@ class HotkeysCard(Card):
         if key != self._keys.get(name):
             self.hotkey_wanted.emit(name, pressed)
 
+    def _scope_changed(self, name: str, scope: str) -> None:
+        if scope not in (HotkeyScope.APP.value, HotkeyScope.EVERYWHERE.value):
+            return
+        if self._scopes.get(name) != HotkeyScope(scope):
+            self.hotkey_scope_wanted.emit(name, scope)
+
+    def _choose_alternative(self, name: str, alt: str) -> None:
+        self._say(name, "")
+        self.hotkey_wanted.emit(name, alt)
+
     def _clear(self, name: str) -> None:
         self._say(name, "")
         self.hotkey_wanted.emit(name, "")
@@ -332,6 +488,7 @@ class HotkeysCard(Card):
         else:
             self._said.pop(name, None)
         self.lines[name].show_note(text)
+        self.lines[name].show_alternatives(())
 
 
 class HoldKeysCard(Card):

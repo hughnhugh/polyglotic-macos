@@ -40,6 +40,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import replace
 from pathlib import Path
 
+from polyglotic_desktop.adapters.read_connections import ReadConnections, reads
 from polyglotic_desktop.ports.dictionary import DictionaryProblem, EntryRecord
 from polyglotic_desktop.ports.word_classes import SenseClasses, WordClass
 
@@ -156,19 +157,22 @@ def _record(row: tuple[str, str, str, str, str, int | None, str]) -> EntryRecord
 class SqliteDictionary:
     """One dictionary file, opened read-only. Safe to open on a background
     thread and use from several at once: each thread reads through a
-    connection of its own (`_db`) - two threads sharing one got each
-    other's rows, rows of None and "bad parameter or other API misuse"
+    connection of its own - two threads sharing one got each other's rows
     (polyglotic-hq 220: 8,578 wrong answers in 40,000 reads, as the read
-    ahead and the interface thread read at the start)."""
+    ahead and the interface thread read at the start) - and `close`, from
+    any thread, never closes one under a query (`ReadConnections`;
+    polyglotic-hq 995: a replaced pack closed under a read ended the app)."""
 
     def __init__(self, path: Path, *, traditional_glosses: bool = False) -> None:
         if not path.is_file():
             raise FileNotFoundError(path)
-        self._uri = f"{path.resolve().as_uri()}?mode=ro&immutable=1"
-        self._local = threading.local()
-        self._opened: list[sqlite3.Connection] = []
-        self._opening = threading.Lock()
-        self._closed = False
+        self._connections = ReadConnections(
+            f"{path.resolve().as_uri()}?mode=ro&immutable=1"
+        )
+        with self._connections.reading():
+            self._read_info(path, traditional_glosses)
+
+    def _read_info(self, path: Path, traditional_glosses: bool) -> None:
         try:
             self.info = dict(self._db.execute("SELECT key, value FROM info"))
         except sqlite3.DatabaseError as e:
@@ -216,36 +220,20 @@ class SqliteDictionary:
 
     @property
     def _db(self) -> sqlite3.Connection:
-        """This thread's connection to the file, opened when it first reads.
-        Each is only ever used by its own thread; `close` closes them all."""
-        db: sqlite3.Connection | None = getattr(self._local, "db", None)
-        if db is None:
-            # check_same_thread off only so that `close` can close it from
-            # whichever thread closes the file
-            db = sqlite3.connect(self._uri, uri=True, check_same_thread=False)
-            with self._opening:
-                if self._closed:
-                    db.close()
-                    raise sqlite3.ProgrammingError(
-                        "Cannot operate on a closed database."
-                    )
-                self._opened.append(db)
-            self._local.db = db
-        return db
+        """This thread's connection, in a `reads` method."""
+        return self._connections.current()
 
     def close(self) -> None:
-        with self._opening:
-            self._closed = True
-            opened, self._opened = self._opened, []
-        for db in opened:
-            db.close()
+        self._connections.close()
 
+    @reads
     def headwords(self) -> Iterable[str]:
         return [
             form
             for (form,) in self._db.execute("SELECT form FROM forms WHERE position = 0")
         ]
 
+    @reads
     def frequency_ranks(self) -> Mapping[str, int]:
         return dict(
             self._db.execute(
@@ -255,6 +243,7 @@ class SqliteDictionary:
             )
         )
 
+    @reads
     def records(self, word: str) -> Sequence[EntryRecord]:
         rows = self._db.execute(
             f"SELECT e.n, {_COLUMNS} FROM forms f JOIN entries e ON e.n = f.n "
@@ -321,6 +310,7 @@ class SqliteDictionary:
             )
         return found
 
+    @reads
     def records_by_meaning(
         self, english_word: str, limit: int
     ) -> Sequence[EntryRecord]:
@@ -338,12 +328,14 @@ class SqliteDictionary:
             found.update(self._records(self._db.execute(query, chunk)))
         return [found[n] for n in numbers if n in found]
 
+    @reads
     def lemma(self, word: str) -> str | None:
         row = self._db.execute(
             "SELECT lemma FROM lemmas WHERE form = ?", (word,)
         ).fetchone()
         return row[0] if row else None
 
+    @reads
     def form_reading(self, word: str) -> str:
         if not self._form_readings:
             return ""
@@ -352,6 +344,7 @@ class SqliteDictionary:
         ).fetchone()
         return str(row[0]) if row else ""
 
+    @reads
     def record(self, entry_id: str) -> EntryRecord | None:
         query = f"SELECT e.n, {_COLUMNS} FROM entries e WHERE e.id = ?"
         row = self._db.execute(query, (entry_id,)).fetchone()
@@ -363,9 +356,11 @@ class SqliteDictionary:
                 row = self._db.execute(query, (merged[0],)).fetchone()
         return self._records([row])[row[0]] if row else None
 
+    @reads
     def merged_ids(self) -> Sequence[str]:
         return [old for (old,) in self._db.execute("SELECT old_id FROM merged")]
 
+    @reads
     def words_ranked(self, last: int) -> Sequence[int]:
         return [
             rank
@@ -376,6 +371,7 @@ class SqliteDictionary:
             )
         ]
 
+    @reads
     def headwords_ranked(self, after: int, limit: int) -> Sequence[tuple[str, int]]:
         return list(
             self._db.execute(
@@ -385,6 +381,7 @@ class SqliteDictionary:
             )
         )
 
+    @reads
     def headwords_at_levels(self, scheme: str) -> Sequence[tuple[str, int, int | None]]:
         prefix = f"{scheme}:"
         found = []
@@ -398,6 +395,7 @@ class SqliteDictionary:
                     found.append((headword, int(pair.removeprefix(prefix)), rank))
         return found
 
+    @reads
     def words_at_levels(self, scheme: str) -> Mapping[int, int]:
         prefix = f"{scheme}:"
         headwords: dict[int, set[str]] = {}

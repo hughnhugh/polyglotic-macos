@@ -95,6 +95,8 @@ VOICE_PEAK_DBFS = -40.0
 """Minimum peak loudness on speech-dispatcher's stream to count as audible (591)."""
 VOICE_WAIT_SEC = 10.0
 """Seconds to wait for speech-dispatcher to start on demand or speak a word."""
+ANKI_EXPORT_BUTTON = "Anki deck (.apkg)"
+ANKI_EXPORT_TITLE = "Export an Anki deck"
 
 RESULTS: dict[str, Any] = {"checks": [], "facts": {}, "pictures": []}
 
@@ -881,8 +883,8 @@ def the_dialogs(
     (`tools/linux_atspi_press.py`, AT-SPI, from another process; the app
     started with `QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1`) - Home's Transcript,
     then the transcript's Save transcript as...; and, in a new start,
-    Home's Words, then its Anki deck file (.apkg). The desktop's own dialog
-    is the portal's: the app asks the portal's file chooser for `SaveFile`
+    Home's Words (when reachable), then the Anki deck (.apkg) button. The
+    app asks the desktop portal's file chooser for `SaveFile`
     on the session bus, with the dialog's title, and the portal's process
     draws it - never Qt's own dialog in the app's windows."""
     out: Path = args.out / "dialogs"
@@ -905,8 +907,8 @@ def the_dialogs(
     dialogs: list[tuple[str, list[str], str]] = [
         (
             "anki-export",
-            ["?Words", "Anki deck file (.apkg)"],
-            "Export words as an Anki deck file",
+            ["?Words", ANKI_EXPORT_BUTTON],
+            ANKI_EXPORT_TITLE,
         ),
     ]
     if args.tray == "yes":  # the transcript window, opened from the tray's menu

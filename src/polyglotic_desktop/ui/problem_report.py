@@ -21,13 +21,20 @@ The window only asks: `chosen()` is what the tester left ticked, and
 interface's thread. Holds caption text and audio sizes: never log them.
 """
 
+import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
 from PySide6.QtCore import QEvent, QLocale, QObject, Qt, QTimer, Signal
-from PySide6.QtGui import QFontDatabase, QResizeEvent, QShowEvent
+from PySide6.QtGui import (
+    QFontDatabase,
+    QFontMetricsF,
+    QMouseEvent,
+    QResizeEvent,
+    QShowEvent,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -130,6 +137,32 @@ WINDOW_FRAME = 40
 data's, `ui.consent`)."""
 MIN_SCROLL = 120
 """The least the parts' area shrinks to on a screen too short for them."""
+MEASURE_CH = 72
+"""The most characters a line of the dialog's wrapped notes holds, in its
+own font's average character (45-75 reads best; the UI lab's design check
+allows 80). At the dialog's 560 px its intro ran ~81 and the note under
+it ~86 (polyglotic-hq 999)."""
+
+
+class _TickWords(QLabel):
+    """A part's words beside its tick, wrapping onto more lines as the
+    dialog narrows - a check box's own text never wraps, so at 200 % text
+    size the longest ran past the dialog's edge (polyglotic-hq 999). A
+    click on them ticks or unticks the box, as a click on a box's own
+    text does."""
+
+    def __init__(self, text: str, tick: QCheckBox, parent: QWidget) -> None:
+        super().__init__(text, parent)
+        self._tick = tick
+        self.setWordWrap(True)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(
+            event.position().toPoint()
+        ):
+            self._tick.toggle()
+        super().mouseReleaseEvent(event)
 
 
 class ProblemReportDialog(QDialog):
@@ -385,6 +418,7 @@ class ProblemReportDialog(QDialog):
         max_w = screen.availableGeometry().width() - WINDOW_FRAME
         min_body = self.body.minimumSizeHint().width()
         view_w = max(self.scroll_area.width(), min(min_body, max(0, max_w - pad_x)))
+        self._keep_measure(view_w)
         natural = self.body.heightForWidth(view_w - bar)
         if natural < 0:
             natural = self.body.sizeHint().height()
@@ -425,6 +459,15 @@ class ProblemReportDialog(QDialog):
             self._fitting = False
         self._keep_on_screen()
 
+    def _keep_measure(self, width: int) -> None:
+        """Each wrapped note's lines at most `MEASURE_CH` characters long in
+        a body `width` px wide: the rest of the width a margin at its right."""
+        for note in (self.intro, self.about):
+            average = QFontMetricsF(note.font()).averageCharWidth()
+            extra = max(0, width - math.ceil(MEASURE_CH * average))
+            if note.contentsMargins().right() != extra:
+                note.setContentsMargins(0, 0, extra, 0)
+
     def _keep_on_screen(self) -> None:
         """Moved as little as keeps its frame on the work area."""
         screen = self.screen()
@@ -442,11 +485,14 @@ class ProblemReportDialog(QDialog):
         line = QHBoxLayout(row)
         line.setContentsMargins(0, 0, 0, 0)
         detail = f"{part.detail} · " if part.detail else ""
-        tick = QCheckBox(f"{part.label} ({detail}{size_text(part.size)})", row)
+        words = f"{part.label} ({detail}{size_text(part.size)})"
+        tick = QCheckBox(row)  # its words beside it, to wrap (`_TickWords`)
         tick.setObjectName(f"problem_report.part.{part.key}")
+        tick.setAccessibleName(words)
         tick.setChecked(True)
         self.ticks[part.key] = tick
-        line.addWidget(tick, 1)
+        line.addWidget(tick, 0, Qt.AlignmentFlag.AlignTop)
+        line.addWidget(_TickWords(words, tick, row), 1)
         look = QPushButton(_tr("Look"), row)
         look.setObjectName(f"problem_report.look.{part.key}")
         look.setProperty("kind", "ghost")

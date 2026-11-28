@@ -924,7 +924,7 @@ def test_the_replaced_file_is_closed_and_deleted_when_nothing_else_holds_it(
     packs.asked("ru", "download")
     until(lambda: "ru" in basic)
     basic["ru"].lookup("дом")  # a connection of this thread's too
-    connections = list(packs._files["ru"]._opened)
+    connections = list(packs._files["ru"]._connections._under_way)
     assert connections
     old_file = folder / "wiktru-en-2026.11.14.sqlite"
     built = tmp_path / "built2"

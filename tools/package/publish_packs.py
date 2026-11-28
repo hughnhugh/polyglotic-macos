@@ -108,7 +108,6 @@ from polyglotic_desktop.adapters.pack_list import (
 from polyglotic_desktop.adapters.signed_feed import public_keys, verify
 from polyglotic_desktop.adapters.sqlite_dictionary import SqliteDictionary, add_info
 from polyglotic_desktop.core.lexicon.packs import (
-    CODE,
     LIST_FORMAT,
     BuiltIn,
     FontOffer,
@@ -118,6 +117,7 @@ from polyglotic_desktop.core.lexicon.packs import (
     read_built_in,
     read_fonts,
     read_pack_list,
+    rider_language,
     version_key,
 )
 from tools.package.sign_feed import KEY_VARIABLE, private_key_from, public_key_text
@@ -356,7 +356,7 @@ def stamp_meanings(
     found = []
     for source in sorted(built.glob(f"{dictionary}-*{MEANINGS_SUFFIX}")):
         language = source.name[len(dictionary) + 1 : -len(MEANINGS_SUFFIX)]
-        if not CODE.fullmatch(language):
+        if not rider_language(language):
             continue  # another dictionary's (`ecdict-en...`), or a stamped one
         try:
             file = SqliteMeanings(source)
