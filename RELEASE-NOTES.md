@@ -63,8 +63,6 @@ change is being confirmed.
 
 ### Fixed
 
-- On a Mac, a click in another app closes a caption window's settings again.
-
 ## 0.1.13 - 2026-11-28
 
 ### New

@@ -58,7 +58,7 @@
 #   `--parts learner` turns it on with tests, pack, parity and updates): the
 #   Mac as a learner's Mac meets the app, every check failing the job on a
 #   fail. Every setting changed and put back, from source on the Mac's
-#   windows (tools/macos_settings_sweep.py); then on the packed app, with
+#   windows (tools/macos_sweep_evidence.py); then on the packed app, with
 #   python.org's Python, Homebrew and the developer tools moved aside: what
 #   it links, the zip from ~/Downloads with Safari's quarantine through
 #   Archive Utility, Gatekeeper's verdict, the translocated start and its
@@ -239,7 +239,7 @@ jobs:
       # pack's own sync; the Mac's own windows, keys and voices
       - name: Every setting changed and put back, on the Mac's windows (learner)
         if: ${{ !cancelled() && inputs.learner }}
-        run: uv run --no-sync python -m tools.macos_settings_sweep "$OUT/sweep" --limit 900
+        run: uv run --no-sync python -m tools.macos_sweep_evidence "$OUT/sweep" --dictionaries build/dictionaries --limit 900
 
       # The certificate is only ever in this keychain and, for a moment, the
       # runner's temp folder; nothing prints it or its password.
@@ -486,7 +486,10 @@ jobs:
             ${{ env.OUT }}/from-release/
             ${{ env.OUT }}/sweep/*.png
             ${{ env.OUT }}/sweep/*.json
-            !${{ env.OUT }}/sweep/data/
+            ${{ env.OUT }}/sweep/native-crash.ips
+            ${{ env.OUT }}/sweep/native-crash.crash
+            ${{ env.OUT }}/sweep/crash.log
+            ${{ env.OUT }}/sweep/stacks.txt
           retention-days: 1
           if-no-files-found: ignore
 

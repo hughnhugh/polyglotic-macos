@@ -2,11 +2,14 @@
 the verdict on what the sweep saw. The sweep itself drives the app on
 GitHub's Mac (the macOS job's learner part); here, made-up sweeps."""
 
+import json
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from tools import macos_settings_sweep as sweep
+from tools import macos_sweep_evidence as evidence
 
 RAN = [{"check": "sweep: settings ran", "ok": True, "detail": ""}]
 
@@ -141,3 +144,31 @@ def test_an_error_too_few_changes_or_a_part_that_broke_fails() -> None:
     assert judged(broke)["every_part_ran"] == "fail"
     warned = sweep.verdict(swept(row("app", "x", log=["WARNING a: b"])), RAN)
     assert judged(warned)["warnings"] == "note"
+
+
+@pytest.mark.parametrize(
+    ("suffix", "body"),
+    [
+        (".ips", json.dumps({"bug_type": "309"}) + "\n" + json.dumps({"pid": 42})),
+        (".crash", "Process: Python [42]\n"),
+    ],
+)
+def test_sweep_keeps_only_its_own_new_native_crash_report(
+    tmp_path: Path, suffix: str, body: str
+) -> None:
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    out = tmp_path / "sweep"
+    out.mkdir()
+    previous = reports / f"previous{suffix}"
+    previous.write_text(body, encoding="utf-8")
+    (reports / f"another-process{suffix}").write_text(
+        body.replace("42", "43"), encoding="utf-8"
+    )
+    (reports / f"unfinished{suffix}").write_text("{", encoding="utf-8")
+    (reports / f"current{suffix}").write_text(body, encoding="utf-8")
+
+    evidence.collect_report(reports, {previous}, 42, out)
+
+    assert {path.name for path in out.iterdir()} == {f"native-crash{suffix}"}
+    assert (out / f"native-crash{suffix}").read_text(encoding="utf-8") == body

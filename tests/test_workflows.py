@@ -668,7 +668,7 @@ def test_the_macos_jobs_learner_part_runs_as_a_learners_mac() -> None:
     def at(text: str) -> int:
         return next(i for i, r in enumerate(runs) if text in r)
 
-    sweep, pack = at("tools.macos_settings_sweep"), at("tools.package.build")
+    sweep, pack = at("tools.macos_sweep_evidence"), at("tools.package.build")
     checks = at('macos_learner_checks "$OUT/learner" --app dist/Polyglotic.app')
     shown = at('macos_learner_checks "$OUT/learner" --show')
     published = at("tools/package/macos_update_from_release.sh")
@@ -688,5 +688,13 @@ def test_the_macos_jobs_learner_part_runs_as_a_learners_mac() -> None:
         for s in steps
         if uses(s, "actions/upload-artifact@") and "measure.json" in s["with"]["path"]
     ]
-    for part in ("learner/", "from-release/", "sweep/*.png", "sweep/*.json"):
+    for part in (
+        "learner/",
+        "from-release/",
+        "sweep/*.png",
+        "sweep/*.json",
+        "sweep/native-crash.ips",
+        "sweep/native-crash.crash",
+        "sweep/crash.log",
+    ):
         assert "${{ env.OUT }}/" + part in kept["with"]["path"]
