@@ -954,9 +954,9 @@ class Run:
         answers: list[str] = []
         listened = mac_keys._heard
 
-        def heard_one(kind: int, code: int) -> None:  # what the monitor hears
+        def heard_one(kind: int, code: int, modifiers: int) -> None:
             heard.append(kind)
-            listened(kind, code)
+            listened(kind, code, modifiers)
 
         setattr(mac_keys, "_heard", heard_one)  # noqa: B010 - before its first ask
 
@@ -1003,6 +1003,7 @@ class Run:
         if clicker is None:
             self.add("click_elsewhere", UNKNOWN, "no cliclick on this machine")
             return
+        heard.clear()
         clicked, said = self.run_quietly([clicker, f"c:{target[0]},{target[1]}"])
         self.until(lambda: popover is None or not popover.isVisible(), 2)
         closed = popover is None or not popover.isVisible()
@@ -1023,7 +1024,7 @@ class Run:
             self.add(
                 "click_elsewhere",
                 UNKNOWN,
-                f"System Events couldn't click: {said[:200]}",
+                f"cliclick couldn't click: {said[:200]}",
                 **facts,
             )
         elif not opened or inside:
@@ -1031,6 +1032,13 @@ class Run:
                 "click_elsewhere",
                 UNKNOWN,
                 "the popover wasn't open, or was where the click went",
+                **facts,
+            )
+        elif keys.LEFT_DOWN not in heard:
+            self.add(
+                "click_elsewhere",
+                FAIL,
+                "the global monitor missed the left mouse-down",
                 **facts,
             )
         else:

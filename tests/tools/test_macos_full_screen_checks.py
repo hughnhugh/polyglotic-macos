@@ -3,20 +3,27 @@ against a full-screen app, judged from the window list's order; the plan;
 and the macOS job running them and keeping what they found."""
 
 from pathlib import Path
+from unittest.mock import Mock
 
+import pytest
 import yaml
+from PySide6.QtCore import QPoint, QRect
+from PySide6.QtGui import QCursor
 from tools.macos_full_screen_checks import (
     FAIL,
     PASS,
     UNKNOWN,
     Result,
+    Run,
     above,
     exit_code,
     full_screen_verdict,
     plan,
 )
 
+from polyglotic_desktop.platform.macos import keys
 from polyglotic_desktop.platform.macos.window_list import Listed
+from tools import macos_full_screen_checks
 
 OURS, TEXTEDIT = 1, 2
 BOX = (0.0, 0.0, 10.0, 10.0)
@@ -72,6 +79,59 @@ def test_the_plan_names_each_check() -> None:
         "accessibility_settings",
     ):
         assert check in names
+
+
+@pytest.mark.parametrize("monitored", [True, False])
+def test_click_elsewhere_requires_the_appkit_mouse_down(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, monitored: bool
+) -> None:
+    run = Run(tmp_path / "full-screen.json")
+    window = Mock()
+    popover = window.popover
+    popover.isVisible.return_value = True
+    popover.frameGeometry.return_value = QRect(0, 0, 20, 20)
+
+    def close_popover() -> None:
+        popover.isVisible.return_value = False
+
+    popover.close.side_effect = close_popover
+    window.toggle_settings.side_effect = lambda: window.keys("mouse")
+
+    mac = Mock()
+    mac.button_held.return_value = False
+    mac_keys = keys.MacKeys(mac, clock=lambda: 0.0)
+    adapter = keys._AppKit.__new__(keys._AppKit)
+
+    def click(_args: list[str]) -> tuple[bool, str]:
+        if monitored:
+            adapter._heard = mac.add.call_args.args[0]
+            adapter._event(1)
+        else:
+            mac.button_held.return_value = True
+        if window.keys("mouse"):
+            popover.close()
+        return True, ""
+
+    monkeypatch.setattr(keys, "MacKeys", lambda: mac_keys)
+    monkeypatch.setattr(keys.objc, "send", lambda *_args, **_kwargs: keys.LEFT_DOWN)
+    monkeypatch.setattr(QCursor, "pos", lambda: QPoint(175, 175))
+    monkeypatch.setattr(macos_full_screen_checks, "_cliclick", lambda: "cliclick")
+    monkeypatch.setattr(run, "window", window, raising=False)
+    monkeypatch.setattr(run, "full_screen", Mock())
+    monkeypatch.setattr(run, "to_front", Mock())
+    monkeypatch.setattr(run, "wait", Mock())
+    monkeypatch.setattr(run, "until", lambda done, _seconds: done())
+    monkeypatch.setattr(run, "script", lambda *_args: (True, "100,100,100,100"))
+    monkeypatch.setattr(run, "run_quietly", click)
+
+    run.click_elsewhere()
+
+    (result,) = run.results
+    assert result.facts["monitor_heard_types"] == (
+        [keys.LEFT_DOWN] if monitored else []
+    )
+    assert result.facts["asked_and_true"] == ["mouse"]
+    assert result.outcome == (PASS if monitored else FAIL)
 
 
 def test_the_macos_job_runs_them_by_default_and_keeps_what_they_found() -> None:
